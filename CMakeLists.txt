@@ -32,6 +32,10 @@ message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
 include_directories(${FREETYPE_INCLUDE_DIRS})
 link_directories(${FREETYPE_LIBRARIES})
 
+find_package(stb_image REQUIRED)
+message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
+include_directories(${STB_IMAGE_INCLUDE_DIRS})
+
 include_directories(include)
 link_libraries(opengl32 glew32 glfw3 assimp freetype)
 
