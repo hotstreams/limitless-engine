@@ -2,15 +2,15 @@
 
 #include <shader_program.hpp>
 #include <shader_storage.hpp>
-
-#include <filesystem>
+#include <functional>
+#include <filesystem.hpp>
 
 #define SHADER_DIR "../shaders/"
 
 namespace GraphicsEngine {
     class ShaderCompiler {
     private:
-        static std::string getFileSource(const std::filesystem::path& path);
+        static std::string getFileSource(const fs::path& path);
 
         static void replaceKey(std::string& src, const std::string& key, const std::string& value) noexcept;
         static void replaceVersion(std::string& src) noexcept;
@@ -23,7 +23,7 @@ namespace GraphicsEngine {
         static std::string getMaterialDefines(const MaterialType& type) noexcept;
     public:
         using ShaderProperties = std::function<void(std::string&)>;
-        [[nodiscard]] static std::shared_ptr<ShaderProgram> compile(const std::filesystem::path& path, const ShaderProperties& props_set = ShaderProperties{});
+        [[nodiscard]] static std::shared_ptr<ShaderProgram> compile(const fs::path& path, const ShaderProperties& props_set = ShaderProperties{});
         static void compile(const MaterialType& type, uint64_t material_index, const RequiredShaders& shaders);
     };
 }

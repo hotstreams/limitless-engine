@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.10)
 project(engine)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -37,7 +37,14 @@ message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
 include_directories(${STB_IMAGE_INCLUDE_DIRS})
 
 include_directories(include)
-link_libraries(opengl32 glew32 glfw3 assimp freetype)
+
+if (WIN32)
+    link_libraries(opengl32 glew32 glfw3 assimp freetype)
+endif()
+
+if (UNIX)
+    link_libraries(GLEW glfw GL assimp freetype)
+endif()
 
 set(ENGINE_SRC
         src/bindless_texture.cpp

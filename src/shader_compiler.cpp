@@ -6,7 +6,7 @@
 
 using namespace GraphicsEngine;
 
-std::string ShaderCompiler::getFileSource(const std::filesystem::path& path) {
+std::string ShaderCompiler::getFileSource(const fs::path& path) {
     std::ifstream file;
     std::string s;
 
@@ -135,7 +135,7 @@ GLuint ShaderCompiler::createShaderProgram(const std::vector<GLuint>& id) {
     return program_id;
 }
 
-std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const std::filesystem::path& path, const ShaderProperties& props_set) {
+std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, const ShaderProperties& props_set) {
     static constexpr std::pair<std::string_view, GLuint> shaders[] = {
             { ".vs", GL_VERTEX_SHADER },
             { ".fs", GL_FRAGMENT_SHADER },

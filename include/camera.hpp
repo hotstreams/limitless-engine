@@ -1,5 +1,6 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -21,11 +22,11 @@ namespace GraphicsEngine {
         float yaw;
 
         float fov {90}; // degrees
-        float near_distance {1.0f};
+        float near_distance {0.01f};
         float far_distance {1000.0f};
 
-        float move_speed {1.0f};
-        float mouse_sence {1.0f};
+        float move_speed {2.0f};
+        float mouse_sence {0.5f};
     public:
         explicit Camera(glm::uvec2 window_size) noexcept;
 

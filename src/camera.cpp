@@ -1,10 +1,12 @@
 #include <camera.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
 Camera::Camera(glm::uvec2 window_size) noexcept
     : position{0.0f}, front{1.0f, 0.0f, 0.0f}, up{0.0f, 1.0f, 0.0f}, right{0.0f, 0.0f, 1.0f}, world_up{0.0f, 1.0f, 0.0f},
-    projection{1.0f}, view{1.0f}, pitch{0.0f}, yaw{0.0f} {
+    projection{1.0f}, view{1.0f}, pitch{-60.0f}, yaw{90.0f} {
+
     updateView();
     updateProjection(window_size);
 }
@@ -17,9 +19,8 @@ void Camera::mouseMove(glm::dvec2 offset) noexcept {
             yaw += offset.x;
             pitch += offset.y;
 
-            pitch = pitch > 89.0f ? 89.0f : pitch;
-            pitch = pitch < -89.0f ? -89.0f : pitch;
-
+            pitch = pitch >= 89.0f ? 89.0f : pitch;
+            pitch = pitch <= -89.0f ? -89.0f : pitch;
             break;
         case CameraMode::Panning:
             break;
@@ -90,10 +91,18 @@ void Camera::movement(CameraMovement move, float delta) noexcept {
 }
 
 void Camera::updateView() noexcept {
-    auto pitch_quaternion = glm::angleAxis(pitch, right);
-    auto yaw_quaternion = glm::angleAxis(yaw, up);
+    // quaternion
+    // TODO: slepr between quats
+//    glm::quat pitch_quat = glm::angleAxis(glm::radians(pitch), right);
+//    glm::quat heading_quat = glm::angleAxis(glm::radians(yaw), up);
+//    front = glm::normalize(pitch_quat * front * heading_quat);
 
-    front = glm::normalize(pitch_quaternion * yaw_quaternion * front);
+    // euler angles
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front = glm::normalize(front);
+
     right = glm::normalize(glm::cross(front, world_up));
     up = glm::normalize(glm::cross(right, front));
 

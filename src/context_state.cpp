@@ -23,6 +23,13 @@ void ContextState::unregisterState(GLFWwindow* window) {
     state_map.erase(window);
 }
 
+void ContextState::clearColor(const glm::vec4& color) noexcept {
+    if (clear_color != color) {
+        clear_color = color;
+        glClearColor(color.x, color.y, color.z, color.w);
+    }
+}
+
 void ContextState::clear(Clear bits) noexcept {
     glClear(static_cast<GLbitfield>(bits));
 }
@@ -59,6 +66,20 @@ void ContextState::setDepthMask(GLboolean mask) noexcept {
     if (depth_mask != mask) {
         glDepthMask(mask);
         depth_mask = mask;
+    }
+}
+
+void ContextState::setCullFace(GLenum mode) noexcept {
+    if (cull_face != mode) {
+        glCullFace(mode);
+        cull_face = mode;
+    }
+}
+
+void ContextState::setFrontFace(GLenum mode) noexcept {
+    if (front_face != mode) {
+        glFrontFace(mode);
+        front_face = mode;
     }
 }
 

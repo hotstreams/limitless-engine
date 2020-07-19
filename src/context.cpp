@@ -1,6 +1,7 @@
 #include <context.hpp>
 
 #include <stb_image.h>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -171,3 +172,12 @@ void Context::focus() const noexcept {
     glfwFocusWindow(window);
 }
 
+void Context::setCursorMode(CursorMode mode) const noexcept {
+    glfwSetInputMode(window, GLFW_CURSOR, static_cast<int>(mode));
+}
+
+void Context::setCursor(GLFWimage image) const {
+    auto* cursor = glfwCreateCursor(&image, 0, 0);
+
+    glfwSetCursor(window, cursor);
+}
