@@ -5,7 +5,7 @@
 
 using namespace GraphicsEngine;
 
-std::shared_ptr<Texture> TextureLoader::load(const std::filesystem::path& path, bool bottom_left_start) {
+std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_left_start) {
     stbi_set_flip_vertically_on_load(bottom_left_start);
 
     int width = 0, height = 0, channels = 0;
@@ -47,7 +47,7 @@ std::shared_ptr<Texture> TextureLoader::load(const std::filesystem::path& path, 
     }
 }
 
-std::shared_ptr<Texture> TextureLoader::loadCubemap(const std::filesystem::path &path, bool bottom_left_start) {
+std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path &path, bool bottom_left_start) {
     stbi_set_flip_vertically_on_load(bottom_left_start);
 
     constexpr std::array ext = { "_right", "_left", "_top", "_bottom", "_front", "_back" };
@@ -97,7 +97,7 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(const std::filesystem::path 
     return texture;
 }
 
-GLFWimage TextureLoader::loadGLFWImage(const std::filesystem::path &path) {
+GLFWimage TextureLoader::loadGLFWImage(const fs::path &path) {
     stbi_set_flip_vertically_on_load(false);
 
     int width = 0, height = 0, channels = 0;

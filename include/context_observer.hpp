@@ -6,7 +6,6 @@ namespace GraphicsEngine {
     enum class MouseButton : uint8_t { Left, Right, Middle };
     enum class InputState : uint8_t { Released, Pressed, Repeat};
     enum class Modifier : uint8_t { Shift = 1, Control = 2, Alt = 4, Super = 8, CapsLock = 16, NumLock = 32 };
-    enum class CursorMode : uint32_t { Normal = GLFW_CURSOR_NORMAL, Hidden = GLFW_CURSOR_HIDDEN, Disabled = GLFW_CURSOR_DISABLED };
 
     class FramebufferObserver {
     public:
@@ -58,7 +57,6 @@ namespace GraphicsEngine {
         ContextEventObserver(ContextEventObserver&&) noexcept = default;
         ContextEventObserver& operator=(ContextEventObserver&&) noexcept = default;
 
-        void setCursorMode(CursorMode mode) const noexcept;
         void setStickyMouseButtons(bool value) const noexcept;
         void setStickyKeys(bool value) const noexcept;
 
@@ -67,6 +65,9 @@ namespace GraphicsEngine {
         void onMouseMove(glm::dvec2 pos) const;
         void onKey(int key, int scancode, InputState state, Modifier modifier) const;
         void onScroll(glm::dvec2 pos) const;
+
+        InputState getKey(int key) const noexcept;
+        bool isPressed(int key) const noexcept;
 
         void registerObserver(FramebufferObserver* obs);
         void registerObserver(MouseClickObserver* obs);

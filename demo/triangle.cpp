@@ -28,7 +28,7 @@ public:
         vertex_array << std::pair<Vertex, Buffer&>(Vertex{}, *buffer);
     }
 
-    void draw() const noexcept {
+    void draw() const {
         vertex_array.bind();
 
         *shader << UniformValue{"triangle_color", glm::vec4{1.0f, 0.5f, 0.25f, 1.0f}}

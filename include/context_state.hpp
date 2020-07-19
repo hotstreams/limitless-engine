@@ -24,8 +24,11 @@ namespace GraphicsEngine {
     protected:
         std::unordered_map<GLenum, bool> enable_map;
         glm::uvec2 viewport;
+        glm::vec4 clear_color;
         GLenum depth_func;
         GLenum depth_mask;
+        GLenum cull_face;
+        GLenum front_face;
 
         GLuint shader_id;
         GLuint vertex_array_id;
@@ -65,10 +68,13 @@ namespace GraphicsEngine {
         static ContextState& getState(GLFWwindow* window);
 
         void setViewPort(glm::uvec2 viewport_size) noexcept;
+        void clearColor(const glm::vec4& color) noexcept;
         void clear(Clear bits) noexcept;
         void disable(GLenum func) noexcept;
         void enable(GLenum func) noexcept;
         void setDepthFunc(GLenum func) noexcept;
         void setDepthMask(GLboolean mask) noexcept;
+        void setCullFace(GLenum mode) noexcept;
+        void setFrontFace(GLenum mode) noexcept;
     };
 }

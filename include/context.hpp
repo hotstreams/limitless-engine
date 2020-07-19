@@ -4,6 +4,8 @@
 #include <context_state.hpp>
 
 namespace GraphicsEngine {
+    enum class CursorMode { Normal = GLFW_CURSOR_NORMAL, Hidden = GLFW_CURSOR_HIDDEN, Disabled = GLFW_CURSOR_DISABLED };
+
     class Context : public ContextInitializer, public ContextState {
     protected:
         GLFWwindow* window = nullptr;
@@ -32,6 +34,8 @@ namespace GraphicsEngine {
         void setSwapInterval(GLuint interval) const noexcept;
         void setWindowShouldClose(bool value) const noexcept;
         void setWindowIcon(GLFWimage icon) const noexcept;
+        void setCursorMode(CursorMode mode) const noexcept;
+        void setCursor(GLFWimage cursor) const;
         void setWindowSize(glm::uvec2 size) noexcept;
         void setAspectRatio(glm::uvec2 ratio) noexcept;
         void setFullscreen(bool value) noexcept;

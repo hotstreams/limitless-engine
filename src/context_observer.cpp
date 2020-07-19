@@ -45,10 +45,6 @@ void ContextEventObserver::scrollCallback(GLFWwindow *win, double x, double y) {
     callbacks[win]->onScroll({ x, y });
 }
 
-void ContextEventObserver::setCursorMode(CursorMode mode) const noexcept {
-    glfwSetInputMode(window, GLFW_CURSOR, static_cast<int>(mode));
-}
-
 void ContextEventObserver::onFramebufferChange(glm::uvec2 s) {
     size = s;
 
@@ -127,4 +123,12 @@ void ContextEventObserver::setStickyMouseButtons(bool value) const noexcept {
 
 void ContextEventObserver::setStickyKeys(bool value) const noexcept {
     glfwSetInputMode(window, GLFW_STICKY_KEYS, value);
+}
+
+InputState ContextEventObserver::getKey(int key) const noexcept {
+    return static_cast<InputState>(glfwGetKey(window, key));
+}
+
+bool ContextEventObserver::isPressed(int key) const noexcept {
+    return getKey(key) == InputState::Pressed;
 }
