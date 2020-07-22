@@ -39,8 +39,8 @@ namespace GraphicsEngine {
 
         void initialize() {
             bone_buffer = BufferBuilder::build(Buffer::Type::Array, bone_weights, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
-            this->vertex_array << VertexAttribute{VertexBoneWeight::bone_count, GL_INT, GL_FALSE, sizeof(VertexBoneWeight), offsetof(VertexBoneWeight, bone_index), *bone_buffer}
-                               << VertexAttribute{VertexBoneWeight::bone_count, GL_FLOAT, GL_FALSE, sizeof(VertexBoneWeight), offsetof(VertexBoneWeight, weight), *bone_buffer};
+            this->vertex_array << VertexAttribute{VertexBoneWeight::bone_count, GL_INT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), *bone_buffer}
+                               << VertexAttribute{VertexBoneWeight::bone_count, GL_FLOAT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), *bone_buffer};
         };
     public:
         SkinnedMesh(std::vector<T>&& vertices, std::vector<T1>&& indices, std::vector<VertexBoneWeight>&& bones, std::string material, MeshDataType data_type, DrawMode draw_mode)

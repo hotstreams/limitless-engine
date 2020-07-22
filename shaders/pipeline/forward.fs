@@ -1,10 +1,12 @@
 GraphicsEngine::GLSL_VERSION
 GraphicsEngine::Extensions
-
+GraphicsEngine::Settings
 GraphicsEngine::MaterialType
 
 #include "glsl/input_data_fs.glsl"
 #include "glsl/material.glsl"
+
+#include "glsl/scene.glsl"
 
 #ifdef MATERIAL_LIT
     #include "glsl/light_computation.glsl"

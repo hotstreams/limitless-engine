@@ -1,5 +1,7 @@
 #pragma once
 
+#include <shader_program.hpp>
+
 namespace GraphicsEngine {
     enum class MaterialShaderType { Default, Deferred, ForwardPlus, Shadows, ColorPicker };
     using RequiredShaders = std::vector<MaterialShaderType>;

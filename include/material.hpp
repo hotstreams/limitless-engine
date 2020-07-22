@@ -47,9 +47,12 @@ namespace GraphicsEngine {
         [[nodiscard]] UniformSampler& getEmissiveMask() const;
         [[nodiscard]] UniformSampler& getBlendMask() const;
 
+        [[nodiscard]] const auto& getBlending() const noexcept { return blending; }
         [[nodiscard]] auto& getMaterialBuffer() const noexcept { return material_buffer; }
         [[nodiscard]] const auto& getShaderIndex() const noexcept { return shader_index; }
+        [[nodiscard]] const auto& getName() const noexcept { return name; }
 
+        Material(const Material& material);
         virtual ~Material() = default;
     };
 

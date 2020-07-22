@@ -17,7 +17,7 @@ namespace GraphicsEngine {
         [[nodiscard]] MaterialType getMaterialType() const noexcept;
         [[nodiscard]] size_t getMaterialBufferSize() const noexcept;
     public:
-        std::unique_ptr<Material> build(std::string name, const RequiredShaders& shaders = RequiredShaders{ MaterialShaderType::Default });
+        std::shared_ptr<Material> build(const std::string& name, const RequiredShaders& shaders = RequiredShaders{ MaterialShaderType::Default });
 
         MaterialBuilder& add(PropertyType type, std::shared_ptr<Texture> texture);
         MaterialBuilder& add(PropertyType type, const glm::vec4& value);

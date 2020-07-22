@@ -2,10 +2,15 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <assets.hpp>
 
 using namespace GraphicsEngine;
 
 std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_left_start) {
+    if (assets.textures.isExist(path.string())) {
+        return assets.textures.get(path.string());
+    }
+
     stbi_set_flip_vertically_on_load(bottom_left_start);
 
     int width = 0, height = 0, channels = 0;
@@ -36,11 +41,13 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_l
                 throw std::runtime_error("Unknown number of channels.");
         }
 
-        auto texture = TextureBuilder::build(Texture::Type::Tex2D, 1, internal, { width, height }, format, Texture::DataType::UnsignedByte, data);
+        auto mipmap_count = glm::ceil(glm::log2(static_cast<float>(glm::max(width, height)))) + 1;
+        auto texture = TextureBuilder::build(Texture::Type::Tex2D, mipmap_count, internal, { width, height }, format, Texture::DataType::UnsignedByte, data);
         texture->generateMipMap();
 
         stbi_image_free(data);
 
+        assets.textures.add(path.string(), texture);
         return texture;
     } else {
         throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());

@@ -15,6 +15,7 @@ namespace GraphicsEngine {
         static void replaceKey(std::string& src, const std::string& key, const std::string& value) noexcept;
         static void replaceVersion(std::string& src) noexcept;
         static void replaceExtensions(std::string& src) noexcept;
+        static void replaceSettings(std::string& src) noexcept;
         static void replaceIncludes(std::string& src);
 
         static GLuint createShader(GLuint shader_type, const GLchar* source);

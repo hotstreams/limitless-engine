@@ -101,6 +101,16 @@ Material::Material(decltype(properties) &&properties, Blending blending, Shading
 
 }
 
+Material::Material(const Material& material)
+    : blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index} {
+    for (const auto& [type, property] : material.properties) {
+        properties.emplace(type, property->clone());
+    }
+
+    std::vector<std::byte> data(material.material_buffer->getSize());
+    material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, data, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+}
+
 bool GraphicsEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {
     return std::tie(lhs.properties, lhs.shading, lhs.blending) < std::tie(rhs.properties, rhs.shading, rhs.blending);
 }

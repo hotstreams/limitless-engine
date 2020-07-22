@@ -18,7 +18,7 @@
 #ifdef MATERIAL_SPECULAR
     float mat_specular = texture(material_specular, fs_data.uv).a;
 #else
-    float mat_specular = 0.1;
+    float mat_specular = 0.5;
 #endif
 
 #ifdef MATERIAL_NORMAL
@@ -40,7 +40,7 @@
 #ifdef MATERIAL_SHININESS
     float mat_shininess = material_shininess;
 #else
-    float mat_shininess = 16.0;
+    float mat_shininess = 32.0;
 #endif
 
 #ifdef PBR

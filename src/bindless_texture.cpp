@@ -3,7 +3,7 @@
 
 using namespace GraphicsEngine;
 
-BindlessTexture::BindlessTexture(std::unique_ptr<Texture> _texture) : texture(std::move(_texture)) {
+BindlessTexture::BindlessTexture(std::shared_ptr<Texture> _texture) : texture(std::move(_texture)) {
     handle = glGetTextureHandleARB(texture->getId());
 
     makeResident();

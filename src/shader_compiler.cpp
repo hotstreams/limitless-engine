@@ -2,7 +2,7 @@
 
 #include <fstream>
 #include <context.hpp>
-#include <iostream>
+#include <render_settings.hpp>
 
 using namespace GraphicsEngine;
 
@@ -41,6 +41,29 @@ void ShaderCompiler::replaceExtensions(std::string &src) noexcept {
     }
 
     replaceKey(src, "GraphicsEngine::Extensions", extensions);
+}
+
+void ShaderCompiler::replaceSettings(std::string& src) noexcept {
+    std::string settings;
+
+    // sets shading model
+    switch (render_settings.shading_model) {
+        case ShadingModel::Phong:
+            settings.append("#define PHONG_MODEL\n");
+            break;
+        case ShadingModel::BlinnPhong:
+            settings.append("#define BLINN_PHONG_MODEL\n");
+            break;
+        case ShadingModel::CelShading:
+            throw std::runtime_error("TODO");
+    }
+
+    // sets normal mapping
+    if (render_settings.normal_mapping) {
+        settings.append("#define NORMAL_MAPPING\n");
+    }
+
+    replaceKey(src, "GraphicsEngine::Settings", settings);
 }
 
 void ShaderCompiler::replaceKey(std::string &src, const std::string& key, const std::string& value) noexcept {
@@ -101,9 +124,16 @@ GLuint ShaderCompiler::createShader(GLuint shader_type, const GLchar* source) {
 
         glDeleteShader(id);
 
-        throw std::runtime_error("Failed to compile shader: " + log);
+        {
+            std::ofstream file("Shader compiler error.txt");
+            file << source << log;
+        }
+        throw std::runtime_error("Failed to compile shader: \n" + log);
     }
-
+    {
+        std::ofstream file("Shader compiler error.txt");
+        file << source;
+    }
     return id;
 }
 
@@ -129,7 +159,11 @@ GLuint ShaderCompiler::createShaderProgram(const std::vector<GLuint>& id) {
 
         glDeleteProgram(program_id);
 
-        throw std::runtime_error("Failed to link program: " + log);
+        {
+            std::ofstream file("Shader linker error.txt");
+            file << log;
+        }
+        throw std::runtime_error("Failed to link program: \n" + log);
     }
 
     return program_id;
@@ -157,6 +191,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
             replaceVersion(src);
             replaceIncludes(src);
             replaceExtensions(src);
+            replaceSettings(src);
 
             if (props_set) {
                 props_set(src);
@@ -225,6 +260,15 @@ std::string ShaderCompiler::getMaterialDefines(const MaterialType &type) noexcep
         case Shading::Unlit:
             property_defines.append("#define MATERIAL_UNLIT\n");
             break;
+    }
+
+    auto prop_exist = [&] (PropertyType exist) {
+        auto found = std::find_if(type.properties.begin(), type.properties.end(), [&] (const auto& property) { return property == exist; });
+        return found != type.properties.end();
+    };
+
+    if ((prop_exist(PropertyType::Metallic) || prop_exist(PropertyType::Roughness)) && render_settings.physically_based_rendering) {
+        property_defines.append("#define PBR\n");
     }
 
     return property_defines;
