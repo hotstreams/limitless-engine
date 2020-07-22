@@ -24,17 +24,6 @@ namespace GraphicsEngine {
         glm::vec2 uv;
     };
 
-    // packed glm::vec3 into GL_INT_2_10_10_10
-    union PackedFloat3 {
-        int i32;
-        struct {
-            int x : 10;
-            int y : 10;
-            int z : 10;
-            int w : 2;
-        } i32f3;
-    };
-
     struct VertexPacked {
         glm::vec3 position;
         uint32_t uv;
@@ -42,14 +31,27 @@ namespace GraphicsEngine {
 
     struct VertexPackedNormal {
         glm::vec3 position;
-        PackedFloat3 normal;
+        uint32_t normal;
         uint32_t uv;
     };
 
     struct VertexPackedNormalTangent {
         glm::vec3 position;
-        PackedFloat3 normal;
-        PackedFloat3 tangent;
+        uint32_t normal;
+        uint32_t tangent;
         uint32_t uv;
     };
+
+    inline uint32_t pack(const glm::vec3& value) {
+        const uint32_t xs = value.x < 0;
+        const uint32_t ys = value.y < 0;
+        const uint32_t zs = value.z < 0;
+        const uint32_t ws = 0;
+        uint32_t vi =
+                ws << 31 | (uint32_t)(0) << 30 |
+                zs << 29 | ((uint32_t)(value.z * 511 + (zs << 9)) & 511) << 20 |
+                ys << 19 | ((uint32_t)(value.y * 511 + (ys << 9)) & 511) << 10 |
+                xs << 9  | ((uint32_t)(value.x * 511 + (xs << 9)) & 511);
+        return vi;
+    }
 }

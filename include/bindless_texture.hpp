@@ -5,11 +5,11 @@
 namespace GraphicsEngine {
     class BindlessTexture : public Texture {
     private:
-        std::unique_ptr<Texture> texture;
+        std::shared_ptr<Texture> texture;
         GLuint64 handle;
         bool resident {false};
     public:
-        explicit BindlessTexture(std::unique_ptr<Texture> texture);
+        explicit BindlessTexture(std::shared_ptr<Texture> texture);
         ~BindlessTexture() override;
 
         [[nodiscard]] const auto& getHandle() { return handle; }

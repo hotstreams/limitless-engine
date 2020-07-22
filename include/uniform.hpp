@@ -20,6 +20,8 @@ namespace GraphicsEngine {
         [[nodiscard]] const auto& getType() const noexcept { return type; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] auto& getChanged() noexcept { return changed; }
+
+        [[nodiscard]] virtual Uniform* clone() noexcept = 0;
     };
 
     template<typename T>
@@ -33,6 +35,8 @@ namespace GraphicsEngine {
         UniformValue(std::string name, const T& value) noexcept;
         ~UniformValue() override = default;
 
+        [[nodiscard]] UniformValue* clone() noexcept override;
+
         void set(const ShaderProgram& shader) override;
         void setValue(const T& val) noexcept;
         [[nodiscard]] const auto& getValue() const noexcept { return value; }
@@ -44,6 +48,8 @@ namespace GraphicsEngine {
     public:
         UniformSampler(std::string name, std::shared_ptr<Texture> sampler) noexcept;
         ~UniformSampler() override = default;
+
+        [[nodiscard]] UniformSampler* clone() noexcept override;
 
         void set(const ShaderProgram& shader) override;
         void setSampler(const std::shared_ptr<Texture>& texture);

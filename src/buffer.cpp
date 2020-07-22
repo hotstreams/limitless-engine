@@ -69,17 +69,21 @@ void StateBuffer::bindAs(Type _target) const noexcept {
 
 void StateBuffer::bindBaseAs(Type _target, GLuint index) const noexcept {
     auto& point_map = ContextState::getState(glfwGetCurrentContext()).buffer_point;
+    auto& target_map = ContextState::getState(glfwGetCurrentContext()).buffer_target;
     if (point_map[{ _target, index }] != id) {
         glBindBufferBase(static_cast<GLenum>(_target), index, id);
         point_map[{ _target, index }] = id;
+        target_map[_target] = id;
     }
 }
 
 void StateBuffer::bindBase(GLuint index) const noexcept {
     auto& point_map = ContextState::getState(glfwGetCurrentContext()).buffer_point;
+    auto& target_map = ContextState::getState(glfwGetCurrentContext()).buffer_target;
     if (point_map[{ target, index }] != id) {
         glBindBufferBase(static_cast<GLenum>(target), index, id);
         point_map[{ target, index }] = id;
+        target_map[target] = id;
     }
 }
 
@@ -180,7 +184,8 @@ void* StateBuffer::mapBufferRange(GLintptr offset, GLsizeiptr map_size) const {
     bind();
 
     auto* ptr = glMapBufferRange(static_cast<GLenum>(target), offset, map_size, acc);
-
+    int bind;
+    glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, &bind);
     if (!ptr) {
         unmapBuffer();
         throw std::runtime_error("Buffer cannot get pointer to data.");

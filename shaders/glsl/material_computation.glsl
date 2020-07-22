@@ -16,9 +16,13 @@
 #endif
 
 #ifdef MATERIAL_LIT
-    #ifdef NORMAL_MAPPING
-        vec3 normal = normalize(mat_normal * 2.0 - 1.0);
-        normal = normalize(fs_data.TBN * normal);
+    #ifdef MATERIAL_NORMAL
+        #ifdef NORMAL_MAPPING
+            vec3 normal = normalize(mat_normal * 2.0 - 1.0);
+            normal = normalize(fs_data.TBN * normal);
+        #else
+            vec3 normal = mat_normal;
+        #endif
     #else
         vec3 normal = normalize(fs_data.normal);
     #endif
@@ -37,7 +41,7 @@
     {
         #ifdef MATERIAL_LIT
             #ifdef PBR
-                fragment_color = vec4(getPBRShadedColor(normal, fragment_color.rgb, metallic, roughness), fragment_color.a);
+                fragment_color = vec4(getPBRShadedColor(normal, fragment_color.rgb, mat_metallic, mat_roughness), fragment_color.a);
             #else
                 fragment_color = vec4(getShadedColor(fragment_color.rgb, normal, mat_specular, mat_shininess), fragment_color.a);
             #endif
@@ -49,7 +53,7 @@
     #else
         #ifdef MATERIAL_LIT
             #ifdef PBR
-                fragment_color = vec4(getPBRShadedColor(normal, fragment_color.rgb, metallic, roughness), fragment_color.a);
+                fragment_color = vec4(getPBRShadedColor(normal, fragment_color.rgb, mat_metallic, mat_roughness), fragment_color.a);
             #else
                 fragment_color = vec4(getShadedColor(fragment_color.rgb, normal, mat_specular, mat_shininess), fragment_color.a);
             #endif

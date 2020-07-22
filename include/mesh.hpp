@@ -9,7 +9,7 @@ namespace GraphicsEngine {
         AbstractMesh() = default;
         virtual ~AbstractMesh() = default;
 
-        [[nodiscard]] virtual const std::string& getMaterialName() const noexcept = 0;
+        [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
         virtual void draw() const noexcept = 0;
     };
 
@@ -24,7 +24,7 @@ namespace GraphicsEngine {
     class Mesh : public AbstractMesh {
     protected:
         std::vector<T> vertices;
-        std::string material;
+        std::string name;
 
         MeshDataType data_type;
         DrawMode draw_mode;
@@ -48,8 +48,8 @@ namespace GraphicsEngine {
             vertex_array << std::pair<T, Buffer&>(T{}, *vertex_buffer);
         }
     public:
-        Mesh(std::vector<T>&& vertices, std::string material, MeshDataType data_type, DrawMode draw_mode)
-            : vertices{std::move(vertices)}, material{std::move(material)}, data_type{data_type}, draw_mode{draw_mode} {
+        Mesh(std::vector<T>&& vertices, std::string name, MeshDataType data_type, DrawMode draw_mode)
+            : vertices{std::move(vertices)}, name{std::move(name)}, data_type{data_type}, draw_mode{draw_mode} {
             initialize();
         }
 
@@ -67,7 +67,7 @@ namespace GraphicsEngine {
             glDrawArrays(static_cast<GLenum>(draw_mode), 0, vertices.size());
         }
 
-        [[nodiscard]] const std::string& getMaterialName() const noexcept override { return material; }
+        [[nodiscard]] const std::string& getName() const noexcept override { return name; }
         [[nodiscard]] const auto& getVertices() const noexcept { return vertices; }
     };
 }

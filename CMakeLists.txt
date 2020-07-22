@@ -65,7 +65,11 @@ set(ENGINE_SRC
         src/texture_loader.cpp
         src/vertex_array.cpp
         src/material_builder.cpp
-        src/camera.cpp)
+        src/skeletal_model.cpp
+        src/camera.cpp
+        src/model_loader.cpp
+        src/assets.cpp
+        src/model_instance.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})

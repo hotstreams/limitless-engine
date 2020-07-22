@@ -29,6 +29,11 @@ void UniformValue<T>::set(const ShaderProgram& shader) {
     }
 }
 
+template<typename T>
+[[nodiscard]] UniformValue<T>* UniformValue<T>::clone() noexcept {
+    return new UniformValue<T>(*this);
+}
+
 UniformSampler::UniformSampler(std::string name, std::shared_ptr<Texture> sampler) noexcept
     : UniformValue{std::move(name), UniformType::Sampler, -1}, sampler{std::move(sampler)} { }
 
@@ -44,6 +49,10 @@ void UniformSampler::set(const ShaderProgram &shader) {
         shader.setUniform(*this);
         changed = false;
     }
+}
+
+[[nodiscard]] UniformSampler* UniformSampler::clone() noexcept {
+    return new UniformSampler(*this);
 }
 
 namespace GraphicsEngine {
