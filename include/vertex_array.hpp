@@ -40,8 +40,6 @@ namespace GraphicsEngine {
         VertexArray& operator<<(const std::pair<Vertex, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexNormal, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexNormalTangent, Buffer&>& attribute) noexcept;
-        VertexArray& operator<<(const std::pair<VertexPacked, Buffer&>& attribute) noexcept;
-        VertexArray& operator<<(const std::pair<VertexPackedNormal, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexPackedNormalTangent, Buffer&>& attribute) noexcept;
     };
 

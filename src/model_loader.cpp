@@ -189,20 +189,21 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* mesh, const fs::path
     indices.reserve(mesh->mNumFaces * 3);
 
     for (uint32_t j = 0; j < mesh->mNumVertices; ++j) {
+        auto vertex = glm::convert3f(mesh->mVertices[j]);
+        auto normal = glm::convert3f(mesh->mNormals[j]);
+        auto tangents = glm::convert3f(mesh->mTangents[j]);
+        auto uv = glm::convert2f(mesh->mTextureCoords[0][j]);
+
         if constexpr (std::is_same<T, VertexNormalTangent>::value) {
-            vertices.emplace_back(T{glm::convert3f(mesh->mVertices[j]),
-                                    glm::convert3f(mesh->mNormals[j]),
-                                    glm::convert3f(mesh->mTangents[j]),
-                                    glm::convert2f(mesh->mTextureCoords[0][j])});
+            vertices.emplace_back(T{vertex, normal, tangents, uv});
         }
+
         if constexpr (std::is_same<T, VertexPackedNormalTangent>::value) {
-            auto uv = glm::packHalf2x16(glm::convert2f(mesh->mTextureCoords[0][j]));
-            auto normals = pack(glm::convert3f(mesh->mNormals[j]));
-            auto tangent = pack(glm::convert3f(mesh->mTangents[j]));
-            vertices.emplace_back(T{glm::convert3f(mesh->mVertices[j]),
-                                    normals,
-                                    tangent,
-                                    uv});
+            auto packed_normal = pack(normal);
+            auto packed_tangent = pack(tangents);
+            auto packed_uv = glm::packHalf2x16(uv);
+
+            vertices.emplace_back(T{vertex, packed_normal, packed_tangent, packed_uv});
         }
     }
 

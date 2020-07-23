@@ -17,7 +17,7 @@ private:
     Render render;
 
     bool done {false};
-    static constexpr glm::uvec2 window_size {1200, 800};
+    static constexpr glm::uvec2 window_size {2048 , 1080};
 public:
     Game() : context{"Cubes demo", window_size, {{ WindowHint::Samples, 32 }}}, camera{window_size} {
         camera.setPosition({0.0f, 0.0f, 0.0f});
@@ -35,7 +35,7 @@ public:
 
         scene.addInstance(new ModelInstance(assets.models.get("test"), glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.001f});
 
-        auto light = PointLight{ glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, glm::vec4{0.3, 0.2f, 3.0f, 8.5f}, 10.0f, 0.7f, 1.8f, 20.0f};
+        auto light = PointLight{ glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, glm::vec4{2.2f, 0.5f, 3.0f, 3.5f}, 10.0f, 0.7f, 1.8f, 2.0f};
         scene.lighting.dynamic.points_lights.add(light);
     }
 
@@ -80,7 +80,6 @@ public:
             auto delta = duration_cast<duration<float>>(time - last_time).count();
             last_time = time;
 
-            scene.update();
             render.draw(context, scene, camera);
 
             handleInput(delta);

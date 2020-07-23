@@ -1,5 +1,6 @@
 #include <model_instance.hpp>
 
+#include <elementary_model.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace GraphicsEngine;
@@ -32,23 +33,23 @@ bool AbstractInstance::isWireFrame() const noexcept {
     return wireframe;
 }
 
-ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> model, const glm::vec3& position)
-    : model{std::move(model)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
-        auto& m = (Model&)*this->model;
+ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
+    : AbstractInstance{InstanceType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
+        auto& simple_model = static_cast<Model&>(*model);
 
-        auto& meshes = m.getMeshes();
-        auto mats = m.getMaterials();
+        auto& meshes = simple_model.getMeshes();
+        auto mats = simple_model.getMaterials();
 
         for(uint32_t i = 0; i < meshes.size(); ++i) {
             materials.emplace(meshes[i]->getName(), mats[i]);
         }
 }
 
-ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> model, const std::shared_ptr<Material>& material, const glm::vec3& position)
-    : model{std::move(model)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
-        auto& m = (Cube&)*this->model;
+ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const std::shared_ptr<Material>& material, const glm::vec3& position)
+    : AbstractInstance{InstanceType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
+        auto& elementary = static_cast<ElementaryModel&>(*model);
 
-        materials.emplace(m.getMeshes()[0]->getName(), material);
+        materials.emplace(elementary.getMesh()->getName(), material);
 }
 
 void ModelInstance::calculateModelMatrix() noexcept {

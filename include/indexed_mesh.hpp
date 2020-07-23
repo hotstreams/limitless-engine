@@ -37,8 +37,8 @@ namespace GraphicsEngine {
             }
         }
     public:
-        IndexedMesh(std::vector<T>&& vertices, std::vector<T1>&& indices, std::string material, MeshDataType data_type, DrawMode draw_mode)
-            : Mesh<T>{std::move(vertices), std::move(material), data_type, draw_mode}, indices{std::move(indices)} {
+        IndexedMesh(std::vector<T>&& vertices, std::vector<T1>&& indices, std::string name, MeshDataType data_type, DrawMode draw_mode)
+            : Mesh<T>{std::move(vertices), std::move(name), data_type, draw_mode}, indices{std::move(indices)} {
             initialize();
         }
 

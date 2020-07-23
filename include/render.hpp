@@ -7,8 +7,14 @@ namespace GraphicsEngine {
     class Render {
     private:
         SceneDataStorage scene_data;
+
+
+        void dispatchInstances() {
+
+        }
     public:
         void draw(Context& context, Scene& scene, Camera& camera) {
+            scene.update();
             scene_data.update(context, scene, camera);
 
             context.setViewPort(context.getSize());

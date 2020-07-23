@@ -69,7 +69,11 @@ set(ENGINE_SRC
         src/camera.cpp
         src/model_loader.cpp
         src/assets.cpp
-        src/model_instance.cpp)
+        src/model_instance.cpp
+        src/scene.cpp
+        src/elementary_model.cpp
+        src/skeletal_instance.cpp
+        src/mesh_instance.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})
