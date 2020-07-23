@@ -1,5 +1,7 @@
 #pragma once
 
+#include <material.hpp>
+
 namespace GraphicsEngine {
     class MaterialInstance {
     private:

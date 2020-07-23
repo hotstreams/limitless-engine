@@ -5,32 +5,32 @@ using namespace GraphicsEngine;
 AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone& bone) noexcept
     : positions(std::move(positions)), rotations(std::move(rotations)), scales(std::move(scales)), bone(bone) {}
 
-auto AnimationNode::findPositionKeyframe(double anim_time) const {
+size_t AnimationNode::findPositionKeyframe(double anim_time) const {
     for (size_t i = 0; i < positions.size() - 1; ++i) {
         if (anim_time < positions[i + 1].time) {
-            return positions.begin() + i;
+            return i;
         }
     }
     throw std::out_of_range("no position keyframe for time " + std::to_string(anim_time));
 }
 
-auto AnimationNode::findRotationKeyframe(double anim_time) const {
+size_t AnimationNode::findRotationKeyframe(double anim_time) const {
     for (size_t i = 0; i < rotations.size() - 1; ++i) {
         if (anim_time < rotations[i + 1].time)
-            return rotations.begin() + i;
+            return i;
     }
     throw std::out_of_range("no rotation keyframe for time " + std::to_string(anim_time));
 }
 
-auto AnimationNode::findScalingKeyframe(double anim_time) const {
+size_t AnimationNode::findScalingKeyframe(double anim_time) const {
     for (size_t i = 0; i < scales.size() - 1; ++i) {
         if (anim_time < scales[i + 1].time)
-            return scales.begin() + i;
+            return i;
     }
     throw std::out_of_range("no scaling keyframe for time " + std::to_string(anim_time));
 }
 
-auto AnimationNode::positionLerp(double anim_time) const {
+glm::vec3 AnimationNode::positionLerp(double anim_time) const {
     if (positions.empty()) {
         return glm::vec3{0.0f};
     }
@@ -39,15 +39,18 @@ auto AnimationNode::positionLerp(double anim_time) const {
         return positions[0].data;
     }
 
-    auto a = findPositionKeyframe(anim_time);
-    auto b = a + 1;
+    auto index = findPositionKeyframe(anim_time);
+    auto& a = positions[index];
+    auto& b = positions[index + 1];
 
-    double dt = b->time - a->time;
-    double norm = (anim_time - a->time) / dt;
+    double dt = b.time - a.time;
+    double norm = (anim_time - a.time) / dt;
 
-    assert(norm >= 0.f && norm <= 1.f);
+    if (norm >= 0.f && norm <= 1.f) {
+        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
+    }
 
-    return a->data + (b->data - a->data) * static_cast<float>(norm);
+    return a.data + (b.data - a.data) * static_cast<float>(norm);
 }
 
 glm::fquat AnimationNode::rotationLerp(double anim_time) const {
@@ -58,18 +61,21 @@ glm::fquat AnimationNode::rotationLerp(double anim_time) const {
         return rotations[0].data;
     }
 
-    auto a = findRotationKeyframe(anim_time);
-    auto b = a + 1;
+    auto index = findRotationKeyframe(anim_time);
+    auto& a = rotations[index];
+    auto& b = rotations[index + 1];
 
-    double dt = b->time - a->time;
-    double norm = (anim_time - a->time) / dt;
+    double dt = b.time - a.time;
+    double norm = (anim_time - a.time) / dt;
 
-    assert(norm >= 0.f && norm <= 1.f);
+    if (norm >= 0.f && norm <= 1.f) {
+        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
+    }
 
-    return glm::normalize(glm::lerp(a->data, b->data, static_cast<float>(norm)));
+    return glm::normalize(glm::lerp(a.data, b.data, static_cast<float>(norm)));
 }
 
-auto AnimationNode::scalingLerp(double anim_time) const {
+glm::vec3 AnimationNode::scalingLerp(double anim_time) const {
     if (scales.empty()) {
         return glm::vec3{1.f};
     }
@@ -78,15 +84,18 @@ auto AnimationNode::scalingLerp(double anim_time) const {
         return scales[0].data;
     }
 
-    auto a = findScalingKeyframe(anim_time);
-    auto b = a + 1;
+    auto index = findScalingKeyframe(anim_time);
+    auto a = scales[index];
+    auto b = scales[index + 1];
 
-    double dt = b->time - a->time;
-    double norm = (anim_time - a->time) / dt;
+    double dt = b.time - a.time;
+    double norm = (anim_time - a.time) / dt;
 
-    assert(norm >= 0.f && norm <= 1.f);
+    if (norm >= 0.f && norm <= 1.f) {
+        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
+    }
 
-    return a->data + (b->data - a->data) * static_cast<float>(norm);
+    return a.data + (b.data - a.data) * static_cast<float>(norm);
 }
 
 SkeletalModel::SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& bones, decltype(bone_map)&& bone_map, decltype(skeleton)&& skeleton, decltype(animations)&& animations, const glm::mat4& global_matrix) noexcept

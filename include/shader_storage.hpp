@@ -3,7 +3,20 @@
 #include <shader_program.hpp>
 
 namespace GraphicsEngine {
-    enum class MaterialShaderType { Default, Deferred, ForwardPlus, Shadows, ColorPicker };
+    enum class MaterialShaderType {
+        Default,
+        Deferred,
+        ForwardPlus,
+        Shadows,
+        ColorPicker
+    };
+    enum class ModelShaderType {
+        Model,
+        Skeletal,
+        Instanced,
+        SkeletalInstanced,
+    };
+
     using RequiredShaders = std::vector<MaterialShaderType>;
     inline const std::map<MaterialShaderType, std::string> material_shader_path = {
         { MaterialShaderType::Default, "pipeline/forward" },

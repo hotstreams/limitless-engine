@@ -3,36 +3,22 @@
 #include <glm/glm.hpp>
 
 namespace GraphicsEngine {
-    // simplest vertex attribute
     struct Vertex {
         glm::vec3 position;
         glm::vec2 uv;
     };
 
-    // vertex + normal
     struct VertexNormal {
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec2 uv;
     };
 
-    // vertex + normal + tangent space (normal mapping)
     struct VertexNormalTangent {
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec3 tangent;
         glm::vec2 uv;
-    };
-
-    struct VertexPacked {
-        glm::vec3 position;
-        uint32_t uv;
-    };
-
-    struct VertexPackedNormal {
-        glm::vec3 position;
-        uint32_t normal;
-        uint32_t uv;
     };
 
     struct VertexPackedNormalTangent {
