@@ -4,6 +4,7 @@ using namespace GraphicsEngine;
 
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
     : ModelInstance{std::move(m), position} {
+        type = ModelShaderType::Skeletal;
         auto& skeletal = static_cast<SkeletalModel&>(*model);
 
         bone_transform.reserve(skeletal.getBones().size());
@@ -27,28 +28,12 @@ void SkeletalInstance::draw(MaterialShaderType shader_type, Blending blending, c
 
     calculateModelMatrix();
 
-    for (const auto& mesh : model->getMeshes()) {
-        auto& material = materials.at(mesh->getName()).get();
-        if (material.getBlending() == blending) {
-            auto& shader = shader_storage.get(shader_type, material.getShaderIndex());
+    auto bind = IndexedBuffer::getBindingPoint({ IndexedBuffer::Type::ShaderStorage, "bone_buffer" });
+    bone_buffer->bindBase(bind);
 
-            *shader << material
-                    << UniformValue{"model", model_matrix};
+    ModelInstance::draw(shader_type, blending, uniform_setter);
 
-            for (const auto& uniform_set : uniform_setter) {
-                uniform_set(*shader);
-            }
-
-            auto bind = IndexedBuffer::getBindingPoint({ IndexedBuffer::Type::ShaderStorage, "bone_buffer" });
-            bone_buffer->bindBase(bind);
-
-            shader->use();
-
-            mesh->draw();
-
-            bone_buffer->fence();
-        }
-    }
+    bone_buffer->fence();
 }
 
 void SkeletalInstance::play(const std::string &name) {

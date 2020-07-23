@@ -33,7 +33,7 @@ void Scene::removeDeadInstances() noexcept {
 
 void Scene::updateSkeletalInstances() const noexcept {
     for (const auto& [id, instance] : instances) {
-        if (instance->getType() == InstanceType::Skeletal) {
+        if (instance->getType() == ModelShaderType::Skeletal) {
             static_cast<SkeletalInstance&>(*instance).update();
         }
     }

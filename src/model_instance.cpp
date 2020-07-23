@@ -34,22 +34,22 @@ bool AbstractInstance::isWireFrame() const noexcept {
 }
 
 ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : AbstractInstance{InstanceType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
+    : AbstractInstance{ModelShaderType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
         auto& simple_model = static_cast<Model&>(*model);
 
-        auto& meshes = simple_model.getMeshes();
-        auto mats = simple_model.getMaterials();
+        auto& model_meshes = simple_model.getMeshes();
+        auto& model_mats = simple_model.getMaterials();
 
-        for(uint32_t i = 0; i < meshes.size(); ++i) {
-            materials.emplace(meshes[i]->getName(), mats[i]);
+        for(uint32_t i = 0; i < model_meshes.size(); ++i) {
+            meshes.emplace(model_meshes[i]->getName(), MeshInstance{model_meshes[i], model_mats[i]});
         }
 }
 
 ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const std::shared_ptr<Material>& material, const glm::vec3& position)
-    : AbstractInstance{InstanceType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
+    : AbstractInstance{ModelShaderType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
         auto& elementary = static_cast<ElementaryModel&>(*model);
 
-        materials.emplace(elementary.getMesh()->getName(), material);
+        meshes.emplace(elementary.getMesh()->getName(), MeshInstance{elementary.getMesh(), material});
 }
 
 void ModelInstance::calculateModelMatrix() noexcept {
@@ -76,15 +76,22 @@ void ModelInstance::setScale(const glm::vec3& _scale) noexcept {
     scale = _scale;
 }
 
-void ModelInstance::draw(MaterialShaderType shader_type, Blending blending, const UniformSetter& uniform_setter) {
-    if (hidden) return;
+void ModelInstance::draw(MaterialShaderType material_type, Blending blending, const UniformSetter& uniform_setter) {
+    if (hidden) {
+        return;
+    }
 
     calculateModelMatrix();
 
-    for (const auto& mesh : model->getMeshes()) {
-        auto& material = materials.at(mesh->getName()).get();
+    for (const auto& [name, mesh] : meshes) {
+        if (mesh.isHidden()) {
+            continue;
+        }
+
+        const auto& material = mesh.getMaterial().get();
+
         if (material.getBlending() == blending) {
-            auto& shader = shader_storage.get(shader_type, material.getShaderIndex());
+            auto& shader = shader_storage.get(material_type, type, material.getShaderIndex());
 
             *shader << material
                     << UniformValue{"model", model_matrix};
@@ -95,7 +102,23 @@ void ModelInstance::draw(MaterialShaderType shader_type, Blending blending, cons
 
             shader->use();
 
-            mesh->draw();
+            mesh.draw();
         }
+    }
+}
+
+void ModelInstance::hide(const std::string& name) {
+    try {
+        meshes.at(name).hide();
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No such mesh name.");
+    }
+}
+
+void ModelInstance::reveal(const std::string& name) {
+    try {
+        meshes.at(name).reveal();
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No such mesh name.");
     }
 }
