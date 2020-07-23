@@ -106,7 +106,7 @@ size_t MaterialBuilder::getMaterialBufferSize() const noexcept {
     return size;
 }
 
-std::shared_ptr<Material> MaterialBuilder::build(const std::string& name, const RequiredShaders& shaders) {
+std::shared_ptr<Material> MaterialBuilder::build(const std::string& name, const RequiredModelShaders& model_shaders, const RequiredMaterialShaders& material_shaders) {
     uint64_t material_index = 0;
     auto material_type = getMaterialType();
     auto material_buffer_size = getMaterialBufferSize();
@@ -123,7 +123,7 @@ std::shared_ptr<Material> MaterialBuilder::build(const std::string& name, const 
     // in case that's a new one
     if (found == unique_materials.end()) {
         // compile whatever we need for that material
-        ShaderCompiler::compile(material_type, material_index, shaders);
+        ShaderCompiler::compile(material_type, material_index, material_shaders, model_shaders);
         unique_materials.emplace(material_type, material_index);
     }
 

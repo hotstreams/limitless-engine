@@ -274,12 +274,37 @@ std::string ShaderCompiler::getMaterialDefines(const MaterialType &type) noexcep
     return property_defines;
 }
 
-void ShaderCompiler::compile(const MaterialType& type, uint64_t material_index, const RequiredShaders& shaders) {
-    auto material_props = [&] (std::string& src) {
-        replaceKey(src, "GraphicsEngine::MaterialType", getMaterialDefines(type));
-    };
+std::string ShaderCompiler::getModelDefines(const ModelShaderType& type) noexcept {
+    std::string defines;
 
-    for (const auto& required : shaders) {
-        shader_storage.add(required, material_index, compile(SHADER_DIR + material_shader_path.at(required), material_props));
+    switch (type) {
+        case ModelShaderType::Model:
+            defines.append("#define SIMPLE_MODEL\n");
+            break;
+        case ModelShaderType::Skeletal:
+            defines.append("#define SKELETAL_MODEL\n");
+            break;
+        case ModelShaderType::Instanced:
+            defines.append("#define INSTANCED_MODEL\n");
+            break;
+        case ModelShaderType::SkeletalInstanced:
+            defines.append("#define SKELETAL_INSTANCED_MODEL\n");
+            break;
+    }
+
+    return defines;
+}
+
+void ShaderCompiler::compile(const MaterialType& type, uint64_t material_index, const RequiredMaterialShaders& material_types, const RequiredModelShaders& model_types) {
+    auto material_defines = getMaterialDefines(type);
+
+    for (const auto& mat_type : material_types) {
+        for (const auto& mod_type : model_types) {
+            auto props = [&] (std::string& src) {
+                replaceKey(src, "GraphicsEngine::MaterialType", material_defines);
+                replaceKey(src, "GraphicsEngine::ModelType", getModelDefines(mod_type));
+            };
+            shader_storage.add(mat_type, mod_type, material_index, compile(SHADER_DIR + material_shader_path.at(mat_type), props));
+        }
     }
 }
