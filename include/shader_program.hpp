@@ -31,6 +31,7 @@ namespace GraphicsEngine {
         void setUniform(const UniformValue<int>& uniform) const;
         void setUniform(const UniformSampler& sampler) const;
 
+        //GL_ARB_program_interface_query required
         void getUniformLocations() noexcept;
         void getIndexedBufferBounds() noexcept;
         void bindIndexedBuffers();
@@ -41,6 +42,7 @@ namespace GraphicsEngine {
         template<typename T> friend class UniformValue;
         friend class UniformSampler;
         friend class ShaderCompiler;
+        friend class MaterialBuilder;
         friend void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept;
     public:
         ~ShaderProgram();

@@ -23,6 +23,7 @@ namespace GraphicsEngine {
     class Material {
     protected:
         std::map<PropertyType, std::unique_ptr<Uniform>> properties;
+        std::unordered_map<std::string, uint64_t> uniform_offsets;
         std::shared_ptr<Buffer> material_buffer;
         Blending blending;
         Shading shading;
@@ -33,7 +34,7 @@ namespace GraphicsEngine {
 
         friend class ShaderProgram;
         friend class MaterialBuilder;
-        Material(decltype(properties)&& properties, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept;
+        Material(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept;
     public:
         [[nodiscard]] UniformValue<glm::vec4>& getColor() const;
         [[nodiscard]] UniformValue<glm::vec4>& getEmissiveColor() const;
@@ -51,6 +52,7 @@ namespace GraphicsEngine {
         [[nodiscard]] auto& getMaterialBuffer() const noexcept { return material_buffer; }
         [[nodiscard]] const auto& getShaderIndex() const noexcept { return shader_index; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
+        [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
 
         Material(const Material& material);
         virtual ~Material() = default;

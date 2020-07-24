@@ -8,6 +8,9 @@
 #define SHADER_DIR "../shaders/"
 
 namespace GraphicsEngine {
+    class MaterialBuilder;
+    class CustomMaterialBuilder;
+
     class ShaderCompiler {
     private:
         static std::string getFileSource(const fs::path& path);
@@ -23,9 +26,17 @@ namespace GraphicsEngine {
 
         static std::string getMaterialDefines(const MaterialType& type) noexcept;
         static std::string getModelDefines(const ModelShaderType& type) noexcept;
+        static std::string getCustomMaterialScalarUniforms(const CustomMaterialBuilder& builder) noexcept;
+        static std::string getCustomMaterialSamplerUniforms(const CustomMaterialBuilder& builder) noexcept;
+
+        friend class MaterialBuilder;
+        friend class CustomMaterialBuilder;
+
+        static void compile(const MaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type);
+        static void compile(const CustomMaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type);
     public:
+        // compiles regular shader programs
         using ShaderProperties = std::function<void(std::string&)>;
         [[nodiscard]] static std::shared_ptr<ShaderProgram> compile(const fs::path& path, const ShaderProperties& props_set = ShaderProperties{});
-        static void compile(const MaterialType& type, uint64_t material_index, const RequiredMaterialShaders& material_types, const RequiredModelShaders& model_types);
     };
 }

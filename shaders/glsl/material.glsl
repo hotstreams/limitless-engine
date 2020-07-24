@@ -31,6 +31,10 @@ layout(std140) uniform material_buffer {
         #ifdef MATERIAL_BLENDMASK
             sampler2D material_blend_mask;
         #endif
+
+        #ifdef CUSTOM_MATERIAL
+            GraphicsEngine::CustomMaterialSamplerUniforms
+        #endif
     #endif
 
     #ifdef MATERIAL_SHININESS
@@ -43,6 +47,10 @@ layout(std140) uniform material_buffer {
 
     #ifdef MATERIAL_ROUGHNESS
         float material_roughness;
+    #endif
+
+    #ifdef CUSTOM_MATERIAL
+        GraphicsEngine::CustomMaterialScalarUniforms
     #endif
 };
 
@@ -69,5 +77,9 @@ layout(std140) uniform material_buffer {
 
     #ifdef MATERIAL_BLENDMASK
         uniform sampler2D material_blend_mask;
+    #endif
+
+    #ifdef CUSTOM_MATERIAL
+        GraphicsEngine::CustomMaterialSamplerUniforms
     #endif
 #endif

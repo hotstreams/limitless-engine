@@ -165,7 +165,7 @@ void ShaderProgram::getUniformLocations() noexcept {
 
     for (int i = 0; i < uniform_count; ++i) {
         std::array<GLint, 3> values = { 0 };
-        glGetProgramResourceiv(id, GL_UNIFORM, i, 3, props.data(), 3, nullptr, values.data());
+        glGetProgramResourceiv(id, GL_UNIFORM, i, props.size(), props.data(), values.size(), nullptr, values.data());
 
         if (values[0] != -1) continue;
 
@@ -185,7 +185,7 @@ void ShaderProgram::getIndexedBufferBounds() noexcept {
         GLint count = 0;
         glGetProgramInterfaceiv(id, static_cast<GLenum>(type), GL_ACTIVE_RESOURCES, &count);
 
-        GLenum props = { GL_NAME_LENGTH };
+        const GLenum props = { GL_NAME_LENGTH };
 
         for (int i = 0; i < count; ++i) {
             GLint value = 0;
@@ -196,7 +196,7 @@ void ShaderProgram::getIndexedBufferBounds() noexcept {
 
             glGetProgramResourceName(id, static_cast<GLenum>(type), i, value, nullptr, name.data());
 
-            GLint index = glGetProgramResourceIndex(id, static_cast<GLenum>(type), name.data());
+            const GLint index = glGetProgramResourceIndex(id, static_cast<GLenum>(type), name.data());
 
             indexed_binds.emplace_back(IndexedBufferData{type, name, index, IndexedBuffer::getBindingPoint({type, name }), false });
         }

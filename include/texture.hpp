@@ -99,6 +99,7 @@ namespace GraphicsEngine {
         virtual Texture& operator<<(const TexParameter<GLfloat*>& param) noexcept = 0;
 
         [[nodiscard]] virtual GLuint getId() const noexcept = 0;
+        [[nodiscard]] virtual Type getType() const noexcept = 0;
     };
 
     class StateTexture : public Texture {
@@ -155,6 +156,7 @@ namespace GraphicsEngine {
         StateTexture& operator<<(const TexParameter<GLfloat*>& param) noexcept override;
 
         [[nodiscard]] GLuint getId() const noexcept override;
+        [[nodiscard]] Type getType() const noexcept override;
     };
 
     class NamedTexture : public StateTexture {
