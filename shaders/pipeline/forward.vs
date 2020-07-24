@@ -2,6 +2,7 @@ GraphicsEngine::GLSL_VERSION
 GraphicsEngine::Extensions
 GraphicsEngine::Settings
 GraphicsEngine::MaterialType
+GraphicsEngine::ModelType
 
 #include "glsl/output_data_vs.glsl"
 #include "glsl/material.glsl"
@@ -14,7 +15,7 @@ layout(location = 0) in vec3 position;
     #endif
 #endif
 layout(location = 3) in vec2 uv;
-#ifdef SKELETAL_MODEL_
+#ifdef SKELETAL_MODEL
     #include "glsl/bones.glsl"
     layout (location = 4) in ivec4 bone_id;
     layout (location = 5) in vec4 bone_weight;

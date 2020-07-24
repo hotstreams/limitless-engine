@@ -23,9 +23,9 @@ namespace GraphicsEngine {
         void hide(const std::string& name);
         void reveal(const std::string& name);
 
-        void setPosition(const glm::vec3& _position) noexcept;
-        void setRotation(const glm::vec3& _rotation) noexcept;
-        void setScale(const glm::vec3& _scale) noexcept;
+        ModelInstance& setPosition(const glm::vec3& _position) noexcept;
+        ModelInstance& setRotation(const glm::vec3& _rotation) noexcept;
+        ModelInstance& setScale(const glm::vec3& _scale) noexcept;
 
         void draw(MaterialShaderType shader_type, Blending blending, const UniformSetter& uniform_setter = UniformSetter{}) override;
     };

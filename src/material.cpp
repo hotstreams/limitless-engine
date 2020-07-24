@@ -53,47 +53,91 @@ void Material::update() const noexcept {
 }
 
 UniformValue<glm::vec4>& Material::getColor() const {
-    return static_cast<UniformValue<glm::vec4>&>(*properties.at(PropertyType::Color));
+    try {
+        return static_cast<UniformValue<glm::vec4>&>(*properties.at(PropertyType::Color));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No color in material.");
+    }
 }
 
 UniformValue<glm::vec4>& Material::getEmissiveColor() const {
-    return static_cast<UniformValue<glm::vec4>&>(*properties.at(PropertyType::EmissiveColor));
+    try {
+        return static_cast<UniformValue<glm::vec4>&>(*properties.at(PropertyType::EmissiveColor));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No emissive color in material.");
+    }
 }
 
 UniformValue<float>& Material::getShininess() const {
-    return static_cast<UniformValue<float>&>(*properties.at(PropertyType::Shininess));
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(PropertyType::Shininess));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No shininess in material.");
+    }
 }
 
 UniformValue<float>& Material::getMetallic() const {
-    return static_cast<UniformValue<float>&>(*properties.at(PropertyType::Metallic));
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(PropertyType::Metallic));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No metallic in material.");
+    }
 }
 
 UniformValue<float>& Material::getRoughness() const {
-    return static_cast<UniformValue<float>&>(*properties.at(PropertyType::Roughness));
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(PropertyType::Roughness));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No roughness in material.");
+    }
 }
 
 UniformSampler& Material::getDiffuse() const {
-    return static_cast<UniformSampler&>(*properties.at(PropertyType::Diffuse));
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::Diffuse));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No diffuse in material.");
+    }
 }
 
 UniformSampler& Material::getSpecular() const {
-    return static_cast<UniformSampler&>(*properties.at(PropertyType::Specular));
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::Specular));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No specular in material.");
+    }
 }
 
 UniformSampler& Material::getNormal() const {
-    return static_cast<UniformSampler&>(*properties.at(PropertyType::Normal));
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::Normal));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No normal in material.");
+    }
 }
 
 UniformSampler& Material::getDisplacement() const {
-    return static_cast<UniformSampler&>(*properties.at(PropertyType::Displacement));
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::Displacement));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No displacement in material.");
+    }
 }
 
 UniformSampler& Material::getEmissiveMask() const {
-    return static_cast<UniformSampler&>(*properties.at(PropertyType::EmissiveMask));
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::EmissiveMask));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No emissive mask in material.");
+    }
 }
 
 UniformSampler& Material::getBlendMask() const {
-    return static_cast<UniformSampler&>(*properties.at(PropertyType::BlendMask));
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::BlendMask));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No blend mask in material.");
+    }
 }
 
 Material::Material(decltype(properties) &&properties, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept

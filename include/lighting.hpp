@@ -68,6 +68,8 @@ namespace GraphicsEngine {
             return lights.size();
         }
 
+        const auto& getLights() const noexcept { return lights; }
+
         void update() {
             if (modified) {
                 light_buffer->mapData(lights.data(), sizeof(T) * lights.size());
@@ -90,7 +92,7 @@ namespace GraphicsEngine {
     class Lighting {
     public:
         DynamicLighting dynamic;
-        glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 0.1f};
+        glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 0.7f};
 
         void update() {
             dynamic.update();

@@ -29,6 +29,7 @@ namespace GraphicsEngine {
         GLenum depth_mask;
         GLenum cull_face;
         GLenum front_face;
+        GLenum polygon_mode;
 
         GLuint shader_id;
         GLuint vertex_array_id;
@@ -65,6 +66,7 @@ namespace GraphicsEngine {
         ContextState(ContextState&&) noexcept = default;
         ContextState& operator=(ContextState&&) noexcept = default;
 
+        static bool hasState(GLFWwindow* window) noexcept;
         static ContextState& getState(GLFWwindow* window);
 
         void setViewPort(glm::uvec2 viewport_size) noexcept;
@@ -76,5 +78,6 @@ namespace GraphicsEngine {
         void setDepthMask(GLboolean mask) noexcept;
         void setCullFace(GLenum mode) noexcept;
         void setFrontFace(GLenum mode) noexcept;
+        void setPolygonMode(GLenum mode) noexcept;
     };
 }

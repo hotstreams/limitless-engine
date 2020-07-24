@@ -64,16 +64,19 @@ void ModelInstance::calculateModelMatrix() noexcept {
     model_matrix = glm::scale(model_matrix, scale);
 }
 
-void ModelInstance::setPosition(const glm::vec3& _position) noexcept {
+ModelInstance& ModelInstance::setPosition(const glm::vec3& _position) noexcept {
     position = _position;
+    return *this;
 }
 
-void ModelInstance::setRotation(const glm::vec3& _rotation) noexcept {
+ModelInstance& ModelInstance::setRotation(const glm::vec3& _rotation) noexcept {
     rotation = _rotation;
+    return *this;
 }
 
-void ModelInstance::setScale(const glm::vec3& _scale) noexcept {
+ModelInstance& ModelInstance::setScale(const glm::vec3& _scale) noexcept {
     scale = _scale;
+    return *this;
 }
 
 void ModelInstance::draw(MaterialShaderType material_type, Blending blending, const UniformSetter& uniform_setter) {

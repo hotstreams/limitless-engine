@@ -14,40 +14,43 @@ ShaderProgram::ShaderProgram(GLuint id) : id(id) {
 }
 
 void ShaderProgram::use() {
-    auto& current_id = ContextState::getState(glfwGetCurrentContext()).shader_id;
+    auto *window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &current_id = ContextState::getState(window).shader_id;
 
-    if (current_id != id) {
-        glUseProgram(id);
-        current_id = id;
-    }
+        if (current_id != id) {
+            glUseProgram(id);
+            current_id = id;
+        }
 
-    bindIndexedBuffers();
+        bindIndexedBuffers();
 
-    if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
-        // collects textures
-        // binds them to units for current usage
-        // sets unit index value to samplers in shader
-        std::vector<const Texture*> to_bind;
-        for (const auto& [name, uniform] : uniforms) {
-            if (uniform->getType() == UniformType::Sampler) {
-                const auto &sampler = static_cast<UniformSampler&>(*uniform);
-                to_bind.emplace_back(sampler.getSampler().get());
+        if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
+            // collects textures
+            // binds them to units for current usage
+            // sets unit index value to samplers in shader
+            std::vector<const Texture *> to_bind;
+            for (const auto&[name, uniform] : uniforms) {
+                if (uniform->getType() == UniformType::Sampler) {
+                    const auto &sampler = static_cast<UniformSampler &>(*uniform);
+                    to_bind.emplace_back(sampler.getSampler().get());
+                }
+            }
+
+            const auto units = TextureBinder::bind(to_bind);
+
+            uint32_t i = 0;
+            for (const auto&[name, uniform] : uniforms) {
+                if (uniform->getType() == UniformType::Sampler) {
+                    auto &sampler = static_cast<UniformSampler &>(*uniform);
+                    sampler.setValue(units[i++]);
+                }
             }
         }
 
-        const auto units = TextureBinder::bind(to_bind);
-
-        uint32_t i = 0;
-        for (const auto& [name, uniform] : uniforms) {
-            if (uniform->getType() == UniformType::Sampler) {
-                auto& sampler = static_cast<UniformSampler&>(*uniform);
-                sampler.setValue(units[i++]);
-            }
+        for (const auto&[name, uniform] : uniforms) {
+            uniform->set(*this);
         }
-    }
-
-    for (const auto& [name, uniform] : uniforms) {
-        uniform->set(*this);
     }
 }
 

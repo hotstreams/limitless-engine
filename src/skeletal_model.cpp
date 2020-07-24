@@ -46,7 +46,7 @@ glm::vec3 AnimationNode::positionLerp(double anim_time) const {
     double dt = b.time - a.time;
     double norm = (anim_time - a.time) / dt;
 
-    if (norm >= 0.f && norm <= 1.f) {
+    if (!(norm >= 0.f && norm <= 1.f)) {
         throw std::runtime_error("norm >= 0.f && norm <= 1.f");
     }
 
@@ -68,7 +68,7 @@ glm::fquat AnimationNode::rotationLerp(double anim_time) const {
     double dt = b.time - a.time;
     double norm = (anim_time - a.time) / dt;
 
-    if (norm >= 0.f && norm <= 1.f) {
+    if (!(norm >= 0.f && norm <= 1.f)) {
         throw std::runtime_error("norm >= 0.f && norm <= 1.f");
     }
 
@@ -91,7 +91,7 @@ glm::vec3 AnimationNode::scalingLerp(double anim_time) const {
     double dt = b.time - a.time;
     double norm = (anim_time - a.time) / dt;
 
-    if (norm >= 0.f && norm <= 1.f) {
+    if (!(norm >= 0.f && norm <= 1.f)) {
         throw std::runtime_error("norm >= 0.f && norm <= 1.f");
     }
 

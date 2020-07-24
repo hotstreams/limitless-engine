@@ -26,7 +26,14 @@ StateBuffer::StateBuffer(Type target, size_t size, const void* data, Storage usa
 
 StateBuffer::~StateBuffer() {
     if (id != 0) {
-        glDeleteBuffers(1, &id);
+        auto* window = glfwGetCurrentContext();
+        if (ContextState::hasState(window)) {
+            auto& target_map = ContextState::getState(window).buffer_target;
+            if (target_map[target] == id) {
+                target_map[target] = 0;
+            }
+            glDeleteBuffers(1, &id);
+        }
     }
 }
 
@@ -52,38 +59,52 @@ StateBuffer& StateBuffer::operator=(StateBuffer&& rhs) noexcept {
 }
 
 void StateBuffer::bind() const noexcept {
-    auto& target_map = ContextState::getState(glfwGetCurrentContext()).buffer_target;
-    if (target_map[target] != id) {
-        glBindBuffer(static_cast<GLenum>(target), id);
-        target_map[target] = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &target_map = ContextState::getState(window).buffer_target;
+        if (target_map[target] != id) {
+            glBindBuffer(static_cast<GLenum>(target), id);
+            target_map[target] = id;
+        }
     }
 }
 
 void StateBuffer::bindAs(Type _target) const noexcept {
-    auto& target_map = ContextState::getState(glfwGetCurrentContext()).buffer_target;
-    if (target_map[_target] != id) {
-        glBindBuffer(static_cast<GLenum>(_target), id);
-        target_map[_target] = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &target_map = ContextState::getState(window).buffer_target;
+        if (target_map[_target] != id) {
+            glBindBuffer(static_cast<GLenum>(_target), id);
+            target_map[_target] = id;
+        }
     }
 }
 
 void StateBuffer::bindBaseAs(Type _target, GLuint index) const noexcept {
-    auto& point_map = ContextState::getState(glfwGetCurrentContext()).buffer_point;
-    auto& target_map = ContextState::getState(glfwGetCurrentContext()).buffer_target;
-    if (point_map[{ _target, index }] != id) {
-        glBindBufferBase(static_cast<GLenum>(_target), index, id);
-        point_map[{ _target, index }] = id;
-        target_map[_target] = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto& state = ContextState::getState(window);
+        auto &point_map = state.buffer_point;
+        auto &target_map = state.buffer_target;
+        if (point_map[{_target, index}] != id) {
+            glBindBufferBase(static_cast<GLenum>(_target), index, id);
+            point_map[{_target, index}] = id;
+            target_map[_target] = id;
+        }
     }
 }
 
 void StateBuffer::bindBase(GLuint index) const noexcept {
-    auto& point_map = ContextState::getState(glfwGetCurrentContext()).buffer_point;
-    auto& target_map = ContextState::getState(glfwGetCurrentContext()).buffer_target;
-    if (point_map[{ target, index }] != id) {
-        glBindBufferBase(static_cast<GLenum>(target), index, id);
-        point_map[{ target, index }] = id;
-        target_map[target] = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &state = ContextState::getState(window);
+        auto &point_map = state.buffer_point;
+        auto &target_map = state.buffer_target;
+        if (point_map[{target, index}] != id) {
+            glBindBufferBase(static_cast<GLenum>(target), index, id);
+            point_map[{target, index}] = id;
+            target_map[target] = id;
+        }
     }
 }
 
@@ -184,8 +205,6 @@ void* StateBuffer::mapBufferRange(GLintptr offset, GLsizeiptr map_size) const {
     bind();
 
     auto* ptr = glMapBufferRange(static_cast<GLenum>(target), offset, map_size, acc);
-    int bind;
-    glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, &bind);
     if (!ptr) {
         unmapBuffer();
         throw std::runtime_error("Buffer cannot get pointer to data.");
@@ -221,18 +240,24 @@ void StateBuffer::fence() noexcept {
 }
 
 void StateBuffer::bindBufferRangeAs(Buffer::Type _target, GLuint index, GLintptr offset) const noexcept {
-    auto& point_map = ContextState::getState(glfwGetCurrentContext()).buffer_point;
-    if (point_map[{ _target, index }] != id) {
-        glBindBufferRange(static_cast<GLenum>(_target), index, id, offset, size);
-        point_map[{ _target, index }] = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &point_map = ContextState::getState(window).buffer_point;
+        if (point_map[{_target, index}] != id) {
+            glBindBufferRange(static_cast<GLenum>(_target), index, id, offset, size);
+            point_map[{_target, index}] = id;
+        }
     }
 }
 
 void StateBuffer::bindBufferRange(GLuint index, GLintptr offset) const noexcept {
-    auto& point_map = ContextState::getState(glfwGetCurrentContext()).buffer_point;
-    if (point_map[{ target, index }] != id) {
-        glBindBufferRange(static_cast<GLenum>(target), index, id, offset, size);
-        point_map[{ target, index }] = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &point_map = ContextState::getState(window).buffer_point;
+        if (point_map[{target, index}] != id) {
+            glBindBufferRange(static_cast<GLenum>(target), index, id, offset, size);
+            point_map[{target, index}] = id;
+        }
     }
 }
 

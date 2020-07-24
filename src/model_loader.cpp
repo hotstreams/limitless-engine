@@ -10,6 +10,9 @@
 
 using namespace GraphicsEngine;
 
+static uint64_t unnamed_mesh_index = 0;
+static uint64_t unnamed_material_index = 0;
+
 namespace glm {
     glm::mat4 convert(const aiMatrix4x4& aimat) {
         return glm::mat4(aimat.a1, aimat.b1, aimat.c1, aimat.d1,
@@ -46,13 +49,15 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path) {
                                                      aiProcess_GenUVCoords |
                                                      aiProcess_GenNormals |
                                                      aiProcess_GenSmoothNormals |
-                                                     //aiProcess_FlipUVs |
                                                      aiProcess_CalcTangentSpace |
                                                      aiProcess_ImproveCacheLocality);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         throw std::runtime_error("Assimp library error: " + std::string(importer.GetErrorString()));
     }
+
+    unnamed_mesh_index = 0;
+    unnamed_material_index = 0;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
         auto* mesh = scene->mMeshes[i];
@@ -88,11 +93,28 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path) {
         }
 
         // adds mesh
-        assets.meshes.add(loaded_mesh->getName(), loaded_mesh);
-        meshes.emplace_back(loaded_mesh);
+        //if (!assets.meshes.isExist(loaded_mesh->getName())) {
+            assets.meshes.add(loaded_mesh->getName(), loaded_mesh);
+            meshes.emplace_back(loaded_mesh);
+        //}
+    }
 
-        // adds material
-        auto loaded_material = loadMaterial(material, path);
+    ModelShaderType model = ModelShaderType::Model;
+    if (scene->mNumAnimations != 0) {
+        model = ModelShaderType::Skeletal;
+    }
+
+    // loads materials based on model
+    for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
+        auto *mesh = scene->mMeshes[i];
+        auto *material = scene->mMaterials[mesh->mMaterialIndex];
+
+        if (material->GetTextureCount(aiTextureType_DIFFUSE) == 0) {
+            //throw std::runtime_error("No diffuse textures in model " + path.string());
+            continue;
+        }
+
+        auto loaded_material = loadMaterial(material, path, {model});
         materials.emplace_back(loaded_material);
     }
 
@@ -191,16 +213,16 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* mesh, const fs::path
     for (uint32_t j = 0; j < mesh->mNumVertices; ++j) {
         auto vertex = glm::convert3f(mesh->mVertices[j]);
         auto normal = glm::convert3f(mesh->mNormals[j]);
-        auto tangents = glm::convert3f(mesh->mTangents[j]);
+        auto tangent = glm::convert3f(mesh->mTangents[j]);
         auto uv = glm::convert2f(mesh->mTextureCoords[0][j]);
 
         if constexpr (std::is_same<T, VertexNormalTangent>::value) {
-            vertices.emplace_back(T{vertex, normal, tangents, uv});
+            vertices.emplace_back(T{vertex, normal, tangent, uv});
         }
 
         if constexpr (std::is_same<T, VertexPackedNormalTangent>::value) {
             auto packed_normal = pack(normal);
-            auto packed_tangent = pack(tangents);
+            auto packed_tangent = pack(tangent);
             auto packed_uv = glm::packHalf2x16(uv);
 
             vertices.emplace_back(T{vertex, packed_normal, packed_tangent, packed_uv});
@@ -246,7 +268,8 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* mesh, const fs::path
         throw std::runtime_error("Bone weights for some vertices does not exist, model is corrupted.");
     }
 
-    auto name = path.string() + PATH_SEPARATOR + mesh->mName.C_Str();
+    auto name = path.string() + PATH_SEPARATOR + (mesh->mName.length != 0 ? mesh->mName.C_Str() : std::to_string(unnamed_mesh_index++));
+
     if (!bone_map.empty()) {
         return std::shared_ptr<AbstractMesh>(new SkinnedMesh<T, T1>(std::move(vertices), std::move(indices), std::move(bone_weights), name, MeshDataType::Static, DrawMode::Triangles));
     }
@@ -254,10 +277,10 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* mesh, const fs::path
     return std::shared_ptr<AbstractMesh>(new IndexedMesh<T, T1>(std::move(vertices), std::move(indices), name, MeshDataType::Static, DrawMode::Triangles));
 }
 
-std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path) {
+std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const RequiredModelShaders& model_shaders) {
     aiString str, aname;
     mat->Get(AI_MATKEY_NAME, aname);
-    std::string name = path.parent_path().string() + PATH_SEPARATOR + aname.C_Str();
+    std::string name = path.parent_path().string() + PATH_SEPARATOR + (aname.length != 0 ? aname.C_Str() : std::to_string(unnamed_material_index++));
 
     if (assets.materials.isExist(name)) {
         return assets.materials.get(name);
@@ -310,5 +333,5 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         builder.add(PropertyType::Normal, normal[0]);
     }
 
-    return builder.build(name);
+    return builder.build(name, model_shaders);
 }

@@ -6,6 +6,8 @@
 #include <scene.hpp>
 #include <render.hpp>
 #include <assets.hpp>
+#include <skeletal_instance.hpp>
+#include <elementary_model.hpp>
 
 using namespace GraphicsEngine;
 
@@ -19,7 +21,7 @@ private:
     bool done {false};
     static constexpr glm::uvec2 window_size {2048 , 1080};
 public:
-    Game() : context{"Cubes demo", window_size, {{ WindowHint::Samples, 32 }}}, camera{window_size} {
+    Game() : context{"Cubes demo", window_size, {{ WindowHint::Samples, 32 }}}, camera{window_size}, render{context} {
         camera.setPosition({0.0f, 0.0f, 0.0f});
 
         context.makeCurrent();
@@ -29,13 +31,25 @@ public:
         context.setStickyKeys(true);
 
         context.registerObserver(static_cast<KeyObserver*>(this));
-        context.registerObserver(static_cast<MouseMoveObserver *>(this));
+        context.registerObserver(static_cast<MouseMoveObserver*>(this));
 
         assets.load();
 
-        scene.addInstance(new ModelInstance(assets.models.get("test"), glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.001f});
+        MaterialBuilder builder;
+        //auto mat = builder.add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/opengl.jpg"))
+        auto mat = builder.add(PropertyType::Color, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
+                .setShading(Shading::Lit)
+                .build("sphere");
 
-        auto light = PointLight{ glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, glm::vec4{2.2f, 0.5f, 3.0f, 3.5f}, 10.0f, 0.7f, 1.8f, 2.0f};
+        scene.addInstance(new ModelInstance(assets.models.get("sponza"), glm::vec4{0.0f, 1.0f, 0.5f, 1.0f})).setScale(glm::vec3{0.1f});
+        scene.addInstance(new ModelInstance(std::make_shared<Sphere>(1000, 1000), mat, glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.1f});
+        auto& model = scene.addInstance(new SkeletalInstance(assets.models.get("bob"), glm::vec3{ 0.0f, 0.0f, 0.0f }))
+            .setScale(glm::vec3{0.005f})
+            .setRotation({ -M_PI_2, 0.0f, 0.0f});
+
+        static_cast<SkeletalInstance&>(model).play("");
+
+        auto light = PointLight{glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, glm::vec4{2.2f, 0.5f, 3.0f, 3.5f}, 1.0f, 0.7f, 1.8f, 2.0f};
         scene.lighting.dynamic.points_lights.add(light);
     }
 

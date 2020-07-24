@@ -46,8 +46,11 @@ namespace GraphicsEngine {
     public:
         const std::shared_ptr<ShaderProgram>& get(const std::string& name) const;
         const std::shared_ptr<ShaderProgram>& get(MaterialShaderType material_type, ModelShaderType model_type, uint64_t material_index) const;
+
         void add(std::string name, std::shared_ptr<ShaderProgram> program) noexcept;
         void add(MaterialShaderType material_type, ModelShaderType model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) noexcept;
+
+        bool isExist(MaterialShaderType material_type, ModelShaderType model_type, uint64_t material_index) const noexcept;
 
         void initialize();
     };
