@@ -30,6 +30,11 @@ void main()
     fs_data.uv = uv;
 
     mat4 model_matrix = model;
+    vec4 vertex_position = vec4(position, 1.0);
+
+    #ifdef CUSTOM_MATERIAL
+        GraphicsEngine::CustomMaterialVertexCode
+    #endif
 
     #ifdef SKELETAL_MODEL
         mat4 bone_transform = bones[bone_id[0]] * bone_weight[0];
@@ -40,7 +45,7 @@ void main()
         model_matrix *= bone_transform;
     #endif
 
-    vec4 world_pos = model_matrix * vec4(position, 1.0);
+    vec4 world_pos = model_matrix * vertex_position;
 
     #ifdef MATERIAL_LIT
         fs_data.world_position = world_pos.xyz;

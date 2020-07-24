@@ -16,20 +16,23 @@ void Material::update() const noexcept {
     if (!changed) return;
 
     std::vector<std::byte> data(material_buffer->getSize());
-    size_t offset = 0;
     for (const auto& [type, prop] : properties) {
         switch (type) {
             case PropertyType::Color:
-            case PropertyType::EmissiveColor:
-                std::memcpy(data.data(), &static_cast<UniformValue<glm::vec4>&>(*properties.at(type)).getValue(), sizeof(glm::vec4));
-                offset += sizeof(glm::vec4);
+            case PropertyType::EmissiveColor: {
+                auto& uniform = static_cast<UniformValue<glm::vec4>&>(*properties.at(type));
+                auto offset = uniform_offsets.at(uniform.getName());
+                std::memcpy(data.data() + offset, &uniform.getValue(), sizeof(glm::vec4));
                 break;
+            }
             case PropertyType::Shininess:
             case PropertyType::Metallic:
-            case PropertyType::Roughness:
-                std::memcpy(data.data() + offset, &static_cast<UniformValue<float>&>(*properties.at(type)).getValue(), sizeof(float));
-                offset += sizeof(float);
+            case PropertyType::Roughness: {
+                auto& uniform = static_cast<UniformValue<float> &>(*properties.at(type));
+                auto offset = uniform_offsets.at(uniform.getName());
+                std::memcpy(data.data() + offset, &uniform.getValue(), sizeof(float));
                 break;
+            }
             case PropertyType::Diffuse:
             case PropertyType::Specular:
             case PropertyType::Normal:
@@ -37,9 +40,10 @@ void Material::update() const noexcept {
             case PropertyType::EmissiveMask:
             case PropertyType::BlendMask:
                 if (ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
-                    auto texture = static_cast<UniformSampler&>(*properties.at(type)).getSampler();
+                    auto& uniform = static_cast<UniformSampler&>(*properties.at(type));
+                    auto offset = uniform_offsets.at(uniform.getName());
+                    auto& texture = uniform.getSampler();
                     std::memcpy(data.data() + offset, &static_cast<BindlessTexture&>(*texture).getHandle(), sizeof(uint64_t));
-                    offset += sizeof(uint64_t);
                 }
                 break;
         }
@@ -140,13 +144,13 @@ UniformSampler& Material::getBlendMask() const {
     }
 }
 
-Material::Material(decltype(properties) &&properties, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept
-    : properties{std::move(properties)}, blending{blending}, shading{shading}, name{std::move(name)}, shader_index{shader_index} {
+Material::Material(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept
+    : properties{std::move(properties)}, uniform_offsets{std::move(offsets)}, blending{blending}, shading{shading}, name{std::move(name)}, shader_index{shader_index} {
 
 }
 
 Material::Material(const Material& material)
-    : blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index} {
+    : uniform_offsets{material.uniform_offsets}, blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index} {
     for (const auto& [type, property] : material.properties) {
         properties.emplace(type, property->clone());
     }

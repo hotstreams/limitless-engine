@@ -34,10 +34,6 @@ namespace GraphicsEngine {
 
             context.enable(GL_VERTEX_PROGRAM_POINT_SIZE);
             context.enable(GL_DEPTH_TEST);
-
-            //context.enable(GL_CULL_FACE);
-            //context.setCullFace(GL_BACK);
-            //context.setFrontFace(GL_CW);
         }
 
         void draw(Context& context, Scene& scene, Camera& camera) {

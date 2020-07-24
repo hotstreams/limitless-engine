@@ -4,6 +4,8 @@
 #include <context.hpp>
 #include <render_settings.hpp>
 
+#include <cumstom_material_builder.hpp>
+
 using namespace GraphicsEngine;
 
 std::string ShaderCompiler::getFileSource(const fs::path& path) {
@@ -213,7 +215,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
     return std::shared_ptr<ShaderProgram>(new ShaderProgram(id));
 }
 
-std::string ShaderCompiler::getMaterialDefines(const MaterialType &type) noexcept {
+std::string ShaderCompiler::getMaterialDefines(const MaterialType& type) noexcept {
     std::string property_defines;
     for (const auto& property : type.properties) {
         switch (property) {
@@ -295,16 +297,51 @@ std::string ShaderCompiler::getModelDefines(const ModelShaderType& type) noexcep
     return defines;
 }
 
-void ShaderCompiler::compile(const MaterialType& type, uint64_t material_index, const RequiredMaterialShaders& material_types, const RequiredModelShaders& model_types) {
-    auto material_defines = getMaterialDefines(type);
-
-    for (const auto& mat_type : material_types) {
-        for (const auto& mod_type : model_types) {
-            auto props = [&] (std::string& src) {
-                replaceKey(src, "GraphicsEngine::MaterialType", material_defines);
-                replaceKey(src, "GraphicsEngine::ModelType", getModelDefines(mod_type));
-            };
-            shader_storage.add(mat_type, mod_type, material_index, compile(SHADER_DIR + material_shader_path.at(mat_type), props));
+std::string ShaderCompiler::getCustomMaterialScalarUniforms(const CustomMaterialBuilder& builder) noexcept {
+    std::string uniforms;
+    for (const auto& [name, uniform] : builder.getUniforms()) {
+        if (uniform->getType() == UniformType::Value) {
+            uniforms.append(getUniformDeclaration(*uniform));
         }
     }
+    return uniforms;
+}
+
+std::string ShaderCompiler::getCustomMaterialSamplerUniforms(const CustomMaterialBuilder& builder) noexcept {
+    std::string uniforms;
+    for (const auto& [name, uniform] : builder.getUniforms()) {
+        if (uniform->getType() == UniformType::Sampler) {
+            uniforms.append(getUniformDeclaration(*uniform));
+        }
+    }
+    return uniforms;
+}
+
+void ShaderCompiler::compile(const MaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type) {
+    auto material_defines = getMaterialDefines(builder.getMaterialType());
+    material_defines.append("#define REGULAR_MATERIAL\n");
+
+    const auto props = [&] (std::string& src) {
+        replaceKey(src, "GraphicsEngine::MaterialType", material_defines);
+        replaceKey(src, "GraphicsEngine::ModelType", getModelDefines(model_type));
+    };
+
+    shader_storage.add(material_type, model_type, builder.getMaterialIndex(), compile(SHADER_DIR + material_shader_path.at(material_type), props));
+}
+
+void ShaderCompiler::compile(const CustomMaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type) {
+    auto material_defines = getMaterialDefines(builder.getMaterialType());
+    material_defines.append("#define CUSTOM_MATERIAL\n");
+
+    const auto props = [&] (std::string& src) {
+        replaceKey(src, "GraphicsEngine::MaterialType", material_defines);
+        replaceKey(src, "GraphicsEngine::ModelType", getModelDefines(model_type));
+
+        replaceKey(src, "GraphicsEngine::CustomMaterialVertexCode", builder.getVertexCode());
+        replaceKey(src, "GraphicsEngine::CustomMaterialFragmentCode", builder.getFragmentCode());
+        replaceKey(src, "GraphicsEngine::CustomMaterialScalarUniforms", getCustomMaterialScalarUniforms(builder));
+        replaceKey(src, "GraphicsEngine::CustomMaterialSamplerUniforms", getCustomMaterialSamplerUniforms(builder));
+    };
+
+    shader_storage.add(material_type, model_type, builder.getMaterialIndex(), compile(SHADER_DIR + material_shader_path.at(material_type), props));
 }

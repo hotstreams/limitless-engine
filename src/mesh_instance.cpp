@@ -13,7 +13,7 @@ void MeshInstance::hide() noexcept {
 
 void MeshInstance::reveal() noexcept {
     hidden = false;
-};
+}
 
 void MeshInstance::draw() const noexcept {
     mesh->draw();

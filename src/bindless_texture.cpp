@@ -70,3 +70,7 @@ Texture& BindlessTexture::operator<<(const TexParameter<GLfloat*>& param) noexce
 GLuint BindlessTexture::getId() const noexcept {
     return texture->getId();
 }
+
+Texture::Type BindlessTexture::getType() const noexcept {
+    return texture->getType();
+}

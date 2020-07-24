@@ -269,6 +269,11 @@ GLuint StateTexture::getId() const noexcept {
     return id;
 }
 
+[[nodiscard]] Texture::Type StateTexture::getType() const noexcept {
+    return target;
+}
+
+
 void NamedTexture::texStorage2D(GLsizei levels, InternalFormat internal) const noexcept {
     glTextureStorage2D(id, levels, static_cast<GLenum>(internal), size.x, size.y);
 }

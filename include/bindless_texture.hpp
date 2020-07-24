@@ -30,5 +30,6 @@ namespace GraphicsEngine {
         Texture& operator<<(const TexParameter<GLfloat*>& param) noexcept override;
 
         [[nodiscard]] GLuint getId() const noexcept override;
+        [[nodiscard]] Type getType() const noexcept override;
     };
 }
