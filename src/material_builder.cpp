@@ -121,10 +121,13 @@ std::shared_ptr<Material> MaterialBuilder::build(const std::string& name, const 
     material->material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, data, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 
     // in case that's a new one
-    if (found == unique_materials.end()) {
-        // compile whatever we need for that material
-        ShaderCompiler::compile(material_type, material_index, material_shaders, model_shaders);
-        unique_materials.emplace(material_type, material_index);
+    for (const auto& mat_shader : material_shaders) {
+        for (const auto& mod_shader : model_shaders) {
+            if(!shader_storage.isExist(mat_shader, mod_shader, material_index)) {
+                ShaderCompiler::compile(material_type, material_index, {mat_shader}, {mod_shader});
+                unique_materials.emplace(material_type, material_index);
+            }
+        }
     }
 
     // clear for new material state
@@ -150,7 +153,7 @@ MaterialBuilder& MaterialBuilder::setBlending(Blending _blending) noexcept {
     return *this;
 }
 
-MaterialBuilder &MaterialBuilder::setShading(Shading _shading) noexcept {
+MaterialBuilder& MaterialBuilder::setShading(Shading _shading) noexcept {
     shading = _shading;
     return *this;
 }

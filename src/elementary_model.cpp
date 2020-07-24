@@ -73,7 +73,7 @@ Cube::Cube() {
 }
 
 Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
-    std::vector<VertexNormal> vertices;
+    std::vector<VertexNormalTangent> vertices;
     std::vector<GLuint> indices;
 
     for (uint32_t y = 0; y <= y_segments; ++y) {
@@ -87,7 +87,7 @@ Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
                     std::sin(x_seg * 2.0f * M_PI) * std::sin(y_seg * M_PI)
             };
 
-            vertices.emplace_back(VertexNormal{pos, pos, glm::vec2{ x_seg, y_seg }});
+            vertices.emplace_back(VertexNormalTangent{pos, pos, pos, glm::vec2{x_seg, y_seg}});
         }
     }
 
@@ -107,6 +107,6 @@ Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
         oddRow = !oddRow;
     }
 
-    auto mesh = std::make_shared<IndexedMesh<VertexNormal, GLuint>>(std::move(vertices), std::move(indices), "sphere_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
+    auto mesh = std::make_shared<IndexedMesh<VertexNormalTangent, GLuint>>(std::move(vertices), std::move(indices), "sphere_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
     meshes.emplace_back(std::move(mesh));
 }

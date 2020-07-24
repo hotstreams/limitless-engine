@@ -1,4 +1,5 @@
 #include <skeletal_instance.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -7,7 +8,7 @@ SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::
         type = ModelShaderType::Skeletal;
         auto& skeletal = static_cast<SkeletalModel&>(*model);
 
-        bone_transform.reserve(skeletal.getBones().size());
+        bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
         bone_buffer = BufferBuilder::buildIndexed("bone_buffer", Buffer::Type::ShaderStorage, bone_transform, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
 }
 
@@ -36,16 +37,16 @@ void SkeletalInstance::draw(MaterialShaderType shader_type, Blending blending, c
     bone_buffer->fence();
 }
 
-void SkeletalInstance::play(const std::string &name) {
-    auto& skeletal = static_cast<SkeletalModel&>(*model);
+void SkeletalInstance::play(const std::string& name) {
+    const auto& skeletal = static_cast<SkeletalModel&>(*model);
 
-    auto& animations = skeletal.getAnimations();
+    const auto& animations = skeletal.getAnimations();
 
-    auto found = std::find_if(animations.begin(), animations.end(), [&] (const auto& anim) { return name == anim.name; });
+    const auto found = std::find_if(animations.begin(), animations.end(), [&] (const auto& anim) { return name == anim.name; });
     if (found == animations.end()) {
         throw std::runtime_error("Animation not found " + name);
     } else {
-        animation = &*found;
+        animation = &(*found);
     }
 }
 
@@ -102,7 +103,7 @@ void SkeletalInstance::update() {
         node_traversal(skeletal.getSkeletonTree(), glm::mat4(1.f));
     }
     catch (const std::exception& e) {
-        throw std::runtime_error("Wrong TPS/duration." + std::string(e.what()));
+        throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
     }
 
     bone_buffer->mapData(bone_transform.data(), sizeof(glm::mat4) * bone_transform.size());

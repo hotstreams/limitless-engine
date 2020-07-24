@@ -53,6 +53,6 @@
     #ifdef MATERIAL_ROUGHNESS
         float mat_roughness = material_roughness;
     #else
-        float mat_roughtness = 0.5;
+        float mat_roughness = 0.5;
     #endif
 #endif

@@ -23,7 +23,7 @@ namespace GraphicsEngine {
         void add(const std::string& name, std::shared_ptr<T> res) {
             auto result = resource.emplace(name, std::move(res));
             if (!result.second) {
-                throw std::runtime_error("Failed to add resource " + name + ", already exists.");
+                throw std::runtime_error("Failed to add resource " + std::string(typeid(T).name()) + name + ", already exists.");
             }
         }
 

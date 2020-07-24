@@ -84,5 +84,20 @@ void ContextState::setFrontFace(GLenum mode) noexcept {
 }
 
 ContextState& ContextState::getState(GLFWwindow* window) {
-    return *state_map.at(window);
+    try {
+        return *state_map.at(window);
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No such context state.");
+    }
+}
+
+void ContextState::setPolygonMode(GLenum mode) noexcept {
+    if (polygon_mode != mode) {
+        glPolygonMode(GL_FRONT_AND_BACK, mode);
+        polygon_mode = mode;
+    }
+}
+
+bool ContextState::hasState(GLFWwindow* window) noexcept {
+    return state_map.find(window) != state_map.end();
 }

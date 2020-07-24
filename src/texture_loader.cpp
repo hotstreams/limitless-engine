@@ -41,7 +41,7 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_l
                 throw std::runtime_error("Unknown number of channels.");
         }
 
-        auto mipmap_count = glm::ceil(glm::log2(static_cast<float>(glm::max(width, height)))) + 1;
+        auto mipmap_count = glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1;
         auto texture = TextureBuilder::build(Texture::Type::Tex2D, mipmap_count, internal, { width, height }, format, Texture::DataType::UnsignedByte, data);
         texture->generateMipMap();
 

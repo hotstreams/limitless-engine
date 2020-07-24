@@ -55,7 +55,7 @@ namespace GraphicsEngine {
         SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& bones, decltype(bone_map)&& bone_map, decltype(skeleton)&& skeleton, decltype(animations)&& a, const glm::mat4& global_matrix) noexcept;
         ~SkeletalModel() override = default;
 
-        auto& getAnimations() const noexcept { return animations; }
+        const auto& getAnimations() const noexcept { return animations; }
         const auto& getBones() const noexcept { return bones; }
         const auto& getGlobalInverseMatrix() const noexcept { return global_inverse; }
         const auto& getSkeletonTree() const noexcept { return skeleton; }

@@ -213,19 +213,25 @@ void StateTexture::texSubImage3D(GLint xoffset, GLint yoffset, GLint zoffset, gl
 }
 
 void StateTexture::activate(GLuint index) const noexcept {
-    auto& activated = ContextState::getState(glfwGetCurrentContext()).active_texture;
-    if (activated != index) {
-        glActiveTexture(GL_TEXTURE0 + index);
-        activated = index;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &activated = ContextState::getState(window).active_texture;
+        if (activated != index) {
+            glActiveTexture(GL_TEXTURE0 + index);
+            activated = index;
+        }
     }
 }
 
 void StateTexture::bind(GLuint index) const noexcept {
-    auto& bound = ContextState::getState(glfwGetCurrentContext()).texture_bound[index];
-    if (bound != id) {
-        activate(index);
-        glBindTexture(static_cast<GLenum>(target), id);
-        bound = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &bound = ContextState::getState(window).texture_bound[index];
+        if (bound != id) {
+            activate(index);
+            glBindTexture(static_cast<GLenum>(target), id);
+            bound = id;
+        }
     }
 }
 
@@ -288,10 +294,13 @@ void NamedTexture::generateMipMap() const noexcept {
 }
 
 void NamedTexture::bind(GLuint index) const noexcept {
-    auto& bound = ContextState::getState(glfwGetCurrentContext()).texture_bound[index];
-    if (bound != id) {
-        glBindTextureUnit(index, id);
-        bound = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &bound = ContextState::getState(window).texture_bound[index];
+        if (bound != id) {
+            glBindTextureUnit(index, id);
+            bound = id;
+        }
     }
 }
 

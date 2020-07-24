@@ -2,6 +2,7 @@ GraphicsEngine::GLSL_VERSION
 GraphicsEngine::Extensions
 GraphicsEngine::Settings
 GraphicsEngine::MaterialType
+GraphicsEngine::ModelType
 
 #include "glsl/input_data_fs.glsl"
 #include "glsl/material.glsl"
