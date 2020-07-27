@@ -12,6 +12,11 @@ namespace GraphicsEngine {
         float radius;
     };
 
+    struct DirectionalLight {
+        glm::vec4 direction;
+        glm::vec4 color;
+    };
+
     template<typename T>
     class Light {
     private:
@@ -80,19 +85,21 @@ namespace GraphicsEngine {
 
     class DynamicLighting {
     public:
-        Light<PointLight> points_lights;
+        Light<PointLight> point_lights;
+        Light<DirectionalLight> directional_lights;
 
-        DynamicLighting() : points_lights("point_light_buffer") { }
+        DynamicLighting() : point_lights("point_light_buffer"), directional_lights("directional_light_buffer") { }
 
         void update() {
-            points_lights.update();
+            point_lights.update();
+            directional_lights.update();
         }
     };
 
     class Lighting {
     public:
-        DynamicLighting dynamic;
         glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 0.7f};
+        DynamicLighting dynamic;
 
         void update() {
             dynamic.update();

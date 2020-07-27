@@ -86,26 +86,28 @@ void ModelInstance::draw(MaterialShaderType material_type, Blending blending, co
 
     calculateModelMatrix();
 
-    for (const auto& [name, mesh] : meshes) {
+    for (auto& [name, mesh] : meshes) {
         if (mesh.isHidden()) {
             continue;
         }
 
-        const auto& material = mesh.getMaterial().get();
+        auto materials = mesh.getMaterial().getMaterials();
 
-        if (material.getBlending() == blending) {
-            auto& shader = shader_storage.get(material_type, type, material.getShaderIndex());
+        for (const auto& material : materials) {
+            if (material->getBlending() == blending) {
+                auto& shader = shader_storage.get(material_type, type, material->getShaderIndex());
 
-            *shader << material
-                    << UniformValue{"model", model_matrix};
+                *shader << *material
+                        << UniformValue{"model", model_matrix};
 
-            for (const auto& uniform_set : uniform_setter) {
-                uniform_set(*shader);
+                for (const auto& uniform_set : uniform_setter) {
+                    uniform_set(*shader);
+                }
+
+                shader->use();
+
+                mesh.draw();
             }
-
-            shader->use();
-
-            mesh.draw();
         }
     }
 }

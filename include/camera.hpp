@@ -32,7 +32,12 @@ namespace GraphicsEngine {
 
         [[nodiscard]] const auto& getProjection() const noexcept { return projection; }
         [[nodiscard]] const auto& getPosition() const noexcept { return position; }
+        [[nodiscard]] const auto& getFront() const noexcept { return front; }
+        [[nodiscard]] const auto& getUp() const noexcept { return up; }
+        [[nodiscard]] const auto& getRight() const noexcept { return right; }
         [[nodiscard]] const auto& getView() const noexcept { return view; }
+        [[nodiscard]] const auto& getNear() const noexcept { return near_distance; }
+        [[nodiscard]] const auto& getFar() const noexcept { return far_distance; }
         [[nodiscard]] const auto& getFov() const noexcept { return fov; }
 
         [[nodiscard]] auto& getMoveSpeed() const noexcept { return move_speed; }

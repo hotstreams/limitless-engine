@@ -159,6 +159,27 @@ Material::Material(const Material& material)
     material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, data, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 }
 
+void GraphicsEngine::swap(Material& lhs, Material& rhs) noexcept {
+    using std::swap;
+
+    swap(lhs.properties, rhs.properties);
+    swap(lhs.uniform_offsets, rhs.uniform_offsets);
+    swap(lhs.material_buffer, rhs.material_buffer);
+    swap(lhs.blending, rhs.blending);
+    swap(lhs.shading, rhs.shading);
+    swap(lhs.name, rhs.name);
+    swap(lhs.shader_index, rhs.shader_index);
+}
+
+Material &Material::operator=(Material material) {
+    swap(*this, material);
+    return *this;
+}
+
+Material* Material::clone() const {
+    return new Material(*this);
+}
+
 bool GraphicsEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {
     return std::tie(lhs.properties, lhs.shading, lhs.blending) < std::tie(rhs.properties, rhs.shading, rhs.blending);
 }

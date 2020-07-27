@@ -12,7 +12,7 @@ namespace GraphicsEngine {
     public:
         MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<Material>& material);
 
-        [[nodiscard]] auto& getMaterial() const noexcept { return material; }
+        [[nodiscard]] auto& getMaterial() noexcept { return material; }
         [[nodiscard]] bool isHidden() const noexcept { return hidden; }
         void hide() noexcept;
         void reveal() noexcept;

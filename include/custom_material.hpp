@@ -5,7 +5,10 @@ namespace GraphicsEngine {
     private:
         std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
 
+        void update() const noexcept override;
+
         friend class CustomMaterialBuilder;
+        friend void swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept;
         CustomMaterial(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending, Shading shading, std::string name, uint64_t shader_index, decltype(uniforms)&& uniforms) noexcept;
     public:
         ~CustomMaterial() override = default;
@@ -19,6 +22,17 @@ namespace GraphicsEngine {
             }
         }
 
-        [[nodiscard]] bool isCustom() const noexcept override { return true; }
+        bool isCustom() const noexcept override { return true; }
+
+        CustomMaterial(CustomMaterial&&) noexcept = default;
+        CustomMaterial& operator=(CustomMaterial&&) noexcept = default;
+
+        CustomMaterial(const CustomMaterial&);
+        CustomMaterial& operator=(CustomMaterial);
+
+        [[nodiscard]] Material* clone() const override;
+
     };
+
+    void swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept;
 }

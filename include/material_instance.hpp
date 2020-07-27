@@ -1,6 +1,6 @@
 #pragma once
 
-#include <material.hpp>
+#include <custom_material.hpp>
 
 namespace GraphicsEngine {
     class MaterialInstance {
@@ -15,23 +15,35 @@ namespace GraphicsEngine {
         }
 
         void changeMaterial(const std::shared_ptr<Material>& material) {
-            materials[0] = std::make_shared<Material>(*material);
+            materials.at(0) = std::make_shared<Material>(*material);
         }
 
         void reset() {
-            materials[0] = base;
+            materials.at(0) = base;
         }
 
-        auto& get() const { return *materials.at(0); }
-        auto& get(uint64_t id) const { return *materials.at(id); }
+        auto& get(uint64_t id = 0) const { return *materials.at(id); }
 
-//        uint64_t applyMaterial(const Material& material) {
-//
-//        }
-//
-//        void removeMaterial(uint64_t id) {
-//              if (id == 0)
-//                    throw std::runtime("Attempt to remove base material");
-//        }
+        uint64_t apply(const std::shared_ptr<Material>& material) {
+            materials.emplace(next_id, std::make_shared<Material>(*material));
+            return next_id++;
+        }
+
+        void remove(uint64_t id) {
+            auto found = materials.find(id);
+              if (found == materials.end() || id == 0) {
+                  throw std::runtime_error("Attempt to remove base material");
+              }
+
+            materials.erase(id);
+        }
+
+        std::vector<std::shared_ptr<Material>> getMaterials() const {
+            std::vector<std::shared_ptr<Material>> mats;
+            for (const auto& [id, mat] : materials) {
+                mats.emplace_back(mat);
+            }
+            return mats;
+        }
     };
 }

@@ -146,7 +146,7 @@ namespace GraphicsEngine {
         ~NamedBuffer() override = default;
 
         NamedBuffer(const NamedBuffer&) noexcept = delete;
-        NamedBuffer& operator=(const NamedBuffer&) const noexcept = delete;
+        NamedBuffer& operator=(const NamedBuffer&) noexcept = delete;
 
         NamedBuffer(NamedBuffer&& rhs) noexcept;
         NamedBuffer& operator=(NamedBuffer&& rhs) noexcept;

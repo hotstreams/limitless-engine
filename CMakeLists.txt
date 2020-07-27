@@ -76,7 +76,9 @@ set(ENGINE_SRC
         src/mesh_instance.cpp
         src/shader_storage.cpp
         src/custom_material.cpp
-        src/cumstom_material_builder.cpp)
+        src/cumstom_material_builder.cpp
+        src/emitter.cpp
+        src/emitter_module.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})

@@ -37,12 +37,18 @@ public:
 
         MaterialBuilder builder;
         //auto mat = builder.add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/opengl.jpg"))
-        auto mat = builder.add(PropertyType::Color, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
-                .setShading(Shading::Lit)
+        auto mat = builder.add(PropertyType::Color, glm::vec4(0.3f, 0.0, 0.0f, 1.0f))
+                .setShading(Shading::Unlit)
+                .setBlending(Blending::Modulate)
                 .build("sphere");
 
-        scene.addInstance(new ModelInstance(assets.models.get("sponza"), glm::vec4{0.0f, 1.0f, 0.5f, 1.0f})).setScale(glm::vec3{0.1f});
-        scene.addInstance(new ModelInstance(std::make_shared<Sphere>(1000, 1000), mat, glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.1f});
+        auto mat1 = builder.add(PropertyType::Color, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
+                .setShading(Shading::Unlit)
+                .build("sphere1");
+
+        //scene.addInstance(new ModelInstance(assets.models.get("sponza"), glm::vec4{0.0f, 1.0f, 0.5f, 1.0f})).setScale(glm::vec3{0.1f});
+        auto& sphere = scene.addInstance(new ModelInstance(std::make_shared<Sphere>(100, 100), mat1, glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.1f});
+        sphere.getMesh().getMaterial().apply(mat);
         auto& model = scene.addInstance(new SkeletalInstance(assets.models.get("bob"), glm::vec3{ 0.0f, 0.0f, 0.0f }))
             .setScale(glm::vec3{0.005f})
             .setRotation({ -M_PI_2, 0.0f, 0.0f});
