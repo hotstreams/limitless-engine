@@ -33,22 +33,44 @@ namespace GraphicsEngine {
             context.clearColor({ 0.5f, 0.5f, 0.5f, 1.0f});
 
             context.enable(GL_VERTEX_PROGRAM_POINT_SIZE);
-            context.enable(GL_DEPTH_TEST);
         }
 
         void draw(Context& context, Scene& scene, Camera& camera) {
             scene.update();
+
             scene_data.update(context, scene, camera);
 
             context.setViewPort(context.getSize());
 
-            context.enable(GL_DEPTH_TEST);
-
             context.clear(Clear::ColorDepth);
+
+
+            context.enable(GL_DEPTH_TEST);
+            context.setDepthFunc(GL_LEQUAL);
 
             dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Opaque);
 
+            context.enable(GL_BLEND);
+            context.setDepthMask(GL_FALSE);
+            glBlendFunc(GL_ONE, GL_ONE);
+
             dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Additive);
+
+            context.setDepthMask(GL_TRUE);
+            context.disable(GL_BLEND);
+
+            context.enable(GL_BLEND);
+            context.setDepthMask(GL_FALSE);
+            glBlendFunc(GL_DST_COLOR, GL_ZERO);
+
+            dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Modulate);
+
+            context.setDepthMask(GL_FALSE);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Translucent);
+
+            context.setDepthMask(GL_TRUE);
 
             if (render_settings.light_radius) {
                 renderLightsVolume(context, scene);

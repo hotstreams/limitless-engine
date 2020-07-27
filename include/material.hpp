@@ -17,7 +17,8 @@ namespace GraphicsEngine {
         Metallic,
         Roughness
     };
-    enum class Blending { Opaque, Translucent, Additive };
+
+    enum class Blending { Opaque, Translucent, Additive, Modulate };
     enum class Shading { Lit, Unlit };
 
     class Material {
@@ -30,10 +31,11 @@ namespace GraphicsEngine {
         std::string name;
         uint64_t shader_index;
 
-        void update() const noexcept;
+        virtual void update() const noexcept;
 
         friend class ShaderProgram;
         friend class MaterialBuilder;
+        friend void swap(Material& lhs, Material& rhs) noexcept;
         Material(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept;
     public:
         [[nodiscard]] UniformValue<glm::vec4>& getColor() const;
@@ -48,15 +50,24 @@ namespace GraphicsEngine {
         [[nodiscard]] UniformSampler& getEmissiveMask() const;
         [[nodiscard]] UniformSampler& getBlendMask() const;
 
-        [[nodiscard]] const auto& getBlending() const noexcept { return blending; }
+        [[nodiscard]] auto& getBlending() noexcept { return blending; }
         [[nodiscard]] auto& getMaterialBuffer() const noexcept { return material_buffer; }
         [[nodiscard]] const auto& getShaderIndex() const noexcept { return shader_index; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
 
-        Material(const Material& material);
+        Material(Material&&) noexcept = default;
+        Material& operator=(Material&&) noexcept = default;
+
+        Material(const Material&);
+        Material& operator=(Material);
+
+        [[nodiscard]] virtual Material* clone() const;
+
         virtual ~Material() = default;
     };
+
+    void swap(Material& lhs, Material& rhs) noexcept;
 
     struct MaterialType {
         std::vector<PropertyType> properties;
