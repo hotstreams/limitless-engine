@@ -34,6 +34,30 @@ bool ShaderStorage::isExist(MaterialShaderType material_type, ModelShaderType mo
     return material_shaders.find({material_type, model_type, material_index}) != material_shaders.end();
 }
 
+const std::shared_ptr<ShaderProgram>& ShaderStorage::get(const UniqueSpriteEmitter &emitter_type) const {
+    try {
+        return sprite_emitter_shaders.at(emitter_type);
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No such sprite emitter shader");
+    }
+}
+
+const std::shared_ptr<ShaderProgram>& ShaderStorage::get(const UniqueMeshEmitter &emitter_type) const {
+    try {
+        return mesh_emitter_shaders.at(emitter_type);
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No such mesh emitter shader");
+    }
+}
+
+void ShaderStorage::add(const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept {
+    sprite_emitter_shaders.emplace(emitter_type, std::move(program));
+}
+
+void ShaderStorage::add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept {
+    mesh_emitter_shaders.emplace(emitter_type, std::move(program));
+}
+
 void initialize() {
 
 }

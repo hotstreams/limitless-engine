@@ -21,7 +21,7 @@ namespace GraphicsEngine {
         void renderLightsVolume(Context& context, Scene& scene) const {
             context.setPolygonMode(GL_LINE);
             auto sphere_instance =  ModelInstance(assets.models.get("sphere"), assets.materials.get("sphere"), glm::vec3(0.0f));
-            for (const auto& light : scene.lighting.dynamic.points_lights.getLights()) {
+            for (const auto& light : scene.lighting.dynamic.point_lights.getLights()) {
                 sphere_instance.setPosition(light.position);
                 sphere_instance.setScale(glm::vec3(light.radius));
                 sphere_instance.draw(MaterialShaderType::Default, Blending::Opaque);

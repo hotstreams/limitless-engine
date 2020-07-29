@@ -1,6 +1,7 @@
 #pragma once
 
 #include <shader_program.hpp>
+#include <emitter_buffer.hpp>
 
 namespace GraphicsEngine {
     enum class MaterialShaderType {
@@ -43,12 +44,19 @@ namespace GraphicsEngine {
     private:
         std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> shaders;
         std::map<ShaderKey, std::shared_ptr<ShaderProgram>> material_shaders;
+
+        std::map<UniqueSpriteEmitter, std::shared_ptr<ShaderProgram>> sprite_emitter_shaders;
+        std::map<UniqueMeshEmitter, std::shared_ptr<ShaderProgram>> mesh_emitter_shaders;
     public:
         const std::shared_ptr<ShaderProgram>& get(const std::string& name) const;
         const std::shared_ptr<ShaderProgram>& get(MaterialShaderType material_type, ModelShaderType model_type, uint64_t material_index) const;
+        const std::shared_ptr<ShaderProgram>& get(const UniqueSpriteEmitter& emitter_type) const;
+        const std::shared_ptr<ShaderProgram>& get(const UniqueMeshEmitter& emitter_type) const;
 
         void add(std::string name, std::shared_ptr<ShaderProgram> program) noexcept;
         void add(MaterialShaderType material_type, ModelShaderType model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) noexcept;
+        void add(const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept;
+        void add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept;
 
         bool isExist(MaterialShaderType material_type, ModelShaderType model_type, uint64_t material_index) const noexcept;
 

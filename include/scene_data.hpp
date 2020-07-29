@@ -22,7 +22,7 @@ namespace GraphicsEngine {
             scene_data.VP = camera.getProjection() * camera.getView();
             scene_data.camera_position = { camera.getPosition(), 1.0f };
             scene_data.ambient_color = scene.lighting.ambient_color;
-            scene_data.point_lights_size = scene.lighting.dynamic.points_lights.size();
+            scene_data.point_lights_size = scene.lighting.dynamic.point_lights.size();
             buffer->mapData(&scene_data, sizeof(SceneData));
         }
     };

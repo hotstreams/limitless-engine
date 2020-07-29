@@ -54,6 +54,18 @@ namespace GraphicsEngine {
             this->vertex_array.bind();
 
             glDrawElements(static_cast<GLenum>(this->draw_mode), indices.size(), getIndicesType(), nullptr);
+
+            this->vertex_buffer->fence();
+            indices_buffer->fence();
+        }
+
+        void draw_instanced(size_t count) const noexcept override {
+            this->vertex_array.bind();
+
+            glDrawElementsInstanced(static_cast<GLenum>(this->draw_mode), indices.size(), getIndicesType(), nullptr, count);
+
+            this->vertex_buffer->fence();
+            indices_buffer->fence();
         }
     };
 }
