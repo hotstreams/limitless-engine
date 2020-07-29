@@ -11,6 +11,7 @@ namespace GraphicsEngine {
 
         [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
         virtual void draw() const noexcept = 0;
+        virtual void draw_instanced(size_t count) const noexcept = 0;
     };
 
     enum class MeshDataType { Static, Dynamic, Stream };
@@ -65,6 +66,16 @@ namespace GraphicsEngine {
             vertex_array.bind();
 
             glDrawArrays(static_cast<GLenum>(draw_mode), 0, vertices.size());
+
+            vertex_buffer->fence();
+        }
+
+        void draw_instanced(size_t count) const noexcept override {
+            vertex_array.bind();
+
+            glDrawArraysInstanced(static_cast<GLenum>(draw_mode), 0, vertices.size(), count);
+
+            vertex_buffer->fence();
         }
 
         [[nodiscard]] const std::string& getName() const noexcept override { return name; }

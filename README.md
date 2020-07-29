@@ -4,14 +4,14 @@
 - Bindless Textures support
 - Persistent Mapped Buffers support
 - Material System
-  + Albedo
-  + Specular
-  + Normal
-  + Emissive color
-  + Emissive mask
-  + Blend mask
-  + Roughness
-  + Metalness
+  - Albedo
+  - Specular
+  - Normal
+  - Emissive color
+  - Emissive mask
+  - Blend mask
+  - Roughness
+  - Metalness
   
   + Blending: Opaque, Translucent, Additive, Modulate
   + Shading: Lit, Unlit

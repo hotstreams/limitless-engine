@@ -56,7 +56,7 @@ public:
         static_cast<SkeletalInstance&>(model).play("");
 
         auto light = PointLight{glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, glm::vec4{2.2f, 0.5f, 3.0f, 3.5f}, 1.0f, 0.7f, 1.8f, 2.0f};
-        scene.lighting.dynamic.points_lights.add(light);
+        scene.lighting.dynamic.point_lights.add(light);
     }
 
     void onMouseMove(glm::dvec2 pos) override {
