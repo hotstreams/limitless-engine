@@ -5,13 +5,13 @@
 using namespace GraphicsEngine;
 
 StateTexture::StateTexture() noexcept
-    : id(0), target(Type::Tex2D), size(0), format(Format::RGB), data_type(DataType::Float) { }
+    : id(0), target(Type::Tex2D), size(0), internal(InternalFormat::RGB), format(Format::RGB), data_type(DataType::Float) { }
 
-StateTexture::StateTexture(GLuint id, Type target, glm::uvec3 size, Format format, DataType data_type) noexcept
-    : id(id), target(target), size(size), format(format), data_type(data_type) {}
+StateTexture::StateTexture(GLuint id, Type target, glm::uvec3 size, InternalFormat internal, Format format, DataType data_type) noexcept
+    : id(id), target(target), size(size), internal(internal), format(format), data_type(data_type) {}
 
 StateTexture::StateTexture(Type target, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const void* data)
-    : id(0), target(target), size({ size.x, size.y, 0 }), format(format), data_type(data_type) {
+    : id(0), target(target), size({ size.x, size.y, 0 }), internal(internal), format(format), data_type(data_type) {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -29,7 +29,7 @@ StateTexture::StateTexture(Type target, InternalFormat internal, glm::uvec2 size
 }
 
 StateTexture::StateTexture(Type target, InternalFormat internal, glm::uvec3 size, Format format, DataType data_type, const void* data)
-    : id(0), target(target), size(size), format(format), data_type(data_type) {
+    : id(0), target(target), size(size), internal(internal), format(format), data_type(data_type) {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -50,7 +50,7 @@ StateTexture::StateTexture(Type target, InternalFormat internal, glm::uvec3 size
 }
 
 StateTexture::StateTexture(Type target, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const std::array<void*, 6>& data)
-    : id(0), target(target), size({ size.x, size.y, 0 }), format(format), data_type(data_type) {
+    : id(0), target(target), size({ size.x, size.y, 0 }), internal(internal), format(format), data_type(data_type) {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -70,7 +70,7 @@ StateTexture::StateTexture(Type target, InternalFormat internal, glm::uvec2 size
 }
 
 StateTexture::StateTexture(Type target, uint8_t samples, InternalFormat internal, glm::uvec2 size, bool immutable)
-    : id(0), target(target), size({ size.x, size.y, 0 }) {
+    : id(0), target(target), size({ size.x, size.y, 0 }), internal(internal), samples(samples) {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -88,7 +88,7 @@ StateTexture::StateTexture(Type target, uint8_t samples, InternalFormat internal
 }
 
 StateTexture::StateTexture(Type target, GLsizei levels, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const void* data)
-    : id(0), target(target), size({ size.x, size.y, 0 }), format(format), data_type(data_type) {
+    : id(0), target(target), size({ size.x, size.y, 0 }), internal(internal), format(format), data_type(data_type), immutable{true} {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -109,7 +109,7 @@ StateTexture::StateTexture(Type target, GLsizei levels, InternalFormat internal,
 }
 
 StateTexture::StateTexture(StateTexture::Type target, GLsizei levels, StateTexture::InternalFormat internal, glm::uvec3 size, StateTexture::Format format, StateTexture::DataType data_type, const void *data)
-    : id(0), target(target), size(size), format(format), data_type(data_type) {
+    : id(0), target(target), size(size), internal(internal), format(format), data_type(data_type), immutable{true} {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -136,7 +136,7 @@ StateTexture::StateTexture(StateTexture::Type target, GLsizei levels, StateTextu
 }
 
 StateTexture::StateTexture(StateTexture::Type target, GLsizei levels, StateTexture::InternalFormat internal, glm::uvec2 size, StateTexture::Format format, StateTexture::DataType data_type, const std::array<void*, 6>& data)
-    : id(0), target(target), size({ size.x, size.y, 0 }), format(format), data_type(data_type) {
+    : id(0), target(target), size({ size.x, size.y, 0 }), internal(internal), format(format), data_type(data_type), immutable{true} {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -235,6 +235,39 @@ void StateTexture::bind(GLuint index) const noexcept {
     }
 }
 
+void StateTexture::resize(glm::uvec3 _size) {
+    if (immutable) {
+        throw std::runtime_error("Failed to resize immutable storage.");
+    }
+
+    if (size != _size) {
+        size = _size;
+
+        bind(0);
+
+        switch (target) {
+            case Type::Tex2D:
+                texImage2D(static_cast<GLenum>(target), internal, nullptr);
+                break;
+            case Type::Tex2DArray:
+            case Type::Tex3D:
+                texImage3D(static_cast<GLenum>(target), internal, size, nullptr);
+                break;
+            case Type::CubeMap:
+                for (int i = 0; i < 6; ++i) {
+                    texImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internal, nullptr);
+                }
+                break;
+            case Type::TexCubeMapArray:
+                texImage3D(static_cast<GLenum>(target), internal, { size.x, size.y, size.z * 6 }, nullptr);
+                break;
+            case Type::Tex2DMS:
+                texImage2DMultiSample(target, samples, internal);
+                break;
+        }
+    }
+}
+
 void StateTexture::generateMipMap() const noexcept {
     bind(0);
 
@@ -273,6 +306,9 @@ GLuint StateTexture::getId() const noexcept {
     return target;
 }
 
+glm::uvec3 StateTexture::getSize() const noexcept {
+    return size;
+}
 
 void NamedTexture::texStorage2D(GLsizei levels, InternalFormat internal) const noexcept {
     glTextureStorage2D(id, levels, static_cast<GLenum>(internal), size.x, size.y);
@@ -330,7 +366,7 @@ NamedTexture& NamedTexture::operator<<(const TexParameter<GLfloat*>& param) noex
 }
 
 NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const void* data)
-    : StateTexture(0, target, { size.x, size.y, 0 }, format, data_type) {
+    : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
     glCreateTextures(static_cast<GLenum>(target), 1, &id);
 
     switch (target) {
@@ -348,7 +384,7 @@ NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec2 size
 }
 
 NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec3 size, Format format, DataType data_type, const void* data)
-    : StateTexture(0, target, size, format, data_type) {
+    : StateTexture(0, target, size, internal, format, data_type) {
     glCreateTextures(static_cast<GLenum>(target), 1, &id);
 
     switch (target) {
@@ -369,7 +405,7 @@ NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec3 size
 }
 
 NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const std::array<void*, 6>& data)
-    : StateTexture(0, target, { size.x, size.y, 0 }, format, data_type) {
+    : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
     glCreateTextures(static_cast<GLenum>(target), 1, &id);
 
     switch (target) {
@@ -389,7 +425,7 @@ NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec2 size
 }
 
 NamedTexture::NamedTexture(Type target, uint8_t samples, InternalFormat internal, glm::uvec2 size, bool immutable)
-    : StateTexture(0, target, { size.x, size.y, 0 }, Format::RGB, DataType::Int) {
+    : StateTexture(0, target, { size.x, size.y, 0 }, internal, Format::RGB, DataType::Int) {
     glCreateTextures(static_cast<GLenum>(target), 1, &id);
 
     switch (target) {
@@ -407,7 +443,7 @@ NamedTexture::NamedTexture(Type target, uint8_t samples, InternalFormat internal
 }
 
 NamedTexture::NamedTexture(Type target, GLsizei levels, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const void* data)
-    : StateTexture(0, target, { size.x, size.y, 0 }, format, data_type) {
+    : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
     glCreateTextures(static_cast<GLenum>(target), 1, &id);
 
     switch (target) {
@@ -428,7 +464,7 @@ NamedTexture::NamedTexture(Type target, GLsizei levels, InternalFormat internal,
 }
 
 NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTexture::InternalFormat internal, glm::uvec3 size, StateTexture::Format format, StateTexture::DataType data_type, const void *data)
-    : StateTexture(0, target, size, format, data_type) {
+    : StateTexture(0, target, size, internal, format, data_type) {
     glCreateTextures(static_cast<GLenum>(target), 1, &id);
 
     switch (target) {
@@ -455,7 +491,7 @@ NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTextu
 }
 
 NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTexture::InternalFormat internal, glm::uvec2 size, StateTexture::Format format, StateTexture::DataType data_type, const std::array<void*, 6>& data)
-    : StateTexture(0, target, { size.x, size.y, 0 }, format, data_type) {
+    : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
     glCreateTextures(static_cast<GLenum>(target), 1, &id);
 
     switch (target) {
