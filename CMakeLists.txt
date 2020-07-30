@@ -83,7 +83,8 @@ set(ENGINE_SRC
         src/mesh_emitter.cpp
         src/effect.cpp
         src/particle_system.cpp
-        src/emitter_buffer.cpp)
+        src/emitter_buffer.cpp
+        src/framebuffer.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})

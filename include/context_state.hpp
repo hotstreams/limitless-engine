@@ -33,6 +33,7 @@ namespace GraphicsEngine {
 
         GLuint shader_id;
         GLuint vertex_array_id;
+        GLuint framebuffer_id;
 
         // contains [target, last buffer id]
         std::unordered_map<Buffer::Type, GLuint> buffer_target;
@@ -57,6 +58,7 @@ namespace GraphicsEngine {
         friend class StateTexture;
         friend class NamedTexture;
         friend class TextureBinder;
+        friend class Framebuffer;
     public:
         virtual ~ContextState() = default;
 

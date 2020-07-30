@@ -74,3 +74,11 @@ GLuint BindlessTexture::getId() const noexcept {
 Texture::Type BindlessTexture::getType() const noexcept {
     return texture->getType();
 }
+
+void BindlessTexture::resize(glm::uvec3 size) {
+    texture->resize(size);
+}
+
+glm::uvec3 BindlessTexture::getSize() const noexcept {
+    return texture->getSize();
+}

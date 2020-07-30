@@ -18,6 +18,7 @@ namespace GraphicsEngine {
         void makeNonresident() noexcept;
 
         void bind(GLuint index) const noexcept override;
+        void resize(glm::uvec3 size) override;
 
         void texSubImage2D(GLint xoffset, GLint yoffset, glm::uvec2 size, const void* data) const noexcept override;
         void texSubImage3D(GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 size, const void* data) const noexcept override;
@@ -31,5 +32,6 @@ namespace GraphicsEngine {
 
         [[nodiscard]] GLuint getId() const noexcept override;
         [[nodiscard]] Type getType() const noexcept override;
+        [[nodiscard]] glm::uvec3 getSize() const noexcept override;
     };
 }
