@@ -27,6 +27,7 @@ namespace GraphicsEngine {
         MaterialBuilder& setShading(Shading shading) noexcept;
 
         [[nodiscard]] MaterialType getMaterialType() const noexcept;
+        [[nodiscard]] MaterialType getMaterialType(const std::shared_ptr<Material>& material) const noexcept;
         [[nodiscard]] auto getMaterialIndex() const noexcept { return material_index; }
 
         virtual std::shared_ptr<Material> build(const std::string& name,

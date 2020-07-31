@@ -8,9 +8,13 @@ namespace GraphicsEngine {
 
     template<typename T>
     class Distribution {
+    protected:
+        DistributionType type;
+        explicit Distribution(DistributionType type) noexcept : type{type} { }
     public:
         [[nodiscard]] virtual T get() const = 0;
         [[nodiscard]] virtual Distribution<T>* clone() = 0;
+        [[nodiscard]] const auto& getType() const noexcept { return type; }
     };
 
     template<typename T>
@@ -18,6 +22,8 @@ namespace GraphicsEngine {
     private:
         T value;
     public:
+        explicit ConstDistribution(const T& value) noexcept : Distribution<T>(DistributionType::Const), value{value} {}
+
         T get() const override { return value; }
 
         [[nodiscard]] Distribution<T>* clone() override {
@@ -34,7 +40,7 @@ namespace GraphicsEngine {
         std::uniform_real_distribution<T> distribution;
     public:
         RangeDistribution(const T& min, const T& max) noexcept
-            : min(min), max(max) { }
+            : Distribution<T>(DistributionType::Range), min(min), max(max) { }
 
         [[nodiscard]] const T& getMin() const noexcept { return min; }
         [[nodiscard]] const T& getMax() const noexcept { return max; }

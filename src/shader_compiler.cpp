@@ -345,3 +345,77 @@ void ShaderCompiler::compile(const CustomMaterialBuilder& builder, MaterialShade
 
     shader_storage.add(material_type, model_type, builder.getMaterialIndex(), compile(SHADER_DIR + material_shader_path.at(material_type), props));
 }
+
+void ShaderCompiler::compile(const SpriteEmitter& emitter) {
+    MaterialBuilder builder;
+    auto material_defines = getMaterialDefines(builder.getMaterialType(emitter.getMaterial()));
+    material_defines.append(emitter.getMaterial()->isCustom() ? "#define CUSTOM_MATERIAL\n" : "#define REGULAR_MATERIAL\n");
+
+    const auto props = [&] (std::string& src) {
+        replaceKey(src, "GraphicsEngine::MaterialType", material_defines);
+        replaceKey(src, "GraphicsEngine::EmitterType", getEmitterDefines(emitter));
+
+//        if (emitter.getMaterial()->isCustom()) {
+//            replaceKey(src, "GraphicsEngine::CustomMaterialVertexCode", builder.getVertexCode());
+//            replaceKey(src, "GraphicsEngine::CustomMaterialFragmentCode", builder.getFragmentCode());
+//            replaceKey(src, "GraphicsEngine::CustomMaterialScalarUniforms", getCustomMaterialScalarUniforms(builder));
+//            replaceKey(src, "GraphicsEngine::CustomMaterialSamplerUniforms", getCustomMaterialSamplerUniforms(builder));
+//        }
+    };
+
+    shader_storage.add(emitter.getEmitterType(), compile(SHADER_DIR "effects/sprite_emitter", props));
+}
+
+std::string ShaderCompiler::getEmitterDefines(const SpriteEmitter& emitter) noexcept {
+    std::string defines;
+    for (const auto& [type, module] : emitter.getModules()) {
+        switch (type) {
+            case EmitterModuleType::InitialLocation:
+                defines.append("#define InitialLocation_MODULE\n");
+                break;
+            case EmitterModuleType ::InitialRotation:
+                defines.append("#define InitialRotation_MODULE\n");
+                break;
+            case EmitterModuleType ::InitialVelocity:
+                defines.append("#define InitialVelocity_MODULE\n");
+                break;
+            case EmitterModuleType ::InitialColor:
+                defines.append("#define InitialColor_MODULE\n");
+                break;
+            case EmitterModuleType ::InitialSize:
+                defines.append("#define InitialSize_MODULE\n");
+                break;
+            case EmitterModuleType ::InitialAcceleration:
+                defines.append("#define InitialAcceleration_MODULE\n");
+                break;
+            case EmitterModuleType ::MeshLocation:
+                defines.append("#define MeshLocation_MODULE\n");
+                break;
+            case EmitterModuleType ::Lifetime:
+                defines.append("#define Lifetime_MODULE\n");
+                break;
+            case EmitterModuleType ::SubUV:
+                defines.append("#define SubUV_MODULE\n");
+                break;
+            case EmitterModuleType ::AccelerationByLife:
+                defines.append("#define AccelerationByLife_MODULE\n");
+                break;
+            case EmitterModuleType ::ColorByLife:
+                defines.append("#define ColorByLife_MODULE\n");
+                break;
+            case EmitterModuleType ::RotationRate:
+                defines.append("#define RotationRate_MODULE\n");
+                break;
+            case EmitterModuleType ::SizeByLife:
+                defines.append("#define SizeByLife_MODULE\n");
+                break;
+            case EmitterModuleType::SphereLocation:
+                defines.append("#define SphereLocation_MODULE\n");
+                break;
+            case EmitterModuleType::CustomMaterial:
+                defines.append("#define CustomMaterial_MODULE\n");
+                break;
+        }
+    }
+    return defines;
+}

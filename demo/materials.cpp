@@ -8,6 +8,9 @@
 #include <assets.hpp>
 #include <skeletal_instance.hpp>
 #include <elementary_model.hpp>
+#include <editor/effect_creator.hpp>
+#include <any>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -100,7 +103,11 @@ public:
             auto delta = duration_cast<duration<float>>(time - last_time).count();
             last_time = time;
 
-            render.draw(context, scene, camera);
+            //render.draw(context, scene, camera);
+
+            context.clear(Clear::ColorDepth);
+            static Editor::EffectEditor e;
+            e.draw();
 
             handleInput(delta);
             context.pollEvents();

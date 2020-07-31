@@ -153,6 +153,15 @@ MaterialType MaterialBuilder::getMaterialType() const noexcept {
     return MaterialType{props, blending, shading};
 }
 
+MaterialType MaterialBuilder::getMaterialType(const std::shared_ptr<Material>& material) const noexcept {
+    std::vector<PropertyType> props;
+    for (const auto& [type, uniform] : material->properties) {
+        props.emplace_back(type);
+    }
+
+    return MaterialType{props, material->blending, material->shading};
+}
+
 MaterialBuilder& MaterialBuilder::setBlending(Blending _blending) noexcept {
     blending = _blending;
     return *this;
