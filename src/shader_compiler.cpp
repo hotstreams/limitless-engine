@@ -397,9 +397,9 @@ std::string ShaderCompiler::getEmitterDefines(const SpriteEmitter& emitter) noex
             case EmitterModuleType ::SubUV:
                 defines.append("#define SubUV_MODULE\n");
                 break;
-            case EmitterModuleType ::AccelerationByLife:
-                defines.append("#define AccelerationByLife_MODULE\n");
-                break;
+//            case EmitterModuleType ::AccelerationByLife:
+//                defines.append("#define AccelerationByLife_MODULE\n");
+//                break;
             case EmitterModuleType ::ColorByLife:
                 defines.append("#define ColorByLife_MODULE\n");
                 break;
@@ -409,12 +409,12 @@ std::string ShaderCompiler::getEmitterDefines(const SpriteEmitter& emitter) noex
             case EmitterModuleType ::SizeByLife:
                 defines.append("#define SizeByLife_MODULE\n");
                 break;
-            case EmitterModuleType::SphereLocation:
-                defines.append("#define SphereLocation_MODULE\n");
-                break;
-            case EmitterModuleType::CustomMaterial:
-                defines.append("#define CustomMaterial_MODULE\n");
-                break;
+//            case EmitterModuleType::SphereLocation:
+//                defines.append("#define SphereLocation_MODULE\n");
+//                break;
+//            case EmitterModuleType::CustomMaterial:
+//                defines.append("#define CustomMaterial_MODULE\n");
+//                break;
         }
     }
     return defines;
