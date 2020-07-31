@@ -26,17 +26,16 @@ namespace GraphicsEngine {
 
         static std::string getMaterialDefines(const MaterialType& type) noexcept;
         static std::string getModelDefines(const ModelShaderType& type) noexcept;
+        static std::string getEmitterDefines(const SpriteEmitter& emitter) noexcept;
         static std::string getCustomMaterialScalarUniforms(const CustomMaterialBuilder& builder) noexcept;
         static std::string getCustomMaterialSamplerUniforms(const CustomMaterialBuilder& builder) noexcept;
-
-        friend class MaterialBuilder;
-        friend class CustomMaterialBuilder;
-
-        static void compile(const MaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type);
-        static void compile(const CustomMaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type);
     public:
         // compiles regular shader programs
         using ShaderProperties = std::function<void(std::string&)>;
         [[nodiscard]] static std::shared_ptr<ShaderProgram> compile(const fs::path& path, const ShaderProperties& props_set = ShaderProperties{});
+
+        static void compile(const MaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type);
+        static void compile(const CustomMaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type);
+        static void compile(const SpriteEmitter& emitter);
     };
 }

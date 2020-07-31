@@ -129,7 +129,7 @@ void Emitter::update() {
     }
 
     auto current_time = std::chrono::steady_clock::now();
-    auto delta_time = current_time - last_time;
+    auto delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(current_time - last_time);
     last_time = current_time;
 
     spawnParticles();
@@ -137,6 +137,11 @@ void Emitter::update() {
 
     for (auto& [type, module] : modules) {
         module->update(*this, particles, delta_time.count());
+    }
+
+    for (auto& particle : particles) {
+        particle.position += particle.velocity * delta_time.count();
+        particle.velocity += particle.acceleration * delta_time.count();
     }
 
     if (duration.count() != 0.0f) {

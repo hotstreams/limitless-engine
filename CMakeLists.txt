@@ -86,9 +86,15 @@ set(ENGINE_SRC
         src/emitter_buffer.cpp
         src/framebuffer.cpp)
 
+set(EDITOR_SRC
+        src/editor/sprite_emitter.cpp
+        src/editor/effect_creator.cpp)
+
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})
     string(REPLACE ".cpp" "" exec_name ${file})
     get_filename_component(filename ${exec_name} NAME)
     add_executable(${filename} ${ENGINE_SRC} ${file})
 endforeach()
+
+add_executable(engine ${ENGINE_SRC} ${EDITOR_SRC} demo/editor)
