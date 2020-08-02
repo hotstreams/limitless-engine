@@ -84,7 +84,9 @@ set(ENGINE_SRC
         src/effect.cpp
         src/particle_system.cpp
         src/emitter_buffer.cpp
-        src/framebuffer.cpp)
+        src/framebuffer.cpp
+        src/material_manager.cpp
+        src/postprocessing.cpp)
 
 set(EDITOR_SRC
         src/editor/sprite_emitter.cpp

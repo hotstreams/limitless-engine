@@ -12,10 +12,10 @@ Line::Line(const glm::vec3 &a, const glm::vec3 &b) {
 
 Quad::Quad() {
     std::vector<Vertex> vertices = {
-            {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-            {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
-            {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-            {{1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}}
+        {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+        {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+        {{1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}}
     };
 
     auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "quad_mesh", MeshDataType::Static, DrawMode::TriangleStrip);

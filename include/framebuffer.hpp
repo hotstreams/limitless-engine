@@ -27,7 +27,6 @@ namespace GraphicsEngine {
     };
 
     struct TextureAttachment {
-        GLenum target;
         FramebufferAttachment attachment;
         std::shared_ptr<Texture> texture;
         uint32_t layer {0};
@@ -50,6 +49,9 @@ namespace GraphicsEngine {
         const TextureAttachment& get(FramebufferAttachment attachment) const;
         void specifyLayer(FramebufferAttachment attachment, uint32_t layer);
         bool hasAttachment(FramebufferAttachment a) const noexcept;
+        void drawBuffers(const std::vector<FramebufferAttachment>& a) noexcept;
+        void drawBuffer(FramebufferAttachment a) noexcept;
+        void unbind() noexcept;
         void bind() noexcept;
         void clear() noexcept;
         void checkStatus();
@@ -57,5 +59,7 @@ namespace GraphicsEngine {
         Framebuffer &operator<<(const TextureAttachment &attachment) noexcept;
 
         void onFramebufferChange(glm::uvec2 size) override;
+
+        static void bindDefault() noexcept;
     };
 }
