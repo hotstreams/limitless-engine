@@ -45,6 +45,9 @@ namespace GraphicsEngine {
 
         enum class InternalFormat {
             Depth = GL_DEPTH_COMPONENT,
+            Depth16 = GL_DEPTH_COMPONENT16,
+            Depth32 = GL_DEPTH_COMPONENT32,
+            Depth32F = GL_DEPTH_COMPONENT32F,
             DepthStencil = GL_DEPTH_STENCIL,
             R = GL_RED,
             RG = GL_RG,
@@ -53,7 +56,9 @@ namespace GraphicsEngine {
             R8 = GL_R8,
             RG8 = GL_RG8,
             RGB8 = GL_RGB8,
-            RGBA8 = GL_RGBA8
+            RGBA8 = GL_RGBA8,
+            RGB16F = GL_RGB16F,
+            RGBA16F = GL_RGBA16F
         };
 
         enum class Format {
@@ -98,6 +103,8 @@ namespace GraphicsEngine {
         virtual Texture& operator<<(const TexParameter<GLfloat>& param) noexcept = 0;
         virtual Texture& operator<<(const TexParameter<GLint*>& param) noexcept = 0;
         virtual Texture& operator<<(const TexParameter<GLfloat*>& param) noexcept = 0;
+
+
 
         [[nodiscard]] virtual GLuint getId() const noexcept = 0;
         [[nodiscard]] virtual Type getType() const noexcept = 0;

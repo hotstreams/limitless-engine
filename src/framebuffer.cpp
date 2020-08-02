@@ -74,6 +74,18 @@ bool Framebuffer::hasAttachment(FramebufferAttachment a) const noexcept {
     return attachments.find(a) != attachments.end();
 }
 
+void Framebuffer::drawBuffers(const std::vector<FramebufferAttachment>& a) noexcept {
+    bind();
+
+    glDrawBuffers(a.size(), reinterpret_cast<const GLenum*>(a.data()));
+}
+
+void Framebuffer::drawBuffer(FramebufferAttachment a) noexcept {
+    bind();
+
+    glDrawBuffers(1, reinterpret_cast<const GLenum*>(&a));
+}
+
 void Framebuffer::specifyLayer(FramebufferAttachment attachment, uint32_t layer) {
     try {
         auto& tex_attachment = attachments.at(attachment);
@@ -114,5 +126,21 @@ const TextureAttachment& Framebuffer::get(FramebufferAttachment attachment) cons
         return attachments.at(attachment);
     } catch (const std::out_of_range& e) {
         throw std::runtime_error("No such framebuffer attachment.");
+    }
+}
+
+void Framebuffer::unbind() noexcept {
+    auto& framebuffer_id = ContextState::getState(glfwGetCurrentContext()).framebuffer_id;
+    if (framebuffer_id != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        framebuffer_id = 0;
+    }
+}
+
+void Framebuffer::bindDefault() noexcept {
+    auto& framebuffer_id = ContextState::getState(glfwGetCurrentContext()).framebuffer_id;
+    if (framebuffer_id != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        framebuffer_id = 0;
     }
 }

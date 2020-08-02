@@ -49,9 +49,15 @@ public:
                 .setShading(Shading::Unlit)
                 .build("sphere1");
 
+        auto mat2 = builder.add(PropertyType::EmissiveColor, glm::vec4(7.0f, 5.0f, 0.0f, 1.0f))
+                .setShading(Shading::Unlit)
+                .build("sphere12");
+
         //scene.addInstance(new ModelInstance(assets.models.get("sponza"), glm::vec4{0.0f, 1.0f, 0.5f, 1.0f})).setScale(glm::vec3{0.1f});
-        auto& sphere = scene.addInstance(new ModelInstance(std::make_shared<Sphere>(100, 100), mat1, glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.1f});
-        sphere.getMesh().getMaterial().apply(mat);
+        auto& sphere = scene.addInstance(new ModelInstance(std::make_shared<Sphere>(100, 100), mat2, glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.1f});
+        //sphere.getMesh().getMaterial().apply(mat);
+
+
         auto& model = scene.addInstance(new SkeletalInstance(assets.models.get("bob"), glm::vec3{ 0.0f, 0.0f, 0.0f }))
             .setScale(glm::vec3{0.005f})
             .setRotation({ -M_PI_2, 0.0f, 0.0f});
@@ -60,6 +66,8 @@ public:
 
         auto light = PointLight{glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, glm::vec4{2.2f, 0.5f, 3.0f, 3.5f}, 1.0f, 0.7f, 1.8f, 2.0f};
         scene.lighting.dynamic.point_lights.add(light);
+
+        shader_storage.initialize();
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -103,11 +111,10 @@ public:
             auto delta = duration_cast<duration<float>>(time - last_time).count();
             last_time = time;
 
-            //render.draw(context, scene, camera);
+            render.draw(context, scene, camera);
 
-            context.clear(Clear::ColorDepth);
-            static Editor::EffectEditor e;
-            e.draw();
+            //static Editor::SpriteEmitter e;
+            //e.draw(Blending::Opaque);
 
             handleInput(delta);
             context.pollEvents();

@@ -4,11 +4,14 @@
 #include <scene.hpp>
 #include <render_settings.hpp>
 #include <assets.hpp>
+#include <framebuffer.hpp>
+#include "postprocessing.hpp"
 
 namespace GraphicsEngine {
     class Render {
     private:
         SceneDataStorage scene_data;
+        Framebuffer offscreen;
 
         void dispatchInstances(Context& context, Scene& scene, MaterialShaderType shader_type, Blending blending) const {
             for (const auto& [id, instance] : scene.instances) {
@@ -28,11 +31,21 @@ namespace GraphicsEngine {
             }
             context.setPolygonMode(GL_FILL);
         }
+
+        void initializeOffscreenBuffer(ContextEventObserver& ctx) {
+            auto color0 = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr);
+            auto depth = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::Depth16, ctx.getSize(), Texture::Format::DepthComponent, Texture::DataType::Float, nullptr);
+
+            offscreen << TextureAttachment{FramebufferAttachment::Color0, color0}
+                      << TextureAttachment{FramebufferAttachment::Depth, depth};
+            offscreen.drawBuffer(FramebufferAttachment::Color0);
+            offscreen.checkStatus();
+        }
     public:
-        explicit Render(Context& context) noexcept {
+        explicit Render(ContextEventObserver& context) noexcept {
             context.clearColor({ 0.5f, 0.5f, 0.5f, 1.0f});
 
-            context.enable(GL_VERTEX_PROGRAM_POINT_SIZE);
+            initializeOffscreenBuffer(context);
         }
 
         void draw(Context& context, Scene& scene, Camera& camera) {
@@ -42,8 +55,9 @@ namespace GraphicsEngine {
 
             context.setViewPort(context.getSize());
 
-            context.clear(Clear::ColorDepth);
+            offscreen.bind();
 
+            context.clear(Clear::ColorDepth);
 
             context.enable(GL_DEPTH_TEST);
             context.setDepthFunc(GL_LEQUAL);
@@ -75,6 +89,15 @@ namespace GraphicsEngine {
             if (render_settings.light_radius) {
                 renderLightsVolume(context, scene);
             }
+
+            offscreen.unbind();
+
+            context.clear(Clear::ColorDepth);
+
+            context.disable(GL_DEPTH_TEST);
+
+            static PostProcessing postprocess(static_cast<ContextEventObserver&>(context));
+            postprocess.process(offscreen.get(FramebufferAttachment::Color0).texture);
         }
     };
 }
