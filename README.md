@@ -20,6 +20,7 @@
 - Dynamic Direct Lighting
 - Rigged Model Animations
 - Shading models: Phong, Blinn-Phong
+- Post Processing: HDR, tone mapping, gamma correction, bloom, vignette, tone shading
 
 Sponza model demo
 

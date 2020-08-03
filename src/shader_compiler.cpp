@@ -56,8 +56,6 @@ void ShaderCompiler::replaceSettings(std::string& src) noexcept {
         case ShadingModel::BlinnPhong:
             settings.append("#define BLINN_PHONG_MODEL\n");
             break;
-        case ShadingModel::CelShading:
-            throw std::runtime_error("TODO");
     }
 
     // sets normal mapping

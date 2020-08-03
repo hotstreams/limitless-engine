@@ -86,7 +86,9 @@ set(ENGINE_SRC
         src/emitter_buffer.cpp
         src/framebuffer.cpp
         src/material_manager.cpp
-        src/postprocessing.cpp)
+        src/postprocessing.cpp
+        src/render.cpp
+        src/scene_data.cpp)
 
 set(EDITOR_SRC
         src/editor/sprite_emitter.cpp
