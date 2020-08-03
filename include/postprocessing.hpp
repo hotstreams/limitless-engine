@@ -87,6 +87,10 @@ namespace GraphicsEngine {
 
         bool gamma_correction {false};
         float gamma {2.2f};
+
+        bool vignette {false};
+        float vignette_radius {0.75f};
+        float vignette_softness {0.45f};
     private:
         Bloom bloom_process;
         Quad screen;
@@ -110,6 +114,9 @@ namespace GraphicsEngine {
                                << UniformValue("exposure", exposure)
                                << UniformValue("gamma_correction", static_cast<int>(gamma_correction))
                                << UniformValue("gamma", gamma)
+                               << UniformValue("vignette", static_cast<int>(vignette))
+                               << UniformValue("vignette_radius", vignette_radius)
+                               << UniformValue("vignette_softness", vignette_softness)
                                << UniformSampler("image", image);
 
             postprocess_shader.use();
