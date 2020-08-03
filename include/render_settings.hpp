@@ -1,7 +1,7 @@
 #pragma once
 
 namespace GraphicsEngine {
-    enum class ShadingModel { Phong, BlinnPhong, CelShading };
+    enum class ShadingModel { Phong, BlinnPhong };
 
     struct RenderSettings {
         // static flags at load time
@@ -11,7 +11,7 @@ namespace GraphicsEngine {
         bool physically_based_rendering {false};
 
         // dynamic flags
-        bool light_radius {false};
+        bool light_radius {true};
     };
 
     inline RenderSettings render_settings;
