@@ -8,9 +8,6 @@
 #include <assets.hpp>
 #include <skeletal_instance.hpp>
 #include <elementary_model.hpp>
-#include <editor/effect_creator.hpp>
-#include <any>
-#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -24,7 +21,7 @@ private:
     bool done {false};
     static constexpr glm::uvec2 window_size {2048 , 1080};
 public:
-    Game() : context{"Cubes demo", window_size, {{ WindowHint::Samples, 32 }}}, camera{window_size}, render{context} {
+    Game() : context{"Cubes demo", window_size, {{ WindowHint::Samples, 32 }, { WindowHint::Resizable, false }}}, camera{window_size}, render{context} {
         camera.setPosition({0.0f, 0.0f, 0.0f});
 
         context.makeCurrent();
@@ -39,29 +36,78 @@ public:
         assets.load();
 
         MaterialBuilder builder;
-        auto mat = builder.add(PropertyType::Color, glm::vec4(0.3f, 0.0, 0.0f, 1.0f))
-                .setShading(Shading::Unlit)
-                .build("sphere");
 
-        auto mat1 = builder.add(PropertyType::Color, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
-                .setShading(Shading::Unlit)
-                .build("sphere1");
+        auto material1 = builder.add(PropertyType::Color, glm::vec4(0.3f, 0.3, 1.0f, 1.0f))
+                                .setShading(Shading::Lit)
+                                .build("material1");
 
-        auto mat2 = builder.add(PropertyType::EmissiveColor, glm::vec4(7.0f, 5.0f, 0.0f, 1.0f))
-                .setShading(Shading::Unlit)
-                .build("sphere12");
+        auto material2 = builder.add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/grass.jpg"))
+                                .setShading(Shading::Lit)
+                                .build("material2");
 
-        scene.addInstance(new ModelInstance(assets.models.get("sponza"), glm::vec4{0.0f, 1.0f, 0.5f, 1.0f})).setScale(glm::vec3{0.001f});
-        auto& sphere = scene.addInstance(new ModelInstance(std::make_shared<Sphere>(100, 100), mat2, glm::vec3{ 0.0f, 0.0f, 0.0f })).setScale(glm::vec3{0.1f});
-        //sphere.getMesh().getMaterial().apply(mat);
+        auto material3 = builder.add(PropertyType::EmissiveColor, glm::vec4(3.0f, 2.3, 1.0f, 1.0f))
+                                .setShading(Shading::Unlit)
+                                .build("material3");
 
-        auto& model = scene.addInstance(new SkeletalInstance(assets.models.get("bob"), glm::vec3{ 0.0f, 0.0f, 0.0f }))
-            .setScale(glm::vec3{0.005f})
-            .setRotation({ -M_PI_2, 0.0f, 0.0f});
+        auto material4 = builder.add(PropertyType::EmissiveMask, TextureLoader::load(ASSETS_DIR "textures/mask.jpg"))
+                                .add(PropertyType::EmissiveColor, glm::vec4(10.5f, 7.1f, 8.5f, 1.0f))
+                                .add(PropertyType::Color, glm::vec4(0.1f, 0.3f, 0.7f, 1.0f))
+                                .setShading(Shading::Lit)
+                                .build("material4");
 
+        auto material5 = builder.add(PropertyType::BlendMask, TextureLoader::load(ASSETS_DIR "textures/bricks.jpg"))
+                                .add(PropertyType::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
+                                .setShading(Shading::Lit)
+                                .build("material5");
+
+        auto material6 = builder.add(PropertyType::MetallicTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_metallic.png"))
+                                .add(PropertyType::RoughnessTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_roughness.png"))
+                                .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
+                                .add(PropertyType::Normal, TextureLoader::load(ASSETS_DIR "textures/rustediron2_normal.png"))
+                                .setShading(Shading::Lit)
+                                .build("material6");
+
+//        auto material7 = builder.add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
+//                                .setShading(Shading::Unlit)
+//                                .setBlending(Blending::Additive)
+//                                .build("material7");
+//
+//        auto material8 = builder.add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
+//                                .setShading(Shading::Unlit)
+//                                .setBlending(Blending::Modulate)
+//                                .build("material8");
+//
+//        auto material9 = builder.add(PropertyType::Color, glm::vec4(0.7f, 0.3f, 0.1f, 0.6f))
+//                                .setShading(Shading::Unlit)
+//                                .setBlending(Blending::Translucent)
+//                                .build("material9");
+
+        scene.addInstance(new ModelInstance(assets.models.get("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}))
+             .setScale(glm::vec3(0.4f))
+             .setRotation({ 0.0f, M_PI, 0.0f });
+        scene.addInstance(new ModelInstance(assets.models.get("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}))
+             .setScale(glm::vec3(0.1f))
+             .setRotation({ 0.0f, M_PI, 0.0f });
+        scene.addInstance(new ModelInstance(assets.models.get("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}))
+             .setScale(glm::vec3(0.35f))
+             .setRotation({ 0.0f, M_PI, 0.0f });
+        auto& model = scene.addInstance(new SkeletalInstance(assets.models.get("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f }))
+                           .setScale(glm::vec3{0.02f})
+                           .setRotation({ 0.0f, 0.0f, M_PI });
         static_cast<SkeletalInstance&>(model).play("");
 
-        auto light = PointLight{glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, glm::vec4{2.2f, 0.5f, 3.0f, 3.5f}, 1.0f, 0.7f, 1.8f, 2.0f};
+        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material1, glm::vec3{ 0.0f, 0.0f, 0.0f }));
+        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material2, glm::vec3{ 2.0f, 0.0f, 0.0f }));
+        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material3, glm::vec3{ 4.0f, 0.0f, 0.0f }));
+        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material4, glm::vec3{ 6.0f, 0.0f, 0.0f }));
+        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material5, glm::vec3{ 8.0f, 0.0f, 0.0f }));
+        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material6, glm::vec3{ 10.0f, 0.0f, 0.0f }));
+        //scene.addInstance(new ModelInstance(assets.models.get("sphere"), material7, glm::vec3{ 12.0f, 0.0f, 0.0f }));
+        //scene.addInstance(new ModelInstance(assets.models.get("sphere"), material8, glm::vec3{ 14.0f, 0.0f, 0.0f }));
+        //scene.addInstance(new ModelInstance(assets.models.get("sphere"), material9, glm::vec3{ 16.0f, 0.0f, 0.0f }));
+
+
+        auto light = PointLight{glm::vec4{4.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.1f, 2.7f, 7.5f}, 1.0f, 0.7f, 1.8f, 8.0f};
         scene.lighting.dynamic.point_lights.add(light);
 
         shader_storage.initialize();
@@ -109,9 +155,6 @@ public:
             last_time = time;
 
             render.draw(context, scene, camera);
-
-            //static Editor::SpriteEmitter e;
-            //e.draw(Blending::Opaque);
 
             handleInput(delta);
             context.pollEvents();

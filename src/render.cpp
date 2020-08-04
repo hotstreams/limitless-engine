@@ -78,7 +78,7 @@ void Render::initializeOffscreenBuffer(ContextEventObserver& ctx) {
 
 Render::Render(ContextEventObserver& context) noexcept
     : postprocess(context) {
-    context.clearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
+    context.clearColor({ 0.2f, 0.2f, 0.8f, 1.0f });
 
     initializeOffscreenBuffer(context);
 }

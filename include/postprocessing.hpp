@@ -30,11 +30,11 @@ namespace GraphicsEngine {
         bool gamma_correction {false};
         float gamma {2.2f};
 
-        bool vignette {true};
+        bool vignette {false};
         float vignette_radius {0.75f};
         float vignette_softness {0.45f};
 
-        bool tone_shading {true};
+        bool tone_shading {false};
         float number_of_colors {7.7f};
         float line_texel_offset {7.0f};
         float line_multiplier {1000.0f};

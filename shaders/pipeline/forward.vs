@@ -52,11 +52,15 @@ void main()
 
         #ifdef MATERIAL_NORMAL
             #ifdef NORMAL_MAPPING
-                vec3 T = normalize(vec3(model_matrix * vec4(tangent, 0.0)));
-                vec3 N = normalize(vec3(model_matrix * vec4(normal, 0.0)));
+                mat3 normal_matrix = transpose(inverse(mat3(model_matrix)));
+                vec3 T = normalize(normal_matrix * tangent);
+                vec3 N = normalize(normal_matrix * normal);
                 T = normalize(T - dot(T, N) * N);
                 vec3 B = cross(N, T);
+
                 fs_data.TBN = mat3(T, B, N);
+            #else
+                fs_data.normal = transpose(inverse(mat3(model_matrix))) * normal;
             #endif
         #else
             fs_data.normal = transpose(inverse(mat3(model_matrix))) * normal;

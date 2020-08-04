@@ -44,15 +44,23 @@
 #endif
 
 #ifdef PBR
-    #ifdef MATERIAL_METALLIC
-        float mat_metallic = material_metallic;
+    #ifdef MATERIAL_METALLIC_TEXTURE
+        float mat_metallic = texture(material_metallic_texture, fs_data.uv).r;
     #else
-        float mat_metallic = 0.5;
+        #ifdef MATERIAL_METALLIC
+            float mat_metallic = material_metallic;
+        #else
+            float mat_metallic = 0.01;
+        #endif
     #endif
 
-    #ifdef MATERIAL_ROUGHNESS
-        float mat_roughness = material_roughness;
+    #ifdef MATERIAL_ROUGHNESS_TEXTURE
+        float mat_roughness = texture(material_roughness_texture, fs_data.uv).r;
     #else
-        float mat_roughness = 0.5;
+        #ifdef MATERIAL_ROUGHNESS
+            float mat_roughness = material_roughness;
+        #else
+            float mat_roughness = 0.01;
+        #endif
     #endif
 #endif

@@ -250,6 +250,12 @@ std::string ShaderCompiler::getMaterialDefines(const MaterialType& type) noexcep
             case PropertyType::Roughness:
                 property_defines.append("#define MATERIAL_ROUGHNESS\n");
                 break;
+            case PropertyType::MetallicTexture:
+                property_defines.append("#define MATERIAL_METALLIC_TEXTURE\n");
+                break;
+            case PropertyType::RoughnessTexture:
+                property_defines.append("#define MATERIAL_ROUGHNESS_TEXTURE\n");
+                break;
         }
     }
 
@@ -267,7 +273,7 @@ std::string ShaderCompiler::getMaterialDefines(const MaterialType& type) noexcep
         return found != type.properties.end();
     };
 
-    if ((prop_exist(PropertyType::Metallic) || prop_exist(PropertyType::Roughness)) && render_settings.physically_based_rendering) {
+    if ((prop_exist(PropertyType::Metallic) || prop_exist(PropertyType::Roughness) ||  prop_exist(PropertyType::MetallicTexture) || prop_exist(PropertyType::RoughnessTexture)) && render_settings.physically_based_rendering) {
         property_defines.append("#define PBR\n");
     }
 

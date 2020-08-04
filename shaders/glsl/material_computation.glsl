@@ -11,7 +11,7 @@
 #endif
 
 #ifdef MATERIAL_BLENDMASK
-    if (mat_blend_mask == 0.0) discard;
+    if (mat_blend_mask >= 0.5) discard;
     fragment_color.a *= mat_blend_mask;
 #endif
 
@@ -21,7 +21,7 @@
             vec3 normal = normalize(mat_normal * 2.0 - 1.0);
             normal = normalize(fs_data.TBN * normal);
         #else
-            vec3 normal = mat_normal;
+            vec3 normal = normalize(fs_data.normal);
         #endif
     #else
         vec3 normal = normalize(fs_data.normal);
@@ -29,7 +29,7 @@
 #endif
 
 #ifdef MATERIAL_EMISSIVEMASK
-    if (mat_emissivemask != vec3(0.0))
+    if (mat_emissive_mask.r >= 0.5 && mat_emissive_mask.g >= 0.5 && mat_emissive_mask.b >= 0.5)
     {
         fragment_color.rgb *= mat_emissive_mask;
 
