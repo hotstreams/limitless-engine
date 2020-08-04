@@ -7,7 +7,7 @@ SceneDataStorage::SceneDataStorage() {
     buffer = BufferBuilder::buildIndexed("scene_data", Buffer::Type::Uniform, data, Buffer::Usage::StreamDraw, Buffer::MutableAccess::WriteOrphaning);
 }
 
-void SceneDataStorage::update(Context& context, Scene& scene, Camera& camera) {
+void SceneDataStorage::update([[maybe_unused]] Context& context, Scene& scene, Camera& camera) {
     scene_data.VP = camera.getProjection() * camera.getView();
     scene_data.camera_position = { camera.getPosition(), 1.0f };
     scene_data.ambient_color = scene.lighting.ambient_color;

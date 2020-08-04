@@ -23,14 +23,16 @@ EmitterSpawn::EmitterSpawn(const EmitterSpawn& emitter) noexcept
 }
 
 Emitter::Emitter(EmitterType type) noexcept
-    : local_position{0.0f}, position{0.0f},
-      local_rotation{0.0f}, rotation{0.0f}, local_space{false}, type{type} {
+    : type{type},
+      local_position{0.0f}, position{0.0f},
+      local_rotation{0.0f}, rotation{0.0f}, local_space{false} {
 
 }
 
 Emitter::Emitter() noexcept
-    : local_position{0.0f}, position{0.0f},
-      local_rotation{0.0f}, rotation{0.0f}, local_space{false}, type{EmitterType::Sprite} {
+    : type{EmitterType::Sprite},
+      local_position{0.0f}, position{0.0f},
+      local_rotation{0.0f}, rotation{0.0f}, local_space{false} {
 
 }
 
