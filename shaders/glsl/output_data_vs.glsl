@@ -5,6 +5,8 @@ out shader_data {
         #ifdef MATERIAL_NORMAL
             #ifdef NORMAL_MAPPING
                 mat3 TBN;
+            #else
+                vec3 normal;
             #endif
         #else
             vec3 normal;

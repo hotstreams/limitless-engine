@@ -32,6 +32,14 @@ layout(std140) uniform material_buffer {
             sampler2D material_blend_mask;
         #endif
 
+        #ifdef MATERIAL_METALLIC_TEXTURE
+            sampler2D material_metallic_texture;
+        #endif
+
+        #ifdef MATERIAL_ROUGHNESS_TEXTURE
+            sampler2D material_roughness_texture;
+        #endif
+
         #ifdef CUSTOM_MATERIAL
             GraphicsEngine::CustomMaterialSamplerUniforms
         #endif

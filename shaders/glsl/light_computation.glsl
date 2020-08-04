@@ -16,8 +16,7 @@
             vec3 H = normalize(V + L);
 
             float distance = length(point_lights[i].position.xyz - fs_data.world_position);
-            //float attenuation = 1.0 / (point_lights[i].constant + point_lights[i].linear * distance + point_lights[i].quadratic * distance * distance);
-            float attenuation = 1.0 / (distance * distance);
+            float attenuation = 1.0 / (point_lights[i].constant + point_lights[i].linear * distance + point_lights[i].quadratic * distance * distance);
             vec3 radiance = point_lights[i].color.xyz * attenuation;
 
             float NDF = DistributionGGX(N, H, roughness);

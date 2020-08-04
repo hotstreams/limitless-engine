@@ -98,7 +98,7 @@ namespace GraphicsEngine {
 
     class Lighting {
     public:
-        glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 0.7f};
+        glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 0.5f};
         DynamicLighting dynamic;
 
         void update() {

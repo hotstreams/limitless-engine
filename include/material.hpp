@@ -15,7 +15,9 @@ namespace GraphicsEngine {
         BlendMask,
         Shininess,
         Metallic,
-        Roughness
+        MetallicTexture,
+        Roughness,
+        RoughnessTexture
     };
 
     enum class Blending { Opaque, Translucent, Additive, Modulate };
@@ -43,6 +45,8 @@ namespace GraphicsEngine {
         [[nodiscard]] UniformValue<float>& getShininess() const;
         [[nodiscard]] UniformValue<float>& getMetallic() const;
         [[nodiscard]] UniformValue<float>& getRoughness() const;
+        [[nodiscard]] UniformSampler& getMetallicTexture() const;
+        [[nodiscard]] UniformSampler& getRoughnessTexture() const;
         [[nodiscard]] UniformSampler& getDiffuse() const;
         [[nodiscard]] UniformSampler& getSpecular() const;
         [[nodiscard]] UniformSampler& getNormal() const;

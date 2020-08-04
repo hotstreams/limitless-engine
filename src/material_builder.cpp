@@ -52,6 +52,8 @@ MaterialBuilder& MaterialBuilder::add(PropertyType type, float value) {
         case PropertyType::Diffuse:
         case PropertyType::Specular:
         case PropertyType::EmissiveMask:
+        case PropertyType::MetallicTexture:
+        case PropertyType::RoughnessTexture:
         case PropertyType::BlendMask:
             throw std::runtime_error("Wrong data for material property.");
     }
@@ -74,6 +76,8 @@ MaterialBuilder& MaterialBuilder::add(PropertyType type, const glm::vec4& value)
         case PropertyType::Diffuse:
         case PropertyType::Specular:
         case PropertyType::EmissiveMask:
+        case PropertyType::MetallicTexture:
+        case PropertyType::RoughnessTexture:
         case PropertyType::BlendMask:
             throw std::runtime_error("Wrong data for material property.");
     }
@@ -105,6 +109,12 @@ MaterialBuilder& MaterialBuilder::add(PropertyType type, std::shared_ptr<Texture
             break;
         case PropertyType::BlendMask:
             properties.emplace(type, new UniformSampler("material_blend_mask", std::move(texture)));
+            break;
+        case PropertyType::MetallicTexture:
+            properties.emplace(type, new UniformSampler("material_metallic_texture", std::move(texture)));
+            break;
+        case PropertyType::RoughnessTexture:
+            properties.emplace(type, new UniformSampler("material_roughness_texture", std::move(texture)));
             break;
     }
     return *this;

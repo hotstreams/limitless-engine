@@ -30,7 +30,7 @@ namespace glm {
     }
 }
 
-std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path) {
+std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool flip_uv) {
     if (assets.models.isExist(path.string())) {
         return assets.models.get(path.string());
     }
@@ -44,13 +44,19 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path) {
     Assimp::Importer importer;
     const aiScene* scene;
 
-    scene = importer.ReadFile(path.string().c_str(), aiProcess_ValidateDataStructure |
-                                                     aiProcess_Triangulate |
-                                                     aiProcess_GenUVCoords |
-                                                     aiProcess_GenNormals |
-                                                     aiProcess_GenSmoothNormals |
-                                                     aiProcess_CalcTangentSpace |
-                                                     aiProcess_ImproveCacheLocality);
+    auto scene_flags = aiProcess_ValidateDataStructure |
+                       aiProcess_Triangulate |
+                       aiProcess_GenUVCoords |
+                       aiProcess_GenNormals |
+                       aiProcess_GenSmoothNormals |
+                       aiProcess_CalcTangentSpace |
+                       aiProcess_ImproveCacheLocality;
+
+    if (flip_uv) {
+        scene_flags |= aiProcess_FlipUVs;
+    }
+
+    scene = importer.ReadFile(path.string().c_str(), scene_flags);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         throw std::runtime_error("Assimp library error: " + std::string(importer.GetErrorString()));

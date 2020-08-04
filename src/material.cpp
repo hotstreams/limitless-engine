@@ -180,6 +180,22 @@ Material* Material::clone() const {
     return new Material(*this);
 }
 
+UniformSampler& Material::getMetallicTexture() const {
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::MetallicTexture));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No MetallicTexture in material.");
+    }
+}
+
+UniformSampler& Material::getRoughnessTexture() const {
+    try {
+        return static_cast<UniformSampler&>(*properties.at(PropertyType::RoughnessTexture));
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("No RoughnessTexture in material.");
+    }
+}
+
 bool GraphicsEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {
     return std::tie(lhs.properties, lhs.shading, lhs.blending) < std::tie(rhs.properties, rhs.shading, rhs.blending);
 }
