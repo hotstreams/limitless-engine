@@ -8,13 +8,13 @@ BindlessTexture::BindlessTexture(std::shared_ptr<Texture> _texture) : texture(st
 
     makeResident();
 
-    BindlessTextureStorage::init();
-    BindlessTextureStorage::add(handle);
+    //BindlessTextureStorage::init();
+    //BindlessTextureStorage::add(handle);
 }
 
 BindlessTexture::~BindlessTexture() {
     makeNonresident();
-    BindlessTextureStorage::remove(handle);
+    //BindlessTextureStorage::remove(handle);
 }
 
 void BindlessTexture::makeResident() noexcept {
@@ -76,7 +76,9 @@ Texture::Type BindlessTexture::getType() const noexcept {
 }
 
 void BindlessTexture::resize(glm::uvec3 size) {
+    makeNonresident();
     texture->resize(size);
+    makeResident();
 }
 
 glm::uvec3 BindlessTexture::getSize() const noexcept {

@@ -31,7 +31,6 @@ namespace GraphicsEngine {
         void setUniform(const UniformValue<int>& uniform) const;
         void setUniform(const UniformSampler& sampler) const;
 
-        //GL_ARB_program_interface_query required
         void getUniformLocations() noexcept;
         void getIndexedBufferBounds() noexcept;
         void bindIndexedBuffers();

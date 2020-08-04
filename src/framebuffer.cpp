@@ -110,6 +110,7 @@ Framebuffer& Framebuffer::operator<<(const TextureAttachment& attachment) noexce
             break;
         case Texture::Type::CubeMap:
             glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment.attachment), attachment.texture->getId(), 0);
+            break;
         case Texture::Type::Tex2DArray:
         case Texture::Type::TexCubeMapArray:
         case Texture::Type::Tex3D:

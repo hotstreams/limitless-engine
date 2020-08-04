@@ -39,6 +39,8 @@ void Material::update() const noexcept {
             case PropertyType::Displacement:
             case PropertyType::EmissiveMask:
             case PropertyType::BlendMask:
+            case PropertyType::MetallicTexture:
+            case PropertyType::RoughnessTexture:
                 if (ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
                     auto& uniform = static_cast<UniformSampler&>(*properties.at(type));
                     auto offset = uniform_offsets.at(uniform.getName());

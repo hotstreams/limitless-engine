@@ -22,7 +22,7 @@ InitialLocation::InitialLocation(const InitialLocation& module) noexcept
     : distribution{module.distribution->clone()} {
 }
 
-void InitialLocation::initialize(Emitter& emitter, Particle& particle) noexcept {
+void InitialLocation::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     particle.position += distribution->get();
 }
 
@@ -35,7 +35,7 @@ InitialRotation::InitialRotation(Distribution<glm::vec3>* distribution) noexcept
 
 }
 
-void InitialRotation::initialize(Emitter& emitter, Particle& particle) noexcept {
+void InitialRotation::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     particle.angle += distribution->get();
 }
 
@@ -74,7 +74,7 @@ InitialColor::InitialColor(Distribution<glm::vec4>* distribution) noexcept
         : distribution{distribution} {
 }
 
-void InitialColor::initialize(Emitter& emitter, Particle& particle) noexcept {
+void InitialColor::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     particle.color += distribution->get();
 }
 
@@ -91,7 +91,7 @@ InitialSize::InitialSize(Distribution<float>* distribution) noexcept
 
 }
 
-void InitialSize::initialize(Emitter& emitter, Particle& particle) noexcept {
+void InitialSize::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     particle.color += distribution->get();
 }
 
@@ -142,14 +142,14 @@ void SubUV::updateFrames() noexcept {
     subUV_factor.y = static_cast<float>(height) / texture_size.y;
 }
 
-void SubUV::initialize(Emitter& emitter, Particle& particle) noexcept {
+void SubUV::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     particle.subUV.x = subUV_factor.x;
     particle.subUV.y = subUV_factor.y;
     particle.subUV.z = frames[0].x;
     particle.subUV.w = frames[0].y;
 }
 
-void SubUV::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+void SubUV::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, [[maybe_unused]] float dt) noexcept {
     if (first_update) {
         last_time = std::chrono::steady_clock::now();
         first_update = false;
@@ -182,11 +182,11 @@ Lifetime::Lifetime(Distribution<float>* distribution) noexcept
 
 }
 
-void Lifetime::initialize(Emitter& emitter, Particle& particle) noexcept {
+void Lifetime::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     particle.lifetime += distribution->get();
 }
 
-void Lifetime::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+void Lifetime::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
     for (auto& particle : particles)
         particle.lifetime -= dt;
 }
@@ -212,7 +212,7 @@ ColorByLife::ColorByLife(const ColorByLife& module) noexcept
     : distribution{module.distribution->clone()} {
 }
 
-void ColorByLife::initialize(Emitter& emitter, Particle& particle) noexcept {
+void ColorByLife::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     switch (distribution->getType()) {
         case DistributionType::Const:
             particle.color = distribution->get();
@@ -225,7 +225,7 @@ void ColorByLife::initialize(Emitter& emitter, Particle& particle) noexcept {
     }
 }
 
-void ColorByLife::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+void ColorByLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
     switch (distribution->getType()) {
         case DistributionType::Const:
             break;
@@ -257,7 +257,7 @@ RotationRate::RotationRate(const RotationRate& module) noexcept
 
 }
 
-void RotationRate::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+void RotationRate::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
     for (auto& particle : particles) {
         particle.angle += distribution->get() * dt;
     }
@@ -275,7 +275,7 @@ SizeByLife::SizeByLife(const SizeByLife& module) noexcept
         : distribution{module.distribution->clone()}, factor{module.factor} {
 }
 
-void SizeByLife::initialize(Emitter& emitter, Particle& particle) noexcept {
+void SizeByLife::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     switch (distribution->getType()) {
         case DistributionType::Const:
             particle.size = distribution->get();
@@ -288,7 +288,7 @@ void SizeByLife::initialize(Emitter& emitter, Particle& particle) noexcept {
     }
 }
 
-void SizeByLife::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+void SizeByLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
     switch (distribution->getType()) {
         case DistributionType::Const:
             break;
@@ -354,11 +354,11 @@ glm::vec3 MeshLocation::getPositionOnMesh() noexcept {
                                  vertices[index + 2].position);
 }
 
-void MeshLocation::initialize(Emitter& emitter, Particle& particle) noexcept {
+void MeshLocation::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
     particle.position += getPositionOnMesh();
 }
 
-void MeshLocation::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+void MeshLocation::update([[maybe_unused]] Emitter& emitter, [[maybe_unused]] std::vector<Particle>& particles, [[maybe_unused]] float dt) noexcept {
     //TODO: skeletal mesh update
 }
 
