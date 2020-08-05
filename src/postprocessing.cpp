@@ -104,6 +104,7 @@ void PostProcessing::process(Context& context, const Framebuffer& offscreen) {
                        << UniformValue("line_texel_offset", line_texel_offset)
                        << UniformValue("line_multiplier", line_multiplier)
                        << UniformValue("line_bias", line_bias)
+                       << UniformValue("fxaa", static_cast<int>(fxaa))
                        << UniformSampler("image", offscreen.get(FramebufferAttachment::Color0).texture)
                        << UniformSampler("image_depth", offscreen.get(FramebufferAttachment::Depth).texture);
 

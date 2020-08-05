@@ -27,11 +27,19 @@ uniform float line_texel_offset;
 uniform float line_multiplier;
 uniform float line_bias;
 
+uniform bool fxaa;
+
+#include "glsl/fxaa.glsl"
+
 void main()
 {
     vec3 scene_color = texture(image, fs_uv).rgb;
     float scene_depth = texture(image_depth, fs_uv).r;
     vec2 resolution = textureSize(image, 0);
+
+    if (fxaa) {
+        scene_color = fxaaProcess(image, fs_uv);
+    }
 
     if (bloom) {
         scene_color += texture(bloom_image, fs_uv).rgb;

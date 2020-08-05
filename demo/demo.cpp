@@ -21,7 +21,7 @@ private:
     bool done {false};
     static constexpr glm::uvec2 window_size {1920 , 1080};
 public:
-    Game() : context{"Features", window_size, {{ WindowHint::Samples, 32 }, { WindowHint::Resizable, false }}}, camera{window_size}, render{context} {
+    Game() : context{"Features", window_size, {{ WindowHint::Resizable, false }}}, camera{window_size}, render{context} {
         camera.setPosition({0.0f, 0.0f, 0.0f});
 
         context.makeCurrent();
@@ -37,7 +37,7 @@ public:
 
         MaterialBuilder builder;
 
-        auto material1 = builder.add(PropertyType::Color, glm::vec4(0.3f, 0.3, 1.0f, 1.0f))
+        auto material1 = builder.add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
                                 .setShading(Shading::Lit)
                                 .build("material1");
 
@@ -88,6 +88,8 @@ public:
         scene.addInstance(new ModelInstance(assets.models.get("sphere"), material5, glm::vec3{ 8.0f, 0.0f, 0.0f }));
         scene.addInstance(new ModelInstance(assets.models.get("sphere"), material6, glm::vec3{ 10.0f, 0.0f, 0.0f }));
 
+        scene.addInstance(new ModelInstance(assets.models.get("cube"), material1, glm::vec3{ 2.0f, 2.0f, 2.0f }));
+
         auto light = PointLight{glm::vec4{4.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.1f, 2.7f, 7.5f}, 1.0f, 0.7f, 1.8f, 8.0f};
         scene.lighting.dynamic.point_lights.add(light);
 
@@ -106,6 +108,10 @@ public:
     void onKey(int key, [[maybe_unused]] int scancode, InputState state, [[maybe_unused]] Modifier modifier) override {
         if (key == GLFW_KEY_ESCAPE && state == InputState::Pressed) {
             done = true;
+        }
+
+        if (key == GLFW_KEY_F1 && state == InputState::Pressed) {
+            render.postprocess.fxaa = !render.postprocess.fxaa;
         }
     }
 
