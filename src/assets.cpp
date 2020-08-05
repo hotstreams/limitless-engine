@@ -12,4 +12,5 @@ void Assets::load() {
 
     models.add("sphere", std::make_shared<Sphere>(100, 100));
     models.add("quad", std::make_shared<Quad>());
+    models.add("cube", std::make_shared<Cube>());
 }
