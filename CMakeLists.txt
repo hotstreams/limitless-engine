@@ -27,10 +27,10 @@ message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIRS}")
 include_directories(${ASSIMP_INCLUDE_DIRS})
 link_directories(${ASSIMP_LIBRARIES})
 
-find_package(freetype REQUIRED)
-message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
-include_directories(${FREETYPE_INCLUDE_DIRS})
-link_directories(${FREETYPE_LIBRARIES})
+#find_package(freetype REQUIRED)
+#message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
+#include_directories(${FREETYPE_INCLUDE_DIRS})
+#link_directories(${FREETYPE_LIBRARIES})
 
 find_package(stb_image REQUIRED)
 message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
@@ -39,11 +39,11 @@ include_directories(${STB_IMAGE_INCLUDE_DIRS})
 include_directories(include)
 
 if (WIN32)
-    link_libraries(opengl32 glew32 glfw3 assimp freetype)
+    link_libraries(opengl32 glew32 glfw3 assimp)
 endif()
 
 if (UNIX)
-    link_libraries(GLEW glfw GL assimp freetype)
+    link_libraries(GLEW glfw GL assimp)
 endif()
 
 set(ENGINE_SRC
@@ -90,9 +90,9 @@ set(ENGINE_SRC
         src/render.cpp
         src/scene_data.cpp)
 
-set(EDITOR_SRC
-        src/editor/sprite_emitter.cpp
-        src/editor/effect_creator.cpp)
+#set(EDITOR_SRC
+#        src/editor/sprite_emitter.cpp
+#        src/editor/effect_creator.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})
@@ -101,4 +101,4 @@ foreach(file ${list})
     add_executable(${filename} ${ENGINE_SRC} ${file})
 endforeach()
 
-add_executable(engine ${ENGINE_SRC} ${EDITOR_SRC} demo/editor)
+#add_executable(engine ${ENGINE_SRC} ${EDITOR_SRC} demo/editor)

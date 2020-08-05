@@ -48,7 +48,9 @@ void BindlessTexture::generateMipMap() const noexcept {
 }
 
 Texture& BindlessTexture::operator<<(const TexParameter<GLint>& param) noexcept {
+    makeNonresident();
     *texture << param;
+    makeResident();
     return *this;
 }
 
