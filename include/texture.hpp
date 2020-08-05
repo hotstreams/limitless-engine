@@ -23,26 +23,6 @@ namespace GraphicsEngine {
             Tex2DMS = GL_TEXTURE_2D_MULTISAMPLE
         };
 
-        enum class Wrap {
-            Clamp = GL_CLAMP_TO_EDGE,
-            Mirrored = GL_MIRRORED_REPEAT,
-            Reapeat = GL_REPEAT
-        };
-
-        enum class MagFilter {
-            Nearest = GL_NEAREST,
-            Linear = GL_LINEAR
-        };
-
-        enum class MinFilter {
-            Nearest = GL_NEAREST,
-            Linear = GL_LINEAR,
-            NearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST,
-            LinearMipmapNearest = GL_LINEAR_MIPMAP_NEAREST,
-            NearestMipmapLinear = GL_NEAREST_MIPMAP_LINEAR,
-            LinearMipmapLinear = GL_LINEAR_MIPMAP_LINEAR
-        };
-
         enum class InternalFormat {
             Depth = GL_DEPTH_COMPONENT,
             Depth16 = GL_DEPTH_COMPONENT16,
@@ -103,8 +83,6 @@ namespace GraphicsEngine {
         virtual Texture& operator<<(const TexParameter<GLfloat>& param) noexcept = 0;
         virtual Texture& operator<<(const TexParameter<GLint*>& param) noexcept = 0;
         virtual Texture& operator<<(const TexParameter<GLfloat*>& param) noexcept = 0;
-
-
 
         [[nodiscard]] virtual GLuint getId() const noexcept = 0;
         [[nodiscard]] virtual Type getType() const noexcept = 0;

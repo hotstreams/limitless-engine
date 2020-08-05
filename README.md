@@ -1,5 +1,17 @@
 # C++ Graphics Engine
 
+####The project is cross-platform 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL.
+
+- Features:
+    - State caching
+    - ShaderCompiler + shader program introspection [ GL_ARB_program_interface_query ]
+    - Indexed buffers auto binding
+    - Buffer streaming: Orphaning, Unsynchonized, Persistent, Coherent, + fences
+    - Immutable storage support [ GL_ARB_buffer_storage/GL_ARB_texture_storage ]
+    - Named buffer objects support [  GL_ARB_direct_state_access ]
+    - Bindless textures [ GL_ARB_bindless_texture ]
+    - Persistent/Coherent mapping + TripleBuffering + Explicit Synchronization [ GL_ARB_buffer_storage ]
+
 - Material System
   - Albedo
   - Specular
@@ -31,14 +43,13 @@ Sponza model
 
 ![](screenshots/sponza.png)
 
-- OpenGL:
-    - State caching
-    - Context sharing
-    - ShaderCompiler
-    - Shader program introspection [ GL_ARB_program_interface_query ]
-    - Indexed buffers auto binding
-    - Buffer streaming: Orphaning, Unsynchonized, Persistent, Coherent, + fences
-    - Immutable storage support [ GL_ARB_buffer_storage/GL_ARB_texture_storage ]
-    - Named buffer objects support [  GL_ARB_direct_state_access ]
-    - Bindless textures [ GL_ARB_bindless_texture ]
-    - Persistent/Coherent mapping + TripleBuffering + Synchronization [ GL_ARB_buffer_storage ]
+# Dependencies
+- glfw3
+- glew
+- glm
+- assimp
+- stb_image
+
+
+    
+    

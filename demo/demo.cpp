@@ -70,12 +70,15 @@ public:
         scene.addInstance(new ModelInstance(assets.models.get("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}))
              .setScale(glm::vec3(0.4f))
              .setRotation({ 0.0f, M_PI, 0.0f });
+
         scene.addInstance(new ModelInstance(assets.models.get("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}))
              .setScale(glm::vec3(0.1f))
              .setRotation({ 0.0f, M_PI, 0.0f });
+
         scene.addInstance(new ModelInstance(assets.models.get("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}))
              .setScale(glm::vec3(0.35f))
              .setRotation({ 0.0f, M_PI, 0.0f });
+
         auto& model = scene.addInstance(new SkeletalInstance(assets.models.get("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f }))
                            .setScale(glm::vec3{0.02f})
                            .setRotation({ 0.0f, 0.0f, M_PI });
@@ -108,10 +111,6 @@ public:
     void onKey(int key, [[maybe_unused]] int scancode, InputState state, [[maybe_unused]] Modifier modifier) override {
         if (key == GLFW_KEY_ESCAPE && state == InputState::Pressed) {
             done = true;
-        }
-
-        if (key == GLFW_KEY_F1 && state == InputState::Pressed) {
-            render.postprocess.fxaa = !render.postprocess.fxaa;
         }
     }
 
