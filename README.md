@@ -33,7 +33,7 @@
 
 ![me](screenshots/model_loader.gif)
 
-- Post Processing: HDR, tone mapping, gamma correction, bloom, vignette, tone shading
+- Post Processing: HDR, tone mapping, gamma correction, bloom, vignette, tone shading, FXAA
 
 ![](screenshots/tone_shading.png)
 
