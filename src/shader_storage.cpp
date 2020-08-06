@@ -63,4 +63,5 @@ void ShaderStorage::initialize() {
     add("blur", ShaderCompiler::compile(SHADER_DIR "postprocessing/blur"));
     add("brightness", ShaderCompiler::compile(SHADER_DIR "postprocessing/brightness"));
     add("postprocess", ShaderCompiler::compile(SHADER_DIR "postprocessing/postprocess"));
+    add("skybox", ShaderCompiler::compile(SHADER_DIR "pipeline/skybox"));
 }

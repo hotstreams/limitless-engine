@@ -1,5 +1,6 @@
 #include <scene.hpp>
 #include <skeletal_instance.hpp>
+#include <assets.hpp>
 
 using namespace GraphicsEngine;
 
@@ -9,6 +10,10 @@ AbstractInstance& Scene::getInstance(uint64_t id) const {
     } catch (const std::out_of_range& e) {
         throw std::runtime_error("No such instance.");
     }
+}
+
+void Scene::setSkybox(const std::string& asset_name) {
+    skybox = assets.skyboxes.get(asset_name);
 }
 
 void Scene::update() {

@@ -141,8 +141,8 @@ StateTexture::StateTexture(StateTexture::Type target, GLsizei levels, StateTextu
 
     switch (target) {
         case Type::CubeMap:
+            texStorage2D(GL_TEXTURE_CUBE_MAP, levels, internal);
             for (int i = 0; i < 6; ++i) {
-                texStorage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, levels, internal);
                 if (data[i]) {
                     StateTexture::texSubImage2D(0, 0, size, data[i]);
                 }
@@ -422,6 +422,12 @@ NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec2 size
             glDeleteTextures(1, &id);
             throw std::logic_error("Wrong constructor usage to build texture.");
     }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 NamedTexture::NamedTexture(Type target, uint8_t samples, InternalFormat internal, glm::uvec2 size, bool immutable)
@@ -496,10 +502,10 @@ NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTextu
 
     switch (target) {
         case Type::CubeMap:
+            StateTexture::texStorage2D(GL_TEXTURE_CUBE_MAP, levels, internal);
             for (int i = 0; i < 6; ++i) {
-                StateTexture::texStorage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, levels, internal);
                 if (data[i]) {
-                    NamedTexture::texSubImage2D(0, 0, size, data[i]);
+                    NamedTexture::texSubImage3D(0, 0, 0, { size.x, size.y, i }, data[i]);
                 }
             }
             break;

@@ -6,6 +6,8 @@
 
 namespace GraphicsEngine {
     struct SceneData {
+        glm::mat4 projection {1.0f};
+        glm::mat4 view {1.0f};
         glm::mat4 VP {1.0f};
         glm::vec4 camera_position {0.0f};
         glm::vec4 ambient_color {1.0f};

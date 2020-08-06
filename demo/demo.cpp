@@ -91,10 +91,10 @@ public:
         scene.addInstance(new ModelInstance(assets.models.get("sphere"), material5, glm::vec3{ 8.0f, 0.0f, 0.0f }));
         scene.addInstance(new ModelInstance(assets.models.get("sphere"), material6, glm::vec3{ 10.0f, 0.0f, 0.0f }));
 
-        scene.addInstance(new ModelInstance(assets.models.get("cube"), material1, glm::vec3{ 2.0f, 2.0f, 2.0f }));
-
         auto light = PointLight{glm::vec4{4.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.1f, 2.7f, 7.5f}, 1.0f, 0.7f, 1.8f, 8.0f};
         scene.lighting.dynamic.point_lights.add(light);
+
+        scene.setSkybox("skybox");
 
         shader_storage.initialize();
     }

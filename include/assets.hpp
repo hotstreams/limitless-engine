@@ -3,6 +3,7 @@
 #include <model.hpp>
 #include <texture_loader.hpp>
 #include <model_loader.hpp>
+#include <skybox.hpp>
 
 #define ASSETS_DIR "../assets/"
 
@@ -37,6 +38,7 @@ namespace GraphicsEngine {
         ResourceContainer<AbstractMesh> meshes;
         ResourceContainer<Texture> textures;
         ResourceContainer<Material> materials;
+        ResourceContainer<Skybox> skyboxes;
 
         void load();
     };
