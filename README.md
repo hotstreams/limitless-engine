@@ -6,6 +6,7 @@
     - State caching
     - ShaderCompiler + shader program introspection
     - Indexed buffers auto binding
+    - Texture unit auto binding
     - Buffer streaming: Orphaning, Unsynchonized, Persistent, Coherent, + fences
     - Immutable storage support
     - Named buffer objects support
