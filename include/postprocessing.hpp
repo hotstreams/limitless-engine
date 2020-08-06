@@ -34,13 +34,13 @@ namespace GraphicsEngine {
         float vignette_radius {0.75f};
         float vignette_softness {0.45f};
 
-        bool tone_shading {false};
+        bool tone_shading {true};
         float number_of_colors {7.7f};
         float line_texel_offset {5.0f};
         float line_multiplier {1000.0f};
         float line_bias {2.0f};
 
-        bool fxaa {false};
+        bool fxaa {true};
     private:
         Bloom bloom_process;
     public:

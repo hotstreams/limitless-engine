@@ -13,4 +13,6 @@ void Assets::load() {
     models.add("sphere", std::make_shared<Sphere>(100, 100));
     models.add("quad", std::make_shared<Quad>());
     models.add("cube", std::make_shared<Cube>());
+
+    skyboxes.add("skybox", std::make_shared<Skybox>(ASSETS_DIR "skyboxes/sky/sky.png"));
 }

@@ -88,11 +88,8 @@ set(ENGINE_SRC
         src/material_manager.cpp
         src/postprocessing.cpp
         src/render.cpp
-        src/scene_data.cpp)
-
-#set(EDITOR_SRC
-#        src/editor/sprite_emitter.cpp
-#        src/editor/effect_creator.cpp)
+        src/scene_data.cpp
+        src/skybox.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})
@@ -100,5 +97,3 @@ foreach(file ${list})
     get_filename_component(filename ${exec_name} NAME)
     add_executable(${filename} ${ENGINE_SRC} ${file})
 endforeach()
-
-#add_executable(engine ${ENGINE_SRC} ${EDITOR_SRC} demo/editor)

@@ -6,6 +6,7 @@
     - State caching
     - ShaderCompiler + shader program introspection [ GL_ARB_program_interface_query ]
     - Indexed buffers auto binding
+    - Texture auto binding
     - Buffer streaming: Orphaning, Unsynchonized, Persistent, Coherent, + fences
     - Immutable storage support [ GL_ARB_buffer_storage/GL_ARB_texture_storage ]
     - Named buffer objects support [  GL_ARB_direct_state_access ]
@@ -37,8 +38,6 @@
 
 ![](screenshots/tone_shading.png)
 
-![](screenshots/tone_shading2.png)
-
 Sponza model
 
 ![](screenshots/sponza.png)
@@ -49,7 +48,3 @@ Sponza model
 - glm
 - assimp
 - stb_image
-
-
-    
-    

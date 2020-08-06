@@ -104,6 +104,8 @@ void Render::draw(Context& context, Scene& scene, Camera& camera) {
         renderLightsVolume(context, scene);
     }
 
+    scene.skybox->draw(context);
+
     dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Additive);
     dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Modulate);
     dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Translucent);
