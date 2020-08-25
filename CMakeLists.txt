@@ -85,7 +85,6 @@ set(ENGINE_SRC
         src/particle_system.cpp
         src/emitter_buffer.cpp
         src/framebuffer.cpp
-        src/material_manager.cpp
         src/postprocessing.cpp
         src/render.cpp
         src/scene_data.cpp
