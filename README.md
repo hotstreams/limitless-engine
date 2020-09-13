@@ -51,7 +51,7 @@ Sponza model
 
 # TODO
 - text rendering (screen space + 3d)
-- instanced rendering + multidraw extensions support
+- instanced rendering + multidraw extensions support, batching draw optimizations
 - material layering
 - frustum/occlusion culling
 - cascade shadow maps for directional lights
