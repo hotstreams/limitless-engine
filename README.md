@@ -48,3 +48,19 @@ Sponza model
 - glm
 - assimp
 - stb_image
+
+# TODO
+- text rendering (screen space + 3d)
+- instanced rendering + multidraw extensions support
+- material layering
+- frustum/occlusion culling
+- cascade shadow maps for directional lights
+- point cube shadow maps for point lights 
+- flexible particle system effects
+- skinning in compute shader (as feature if supported) 
+- decals projection (+ material influence on base material)
+- deferred pipeline configuration
+- forward+ pipilne for huge amount of lights
+- custom cubemaps
+- light probes reflections
+- raytracing/pathtracing
