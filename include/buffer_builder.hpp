@@ -1,7 +1,9 @@
 #pragma once
 
 #include <context.hpp>
-#include <buffer.hpp>
+#include <named_buffer.hpp>
+#include <indexed_buffer.hpp>
+#include <triple_buffer.hpp>
 
 namespace GraphicsEngine {
     class BufferBuilder {

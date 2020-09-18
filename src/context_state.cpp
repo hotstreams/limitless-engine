@@ -83,11 +83,11 @@ void ContextState::setFrontFace(GLenum mode) noexcept {
     }
 }
 
-ContextState& ContextState::getState(GLFWwindow* window) {
+ContextState* ContextState::getState(GLFWwindow* window) noexcept {
     try {
-        return *state_map.at(window);
+        return state_map.at(window);
     } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such context state.");
+        return nullptr;
     }
 }
 

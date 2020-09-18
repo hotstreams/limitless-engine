@@ -1,5 +1,7 @@
 #include <framebuffer.hpp>
 
+#include <texture.hpp>
+
 using namespace GraphicsEngine;
 
 Framebuffer::Framebuffer(ContextEventObserver& context) noexcept : Framebuffer() {
@@ -11,21 +13,25 @@ Framebuffer::Framebuffer() noexcept {
 }
 
 void Framebuffer::bind() noexcept {
-    auto& framebuffer_id = ContextState::getState(glfwGetCurrentContext()).framebuffer_id;
-    if (framebuffer_id != id) {
-        glBindFramebuffer(GL_FRAMEBUFFER, id);
-        framebuffer_id = id;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto& framebuffer_id = ContextState::getState(window)->framebuffer_id;
+        if (framebuffer_id != id) {
+            glBindFramebuffer(GL_FRAMEBUFFER, id);
+            framebuffer_id = id;
+        }
     }
 }
 
 Framebuffer::~Framebuffer() {
     if (id != 0) {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto& framebuffer_id = ContextState::getState(window).framebuffer_id;
-        if (framebuffer_id == id) {
-            framebuffer_id = 0;
-        }
+        auto* window = glfwGetCurrentContext();
+        if (ContextState::hasState(window)) {
+            auto& framebuffer_id = ContextState::getState(window)->framebuffer_id;
+            if (framebuffer_id == id) {
+                framebuffer_id = 0;
+            }
+
             glDeleteBuffers(1, &id);
         }
     }
@@ -131,17 +137,23 @@ const TextureAttachment& Framebuffer::get(FramebufferAttachment attachment) cons
 }
 
 void Framebuffer::unbind() noexcept {
-    auto& framebuffer_id = ContextState::getState(glfwGetCurrentContext()).framebuffer_id;
-    if (framebuffer_id != 0) {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        framebuffer_id = 0;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto& framebuffer_id = ContextState::getState(window)->framebuffer_id;
+        if (framebuffer_id != 0) {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            framebuffer_id = 0;
+        }
     }
 }
 
 void Framebuffer::bindDefault() noexcept {
-    auto& framebuffer_id = ContextState::getState(glfwGetCurrentContext()).framebuffer_id;
-    if (framebuffer_id != 0) {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        framebuffer_id = 0;
+    auto* window = glfwGetCurrentContext();
+    if (ContextState::hasState(window)) {
+        auto &framebuffer_id = ContextState::getState(window)->framebuffer_id;
+        if (framebuffer_id != 0) {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            framebuffer_id = 0;
+        }
     }
 }

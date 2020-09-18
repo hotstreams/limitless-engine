@@ -16,7 +16,7 @@ ShaderProgram::ShaderProgram(GLuint id) : id(id) {
 void ShaderProgram::use() {
     auto *window = glfwGetCurrentContext();
     if (ContextState::hasState(window)) {
-        auto &current_id = ContextState::getState(window).shader_id;
+        auto &current_id = ContextState::getState(window)->shader_id;
 
         if (current_id != id) {
             glUseProgram(id);

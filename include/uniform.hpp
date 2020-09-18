@@ -2,6 +2,8 @@
 
 #include <texture.hpp>
 
+#include <memory>
+
 namespace GraphicsEngine {
     class ShaderProgram;
 

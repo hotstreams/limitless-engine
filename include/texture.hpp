@@ -2,8 +2,7 @@
 
 #include <context_debug.hpp>
 #include <glm/glm.hpp>
-#include <vector>
-#include <buffer.hpp>
+#include <array>
 
 namespace GraphicsEngine {
     template<typename T>

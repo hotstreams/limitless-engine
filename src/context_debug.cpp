@@ -5,7 +5,7 @@ using namespace GraphicsEngine;
 
 #ifdef GL_DEBUG
 
-void GraphicsEngine::debug_activate() {
+void GraphicsEngine::activate_debug() {
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 

@@ -13,7 +13,7 @@ VertexArray::~VertexArray() {
     if (id != 0) {
         auto* window = glfwGetCurrentContext();
         if (ContextState::hasState(window)) {
-            auto &current_id = ContextState::getState(window).vertex_array_id;
+            auto &current_id = ContextState::getState(window)->vertex_array_id;
             if (current_id == id) {
                 current_id = 0;
             }
@@ -25,7 +25,7 @@ VertexArray::~VertexArray() {
 void VertexArray::bind() const noexcept {
     auto* window = glfwGetCurrentContext();
     if (ContextState::hasState(window)) {
-        auto &current_id = ContextState::getState(window).vertex_array_id;
+        auto &current_id = ContextState::getState(window)->vertex_array_id;
         if (current_id != id) {
             glBindVertexArray(id);
             current_id = id;

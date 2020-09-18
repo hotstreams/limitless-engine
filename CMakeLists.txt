@@ -49,7 +49,6 @@ endif()
 set(ENGINE_SRC
         src/bindless_texture.cpp
         src/bindless_texture_storage.cpp
-        src/buffer.cpp
         src/buffer_builder.cpp
         src/context.cpp
         src/context_debug.cpp
@@ -76,7 +75,7 @@ set(ENGINE_SRC
         src/mesh_instance.cpp
         src/shader_storage.cpp
         src/custom_material.cpp
-        src/cumstom_material_builder.cpp
+        src/custom_material_builder.cpp
         src/emitter.cpp
         src/emitter_module.cpp
         src/sprite_emitter.cpp
@@ -88,7 +87,11 @@ set(ENGINE_SRC
         src/postprocessing.cpp
         src/render.cpp
         src/scene_data.cpp
-        src/skybox.cpp)
+        src/skybox.cpp
+        src/state_buffer.cpp
+        src/named_buffer.cpp
+        src/triple_buffer.cpp
+        src/indexed_buffer.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})
