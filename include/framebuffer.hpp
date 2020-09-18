@@ -1,9 +1,11 @@
 #pragma once
 
 #include <context_observer.hpp>
-#include <texture.hpp>
+#include <memory>
 
 namespace GraphicsEngine {
+    class Texture;
+
     class RenderTarget {
     protected:
         GLuint id;

@@ -2,6 +2,8 @@
 
 #include <texture.hpp>
 
+#include <vector>
+
 namespace GraphicsEngine {
     class TextureBinder {
     private:

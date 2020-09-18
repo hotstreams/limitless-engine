@@ -4,7 +4,7 @@
 #include <context.hpp>
 #include <render_settings.hpp>
 
-#include <cumstom_material_builder.hpp>
+#include <custom_material_builder.hpp>
 
 using namespace GraphicsEngine;
 

@@ -1,9 +1,12 @@
 #pragma once
 
 #include <context_debug.hpp>
-#include <map>
-#include <glm/glm.hpp>
 #include <buffer.hpp>
+
+#include <glm/glm.hpp>
+
+#include <map>
+#include <unordered_map>
 
 namespace GraphicsEngine {
     struct BindingPoint {
@@ -69,7 +72,7 @@ namespace GraphicsEngine {
         ContextState& operator=(ContextState&&) noexcept = default;
 
         static bool hasState(GLFWwindow* window) noexcept;
-        static ContextState& getState(GLFWwindow* window);
+        static ContextState* getState(GLFWwindow* window) noexcept;
 
         void setViewPort(glm::uvec2 viewport_size) noexcept;
         void clearColor(const glm::vec4& color) noexcept;

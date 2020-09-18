@@ -12,7 +12,7 @@ void ContextInitializer::initializeGLEW() {
     }
 
 #ifdef GL_DEBUG
-    debug_activate();
+    activate_debug();
 #endif
 
     getExtensions();
@@ -61,14 +61,15 @@ void ContextInitializer::getExtensions() noexcept {
     GLint count;
     glGetIntegerv(GL_NUM_EXTENSIONS, &count);
 
+    extensions.reserve(count);
     for (GLint i = 0; i < count; ++i) {
-        auto name = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+        const auto name = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
         extensions.emplace_back(name);
     }
 }
 
 bool ContextInitializer::isExtensionSupported(std::string_view name) noexcept {
-    return std::find(std::cbegin(extensions), std::cend(extensions), name) != std::cend(extensions);
+    return std::find(extensions.cbegin(), extensions.cend(), name) != extensions.cend();
 }
 
 void ContextInitializer::getLimits() noexcept {

@@ -3,6 +3,8 @@
 #include <sprite_emitter.hpp>
 #include <mesh_emitter.hpp>
 
+#include <algorithm>
+
 using namespace GraphicsEngine;
 
 std::vector<Particle> ParticleSystem::collectSpriteParticles(const UniqueSpriteEmitter& type) const {
@@ -19,6 +21,24 @@ std::vector<Particle> ParticleSystem::collectSpriteParticles(const UniqueSpriteE
         }
     }
     return particles;
+
+//    auto collect = [&] (const auto& emitter) {
+            // checks and casts sprite emitter
+//        if (emitter->getType() == EmitterType::Sprite) {
+//            const auto& sprite_emitter = static_cast<const SpriteEmitter&>(*emitter);
+                // copies particles for required type
+//            if (sprite_emitter.getEmitterType() == type && !sprite_emitter.isDone()) {
+//                const auto& found = sprite_emitter.getParticles();
+//                std::copy(found.begin(), found.end(), particles.end());
+//            }
+//        }
+//    };
+//
+//    for (const auto& [id, effect] : effects) {
+//        for (const auto& [name, emitter] : effect->getEmitters()) {
+//            collect(emitter);
+//        }
+//    }
 }
 
 std::vector<MeshParticle> ParticleSystem::collectMeshParticles(const UniqueMeshEmitter& type) const {

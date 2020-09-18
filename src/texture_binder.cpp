@@ -7,7 +7,7 @@ using namespace GraphicsEngine;
 
 GLint TextureBinder::bind(Texture& texture) noexcept {
     // contains [unit_index, texture_id]
-    const auto& texture_bound = ContextState::getState(glfwGetCurrentContext()).texture_bound;
+    const auto& texture_bound = ContextState::getState(glfwGetCurrentContext())->texture_bound;
 
     // checks if there is already bound texture
     const auto already_bound = std::find_if(texture_bound.begin(), texture_bound.end(), [&] (const auto& bind) { return bind.second == texture.getId(); });
@@ -36,7 +36,7 @@ std::vector<GLint> TextureBinder::bind(const std::vector<const Texture*>& textur
     }
 
     using IndexMap = std::map<uint32_t, const Texture*>;
-    auto& texture_bound = ContextState::getState(glfwGetCurrentContext()).texture_bound;
+    auto& texture_bound = ContextState::getState(glfwGetCurrentContext())->texture_bound;
     std::vector<GLint> indices(textures.size(), -1);
 
     IndexMap bind_map;

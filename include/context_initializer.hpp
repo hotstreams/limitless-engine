@@ -1,9 +1,9 @@
 #pragma once
 
 #include <context_debug.hpp>
+
 #include <vector>
 #include <string_view>
-#include <string>
 
 namespace GraphicsEngine {
     struct ImplementationLimits {
@@ -36,15 +36,14 @@ namespace GraphicsEngine {
         static void getExtensions() noexcept;
         static void getLimits() noexcept;
     public:
-        static constexpr uint8_t major_version {3};
-        static constexpr uint8_t minor_version {3};
+        static constexpr uint8_t major_version = 3;
+        static constexpr uint8_t minor_version = 3;
         static inline ImplementationLimits limits;
 
         ContextInitializer();
         virtual ~ContextInitializer();
 
         static void defaultHints() noexcept;
-
         static void printExtensions() noexcept;
         static bool isExtensionSupported(std::string_view name) noexcept;
     };

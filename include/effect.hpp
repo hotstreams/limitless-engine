@@ -1,9 +1,14 @@
 #pragma once
 
-#include <sprite_emitter.hpp>
-#include <mesh_emitter.hpp>
+#include <memory>
+#include <unordered_map>
+#include <glm/glm.hpp>
 
 namespace GraphicsEngine {
+    class Emitter;
+    class SpriteEmitter;
+    class MeshEmitter;
+
     class Effect {
     private:
         std::unordered_map<std::string, std::unique_ptr<Emitter>> emitters;
@@ -21,7 +26,7 @@ namespace GraphicsEngine {
 
         bool isDone() const noexcept;
 
-        const auto& getEmitters() const noexcept { return emitters; }
+        [[nodiscard]] const auto& getEmitters() const noexcept { return emitters; }
 
         SpriteEmitter& getSpriteEmitter(const std::string& emitter);
         MeshEmitter& getMeshEmitter(const std::string& emitter);

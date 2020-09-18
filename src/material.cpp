@@ -1,5 +1,6 @@
 #include <material.hpp>
 #include <bindless_texture.hpp>
+#include <cstring>
 
 using namespace GraphicsEngine;
 

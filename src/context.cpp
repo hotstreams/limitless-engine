@@ -17,6 +17,9 @@ Context::Context(std::string_view title, glm::uvec2 s, const WindowHints& hints)
     window = glfwCreateWindow(size.x, size.y, title.data(), nullptr, nullptr);
 
     if (!window) {
+        const char **ptr = nullptr;
+        auto code = glfwGetError(ptr);
+        std::cout << "Error: " << ptr << " code: " << code << std::endl;
         throw std::runtime_error("Failed to create window.");
     }
 

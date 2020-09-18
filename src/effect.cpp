@@ -1,17 +1,16 @@
 #include <effect.hpp>
+#include <mesh_emitter.hpp>
 
 using namespace GraphicsEngine;
 
 void Effect::setPosition(const glm::vec3& position) noexcept {
-    for (auto& [name, emitter] : emitters) {
+    for (auto& [name, emitter] : emitters)
         emitter->setPosition(position);
-    }
 }
 
 void Effect::setRotation(const glm::vec3& rotation) noexcept {
-    for (auto& [name, emitter] : emitters) {
+    for (auto& [name, emitter] : emitters)
         emitter->setRotation(rotation);
-    }
 }
 
 SpriteEmitter& Effect::getSpriteEmitter(const std::string& emitter) {
