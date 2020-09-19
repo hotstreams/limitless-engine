@@ -21,7 +21,7 @@ public:
                                            {  glm::vec3(1.0, -1.0, 0.0),  glm::vec2(1.0, 0.0) } };
         buffer = BufferBuilder::build(Buffer::Type::Array, vertices, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
 
-        shader = ShaderCompiler::compile(SHADER_DIR "demo/triangle");
+        shader = MaterialCompiler::compile(SHADER_DIR "demo/triangle");
 
         texture = TextureLoader::load(ASSETS_DIR "textures/triangle.jpg");
 

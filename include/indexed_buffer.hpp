@@ -1,6 +1,6 @@
 #pragma once
 
-#include <buffer.hpp>
+#include <context_debug.hpp>
 
 #include <string>
 #include <stdexcept>
@@ -9,6 +9,8 @@
 #include <memory>
 
 namespace GraphicsEngine {
+    class Buffer;
+
     struct buffer_not_found : public std::runtime_error {
         explicit buffer_not_found(const std::string& name) : runtime_error(name) {}
     };

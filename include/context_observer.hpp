@@ -47,6 +47,12 @@ namespace GraphicsEngine {
         static void mousemoveCallback(GLFWwindow* win, double x, double y);
         static void keyboardCallback(GLFWwindow* win, int key, int scancode, int action, int modifiers);
         static void scrollCallback(GLFWwindow* win, double x, double y);
+
+        void onFramebufferChange(glm::uvec2 size);
+        void onMouseClick(glm::dvec2 pos, MouseButton button, InputState state, Modifier modifier) const;
+        void onMouseMove(glm::dvec2 pos) const;
+        void onKey(int key, int scancode, InputState state, Modifier modifier) const;
+        void onScroll(glm::dvec2 pos) const;
     public:
         ContextEventObserver(std::string_view title, glm::uvec2 size, const WindowHints& hints = WindowHints{});
         ~ContextEventObserver() override;
@@ -59,12 +65,6 @@ namespace GraphicsEngine {
 
         void setStickyMouseButtons(bool value) const noexcept;
         void setStickyKeys(bool value) const noexcept;
-
-        void onFramebufferChange(glm::uvec2 size);
-        void onMouseClick(glm::dvec2 pos, MouseButton button, InputState state, Modifier modifier) const;
-        void onMouseMove(glm::dvec2 pos) const;
-        void onKey(int key, int scancode, InputState state, Modifier modifier) const;
-        void onScroll(glm::dvec2 pos) const;
 
         InputState getKey(int key) const noexcept;
         bool isPressed(int key) const noexcept;

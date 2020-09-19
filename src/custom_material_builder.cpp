@@ -1,6 +1,7 @@
 #include <custom_material_builder.hpp>
 #include <shader_compiler.hpp>
 #include <assets.hpp>
+#include <material_compiler.hpp>
 
 using namespace GraphicsEngine;
 
@@ -38,9 +39,10 @@ std::shared_ptr<Material> CustomMaterialBuilder::build(const std::string &name,
 
     material_index = next_shader_index++;
 
+    MaterialCompiler compiler;
     for (const auto& material_shader : material_shaders) {
         for (const auto& model_shader : model_shaders) {
-            ShaderCompiler::compile(*this, material_shader, model_shader);
+            compiler.compile(*this, material_shader, model_shader);
         }
     }
 

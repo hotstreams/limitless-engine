@@ -41,7 +41,7 @@ std::vector<GLint> TextureBinder::bind(const std::vector<const Texture*>& textur
 
     IndexMap bind_map;
     uint32_t i = 0;
-    for (const auto texture : textures) {
+    for (const auto* texture : textures) {
         bind_map.emplace(i++, texture);
     }
 

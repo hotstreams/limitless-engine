@@ -2,6 +2,8 @@
 
 #include <shader_storage.hpp>
 #include <assets.hpp>
+#include <model.hpp>
+#include <texture_builder.hpp>
 
 using namespace GraphicsEngine;
 
@@ -84,7 +86,7 @@ void PostProcessing::process(Context& context, const Framebuffer& offscreen) {
     Framebuffer::bindDefault();
 
     context.disable(GL_DEPTH_TEST);
-    context.setDepthFunc(GL_LESS);
+    context.setDepthFunc(DepthFunc::Less);
     context.setDepthMask(GL_TRUE);
     context.disable(GL_BLEND);
 

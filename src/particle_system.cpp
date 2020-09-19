@@ -1,7 +1,10 @@
 #include <particle_system.hpp>
 
+#include <effect.hpp>
 #include <sprite_emitter.hpp>
 #include <mesh_emitter.hpp>
+#include <emitter_buffer.hpp>
+#include <material.hpp>
 
 #include <algorithm>
 

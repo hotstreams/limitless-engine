@@ -91,7 +91,9 @@ set(ENGINE_SRC
         src/state_buffer.cpp
         src/named_buffer.cpp
         src/triple_buffer.cpp
-        src/indexed_buffer.cpp)
+        src/indexed_buffer.cpp
+        src/shader.cpp
+        src/material_compiler.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})
