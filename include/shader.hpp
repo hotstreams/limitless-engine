@@ -31,12 +31,12 @@ namespace GraphicsEngine {
 //      Mesh = GL_MESH_SHADER_NV
     };
 
-    class shader_file_not_found : std::runtime_error {
+    class shader_file_not_found : public std::runtime_error {
     public:
         explicit shader_file_not_found(const std::string& error) : std::runtime_error(error) {}
     };
 
-    class shader_compilation_error : std::runtime_error {
+    class shader_compilation_error : public std::runtime_error {
     public:
         explicit shader_compilation_error(const std::string& error) : std::runtime_error(error) {}
     };
