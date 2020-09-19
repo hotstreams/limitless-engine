@@ -36,7 +36,7 @@ ShaderCompiler& ShaderCompiler::operator<<(Shader shader) noexcept {
 
 std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
     if (shaders.empty()) {
-        throw shader_linking_error("No shaders to link.");
+        throw shader_linking_error("No shaders to link. ShaderCompiler is empty.");
     }
 
     const GLuint program_id = glCreateProgram();
@@ -56,16 +56,25 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
 }
 
 std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, const ShaderAction& action) {
+    uint8_t shader_count {0};
     for (const auto& [extension, type] : shader_file_extensions) {
         try {
             Shader shader { path.string() + extension.data(), type };
+
             if (action) {
               action(shader);
             }
+
             *this << std::move(shader);
+
+            ++shader_count;
         } catch (const shader_file_not_found& e) {
             continue;
         }
+    }
+
+    if (shader_count == 0) {
+        throw shader_compilation_error("Shaders not found : " + path.string());
     }
 
     return compile();

@@ -19,7 +19,7 @@ namespace GraphicsEngine {
             { ".cs",  ShaderType::Compute } };
     }
 
-    class shader_linking_error : std::runtime_error {
+    class shader_linking_error : public std::runtime_error {
     public:
         explicit shader_linking_error(const std::string& error) : std::runtime_error(error) {}
     };
