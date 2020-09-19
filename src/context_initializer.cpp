@@ -1,7 +1,6 @@
 #include <context_initializer.hpp>
-#include <stdexcept>
+
 #include <algorithm>
-#include <iostream>
 #include <fstream>
 
 using namespace GraphicsEngine;

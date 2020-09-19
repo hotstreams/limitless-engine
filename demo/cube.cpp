@@ -105,7 +105,7 @@ public:
         context.registerObserver(static_cast<KeyObserver*>(this));
         context.registerObserver(static_cast<MouseMoveObserver *>(this));
 
-        shader = ShaderCompiler::compile(SHADER_DIR "demo/cube");
+        shader = MaterialCompiler::compile(SHADER_DIR "demo/cube");
     }
 
     void draw() const {

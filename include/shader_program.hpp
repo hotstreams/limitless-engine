@@ -1,8 +1,15 @@
 #pragma once
 
-#include <material.hpp>
+#include <indexed_buffer.hpp>
+#include <vector>
+#include <glm/glm.hpp>
 
 namespace GraphicsEngine {
+    class Uniform;
+    template<typename T> class UniformValue;
+    class UniformSampler;
+    class Material;
+
     struct IndexedBufferData {
         IndexedBuffer::Type target;
         std::string name;
@@ -40,6 +47,7 @@ namespace GraphicsEngine {
 
         template<typename T> friend class UniformValue;
         friend class UniformSampler;
+        friend class MaterialCompiler;
         friend class ShaderCompiler;
         friend class MaterialBuilder;
         friend void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept;

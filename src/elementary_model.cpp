@@ -1,5 +1,6 @@
 #include <elementary_model.hpp>
 #include <assets.hpp>
+#include <indexed_mesh.hpp>
 
 using namespace GraphicsEngine;
 

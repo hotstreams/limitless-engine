@@ -2,6 +2,7 @@
 
 #include <assets.hpp>
 #include <render_settings.hpp>
+#include <texture_builder.hpp>
 
 using namespace GraphicsEngine;
 
@@ -9,27 +10,27 @@ void Render::dispatchInstances(Context& context, Scene& scene, MaterialShaderTyp
     switch (blending) {
         case Blending::Opaque:
             context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(GL_LESS);
+            context.setDepthFunc(DepthFunc::Less);
             context.setDepthMask(GL_TRUE);
             context.disable(GL_BLEND);
             break;
         case Blending::Additive:
             context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(GL_LESS);
+            context.setDepthFunc(DepthFunc::Less);
             context.setDepthMask(GL_FALSE);
             context.enable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
             break;
         case Blending::Modulate:
             context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(GL_LESS);
+            context.setDepthFunc(DepthFunc::Less);
             context.setDepthMask(GL_FALSE);
             context.enable(GL_BLEND);
             glBlendFunc(GL_DST_COLOR, GL_ZERO);
             break;
         case Blending::Translucent:
             context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(GL_LESS);
+            context.setDepthFunc(DepthFunc::Less);
             context.setDepthMask(GL_FALSE);
             context.enable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -37,7 +38,7 @@ void Render::dispatchInstances(Context& context, Scene& scene, MaterialShaderTyp
     }
 
     for (const auto& [id, instance] : scene.instances) {
-        instance->isWireFrame() ? context.setPolygonMode(GL_LINE) : context.setPolygonMode(GL_FILL);
+        instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 
         instance->draw(shader_type, blending);
     }
@@ -49,19 +50,19 @@ void Render::renderLightsVolume(Context& context, Scene& scene) const {
     }
 
     context.enable(GL_DEPTH_TEST);
-    context.setDepthFunc(GL_LESS);
+    context.setDepthFunc(DepthFunc::Less);
     context.setDepthMask(GL_FALSE);
     context.disable(GL_BLEND);
 
     static auto sphere_instance = ModelInstance(assets.models.get("sphere"), assets.materials.get("sphere"), glm::vec3(0.0f));
 
-    context.setPolygonMode(GL_LINE);
+    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
     for (const auto& light : scene.lighting.dynamic.point_lights.getLights()) {
         sphere_instance.setPosition(light.position);
         sphere_instance.setScale(glm::vec3(light.radius));
         sphere_instance.draw(MaterialShaderType::Default, Blending::Opaque);
     }
-    context.setPolygonMode(GL_FILL);
+    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
 void Render::initializeOffscreenBuffer(ContextEventObserver& ctx) {
@@ -91,7 +92,7 @@ void Render::draw(Context& context, Scene& scene, Camera& camera) {
     context.setViewPort(context.getSize());
 
     context.enable(GL_DEPTH_TEST);
-    context.setDepthFunc(GL_LESS);
+    context.setDepthFunc(DepthFunc::Less);
     context.setDepthMask(GL_TRUE);
     context.disable(GL_BLEND);
 

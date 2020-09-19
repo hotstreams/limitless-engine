@@ -2,6 +2,7 @@
 #include <shader_compiler.hpp>
 #include <assets.hpp>
 #include <iostream>
+#include <material_compiler.hpp>
 
 using namespace GraphicsEngine;
 
@@ -130,10 +131,11 @@ std::shared_ptr<Material> MaterialBuilder::build(const std::string& name, const 
         unique_materials.emplace(material_type, material_index);
     }
 
+    MaterialCompiler compiler;
     for (const auto& mat_shader : material_shaders) {
         for (const auto& mod_shader : model_shaders) {
             if(!shader_storage.isExist(mat_shader, mod_shader, material_index)) {
-                ShaderCompiler::compile(*this, mat_shader, mod_shader);
+                compiler.compile(*this, mat_shader, mod_shader);
             }
         }
     }

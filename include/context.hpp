@@ -6,9 +6,20 @@
 namespace GraphicsEngine {
     enum class CursorMode { Normal = GLFW_CURSOR_NORMAL, Hidden = GLFW_CURSOR_HIDDEN, Disabled = GLFW_CURSOR_DISABLED };
 
+    enum class WindowHint {
+        Resizable = GLFW_RESIZABLE,
+        Visible = GLFW_VISIBLE,
+        Decorated = GLFW_DECORATED,
+        Focused = GLFW_FOCUSED,
+        AutoIconify = GLFW_AUTO_ICONIFY,
+        Maximized = GLFW_MAXIMIZED,
+        Samples = GLFW_SAMPLES
+    };
+    using WindowHints = std::vector<std::pair<WindowHint, int>>;
+
     class Context : public ContextInitializer, public ContextState {
     protected:
-        GLFWwindow* window = nullptr;
+        GLFWwindow* window {nullptr};
         std::optional<GLFWmonitor*> monitor;
         glm::uvec2 size;
 

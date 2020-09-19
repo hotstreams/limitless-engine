@@ -1,9 +1,20 @@
 #pragma once
 
-#include <effect.hpp>
-#include <emitter_buffer.hpp>
+#include <unordered_map>
+#include <memory>
+#include <vector>
+#include <map>
 
 namespace GraphicsEngine {
+    class Effect;
+    struct UniqueSpriteEmitter;
+    struct UniqueMeshEmitter;
+    class SpriteEmitterBuffer;
+    class MeshEmitterBuffer;
+    struct MeshParticle;
+    struct Particle;
+    enum class Blending;
+
     class ParticleSystem {
     private:
         std::unordered_map<uint64_t, std::unique_ptr<Effect>> effects;

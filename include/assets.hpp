@@ -1,13 +1,17 @@
 #pragma once
 
-#include <model.hpp>
-#include <texture_loader.hpp>
-#include <model_loader.hpp>
-#include <skybox.hpp>
+#include <unordered_map>
+#include <memory>
 
 #define ASSETS_DIR "../assets/"
 
 namespace GraphicsEngine {
+    class AbstractMesh;
+    class AbstractModel;
+    class Texture;
+    class Material;
+    class Skybox;
+
     template<typename T>
     class ResourceContainer {
     private:

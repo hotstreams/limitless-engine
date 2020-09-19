@@ -5,7 +5,6 @@
 #include <unordered_map>
 
 #include <emitter_module.hpp>
-#include <material.hpp>
 
 namespace GraphicsEngine {
     struct EmitterSpawn {

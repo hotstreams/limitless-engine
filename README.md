@@ -4,7 +4,7 @@
 
 - Features:
     - State caching
-    - ShaderCompiler + shader program introspection
+    - MaterialCompiler + shader program introspection
     - Indexed buffers auto binding
     - Texture unit auto binding
     - Buffer streaming: Orphaning, Unsynchonized, Persistent, Coherent, + fences

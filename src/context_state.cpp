@@ -55,9 +55,9 @@ void ContextState::setViewPort(glm::uvec2 viewport_size) noexcept {
     }
 }
 
-void ContextState::setDepthFunc(GLenum func) noexcept {
+void ContextState::setDepthFunc(DepthFunc func) noexcept {
     if (depth_func != func) {
-        glDepthFunc(func);
+        glDepthFunc(static_cast<GLenum>(func));
         depth_func = func;
     }
 }
@@ -69,16 +69,16 @@ void ContextState::setDepthMask(GLboolean mask) noexcept {
     }
 }
 
-void ContextState::setCullFace(GLenum mode) noexcept {
+void ContextState::setCullFace(CullFace mode) noexcept {
     if (cull_face != mode) {
-        glCullFace(mode);
+        glCullFace(static_cast<GLenum>(mode));
         cull_face = mode;
     }
 }
 
-void ContextState::setFrontFace(GLenum mode) noexcept {
+void ContextState::setFrontFace(FrontFace mode) noexcept {
     if (front_face != mode) {
-        glFrontFace(mode);
+        glFrontFace(static_cast<GLenum>(mode));
         front_face = mode;
     }
 }
@@ -91,9 +91,10 @@ ContextState* ContextState::getState(GLFWwindow* window) noexcept {
     }
 }
 
-void ContextState::setPolygonMode(GLenum mode) noexcept {
-    if (polygon_mode != mode) {
-        glPolygonMode(GL_FRONT_AND_BACK, mode);
+void ContextState::setPolygonMode(CullFace face, PolygonMode mode) noexcept {
+    if (face != polygon_face && polygon_mode != mode) {
+        glPolygonMode(static_cast<GLenum>(face), static_cast<GLenum>(mode));
+        polygon_face = face;
         polygon_mode = mode;
     }
 }

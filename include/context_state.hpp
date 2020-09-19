@@ -23,20 +23,50 @@ namespace GraphicsEngine {
         ColorDepthStencil = ColorDepth | Stencil
     };
 
+    enum class DepthFunc {
+        Never = GL_NEVER,
+        Less = GL_LESS,
+        Equal = GL_EQUAL,
+        Lequal = GL_LEQUAL,
+        Greater = GL_GREATER,
+        Notequal = GL_NOTEQUAL,
+        Gequal = GL_GEQUAL,
+        Always = GL_ALWAYS
+    };
+
+    enum class CullFace {
+        Front = GL_FRONT,
+        Back = GL_BACK,
+        FrontBack = GL_FRONT_AND_BACK
+    };
+
+    enum class FrontFace {
+        CW = GL_CW,
+        CCW = GL_CCW
+    };
+
+    enum class PolygonMode {
+        Point = GL_POINT,
+        Line = GL_LINE,
+        Fill = GL_FILL,
+    };
+
     class ContextState {
     protected:
         std::unordered_map<GLenum, bool> enable_map;
-        glm::uvec2 viewport;
-        glm::vec4 clear_color;
-        GLenum depth_func;
-        GLenum depth_mask;
-        GLenum cull_face;
-        GLenum front_face;
-        GLenum polygon_mode;
+        glm::uvec2 viewport {};
+        glm::vec4 clear_color {};
 
-        GLuint shader_id;
-        GLuint vertex_array_id;
-        GLuint framebuffer_id;
+        DepthFunc depth_func {DepthFunc::Less};
+        GLboolean depth_mask {GL_TRUE};
+        CullFace cull_face {CullFace::Back};
+        FrontFace front_face {FrontFace::CCW};
+        CullFace polygon_face {CullFace::FrontBack};
+        PolygonMode polygon_mode {PolygonMode::Fill};
+
+        GLuint shader_id {0};
+        GLuint vertex_array_id {0};
+        GLuint framebuffer_id {0};
 
         // contains [target, last buffer id]
         std::unordered_map<Buffer::Type, GLuint> buffer_target;
@@ -76,13 +106,13 @@ namespace GraphicsEngine {
 
         void setViewPort(glm::uvec2 viewport_size) noexcept;
         void clearColor(const glm::vec4& color) noexcept;
+        void setDepthFunc(DepthFunc func) noexcept;
+        void setDepthMask(GLboolean mask) noexcept;
+        void setCullFace(CullFace mode) noexcept;
+        void setFrontFace(FrontFace mode) noexcept;
+        void setPolygonMode(CullFace face, PolygonMode mode) noexcept;
         void clear(Clear bits) noexcept;
         void disable(GLenum func) noexcept;
         void enable(GLenum func) noexcept;
-        void setDepthFunc(GLenum func) noexcept;
-        void setDepthMask(GLboolean mask) noexcept;
-        void setCullFace(GLenum mode) noexcept;
-        void setFrontFace(GLenum mode) noexcept;
-        void setPolygonMode(GLenum mode) noexcept;
     };
 }

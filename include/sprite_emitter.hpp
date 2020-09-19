@@ -3,6 +3,8 @@
 #include <emitter.hpp>
 
 namespace GraphicsEngine {
+    class Material;
+
     struct UniqueSpriteEmitter {
         std::vector<EmitterModuleType> modules;
         std::shared_ptr<Material> material;
