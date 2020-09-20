@@ -42,6 +42,11 @@ Sponza model
 
 ![](screenshots/sponza.png)
 
+
+# Usage
+
+[Core](https://github.com/hotstreams/graphics-engine/wiki/Engine-Core)
+
 # Dependencies
 - glfw3
 - glew
