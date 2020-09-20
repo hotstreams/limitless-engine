@@ -27,7 +27,7 @@
   + Shading models: Phong, Blinn-Phong
   + Custom materials via shader code
   
-  ![](screenshots/materials.png)
+![](screenshots/materials.png)
   
 - Dynamic Direct Lighting
 - Rigged Model Animations
