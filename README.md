@@ -27,7 +27,7 @@
   + Shading models: Phong, Blinn-Phong
   + Custom materials via shader code
   
-  ![](screenshots/materials.png)
+![](screenshots/materials.png)
   
 - Dynamic Direct Lighting
 - Rigged Model Animations
@@ -41,6 +41,11 @@
 Sponza model
 
 ![](screenshots/sponza.png)
+
+
+# Usage
+
+[Core](https://github.com/hotstreams/graphics-engine/wiki/Engine-Core)
 
 # Dependencies
 - glfw3
