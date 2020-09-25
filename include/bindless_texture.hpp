@@ -14,7 +14,7 @@ namespace GraphicsEngine {
         explicit BindlessTexture(std::shared_ptr<Texture> texture);
         ~BindlessTexture() override;
 
-        [[nodiscard]] const auto& getHandle() { return handle; }
+        [[nodiscard]] const auto& getHandle() const noexcept { return handle; }
 
         void makeResident() noexcept;
         void makeNonresident() noexcept;

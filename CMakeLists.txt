@@ -2,35 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 project(engine)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -O0 -Wpedantic -Wextra -Wall -ggdb")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -O0 -ggdb -Wpedantic -Wextra -Wall -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
+
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
-find_package(glm REQUIRED)
-message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
-include_directories(${GLM_INCLUDE_DIRS})
-link_directories(${GLM_LIBRARIES})
-
-find_package(glfw3 REQUIRED)
-message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIRS}")
-include_directories(${GLFW3_INCLUDE_DIRS})
-link_directories(${GLFW3_LIBRARIES})
-
-find_package(glew REQUIRED)
-message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIRS}")
-include_directories(${GLEW_INCLUDE_DIRS})
-link_directories(${GLEW_LIBRARIES})
-
-find_package(assimp REQUIRED)
-message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIRS}")
-include_directories(${ASSIMP_INCLUDE_DIRS})
-link_directories(${ASSIMP_LIBRARIES})
-
-#find_package(freetype REQUIRED)
-#message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
-#include_directories(${FREETYPE_INCLUDE_DIRS})
-#link_directories(${FREETYPE_LIBRARIES})
 
 find_package(stb_image REQUIRED)
 message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
@@ -39,6 +15,31 @@ include_directories(${STB_IMAGE_INCLUDE_DIRS})
 include_directories(include)
 
 if (WIN32)
+    find_package(glm REQUIRED)
+    message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
+    include_directories(${GLM_INCLUDE_DIRS})
+    link_directories(${GLM_LIBRARIES})
+
+    find_package(glfw3 REQUIRED)
+    message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIRS}")
+    include_directories(${GLFW3_INCLUDE_DIRS})
+    link_directories(${GLFW3_LIBRARIES})
+
+    find_package(glew REQUIRED)
+    message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIRS}")
+    include_directories(${GLEW_INCLUDE_DIRS})
+    link_directories(${GLEW_LIBRARIES})
+
+    find_package(assimp REQUIRED)
+    message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIRS}")
+    include_directories(${ASSIMP_INCLUDE_DIRS})
+    link_directories(${ASSIMP_LIBRARIES})
+
+    #find_package(freetype REQUIRED)
+    #message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
+    #include_directories(${FREETYPE_INCLUDE_DIRS})
+    #link_directories(${FREETYPE_LIBRARIES})
+
     link_libraries(opengl32 glew32 glfw3 assimp)
 endif()
 

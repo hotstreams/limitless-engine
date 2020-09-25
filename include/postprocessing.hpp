@@ -22,7 +22,7 @@ namespace GraphicsEngine {
 
     class PostProcessing {
     public:
-        bool bloom {true};
+        bool bloom {false};
 
         bool tone_mapping {true};
         float exposure {1.0f};

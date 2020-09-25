@@ -11,6 +11,9 @@ namespace GraphicsEngine {
 
         void clear() noexcept override;
     public:
+        CustomMaterialBuilder() noexcept = default;
+        ~CustomMaterialBuilder() override = default;
+
         void addUniform(std::string name, Uniform* uniform);
 
         void setVertexCode(const std::string& vs_code) noexcept;

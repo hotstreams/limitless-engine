@@ -34,8 +34,13 @@ namespace GraphicsEngine {
         uint32_t layer {0};
     };
 
+    class incomplete_framebuffer : public std::runtime_error {
+    public:
+        explicit incomplete_framebuffer(const std::string& error) : runtime_error(error) {}
+    };
+
     class Framebuffer : public RenderTarget, public FramebufferObserver {
-    protected:
+    private:
         std::unordered_map<FramebufferAttachment, TextureAttachment> attachments;
     public:
         explicit Framebuffer(ContextEventObserver &context) noexcept;
@@ -58,7 +63,7 @@ namespace GraphicsEngine {
         void clear() noexcept;
         void checkStatus();
 
-        Framebuffer &operator<<(const TextureAttachment &attachment) noexcept;
+        Framebuffer& operator<<(const TextureAttachment &attachment) noexcept;
 
         void onFramebufferChange(glm::uvec2 size) override;
 

@@ -17,6 +17,8 @@ namespace GraphicsEngine {
         bool wireframe {false};
     public:
         explicit AbstractInstance(ModelShaderType type) noexcept : id{next_id++}, type{type} { }
+        virtual ~AbstractInstance() = default;
+
         [[nodiscard]] const auto& getId() const noexcept { return id; }
         [[nodiscard]] const auto& getType() const noexcept { return type; }
 

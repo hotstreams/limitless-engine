@@ -20,10 +20,10 @@ void IndexedBuffer::add(std::string_view name, std::shared_ptr<Buffer> buffer) {
     buffers.emplace(name, std::move(buffer));
 }
 
-GLuint IndexedBuffer::getBindingPoint(const Identifier& buffer) noexcept {
-    const auto& [type, name] = buffer;
+GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept {
+    const auto identifier = Identifier{ type, name };
 
-    auto point_bound = bound.find(buffer);
+    auto point_bound = bound.find(identifier);
     if (point_bound != bound.end()) {
         return point_bound->second;
     }
@@ -50,7 +50,7 @@ GLuint IndexedBuffer::getBindingPoint(const Identifier& buffer) noexcept {
         bind = next_bind;
     }
 
-    bound.emplace(buffer, bind);
+    bound.emplace(identifier, bind);
 
     return bind;
 }

@@ -20,6 +20,9 @@ namespace GraphicsEngine {
         void getUniformAlignments(const std::shared_ptr<ShaderProgram>& shader) noexcept;
         virtual void clear() noexcept;
     public:
+        MaterialBuilder() noexcept = default;
+        virtual ~MaterialBuilder() = default;
+
         MaterialBuilder& add(PropertyType type, std::shared_ptr<Texture> texture);
         MaterialBuilder& add(PropertyType type, const glm::vec4& value);
         MaterialBuilder& add(PropertyType type, float value);

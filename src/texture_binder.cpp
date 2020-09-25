@@ -30,9 +30,9 @@ GLint TextureBinder::bind(Texture& texture) noexcept {
     return unit;
 }
 
-std::vector<GLint> TextureBinder::bind(const std::vector<const Texture*>& textures) {
+std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
     if (textures.size() > static_cast<size_t>(ContextInitializer::limits.max_texture_units)) {
-        throw std::runtime_error("Failed to bind textures which more than texture units");
+        throw std::runtime_error("Failed to bind textures which more than texture units.");
     }
 
     using IndexMap = std::map<uint32_t, const Texture*>;
