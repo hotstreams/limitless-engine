@@ -3,13 +3,15 @@
 
 using namespace GraphicsEngine;
 
+constexpr auto skeletal_buffer_name = "bone_buffer";
+
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
     : ModelInstance{std::move(m), position} {
         type = ModelShaderType::Skeletal;
         auto& skeletal = static_cast<SkeletalModel&>(*model);
 
         bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
-        bone_buffer = BufferBuilder::buildIndexed("bone_buffer", Buffer::Type::ShaderStorage, bone_transform, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+        bone_buffer = BufferBuilder::buildIndexed(skeletal_buffer_name, Buffer::Type::ShaderStorage, bone_transform, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
 }
 
 const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const noexcept {
@@ -29,7 +31,7 @@ void SkeletalInstance::draw(MaterialShaderType shader_type, Blending blending, c
 
     calculateModelMatrix();
 
-    auto bind = IndexedBuffer::getBindingPoint({ IndexedBuffer::Type::ShaderStorage, "bone_buffer" });
+    auto bind = IndexedBuffer::getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name);
     bone_buffer->bindBase(bind);
 
     ModelInstance::draw(shader_type, blending, uniform_setter);

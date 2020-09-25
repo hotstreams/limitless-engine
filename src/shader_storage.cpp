@@ -1,6 +1,5 @@
 #include <shader_storage.hpp>
 #include <shader_compiler.hpp>
-#include <material_compiler.hpp>
 
 using namespace GraphicsEngine;
 
@@ -61,7 +60,7 @@ void ShaderStorage::add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<S
 }
 
 void ShaderStorage::initialize() {
-    MaterialCompiler compiler;
+    ShaderCompiler compiler;
     add("blur", compiler.compile(SHADER_DIR "postprocessing/blur"));
     add("brightness", compiler.compile(SHADER_DIR "postprocessing/brightness"));
     add("postprocess", compiler.compile(SHADER_DIR "postprocessing/postprocess"));

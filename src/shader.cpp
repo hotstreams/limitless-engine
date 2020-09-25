@@ -3,7 +3,16 @@
 
 using namespace GraphicsEngine;
 
-Shader::Shader(fs::path _path, ShaderType _type) : path{std::move(_path)}, type{_type} {
+namespace {
+    inline constexpr auto version_key = "GraphicsEngine::GLSL_VERSION";
+    inline constexpr auto extensions_key = "GraphicsEngine::Extensions";
+
+    inline constexpr auto bindless_texture = "GL_ARB_bindless_texture";
+    inline constexpr auto bindless_texture_define = "#define BINDLESS_TEXTURE\n";
+    inline constexpr auto extension_bindless_texture = "#extension GL_ARB_bindless_texture : require\n";
+}
+
+Shader::Shader(fs::path _path, Type _type) : path{std::move(_path)}, type{_type} {
     source = getSource(path);
 
     replaceVersion();

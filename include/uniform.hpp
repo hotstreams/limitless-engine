@@ -1,14 +1,13 @@
 #pragma once
 
-#include <texture.hpp>
-
 #include <memory>
 
 namespace GraphicsEngine {
+    class Texture;
     class ShaderProgram;
 
     enum class UniformType { Value, Sampler };
-    enum class UniformValueType { Float, Int, Uint, Vec2, Vec3, Vec4, Mat4 };
+    enum class UniformValueType { Float, Int, Uint, Vec2, Vec3, Vec4, Mat3, Mat4 };
 
     class Uniform {
     protected:
@@ -20,13 +19,12 @@ namespace GraphicsEngine {
         Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;
 
-        [[nodiscard]] virtual Uniform* clone() noexcept = 0;
-
         [[nodiscard]] const auto& getType() const noexcept { return type; }
         [[nodiscard]] const auto& getValueType() const noexcept { return value_type; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] auto& getChanged() noexcept { return changed; }
 
+        [[nodiscard]] virtual Uniform* clone() noexcept = 0;
         virtual void set(const ShaderProgram& shader) = 0;
     };
 
@@ -36,32 +34,30 @@ namespace GraphicsEngine {
         T value;
 
         constexpr UniformValueType getUniformValueType();
-        UniformValue(std::string name, UniformType type, const T& value);
+        UniformValue(const std::string& name, UniformType type, const T& value);
     public:
-        UniformValue(std::string name, const T& value) noexcept;
+        UniformValue(const std::string& name, const T& value) noexcept;
         ~UniformValue() override = default;
 
-        [[nodiscard]] UniformValue* clone() noexcept override;
-
         [[nodiscard]] const auto& getValue() const noexcept { return value; }
-
-        void set(const ShaderProgram& shader) override;
         void setValue(const T& val) noexcept;
+
+        [[nodiscard]] UniformValue* clone() noexcept override;
+        void set(const ShaderProgram& shader) override;
     };
 
     class UniformSampler : public UniformValue<int> {
     private:
         std::shared_ptr<Texture> sampler;
     public:
-        UniformSampler(std::string name, std::shared_ptr<Texture> sampler) noexcept;
+        UniformSampler(const std::string& name, std::shared_ptr<Texture> sampler) noexcept;
         ~UniformSampler() override = default;
 
-        [[nodiscard]] UniformSampler* clone() noexcept override;
-
         [[nodiscard]] const auto& getSampler() const noexcept { return sampler; }
+        void setSampler(const std::shared_ptr<Texture>& texture) noexcept;
 
+        [[nodiscard]] UniformSampler* clone() noexcept override;
         void set(const ShaderProgram& shader) override;
-        void setSampler(const std::shared_ptr<Texture>& texture);
     };
 
     std::string getUniformDeclaration(const Uniform& uniform) noexcept;

@@ -6,23 +6,29 @@
 #include <context_initializer.hpp>
 
 #include <texture_binder.hpp>
-#include <bindless_texture.hpp>
 #include <uniform.hpp>
 #include <material.hpp>
 
 using namespace GraphicsEngine;
 
-ShaderProgram::ShaderProgram() : id(0) {}
-
-ShaderProgram::ShaderProgram(GLuint id) : id(id) {
+ShaderProgram::ShaderProgram(GLuint id) : id{id} {
     getUniformLocations();
     getIndexedBufferBounds();
 }
 
+GLint ShaderProgram::getUniformLocation(const Uniform& uniform) const noexcept {
+    const auto location = locations.find(uniform.getName());
+    if (location == locations.end()) {
+        return -1;
+    }
+
+    return location->second;
+}
+
 void ShaderProgram::use() {
-    auto *window = glfwGetCurrentContext();
+    auto* window = glfwGetCurrentContext();
     if (ContextState::hasState(window)) {
-        auto &current_id = ContextState::getState(window)->shader_id;
+        auto& current_id = ContextState::getState(window)->shader_id;
 
         if (current_id != id) {
             glUseProgram(id);
@@ -30,32 +36,13 @@ void ShaderProgram::use() {
         }
 
         bindIndexedBuffers();
+        bindTextures();
 
-        if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
-            // collects textures
-            // binds them to units for current usage
-            // sets unit index value to samplers in shader
-            std::vector<const Texture *> to_bind;
-            for (const auto&[name, uniform] : uniforms) {
-                if (uniform->getType() == UniformType::Sampler) {
-                    const auto &sampler = static_cast<UniformSampler &>(*uniform);
-                    to_bind.emplace_back(sampler.getSampler().get());
-                }
+        for (auto& [name, uniform] : uniforms) {
+            if (auto& changed = uniform->getChanged(); changed) {
+                uniform->set(*this);
+                changed = false;
             }
-
-            const auto units = TextureBinder::bind(to_bind);
-
-            uint32_t i = 0;
-            for (const auto&[name, uniform] : uniforms) {
-                if (uniform->getType() == UniformType::Sampler) {
-                    auto &sampler = static_cast<UniformSampler &>(*uniform);
-                    sampler.setValue(units[i++]);
-                }
-            }
-        }
-
-        for (const auto&[name, uniform] : uniforms) {
-            uniform->set(*this);
         }
     }
 }
@@ -78,91 +65,6 @@ void GraphicsEngine::swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept {
     swap(lhs.uniforms, rhs.uniforms);
 }
 
-void ShaderProgram::setUniform(const UniformValue<glm::vec2>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniform2fv(location->second, 1, &uniform.getValue()[0]);
-}
-
-void ShaderProgram::setUniform(const UniformValue<glm::vec3>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniform3fv(location->second, 1, &uniform.getValue()[0]);
-}
-
-void ShaderProgram::setUniform(const UniformValue<glm::vec4>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniform4fv(location->second, 1, &uniform.getValue()[0]);
-}
-
-void ShaderProgram::setUniform(const UniformValue<glm::mat3>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniformMatrix3fv(location->second, 1, GL_FALSE, &uniform.getValue()[0][0]);
-}
-
-void ShaderProgram::setUniform(const UniformValue<glm::mat4>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniformMatrix4fv(location->second, 1, GL_FALSE, &uniform.getValue()[0][0]);
-}
-
-void ShaderProgram::setUniform(const UniformValue<unsigned int>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniform1ui(location->second, uniform.getValue());
-}
-
-void ShaderProgram::setUniform(const UniformValue<float>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniform1f(location->second, uniform.getValue());
-}
-
-void ShaderProgram::setUniform(const UniformValue<int>& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    glUniform1i(location->second, uniform.getValue());
-}
-
-void ShaderProgram::setUniform(const UniformSampler& uniform) const {
-    auto location = locations.find(uniform.getName());
-    if (location == locations.end()) {
-        return;
-    }
-
-    if (ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
-        glUniformHandleui64ARB(location->second, static_cast<BindlessTexture&>(*uniform.getSampler()).getHandle());
-    } else {
-        setUniform(static_cast<const UniformValue<int>&>(uniform));
-    }
-}
-
 void ShaderProgram::getUniformLocations() noexcept {
     GLint uniform_count = 0;
     glGetProgramInterfaceiv(id, GL_UNIFORM, GL_ACTIVE_RESOURCES, &uniform_count);
@@ -176,7 +78,7 @@ void ShaderProgram::getUniformLocations() noexcept {
         if (values[0] != -1) continue;
 
         std::string name;
-        name.resize(values[1] - 1);
+        name.resize(static_cast<uint32_t>(values[1]) - 1UL);
 
         glGetProgramResourceName(id, GL_UNIFORM, i, values[1], nullptr, name.data());
         locations.emplace(name, values[2]);
@@ -184,8 +86,7 @@ void ShaderProgram::getUniformLocations() noexcept {
 }
 
 void ShaderProgram::getIndexedBufferBounds() noexcept {
-    using IndxType = IndexedBuffer::Type;
-    std::array<IndxType, 2> types = { IndxType::UniformBuffer, IndxType::ShaderStorage };
+    std::array types = { IndexedBuffer::Type::UniformBuffer, IndexedBuffer::Type::ShaderStorage };
 
     for (const auto& type : types) {
         GLint count = 0;
@@ -202,9 +103,9 @@ void ShaderProgram::getIndexedBufferBounds() noexcept {
 
             glGetProgramResourceName(id, static_cast<GLenum>(type), i, value, nullptr, name.data());
 
-            const GLint index = glGetProgramResourceIndex(id, static_cast<GLenum>(type), name.data());
+            const auto index = glGetProgramResourceIndex(id, static_cast<GLenum>(type), name.data());
 
-            indexed_binds.emplace_back(IndexedBufferData{type, name, index, IndexedBuffer::getBindingPoint({type, name }), false });
+            indexed_binds.emplace_back(type, name, index, IndexedBuffer::getBindingPoint(type, name));
         }
     }
 }
@@ -222,13 +123,12 @@ void ShaderProgram::bindIndexedBuffers() {
             switch (target) {
                 case IndexedBuffer::Type::UniformBuffer:
                     glUniformBlockBinding(id, block_index, bound_point);
-                    connected = true;
                     break;
                 case IndexedBuffer::Type::ShaderStorage:
                     glShaderStorageBlockBinding(id, block_index, bound_point);
-                    connected = true;
                     break;
             }
+            connected = true;
         }
 
         // binds buffer to state binding point
@@ -294,6 +194,31 @@ ShaderProgram& ShaderProgram::operator<<(const UniformValue<T>& uniform) noexcep
         uniforms.emplace(uniform.getName(), new UniformValue(uniform));
     }
     return *this;
+}
+
+void ShaderProgram::bindTextures() const noexcept {
+    if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
+        // collects textures
+        // binds them to units for current usage
+        // sets unit index value to samplers in shader
+        std::vector<Texture*> to_bind;
+        for (const auto&[name, uniform] : uniforms) {
+            if (uniform->getType() == UniformType::Sampler) {
+                const auto &sampler = static_cast<UniformSampler&>(*uniform);
+                to_bind.emplace_back(sampler.getSampler().get());
+            }
+        }
+
+        const auto units = TextureBinder::bind(to_bind);
+
+        uint32_t i = 0;
+        for (const auto& [name, uniform] : uniforms) {
+            if (uniform->getType() == UniformType::Sampler) {
+                auto &sampler = static_cast<UniformSampler&>(*uniform);
+                sampler.setValue(units[i++]);
+            }
+        }
+    }
 }
 
 namespace GraphicsEngine {

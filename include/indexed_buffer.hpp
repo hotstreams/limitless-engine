@@ -28,9 +28,20 @@ namespace GraphicsEngine {
         static inline std::unordered_map<IndexedBuffer::Type, GLint> current_bind;
         static inline std::map<Identifier, GLuint> bound;
     public:
-        static GLuint getBindingPoint(const Identifier& buffer) noexcept;
+        static GLuint getBindingPoint(Type type, std::string_view name) noexcept;
 
         static void add(std::string_view name, std::shared_ptr<Buffer> buffer);
         static std::shared_ptr<Buffer> get(std::string_view name);
+    };
+
+    struct IndexedBufferData {
+        IndexedBuffer::Type target;
+        std::string name;
+        GLuint block_index;
+        GLuint bound_point;
+        bool index_connected {false};
+
+        IndexedBufferData(IndexedBuffer::Type _target, std::string _name, GLuint _block_index, GLuint _bound_point)
+                : target{_target}, name{std::move(_name)}, block_index{_block_index}, bound_point{_bound_point} {}
     };
 }

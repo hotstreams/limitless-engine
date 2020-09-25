@@ -5,6 +5,16 @@
 
 using namespace GraphicsEngine;
 
+namespace {
+    inline constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {
+            { ".vs",  Shader::Type::Vertex },
+            { ".tcs", Shader::Type::TessControl },
+            { ".tes", Shader::Type::TessEval },
+            { ".gs",  Shader::Type::Geometry },
+            { ".fs",  Shader::Type::Fragment },
+            { ".cs",  Shader::Type::Compute } };
+}
+
 void ShaderCompiler::checkStatus(const GLuint program_id) {
     GLint link_status;
     glGetProgramiv(program_id, GL_LINK_STATUS, &link_status);
@@ -28,7 +38,7 @@ void ShaderCompiler::checkStatus(const GLuint program_id) {
     }
 }
 
-ShaderCompiler& ShaderCompiler::operator<<(Shader shader) noexcept {
+ShaderCompiler& ShaderCompiler::operator<<(Shader&& shader) noexcept {
     shaders.emplace_back(std::move(shader));
 
     return *this;
