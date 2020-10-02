@@ -2,6 +2,7 @@
 
 #include <context_debug.hpp>
 
+#include <string>
 #include <vector>
 #include <string_view>
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#if __GNUC__ < 8
+/*#if __GNUC__ < 8
     #include <experimental/filesystem>
     namespace fs = std::experimental::filesystem;
-#else
+#else*/
     #include <filesystem>
     namespace fs = std::filesystem;
-#endif
+//#endif
 
 #ifdef WIN32
     #define PATH_SEPARATOR "/"

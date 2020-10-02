@@ -1,5 +1,5 @@
 #include <skeletal_instance.hpp>
-#include <iostream>
+#include <shader_types.hpp>
 
 using namespace GraphicsEngine;
 
@@ -7,7 +7,7 @@ constexpr auto skeletal_buffer_name = "bone_buffer";
 
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
     : ModelInstance{std::move(m), position} {
-        type = ModelShaderType::Skeletal;
+        type = ModelShader::Skeletal;
         auto& skeletal = static_cast<SkeletalModel&>(*model);
 
         bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
@@ -26,7 +26,7 @@ const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const
     return nullptr;
 }
 
-void SkeletalInstance::draw(MaterialShaderType shader_type, Blending blending, const UniformSetter& uniform_setter) {
+void SkeletalInstance::draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) return;
 
     calculateModelMatrix();

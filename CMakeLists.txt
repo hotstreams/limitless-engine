@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 project(engine)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -O0 -ggdb -Wpedantic -Wextra -Wall -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
+
+#set(EXTRA_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
+set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -O0 -ggdb -Wpedantic -Wextra -Wall -Wshadow ${EXTRA_WARNINGS}")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -94,7 +96,8 @@ set(ENGINE_SRC
         src/triple_buffer.cpp
         src/indexed_buffer.cpp
         src/shader.cpp
-        src/material_compiler.cpp)
+        src/material_compiler.cpp
+        src/material_instance.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})

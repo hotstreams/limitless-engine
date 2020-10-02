@@ -70,7 +70,7 @@ StateTexture::StateTexture(Type target, InternalFormat internal, glm::uvec2 size
 }
 
 StateTexture::StateTexture(Type target, uint8_t samples, InternalFormat internal, glm::uvec2 size, bool immutable)
-    : id(0), target(target), size({ size.x, size.y, 0 }), internal(internal), samples(samples) {
+    : id(0), target(target), size({ size.x, size.y, 0 }), internal(internal), format{Format::RGB}, data_type{DataType::Byte}, samples(samples) {
     glGenTextures(1, &id);
 
     switch (target) {
@@ -158,40 +158,40 @@ StateTexture::StateTexture(StateTexture::Type target, GLsizei levels, StateTextu
     }
 }
 
-void StateTexture::texImage2D(GLenum type, InternalFormat internal, const void* data) const noexcept {
+void StateTexture::texImage2D(GLenum type, InternalFormat _internal, const void* data) const noexcept {
     StateTexture::bind(0);
 
-    glTexImage2D(type, 0, static_cast<GLint>(internal), size.x, size.y, 0, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
+    glTexImage2D(type, 0, static_cast<GLint>(_internal), size.x, size.y, 0, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
-void StateTexture::texImage3D(GLenum type, InternalFormat internal, glm::uvec3 _size, const void* data) const noexcept {
+void StateTexture::texImage3D(GLenum type, InternalFormat _internal, glm::uvec3 _size, const void* data) const noexcept {
     StateTexture::bind(0);
 
-    glTexImage3D(static_cast<GLenum>(type), 0, static_cast<GLint>(internal), _size.x, _size.y, _size.z, 0, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
+    glTexImage3D(static_cast<GLenum>(type), 0, static_cast<GLint>(_internal), _size.x, _size.y, _size.z, 0, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
-void StateTexture::texImage2DMultiSample(Type type, uint8_t samples, InternalFormat internal) const noexcept {
+void StateTexture::texImage2DMultiSample(Type type, uint8_t _samples, InternalFormat _internal) const noexcept {
     StateTexture::bind(0);
 
-    glTexImage2DMultisample(static_cast<GLenum>(type), samples, static_cast<GLint>(internal), size.x, size.y, GL_FALSE);
+    glTexImage2DMultisample(static_cast<GLenum>(type), _samples, static_cast<GLint>(_internal), size.x, size.y, GL_FALSE);
 }
 
-void StateTexture::texStorage2D(GLenum type, GLsizei levels, InternalFormat internal) const noexcept {
+void StateTexture::texStorage2D(GLenum type, GLsizei levels, InternalFormat _internal) const noexcept {
     StateTexture::bind(0);
 
-    glTexStorage2D(type, levels, static_cast<GLenum>(internal), size.x, size.y);
+    glTexStorage2D(type, levels, static_cast<GLenum>(_internal), size.x, size.y);
 }
 
-void StateTexture::texStorage3D(GLenum type, GLsizei levels, InternalFormat internal, glm::uvec3 _size) const noexcept {
+void StateTexture::texStorage3D(GLenum type, GLsizei levels, InternalFormat _internal, glm::uvec3 _size) const noexcept {
     StateTexture::bind(0);
 
-    glTexStorage3D(type, levels, static_cast<GLenum>(internal), _size.x, _size.y, _size.z);
+    glTexStorage3D(type, levels, static_cast<GLenum>(_internal), _size.x, _size.y, _size.z);
 }
 
-void StateTexture::texStorage2DMultisample(uint8_t samples, InternalFormat internal) const noexcept {
+void StateTexture::texStorage2DMultisample(uint8_t _samples, InternalFormat _internal) const noexcept {
     StateTexture::bind(0);
 
-    glTexStorage2DMultisample(static_cast<GLenum>(target), samples, static_cast<GLenum>(internal), size.x, size.y, GL_FALSE);
+    glTexStorage2DMultisample(static_cast<GLenum>(target), _samples, static_cast<GLenum>(_internal), size.x, size.y, GL_FALSE);
 }
 
 StateTexture::~StateTexture() {
@@ -308,6 +308,10 @@ GLuint StateTexture::getId() const noexcept {
 
 glm::uvec3 StateTexture::getSize() const noexcept {
     return size;
+}
+
+void StateTexture::accept(TextureVisitor &visitor) const noexcept {
+    visitor.visit(*this);
 }
 
 void NamedTexture::texStorage2D(GLsizei levels, InternalFormat internal) const noexcept {
@@ -517,4 +521,8 @@ NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTextu
             glDeleteTextures(1, &id);
             throw std::logic_error("Wrong constructor usage to build texture.");
     }
+}
+
+void NamedTexture::accept(TextureVisitor &visitor) const noexcept {
+    visitor.visit(*this);
 }

@@ -12,6 +12,8 @@ namespace GraphicsEngine {
         DistributionType type;
         explicit Distribution(DistributionType type) noexcept : type{type} { }
     public:
+        virtual ~Distribution() = default;
+
         [[nodiscard]] virtual T get() const = 0;
         [[nodiscard]] virtual Distribution<T>* clone() = 0;
         [[nodiscard]] const auto& getType() const noexcept { return type; }
@@ -23,6 +25,7 @@ namespace GraphicsEngine {
         T value;
     public:
         explicit ConstDistribution(const T& value) noexcept : Distribution<T>(DistributionType::Const), value{value} {}
+        ~ConstDistribution() override = default;
 
         T get() const override { return value; }
 
@@ -41,6 +44,7 @@ namespace GraphicsEngine {
     public:
         RangeDistribution(const T& min, const T& max) noexcept
             : Distribution<T>(DistributionType::Range), min(min), max(max) { }
+        ~RangeDistribution() override = default;
 
         [[nodiscard]] const T& getMin() const noexcept { return min; }
         [[nodiscard]] const T& getMax() const noexcept { return max; }
@@ -64,6 +68,7 @@ namespace GraphicsEngine {
         }
     };
 
+    //TODO:
     template<typename T>
     class CurveDistribution : public Distribution<T> {
     private:

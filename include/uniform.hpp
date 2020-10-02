@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <texture_visitor.hpp>
 
 namespace GraphicsEngine {
     class Texture;

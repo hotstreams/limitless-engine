@@ -2,6 +2,8 @@
 
 #include <unordered_map>
 #include <memory>
+#include <stdexcept>
+#include <iterator>
 
 #define ASSETS_DIR "../assets/"
 
@@ -17,7 +19,7 @@ namespace GraphicsEngine {
     private:
         std::unordered_map<std::string, std::shared_ptr<T>> resource;
     public:
-        const auto& get(const std::string& name) const {
+        [[nodiscard]] const auto& get(const std::string& name) const {
             try {
                 return resource.at(name);
             } catch (const std::out_of_range& e) {

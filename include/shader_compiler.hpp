@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem.hpp>
+#include <functional>
 
 #include <shader.hpp>
 

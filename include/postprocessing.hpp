@@ -1,6 +1,7 @@
 #pragma once
 
 #include <framebuffer.hpp>
+#include <array>
 
 namespace GraphicsEngine {
     class Bloom {
@@ -17,7 +18,7 @@ namespace GraphicsEngine {
 
         void process(const std::shared_ptr<Texture>& image);
 
-        const std::shared_ptr<Texture>& getResult() const noexcept;
+        [[nodiscard]] const std::shared_ptr<Texture>& getResult() const noexcept;
     };
 
     class PostProcessing {

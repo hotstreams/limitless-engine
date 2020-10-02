@@ -1,117 +1,45 @@
-#include <vertex_array.hpp>
-#include <buffer_builder.hpp>
-#include <vertex.hpp>
-#include <shader_compiler.hpp>
-#include <texture_loader.hpp>
-#include <context_observer.hpp>
-#include <camera.hpp>
+#include <render.hpp>
+#include <shader_storage.hpp>
+#include <scene.hpp>
+
+#include <assets.hpp>
+#include <material_builder.hpp>
 
 using namespace GraphicsEngine;
 
-#define ASSETS_DIR "../assets/"
-
-class Cube {
-private:
-    VertexArray vertex_array;
-    std::unique_ptr<Buffer> buffer;
-    std::shared_ptr<Texture> texture;
-public:
-    Cube() noexcept {
-        std::vector<Vertex> vertices = {
-            // back face
-            {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f}}, // bottom-left
-            {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f}}, // bottom-right
-            {{0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-right
-            {{0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-right
-            {{ -0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}}, // top-left
-            {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f}}, // bottom-left
-            // front face
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-left
-            {{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}}, // top-right
-            {{0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}}, // bottom-right
-            {{0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}}, // top-right
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-left
-            {{-0.5f,  0.5f,  0.5f},  {0.0f, 1.0f}}, // top-left
-            // left face
-            {{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}}, // top-right
-            {{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-left
-            {{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-left
-            {{ -0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-left
-            {{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}}, // top-right
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-right
-            // right face
-            {{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}}, // top-left
-            {{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-right
-            {{ 0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-right
-            {{ 0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-right
-            {{  0.5f, -0.5f,  0.5f}, { 0.0f, 0.0f}}, // bottom-left
-            {{  0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}}, // top-left
-            // bottom face
-            {{ -0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // top-right
-            {{  0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}}, // bottom-left
-            {{  0.5f, -0.5f, -0.5f},  {1.0f, 1.0f}}, // top-left
-            {{ 0.5f, -0.5f,  0.5f}, { 1.0f, 0.0f}}, // bottom-left
-            {{ -0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}}, // top-right
-            {{ -0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-right
-            // top face
-            {{ -0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}}, // top-left
-            {{ 0.5f,  0.5f, -0.5f}, { 1.0f, 1.0f}}, // top-right
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}}, // bottom-right
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}}, // bottom-right
-            {{ -0.5f,  0.5f,  0.5f}, { 0.0f, 0.0f}}, // bottom-left
-            {{ -0.5f,  0.5f, -0.5f}, { 0.0f, 1.0f}}  // top-left
-        };
-
-        buffer = BufferBuilder::build(Buffer::Type::Array, vertices, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
-
-        texture = TextureLoader::load(ASSETS_DIR "textures/triangle.jpg");
-
-        vertex_array << std::pair<Vertex, Buffer&>(Vertex{}, *buffer);
-    }
-
-    void draw(const std::shared_ptr<ShaderProgram>& shader) const {
-        vertex_array.bind();
-
-        *shader << UniformSampler{"diffuse", texture};
-
-        shader->use();
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-};
-
 bool done = false;
 
-class Scene : public MouseMoveObserver, public KeyObserver {
+class TestCube : public MouseMoveObserver, public KeyObserver {
 public:
     ContextEventObserver context;
 private:
     Camera camera;
-    Cube cube;
+    Scene scene;
+    Render render;
     std::shared_ptr<ShaderProgram> shader;
     static constexpr glm::uvec2 window_size {500, 500};
 public:
-    Scene() : context{"Cubes demo", window_size, {{ WindowHint::Samples, 32 }}}, camera{window_size} {
+    TestCube() : context{"Cubes demo", window_size, {{ WindowHint::Samples, 32 }}}, camera{window_size}, render{context} {
         camera.setPosition({0.0f, 1.0f, -1.5f});
         context.makeCurrent();
-        context.setWindowIcon(TextureLoader::loadGLFWImage(ASSETS_DIR "icons/demo.png"));
-        context.setCursorMode(CursorMode::Disabled);
 
-        context.enable(GL_DEPTH_TEST);
-        context.enable(GL_CULL_FACE);
-        context.setCullFace(GL_BACK);
-        context.setFrontFace(GL_CW);
+        context.setCursorMode(CursorMode::Disabled);
 
         context.registerObserver(static_cast<KeyObserver*>(this));
         context.registerObserver(static_cast<MouseMoveObserver *>(this));
 
-        shader = MaterialCompiler::compile(SHADER_DIR "demo/cube");
+        shader_storage.initialize();
+        assets.load();
+
+        MaterialBuilder builder;
+
+        auto mat = builder.add(PropertyType::Color, glm::vec4{0.0f, 0.3f, 0.6f, 1.0f}).build("cube material");
+
+        scene.addInstance(new ModelInstance(assets.models.get("cube"), mat, glm::vec3{0.0f, 0.0f, 0.0f}));
     }
 
-    void draw() const {
-        *shader << UniformValue{"VP", camera.getProjection() * camera.getView()};
-
-        cube.draw(shader);
+    void draw() {
+        render.draw(context, scene, camera);
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -149,7 +77,8 @@ public:
 };
 
 int main() {
-    Scene scene;
+    TestCube scene;
+
     while (!scene.context.shouldClose() && !done) {
         static auto last_time = glfwGetTime();
         auto time = glfwGetTime();

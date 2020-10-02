@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <buffer_builder.hpp>
 
 namespace GraphicsEngine {
     struct PointLight {

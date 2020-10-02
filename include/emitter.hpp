@@ -42,7 +42,7 @@ namespace GraphicsEngine {
         glm::vec4 properties {1.0f};
     };
 
-    enum class EmitterType { Sprite, Mesh, Beam, GPU };
+    enum class EmitterType { Sprite, Mesh, /*Beam, GPU*/ };
 
     class Emitter {
     protected:

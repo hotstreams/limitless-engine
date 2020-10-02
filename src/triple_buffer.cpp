@@ -1,5 +1,7 @@
 #include <triple_buffer.hpp>
 #include <cstring>
+#include <stdexcept>
+#include <cstdlib>
 
 using namespace GraphicsEngine;
 

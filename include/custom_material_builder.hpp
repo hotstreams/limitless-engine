@@ -24,7 +24,7 @@ namespace GraphicsEngine {
         [[nodiscard]] const auto& getUniforms() const noexcept { return uniforms; }
 
         std::shared_ptr<Material> build(const std::string& name,
-                                        const RequiredModelShaders& model_shaders = RequiredModelShaders{ ModelShaderType::Model },
-                                        const RequiredMaterialShaders& material_shaders = RequiredMaterialShaders{ MaterialShaderType::Default }) override;
+                                        const RequiredModelShaders& model_shaders = RequiredModelShaders{ModelShader::Model },
+                                        const RequiredMaterialShaders& material_shaders = RequiredMaterialShaders{MaterialShader::Default }) override;
     };
 }

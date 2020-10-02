@@ -2,6 +2,7 @@
 
 #include <context_state.hpp>
 #include <cstring>
+#include <stdexcept>
 
 using namespace GraphicsEngine;
 

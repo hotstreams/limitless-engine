@@ -86,3 +86,7 @@ void BindlessTexture::resize(glm::uvec3 size) {
 glm::uvec3 BindlessTexture::getSize() const noexcept {
     return texture->getSize();
 }
+
+void BindlessTexture::accept(TextureVisitor &visitor) const noexcept {
+    visitor.visit(*this);
+}

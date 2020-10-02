@@ -35,5 +35,7 @@ namespace GraphicsEngine {
         [[nodiscard]] GLuint getId() const noexcept override;
         [[nodiscard]] Type getType() const noexcept override;
         [[nodiscard]] glm::uvec3 getSize() const noexcept override;
+
+        void accept(TextureVisitor& visitor) const noexcept override;
     };
 }

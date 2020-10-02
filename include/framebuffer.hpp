@@ -2,6 +2,7 @@
 
 #include <context_observer.hpp>
 #include <memory>
+#include <stdexcept>
 
 namespace GraphicsEngine {
     class Texture;

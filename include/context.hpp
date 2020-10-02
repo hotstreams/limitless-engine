@@ -3,6 +3,8 @@
 #include <context_initializer.hpp>
 #include <context_state.hpp>
 
+#include <optional>
+
 namespace GraphicsEngine {
     enum class CursorMode { Normal = GLFW_CURSOR_NORMAL, Hidden = GLFW_CURSOR_HIDDEN, Disabled = GLFW_CURSOR_DISABLED };
 

@@ -2,6 +2,8 @@
 #include <context_state.hpp>
 #include <context_initializer.hpp>
 #include <algorithm>
+#include <stdexcept>
+#include <iterator>
 
 using namespace GraphicsEngine;
 
