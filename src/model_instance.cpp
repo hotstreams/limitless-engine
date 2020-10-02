@@ -3,6 +3,8 @@
 #include <elementary_model.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <shader_storage.hpp>
+
 using namespace GraphicsEngine;
 
 void AbstractInstance::reveal() noexcept {
@@ -34,7 +36,8 @@ bool AbstractInstance::isWireFrame() const noexcept {
 }
 
 ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : AbstractInstance{ModelShaderType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
+    : AbstractInstance{ModelShader::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
+        //TODO: get rid of downcasting; make builder class instead based on abstractmodel or throw exception on wrong type
         auto& simple_model = static_cast<Model&>(*model);
 
         auto& model_meshes = simple_model.getMeshes();
@@ -46,7 +49,7 @@ ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& 
 }
 
 ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const std::shared_ptr<Material>& material, const glm::vec3& position)
-    : AbstractInstance{ModelShaderType::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
+    : AbstractInstance{ModelShader::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
         auto& elementary = static_cast<ElementaryModel&>(*model);
 
         meshes.emplace(elementary.getMesh()->getName(), MeshInstance{elementary.getMesh(), material});
@@ -79,7 +82,7 @@ ModelInstance& ModelInstance::setScale(const glm::vec3& _scale) noexcept {
     return *this;
 }
 
-void ModelInstance::draw(MaterialShaderType material_type, Blending blending, const UniformSetter& uniform_setter) {
+void ModelInstance::draw(MaterialShader material_type, Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }
@@ -126,4 +129,8 @@ void ModelInstance::reveal(const std::string& name) {
     } catch (const std::out_of_range& e) {
         throw std::runtime_error("No such mesh name.");
     }
+}
+
+void ModelInstance::draw(MaterialShader shader_type, Blending blending) {
+    draw(shader_type, blending, UniformSetter{});
 }

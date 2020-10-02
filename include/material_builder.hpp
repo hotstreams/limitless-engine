@@ -34,7 +34,7 @@ namespace GraphicsEngine {
         [[nodiscard]] auto getMaterialIndex() const noexcept { return material_index; }
 
         virtual std::shared_ptr<Material> build(const std::string& name,
-                                                const RequiredModelShaders& model_shaders = RequiredModelShaders{ ModelShaderType::Model },
-                                                const RequiredMaterialShaders& material_shaders = RequiredMaterialShaders{ MaterialShaderType::Default });
+                                                const RequiredModelShaders& model_shaders = RequiredModelShaders{ModelShader::Model },
+                                                const RequiredMaterialShaders& material_shaders = RequiredMaterialShaders{MaterialShader::Default });
     };
 }

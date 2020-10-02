@@ -2,6 +2,8 @@
 #include <skeletal_instance.hpp>
 #include <assets.hpp>
 
+#include <shader_types.hpp>
+
 using namespace GraphicsEngine;
 
 AbstractInstance& Scene::getInstance(uint64_t id) const {
@@ -38,7 +40,7 @@ void Scene::removeDeadInstances() noexcept {
 
 void Scene::updateSkeletalInstances() const noexcept {
     for (const auto& [id, instance] : instances) {
-        if (instance->getType() == ModelShaderType::Skeletal) {
+        if (instance->getType() == ModelShader::Skeletal) {
             static_cast<SkeletalInstance&>(*instance).update();
         }
     }

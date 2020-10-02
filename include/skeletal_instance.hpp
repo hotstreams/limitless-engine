@@ -20,7 +20,7 @@ namespace GraphicsEngine {
         void pause() noexcept;
         void resume() noexcept;
 
-        void draw(MaterialShaderType shader_type, Blending blending, const UniformSetter& uniform_setter = UniformSetter{}) override;
+        void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter = UniformSetter{}) override;
     };
 }
 

@@ -105,9 +105,9 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool
         //}
     }
 
-    ModelShaderType model = ModelShaderType::Model;
+    ModelShader model_shader = ModelShader::Model;
     if (scene->mNumAnimations != 0) {
-        model = ModelShaderType::Skeletal;
+        model_shader = ModelShader::Skeletal;
     }
 
     // loads materials based on model
@@ -120,7 +120,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool
             continue;
         }
 
-        auto loaded_material = loadMaterial(material, path, {model});
+        auto loaded_material = loadMaterial(material, path, {model_shader});
         materials.emplace_back(loaded_material);
     }
 

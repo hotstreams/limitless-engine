@@ -1,10 +1,15 @@
 #pragma once
 
 #include <abstract_instance.hpp>
-#include <model.hpp>
+
 #include <mesh_instance.hpp>
 
+#include <string>
+#include <glm/glm.hpp>
+
 namespace GraphicsEngine {
+    class AbstractModel;
+
     class ModelInstance : public AbstractInstance {
     protected:
         std::shared_ptr<AbstractModel> model;
@@ -27,8 +32,7 @@ namespace GraphicsEngine {
         ModelInstance& setRotation(const glm::vec3& _rotation) noexcept;
         ModelInstance& setScale(const glm::vec3& _scale) noexcept;
 
-        auto& getMesh() { return meshes.at("sphere_mesh"); }
-
-        void draw(MaterialShaderType shader_type, Blending blending, const UniformSetter& uniform_setter = UniformSetter{}) override;
+        void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
+        void draw(MaterialShader shader_type, Blending blending) override;
     };
 }

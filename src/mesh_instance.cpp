@@ -1,9 +1,11 @@
 #include <mesh_instance.hpp>
 
+#include <mesh.hpp>
+
 using namespace GraphicsEngine;
 
-MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<Material>& material)
-    : mesh{std::move(mesh)}, material{material}, hidden{false} {
+MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<Material>& material) noexcept
+    : mesh{std::move(mesh)}, material{material} {
 
 }
 

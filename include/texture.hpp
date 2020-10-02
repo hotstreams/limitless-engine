@@ -3,6 +3,7 @@
 #include <context_debug.hpp>
 #include <glm/glm.hpp>
 #include <array>
+#include <texture_visitor.hpp>
 
 namespace GraphicsEngine {
     template<typename T>
@@ -86,6 +87,9 @@ namespace GraphicsEngine {
         [[nodiscard]] virtual GLuint getId() const noexcept = 0;
         [[nodiscard]] virtual Type getType() const noexcept = 0;
         [[nodiscard]] virtual glm::uvec3 getSize() const noexcept = 0;
+
+        // texture visitors
+        virtual void accept(TextureVisitor& visitor) const noexcept = 0;
     };
 
     class StateTexture : public Texture {
@@ -148,6 +152,8 @@ namespace GraphicsEngine {
         [[nodiscard]] GLuint getId() const noexcept override;
         [[nodiscard]] Type getType() const noexcept override;
         [[nodiscard]] glm::uvec3 getSize() const noexcept override;
+
+        void accept(TextureVisitor& visitor) const noexcept override;
     };
 
     class NamedTexture : public StateTexture {
@@ -188,5 +194,7 @@ namespace GraphicsEngine {
         NamedTexture& operator<<(const TexParameter<GLfloat>& param) noexcept override;
         NamedTexture& operator<<(const TexParameter<GLint*>& param) noexcept override;
         NamedTexture& operator<<(const TexParameter<GLfloat*>& param) noexcept override;
+
+        void accept(TextureVisitor& visitor) const noexcept override;
     };
 }

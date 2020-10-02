@@ -1,6 +1,8 @@
 #include <custom_material.hpp>
 #include <bindless_texture.hpp>
 #include <cstring>
+#include <context_initializer.hpp>
+#include <buffer.hpp>
 
 using namespace GraphicsEngine;
 
@@ -106,6 +108,12 @@ void CustomMaterial::update() const noexcept {
                         std::memcpy(data.data() + offset, &uniform_value.getValue(), sizeof(glm::mat4));
                         break;
                     }
+                    case UniformValueType::Mat3: {
+                        auto &uniform_value = static_cast<UniformValue<glm::mat3>&>(*uniform);
+                        auto offset = uniform_offsets.at(name);
+                        std::memcpy(data.data() + offset, &uniform_value.getValue(), sizeof(glm::mat3));
+                        break;
+                    }
                 }
                 break;
             case UniformType::Sampler:
@@ -141,12 +149,12 @@ void GraphicsEngine::swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept {
     using std::swap;
 
     swap(static_cast<Material&>(lhs), static_cast<Material&>(rhs));
-
     swap(lhs.uniforms, rhs.uniforms);
 }
 
 CustomMaterial::CustomMaterial(const CustomMaterial& material)
-    : Material(material) {
+    : Material{material} {
+    uniforms.reserve(uniforms.size());
     for (const auto& [name, uniform] : uniforms) {
         uniforms.emplace(name, uniform->clone());
     }
@@ -154,11 +162,25 @@ CustomMaterial::CustomMaterial(const CustomMaterial& material)
 
 CustomMaterial& CustomMaterial::operator=(CustomMaterial material) {
     swap(*this, material);
-
     return *this;
 }
 
-Material* CustomMaterial::clone() const {
+CustomMaterial* CustomMaterial::clone() const noexcept {
     return new CustomMaterial(*this);
+}
+
+CustomMaterial::CustomMaterial(CustomMaterial&& rhs) noexcept
+    : CustomMaterial{} {
+    swap(*this, rhs);
+}
+
+CustomMaterial& CustomMaterial::operator=(CustomMaterial&& rhs) noexcept {
+    swap(*this, rhs);
+    return *this;
+}
+
+CustomMaterial::CustomMaterial() noexcept
+    : Material{} {
+
 }
 

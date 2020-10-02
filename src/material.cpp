@@ -1,6 +1,9 @@
 #include <material.hpp>
+
 #include <bindless_texture.hpp>
 #include <cstring>
+
+#include <buffer_builder.hpp>
 
 using namespace GraphicsEngine;
 
@@ -152,7 +155,7 @@ Material::Material(decltype(properties)&& properties, decltype(uniform_offsets)&
 
 }
 
-Material::Material(const Material& material)
+Material::Material(const Material& material) noexcept
     : uniform_offsets{material.uniform_offsets}, blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index} {
     for (const auto& [type, property] : material.properties) {
         properties.emplace(type, property->clone());
@@ -174,12 +177,12 @@ void GraphicsEngine::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.shader_index, rhs.shader_index);
 }
 
-Material &Material::operator=(Material material) {
+Material &Material::operator=(Material material) noexcept {
     swap(*this, material);
     return *this;
 }
 
-Material* Material::clone() const {
+Material* Material::clone() const noexcept {
     return new Material(*this);
 }
 
@@ -197,6 +200,21 @@ UniformSampler& Material::getRoughnessTexture() const {
     } catch (const std::out_of_range& e) {
         throw std::runtime_error("No RoughnessTexture in material.");
     }
+}
+
+Material::Material(Material&& rhs) noexcept
+    : Material{} {
+    swap(*this, rhs);
+}
+
+Material& Material::operator=(Material&& rhs) noexcept {
+    swap(*this, rhs);
+    return *this;
+}
+
+Material::Material() noexcept
+    : blending{Blending::Opaque}, shading{Shading::Unlit}, shader_index{0} {
+
 }
 
 bool GraphicsEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {

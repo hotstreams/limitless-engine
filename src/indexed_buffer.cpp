@@ -16,7 +16,7 @@ std::shared_ptr<Buffer> IndexedBuffer::get(std::string_view name) {
     }
 }
 
-void IndexedBuffer::add(std::string_view name, std::shared_ptr<Buffer> buffer) {
+void IndexedBuffer::add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept {
     buffers.emplace(name, std::move(buffer));
 }
 

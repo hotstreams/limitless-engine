@@ -99,7 +99,7 @@ MaterialBuilder& MaterialBuilder::add(PropertyType type, std::shared_ptr<Texture
         case PropertyType::Specular:
             properties.emplace(type, new UniformSampler("material_specular", std::move(texture)));
             break;
-        case PropertyType::Normal:;
+        case PropertyType::Normal:
             properties.emplace(type, new UniformSampler("material_normal", std::move(texture)));
             break;
         case PropertyType::Displacement:

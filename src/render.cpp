@@ -3,10 +3,12 @@
 #include <assets.hpp>
 #include <render_settings.hpp>
 #include <texture_builder.hpp>
+#include <material.hpp>
+#include <shader_types.hpp>
 
 using namespace GraphicsEngine;
 
-void Render::dispatchInstances(Context& context, Scene& scene, MaterialShaderType shader_type, Blending blending) const {
+void Render::dispatchInstances(Context& context, Scene& scene, MaterialShader shader_type, Blending blending) const {
     switch (blending) {
         case Blending::Opaque:
             context.enable(GL_DEPTH_TEST);
@@ -60,7 +62,7 @@ void Render::renderLightsVolume(Context& context, Scene& scene) const {
     for (const auto& light : scene.lighting.dynamic.point_lights.getLights()) {
         sphere_instance.setPosition(light.position);
         sphere_instance.setScale(glm::vec3(light.radius));
-        sphere_instance.draw(MaterialShaderType::Default, Blending::Opaque);
+        sphere_instance.draw(MaterialShader::Default, Blending::Opaque);
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
@@ -99,17 +101,19 @@ void Render::draw(Context& context, Scene& scene, Camera& camera) {
     offscreen.bind();
     offscreen.clear();
 
-    dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Opaque);
+    dispatchInstances(context, scene, MaterialShader::Default, Blending::Opaque);
 
     if (render_settings.light_radius) {
         renderLightsVolume(context, scene);
     }
 
-    scene.skybox->draw(context);
+    if (scene.skybox) {
+        scene.skybox->draw(context);
+    }
 
-    dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Additive);
-    dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Modulate);
-    dispatchInstances(context, scene, MaterialShaderType::Default, Blending::Translucent);
+    dispatchInstances(context, scene, MaterialShader::Default, Blending::Additive);
+    dispatchInstances(context, scene, MaterialShader::Default, Blending::Modulate);
+    dispatchInstances(context, scene, MaterialShader::Default, Blending::Translucent);
 
     offscreen.unbind();
 

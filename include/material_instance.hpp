@@ -1,49 +1,36 @@
 #pragma once
 
-#include <custom_material.hpp>
+#include <memory>
+#include <map>
+#include <vector>
 
 namespace GraphicsEngine {
+    class Material;
+
     class MaterialInstance {
     private:
         uint64_t next_id {0};
         std::shared_ptr<Material> base;
-        std::unordered_map<uint64_t, std::shared_ptr<Material>> materials;
+        std::map<uint64_t, std::shared_ptr<Material>> materials;
     public:
-        explicit MaterialInstance(const std::shared_ptr<Material>& material) {
-            base = std::make_shared<Material>(*material);
-            materials.emplace(next_id++, base);
-        }
+        explicit MaterialInstance(const std::shared_ptr<Material>& material) noexcept;
 
-        void changeMaterial(const std::shared_ptr<Material>& material) {
-            materials.at(0) = std::make_shared<Material>(*material);
-        }
+        // changes base material
+        void changeMaterial(const std::shared_ptr<Material>& material) noexcept;
 
-        void reset() {
-            materials.at(0) = base;
-        }
+        // resets base material to first initialized
+        void reset() noexcept;
 
-        auto& get(uint64_t id = 0) const { return *materials.at(id); }
+        // applies material as a layer and returns its id
+        uint64_t apply(const std::shared_ptr<Material>& material) noexcept;
 
-        uint64_t apply(const std::shared_ptr<Material>& material) {
-            materials.emplace(next_id, std::make_shared<Material>(*material));
-            return next_id++;
-        }
+        // removes 'id' layer
+        void remove(uint64_t id);
 
-        void remove(uint64_t id) {
-            auto found = materials.find(id);
-              if (found == materials.end() || id == 0) {
-                  throw std::runtime_error("Attempt to remove base material");
-              }
+        // gets material layer; gets base material by default
+        [[nodiscard]] auto& get(uint64_t id = 0) const { return *materials.at(id); }
 
-            materials.erase(id);
-        }
-
-        std::vector<std::shared_ptr<Material>> getMaterials() const {
-            std::vector<std::shared_ptr<Material>> mats;
-            for (const auto& [id, mat] : materials) {
-                mats.emplace_back(mat);
-            }
-            return mats;
-        }
+        // gets all material layers
+        [[nodiscard]] std::vector<std::shared_ptr<Material>> getMaterials() const noexcept;
     };
 }

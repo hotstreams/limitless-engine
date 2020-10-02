@@ -1,4 +1,5 @@
 #include <named_buffer.hpp>
+#include <stdexcept>
 
 using namespace GraphicsEngine;
 

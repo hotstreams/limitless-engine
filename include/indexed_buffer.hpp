@@ -30,7 +30,7 @@ namespace GraphicsEngine {
     public:
         static GLuint getBindingPoint(Type type, std::string_view name) noexcept;
 
-        static void add(std::string_view name, std::shared_ptr<Buffer> buffer);
+        static void add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept;
         static std::shared_ptr<Buffer> get(std::string_view name);
     };
 

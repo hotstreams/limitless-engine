@@ -95,20 +95,20 @@ std::string MaterialCompiler::getMaterialDefines(const MaterialType& type) noexc
     return property_defines;
 }
 
-std::string MaterialCompiler::getModelDefines(const ModelShaderType& type) noexcept {
+std::string MaterialCompiler::getModelDefines(const ModelShader& type) noexcept {
     std::string defines;
 
     switch (type) {
-        case ModelShaderType::Model:
+        case ModelShader::Model:
             defines.append("#define SIMPLE_MODEL\n");
             break;
-        case ModelShaderType::Skeletal:
+        case ModelShader::Skeletal:
             defines.append("#define SKELETAL_MODEL\n");
             break;
-        case ModelShaderType::Instanced:
+        case ModelShader::Instanced:
             defines.append("#define INSTANCED_MODEL\n");
             break;
-        case ModelShaderType::SkeletalInstanced:
+        case ModelShader::SkeletalInstanced:
             defines.append("#define SKELETAL_INSTANCED_MODEL\n");
             break;
     }
@@ -136,7 +136,7 @@ std::string MaterialCompiler::getCustomMaterialSamplerUniforms(const CustomMater
     return uniforms;
 }
 
-void MaterialCompiler::compile(const MaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type) {
+void MaterialCompiler::compile(const MaterialBuilder& builder, MaterialShader material_type, ModelShader model_type) {
     auto material_defines = getMaterialDefines(builder.getMaterialType());
     material_defines.append("#define REGULAR_MATERIAL\n");
 
@@ -149,7 +149,7 @@ void MaterialCompiler::compile(const MaterialBuilder& builder, MaterialShaderTyp
     shader_storage.add(material_type, model_type, builder.getMaterialIndex(), compile(SHADER_DIR + material_shader_path.at(material_type), props));
 }
 
-void MaterialCompiler::compile(const CustomMaterialBuilder& builder, MaterialShaderType material_type, ModelShaderType model_type) {
+void MaterialCompiler::compile(const CustomMaterialBuilder& builder, MaterialShader material_type, ModelShader model_type) {
     auto material_defines = getMaterialDefines(builder.getMaterialType());
     material_defines.append("#define CUSTOM_MATERIAL\n");
 

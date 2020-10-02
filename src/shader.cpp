@@ -1,5 +1,7 @@
 #include <shader.hpp>
 #include <context_initializer.hpp>
+#include <string>
+#include <sstream>
 
 using namespace GraphicsEngine;
 

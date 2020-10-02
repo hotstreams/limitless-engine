@@ -1,9 +1,15 @@
 #pragma once
 
-#include <buffer_builder.hpp>
 #include <uniform.hpp>
 
+#include <unordered_map>
+#include <glm/glm.hpp>
+#include <vector>
+#include <map>
+
 namespace GraphicsEngine {
+    class Buffer;
+
     enum class PropertyType {
         Color,
         EmissiveColor,
@@ -38,8 +44,10 @@ namespace GraphicsEngine {
         friend class ShaderProgram;
         friend class MaterialBuilder;
         friend void swap(Material& lhs, Material& rhs) noexcept;
+        Material() noexcept;
         Material(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept;
     public:
+        // gets specified property parameter
         [[nodiscard]] UniformValue<glm::vec4>& getColor() const;
         [[nodiscard]] UniformValue<glm::vec4>& getEmissiveColor() const;
         [[nodiscard]] UniformValue<float>& getShininess() const;
@@ -54,19 +62,18 @@ namespace GraphicsEngine {
         [[nodiscard]] UniformSampler& getEmissiveMask() const;
         [[nodiscard]] UniformSampler& getBlendMask() const;
 
-        [[nodiscard]] auto& getBlending() noexcept { return blending; }
-        [[nodiscard]] auto& getMaterialBuffer() const noexcept { return material_buffer; }
         [[nodiscard]] const auto& getShaderIndex() const noexcept { return shader_index; }
+        [[nodiscard]] auto& getBlending() noexcept { return blending; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
 
-        Material(Material&&) noexcept = default;
-        Material& operator=(Material&&) noexcept = default;
+        Material(Material&&) noexcept;
+        Material& operator=(Material&&) noexcept;
 
-        Material(const Material&);
-        Material& operator=(Material);
+        Material(const Material&) noexcept;
+        Material& operator=(Material) noexcept;
 
-        [[nodiscard]] virtual Material* clone() const;
+        [[nodiscard]] virtual Material* clone() const noexcept;
 
         virtual ~Material() = default;
     };
@@ -78,6 +85,5 @@ namespace GraphicsEngine {
         Blending blending;
         Shading shading;
     };
-
     bool operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept;
 }

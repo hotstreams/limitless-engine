@@ -3,6 +3,9 @@
 #include <texture_loader.hpp>
 #include <buffer_builder.hpp>
 #include <vertex_array.hpp>
+#include <material_compiler.hpp>
+#include <uniform.hpp>
+#include <shader_program.hpp>
 
 #define ASSETS_DIR "../assets/"
 
@@ -21,7 +24,8 @@ public:
                                            {  glm::vec3(1.0, -1.0, 0.0),  glm::vec2(1.0, 0.0) } };
         buffer = BufferBuilder::build(Buffer::Type::Array, vertices, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
 
-        shader = MaterialCompiler::compile(SHADER_DIR "demo/triangle");
+        ShaderCompiler compiler;
+        shader = compiler.compile(SHADER_DIR "demo/triangle");
 
         texture = TextureLoader::load(ASSETS_DIR "textures/triangle.jpg");
 
