@@ -5,10 +5,41 @@
 #include <texture_builder.hpp>
 #include <material.hpp>
 #include <shader_types.hpp>
+#include <model_instance.hpp>
+#include <camera.hpp>
+#include <scene.hpp>
 
 using namespace GraphicsEngine;
 
-void Render::dispatchInstances(Context& context, Scene& scene, MaterialShader shader_type, Blending blending) const {
+struct FrontToBackSorter {
+    const Camera& camera;
+
+    explicit FrontToBackSorter(const Camera& _camera) noexcept : camera{_camera} {}
+
+    bool operator()(const AbstractInstance* const lhs, const AbstractInstance* const rhs) const noexcept {
+        const auto& a_pos = lhs->getPosition();
+        const auto& b_pos = rhs->getPosition();
+        const auto& c_pos = camera.getPosition();
+
+        return glm::distance(c_pos, a_pos) < glm::distance(c_pos, b_pos);
+    }
+};
+
+struct BackToFrontSorter {
+    const Camera& camera;
+
+    explicit BackToFrontSorter(const Camera& _camera) noexcept : camera{_camera} {}
+
+    bool operator()(const AbstractInstance* const lhs, const AbstractInstance* const rhs) const noexcept {
+        const auto& a_pos = lhs->getPosition();
+        const auto& b_pos = rhs->getPosition();
+        const auto& c_pos = camera.getPosition();
+
+        return glm::distance(c_pos, a_pos) > glm::distance(c_pos, b_pos);
+    }
+};
+
+void Renderer::dispatchInstances(const std::vector<AbstractInstance*>& instances, Context& context, MaterialShader shader_type, Blending blending) const {
     switch (blending) {
         case Blending::Opaque:
             context.enable(GL_DEPTH_TEST);
@@ -39,14 +70,14 @@ void Render::dispatchInstances(Context& context, Scene& scene, MaterialShader sh
             break;
     }
 
-    for (const auto& [id, instance] : scene.instances) {
+    for (auto* const instance : instances) {
         instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 
         instance->draw(shader_type, blending);
     }
 }
 
-void Render::renderLightsVolume(Context& context, Scene& scene) const {
+void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
     if (scene.lighting.dynamic.point_lights.getLights().empty()) {
         return;
     }
@@ -67,7 +98,7 @@ void Render::renderLightsVolume(Context& context, Scene& scene) const {
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
-void Render::initializeOffscreenBuffer(ContextEventObserver& ctx) {
+void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
     auto color0 = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr);
     auto depth = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::Depth32F, ctx.getSize(), Texture::Format::DepthComponent, Texture::DataType::Float, nullptr);
 
@@ -79,43 +110,66 @@ void Render::initializeOffscreenBuffer(ContextEventObserver& ctx) {
     offscreen.unbind();
 }
 
-Render::Render(ContextEventObserver& context) noexcept
-    : postprocess(context) {
-    context.clearColor({ 0.2f, 0.2f, 0.8f, 1.0f });
-
+Renderer::Renderer(ContextEventObserver& context) noexcept
+    : postprocess{context}, effect_renderer{context} {
     initializeOffscreenBuffer(context);
 }
 
-void Render::draw(Context& context, Scene& scene, Camera& camera) {
+void Renderer::draw(Context& context, Scene& scene, Camera& camera) {
     scene.update();
 
     scene_data.update(context, scene, camera);
 
     context.setViewPort(context.getSize());
 
-    context.enable(GL_DEPTH_TEST);
-    context.setDepthFunc(DepthFunc::Less);
-    context.setDepthMask(GL_TRUE);
-    context.disable(GL_BLEND);
-
     offscreen.bind();
     offscreen.clear();
 
-    dispatchInstances(context, scene, MaterialShader::Default, Blending::Opaque);
+    //TODO: performing frustum culling; gets vector<instance_ptr>
+    auto instances = performFrustumCulling(scene, camera);
 
+    effect_renderer.update(instances);
+
+    // rendering front to back
+    std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});
+    dispatchInstances(instances, context, MaterialShader::Default, Blending::Opaque);
+    effect_renderer.draw(Blending::Opaque);
+
+    // draws lights influence radius
     if (render_settings.light_radius) {
         renderLightsVolume(context, scene);
     }
 
+    // draws skybox if it exists
     if (scene.skybox) {
         scene.skybox->draw(context);
     }
 
-    dispatchInstances(context, scene, MaterialShader::Default, Blending::Additive);
-    dispatchInstances(context, scene, MaterialShader::Default, Blending::Modulate);
-    dispatchInstances(context, scene, MaterialShader::Default, Blending::Translucent);
+    // rendering back to front to follow the translucent order
+    std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
+
+    dispatchInstances(instances, context, MaterialShader::Default, Blending::Additive);
+    effect_renderer.draw(Blending::Additive);
+
+    dispatchInstances(instances, context, MaterialShader::Default, Blending::Modulate);
+    effect_renderer.draw(Blending::Modulate);
+
+    dispatchInstances(instances, context, MaterialShader::Default, Blending::Translucent);
+    effect_renderer.draw(Blending::Translucent);
 
     offscreen.unbind();
 
     postprocess.process(context, offscreen);
+}
+
+std::vector<AbstractInstance*> Renderer::performFrustumCulling(Scene &scene, [[maybe_unused]] Camera& camera) const noexcept {
+    //TODO: culling
+    std::vector<AbstractInstance*> culled;
+    culled.reserve(scene.instances.size());
+
+    for (const auto& [id, instance] : scene.instances) {
+        culled.emplace_back(instance.get());
+    }
+
+    return culled;
 }

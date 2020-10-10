@@ -23,7 +23,7 @@
   - Roughness
   - Metalness
   + Blending: Opaque, Translucent, Additive, Modulate
-  + Shading type: Lit, Unlit
+  + Shading shader_type: Lit, Unlit
   + Shading models: Phong, Blinn-Phong
   + Custom materials via shader code
   

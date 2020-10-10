@@ -7,7 +7,7 @@ constexpr auto skeletal_buffer_name = "bone_buffer";
 
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
     : ModelInstance{std::move(m), position} {
-        type = ModelShader::Skeletal;
+    shader_type = ModelShader::Skeletal;
         auto& skeletal = static_cast<SkeletalModel&>(*model);
 
         bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
@@ -61,6 +61,8 @@ void SkeletalInstance::resume() noexcept {
 }
 
 void SkeletalInstance::update() {
+    AbstractInstance::update();
+
     if (animation == nullptr || paused) {
         return;
     }
@@ -109,4 +111,8 @@ void SkeletalInstance::update() {
     }
 
     bone_buffer->mapData(bone_transform.data(), sizeof(glm::mat4) * bone_transform.size());
+}
+
+SkeletalInstance *SkeletalInstance::clone() noexcept {
+    return new SkeletalInstance(*this);
 }

@@ -13,14 +13,23 @@ namespace GraphicsEngine {
         const AnimationNode* findAnimationNode(const Bone& bone) const noexcept;
     public:
         SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position);
+        ~SkeletalInstance() override = default;
 
-        void update();
+        SkeletalInstance(const SkeletalInstance&) = default;
+        SkeletalInstance& operator=(const SkeletalInstance&) = default;
+
+        SkeletalInstance(SkeletalInstance&&) = default;
+        SkeletalInstance& operator=(SkeletalInstance&&) = default;
+
+        SkeletalInstance* clone() noexcept override;
+
+        void update() override;
 
         void play(const std::string& name);
         void pause() noexcept;
         void resume() noexcept;
 
-        void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter = UniformSetter{}) override;
+        void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
     };
 }
 

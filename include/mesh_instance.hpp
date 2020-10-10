@@ -15,6 +15,7 @@ namespace GraphicsEngine {
 
         [[nodiscard]] auto& getMaterial() noexcept { return material; }
         [[nodiscard]] bool isHidden() const noexcept { return hidden; }
+
         void hide() noexcept;
         void reveal() noexcept;
 

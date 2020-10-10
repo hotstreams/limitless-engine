@@ -23,9 +23,8 @@ void Scene::update() {
 
     removeDeadInstances();
 
-    updateSkeletalInstances();
-
-    // updates particles
+    for (auto& [id, instance] : instances)
+        instance->update();
 }
 
 void Scene::removeDeadInstances() noexcept {
@@ -34,14 +33,6 @@ void Scene::removeDeadInstances() noexcept {
             it = instances.erase(it);
         } else {
             ++it;
-        }
-    }
-}
-
-void Scene::updateSkeletalInstances() const noexcept {
-    for (const auto& [id, instance] : instances) {
-        if (instance->getType() == ModelShader::Skeletal) {
-            static_cast<SkeletalInstance&>(*instance).update();
         }
     }
 }

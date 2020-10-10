@@ -2,26 +2,6 @@
 
 using namespace GraphicsEngine;
 
-void GraphicsEngine::swap(EmitterSpawn& lhs, EmitterSpawn& rhs) noexcept {
-    using std::swap;
-
-    swap(lhs.mode, rhs.mode);
-    swap(lhs.last_spawn, rhs.last_spawn);
-    swap(lhs.max_count, rhs.max_count);
-    swap(lhs.spawn_rate, rhs.spawn_rate);
-    swap(lhs.burst_count, rhs.burst_count);
-    swap(lhs.loops, rhs.loops);
-    swap(lhs.loops_done, rhs.loops_done);
-}
-
-EmitterSpawn::EmitterSpawn(const EmitterSpawn& emitter) noexcept
-    : mode{emitter.mode}, last_spawn{emitter.last_spawn},
-      max_count{emitter.max_count}, spawn_rate{emitter.spawn_rate},
-      burst_count{emitter.burst_count->clone()}, loops{emitter.loops},
-      loops_done{emitter.loops_done} {
-
-}
-
 Emitter::Emitter(EmitterType type) noexcept
     : type{type},
       local_position{0.0f}, position{0.0f},
@@ -158,7 +138,7 @@ Emitter* Emitter::clone() const noexcept {
 }
 
 Emitter::Emitter(const Emitter& emitter) noexcept
-    : local_position{emitter.local_position}, position{emitter.position},
+    : type{EmitterType::Sprite}, local_position{emitter.local_position}, position{emitter.position},
       local_rotation{emitter.local_rotation}, rotation{emitter.rotation},
       local_space{emitter.local_space}, spawn{emitter.spawn}, duration{emitter.duration} {
     modules.reserve(emitter.modules.size());
@@ -168,8 +148,8 @@ Emitter::Emitter(const Emitter& emitter) noexcept
 }
 
 Emitter& Emitter::operator=(const Emitter& emitter) noexcept {
-    auto copy = Emitter(emitter);
-    swap(*this, copy);
+    auto copied = Emitter{emitter};
+    swap(*this, copied);
     return *this;
 }
 
@@ -200,4 +180,8 @@ Emitter::Emitter(Emitter&& emitter) noexcept
 Emitter &Emitter::operator=(Emitter&& emitter) noexcept {
     swap(*this, emitter);
     return *this;
+}
+
+void Emitter::accept([[maybe_unused]] EmitterVisiter &visiter) noexcept {
+
 }

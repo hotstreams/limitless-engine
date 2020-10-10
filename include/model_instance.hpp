@@ -1,38 +1,39 @@
 #pragma once
 
 #include <abstract_instance.hpp>
-
 #include <mesh_instance.hpp>
-
-#include <string>
 #include <glm/glm.hpp>
+#include <string>
 
 namespace GraphicsEngine {
     class AbstractModel;
 
     class ModelInstance : public AbstractInstance {
     protected:
-        std::shared_ptr<AbstractModel> model;
         std::unordered_map<std::string, MeshInstance> meshes;
-        // model data
-        glm::vec3 position, rotation, scale;
+        std::shared_ptr<AbstractModel> model;
         glm::mat4 model_matrix;
 
         void calculateModelMatrix() noexcept;
     public:
         // model constructor
-        ModelInstance(std::shared_ptr<AbstractModel> model, const glm::vec3& position);
+        ModelInstance(decltype(model) model, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
         // elementary model constructor
-        ModelInstance(std::shared_ptr<AbstractModel> model, const std::shared_ptr<Material>& material, const glm::vec3& position);
+        ModelInstance(decltype(model) model, const std::shared_ptr<Material>& material, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
 
-        void hide(const std::string& name);
-        void reveal(const std::string& name);
+        ~ModelInstance() override = default;
 
-        ModelInstance& setPosition(const glm::vec3& _position) noexcept;
-        ModelInstance& setRotation(const glm::vec3& _rotation) noexcept;
-        ModelInstance& setScale(const glm::vec3& _scale) noexcept;
+        ModelInstance(const ModelInstance&) = default;
+        ModelInstance& operator=(const ModelInstance&) = default;
 
+        ModelInstance(ModelInstance&&) = default;
+        ModelInstance& operator=(ModelInstance&&) = default;
+
+        ModelInstance* clone() noexcept override;
+
+        MeshInstance& operator[](const std::string& mesh);
+
+        using AbstractInstance::draw;
         void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
-        void draw(MaterialShader shader_type, Blending blending) override;
     };
 }

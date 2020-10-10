@@ -21,8 +21,8 @@ namespace GraphicsEngine {
         Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;
 
-        [[nodiscard]] const auto& getType() const noexcept { return type; }
-        [[nodiscard]] const auto& getValueType() const noexcept { return value_type; }
+        [[nodiscard]] auto getType() const noexcept { return type; }
+        [[nodiscard]] auto getValueType() const noexcept { return value_type; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] auto& getChanged() noexcept { return changed; }
 

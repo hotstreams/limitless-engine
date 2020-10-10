@@ -2,6 +2,7 @@
 #include <shader_compiler.hpp>
 #include <assets.hpp>
 #include <material_compiler.hpp>
+#include <shader_storage.hpp>
 
 using namespace GraphicsEngine;
 

@@ -3,8 +3,7 @@ project(engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
-#set(EXTRA_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
-set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -O0 -ggdb -Wpedantic -Wextra -Wall -Wshadow ${EXTRA_WARNINGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -O0 -ggdb -Wpedantic -Wextra -Wall")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -51,7 +50,6 @@ endif()
 
 set(ENGINE_SRC
         src/bindless_texture.cpp
-        src/bindless_texture_storage.cpp
         src/buffer_builder.cpp
         src/context.cpp
         src/context_debug.cpp
@@ -83,9 +81,9 @@ set(ENGINE_SRC
         src/emitter_module.cpp
         src/sprite_emitter.cpp
         src/mesh_emitter.cpp
-        src/effect.cpp
-        src/particle_system.cpp
-        src/emitter_buffer.cpp
+        src/effect_instance.cpp
+        src/effect_renderer.cpp
+        src/emitter_renderer.cpp
         src/framebuffer.cpp
         src/postprocessing.cpp
         src/render.cpp
@@ -97,7 +95,12 @@ set(ENGINE_SRC
         src/indexed_buffer.cpp
         src/shader.cpp
         src/material_compiler.cpp
-        src/material_instance.cpp)
+        src/material_instance.cpp
+        src/abstract_instance.cpp
+        src/emitter_spawn.cpp
+        src/emitter_visiter.cpp
+        src/unique_emitter.cpp
+        src/effect_attachable.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})

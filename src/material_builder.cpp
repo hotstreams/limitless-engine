@@ -1,8 +1,10 @@
 #include <material_builder.hpp>
 #include <shader_compiler.hpp>
 #include <assets.hpp>
-#include <iostream>
+#include <shader_program.hpp>
+#include <shader_storage.hpp>
 #include <material_compiler.hpp>
+#include <buffer_builder.hpp>
 
 using namespace GraphicsEngine;
 
@@ -165,13 +167,13 @@ MaterialType MaterialBuilder::getMaterialType() const noexcept {
     return MaterialType{props, blending, shading};
 }
 
-MaterialType MaterialBuilder::getMaterialType(const std::shared_ptr<Material>& material) const noexcept {
+MaterialType MaterialBuilder::getMaterialType(const Material& material) const noexcept {
     std::vector<PropertyType> props;
-    for (const auto& [type, uniform] : material->properties) {
+    for (const auto& [type, uniform] : material.properties) {
         props.emplace_back(type);
     }
 
-    return MaterialType{props, material->blending, material->shading};
+    return MaterialType{props, material.blending, material.shading};
 }
 
 MaterialBuilder& MaterialBuilder::setBlending(Blending _blending) noexcept {

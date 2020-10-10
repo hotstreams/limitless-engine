@@ -62,7 +62,7 @@ namespace GraphicsEngine {
         [[nodiscard]] UniformSampler& getEmissiveMask() const;
         [[nodiscard]] UniformSampler& getBlendMask() const;
 
-        [[nodiscard]] const auto& getShaderIndex() const noexcept { return shader_index; }
+        [[nodiscard]] auto getShaderIndex() const noexcept { return shader_index; }
         [[nodiscard]] auto& getBlending() noexcept { return blending; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] virtual bool isCustom() const noexcept { return false; }

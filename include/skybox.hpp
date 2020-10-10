@@ -1,10 +1,13 @@
 #pragma once
 
-#include <texture.hpp>
 #include <filesystem.hpp>
-#include <context.hpp>
+
+#include <memory>
 
 namespace GraphicsEngine {
+    class Texture;
+    class Context;
+
     class Skybox {
     private:
         std::shared_ptr<Texture> cubemap;
