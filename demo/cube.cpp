@@ -15,7 +15,7 @@ public:
 private:
     Camera camera;
     Scene scene;
-    Render render;
+    Renderer render;
     std::shared_ptr<ShaderProgram> shader;
     static constexpr glm::uvec2 window_size {500, 500};
 public:

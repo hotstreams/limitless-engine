@@ -6,10 +6,15 @@ namespace GraphicsEngine {
     struct PointLight {
         glm::vec4 position;
         glm::vec4 color;
-        float constant;
-        float linear;
-        float quadratic;
+        float constant {1.0f};
+        float linear {0.7f};
+        float quadratic {1.8f};
         float radius;
+
+        PointLight() noexcept = default;
+
+        PointLight(const glm::vec3& _position, const glm::vec4& _color, float _radius) noexcept
+            : position{_position, 1.0f}, color{_color}, radius{_radius} {}
     };
 
     struct DirectionalLight {

@@ -14,7 +14,7 @@ namespace GraphicsEngine {
     public:
         virtual ~Distribution() = default;
 
-        [[nodiscard]] virtual T get() const = 0;
+        [[nodiscard]] virtual T get() = 0;
         [[nodiscard]] virtual Distribution<T>* clone() = 0;
         [[nodiscard]] const auto& getType() const noexcept { return type; }
     };
@@ -27,7 +27,7 @@ namespace GraphicsEngine {
         explicit ConstDistribution(const T& value) noexcept : Distribution<T>(DistributionType::Const), value{value} {}
         ~ConstDistribution() override = default;
 
-        T get() const override { return value; }
+        T get() override { return value; }
 
         [[nodiscard]] Distribution<T>* clone() override {
             return new ConstDistribution<T>(*this);
@@ -43,7 +43,7 @@ namespace GraphicsEngine {
         std::uniform_real_distribution<T> distribution;
     public:
         RangeDistribution(const T& min, const T& max) noexcept
-            : Distribution<T>(DistributionType::Range), min(min), max(max) { }
+            : Distribution<T>(DistributionType::Range), min(min), max(max), distribution(min, max) { }
         ~RangeDistribution() override = default;
 
         [[nodiscard]] const T& getMin() const noexcept { return min; }
@@ -59,7 +59,7 @@ namespace GraphicsEngine {
             distribution = std::uniform_real_distribution<T>(min, max);
         }
 
-        T get() const override {
+        T get() override {
             return distribution(generator);
         }
 

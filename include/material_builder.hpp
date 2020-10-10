@@ -2,7 +2,7 @@
 
 #include <material.hpp>
 #include <functional>
-#include <shader_storage.hpp>
+#include <shader_types.hpp>
 
 namespace GraphicsEngine {
     class MaterialBuilder {
@@ -30,11 +30,11 @@ namespace GraphicsEngine {
         MaterialBuilder& setShading(Shading shading) noexcept;
 
         [[nodiscard]] MaterialType getMaterialType() const noexcept;
-        [[nodiscard]] MaterialType getMaterialType(const std::shared_ptr<Material>& material) const noexcept;
+        [[nodiscard]] MaterialType getMaterialType(const Material& material) const noexcept;
         [[nodiscard]] auto getMaterialIndex() const noexcept { return material_index; }
 
         virtual std::shared_ptr<Material> build(const std::string& name,
-                                                const RequiredModelShaders& model_shaders = RequiredModelShaders{ModelShader::Model },
-                                                const RequiredMaterialShaders& material_shaders = RequiredMaterialShaders{MaterialShader::Default });
+                                                const RequiredModelShaders& model_shaders = RequiredModelShaders{ ModelShader::Model },
+                                                const RequiredMaterialShaders& material_shaders = RequiredMaterialShaders{ MaterialShader::Default });
     };
 }

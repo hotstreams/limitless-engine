@@ -7,7 +7,8 @@
 #include <render.hpp>
 #include <assets.hpp>
 #include <skeletal_instance.hpp>
-#include <elementary_model.hpp>
+#include <shader_storage.hpp>
+#include <effect_instance.hpp>
 
 #ifndef M_PI
     #define M_PI (3.14159265358979323846)
@@ -20,7 +21,7 @@ private:
     ContextEventObserver context;
     Scene scene;
     Camera camera;
-    Render render;
+    Renderer render;
 
     bool done {false};
     static constexpr glm::uvec2 window_size {1920 , 1080};
@@ -95,7 +96,7 @@ public:
         scene.addInstance(new ModelInstance(assets.models.get("sphere"), material5, glm::vec3{ 8.0f, 0.0f, 0.0f }));
         scene.addInstance(new ModelInstance(assets.models.get("sphere"), material6, glm::vec3{ 10.0f, 0.0f, 0.0f }));
 
-        auto light = PointLight{glm::vec4{4.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.1f, 2.7f, 7.5f}, 1.0f, 0.7f, 1.8f, 8.0f};
+        auto light = PointLight{glm::vec4{4.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.1f, 2.7f, 7.5f}, 8.0f};
         scene.lighting.dynamic.point_lights.add(light);
 
         scene.setSkybox("skybox");

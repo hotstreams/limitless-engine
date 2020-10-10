@@ -1,44 +1,14 @@
 #include <model_instance.hpp>
 
-#include <elementary_model.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <elementary_model.hpp>
 #include <shader_storage.hpp>
 
 using namespace GraphicsEngine;
 
-void AbstractInstance::reveal() noexcept {
-    hidden = false;
-}
-
-void AbstractInstance::hide() noexcept {
-    hidden = true;
-}
-
-void AbstractInstance::kill() noexcept {
-    done = true;
-}
-
-bool AbstractInstance::isKilled() const noexcept {
-    return done;
-}
-
-void AbstractInstance::asWireFrame() noexcept {
-    wireframe = true;
-}
-
-void AbstractInstance::asModel() noexcept {
-    wireframe = false;
-}
-
-bool AbstractInstance::isWireFrame() const noexcept {
-    return wireframe;
-}
-
-ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : AbstractInstance{ModelShader::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
-        //TODO: get rid of downcasting; make builder class instead based on abstractmodel or throw exception on wrong type
-        auto& simple_model = static_cast<Model&>(*model);
+ModelInstance::ModelInstance(decltype(model) _model, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
+    : AbstractInstance{ModelShader::Model, _position, _rotation, _scale}, model{std::move(_model)}, model_matrix{1.0f} {
+        auto& simple_model = dynamic_cast<Model&>(*model);
 
         auto& model_meshes = simple_model.getMeshes();
         auto& model_mats = simple_model.getMaterials();
@@ -48,9 +18,9 @@ ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& 
         }
 }
 
-ModelInstance::ModelInstance(std::shared_ptr<AbstractModel> m, const std::shared_ptr<Material>& material, const glm::vec3& position)
-    : AbstractInstance{ModelShader::Model}, model{std::move(m)}, position{position}, rotation{0.0f}, scale{1.0f}, model_matrix{1.0f} {
-        auto& elementary = static_cast<ElementaryModel&>(*model);
+ModelInstance::ModelInstance(decltype(model) _model, const std::shared_ptr<Material>& material, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
+    : AbstractInstance{ModelShader::Model, _position, _rotation, _scale}, model{std::move(_model)}, model_matrix{1.0f} {
+        auto& elementary = dynamic_cast<ElementaryModel&>(*model);
 
         meshes.emplace(elementary.getMesh()->getName(), MeshInstance{elementary.getMesh(), material});
 }
@@ -60,26 +30,11 @@ void ModelInstance::calculateModelMatrix() noexcept {
 
     model_matrix = glm::translate(model_matrix, position);
 
-    model_matrix = glm::rotate(model_matrix, rotation.x, glm::vec3(1.0f, 0.f, 0.f));
-    model_matrix = glm::rotate(model_matrix, rotation.y, glm::vec3(0.0f, 1.f, 0.f));
-    model_matrix = glm::rotate(model_matrix, rotation.z, glm::vec3(0.0f, 0.f, 1.f));
+    model_matrix = glm::rotate(model_matrix, rotation.x, glm::vec3{1.0f, 0.f, 0.f});
+    model_matrix = glm::rotate(model_matrix, rotation.y, glm::vec3{0.0f, 1.f, 0.f});
+    model_matrix = glm::rotate(model_matrix, rotation.z, glm::vec3{0.0f, 0.f, 1.f});
 
     model_matrix = glm::scale(model_matrix, scale);
-}
-
-ModelInstance& ModelInstance::setPosition(const glm::vec3& _position) noexcept {
-    position = _position;
-    return *this;
-}
-
-ModelInstance& ModelInstance::setRotation(const glm::vec3& _rotation) noexcept {
-    rotation = _rotation;
-    return *this;
-}
-
-ModelInstance& ModelInstance::setScale(const glm::vec3& _scale) noexcept {
-    scale = _scale;
-    return *this;
 }
 
 void ModelInstance::draw(MaterialShader material_type, Blending blending, const UniformSetter& uniform_setter) {
@@ -98,7 +53,7 @@ void ModelInstance::draw(MaterialShader material_type, Blending blending, const 
 
         for (const auto& material : materials) {
             if (material->getBlending() == blending) {
-                auto& shader = shader_storage.get(material_type, type, material->getShaderIndex());
+                auto& shader = shader_storage.get(material_type, shader_type, material->getShaderIndex());
 
                 *shader << *material
                         << UniformValue{"model", model_matrix};
@@ -115,22 +70,10 @@ void ModelInstance::draw(MaterialShader material_type, Blending blending, const 
     }
 }
 
-void ModelInstance::hide(const std::string& name) {
-    try {
-        meshes.at(name).hide();
-    } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such mesh name.");
-    }
+MeshInstance& ModelInstance::operator[](const std::string& mesh) {
+    return meshes.at(mesh);
 }
 
-void ModelInstance::reveal(const std::string& name) {
-    try {
-        meshes.at(name).reveal();
-    } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such mesh name.");
-    }
-}
-
-void ModelInstance::draw(MaterialShader shader_type, Blending blending) {
-    draw(shader_type, blending, UniformSetter{});
+ModelInstance* ModelInstance::clone() noexcept {
+    return new ModelInstance(*this);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <shader_program.hpp>
-#include <emitter_buffer.hpp>
+#include <emitter_renderer.hpp>
 
 #include <shader_types.hpp>
 
@@ -12,9 +12,6 @@ namespace GraphicsEngine {
         uint64_t material_index;
     };
     bool operator<(const ShaderKey& lhs, const ShaderKey& rhs) noexcept;
-
-    using RequiredMaterialShaders = std::vector<MaterialShader>;
-    using RequiredModelShaders = std::vector<ModelShader>;
 
     inline const std::map<MaterialShader, std::string> material_shader_path = {
         {MaterialShader::Default,           "pipeline/forward" },

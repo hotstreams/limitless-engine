@@ -1,5 +1,9 @@
 #include <scene_data.hpp>
 
+#include <buffer_builder.hpp>
+#include <camera.hpp>
+#include <scene.hpp>
+
 using namespace GraphicsEngine;
 
 SceneDataStorage::SceneDataStorage() {

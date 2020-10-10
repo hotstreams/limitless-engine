@@ -4,6 +4,7 @@
 #include <shader_storage.hpp>
 #include <material.hpp>
 #include <custom_material_builder.hpp>
+#include <sprite_emitter.hpp>
 
 using namespace GraphicsEngine;
 
@@ -111,6 +112,9 @@ std::string MaterialCompiler::getModelDefines(const ModelShader& type) noexcept 
         case ModelShader::SkeletalInstanced:
             defines.append("#define SKELETAL_INSTANCED_MODEL\n");
             break;
+        case ModelShader::Effect:
+            assert("You can not use ModelShader::Effect");
+            break;
     }
 
     return defines;
@@ -170,7 +174,7 @@ void MaterialCompiler::compile(const CustomMaterialBuilder& builder, MaterialSha
 void MaterialCompiler::compile(const SpriteEmitter& emitter) {
     MaterialBuilder builder;
     auto material_defines = getMaterialDefines(builder.getMaterialType(emitter.getMaterial()));
-    material_defines.append(emitter.getMaterial()->isCustom() ? "#define CUSTOM_MATERIAL\n" : "#define REGULAR_MATERIAL\n");
+    material_defines.append(emitter.getMaterial().isCustom() ? "#define CUSTOM_MATERIAL\n" : "#define REGULAR_MATERIAL\n");
 
     const auto props = [&] (Shader& shader) {
         shader.replaceKey("GraphicsEngine::MaterialType", material_defines);

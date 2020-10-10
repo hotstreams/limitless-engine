@@ -1,15 +1,10 @@
 #include <mesh_emitter.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
+#include <unique_emitter.hpp>
+#include <emitter_visiter.hpp>
 
 using namespace GraphicsEngine;
-
-bool GraphicsEngine::operator<(const UniqueMeshEmitter& lhs, const UniqueMeshEmitter& rhs) noexcept {
-    return std::tie(lhs.unique_sprite_emitter, lhs.mesh) < std::tie(rhs.unique_sprite_emitter, rhs.mesh);
-}
-
-bool GraphicsEngine::operator==(const UniqueMeshEmitter& lhs, const UniqueMeshEmitter& rhs) noexcept {
-    return lhs.unique_sprite_emitter == rhs.unique_sprite_emitter && lhs.mesh == rhs.mesh;
-}
 
 MeshEmitter::MeshEmitter() noexcept
     : SpriteEmitter() {
@@ -40,6 +35,10 @@ void MeshEmitter::update() {
 
         mesh_particles.emplace_back(MeshParticle{model, particle.color, particle.subUV, particle.properties});
     }
+}
+
+void MeshEmitter::accept(EmitterVisiter& visiter) noexcept {
+    visiter.visit(*this);
 }
 
 UniqueMeshEmitter MeshEmitter::getEmitterType() const noexcept {

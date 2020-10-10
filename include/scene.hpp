@@ -1,10 +1,12 @@
 #pragma once
 
-#include <model_instance.hpp>
 #include <lighting.hpp>
 #include <skybox.hpp>
+#include <effect_renderer.hpp>
 
 namespace GraphicsEngine {
+    class AbstractInstance;
+
     class Scene {
     public:
         Lighting lighting;
@@ -12,9 +14,8 @@ namespace GraphicsEngine {
         std::unordered_map<uint64_t, std::unique_ptr<AbstractInstance>> instances;
         std::shared_ptr<Skybox> skybox;
 
-        friend class Render;
+        friend class Renderer;
 
-        void updateSkeletalInstances() const noexcept;
         void removeDeadInstances() noexcept;
     public:
         template<typename T>

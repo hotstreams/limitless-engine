@@ -1,5 +1,4 @@
 #include <bindless_texture.hpp>
-#include <bindless_texture_storage.hpp>
 
 using namespace GraphicsEngine;
 
@@ -7,14 +6,10 @@ BindlessTexture::BindlessTexture(std::shared_ptr<Texture> _texture) : texture(st
     handle = glGetTextureHandleARB(texture->getId());
 
     makeResident();
-
-    //BindlessTextureStorage::init();
-    //BindlessTextureStorage::add(handle);
 }
 
 BindlessTexture::~BindlessTexture() {
     makeNonresident();
-    //BindlessTextureStorage::remove(handle);
 }
 
 void BindlessTexture::makeResident() noexcept {

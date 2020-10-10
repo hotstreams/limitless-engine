@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vertex.hpp>
-#include <buffer.hpp>
+#include <context_debug.hpp>
 
 namespace GraphicsEngine {
+    class Buffer;
+
     struct VertexAttribute {
         GLint size;
         GLenum type;

@@ -1,5 +1,6 @@
 #include <vertex_array.hpp>
 #include <context_state.hpp>
+#include <buffer.hpp>
 
 using namespace GraphicsEngine;
 

@@ -11,8 +11,8 @@
 #endif
 
 #ifdef MATERIAL_BLENDMASK
-    if (mat_blend_mask >= 0.5) discard;
-    fragment_color.a *= mat_blend_mask;
+    if (mat_blend_mask <= 0.5) discard;
+    //fragment_color.a *= mat_blend_mask;
 #endif
 
 #ifdef MATERIAL_LIT
@@ -29,7 +29,7 @@
 #endif
 
 #ifdef MATERIAL_EMISSIVEMASK
-    if (mat_emissive_mask.r >= 0.5 && mat_emissive_mask.g >= 0.5 && mat_emissive_mask.b >= 0.5)
+    if (mat_emissive_mask.r != 0.0 && mat_emissive_mask.g != 0.0 && mat_emissive_mask.b != 0.0)
     {
         fragment_color.rgb *= mat_emissive_mask;
 
