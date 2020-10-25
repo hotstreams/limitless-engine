@@ -3,7 +3,7 @@ project(engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -O0 -ggdb -Wpedantic -Wextra -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -DNDEBUG -O0 -ggdb -Wpedantic -Wextra -Wall")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -100,7 +100,13 @@ set(ENGINE_SRC
         src/emitter_spawn.cpp
         src/emitter_visiter.cpp
         src/unique_emitter.cpp
-        src/effect_attachable.cpp)
+        src/effect_attachable.cpp
+        src/light_attachable.cpp
+        src/elementary_instance.cpp
+        src/lighting.cpp
+        src/light_container.cpp
+        src/effect_builder.cpp
+        src/effect_compiler.cpp)
 
 file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 foreach(file ${list})

@@ -25,12 +25,13 @@ namespace GraphicsEngine {
         using Identifier = std::pair<Type, std::string>;
     private:
         static inline std::unordered_multimap<std::string, std::shared_ptr<Buffer>> buffers;
-        static inline std::unordered_map<IndexedBuffer::Type, GLint> current_bind;
+        static inline std::unordered_map<Type, GLint> current_bind;
         static inline std::map<Identifier, GLuint> bound;
     public:
         static GLuint getBindingPoint(Type type, std::string_view name) noexcept;
 
         static void add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept;
+        static void remove(const std::string& name, const std::shared_ptr<Buffer>& buffer);
         static std::shared_ptr<Buffer> get(std::string_view name);
     };
 

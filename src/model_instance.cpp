@@ -1,28 +1,25 @@
 #include <model_instance.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <elementary_model.hpp>
+#include <model.hpp>
 #include <shader_storage.hpp>
 
 using namespace GraphicsEngine;
 
 ModelInstance::ModelInstance(decltype(model) _model, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
-    : AbstractInstance{ModelShader::Model, _position, _rotation, _scale}, model{std::move(_model)}, model_matrix{1.0f} {
-        auto& simple_model = dynamic_cast<Model&>(*model);
-
-        auto& model_meshes = simple_model.getMeshes();
-        auto& model_mats = simple_model.getMaterials();
-
-        for(uint32_t i = 0; i < model_meshes.size(); ++i) {
-            meshes.emplace(model_meshes[i]->getName(), MeshInstance{model_meshes[i], model_mats[i]});
-        }
+    : ModelInstance{nullptr, std::move(_model), _position, _rotation, _scale} {
 }
 
-ModelInstance::ModelInstance(decltype(model) _model, const std::shared_ptr<Material>& material, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
-    : AbstractInstance{ModelShader::Model, _position, _rotation, _scale}, model{std::move(_model)}, model_matrix{1.0f} {
-        auto& elementary = dynamic_cast<ElementaryModel&>(*model);
+ModelInstance::ModelInstance(Lighting* lighting, decltype(model) _model, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
+    : AbstractInstance{lighting, ModelShader::Model, _position, _rotation, _scale}, model{std::move(_model)}, model_matrix{1.0f} {
+    auto& simple_model = dynamic_cast<Model&>(*model);
 
-        meshes.emplace(elementary.getMesh()->getName(), MeshInstance{elementary.getMesh(), material});
+    auto& model_meshes = simple_model.getMeshes();
+    auto& model_mats = simple_model.getMaterials();
+
+    for(uint32_t i = 0; i < model_meshes.size(); ++i) {
+        meshes.emplace(model_meshes[i]->getName(), MeshInstance{model_meshes[i], model_mats[i]});
+    }
 }
 
 void ModelInstance::calculateModelMatrix() noexcept {

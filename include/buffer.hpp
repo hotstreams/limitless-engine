@@ -1,7 +1,6 @@
 #pragma once
 
 #include <context_debug.hpp>
-
 #include <variant>
 
 namespace GraphicsEngine {
@@ -51,8 +50,14 @@ namespace GraphicsEngine {
             WriteCoherent = WritePersistence | GL_MAP_COHERENT_BIT
         };
 
-        Buffer() noexcept = default;
+        Buffer() = default;
         virtual ~Buffer() = default;
+
+        Buffer(const Buffer&) = delete;
+        Buffer& operator=(const Buffer&) = delete;
+
+        Buffer(Buffer&&) noexcept = default;
+        Buffer& operator=(Buffer&&) noexcept = default;
 
         virtual void clearSubData(GLenum internalformat, GLintptr offset, GLsizeiptr size, GLenum format, GLenum type, const void* data) const noexcept = 0;
         virtual void clearData(GLenum internalformat, GLenum format, GLenum type, const void* data) const noexcept = 0;

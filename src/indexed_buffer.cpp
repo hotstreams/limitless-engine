@@ -23,12 +23,15 @@ void IndexedBuffer::add(std::string_view name, std::shared_ptr<Buffer> buffer) n
 GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept {
     const auto identifier = Identifier{ type, name };
 
-    auto point_bound = bound.find(identifier);
+    const auto point_bound = bound.find(identifier);
     if (point_bound != bound.end()) {
         return point_bound->second;
     }
 
     GLuint bind;
+
+    //auto& found = current_bind[type];
+
     auto found = current_bind.find(type);
     if (found == current_bind.end()) {
         bind = 0;
@@ -53,4 +56,14 @@ GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept
     bound.emplace(identifier, bind);
 
     return bind;
+}
+
+void IndexedBuffer::remove(const std::string &name, const std::shared_ptr<Buffer>& buffer) {
+    if (buffer == nullptr) return;
+
+    auto found = buffers.find(name);
+
+    while (found->second != buffer) { ++found; }
+
+    buffers.erase(found);
 }

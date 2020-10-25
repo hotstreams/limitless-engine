@@ -43,9 +43,9 @@ namespace GraphicsEngine {
 
         friend class ShaderProgram;
         friend class MaterialBuilder;
+        friend class MaterialCompiler;
         friend void swap(Material& lhs, Material& rhs) noexcept;
         Material() noexcept;
-        Material(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept;
     public:
         // gets specified property parameter
         [[nodiscard]] UniformValue<glm::vec4>& getColor() const;
@@ -82,7 +82,6 @@ namespace GraphicsEngine {
 
     struct MaterialType {
         std::vector<PropertyType> properties;
-        Blending blending;
         Shading shading;
     };
     bool operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept;

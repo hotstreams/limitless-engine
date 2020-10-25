@@ -6,11 +6,6 @@
 
 using namespace GraphicsEngine;
 
-MeshEmitter::MeshEmitter() noexcept
-    : SpriteEmitter() {
-    type = EmitterType::Mesh;
-}
-
 MeshEmitter* MeshEmitter::clone() const noexcept {
     return new MeshEmitter(*this);
 }
@@ -27,13 +22,13 @@ void MeshEmitter::update() {
     for (const auto& particle : particles) {
         auto model = glm::translate(glm::mat4(1.0f), particle.position);
 
-        model = glm::rotate(model, particle.angle.x, glm::vec3(1.0f, 0.f, 0.f));
-        model = glm::rotate(model, particle.angle.y, glm::vec3(0.0f, 1.f, 0.f));
-        model = glm::rotate(model, particle.angle.z, glm::vec3(0.0f, 0.f, 1.f));
+        model = glm::rotate(model, particle.rotation.x, glm::vec3(1.0f, 0.f, 0.f));
+        model = glm::rotate(model, particle.rotation.y, glm::vec3(0.0f, 1.f, 0.f));
+        model = glm::rotate(model, particle.rotation.z, glm::vec3(0.0f, 0.f, 1.f));
 
         model = glm::scale(model, glm::vec3(particle.size));
 
-        mesh_particles.emplace_back(MeshParticle{model, particle.color, particle.subUV, particle.properties});
+        mesh_particles.emplace_back(MeshParticle{model, particle});
     }
 }
 
@@ -45,3 +40,7 @@ UniqueMeshEmitter MeshEmitter::getEmitterType() const noexcept {
     return { SpriteEmitter::getEmitterType(), mesh };
 }
 
+MeshEmitter::MeshEmitter() noexcept
+    : SpriteEmitter{EmitterType::Mesh} {
+
+}

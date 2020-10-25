@@ -77,7 +77,7 @@ namespace GraphicsEngine {
         // contains [texture_image_unit, texture_id]
         std::map<GLuint, GLuint> texture_bound;
 
-        ContextState() noexcept = default;
+        ContextState() = default;
         void init() noexcept;
 
         static inline std::unordered_map<GLFWwindow*, ContextState*> state_map;

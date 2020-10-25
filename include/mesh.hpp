@@ -56,8 +56,8 @@ namespace GraphicsEngine {
 
         ~Mesh() override = default;
 
-        Mesh(const Mesh&) noexcept = delete;
-        Mesh& operator=(const Mesh&) noexcept = delete;
+        Mesh(const Mesh&) = delete;
+        Mesh& operator=(const Mesh&) = delete;
 
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(Mesh&&) noexcept = default;

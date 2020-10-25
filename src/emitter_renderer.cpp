@@ -12,7 +12,7 @@ constexpr auto shader_mesh_buffer_name = "mesh_emitter_particles";
 VertexArray& GraphicsEngine::operator<<(VertexArray& vertex_array, const std::pair<Particle, Buffer&>& attribute) noexcept {
     vertex_array << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), nullptr, attribute.second }
                  << VertexAttribute{ 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, color), attribute.second }
-                 << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, angle), attribute.second }
+                 << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, rotation), attribute.second }
                  << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, velocity), attribute.second }
                  << VertexAttribute{ 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, lifetime), attribute.second }
                  << VertexAttribute{ 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, size), attribute.second }
@@ -24,15 +24,13 @@ VertexArray& GraphicsEngine::operator<<(VertexArray& vertex_array, const std::pa
 void SpriteEmitterRenderer::checkStorageSize(uint64_t count) {
     if (count > max_particle_count) {
         max_particle_count = count;
-        std::vector<Particle> data(count);
-        buffer = BufferBuilder::buildTriple(Buffer::Type::Array, data, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+        buffer = BufferBuilder::build(Buffer::Type::Array, sizeof(Particle) * max_particle_count, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
     }
 }
 
 SpriteEmitterRenderer::SpriteEmitterRenderer(const Emitter& emitter, uint64_t emitter_instance_count)
     : max_particle_count{emitter.getSpawn().max_count * emitter_instance_count} {
-    std::vector<Particle> data(max_particle_count);
-    buffer = BufferBuilder::buildTriple(Buffer::Type::Array, data, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+    buffer = BufferBuilder::build(Buffer::Type::Array, sizeof(Particle) * max_particle_count, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 
     vertex_array << std::pair<Particle, Buffer&>(Particle{}, *buffer);
 }
@@ -56,29 +54,25 @@ void SpriteEmitterRenderer::draw(const UniqueSpriteEmitter& emitter) {
     shader->use();
 
     glDrawArrays(GL_POINTS, 0, current_particle_count);
-
-    buffer->fence();
 }
 
 void MeshEmitterRenderer::checkStorageSize(uint64_t count) {
     if (count > max_particle_count) {
         max_particle_count = count;
-        std::vector<MeshParticle> data(count);
-        buffer = BufferBuilder::buildTripleIndexed(shader_mesh_buffer_name, Buffer::Type::ShaderStorage, data, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+        buffer = BufferBuilder::buildIndexed(shader_mesh_buffer_name, Buffer::Type::ShaderStorage, sizeof(MeshParticle) * max_particle_count, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
     }
 }
 
 MeshEmitterRenderer::MeshEmitterRenderer(const Emitter& emitter, uint64_t emitter_instance_count)
     : max_particle_count{emitter.getSpawn().max_count * emitter_instance_count} {
-    std::vector<MeshParticle> data(max_particle_count);
-    buffer = BufferBuilder::buildTripleIndexed(shader_mesh_buffer_name, Buffer::Type::ShaderStorage, data, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+    buffer = BufferBuilder::buildIndexed(shader_mesh_buffer_name, Buffer::Type::ShaderStorage, sizeof(MeshParticle) * max_particle_count, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 }
 
 void MeshEmitterRenderer::update(MeshParticleCollector& collector) {
     const auto& particles = collector.yield();
     checkStorageSize(particles.size());
     current_particle_count = particles.size();
-    buffer->mapData(particles.data(), sizeof(MeshParticle) * particles.size());
+    buffer->mapData(particles.data(), sizeof(MeshParticle) * current_particle_count);
 }
 
 void MeshEmitterRenderer::draw(const UniqueMeshEmitter& emitter) {
@@ -91,6 +85,4 @@ void MeshEmitterRenderer::draw(const UniqueMeshEmitter& emitter) {
     shader->use();
 
     emitter.mesh->draw_instanced(current_particle_count);
-
-    buffer->fence();
 }

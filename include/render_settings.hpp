@@ -11,7 +11,7 @@ namespace GraphicsEngine {
         bool physically_based_rendering {true};
 
         // dynamic flags
-        bool light_radius {false};
+        bool light_radius {true};
     };
 
     inline RenderSettings render_settings;

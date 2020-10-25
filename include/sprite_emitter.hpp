@@ -9,10 +9,12 @@ namespace GraphicsEngine {
     class SpriteEmitter : public Emitter {
     protected:
         std::shared_ptr<Material> material;
-        //SpriteEmitter() noexcept;
         friend void swap(SpriteEmitter& lhs, SpriteEmitter& rhs) noexcept;
-    public:
+        explicit SpriteEmitter(EmitterType type) noexcept;
+
+        friend class EffectBuilder;
         SpriteEmitter() noexcept;
+    public:
         ~SpriteEmitter() override = default;
 
         SpriteEmitter(const SpriteEmitter&) noexcept = default;

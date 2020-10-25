@@ -92,7 +92,7 @@ ContextState* ContextState::getState(GLFWwindow* window) noexcept {
 }
 
 void ContextState::setPolygonMode(CullFace face, PolygonMode mode) noexcept {
-    if (face != polygon_face && polygon_mode != mode) {
+    if (face != polygon_face || polygon_mode != mode) {
         glPolygonMode(static_cast<GLenum>(face), static_cast<GLenum>(mode));
         polygon_face = face;
         polygon_mode = mode;

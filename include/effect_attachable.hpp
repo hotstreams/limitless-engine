@@ -6,6 +6,7 @@
 
 namespace GraphicsEngine {
     class EffectInstance;
+    class Lighting;
 
     class EffectAttachable {
     private:
@@ -13,8 +14,8 @@ namespace GraphicsEngine {
             std::unique_ptr<EffectInstance> instance;
             glm::vec3 offset;
 
-            Attachment(const EffectInstance& instance, const glm::vec3& offset) noexcept;
-            Attachment(EffectInstance&& instance, const glm::vec3& offset) noexcept;
+            Attachment(const glm::vec3& offset, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;
+            Attachment(const glm::vec3& offset, Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;
 
             Attachment(const Attachment&) noexcept;
             Attachment& operator=(const Attachment&) noexcept;
@@ -38,12 +39,12 @@ namespace GraphicsEngine {
         EffectAttachable(EffectAttachable&&) noexcept;
         EffectAttachable& operator=(EffectAttachable&&) noexcept;
 
-        template<typename T>
-        T& attach(T&& effect_instance, const glm::vec3& offset) {
-            return *attachments.emplace_back(std::forward<T>(effect_instance), offset).instance;
+        template<typename... Args>
+        EffectInstance& attachEffect(const glm::vec3& offset, Args&&... args) {
+            return *attachments.emplace_back(offset, std::forward<Args>(args)...).instance;
         }
 
-        void detach(uint64_t index) noexcept;
+        void detachEffect(uint64_t index) noexcept;
 
         Attachment& operator[](uint64_t index) noexcept;
         Attachment& at(uint64_t index);

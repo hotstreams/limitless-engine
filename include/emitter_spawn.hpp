@@ -20,7 +20,10 @@ namespace GraphicsEngine {
         friend void swap(EmitterSpawn& lhs, EmitterSpawn& rhs) noexcept;
 
         EmitterSpawn(const EmitterSpawn&) noexcept;
+        EmitterSpawn& operator=(const EmitterSpawn&) noexcept;
+
         EmitterSpawn(EmitterSpawn&&) noexcept = default;
+        EmitterSpawn& operator=(EmitterSpawn&&) noexcept = default;
     };
 
     void swap(EmitterSpawn& lhs, EmitterSpawn& rhs) noexcept;

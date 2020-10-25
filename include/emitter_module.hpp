@@ -17,7 +17,6 @@ namespace GraphicsEngine {
         InitialAcceleration,
 
         MeshLocation,
-        Lifetime,
         SubUV,
         //VelocityByLife,
         ColorByLife,
@@ -25,6 +24,9 @@ namespace GraphicsEngine {
         SizeByLife,
         //SphereLocation,
         //CustomMaterial
+
+        //lifetime should be updated at last
+        Lifetime
     };
 
     class EmitterModule {
@@ -231,7 +233,6 @@ namespace GraphicsEngine {
 
         SizeByLife(const SizeByLife&) noexcept;
 
-        void initialize(Emitter& emitter, Particle& particle) noexcept override;
         void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
 
         [[nodiscard]] SizeByLife* clone() const noexcept override;

@@ -4,14 +4,14 @@
 
 using namespace GraphicsEngine;
 
-EffectAttachable::Attachment::Attachment(const EffectInstance& _instance, const glm::vec3& _offset) noexcept
-    : instance{std::make_unique<EffectInstance>(_instance)}, offset{_offset} {
-
+EffectAttachable::Attachment::Attachment(const glm::vec3& _offset, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
+    : instance{std::make_unique<EffectInstance>(effect, position, rotation)}, offset{_offset} {
+    instance->setPosition(position + offset);
 }
 
-EffectAttachable::Attachment::Attachment(EffectInstance&& _instance, const glm::vec3& _offset) noexcept
-    : instance{std::make_unique<EffectInstance>(std::move(_instance))}, offset{_offset} {
-
+EffectAttachable::Attachment::Attachment(const glm::vec3& _offset, Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
+        : instance{std::make_unique<EffectInstance>(lighting, effect, position, rotation)}, offset{_offset} {
+    instance->setPosition(position + offset);
 }
 
 EffectAttachable::Attachment& EffectAttachable::operator[](uint64_t index) noexcept {
@@ -44,7 +44,7 @@ EffectAttachable::Attachment& EffectAttachable::Attachment::operator=(EffectAtta
     return *this;
 }
 
-void EffectAttachable::detach(uint64_t index) noexcept {
+void EffectAttachable::detachEffect(uint64_t index) noexcept {
     attachments.erase(attachments.begin() + index);
 }
 

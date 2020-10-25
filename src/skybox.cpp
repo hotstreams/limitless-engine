@@ -21,7 +21,7 @@ void Skybox::draw(Context& context) {
 
     shader.use();
 
-    assets.models.get("cube")->getMeshes()[0]->draw();
+    assets.models["cube"]->getMeshes()[0]->draw();
 
     context.setDepthFunc(DepthFunc::Less);
     context.setDepthMask(GL_TRUE);

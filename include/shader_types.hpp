@@ -18,6 +18,6 @@ namespace GraphicsEngine {
         Effect
     };
 
-    using RequiredMaterialShaders = std::vector<MaterialShader>;
-    using RequiredModelShaders = std::vector<ModelShader>;
+    using MaterialShaders = std::vector<MaterialShader>;
+    using ModelShaders = std::vector<ModelShader>;
 }

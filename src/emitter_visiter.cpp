@@ -41,13 +41,13 @@ EmitterStorageFiller::EmitterStorageFiller(decltype(sprite_storage) sprite, decl
 void EmitterStorageFiller::visit(const SpriteEmitter& emitter) noexcept {
     const auto unique_emitter = emitter.getEmitterType();
     if (sprite_storage.count(unique_emitter) == 0) {
-        sprite_storage.emplace(emitter.getEmitterType(), SpriteEmitterRenderer{emitter});
+        sprite_storage.emplace(unique_emitter, emitter);
     }
 }
 
 void EmitterStorageFiller::visit(const MeshEmitter& emitter) noexcept {
     const auto unique_emitter = emitter.getEmitterType();
     if (mesh_storage.count(unique_emitter) == 0) {
-        mesh_storage.emplace(emitter.getEmitterType(), MeshEmitterRenderer{emitter});
+        mesh_storage.emplace(unique_emitter, emitter);
     }
 }

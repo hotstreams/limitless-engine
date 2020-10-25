@@ -150,11 +150,6 @@ UniformSampler& Material::getBlendMask() const {
     }
 }
 
-Material::Material(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending, Shading shading, std::string name, uint64_t shader_index) noexcept
-    : properties{std::move(properties)}, uniform_offsets{std::move(offsets)}, blending{blending}, shading{shading}, name{std::move(name)}, shader_index{shader_index} {
-
-}
-
 Material::Material(const Material& material) noexcept
     : uniform_offsets{material.uniform_offsets}, blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index} {
     for (const auto& [type, property] : material.properties) {
@@ -218,5 +213,5 @@ Material::Material() noexcept
 }
 
 bool GraphicsEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {
-    return std::tie(lhs.properties, lhs.shading, lhs.blending) < std::tie(rhs.properties, rhs.shading, rhs.blending);
+    return std::tie(lhs.properties, lhs.shading) < std::tie(rhs.properties, rhs.shading);
 }
