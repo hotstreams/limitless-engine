@@ -8,8 +8,8 @@
 
 using namespace GraphicsEngine;
 
-void MaterialBuilder::getUniformAlignments(const std::shared_ptr<ShaderProgram>& shader) noexcept {
-    const auto found = std::find_if(shader->indexed_binds.begin(), shader->indexed_binds.end(), [&] (const auto& data) { return data.name == "material_buffer"; });
+void MaterialBuilder::initializeMaterialBuffer(const ShaderProgram& shader) noexcept {
+    const auto found = std::find_if(shader.indexed_binds.begin(), shader.indexed_binds.end(), [&] (const auto& data) { return data.name == "material_buffer"; });
     const auto block_index = found->block_index;
 
     const std::array<GLenum, 2> block_properties = { GL_NUM_ACTIVE_VARIABLES, GL_BUFFER_DATA_SIZE };
@@ -17,36 +17,47 @@ void MaterialBuilder::getUniformAlignments(const std::shared_ptr<ShaderProgram>&
     const std::array<GLenum, 2> uniform_prop = { GL_NAME_LENGTH, GL_OFFSET };
 
     std::array<GLint, 2> block_values = { 0 };
-    glGetProgramResourceiv(shader->getId(), GL_UNIFORM_BLOCK, block_index, block_properties.size(), block_properties.data(), block_values.size(), nullptr, block_values.data());
+    glGetProgramResourceiv(shader.getId(), GL_UNIFORM_BLOCK, block_index, block_properties.size(), block_properties.data(), block_values.size(), nullptr, block_values.data());
 
-    buffer_size = block_values[1];
+    material->material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, sizeof(std::byte) * block_values[1], Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 
     std::vector<GLint> block_uniforms(block_values[0]);
-    glGetProgramResourceiv(shader->getId(), GL_UNIFORM_BLOCK, block_index, 1, &active_variables, block_values[0], nullptr, block_uniforms.data());
+    glGetProgramResourceiv(shader.getId(), GL_UNIFORM_BLOCK, block_index, 1, &active_variables, block_values[0], nullptr, block_uniforms.data());
 
+    // querying variable offsets in uniform buffer used for material properties to map it with byte presentation
     for (GLint i = 0; i < block_values[0]; ++i) {
         std::array<GLint, 2> values = { 0 };
-        glGetProgramResourceiv(shader->getId(), GL_UNIFORM, block_uniforms[i], uniform_prop.size(), uniform_prop.data(), values.size(), nullptr, values.data());
+        glGetProgramResourceiv(shader.getId(), GL_UNIFORM, block_uniforms[i], uniform_prop.size(), uniform_prop.data(), values.size(), nullptr, values.data());
 
         std::string name;
         name.resize(values[0] - 1);
 
-        glGetProgramResourceName(shader->getId(), GL_UNIFORM, block_uniforms[i], values[0], nullptr, name.data());
+        glGetProgramResourceName(shader.getId(), GL_UNIFORM, block_uniforms[i], values[0], nullptr, name.data());
 
-        uniform_offsets.emplace(name, values[1]);
+        material->uniform_offsets.emplace(name, values[1]);
     }
+}
+
+MaterialBuilder& MaterialBuilder::setBlending(Blending blending) noexcept {
+    material->blending = blending;
+    return *this;
+}
+
+MaterialBuilder& MaterialBuilder::setShading(Shading shading) noexcept {
+    material->shading = shading;
+    return *this;
 }
 
 MaterialBuilder& MaterialBuilder::add(PropertyType type, float value) {
     switch (type) {
         case PropertyType::Shininess:
-            properties.emplace(type, new UniformValue<float>("material_shininess", value));
+            material->properties.emplace(type, new UniformValue<float>("material_shininess", value));
             break;
         case PropertyType::Metallic:
-            properties.emplace(type, new UniformValue<float>("material_metallic", value));
+            material->properties.emplace(type, new UniformValue<float>("material_metallic", value));
             break;
         case PropertyType::Roughness:
-            properties.emplace(type, new UniformValue<float>("material_roughness", value));
+            material->properties.emplace(type, new UniformValue<float>("material_roughness", value));
             break;
         case PropertyType::Color:
         case PropertyType::EmissiveColor:
@@ -66,10 +77,10 @@ MaterialBuilder& MaterialBuilder::add(PropertyType type, float value) {
 MaterialBuilder& MaterialBuilder::add(PropertyType type, const glm::vec4& value) {
     switch (type) {
         case PropertyType::Color:
-            properties.emplace(type, new UniformValue<glm::vec4>("material_color", value));
+            material->properties.emplace(type, new UniformValue<glm::vec4>("material_color", value));
             break;
         case PropertyType::EmissiveColor:
-            properties.emplace(type, new UniformValue<glm::vec4>("material_emissive_color", value));
+            material->properties.emplace(type, new UniformValue<glm::vec4>("material_emissive_color", value));
             break;
         case PropertyType::Shininess:
         case PropertyType::Normal:
@@ -96,101 +107,85 @@ MaterialBuilder& MaterialBuilder::add(PropertyType type, std::shared_ptr<Texture
         case PropertyType::EmissiveColor:
             throw std::runtime_error("Wrong data for material property.");
         case PropertyType::Diffuse:
-            properties.emplace(type, new UniformSampler("material_diffuse", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_diffuse", std::move(texture)));
             break;
         case PropertyType::Specular:
-            properties.emplace(type, new UniformSampler("material_specular", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_specular", std::move(texture)));
             break;
         case PropertyType::Normal:
-            properties.emplace(type, new UniformSampler("material_normal", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_normal", std::move(texture)));
             break;
         case PropertyType::Displacement:
-            properties.emplace(type, new UniformSampler("material_displacement", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_displacement", std::move(texture)));
             break;
         case PropertyType::EmissiveMask:
-            properties.emplace(type, new UniformSampler("material_emissive_mask", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_emissive_mask", std::move(texture)));
             break;
         case PropertyType::BlendMask:
-            properties.emplace(type, new UniformSampler("material_blend_mask", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_blend_mask", std::move(texture)));
             break;
         case PropertyType::MetallicTexture:
-            properties.emplace(type, new UniformSampler("material_metallic_texture", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_metallic_texture", std::move(texture)));
             break;
         case PropertyType::RoughnessTexture:
-            properties.emplace(type, new UniformSampler("material_roughness_texture", std::move(texture)));
+            material->properties.emplace(type, new UniformSampler("material_roughness_texture", std::move(texture)));
             break;
     }
     return *this;
 }
 
-std::shared_ptr<Material> MaterialBuilder::build(const std::string& name, const RequiredModelShaders& model_shaders, const RequiredMaterialShaders& material_shaders) {
-    auto material_type = getMaterialType();
+MaterialBuilder& MaterialBuilder::create(std::string name) {
+    material = std::unique_ptr<Material>(new Material());
+    material->name = std::move(name);
+    return *this;
+}
 
-    // sets current unique-material-type index
-    auto found = unique_materials.find(material_type);
-    material_index = (found != unique_materials.end()) ? found->second : next_shader_index++;
-    if (found == unique_materials.end()) {
-        unique_materials.emplace(material_type, material_index);
+std::shared_ptr<Material> MaterialBuilder::build(const ModelShaders& model_shaders, const MaterialShaders& material_shaders) {
+    // check for initialized ptr
+    if (!material) {
+        throw std::runtime_error("Forgot to call create(name)!");
+    }
+    // checks for empty buffer
+    if (material->properties.empty()) {
+        throw std::runtime_error("Properties & Uniforms cannot be empty.");
     }
 
+    auto material_type = getMaterialType();
+
+    // sets current shader index & adds it to storage
+    if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
+        material->shader_index = found->second;
+    } else {
+        material->shader_index = next_shader_index++;
+        unique_materials.emplace(material_type, material->shader_index);
+    }
+
+    // compiles every material/shader combination
     MaterialCompiler compiler;
     for (const auto& mat_shader : material_shaders) {
         for (const auto& mod_shader : model_shaders) {
-            if(!shader_storage.isExist(mat_shader, mod_shader, material_index)) {
-                compiler.compile(*this, mat_shader, mod_shader);
+            if(!shader_storage.isExist(mat_shader, mod_shader, material->shader_index)) {
+                compiler.compile(*material, mat_shader, mod_shader);
             }
         }
     }
 
-    getUniformAlignments(shader_storage.get(material_shaders[0], model_shaders[0], material_index));
+    // initializes uniform material buffer using program shader introspection
+    initializeMaterialBuffer(*shader_storage.get(material_shaders[0], model_shaders[0], material->shader_index));
 
-    auto* regular_material = new Material(std::move(properties), std::move(uniform_offsets), blending, shading, name, material_index);
-    auto material = std::shared_ptr<Material>(regular_material);
+    // adds compiled material to assets
+    auto compiled = std::shared_ptr<Material>(std::move(material));
+    assets.materials.add(compiled->name, compiled);
 
-    // initializes material buffer
-    std::vector<std::byte> data(buffer_size);
-    material->material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, data, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
-
-    clear();
-
-    assets.materials.add(name, material);
-
-    return material;
+    return compiled;
 }
 
 MaterialType MaterialBuilder::getMaterialType() const noexcept {
     std::vector<PropertyType> props;
-    for (const auto& [type, uniform] : properties) {
+    props.reserve(material->properties.size());
+    for (const auto& [type, uniform] : material->properties) {
         props.emplace_back(type);
     }
 
-    return MaterialType{props, blending, shading};
-}
-
-MaterialType MaterialBuilder::getMaterialType(const Material& material) const noexcept {
-    std::vector<PropertyType> props;
-    for (const auto& [type, uniform] : material.properties) {
-        props.emplace_back(type);
-    }
-
-    return MaterialType{props, material.blending, material.shading};
-}
-
-MaterialBuilder& MaterialBuilder::setBlending(Blending _blending) noexcept {
-    blending = _blending;
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setShading(Shading _shading) noexcept {
-    shading = _shading;
-    return *this;
-}
-
-void MaterialBuilder::clear() noexcept {
-    properties.clear();
-    uniform_offsets.clear();
-    blending = Blending::Opaque;
-    shading = Shading::Unlit;
-    material_index = 0;
-    buffer_size = 0;
+    return MaterialType{std::move(props), material->shading};
 }

@@ -1,5 +1,6 @@
 #include <skeletal_instance.hpp>
 #include <shader_types.hpp>
+#include <shader_storage.hpp>
 
 using namespace GraphicsEngine;
 
@@ -8,10 +9,19 @@ constexpr auto skeletal_buffer_name = "bone_buffer";
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
     : ModelInstance{std::move(m), position} {
     shader_type = ModelShader::Skeletal;
-        auto& skeletal = static_cast<SkeletalModel&>(*model);
+    auto& skeletal = static_cast<SkeletalModel&>(*model);
 
-        bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
-        bone_buffer = BufferBuilder::buildIndexed(skeletal_buffer_name, Buffer::Type::ShaderStorage, bone_transform, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+    bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
+    bone_buffer = BufferBuilder::buildIndexed(skeletal_buffer_name, Buffer::Type::ShaderStorage, bone_transform, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+}
+
+SkeletalInstance::SkeletalInstance(Lighting *lighting, std::shared_ptr<AbstractModel> m, const glm::vec3& position)
+    : ModelInstance{lighting, std::move(m), position} {
+    shader_type = ModelShader::Skeletal;
+    auto& skeletal = static_cast<SkeletalModel&>(*model);
+
+    bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
+    bone_buffer = BufferBuilder::buildIndexed(skeletal_buffer_name, Buffer::Type::ShaderStorage, bone_transform, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 }
 
 const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const noexcept {
@@ -26,15 +36,39 @@ const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const
     return nullptr;
 }
 
-void SkeletalInstance::draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) {
-    if (hidden) return;
+void SkeletalInstance::draw(MaterialShader material_shader, Blending blending, const UniformSetter& uniform_setter) {
+    if (hidden) {
+        return;
+    }
 
     calculateModelMatrix();
 
-    auto bind = IndexedBuffer::getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name);
-    bone_buffer->bindBase(bind);
+    for (auto& [name, mesh] : meshes) {
+        if (mesh.isHidden()) {
+            continue;
+        }
 
-    ModelInstance::draw(shader_type, blending, uniform_setter);
+        auto materials = mesh.getMaterial().getMaterials();
+
+        for (const auto& material : materials) {
+            if (material->getBlending() == blending) {
+                auto& shader = shader_storage.get(material_shader, shader_type, material->getShaderIndex());
+
+                *shader << *material
+                        << UniformValue{"model", model_matrix};
+
+                for (const auto& uniform_set : uniform_setter) {
+                    uniform_set(*shader);
+                }
+
+                bone_buffer->bindBase(IndexedBuffer::getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
+
+                shader->use();
+
+                mesh.draw();
+            }
+        }
+    }
 
     bone_buffer->fence();
 }

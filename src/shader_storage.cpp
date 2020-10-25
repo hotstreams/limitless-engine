@@ -11,7 +11,7 @@ const std::shared_ptr<ShaderProgram>& ShaderStorage::get(const std::string& name
     try {
         return shaders.at(name);
     } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such shader " + name);
+        throw shader_storage_error("No such shader " + name);
     }
 }
 
@@ -19,7 +19,7 @@ const std::shared_ptr<ShaderProgram>& ShaderStorage::get(MaterialShader material
     try {
         return material_shaders.at({material_type, model_type, material_index});
     } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such material shader");
+        throw shader_storage_error("No such material shader");
     }
 }
 
@@ -39,7 +39,7 @@ const std::shared_ptr<ShaderProgram>& ShaderStorage::get(const UniqueSpriteEmitt
     try {
         return sprite_emitter_shaders.at(emitter_type);
     } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such sprite emitter shader");
+        throw shader_storage_error("No such sprite emitter shader");
     }
 }
 
@@ -47,7 +47,7 @@ const std::shared_ptr<ShaderProgram>& ShaderStorage::get(const UniqueMeshEmitter
     try {
         return mesh_emitter_shaders.at(emitter_type);
     } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such mesh emitter shader");
+        throw shader_storage_error("No such mesh emitter shader");
     }
 }
 

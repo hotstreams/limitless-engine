@@ -4,11 +4,6 @@
 
 using namespace GraphicsEngine;
 
-SpriteEmitter::SpriteEmitter() noexcept
-    : Emitter(EmitterType::Sprite) {
-
-}
-
 void GraphicsEngine::swap(SpriteEmitter &lhs, SpriteEmitter &rhs) noexcept {
     swap(static_cast<Emitter&>(lhs), static_cast<Emitter&>(rhs));
 
@@ -37,9 +32,19 @@ void SpriteEmitter::accept(EmitterVisiter& visiter) noexcept {
 }
 
 UniqueSpriteEmitter SpriteEmitter::getEmitterType() const noexcept {
-    std::vector<EmitterModuleType> mod(modules.size());
+    std::vector<EmitterModuleType> mod;
+    mod.reserve(modules.size());
     for (const auto& [type, module] : modules) {
         mod.emplace_back(type);
     }
     return { { mod }, material };
+}
+
+SpriteEmitter::SpriteEmitter() noexcept
+    : Emitter{EmitterType::Sprite} {
+
+}
+
+SpriteEmitter::SpriteEmitter(EmitterType type) noexcept : Emitter(type) {
+
 }

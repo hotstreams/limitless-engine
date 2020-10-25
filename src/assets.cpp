@@ -3,19 +3,21 @@
 #include <skybox.hpp>
 #include <elementary_model.hpp>
 #include <model_loader.hpp>
+#include <material_builder.hpp>
 
 using namespace GraphicsEngine;
 
 void Assets::load() {
-   // models.add("sponza", ModelLoader::loadModel(ASSETS_DIR "models/sponza/sponza.obj"));
-    models.add("bob", ModelLoader::loadModel(ASSETS_DIR "models/boblamp/boblampclean.md5mesh"));
-    models.add("backpack", ModelLoader::loadModel(ASSETS_DIR "models/backpack/backpack.obj", true));
-    models.add("nanosuit", ModelLoader::loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
-    models.add("cyborg", ModelLoader::loadModel(ASSETS_DIR "models/cyborg/cyborg.obj"));
+    // engine-required assets
 
+    // used in render as light radius material
+    MaterialBuilder builder;
+    builder.create("default").add(PropertyType::Color, {0.0f, 0.0f, 0.0f, 1.0f}).build();
+
+    // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(100, 100));
+    // used in postprocessing
     models.add("quad", std::make_shared<Quad>());
+    // used in skybox render
     models.add("cube", std::make_shared<Cube>());
-
-    skyboxes.add("skybox", std::make_shared<Skybox>(ASSETS_DIR "skyboxes/sky/sky.png"));
 }

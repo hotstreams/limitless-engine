@@ -28,24 +28,24 @@ namespace GraphicsEngine {
         std::chrono::time_point<std::chrono::steady_clock> last_time;
         bool first_update {true};
 
-        std::unordered_map<EmitterModuleType, std::unique_ptr<EmitterModule>> modules;
+        std::map<EmitterModuleType, std::unique_ptr<EmitterModule>> modules;
         std::vector<Particle> particles;
 
         void emit(uint32_t count) noexcept;
         void spawnParticles() noexcept;
         void killParticles() noexcept;
 
+        friend class EffectBuilder;
         friend void swap(Emitter& lhs, Emitter& rhs) noexcept;
         explicit Emitter(EmitterType type) noexcept;
-        Emitter() noexcept;
     public:
         virtual ~Emitter() = default;
 
         Emitter(const Emitter&) noexcept;
         Emitter& operator=(const Emitter&) noexcept;
 
-        Emitter(Emitter&&) noexcept;
-        Emitter& operator=(Emitter&&) noexcept;
+        Emitter(Emitter&&) noexcept = default;
+        Emitter& operator=(Emitter&&) noexcept = default;
 
         [[nodiscard]] virtual Emitter* clone() const noexcept;
 

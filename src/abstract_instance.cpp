@@ -2,9 +2,6 @@
 
 using namespace GraphicsEngine;
 
-AbstractInstance::AbstractInstance(ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept
-    : id{next_id++}, shader_type{_shader_type}, position{_position}, rotation{_rotation}, scale{_scale} {}
-
 void AbstractInstance::reveal() noexcept {
     hidden = false;
 }
@@ -31,6 +28,7 @@ void AbstractInstance::asModel() noexcept {
 
 AbstractInstance& AbstractInstance::setPosition(const glm::vec3& _position) noexcept {
     EffectAttachable::setPosition(_position);
+    LightAttachable::setPosition(_position);
 
     position = _position;
     return *this;
@@ -38,6 +36,7 @@ AbstractInstance& AbstractInstance::setPosition(const glm::vec3& _position) noex
 
 AbstractInstance& AbstractInstance::setRotation(const glm::vec3& _rotation) noexcept {
     EffectAttachable::setRotation(_rotation);
+    LightAttachable::setRotation(_rotation);
 
     rotation = _rotation;
     return *this;
@@ -54,5 +53,14 @@ void AbstractInstance::draw(MaterialShader material_shader_type, Blending blendi
 
 void AbstractInstance::update() {
     EffectAttachable::update();
-    //LightAttachable::update();
+}
+
+AbstractInstance::AbstractInstance(Lighting* _lighting, ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept
+    : EffectAttachable{}, LightAttachable{_lighting}, id{next_id++}, shader_type{_shader_type}, position{_position}, rotation{_rotation}, scale{_scale} {
+
+}
+
+AbstractInstance::AbstractInstance(ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept
+    : EffectAttachable{}, id{next_id++}, shader_type{_shader_type}, position{_position}, rotation{_rotation}, scale{_scale} {
+
 }

@@ -5,7 +5,7 @@
 #include <texture_builder.hpp>
 #include <material.hpp>
 #include <shader_types.hpp>
-#include <model_instance.hpp>
+#include <elementary_instance.hpp>
 #include <camera.hpp>
 #include <scene.hpp>
 
@@ -78,7 +78,7 @@ void Renderer::dispatchInstances(const std::vector<AbstractInstance*>& instances
 }
 
 void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
-    if (scene.lighting.dynamic.point_lights.getLights().empty()) {
+    if (scene.lighting.point_lights.empty()) {
         return;
     }
 
@@ -87,10 +87,10 @@ void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
     context.setDepthMask(GL_FALSE);
     context.disable(GL_BLEND);
 
-    static auto sphere_instance = ModelInstance(assets.models.get("sphere"), assets.materials.get("sphere"), glm::vec3(0.0f));
+    static auto sphere_instance = ElementaryInstance(assets.models["sphere"], assets.materials["default"], glm::vec3(0.0f));
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& light : scene.lighting.dynamic.point_lights.getLights()) {
+    for (const auto& light : scene.lighting.point_lights) {
         sphere_instance.setPosition(light.position);
         sphere_instance.setScale(glm::vec3(light.radius));
         sphere_instance.draw(MaterialShader::Default, Blending::Opaque);
@@ -135,14 +135,14 @@ void Renderer::draw(Context& context, Scene& scene, Camera& camera) {
     dispatchInstances(instances, context, MaterialShader::Default, Blending::Opaque);
     effect_renderer.draw(Blending::Opaque);
 
+    // draws skybox if it exists
+    if (scene.getSkybox()) {
+        scene.getSkybox()->draw(context);
+    }
+
     // draws lights influence radius
     if (render_settings.light_radius) {
         renderLightsVolume(context, scene);
-    }
-
-    // draws skybox if it exists
-    if (scene.skybox) {
-        scene.skybox->draw(context);
     }
 
     // rendering back to front to follow the translucent order
@@ -165,9 +165,9 @@ void Renderer::draw(Context& context, Scene& scene, Camera& camera) {
 std::vector<AbstractInstance*> Renderer::performFrustumCulling(Scene &scene, [[maybe_unused]] Camera& camera) const noexcept {
     //TODO: culling
     std::vector<AbstractInstance*> culled;
-    culled.reserve(scene.instances.size());
+    culled.reserve(scene.size());
 
-    for (const auto& [id, instance] : scene.instances) {
+    for (const auto& [id, instance] : scene) {
         culled.emplace_back(instance.get());
     }
 

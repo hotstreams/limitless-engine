@@ -6,16 +6,13 @@
 
 using namespace GraphicsEngine;
 
-AbstractInstance& Scene::getInstance(uint64_t id) const {
-    try {
-        return *instances.at(id);
-    } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such instance.");
-    }
-}
+AbstractInstance& Scene::operator[](uint64_t id) noexcept { return *instances[id]; }
+AbstractInstance& Scene::at(uint64_t id) { return *instances.at(id); }
+
+void Scene::remove(uint64_t id) { instances.erase(id); }
 
 void Scene::setSkybox(const std::string& asset_name) {
-    skybox = assets.skyboxes.get(asset_name);
+    skybox = assets.skyboxes[asset_name];
 }
 
 void Scene::update() {

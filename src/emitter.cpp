@@ -1,18 +1,8 @@
 #include <emitter.hpp>
-
 using namespace GraphicsEngine;
 
 Emitter::Emitter(EmitterType type) noexcept
-    : type{type},
-      local_position{0.0f}, position{0.0f},
-      local_rotation{0.0f}, rotation{0.0f}, local_space{false} {
-
-}
-
-Emitter::Emitter() noexcept
-    : type{EmitterType::Sprite},
-      local_position{0.0f}, position{0.0f},
-      local_rotation{0.0f}, rotation{0.0f}, local_space{false} {
+    : type{type}, local_position{0.0f}, position{0.0f}, local_rotation{0.0f}, rotation{0.0f}, local_space{false} {
 
 }
 
@@ -21,7 +11,7 @@ void Emitter::emit(uint32_t count) noexcept {
         Particle particle;
 
         particle.position = local_position + position;
-        particle.angle = local_rotation + rotation;
+        particle.rotation = local_rotation + rotation;
 
         for (const auto& [type, module] : modules) {
             module->initialize(*this, particle);
@@ -48,7 +38,7 @@ void Emitter::setRotation(const glm::vec3& new_rotation) noexcept {
         auto diff = new_rotation + local_rotation - rotation;
 
         for (auto& particle : particles) {
-            particle.angle += diff;
+            particle.rotation += diff;
         }
     }
 
@@ -141,10 +131,11 @@ Emitter::Emitter(const Emitter& emitter) noexcept
     : type{EmitterType::Sprite}, local_position{emitter.local_position}, position{emitter.position},
       local_rotation{emitter.local_rotation}, rotation{emitter.rotation},
       local_space{emitter.local_space}, spawn{emitter.spawn}, duration{emitter.duration} {
-    modules.reserve(emitter.modules.size());
     for (const auto& [type, module] : emitter.modules) {
         modules.emplace(type, module->clone());
     }
+
+    particles.reserve(spawn.max_count);
 }
 
 Emitter& Emitter::operator=(const Emitter& emitter) noexcept {
@@ -170,16 +161,6 @@ void GraphicsEngine::swap(Emitter& lhs, Emitter& rhs) noexcept {
     swap(lhs.first_update, rhs.first_update);
     swap(lhs.modules, rhs.modules);
     swap(lhs.particles, rhs.particles);
-}
-
-Emitter::Emitter(Emitter&& emitter) noexcept
-    : Emitter() {
-    swap(*this, emitter);
-}
-
-Emitter &Emitter::operator=(Emitter&& emitter) noexcept {
-    swap(*this, emitter);
-    return *this;
 }
 
 void Emitter::accept([[maybe_unused]] EmitterVisiter &visiter) noexcept {

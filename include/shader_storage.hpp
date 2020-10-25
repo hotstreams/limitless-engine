@@ -22,6 +22,10 @@ namespace GraphicsEngine {
         {MaterialShader::ColorPicker,       "other/color_picker" }
     };
 
+    struct shader_storage_error : public std::runtime_error {
+        explicit shader_storage_error(const std::string& error) : runtime_error(error) {}
+    };
+
     class ShaderStorage {
     private:
         std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> shaders;

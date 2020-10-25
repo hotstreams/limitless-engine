@@ -6,59 +6,57 @@
 
 using namespace GraphicsEngine;
 
-void CustomMaterialBuilder::clear() noexcept {
-    MaterialBuilder::clear();
-
-    uniforms.clear();
-    vertex_code.clear();
-    fragment_code.clear();
-}
-
-void CustomMaterialBuilder::addUniform(std::string name, Uniform* uniform) {
-    auto result = uniforms.emplace(std::move(name), uniform);
+CustomMaterialBuilder& CustomMaterialBuilder::addUniform(std::string name, Uniform* uniform) {
+    auto result = material->uniforms.emplace(std::move(name), uniform);
     if (!result.second) {
         throw std::runtime_error("Failed to add uniform to custom material, already exists.");
     }
+    return *this;
 }
 
-void CustomMaterialBuilder::setVertexCode(const std::string& vs_code) noexcept {
-    vertex_code = vs_code;
+CustomMaterialBuilder& CustomMaterialBuilder::setVertexCode(std::string vs_code) noexcept {
+    material->vertex_code = std::move(vs_code);
+    return *this;
 }
 
-void CustomMaterialBuilder::setFragmentCode(const std::string& fs_code) noexcept {
-    fragment_code = fs_code;
+CustomMaterialBuilder& CustomMaterialBuilder::setFragmentCode(std::string fs_code) noexcept {
+    material->fragment_code = std::move(fs_code);
+    return *this;
 }
 
-std::shared_ptr<Material> CustomMaterialBuilder::build(const std::string &name,
-                                                       const GraphicsEngine::RequiredModelShaders& model_shaders,
-                                                       const GraphicsEngine::RequiredMaterialShaders& material_shaders)
-{
+std::shared_ptr<Material> CustomMaterialBuilder::build(const ModelShaders& model_shaders, const MaterialShaders& material_shaders) {
+    // check for initialized ptr
+    if (!material) {
+        throw std::runtime_error("Forgot to call create(name)!");
+    }
     // checks for empty buffer
-    if (properties.empty() || uniforms.empty()) {
+    if (material->properties.empty() && material->uniforms.empty()) {
         throw std::runtime_error("Properties & Uniforms cannot be empty.");
     }
 
-    material_index = next_shader_index++;
+    // every custom material is unique
+    material->shader_index = next_shader_index++;
 
+    // compiles every material/shader combination
     MaterialCompiler compiler;
-    for (const auto& material_shader : material_shaders) {
-        for (const auto& model_shader : model_shaders) {
-            compiler.compile(*this, material_shader, model_shader);
+    for (const auto& mat_shader : material_shaders) {
+        for (const auto& mod_shader : model_shaders) {
+            compiler.compile(*material, mat_shader, mod_shader);
         }
     }
 
-    getUniformAlignments(shader_storage.get(material_shaders[0], model_shaders[0], material_index));
+    // initializes uniform material buffer using program shader introspection
+    initializeMaterialBuffer(*shader_storage.get(material_shaders[0], model_shaders[0], material->shader_index));
 
-    auto* custom_material = new CustomMaterial(std::move(properties), std::move(uniform_offsets), blending, shading, name, material_index, std::move(uniforms));
-    auto material = std::shared_ptr<CustomMaterial>(custom_material);
+    // adds compiled material to assets
+    auto compiled = std::shared_ptr<Material>(std::move(material));
+    assets.materials.add(compiled->getName(), compiled);
 
-    // initializes material buffer
-    std::vector<std::byte> data(buffer_size);
-    material->material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, data, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+    return compiled;
+}
 
-    clear();
-
-    assets.materials.add(name, material);
-
-    return material;
+CustomMaterialBuilder& CustomMaterialBuilder::create(std::string name) {
+    material = std::unique_ptr<CustomMaterial>(new CustomMaterial());
+    material->name = std::move(name);
+    return *this;
 }

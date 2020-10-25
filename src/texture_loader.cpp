@@ -8,7 +8,7 @@ using namespace GraphicsEngine;
 
 std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_left_start) {
     if (assets.textures.isExist(path.string())) {
-        return assets.textures.get(path.string());
+        return assets.textures[path.string()];
     }
 
     stbi_set_flip_vertically_on_load(bottom_left_start);

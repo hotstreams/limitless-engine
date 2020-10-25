@@ -2,6 +2,7 @@
 #include <emitter.hpp>
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -36,7 +37,7 @@ InitialRotation::InitialRotation(Distribution<glm::vec3>* distribution) noexcept
 }
 
 void InitialRotation::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
-    particle.angle += distribution->get();
+    particle.rotation += distribution->get();
 }
 
 InitialRotation* InitialRotation::clone() const noexcept {
@@ -92,7 +93,7 @@ InitialSize::InitialSize(Distribution<float>* distribution) noexcept
 }
 
 void InitialSize::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
-    particle.color += distribution->get();
+    particle.size = distribution->get();
 }
 
 InitialSize* InitialSize::clone() const noexcept {
@@ -259,7 +260,7 @@ RotationRate::RotationRate(const RotationRate& module) noexcept
 
 void RotationRate::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
     for (auto& particle : particles) {
-        particle.angle += distribution->get() * dt;
+        particle.rotation += distribution->get() * dt;
     }
 }
 
@@ -275,29 +276,17 @@ SizeByLife::SizeByLife(const SizeByLife& module) noexcept
         : distribution{module.distribution->clone()}, factor{module.factor} {
 }
 
-void SizeByLife::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
-    switch (distribution->getType()) {
-        case DistributionType::Const:
-            particle.size = distribution->get();
-            break;
-        case DistributionType::Range:
-            particle.size = static_cast<RangeDistribution<float>&>(*distribution).getMin();
-            break;
-        case DistributionType::Curve:
-            break;
-    }
-}
-
 void SizeByLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
     switch (distribution->getType()) {
         case DistributionType::Const:
             break;
         case DistributionType::Range: {
-            const auto &range = static_cast<RangeDistribution<float> &>(*distribution);
+            const auto &range = static_cast<RangeDistribution<float>&>(*distribution);
             for (auto& particle : particles) {
-                auto tick = particle.size / dt;
-                auto tick_size = factor < 0 ? particle.size - range.getMin() : range.getMax() - particle.size;
-                particle.size += tick_size / tick;
+                auto tick = glm::abs(particle.lifetime / dt);
+                auto tick_size = factor < 0.0f ? glm::abs(particle.size - range.getMin()) : glm::abs(range.getMax() - particle.size);
+                particle.size += tick_size * factor / tick;
+                particle.size = std::clamp(particle.size, 0.0f, 1000.0f);
             }
             break;
         }

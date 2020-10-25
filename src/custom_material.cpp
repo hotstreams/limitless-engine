@@ -138,13 +138,6 @@ void CustomMaterial::update() const noexcept {
     }
 }
 
-CustomMaterial::CustomMaterial(decltype(properties)&& properties, decltype(uniform_offsets)&& offsets, Blending blending,
-                               Shading shading, std::string name, uint64_t shader_index, decltype(uniforms)&& uniforms) noexcept
-    : Material(std::move(properties), std::move(offsets), blending, shading, std::move(name), shader_index), uniforms{std::move(uniforms)}
-{
-
-}
-
 void GraphicsEngine::swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept {
     using std::swap;
 
@@ -179,8 +172,5 @@ CustomMaterial& CustomMaterial::operator=(CustomMaterial&& rhs) noexcept {
     return *this;
 }
 
-CustomMaterial::CustomMaterial() noexcept
-    : Material{} {
-
-}
+CustomMaterial::CustomMaterial() noexcept : Material{} { }
 

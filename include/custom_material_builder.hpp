@@ -6,25 +6,16 @@
 namespace GraphicsEngine {
     class CustomMaterialBuilder : public MaterialBuilder {
     private:
-        std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
-        std::string vertex_code, fragment_code;
-
-        void clear() noexcept override;
+        std::unique_ptr<CustomMaterial> material;
     public:
-        CustomMaterialBuilder() noexcept = default;
+        CustomMaterialBuilder() = default;
         ~CustomMaterialBuilder() override = default;
 
-        void addUniform(std::string name, Uniform* uniform);
+        CustomMaterialBuilder& setFragmentCode(std::string fs_code) noexcept;
+        CustomMaterialBuilder& setVertexCode(std::string vs_code) noexcept;
+        CustomMaterialBuilder& addUniform(std::string name, Uniform* uniform);
 
-        void setVertexCode(const std::string& vs_code) noexcept;
-        void setFragmentCode(const std::string& fs_code) noexcept;
-
-        [[nodiscard]] const auto& getVertexCode() const noexcept { return vertex_code; }
-        [[nodiscard]] const auto& getFragmentCode() const noexcept { return fragment_code; }
-        [[nodiscard]] const auto& getUniforms() const noexcept { return uniforms; }
-
-        std::shared_ptr<Material> build(const std::string& name,
-                                        const RequiredModelShaders& model_shaders = RequiredModelShaders{ModelShader::Model },
-                                        const RequiredMaterialShaders& material_shaders = RequiredMaterialShaders{MaterialShader::Default }) override;
+        CustomMaterialBuilder& create(std::string name);
+        std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model}, const MaterialShaders& material_shaders = {MaterialShader::Default});
     };
 }

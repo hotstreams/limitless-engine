@@ -13,6 +13,7 @@ Line::Line(const glm::vec3 &a, const glm::vec3 &b) {
     std::vector<Vertex> vertices = {{ a,  glm::vec2(0.0f) }, { b,  glm::vec2(0.0f) }};
 
     auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "line_mesh", MeshDataType::Static, DrawMode::Lines);
+    assets.meshes.add("line_mesh", mesh);
     meshes.emplace_back(std::move(mesh));
 }
 
@@ -25,6 +26,7 @@ Quad::Quad() {
     };
 
     auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "quad_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
+    assets.meshes.add("quad_mesh", mesh);
     meshes.emplace_back(std::move(mesh));
 }
 
@@ -75,6 +77,7 @@ Cube::Cube() {
     };
 
     auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "cube_mesh", MeshDataType::Static, DrawMode::Triangles);
+    assets.meshes.add("cube_mesh", mesh);
     meshes.emplace_back(mesh);
 }
 
@@ -114,5 +117,6 @@ Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
     }
 
     auto mesh = std::make_shared<IndexedMesh<VertexNormalTangent, GLuint>>(std::move(vertices), std::move(indices), "sphere_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
+    assets.meshes.add("sphere_mesh", mesh);
     meshes.emplace_back(std::move(mesh));
 }

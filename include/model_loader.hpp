@@ -13,7 +13,7 @@ namespace GraphicsEngine {
 
         template<typename T, typename T1>
         static std::shared_ptr<AbstractMesh> loadMesh(aiMesh* mesh, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
-        static std::shared_ptr<Material> loadMaterial(aiMaterial* mat, const fs::path& path, const RequiredModelShaders& model_shaders);
+        static std::shared_ptr<Material> loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
     public:
         static std::shared_ptr<AbstractModel> loadModel(const fs::path& path, bool flip_uv = false);
     };

@@ -32,7 +32,7 @@ namespace glm {
 
 std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool flip_uv) {
     if (assets.models.isExist(path.string())) {
-        return assets.models.get(path.string());
+        return assets.models[path.string()];
     }
 
     std::vector<std::shared_ptr<AbstractMesh>> meshes;
@@ -283,13 +283,13 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* mesh, const fs::path
     return std::shared_ptr<AbstractMesh>(new IndexedMesh<T, T1>(std::move(vertices), std::move(indices), name, MeshDataType::Static, DrawMode::Triangles));
 }
 
-std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const RequiredModelShaders& model_shaders) {
+std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders) {
     aiString str, aname;
     mat->Get(AI_MATKEY_NAME, aname);
     std::string name = path.parent_path().string() + PATH_SEPARATOR + (aname.length != 0 ? aname.C_Str() : std::to_string(unnamed_material_index++));
 
     if (assets.materials.isExist(name)) {
-        return assets.materials.get(name);
+        return assets.materials[name];
     }
 
     size_t diffuse_count = mat->GetTextureCount(aiTextureType_DIFFUSE);
@@ -325,9 +325,9 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
 
     MaterialBuilder builder;
 
-    builder.setShading(Shading::Lit);
-
-    builder.add(PropertyType::Diffuse, diffuse[0]);
+    builder.create(std::move(name))
+           .setShading(Shading::Lit)
+           .add(PropertyType::Diffuse, diffuse[0]);
 
     if (!specular.empty()) {
         builder.add(PropertyType::Specular, specular[0]);
@@ -339,5 +339,5 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         builder.add(PropertyType::Normal, normal[0]);
     }
 
-    return builder.build(name, model_shaders);
+    return builder.build(model_shaders);
 }

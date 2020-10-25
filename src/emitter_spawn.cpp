@@ -17,7 +17,13 @@ void GraphicsEngine::swap(EmitterSpawn& lhs, EmitterSpawn& rhs) noexcept {
 EmitterSpawn::EmitterSpawn(const EmitterSpawn& emitter) noexcept
         : last_spawn{emitter.last_spawn}, mode{emitter.mode},
           max_count{emitter.max_count}, spawn_rate{emitter.spawn_rate},
-          burst_count{emitter.burst_count->clone()}, loops{emitter.loops},
+          burst_count{emitter.burst_count ? emitter.burst_count->clone() : nullptr}, loops{emitter.loops},
           loops_done{emitter.loops_done} {
 
+}
+
+EmitterSpawn& EmitterSpawn::operator=(const EmitterSpawn& spawn) noexcept {
+    auto copied = EmitterSpawn{spawn};
+    swap(*this, copied);
+    return *this;
 }
