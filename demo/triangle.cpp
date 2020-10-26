@@ -1,11 +1,11 @@
-#include <context_observer.hpp>
-#include <shader_compiler.hpp>
+#include <core/context_observer.hpp>
+#include <core/shader_compiler.hpp>
 #include <texture_loader.hpp>
-#include <buffer_builder.hpp>
-#include <vertex_array.hpp>
-#include <material_compiler.hpp>
-#include <uniform.hpp>
-#include <shader_program.hpp>
+#include <core/buffer_builder.hpp>
+#include <core/vertex_array.hpp>
+#include <material_system/material_compiler.hpp>
+#include <core/uniform.hpp>
+#include <core/shader_program.hpp>
 
 #define ASSETS_DIR "../assets/"
 

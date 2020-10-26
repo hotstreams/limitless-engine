@@ -3,7 +3,7 @@
 #include <skybox.hpp>
 #include <elementary_model.hpp>
 #include <model_loader.hpp>
-#include <material_builder.hpp>
+#include <material_system/material_builder.hpp>
 
 using namespace GraphicsEngine;
 

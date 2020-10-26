@@ -1,7 +1,7 @@
 #pragma once
 
-#include <texture_builder.hpp>
-#include <filesystem.hpp>
+#include <core/texture_builder.hpp>
+#include <util/filesystem.hpp>
 
 namespace GraphicsEngine {
     class TextureLoader {

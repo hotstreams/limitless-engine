@@ -3,7 +3,7 @@
 #include <shader_storage.hpp>
 #include <assets.hpp>
 #include <model.hpp>
-#include <texture_builder.hpp>
+#include <core/texture_builder.hpp>
 
 using namespace GraphicsEngine;
 

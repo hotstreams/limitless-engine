@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vertex_array.hpp>
-#include <buffer_builder.hpp>
+#include <core/vertex_array.hpp>
+#include <core/buffer_builder.hpp>
 
 namespace GraphicsEngine {
     class AbstractMesh {

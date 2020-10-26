@@ -2,7 +2,7 @@
 
 #include <lighting.hpp>
 #include <skybox.hpp>
-#include <effect_renderer.hpp>
+#include <particle_system/effect_renderer.hpp>
 
 namespace GraphicsEngine {
     class AbstractInstance;

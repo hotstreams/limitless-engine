@@ -1,7 +1,7 @@
 #pragma once
 
-#include <shader_program.hpp>
-#include <emitter_renderer.hpp>
+#include <core/shader_program.hpp>
+#include <particle_system/emitter_renderer.hpp>
 
 #include <shader_types.hpp>
 

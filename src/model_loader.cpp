@@ -4,7 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <texture_loader.hpp>
-#include <material_builder.hpp>
+#include <material_system/material_builder.hpp>
 #include <assets.hpp>
 #include <iostream>
 

@@ -2,8 +2,8 @@
 
 #include <assets.hpp>
 #include <render_settings.hpp>
-#include <texture_builder.hpp>
-#include <material.hpp>
+#include <core/texture_builder.hpp>
+#include <material_system/material.hpp>
 #include <shader_types.hpp>
 #include <elementary_instance.hpp>
 #include <camera.hpp>

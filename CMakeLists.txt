@@ -48,22 +48,58 @@ if (UNIX)
     link_libraries(GLEW glfw GL assimp)
 endif()
 
+set(ENGINE_CORE
+        src/core/bindless_texture.cpp
+        src/core/buffer_builder.cpp
+        src/core/context.cpp
+        src/core/context_debug.cpp
+        src/core/context_initializer.cpp
+        src/core/context_observer.cpp
+        src/core/context_state.cpp
+        src/core/shader_compiler.cpp
+        src/core/shader_program.cpp
+        src/core/uniform.cpp
+        src/core/texture_binder.cpp
+        src/core/vertex_array.cpp
+        src/core/framebuffer.cpp
+        src/core/state_buffer.cpp
+        src/core/named_buffer.cpp
+        src/core/triple_buffer.cpp
+        src/core/indexed_buffer.cpp
+        src/core/shader.cpp
+        src/core/state_texture.cpp
+        src/core/named_texture.cpp
+   )
+
+set(ENGINE_MATERIAL_SYSTEM
+        src/material_system/material.cpp
+        src/material_system/material_builder.cpp
+        src/material_system/custom_material.cpp
+        src/material_system/custom_material_builder.cpp
+        src/material_system/material_compiler.cpp
+        src/material_system/material_instance.cpp
+    )
+
+set(ENGINE_PARTICLE_SYSTEM
+        src/particle_system/emitter.cpp
+        src/particle_system/emitter_module.cpp
+        src/particle_system/sprite_emitter.cpp
+        src/particle_system/mesh_emitter.cpp
+        src/particle_system/effect_renderer.cpp
+        src/particle_system/emitter_renderer.cpp
+        src/particle_system/emitter_spawn.cpp
+        src/particle_system/emitter_visitor.cpp
+        src/particle_system/unique_emitter.cpp
+        src/particle_system/effect_builder.cpp
+        src/particle_system/effect_compiler.cpp
+   )
+
 set(ENGINE_SRC
-        src/bindless_texture.cpp
-        src/buffer_builder.cpp
-        src/context.cpp
-        src/context_debug.cpp
-        src/context_initializer.cpp
-        src/context_observer.cpp
-        src/context_state.cpp
-        src/material.cpp
-        src/shader_compiler.cpp
-        src/shader_program.cpp
-        src/uniform.cpp
-        src/texture_binder.cpp
+        ${ENGINE_CORE}
+        ${ENGINE_MATERIAL_SYSTEM}
+        ${ENGINE_PARTICLE_SYSTEM}
+
         src/texture_loader.cpp
-        src/vertex_array.cpp
-        src/material_builder.cpp
         src/skeletal_model.cpp
         src/camera.cpp
         src/model_loader.cpp
@@ -74,44 +110,23 @@ set(ENGINE_SRC
         src/skeletal_instance.cpp
         src/mesh_instance.cpp
         src/shader_storage.cpp
-        src/custom_material.cpp
-        src/custom_material_builder.cpp
-        src/emitter.cpp
-        src/emitter_module.cpp
-        src/sprite_emitter.cpp
-        src/mesh_emitter.cpp
         src/effect_instance.cpp
-        src/effect_renderer.cpp
-        src/emitter_renderer.cpp
-        src/framebuffer.cpp
         src/postprocessing.cpp
         src/render.cpp
         src/scene_data.cpp
         src/skybox.cpp
-        src/state_buffer.cpp
-        src/named_buffer.cpp
-        src/triple_buffer.cpp
-        src/indexed_buffer.cpp
-        src/shader.cpp
-        src/material_compiler.cpp
-        src/material_instance.cpp
         src/abstract_instance.cpp
-        src/emitter_spawn.cpp
-        src/emitter_visiter.cpp
-        src/unique_emitter.cpp
         src/effect_attachable.cpp
         src/light_attachable.cpp
         src/elementary_instance.cpp
         src/lighting.cpp
         src/light_container.cpp
-        src/effect_builder.cpp
-        src/effect_compiler.cpp
-        src/state_texture.cpp
-        src/named_texture.cpp)
+    )
 
-file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
-foreach(file ${list})
-    string(REPLACE ".cpp" "" exec_name ${file})
-    get_filename_component(filename ${exec_name} NAME)
-    add_executable(${filename} ${ENGINE_SRC} ${file})
-endforeach()
+#file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
+#foreach(file ${list})
+#    string(REPLACE ".cpp" "" exec_name ${file})
+#    get_filename_component(filename ${exec_name} NAME)
+#    add_executable(${filename} ${ENGINE_SRC} ${file})
+#endforeach()
+add_executable(demo ${ENGINE_SRC} "demo/demo.cpp")

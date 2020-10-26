@@ -1,5 +1,5 @@
 #include <shader_storage.hpp>
-#include <shader_compiler.hpp>
+#include <core/shader_compiler.hpp>
 
 using namespace GraphicsEngine;
 
