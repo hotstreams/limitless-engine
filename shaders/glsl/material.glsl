@@ -60,6 +60,10 @@ layout(std140) uniform material_buffer {
     #ifdef CUSTOM_MATERIAL
         GraphicsEngine::CustomMaterialScalarUniforms
     #endif
+
+    // for cases if there is no scalar values in buffer and no bindless textures
+    // GLSL cannot compile empty uniform block :/
+    bool empty;
 };
 
 #ifndef BINDLESS_TEXTURE
@@ -85,6 +89,14 @@ layout(std140) uniform material_buffer {
 
     #ifdef MATERIAL_BLENDMASK
         uniform sampler2D material_blend_mask;
+    #endif
+
+    #ifdef MATERIAL_METALLIC_TEXTURE
+        uniform sampler2D material_metallic_texture;
+    #endif
+
+    #ifdef MATERIAL_ROUGHNESS_TEXTURE
+        uniform sampler2D material_roughness_texture;
     #endif
 
     #ifdef CUSTOM_MATERIAL

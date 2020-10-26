@@ -5,7 +5,7 @@
 
 namespace GraphicsEngine {
     #ifdef GL_DEBUG
-        inline size_t error_count = 0;
+        inline uint64_t gl_error_count = 0;
 
         void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 

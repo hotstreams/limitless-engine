@@ -40,22 +40,22 @@ void Bloom::blurImage() {
 
 Bloom::Bloom(ContextEventObserver& ctx) :
     brightness(ctx), blur{ Framebuffer(ctx), Framebuffer(ctx) } {
-    auto texture = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGB16F, ctx.getSize(), Texture::Format::RGB, Texture::DataType::Float, nullptr);
 
-//            *texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-//                     << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR};
+    auto param_set = [] (Texture& texture) {
+        texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR};
+    };
+    auto texture = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGB16F, ctx.getSize(), Texture::Format::RGB, Texture::DataType::Float, nullptr, param_set);
+
 
     brightness << TextureAttachment{FramebufferAttachment::Color0, texture};
     brightness.drawBuffer(FramebufferAttachment::Color0);
     brightness.checkStatus();
 
     for (auto& fbo : blur) {
-        auto tex = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGB16F, ctx.getSize(), Texture::Format::RGB, Texture::DataType::Float, nullptr);
+        auto tex = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGB16F, ctx.getSize(), Texture::Format::RGB, Texture::DataType::Float, nullptr, param_set);
 
-//                *tex << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-//                     << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR};
-
-        fbo << TextureAttachment{FramebufferAttachment::Color0, texture};
+        fbo << TextureAttachment{FramebufferAttachment::Color0, tex};
         fbo.drawBuffer(FramebufferAttachment::Color0);
         fbo.checkStatus();
 

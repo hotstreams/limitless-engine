@@ -8,6 +8,7 @@
 #include <elementary_instance.hpp>
 #include <camera.hpp>
 #include <scene.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -99,9 +100,14 @@ void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
 }
 
 void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
-    auto color0 = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr);
-    auto depth = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::Depth32F, ctx.getSize(), Texture::Format::DepthComponent, Texture::DataType::Float, nullptr);
+    auto param_set = [] (Texture& texture) {
+        texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR};
+    };
+    auto color0 = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr, param_set);
+    auto depth = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::Depth32F, ctx.getSize(), Texture::Format::DepthComponent, Texture::DataType::Float, nullptr, param_set);
 
+    offscreen.bind();
     offscreen << TextureAttachment{FramebufferAttachment::Color0, color0}
               << TextureAttachment{FramebufferAttachment::Depth, depth};
 
@@ -110,7 +116,7 @@ void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
     offscreen.unbind();
 }
 
-Renderer::Renderer(ContextEventObserver& context) noexcept
+Renderer::Renderer(ContextEventObserver& context)
     : postprocess{context}, effect_renderer{context} {
     initializeOffscreenBuffer(context);
 }

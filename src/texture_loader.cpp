@@ -42,7 +42,14 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_l
         }
 
         auto mipmap_count = glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1;
-        auto texture = TextureBuilder::build(Texture::Type::Tex2D, mipmap_count, internal, { width, height }, format, Texture::DataType::UnsignedByte, data);
+
+        auto param_set = [] (Texture& texture) {
+            texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+                    << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR}
+                    << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_REPEAT}
+                    << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_REPEAT};
+        };
+        auto texture = TextureBuilder::build(Texture::Type::Tex2D, mipmap_count, internal, { width, height }, format, Texture::DataType::UnsignedByte, data, param_set);
         texture->generateMipMap();
 
         stbi_image_free(data);
@@ -95,7 +102,14 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path &path, bool b
             throw std::runtime_error("Unknown number of channels.");
     }
 
-    auto texture = TextureBuilder::build(Texture::Type::CubeMap, internal, { width, height }, format, Texture::DataType::UnsignedByte, data);
+    auto param_set = [] (Texture& texture) {
+        texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
+                << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
+                << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}
+                << TexParameter<GLint>{GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE};
+    };
+    auto texture = TextureBuilder::build(Texture::Type::CubeMap, internal, { width, height }, format, Texture::DataType::UnsignedByte, data, param_set);
 
     for (const auto ptr : data) {
         stbi_image_free(ptr);

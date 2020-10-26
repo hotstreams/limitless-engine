@@ -30,4 +30,4 @@ namespace GraphicsEngine {
         using AbstractInstance::draw;
         void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
     };
-};
+}

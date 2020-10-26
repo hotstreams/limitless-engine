@@ -16,6 +16,8 @@ namespace GraphicsEngine {
     public:
         virtual void visit(const SpriteEmitter& emitter) noexcept = 0;
         virtual void visit(const MeshEmitter& emitter) noexcept = 0;
+
+        virtual ~EmitterVisiter() = default;
     };
 
     class SpriteParticleCollector : public EmitterVisiter {
@@ -24,6 +26,7 @@ namespace GraphicsEngine {
         const UniqueSpriteEmitter& unique_emitter;
     public:
         explicit SpriteParticleCollector(const UniqueSpriteEmitter& emitter) noexcept;
+        ~SpriteParticleCollector() override = default;
 
         void visit(const SpriteEmitter& emitter) noexcept override;
         void visit(const MeshEmitter& emitter) noexcept override;
@@ -37,6 +40,7 @@ namespace GraphicsEngine {
         const UniqueMeshEmitter& unique_emitter;
     public:
         explicit MeshParticleCollector(const UniqueMeshEmitter& emitter) noexcept;
+        ~MeshParticleCollector() override = default;
 
         void visit(const SpriteEmitter& emitter) noexcept override;
         void visit(const MeshEmitter& emitter) noexcept override;
@@ -50,6 +54,7 @@ namespace GraphicsEngine {
         std::map<UniqueMeshEmitter, MeshEmitterRenderer>& mesh_storage;
     public:
         EmitterStorageFiller(decltype(sprite_storage) sprite, decltype(mesh_storage) mesh) noexcept;
+        ~EmitterStorageFiller() override = default;
 
         void visit(const SpriteEmitter& emitter) noexcept override;
         void visit(const MeshEmitter& emitter) noexcept override;

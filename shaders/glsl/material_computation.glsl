@@ -18,7 +18,7 @@
 #ifdef MATERIAL_LIT
     #ifdef MATERIAL_NORMAL
         #ifdef NORMAL_MAPPING
-            vec3 normal = normalize(mat_normal * 2.0 - 1.0);
+            vec3 normal = mat_normal * 2.0 - 1.0;
             normal = normalize(fs_data.TBN * normal);
         #else
             vec3 normal = normalize(fs_data.normal);
