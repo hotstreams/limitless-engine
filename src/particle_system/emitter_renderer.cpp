@@ -4,13 +4,14 @@
 #include <core/buffer_builder.hpp>
 #include <particle_system/unique_emitter.hpp>
 #include <particle_system/emitter.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
 constexpr auto shader_mesh_buffer_name = "mesh_emitter_particles";
 
 VertexArray& GraphicsEngine::operator<<(VertexArray& vertex_array, const std::pair<Particle, Buffer&>& attribute) noexcept {
-    vertex_array << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), nullptr, attribute.second }
+    vertex_array << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, position), attribute.second }
                  << VertexAttribute{ 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, color), attribute.second }
                  << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, rotation), attribute.second }
                  << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, velocity), attribute.second }
@@ -52,7 +53,6 @@ void SpriteEmitterRenderer::draw(const UniqueSpriteEmitter& emitter) {
     *shader << *emitter.material;
 
     shader->use();
-
     glDrawArrays(GL_POINTS, 0, current_particle_count);
 }
 

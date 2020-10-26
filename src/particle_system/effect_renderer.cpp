@@ -4,6 +4,7 @@
 #include <particle_system/emitter_renderer.hpp>
 #include <material_system/material.hpp>
 #include <shader_types.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -53,7 +54,6 @@ void EffectRenderer::draw(Blending blending) {
         if (emitter.material->getBlending() == blending)
             storage.draw(emitter);
     }
-
     for (auto& [emitter, storage] : mesh_renderer) {
         if (emitter.material->getBlending() == blending)
             storage.draw(emitter);

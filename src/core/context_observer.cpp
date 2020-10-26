@@ -1,6 +1,7 @@
 #include <core/context_observer.hpp>
 
 #include <algorithm>
+#include <iostream>
 
 using namespace GraphicsEngine;
 

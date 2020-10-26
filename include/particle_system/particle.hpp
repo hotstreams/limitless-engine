@@ -16,7 +16,7 @@ namespace GraphicsEngine {
         float lifetime {1.0f};
         // for sprite emitter it is pixel size
         // for mesh emitter it is scaling modifier of specified mesh
-        float size {256.0f};
+        float size {32.0f};
     };
 
     struct alignas(64) MeshParticle {

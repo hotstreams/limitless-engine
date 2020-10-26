@@ -1,4 +1,5 @@
 #include <particle_system/emitter.hpp>
+
 using namespace GraphicsEngine;
 
 Emitter::Emitter(EmitterType type) noexcept
