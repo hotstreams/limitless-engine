@@ -1,6 +1,6 @@
 #include <effect_attachable.hpp>
 #include <effect_instance.hpp>
-#include <emitter.hpp>
+#include <particle_system/emitter.hpp>
 
 using namespace GraphicsEngine;
 

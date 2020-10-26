@@ -1,7 +1,7 @@
 #pragma once
 
 #include <skeletal_model.hpp>
-#include <filesystem.hpp>
+#include <util/filesystem.hpp>
 #include <assimp/material.h>
 #include <assimp/mesh.h>
 #include <shader_storage.hpp>

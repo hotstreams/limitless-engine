@@ -5,7 +5,7 @@
 
 #include <model.hpp>
 #include <skinned_mesh.hpp>
-#include <tree.hpp>
+#include <util/tree.hpp>
 
 namespace GraphicsEngine {
     template <typename T>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <framebuffer.hpp>
+#include <core/framebuffer.hpp>
 #include <array>
 
 namespace GraphicsEngine {

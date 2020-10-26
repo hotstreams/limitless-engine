@@ -1,6 +1,6 @@
 #include <light_container.hpp>
 
-#include <buffer_builder.hpp>
+#include <core/buffer_builder.hpp>
 #include <lights.hpp>
 
 using namespace GraphicsEngine;

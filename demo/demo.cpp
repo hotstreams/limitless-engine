@@ -1,7 +1,7 @@
-#include <context_observer.hpp>
+#include <core/context_observer.hpp>
 #include <texture_loader.hpp>
 #include <model_instance.hpp>
-#include <material_builder.hpp>
+#include <material_system/material_builder.hpp>
 #include <camera.hpp>
 #include <scene.hpp>
 #include <render.hpp>
@@ -9,10 +9,10 @@
 #include <skeletal_instance.hpp>
 #include <shader_storage.hpp>
 #include <effect_instance.hpp>
-
-#ifndef M_PI
-    #define M_PI (3.14159265358979323846)
-#endif
+#include <elementary_instance.hpp>
+#include <particle_system/effect_builder.hpp>
+#include <model_loader.hpp>
+#include <util/math.hpp>
 
 using namespace GraphicsEngine;
 
@@ -22,6 +22,8 @@ private:
     Scene scene;
     Camera camera;
     Renderer render;
+
+    ElementaryInstance* instance;
 
     bool done {false};
     static constexpr glm::uvec2 window_size {1920 , 1080};
@@ -40,68 +42,108 @@ public:
 
         assets.load();
 
+        assets.models.add("bob", ModelLoader::loadModel(ASSETS_DIR "models/boblamp/boblampclean.md5mesh"));
+        assets.models.add("backpack", ModelLoader::loadModel(ASSETS_DIR "models/backpack/backpack.obj", true));
+        assets.models.add("nanosuit", ModelLoader::loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
+        assets.models.add("cyborg", ModelLoader::loadModel(ASSETS_DIR "models/cyborg/cyborg.obj"));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(ASSETS_DIR "skyboxes/sky/sky.png"));
+
         MaterialBuilder builder;
 
-        auto material1 = builder.add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
+        auto material1 = builder.create("material1")
+                                .add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
                                 .setShading(Shading::Lit)
-                                .build("material1");
+                                .build();
 
-        auto material2 = builder.add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/grass.jpg"))
+        auto material2 = builder.create("material2")
+                                .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/grass.jpg"))
                                 .setShading(Shading::Lit)
-                                .build("material2");
+                                .build();
 
-        auto material3 = builder.add(PropertyType::EmissiveColor, glm::vec4(3.0f, 2.3, 1.0f, 1.0f))
+        auto material3 = builder.create("material3")
+                                .add(PropertyType::EmissiveColor, glm::vec4(3.0f, 2.3, 1.0f, 1.0f))
                                 .setShading(Shading::Unlit)
-                                .build("material3");
+                                .build();
 
-        auto material4 = builder.add(PropertyType::EmissiveMask, TextureLoader::load(ASSETS_DIR "textures/mask.jpg"))
+        auto material4 = builder.create("material4")
+                                .add(PropertyType::EmissiveMask, TextureLoader::load(ASSETS_DIR "textures/mask.jpg"))
                                 .add(PropertyType::EmissiveColor, glm::vec4(10.5f, 7.1f, 8.5f, 1.0f))
                                 .add(PropertyType::Color, glm::vec4(0.1f, 0.3f, 0.7f, 1.0f))
                                 .setShading(Shading::Lit)
-                                .build("material4");
+                                .build();
 
-        auto material5 = builder.add(PropertyType::BlendMask, TextureLoader::load(ASSETS_DIR "textures/bricks.jpg"))
+        auto material5 = builder.create("material5")
+                                .add(PropertyType::BlendMask, TextureLoader::load(ASSETS_DIR "textures/bricks.jpg"))
                                 .add(PropertyType::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
                                 .setShading(Shading::Lit)
-                                .build("material5");
+                                .build();
 
-        auto material6 = builder.add(PropertyType::MetallicTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_metallic.png"))
+        auto material6 = builder.create("material6")
+                                .add(PropertyType::MetallicTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_metallic.png"))
                                 .add(PropertyType::RoughnessTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_roughness.png"))
                                 .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
                                 .add(PropertyType::Normal, TextureLoader::load(ASSETS_DIR "textures/rustediron2_normal.png"))
                                 .setShading(Shading::Lit)
-                                .build("material6");
+                                .build();
 
-        scene.addInstance(new ModelInstance(assets.models.get("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}))
-             .setScale(glm::vec3(0.4f))
-             .setRotation({ 0.0f, M_PI, 0.0f });
+        scene.add<ModelInstance>(assets.models["backpack"], glm::vec3{2.5f, 0.5f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f}, glm::vec3{0.4f});
+        scene.add<ModelInstance>(assets.models["nanosuit"], glm::vec3{4.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.1f});
+        scene.add<ModelInstance>(assets.models["cyborg"], glm::vec3{5.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.35f});
 
-        scene.addInstance(new ModelInstance(assets.models.get("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}))
-             .setScale(glm::vec3(0.1f))
-             .setRotation({ 0.0f, M_PI, 0.0f });
-
-        scene.addInstance(new ModelInstance(assets.models.get("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}))
-             .setScale(glm::vec3(0.35f))
-             .setRotation({ 0.0f, M_PI, 0.0f });
-
-        auto& model = scene.addInstance(new SkeletalInstance(assets.models.get("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f }))
+        auto& model = scene.add<SkeletalInstance>(assets.models["bob"], glm::vec3{ 6.0f, 0.0f, 5.0f })
                            .setScale(glm::vec3{0.02f})
-                           .setRotation({ 0.0f, 0.0f, M_PI });
+                           .setRotation({ 0.0f, 0.0f, pi });
         static_cast<SkeletalInstance&>(model).play("");
 
-        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material1, glm::vec3{ 0.0f, 0.0f, 0.0f }));
-        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material2, glm::vec3{ 2.0f, 0.0f, 0.0f }));
-        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material3, glm::vec3{ 4.0f, 0.0f, 0.0f }));
-        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material4, glm::vec3{ 6.0f, 0.0f, 0.0f }));
-        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material5, glm::vec3{ 8.0f, 0.0f, 0.0f }));
-        scene.addInstance(new ModelInstance(assets.models.get("sphere"), material6, glm::vec3{ 10.0f, 0.0f, 0.0f }));
+        scene.add<ElementaryInstance>(assets.models["sphere"], material1, glm::vec3{0.0f, 0.0f, 0.0f});
+        scene.add<ElementaryInstance>(assets.models["sphere"], material2, glm::vec3{ 2.0f, 0.0f, 0.0f });
+        scene.add<ElementaryInstance>(assets.models["sphere"], material3, glm::vec3{ 4.0f, 0.0f, 0.0f });
+        scene.add<ElementaryInstance>(assets.models["sphere"], material4, glm::vec3{ 6.0f, 0.0f, 0.0f });
+        instance = &scene.add<ElementaryInstance>(assets.models["sphere"], material5, glm::vec3{ 8.0f, 0.0f, 0.0f });
 
-        auto light = PointLight{glm::vec4{4.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.1f, 2.7f, 7.5f}, 8.0f};
-        scene.lighting.dynamic.point_lights.add(light);
+        scene.add<ElementaryInstance>(assets.models["sphere"], material6, glm::vec3{ 10.0f, 0.0f, 0.0f });
+
+        instance->attachLight<PointLight>({0.0f, 0.0f, 0.0f}, instance->getPosition(), glm::vec4{5.5f, 5.5f, 5.3f, 1.0f}, 5.0f);
+        instance->attachLight<PointLight>({0.0f, 0.0f, 0.0f}, instance->getPosition(), glm::vec4{10.5f, 0.5f, 10.3f, 1.0f}, 3.0f);
+
+        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 10.5f}, 8.0f);
+        scene.lighting.point_lights.emplace_back(glm::vec4{12.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 8.7f, 10.5f}, 3.0f);
 
         scene.setSkybox("skybox");
 
         shader_storage.initialize();
+
+        EffectBuilder eb;
+
+//        auto effect = eb.create("test_effect")
+//                        .createEmitter<SpriteEmitter>("test")
+//                            .addModule<InitialVelocity>(EmitterModuleType::InitialVelocity, new RangeDistribution{glm::vec3{-1.0f}, glm::vec3{1.0f}})
+//                            .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.5f, 1.0f))
+//                            .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.0f, 500.0f))
+//                            .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.0f, 500.0f), -1.0f)
+//                        .setMaterial(material3)
+//                        .setSpawnMode(EmitterSpawn::Mode::Burst)
+//                        .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(10000))
+//                        .setMaxCount(10000)
+//                        .setSpawnRate(1000.0f)
+//                        .build();
+
+//        auto effect = eb.create("test_effect")
+//                .createEmitter<MeshEmitter>("test")
+//                .addModule<InitialVelocity>(EmitterModuleType::InitialVelocity, new RangeDistribution{glm::vec3{-2.0f}, glm::vec3{2.0f}})
+//                .addModule<InitialColor>(EmitterModuleType::InitialColor, new RangeDistribution(glm::vec4{0.0f}, glm::vec4{4.0f}))
+//                .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.5f, 1.0f))
+//                .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.01f, 0.09f))
+//                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.01f, 0.09f), -1.0f)
+//                .setMaterial(material3)
+//                .setMesh(assets.meshes["sphere_mesh"])
+//                .setSpawnMode(EmitterSpawn::Mode::Burst)
+//                .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(100))
+//                .setMaxCount(100)
+//                .setSpawnRate(1.0f)
+//                .build();
+
+        //instance->attachEffect({0.f, 1.f, 0.f}, effect, instance->getPosition());
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -134,6 +176,18 @@ public:
 
         if (context.isPressed(GLFW_KEY_D)) {
             camera.movement(CameraMovement::Right, delta);
+        }
+
+        if (context.isPressed(GLFW_KEY_1)) {
+            instance->setPosition(instance->getPosition() + glm::vec3{ 0.1f, 0.0f, 0.0f});
+        }
+
+        if (context.isPressed(GLFW_KEY_2)) {
+            instance->setPosition(instance->getPosition() + glm::vec3{ -0.1f, 0.0f, 0.0f});
+        }
+
+        if (context.isPressed(GLFW_KEY_3)) {
+            scene.remove(instance->getId());
         }
     }
 

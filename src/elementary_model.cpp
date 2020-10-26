@@ -1,11 +1,7 @@
 #include <elementary_model.hpp>
 #include <assets.hpp>
 #include <indexed_mesh.hpp>
-
-#ifndef M_PI
-    #define M_PI (3.14159265358979323846)
-#endif
-
+#include <util/math.hpp>
 
 using namespace GraphicsEngine;
 
@@ -93,9 +89,9 @@ Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
             auto y_seg = static_cast<float>(y) / static_cast<float>(y_segments);
 
             glm::vec3 pos = {
-                    std::cos(x_seg * 2.0f * M_PI) * std::sin(y_seg * M_PI),
+                    std::cos(x_seg * 2.0f * pi) * std::sin(y_seg * pi),
                     std::cos(y_seg * M_PI),
-                    std::sin(x_seg * 2.0f * M_PI) * std::sin(y_seg * M_PI)
+                    std::sin(x_seg * 2.0f * pi) * std::sin(y_seg * pi)
             };
 
             vertices.emplace_back(VertexNormalTangent{pos, pos, pos, glm::vec2{x_seg, y_seg}});

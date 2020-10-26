@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mesh.hpp>
-#include <material.hpp>
+#include <material_system/material.hpp>
 
 namespace GraphicsEngine {
     class AbstractModel {

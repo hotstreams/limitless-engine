@@ -1,6 +1,6 @@
 #pragma once
 
-#include <material_instance.hpp>
+#include <material_system/material_instance.hpp>
 
 namespace GraphicsEngine {
     class AbstractMesh;

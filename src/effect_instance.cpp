@@ -1,5 +1,5 @@
 #include <effect_instance.hpp>
-#include <mesh_emitter.hpp>
+#include <particle_system/mesh_emitter.hpp>
 #include <shader_types.hpp>
 
 using namespace GraphicsEngine;
