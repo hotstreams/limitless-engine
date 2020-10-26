@@ -76,6 +76,8 @@ namespace GraphicsEngine {
         GLuint active_texture {0};
         // contains [texture_image_unit, texture_id]
         std::map<GLuint, GLuint> texture_bound;
+        // contains [texture_handle, resident]
+        std::map<GLuint64, bool> texture_resident;
 
         ContextState() = default;
         void init() noexcept;
@@ -90,6 +92,7 @@ namespace GraphicsEngine {
         friend class VertexArray;
         friend class StateTexture;
         friend class NamedTexture;
+        friend class BindlessTexture;
         friend class TextureBinder;
         friend class Framebuffer;
     public:

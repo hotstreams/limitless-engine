@@ -95,7 +95,7 @@ namespace GraphicsEngine {
         [[nodiscard]] virtual glm::uvec3 getSize() const noexcept = 0;
 
         // texture visitors
-        virtual void accept(TextureVisitor& visitor) const noexcept = 0;
+        virtual void accept(TextureVisitor& visitor) noexcept = 0;
     };
 
     using texture_parameters = std::function<void(Texture&)>;

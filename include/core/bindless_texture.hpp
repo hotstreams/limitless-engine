@@ -9,7 +9,6 @@ namespace GraphicsEngine {
     private:
         std::shared_ptr<Texture> texture;
         GLuint64 handle;
-        bool resident {false};
     public:
         explicit BindlessTexture(std::shared_ptr<Texture> texture);
         ~BindlessTexture() override;
@@ -36,6 +35,6 @@ namespace GraphicsEngine {
         [[nodiscard]] Type getType() const noexcept override;
         [[nodiscard]] glm::uvec3 getSize() const noexcept override;
 
-        void accept(TextureVisitor& visitor) const noexcept override;
+        void accept(TextureVisitor& visitor) noexcept override;
     };
 }

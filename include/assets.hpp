@@ -50,6 +50,12 @@ namespace GraphicsEngine {
         [[nodiscard]] bool isExist(const std::string& name) const noexcept {
             return resource.find(name) != resource.end();
         }
+
+        auto begin() noexcept { return resource.begin(); }
+        auto begin() const noexcept { return resource.begin(); }
+
+        auto end() noexcept { return resource.end(); }
+        auto end() const noexcept { return resource.end(); }
     };
 
     struct Assets {

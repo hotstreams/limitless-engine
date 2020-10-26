@@ -8,6 +8,8 @@
 #include <core/texture_binder.hpp>
 #include <core/uniform.hpp>
 #include <material_system/material.hpp>
+#include <core/bindless_texture.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -26,11 +28,8 @@ GLint ShaderProgram::getUniformLocation(const Uniform& uniform) const noexcept {
 }
 
 void ShaderProgram::use() {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto& current_id = ContextState::getState(window)->shader_id;
-
-        if (current_id != id) {
+    if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
+        if (auto& current_id = ContextState::getState(window)->shader_id; current_id != id) {
             glUseProgram(id);
             current_id = id;
         }
@@ -112,6 +111,7 @@ void ShaderProgram::getIndexedBufferBounds() noexcept {
 
 ShaderProgram::~ShaderProgram() {
     if (id != 0) {
+        //TODO: del from state
         glDeleteProgram(id);
     }
 }
@@ -165,6 +165,7 @@ ShaderProgram& ShaderProgram::operator<<(const UniformSampler& uniform) noexcept
 }
 
 ShaderProgram& ShaderProgram::operator<<(const Material& material) {
+    //TODO: update before draw?
     material.update();
 
     auto found = std::find_if(indexed_binds.begin(), indexed_binds.end(), [] (const auto& buf) { return buf.name == "material_buffer"; });
@@ -174,11 +175,9 @@ ShaderProgram& ShaderProgram::operator<<(const Material& material) {
 
     material.material_buffer->bindBase(found->bound_point);
 
-    if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
-        for (const auto& [type, uniform] : material.properties) {
-            if (uniform->getType() == UniformType::Sampler) {
-                *this << static_cast<UniformSampler&>(*uniform);
-            }
+    for (const auto& [type, uniform] : material.properties) {
+        if (uniform->getType() == UniformType::Sampler) {
+            *this << static_cast<UniformSampler&>(*uniform);
         }
     }
 
@@ -196,7 +195,16 @@ ShaderProgram& ShaderProgram::operator<<(const UniformValue<T>& uniform) noexcep
     return *this;
 }
 
+struct TextureResidentMaker : public TextureVisitor {
+    void visit(BindlessTexture& texture) noexcept override {
+        texture.makeResident();
+    }
+
+    void visit([[maybe_unused]] Texture& texture) noexcept override {}
+};
+
 void ShaderProgram::bindTextures() const noexcept {
+    //TODO: bind textures dependent on runtime type
     if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
         // collects textures
         // binds them to units for current usage
@@ -217,6 +225,15 @@ void ShaderProgram::bindTextures() const noexcept {
                 auto &sampler = static_cast<UniformSampler&>(*uniform);
                 sampler.setValue(units[i++]);
             }
+        }
+    }
+
+    // checks textures to be resident in bindless case
+    TextureResidentMaker resident_maker;
+    for (const auto&[name, uniform] : uniforms) {
+        if (uniform->getType() == UniformType::Sampler) {
+            auto &sampler = static_cast<UniformSampler&>(*uniform);
+            sampler.getSampler()->accept(resident_maker);
         }
     }
 }
