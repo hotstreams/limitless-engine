@@ -1,6 +1,7 @@
 #include <core/framebuffer.hpp>
 
 #include <core/texture.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 

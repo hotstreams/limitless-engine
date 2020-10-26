@@ -44,7 +44,7 @@ void main()
 	#ifdef InitialSize_MODULE
 	    gl_PointSize = max(size.x / gl_Position.w, 1.0);
 	#else
-	    gl_PointSize = max(1.0, 128.0 / gl_Position.w);
+	    gl_PointSize = max(1.0, 32.0 / gl_Position.w);
 	#endif
 
     #ifdef InitialColor_MODULE

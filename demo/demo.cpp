@@ -13,6 +13,7 @@
 #include <particle_system/effect_builder.hpp>
 #include <model_loader.hpp>
 #include <util/math.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -97,7 +98,7 @@ public:
 
         scene.add<ElementaryInstance>(assets.models["sphere"], material1, glm::vec3{0.0f, 0.0f, 0.0f});
         scene.add<ElementaryInstance>(assets.models["sphere"], material2, glm::vec3{ 2.0f, 0.0f, 0.0f });
-        scene.add<ElementaryInstance>(assets.models["sphere"], material3, glm::vec3{ 4.0f, 0.0f, 0.0f });
+        auto& instance1 = scene.add<ElementaryInstance>(assets.models["sphere"], material3, glm::vec3{ 4.0f, 0.0f, 0.0f });
         scene.add<ElementaryInstance>(assets.models["sphere"], material4, glm::vec3{ 6.0f, 0.0f, 0.0f });
         instance = &scene.add<ElementaryInstance>(assets.models["sphere"], material5, glm::vec3{ 8.0f, 0.0f, 0.0f });
 
@@ -115,35 +116,37 @@ public:
 
         EffectBuilder eb;
 
-//        auto effect = eb.create("test_effect")
-//                        .createEmitter<SpriteEmitter>("test")
-//                            .addModule<InitialVelocity>(EmitterModuleType::InitialVelocity, new RangeDistribution{glm::vec3{-1.0f}, glm::vec3{1.0f}})
-//                            .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.5f, 1.0f))
-//                            .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.0f, 500.0f))
-//                            .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.0f, 500.0f), -1.0f)
-//                        .setMaterial(material3)
-//                        .setSpawnMode(EmitterSpawn::Mode::Burst)
-//                        .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(10000))
-//                        .setMaxCount(10000)
-//                        .setSpawnRate(1000.0f)
-//                        .build();
+        auto effect1 = eb.create("test_effect1")
+                        .createEmitter<SpriteEmitter>("test")
+                            .addModule<InitialVelocity>(EmitterModuleType::InitialVelocity, new RangeDistribution{glm::vec3{-5.0f}, glm::vec3{5.0f}})
+                            .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.2f, 0.5f))
+                            .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.0f, 50.0f))
+                            .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.0f, 100.0f), -1.0f)
+                        .setMaterial(material3)
+                        .setSpawnMode(EmitterSpawn::Mode::Burst)
+                        .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(1000))
+                        .setMaxCount(1000)
+                        .setSpawnRate(1.0f)
+                        .build();
 
-//        auto effect = eb.create("test_effect")
-//                .createEmitter<MeshEmitter>("test")
-//                .addModule<InitialVelocity>(EmitterModuleType::InitialVelocity, new RangeDistribution{glm::vec3{-2.0f}, glm::vec3{2.0f}})
-//                .addModule<InitialColor>(EmitterModuleType::InitialColor, new RangeDistribution(glm::vec4{0.0f}, glm::vec4{4.0f}))
-//                .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.5f, 1.0f))
-//                .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.01f, 0.09f))
-//                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.01f, 0.09f), -1.0f)
-//                .setMaterial(material3)
-//                .setMesh(assets.meshes["sphere_mesh"])
-//                .setSpawnMode(EmitterSpawn::Mode::Burst)
-//                .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(100))
-//                .setMaxCount(100)
-//                .setSpawnRate(1.0f)
-//                .build();
+        instance1.attachEffect({0.f, 1.f, 0.f}, effect1, instance1.getPosition());
 
-        //instance->attachEffect({0.f, 1.f, 0.f}, effect, instance->getPosition());
+        auto effect2 = eb.create("test_effect2")
+                .createEmitter<MeshEmitter>("test")
+                .addModule<InitialVelocity>(EmitterModuleType::InitialVelocity, new RangeDistribution{glm::vec3{-2.0f}, glm::vec3{2.0f}})
+                .addModule<InitialColor>(EmitterModuleType::InitialColor, new RangeDistribution(glm::vec4{0.0f}, glm::vec4{4.0f}))
+                .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.5f, 1.0f))
+                .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.01f, 0.09f))
+                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.01f, 0.09f), -1.0f)
+                .setMaterial(material3)
+                .setMesh(assets.meshes["sphere_mesh"])
+                .setSpawnMode(EmitterSpawn::Mode::Burst)
+                .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(100))
+                .setMaxCount(100)
+                .setSpawnRate(1.0f)
+                .build();
+
+        instance->attachEffect({0.f, 1.f, 0.f}, effect2, instance->getPosition());
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -179,15 +182,18 @@ public:
         }
 
         if (context.isPressed(GLFW_KEY_1)) {
-            instance->setPosition(instance->getPosition() + glm::vec3{ 0.1f, 0.0f, 0.0f});
+            if (instance)
+                instance->setPosition(instance->getPosition() + glm::vec3{ 0.1f, 0.0f, 0.0f});
         }
 
         if (context.isPressed(GLFW_KEY_2)) {
-            instance->setPosition(instance->getPosition() + glm::vec3{ -0.1f, 0.0f, 0.0f});
+            if (instance)
+                instance->setPosition(instance->getPosition() + glm::vec3{ -0.1f, 0.0f, 0.0f});
         }
 
         if (context.isPressed(GLFW_KEY_3)) {
-            scene.remove(instance->getId());
+            if (instance)
+                scene.remove(instance->getId());
         }
     }
 

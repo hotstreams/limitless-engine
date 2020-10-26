@@ -61,7 +61,7 @@ namespace GraphicsEngine {
         auto& getDuration() noexcept { return duration; }
 
         auto& getSpawn() noexcept { return spawn; }
-        const auto& getSpawn() const noexcept { return spawn; }
+        [[nodiscard]] const auto& getSpawn() const noexcept { return spawn; }
 
         void setPosition(const glm::vec3& position) noexcept;
         void setRotation(const glm::vec3& rotation) noexcept;
