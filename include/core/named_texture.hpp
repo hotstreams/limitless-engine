@@ -42,6 +42,6 @@ namespace GraphicsEngine {
         NamedTexture& operator<<(const TexParameter<GLint*>& param) noexcept override;
         NamedTexture& operator<<(const TexParameter<GLfloat*>& param) noexcept override;
 
-        void accept(TextureVisitor& visitor) const noexcept override;
+        void accept(TextureVisitor& visitor) noexcept override;
     };
 }

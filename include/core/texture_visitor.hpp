@@ -6,8 +6,8 @@ namespace GraphicsEngine {
 
     class TextureVisitor {
     public:
-        virtual void visit(const BindlessTexture& texture) noexcept = 0;
-        virtual void visit(const Texture& texture) noexcept = 0;
+        virtual void visit(BindlessTexture& texture) noexcept = 0;
+        virtual void visit(Texture& texture) noexcept = 0;
 
         virtual ~TextureVisitor() = default;
     };

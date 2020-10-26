@@ -1,11 +1,10 @@
 #include <core/bindless_texture.hpp>
+#include <core/context_state.hpp>
 
 using namespace GraphicsEngine;
 
 BindlessTexture::BindlessTexture(std::shared_ptr<Texture> _texture) : texture(std::move(_texture)) {
     handle = glGetTextureHandleARB(texture->getId());
-
-    makeResident();
 }
 
 BindlessTexture::~BindlessTexture() {
@@ -13,16 +12,24 @@ BindlessTexture::~BindlessTexture() {
 }
 
 void BindlessTexture::makeResident() noexcept {
-    if (!resident) {
-        glMakeTextureHandleResidentARB(handle);
-        resident = true;
+    if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
+        auto& resident = ContextState::getState(window)->texture_resident[handle];
+
+        if (!resident) {
+            glMakeTextureHandleResidentARB(glGetTextureHandleARB(texture->getId()));
+            resident = true;
+        }
     }
 }
 
 void BindlessTexture::makeNonresident() noexcept {
-    if (resident) {
-        glMakeTextureHandleNonResidentARB(handle);
-        resident = false;
+    if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
+        auto& resident = ContextState::getState(window)->texture_resident[handle];
+
+        if (resident) {
+            glMakeTextureHandleNonResidentARB(handle);
+            resident = false;
+        }
     }
 }
 
@@ -43,9 +50,7 @@ void BindlessTexture::generateMipMap() const noexcept {
 }
 
 Texture& BindlessTexture::operator<<(const TexParameter<GLint>& param) noexcept {
-    makeNonresident();
     *texture << param;
-    makeResident();
     return *this;
 }
 
@@ -82,6 +87,6 @@ glm::uvec3 BindlessTexture::getSize() const noexcept {
     return texture->getSize();
 }
 
-void BindlessTexture::accept(TextureVisitor &visitor) const noexcept {
+void BindlessTexture::accept(TextureVisitor &visitor) noexcept {
     visitor.visit(*this);
 }

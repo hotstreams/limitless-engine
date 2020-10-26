@@ -221,6 +221,6 @@ NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTextu
     }
 }
 
-void NamedTexture::accept(TextureVisitor &visitor) const noexcept {
+void NamedTexture::accept(TextureVisitor &visitor) noexcept {
     visitor.visit(*this);
 }

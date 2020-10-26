@@ -334,6 +334,6 @@ glm::uvec3 StateTexture::getSize() const noexcept {
     return size;
 }
 
-void StateTexture::accept(TextureVisitor &visitor) const noexcept {
+void StateTexture::accept(TextureVisitor &visitor) noexcept {
     visitor.visit(*this);
 }
