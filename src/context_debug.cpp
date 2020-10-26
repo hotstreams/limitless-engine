@@ -37,7 +37,7 @@ void GraphicsEngine::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum
 	std::cout << std::endl;
 
 	switch (type) {
-		case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; error_count++; break;
+		case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; gl_error_count++; break;
 		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
 		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
 		case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;

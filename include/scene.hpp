@@ -42,7 +42,7 @@ namespace GraphicsEngine {
         auto& getSkybox() const noexcept { return skybox; }
         void setSkybox(const std::string& asset_name);
 
-        virtual void update();
+        void update();
 
         auto begin() noexcept { return instances.begin(); }
         auto begin() const noexcept { return instances.begin(); }

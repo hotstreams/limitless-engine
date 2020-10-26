@@ -8,5 +8,7 @@ namespace GraphicsEngine {
     public:
         virtual void visit(const BindlessTexture& texture) noexcept = 0;
         virtual void visit(const Texture& texture) noexcept = 0;
+
+        virtual ~TextureVisitor() = default;
     };
 }

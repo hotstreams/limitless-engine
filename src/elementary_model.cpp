@@ -81,6 +81,8 @@ Cube::Cube() {
     meshes.emplace_back(mesh);
 }
 
+
+
 Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
     std::vector<VertexNormalTangent> vertices;
     std::vector<GLuint> indices;
@@ -98,6 +100,29 @@ Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
 
             vertices.emplace_back(VertexNormalTangent{pos, pos, pos, glm::vec2{x_seg, y_seg}});
         }
+    }
+
+    for (uint32_t i=0; i<vertices.size(); i+=3) {
+        glm::vec3 & v0 = vertices[i+0].position;
+        glm::vec3 & v1 = vertices[i+1].position;
+        glm::vec3 & v2 = vertices[i+2].position;
+
+        glm::vec2 & uv0 = vertices[i+0].uv;
+        glm::vec2 & uv1 = vertices[i+1].uv;
+        glm::vec2 & uv2 = vertices[i+2].uv;
+
+        glm::vec3 deltaPos1 = v1-v0;
+        glm::vec3 deltaPos2 = v2-v0;
+
+        glm::vec2 deltaUV1 = uv1-uv0;
+        glm::vec2 deltaUV2 = uv2-uv0;
+
+        float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+        glm::vec3 tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
+
+        vertices[i+0].tangent = tangent;
+        vertices[i+1].tangent = tangent;
+        vertices[i+2].tangent = tangent;
     }
 
     bool oddRow = false;

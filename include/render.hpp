@@ -23,7 +23,7 @@ namespace GraphicsEngine {
 
         std::vector<AbstractInstance*> performFrustumCulling(Scene& scene, Camera& camera) const noexcept;
     public:
-        explicit Renderer(ContextEventObserver& context) noexcept;
+        explicit Renderer(ContextEventObserver& context);
 
         void draw(Context& context, Scene& scene, Camera& camera);
     };

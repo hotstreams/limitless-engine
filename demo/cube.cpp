@@ -35,7 +35,7 @@ public:
 
         auto mat = builder.add(PropertyType::Color, glm::vec4{0.0f, 0.3f, 0.6f, 1.0f}).build("cube material");
 
-        scene.addInstance(new ModelInstance(assets.models.get("cube"), mat, glm::vec3{0.0f, 0.0f, 0.0f}));
+        scene.addInstance(new ModelInstance(assets.models["cube"), mat, glm::vec3{0.0f, 0.0f, 0.0f}));
     }
 
     void draw() {
