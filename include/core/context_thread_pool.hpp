@@ -10,5 +10,6 @@ namespace GraphicsEngine {
     public:
         explicit ContextThreadPool(Context& shared, uint32_t pool_size = std::thread::hardware_concurrency());
         ~ContextThreadPool() override = default;
+
     };
 }

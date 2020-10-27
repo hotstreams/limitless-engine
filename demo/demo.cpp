@@ -46,9 +46,9 @@ public:
         assets.load();
         shader_storage.initialize();
 
-//        loadScene();
+        loadScene();
 
-        loadingSceneConcurrently();
+        //loadingSceneConcurrently();
 
         scene.setSkybox("skybox");
 
@@ -154,7 +154,7 @@ public:
     }
 
     void loadingSceneConcurrently() {
-        AssetLoader loader{context};
+        static AssetLoader loader{context};
 
         loader.loadModel("bob", ASSETS_DIR "models/boblamp/boblampclean.md5mesh");
         loader.loadModel("backpack", ASSETS_DIR "models/backpack/backpack.obj", true);

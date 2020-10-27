@@ -4,14 +4,14 @@ using namespace GraphicsEngine;
 
 ThreadPool::ThreadPool(uint32_t pool_size) {
     for (uint32_t i = 0; i < pool_size; ++i) {
-        auto lambda = [&] {
+        auto lambda = [this] {
             for (;;) {
                 std::function<void()> task;
 
                 {
                     std::unique_lock lock(mutex);
 
-                    condition.wait(lock, [&] () { return stop || !tasks.empty(); });
+                    condition.wait(lock, [this] () { return stop || !tasks.empty(); });
 
                     if (stop && tasks.empty()) return;
 
