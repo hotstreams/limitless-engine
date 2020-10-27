@@ -121,7 +121,6 @@ set(ENGINE_SRC
         src/elementary_instance.cpp
         src/lighting.cpp
         src/light_container.cpp
-        src/asset_loader.cpp
         src/threaded_model_loader.cpp)
 
 #file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
