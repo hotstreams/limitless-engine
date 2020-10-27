@@ -34,8 +34,11 @@ std::shared_ptr<Material> CustomMaterialBuilder::build(const ModelShaders& model
         throw std::runtime_error("Properties & Uniforms cannot be empty.");
     }
 
-    // every custom material is unique
-    material->shader_index = next_shader_index++;
+    {
+        std::unique_lock lock(mutex);
+        // every custom material is unique
+        material->shader_index = next_shader_index++;
+    }
 
     // compiles every material/shader combination
     MaterialCompiler compiler;

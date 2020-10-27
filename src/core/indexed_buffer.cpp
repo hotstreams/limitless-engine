@@ -17,11 +17,14 @@ std::shared_ptr<Buffer> IndexedBuffer::get(std::string_view name) {
 }
 
 void IndexedBuffer::add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept {
+    std::unique_lock lock(mutex);
     buffers.emplace(name, std::move(buffer));
 }
 
 GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept {
-    const auto identifier = Identifier{ type, name };
+    std::unique_lock lock(mutex);
+
+    const auto identifier = Identifier{type, name};
 
     const auto point_bound = bound.find(identifier);
     if (point_bound != bound.end()) {
@@ -61,9 +64,13 @@ GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept
 void IndexedBuffer::remove(const std::string &name, const std::shared_ptr<Buffer>& buffer) {
     if (buffer == nullptr) return;
 
-    auto found = buffers.find(name);
+    {
+        std::unique_lock lock(mutex);
 
-    while (found->second != buffer) { ++found; }
+        auto found = buffers.find(name);
 
-    buffers.erase(found);
+        while (found->second != buffer) { ++found; }
+
+        buffers.erase(found);
+    }
 }

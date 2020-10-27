@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(engine)
 
 set(CMAKE_CXX_STANDARD 17)
+
 #set(EXTRA_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
 set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -DNDEBUG -O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused")
 
@@ -69,6 +70,7 @@ set(ENGINE_CORE
         src/core/shader.cpp
         src/core/state_texture.cpp
         src/core/named_texture.cpp
+        src/core/context_thread_pool.cpp
    )
 
 set(ENGINE_MATERIAL_SYSTEM
@@ -121,7 +123,10 @@ set(ENGINE_SRC
         src/elementary_instance.cpp
         src/lighting.cpp
         src/light_container.cpp
-        src/threaded_model_loader.cpp)
+        src/threaded_model_loader.cpp
+        src/util/thread_pool.cpp
+        src/asset_loader.cpp
+    )
 
 #file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 #foreach(file ${list})

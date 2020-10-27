@@ -2,11 +2,12 @@
 
 #include <core/context_debug.hpp>
 
-#include <string>
-#include <stdexcept>
 #include <unordered_map>
-#include <map>
+#include <stdexcept>
+#include <string>
 #include <memory>
+#include <mutex>
+#include <map>
 
 namespace GraphicsEngine {
     class Buffer;
@@ -27,6 +28,7 @@ namespace GraphicsEngine {
         static inline std::unordered_multimap<std::string, std::shared_ptr<Buffer>> buffers;
         static inline std::unordered_map<Type, GLint> current_bind;
         static inline std::map<Identifier, GLuint> bound;
+        static inline std::mutex mutex;
     public:
         static GLuint getBindingPoint(Type type, std::string_view name) noexcept;
 

@@ -152,12 +152,15 @@ std::shared_ptr<Material> MaterialBuilder::build(const ModelShaders& model_shade
 
     auto material_type = getMaterialType();
 
-    // sets current shader index & adds it to storage
-    if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
-        material->shader_index = found->second;
-    } else {
-        material->shader_index = next_shader_index++;
-        unique_materials.emplace(material_type, material->shader_index);
+    {
+        std::unique_lock lock(mutex);
+        // sets current shader index & adds it to storage
+        if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
+            material->shader_index = found->second;
+        } else {
+            material->shader_index = next_shader_index++;
+            unique_materials.emplace(material_type, material->shader_index);
+        }
     }
 
     // compiles every material/shader combination

@@ -24,14 +24,17 @@ const std::shared_ptr<ShaderProgram>& ShaderStorage::get(MaterialShader material
 }
 
 void ShaderStorage::add(std::string name, std::shared_ptr<ShaderProgram> program) noexcept {
+    std::unique_lock lock(mutex);
     shaders.emplace(std::move(name), std::move(program));
 }
 
 void ShaderStorage::add(MaterialShader material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) noexcept {
+    std::unique_lock lock(mutex);
     material_shaders.emplace(ShaderKey{material_type, model_type, material_index}, std::move(program));
 }
 
-bool ShaderStorage::isExist(MaterialShader material_type, ModelShader model_type, uint64_t material_index) const noexcept {
+bool ShaderStorage::isExist(MaterialShader material_type, ModelShader model_type, uint64_t material_index) noexcept {
+    std::unique_lock lock(mutex);
     return material_shaders.find({material_type, model_type, material_index}) != material_shaders.end();
 }
 
@@ -52,10 +55,12 @@ const std::shared_ptr<ShaderProgram>& ShaderStorage::get(const UniqueMeshEmitter
 }
 
 void ShaderStorage::add(const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept {
+    std::unique_lock lock(mutex);
     sprite_emitter_shaders.emplace(emitter_type, std::move(program));
 }
 
 void ShaderStorage::add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept {
+    std::unique_lock lock(mutex);
     mesh_emitter_shaders.emplace(emitter_type, std::move(program));
 }
 

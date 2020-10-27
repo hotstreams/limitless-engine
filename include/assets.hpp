@@ -4,6 +4,7 @@
 #include <memory>
 #include <stdexcept>
 #include <iterator>
+#include <mutex>
 
 #define ASSETS_DIR "../assets/"
 
@@ -23,12 +24,15 @@ namespace GraphicsEngine {
     class ResourceContainer {
     private:
         std::unordered_map<std::string, std::shared_ptr<T>> resource;
+        std::mutex mutex;
     public:
         const auto& operator[](const std::string& name) noexcept {
+            std::unique_lock lock(mutex);
             return resource[name];
         }
 
-        const auto& at(const std::string& name) const {
+        const auto& at(const std::string& name) {
+            std::unique_lock lock(mutex);
             try {
                 return resource.at(name);
             } catch (...) {
@@ -37,6 +41,7 @@ namespace GraphicsEngine {
         }
 
         void add(const std::string& name, std::shared_ptr<T> res) {
+            std::unique_lock lock(mutex);
             const auto result = resource.emplace(name, std::move(res));
             if (!result.second) {
                 throw resource_container_error("Failed to add resource " + name + ", already exists.");
@@ -44,10 +49,12 @@ namespace GraphicsEngine {
         }
 
         void remove(const std::string& name) {
+            std::unique_lock lock(mutex);
             resource.erase(name);
         }
 
-        [[nodiscard]] bool isExist(const std::string& name) const noexcept {
+        [[nodiscard]] bool isExist(const std::string& name) noexcept {
+            std::unique_lock lock(mutex);
             return resource.find(name) != resource.end();
         }
 
