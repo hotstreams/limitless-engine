@@ -58,10 +58,15 @@ void GraphicsEngine::swap(Context& lhs, Context& rhs) noexcept {
     swap(lhs.window, rhs.window);
     swap(lhs.monitor, rhs.monitor);
     swap(lhs.size, rhs.size);
+
+
+    // register one more time
+    // swap them
 }
 
 Context::Context(Context&& rhs) noexcept : ContextState(std::move(rhs)) {
     swap(*this, rhs);
+    std::cout << "ctx move" << std::endl;
 }
 
 Context& Context::operator=(Context&& rhs) noexcept {
