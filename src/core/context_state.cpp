@@ -100,5 +100,5 @@ void ContextState::setPolygonMode(CullFace face, PolygonMode mode) noexcept {
 }
 
 bool ContextState::hasState(GLFWwindow* window) noexcept {
-    return state_map.find(window) != state_map.end();
+    return window ? state_map.find(window) != state_map.end() : false;
 }

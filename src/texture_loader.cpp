@@ -7,6 +7,8 @@
 using namespace GraphicsEngine;
 
 std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_left_start) {
+    std::unique_lock lock(mutex);
+
     if (assets.textures.isExist(path.string())) {
         return assets.textures[path.string()];
     }
@@ -62,6 +64,8 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_l
 }
 
 std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path &path, bool bottom_left_start) {
+    std::unique_lock lock(mutex);
+
     stbi_set_flip_vertically_on_load(bottom_left_start);
 
     constexpr std::array ext = { "_right", "_left", "_top", "_bottom", "_front", "_back" };

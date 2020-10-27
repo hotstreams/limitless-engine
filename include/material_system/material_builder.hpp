@@ -1,18 +1,20 @@
 #pragma once
 
 #include <material_system/material.hpp>
-#include <functional>
 #include <shader_types.hpp>
+#include <functional>
+#include <mutex>
 
 namespace GraphicsEngine {
     class MaterialBuilder {
     private:
         static inline std::map<MaterialType, uint64_t> unique_materials;
-        std::unique_ptr<Material> material;
 
+        std::unique_ptr<Material> material;
         [[nodiscard]] MaterialType getMaterialType() const noexcept;
     protected:
         static inline uint64_t next_shader_index {0};
+        static inline std::mutex mutex;
 
         void initializeMaterialBuffer(const ShaderProgram& shader) noexcept;
     public:

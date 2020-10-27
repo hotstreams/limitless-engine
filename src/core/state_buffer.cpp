@@ -25,8 +25,7 @@ StateBuffer::StateBuffer(Type target, size_t size, const void* data, Storage usa
 
 StateBuffer::~StateBuffer() {
     if (id != 0) {
-        auto* window = glfwGetCurrentContext();
-        if (ContextState::hasState(window)) {
+        if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
             auto& target_map = ContextState::getState(window)->buffer_target;
             if (target_map[target] == id) {
                 target_map[target] = 0;
