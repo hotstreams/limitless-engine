@@ -12,7 +12,7 @@ AbstractInstance& Scene::at(uint64_t id) { return *instances.at(id); }
 void Scene::remove(uint64_t id) { instances.erase(id); }
 
 void Scene::setSkybox(const std::string& asset_name) {
-    skybox = assets.skyboxes[asset_name];
+    skybox = assets.skyboxes.at(asset_name);
 }
 
 void Scene::update() {

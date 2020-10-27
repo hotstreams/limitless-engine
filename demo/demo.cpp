@@ -14,7 +14,6 @@
 #include <model_loader.hpp>
 #include <util/math.hpp>
 #include <iostream>
-#include <asset_loader.hpp>
 
 using namespace GraphicsEngine;
 
@@ -43,6 +42,7 @@ public:
         context.registerObserver(static_cast<MouseMoveObserver*>(this));
 
         assets.load();
+        shader_storage.initialize();
 
         ModelLoader model_loader;
         assets.models.add("bob", model_loader.loadModel(ASSETS_DIR "models/boblamp/boblampclean.md5mesh"));
@@ -50,85 +50,45 @@ public:
         assets.models.add("nanosuit", model_loader.loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(ASSETS_DIR "models/cyborg/cyborg.obj"));
         assets.skyboxes.add("skybox", std::make_shared<Skybox>(ASSETS_DIR "skyboxes/sky/sky.png"));
+        scene.setSkybox("skybox");
 
         MaterialBuilder builder;
 
-        ThreadPool pool{context, 1};
+        auto material1 = builder.create("material1")
+                                .add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
+                                .setShading(Shading::Lit)
+                                .build();
 
-        auto f = pool.add([&] () {
-            builder.create("material1")
-                   .add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
-                   .setShading(Shading::Lit)
-                   .build();
+        auto material2 = builder.create("material2")
+                                .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/grass.jpg"))
+                                .setShading(Shading::Lit)
+                                .build();
 
-            builder.create("material2")
-                    .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/grass.jpg"))
-                    .setShading(Shading::Lit)
-                    .build();
+        auto material3 = builder.create("material3")
+                                .add(PropertyType::EmissiveColor, glm::vec4(3.0f, 2.3, 1.0f, 1.0f))
+                                .setShading(Shading::Unlit)
+                                .build();
 
-            builder.create("material3")
-                    .add(PropertyType::EmissiveColor, glm::vec4(3.0f, 2.3, 1.0f, 1.0f))
-                    .setShading(Shading::Unlit)
-                    .build();
+        auto material4 = builder.create("material4")
+                                .add(PropertyType::EmissiveMask, TextureLoader::load(ASSETS_DIR "textures/mask.jpg"))
+                                .add(PropertyType::EmissiveColor, glm::vec4(10.5f, 7.1f, 8.5f, 1.0f))
+                                .add(PropertyType::Color, glm::vec4(0.1f, 0.3f, 0.7f, 1.0f))
+                                .setShading(Shading::Lit)
+                                .build();
 
-            builder.create("material4")
-                    .add(PropertyType::EmissiveMask, TextureLoader::load(ASSETS_DIR "textures/mask.jpg"))
-                    .add(PropertyType::EmissiveColor, glm::vec4(10.5f, 7.1f, 8.5f, 1.0f))
-                    .add(PropertyType::Color, glm::vec4(0.1f, 0.3f, 0.7f, 1.0f))
-                    .setShading(Shading::Lit)
-                    .build();
+        auto material5 = builder.create("material5")
+                                .add(PropertyType::BlendMask, TextureLoader::load(ASSETS_DIR "textures/bricks.jpg"))
+                                .add(PropertyType::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
+                                .setShading(Shading::Lit)
+                                .build();
 
-            builder.create("material5")
-                    .add(PropertyType::BlendMask, TextureLoader::load(ASSETS_DIR "textures/bricks.jpg"))
-                    .add(PropertyType::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
-                    .setShading(Shading::Lit)
-                    .build();
-
-            builder.create("material6")
-                    .add(PropertyType::MetallicTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_metallic.png"))
-                    .add(PropertyType::RoughnessTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_roughness.png"))
-                    .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
-                    .add(PropertyType::Normal, TextureLoader::load(ASSETS_DIR "textures/rustediron2_normal.png"))
-                    .setShading(Shading::Lit)
-                    .build();
-        });
-
-        f.wait();
-//        auto material1 = builder.create("material1")
-//                                .add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
-//                                .setShading(Shading::Lit)
-//                                .build();
-
-//        auto material2 = builder.create("material2")
-//                                .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/grass.jpg"))
-//                                .setShading(Shading::Lit)
-//                                .build();
-//
-//        auto material3 = builder.create("material3")
-//                                .add(PropertyType::EmissiveColor, glm::vec4(3.0f, 2.3, 1.0f, 1.0f))
-//                                .setShading(Shading::Unlit)
-//                                .build();
-//
-//        auto material4 = builder.create("material4")
-//                                .add(PropertyType::EmissiveMask, TextureLoader::load(ASSETS_DIR "textures/mask.jpg"))
-//                                .add(PropertyType::EmissiveColor, glm::vec4(10.5f, 7.1f, 8.5f, 1.0f))
-//                                .add(PropertyType::Color, glm::vec4(0.1f, 0.3f, 0.7f, 1.0f))
-//                                .setShading(Shading::Lit)
-//                                .build();
-//
-//        auto material5 = builder.create("material5")
-//                                .add(PropertyType::BlendMask, TextureLoader::load(ASSETS_DIR "textures/bricks.jpg"))
-//                                .add(PropertyType::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
-//                                .setShading(Shading::Lit)
-//                                .build();
-//
-//        auto material6 = builder.create("material6")
-//                                .add(PropertyType::MetallicTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_metallic.png"))
-//                                .add(PropertyType::RoughnessTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_roughness.png"))
-//                                .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
-//                                .add(PropertyType::Normal, TextureLoader::load(ASSETS_DIR "textures/rustediron2_normal.png"))
-//                                .setShading(Shading::Lit)
-//                                .build();
+        auto material6 = builder.create("material6")
+                                .add(PropertyType::MetallicTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_metallic.png"))
+                                .add(PropertyType::RoughnessTexture, TextureLoader::load(ASSETS_DIR "textures/rustediron2_roughness.png"))
+                                .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
+                                .add(PropertyType::Normal, TextureLoader::load(ASSETS_DIR "textures/rustediron2_normal.png"))
+                                .setShading(Shading::Lit)
+                                .build();
 
         scene.add<ModelInstance>(assets.models["backpack"], glm::vec3{2.5f, 0.5f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f}, glm::vec3{0.4f});
         scene.add<ModelInstance>(assets.models["nanosuit"], glm::vec3{4.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.1f});
@@ -152,10 +112,6 @@ public:
 
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 10.5f}, 8.0f);
         scene.lighting.point_lights.emplace_back(glm::vec4{12.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 8.7f, 10.5f}, 3.0f);
-
-        scene.setSkybox("skybox");
-
-        shader_storage.initialize();
 
         EffectBuilder eb;
 

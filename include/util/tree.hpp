@@ -1,63 +1,44 @@
 #pragma once
 
+#include <vector>
+
 namespace GraphicsEngine {
     template <typename T>
     class Tree {
     private:
         T data;
-        Tree<T> **children;
-        size_t child_size;
+        std::vector<Tree<T>> children;
     public:
-        explicit Tree(T data) noexcept : data{std::move(data)}, children{nullptr}, child_size{0} {}
+        explicit Tree(T data) noexcept : data{std::move(data)} {}
 
-        Tree(Tree<T> &&other) noexcept
-                : data(std::move(other.data)), children(other.children), child_size(other.child_size) {
-            other.children = nullptr;
-            other.child_size = 0;
+        ~Tree() = default;
+
+        Tree(const Tree&) = default;
+        Tree &operator=(const Tree&) = default;
+
+        Tree(Tree&&) noexcept = default;
+        Tree &operator=(Tree&&) noexcept = default;
+
+        template<typename T1>
+        Tree& add(T1&& node) noexcept {
+            return children.emplace_back(std::forward<T1>(node));
         }
 
-        Tree &operator=(Tree<T> &&other) noexcept {
-            data = std::move(other.data);
-            children = std::move(other.children);
-            child_size = other.child_size;
+        [[nodiscard]] auto size() const noexcept { return children.size(); }
 
-            other.children = nullptr;
-            other.child_size = 0;
+        const Tree& operator[](size_t i) const noexcept { return children[i]; }
+        Tree& operator[](size_t i) noexcept { return children[i]; }
 
-            return *this;
-        }
+        const T& operator*() const { return data; }
+        T& operator*() { return data; }
 
-        Tree(const Tree &) noexcept = delete;
-        Tree &operator=(const Tree &) noexcept = delete;
-
-        ~Tree() {
-            for (size_t i = 0; i < child_size; ++i)
-                delete children[i];
-            delete[] children;
-        }
-
-        Tree &add(T d) noexcept {
-            return add(new Tree(d));
-        }
-
-        Tree &add(Tree *node) noexcept {
-            auto **new_children = new Tree *[child_size + 1];
-
-            for (size_t i = 0; i < child_size; ++i)
-                new_children[i] = children[i];
-
-            new_children[child_size] = node;
-
-            delete[] children;
-            children = new_children;
-            return *children[child_size++];
-        }
-
-        [[nodiscard]] size_t size() const noexcept { return child_size; }
-        Tree &operator[](size_t i) const noexcept { return *children[i]; }
-        const T &operator*() const { return data; }
-        const T &get() const { return data; }
-        T &operator*() { return data; }
+        const T& get() const { return data; }
         T &get() { return data; }
+
+        auto begin() noexcept { return children.begin(); }
+        auto begin() const noexcept { return children.begin(); }
+
+        auto end() noexcept { return children.end(); }
+        auto end() const noexcept { return children.end(); }
     };
 }

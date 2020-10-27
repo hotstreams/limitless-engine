@@ -10,9 +10,6 @@
 
 using namespace GraphicsEngine;
 
-static uint32_t unnamed_mesh_index {0};
-static uint32_t unnamed_material_index {0};
-
 glm::mat4 glm::convert(const aiMatrix4x4& aimat) noexcept {
     return glm::mat4(aimat.a1, aimat.b1, aimat.c1, aimat.d1,
                      aimat.a2, aimat.b2, aimat.c2, aimat.d2,
@@ -75,7 +72,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool
 }
 
 template<typename T, typename T1>
-std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* m, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
+std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* m, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
     auto name = path.string() + PATH_SEPARATOR + mesh_name;
 
@@ -96,7 +93,7 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* m, const fs::path& p
     return mesh;
 }
 
-std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders) const {
+std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders) {
     aiString aname;
     mat->Get(AI_MATKEY_NAME, aname);
 
@@ -153,7 +150,7 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
     }
 
     {
-        aiBlendMode blending;
+        aiBlendMode blending {aiBlendMode_Default};
         mat->Get(AI_MATKEY_BLEND_FUNC, blending);
         switch (blending) {
             case _aiBlendMode_Force32Bit:
@@ -272,7 +269,7 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
     return bone_weights;
 }
 
-std::vector<std::shared_ptr<Material>> ModelLoader::loadMaterials(const aiScene* scene, const fs::path& path) const {
+std::vector<std::shared_ptr<Material>> ModelLoader::loadMaterials(const aiScene* scene, const fs::path& path) {
     std::vector<std::shared_ptr<Material>> materials;
 
     auto model_shader = scene->mNumAnimations != 0 ? ModelShader::Skeletal : ModelShader::Model;
@@ -360,7 +357,7 @@ Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<
     return tree;
 }
 
-std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene* scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
+std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene* scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     std::vector<std::shared_ptr<AbstractMesh>> meshes;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
