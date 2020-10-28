@@ -4,6 +4,7 @@
 
 - Features:
     - State caching
+    - Multithreaded context resource sharing
     - MaterialCompiler + shader program introspection
     - Indexed buffers auto binding
     - Texture unit auto binding
@@ -20,8 +21,8 @@
   - Emissive color
   - Emissive mask
   - Blend mask
-  - Roughness
-  - Metalness
+  - Roughness + per sample
+  - Metalness + per sample
   + Blending: Opaque, Translucent, Additive, Modulate
   + Shading shader_type: Lit, Unlit
   + Shading models: Phong, Blinn-Phong
