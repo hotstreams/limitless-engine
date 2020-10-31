@@ -1,7 +1,5 @@
 #include <core/framebuffer.hpp>
-
 #include <core/texture.hpp>
-#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -14,25 +12,20 @@ Framebuffer::Framebuffer() noexcept {
 }
 
 void Framebuffer::bind() noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto& framebuffer_id = ContextState::getState(window)->framebuffer_id;
-        if (framebuffer_id != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->framebuffer_id != id) {
             glBindFramebuffer(GL_FRAMEBUFFER, id);
-            framebuffer_id = id;
+            state->framebuffer_id = id;
         }
     }
 }
 
 Framebuffer::~Framebuffer() {
     if (id != 0) {
-        auto* window = glfwGetCurrentContext();
-        if (ContextState::hasState(window)) {
-            auto& framebuffer_id = ContextState::getState(window)->framebuffer_id;
-            if (framebuffer_id == id) {
-                framebuffer_id = 0;
+        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+            if (state->framebuffer_id == id) {
+                state->framebuffer_id = 0;
             }
-
             glDeleteBuffers(1, &id);
         }
     }
@@ -47,9 +40,8 @@ void Framebuffer::onFramebufferChange(glm::uvec2 size) {
 void Framebuffer::checkStatus() {
     bind();
 
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        throw incomplete_framebuffer("Framebuffer is incomplete.");
+    if (auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER); status != GL_FRAMEBUFFER_COMPLETE) {
+        throw framebuffer_error{"Framebuffer is incomplete"};
     }
 }
 
@@ -102,8 +94,8 @@ void Framebuffer::specifyLayer(FramebufferAttachment attachment, uint32_t layer)
             glFramebufferTextureLayer(GL_FRAMEBUFFER, static_cast<GLenum>(tex_attachment.attachment), tex_attachment.texture->getId(), 0, layer);
             tex_attachment.layer = layer;
         }
-    } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such framebuffer attachment.");
+    } catch (...) {
+        throw framebuffer_error{"No such framebuffer attachment"};
     }
 }
 
@@ -132,29 +124,25 @@ Framebuffer& Framebuffer::operator<<(const TextureAttachment& attachment) noexce
 const TextureAttachment& Framebuffer::get(FramebufferAttachment attachment) const {
     try {
         return attachments.at(attachment);
-    } catch (const std::out_of_range& e) {
-        throw std::runtime_error("No such framebuffer attachment.");
+    } catch (...) {
+        throw framebuffer_error{"No such framebuffer attachment"};
     }
 }
 
 void Framebuffer::unbind() noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto& framebuffer_id = ContextState::getState(window)->framebuffer_id;
-        if (framebuffer_id != 0) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->framebuffer_id != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            framebuffer_id = 0;
+            state->framebuffer_id = 0;
         }
     }
 }
 
 void Framebuffer::bindDefault() noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto &framebuffer_id = ContextState::getState(window)->framebuffer_id;
-        if (framebuffer_id != 0) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->framebuffer_id != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            framebuffer_id = 0;
+            state->framebuffer_id = 0;
         }
     }
 }

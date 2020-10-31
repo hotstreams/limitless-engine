@@ -70,7 +70,7 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path &path, bool b
     int width = 0, height = 0, channels = 0;
 
     for (size_t i = 0; i < data.size(); ++i) {
-        std::string p = path.parent_path().string() + "/" + path.stem().string() + ext[i] + path.extension().string();
+        std::string p = path.parent_path().string() + PATH_SEPARATOR + path.stem().string() + ext[i] + path.extension().string();
         data[i] = stbi_load(p.c_str(), &width, &height, &channels, 0);
 
         if (!data[i]) {

@@ -2,7 +2,7 @@
 
 #include <core/context_initializer.hpp>
 #include <core/context_state.hpp>
-
+#include <stdexcept>
 #include <optional>
 
 namespace GraphicsEngine {
@@ -19,13 +19,17 @@ namespace GraphicsEngine {
     };
     using WindowHints = std::vector<std::pair<WindowHint, int>>;
 
+    struct context_error : public std::runtime_error {
+        explicit context_error(const char* error) noexcept : runtime_error{error} {}
+    };
+
     class Context : public ContextInitializer, public ContextState {
     protected:
         GLFWwindow* window {nullptr};
         std::optional<GLFWmonitor*> monitor;
-        glm::uvec2 size;
+        glm::uvec2 size {1, 1};
 
-        Context();
+        Context() = default;
         friend void swap(Context& lhs, Context& rhs) noexcept;
     public:
         Context(std::string_view title, glm::uvec2 size, const WindowHints& hints = WindowHints{});

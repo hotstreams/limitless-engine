@@ -2,11 +2,10 @@
 
 #include <core/context_debug.hpp>
 #include <core/buffer.hpp>
-
-#include <glm/glm.hpp>
-
-#include <map>
 #include <unordered_map>
+#include <glm/glm.hpp>
+#include <mutex>
+#include <map>
 
 namespace GraphicsEngine {
     struct BindingPoint {
@@ -51,6 +50,8 @@ namespace GraphicsEngine {
         Fill = GL_FILL,
     };
 
+    class Context;
+
     class ContextState {
     protected:
         std::unordered_map<GLenum, bool> enable_map;
@@ -83,8 +84,10 @@ namespace GraphicsEngine {
         void init() noexcept;
 
         static inline std::unordered_map<GLFWwindow*, ContextState*> state_map;
-        void registerState(GLFWwindow* window);
-        void unregisterState(GLFWwindow* window);
+        static inline std::mutex mutex;
+        void swapStateMap(Context& lhs, Context& rhs) noexcept;
+        void unregisterState(GLFWwindow* window) noexcept;
+        void registerState(GLFWwindow* window) noexcept;
 
         friend class StateBuffer;
         friend class NamedBuffer;

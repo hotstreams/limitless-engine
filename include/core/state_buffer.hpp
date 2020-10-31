@@ -1,7 +1,6 @@
 #pragma once
 
 #include <core/buffer.hpp>
-
 #include <optional>
 
 namespace GraphicsEngine {

@@ -1,11 +1,7 @@
 #include <core/context.hpp>
-
 #include <stb_image.h>
-#include <iostream>
 
 using namespace GraphicsEngine;
-
-Context::Context() : size({ 0, 0 }) { }
 
 Context::Context(std::string_view title, glm::uvec2 s, const WindowHints& hints)
     : ContextInitializer(), ContextState(), size(s) {
@@ -17,19 +13,17 @@ Context::Context(std::string_view title, glm::uvec2 s, const WindowHints& hints)
     window = glfwCreateWindow(size.x, size.y, title.data(), nullptr, nullptr);
 
     if (!window) {
-        const char **ptr = nullptr;
-        auto code = glfwGetError(ptr);
-        std::cout << "Error: " << ptr << " code: " << code << std::endl;
-        throw std::runtime_error("Failed to create window.");
+        throw context_error{"Failed to create window"};
     }
 
     if (!glew_inited) {
         makeCurrent();
         initializeGLEW();
-        init();
     }
 
-    ContextInitializer::defaultHints();
+    init();
+
+    defaultHints();
 
     registerState(window);
 }
@@ -44,10 +38,12 @@ Context::Context(std::string_view title, glm::uvec2 s, const Context& shared, co
     window = glfwCreateWindow(size.x, size.y, title.data(), nullptr, shared.window);
 
     if (!window) {
-        throw std::runtime_error("Failed to create window.");
+        throw context_error{"Failed to create window"};
     }
 
-    ContextInitializer::defaultHints();
+    init();
+
+    defaultHints();
 
     registerState(window);
 }
@@ -55,18 +51,15 @@ Context::Context(std::string_view title, glm::uvec2 s, const Context& shared, co
 void GraphicsEngine::swap(Context& lhs, Context& rhs) noexcept {
     using std::swap;
 
+    lhs.swapStateMap(lhs, rhs);
+
     swap(lhs.window, rhs.window);
     swap(lhs.monitor, rhs.monitor);
     swap(lhs.size, rhs.size);
-
-
-    // register one more time
-    // swap them
 }
 
 Context::Context(Context&& rhs) noexcept : ContextState(std::move(rhs)) {
     swap(*this, rhs);
-    std::cout << "ctx move" << std::endl;
 }
 
 Context& Context::operator=(Context&& rhs) noexcept {

@@ -1,6 +1,6 @@
 #include <core/context_state.hpp>
 #include <core/context_initializer.hpp>
-#include <iostream>
+#include <core/context.hpp>
 
 using namespace GraphicsEngine;
 
@@ -15,12 +15,38 @@ void ContextState::init() noexcept {
     }
 }
 
-void ContextState::registerState(GLFWwindow* window) {
+void ContextState::registerState(GLFWwindow* window) noexcept {
+    std::unique_lock lock{mutex};
+
     state_map.emplace(window, this);
 }
 
-void ContextState::unregisterState(GLFWwindow* window) {
+void ContextState::unregisterState(GLFWwindow* window) noexcept {
+    std::unique_lock lock{mutex};
+
     state_map.erase(window);
+}
+
+void ContextState::swapStateMap(Context& lhs, Context& rhs) noexcept {
+    std::unique_lock lock{mutex};
+
+    // we do not register nullptr window at context default construct, so have to check
+    // try to understand that is going on here
+    // love implicit casts ;)
+    if (lhs && rhs) {
+        std::swap(state_map[lhs], state_map[rhs]);
+        return;
+    }
+
+    if (lhs && !rhs) {
+        state_map[lhs] = &rhs;
+        return;
+    }
+
+    if (!lhs && rhs) {
+        state_map[rhs] = &lhs;
+        return;
+    }
 }
 
 void ContextState::clearColor(const glm::vec4& color) noexcept {
@@ -86,7 +112,7 @@ void ContextState::setFrontFace(FrontFace mode) noexcept {
 ContextState* ContextState::getState(GLFWwindow* window) noexcept {
     try {
         return state_map.at(window);
-    } catch (const std::out_of_range& e) {
+    } catch (...) {
         return nullptr;
     }
 }

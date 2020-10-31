@@ -4,9 +4,21 @@ project(engine)
 set(CMAKE_CXX_STANDARD 17)
 
 #set(EXTRA_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
-set(CMAKE_CXX_FLAGS_DEBUG "-DGL_DEBUG -DNDEBUG -O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused")
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+option(OPENGL_DEBUG "Enables OpenGL error message callback" ON)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused)
+    add_compile_definitions(NDEBUG)
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_options(-O3)
+endif()
+
+if (OPENGL_DEBUG)
+    add_compile_definitions(GL_DEBUG)
+endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 

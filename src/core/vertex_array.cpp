@@ -12,11 +12,9 @@ VertexArray::VertexArray() noexcept : id(0), next_attribute_index(0) {
 
 VertexArray::~VertexArray() {
     if (id != 0) {
-        auto* window = glfwGetCurrentContext();
-        if (ContextState::hasState(window)) {
-            auto &current_id = ContextState::getState(window)->vertex_array_id;
-            if (current_id == id) {
-                current_id = 0;
+        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+            if (state->vertex_array_id == id) {
+                state->vertex_array_id = 0;
             }
             glDeleteVertexArrays(1, &id);
         }
@@ -24,12 +22,10 @@ VertexArray::~VertexArray() {
 }
 
 void VertexArray::bind() const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto &current_id = ContextState::getState(window)->vertex_array_id;
-        if (current_id != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->vertex_array_id != id) {
             glBindVertexArray(id);
-            current_id = id;
+            state->vertex_array_id = id;
         }
     }
 }

@@ -1,14 +1,18 @@
 #pragma once
 
 #include <core/indexed_buffer.hpp>
-#include <vector>
 #include <glm/glm.hpp>
+#include <vector>
 
 namespace GraphicsEngine {
-    class Uniform;
     template<typename T> class UniformValue;
     class UniformSampler;
     class Material;
+    class Uniform;
+
+    struct shader_program_error : public std::runtime_error {
+        explicit shader_program_error(const char* error) noexcept : runtime_error{error} {}
+    };
 
     class ShaderProgram {
     private:

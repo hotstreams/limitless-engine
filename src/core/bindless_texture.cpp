@@ -12,8 +12,8 @@ BindlessTexture::~BindlessTexture() {
 }
 
 void BindlessTexture::makeResident() noexcept {
-    if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
-        auto& resident = ContextState::getState(window)->texture_resident[handle];
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        auto& resident = state->texture_resident[handle];
 
         if (!resident) {
             glMakeTextureHandleResidentARB(glGetTextureHandleARB(texture->getId()));
@@ -23,8 +23,8 @@ void BindlessTexture::makeResident() noexcept {
 }
 
 void BindlessTexture::makeNonresident() noexcept {
-    if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
-        auto& resident = ContextState::getState(window)->texture_resident[handle];
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        auto& resident = state->texture_resident[handle];
 
         if (resident) {
             glMakeTextureHandleNonResidentARB(handle);

@@ -1,23 +1,23 @@
 #include <core/state_buffer.hpp>
-
 #include <core/context_state.hpp>
-#include <cstring>
 #include <stdexcept>
+#include <algorithm>
+#include <cstring>
 
 using namespace GraphicsEngine;
 
 StateBuffer::StateBuffer() noexcept
-    : id(0), target(Type::Array), size(0), usage_flags(Usage::StaticDraw), access(MutableAccess::WriteOrphaning) {}
+    : id{0}, target{Type::Array}, size{0}, usage_flags{Usage::StaticDraw}, access{MutableAccess::WriteOrphaning} { }
 
 StateBuffer::StateBuffer(Type target, size_t size, const void* data, Usage usage, MutableAccess access) noexcept
-    : id(0), target(target), size(size), usage_flags(usage), access(access) {
+    : id{0}, target{target}, size{size}, usage_flags{usage}, access{access} {
     glGenBuffers(1, &id);
 
     StateBuffer::bufferData(data);
 }
 
 StateBuffer::StateBuffer(Type target, size_t size, const void* data, Storage usage, ImmutableAccess access)
-    : id(0), target(target), size(size), usage_flags(usage), access(access) {
+    : id{0}, target{target}, size{size}, usage_flags{usage}, access{access} {
     glGenBuffers(1, &id);
 
     StateBuffer::bufferStorage(data);
@@ -25,11 +25,20 @@ StateBuffer::StateBuffer(Type target, size_t size, const void* data, Storage usa
 
 StateBuffer::~StateBuffer() {
     if (id != 0) {
-        if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
-            auto& target_map = ContextState::getState(window)->buffer_target;
-            if (target_map[target] == id) {
-                target_map[target] = 0;
-            }
+        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+            auto& target_map = state->buffer_target;
+            auto& point_map = state->buffer_point;
+
+            std::for_each(target_map.begin(), target_map.end(), [&] (auto& state_target) {
+                auto& [s_target, s_id] = state_target;
+                if (s_id == id) s_id = 0;
+            });
+
+            std::for_each(point_map.begin(), point_map.end(), [&] (auto& state_point) {
+                auto& [s_point, s_id] = state_point;
+                if (s_id == id) s_id = 0;
+            });
+
             glDeleteBuffers(1, &id);
         }
     }
@@ -57,31 +66,25 @@ StateBuffer& StateBuffer::operator=(StateBuffer&& rhs) noexcept {
 }
 
 void StateBuffer::bind() const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto &target_map = ContextState::getState(window)->buffer_target;
-        if (target_map[target] != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->buffer_target[target] != id) {
             glBindBuffer(static_cast<GLenum>(target), id);
-            target_map[target] = id;
+            state->buffer_target[target] = id;
         }
     }
 }
 
 void StateBuffer::bindAs(Type _target) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto &target_map = ContextState::getState(window)->buffer_target;
-        if (target_map[_target] != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->buffer_target[_target] != id) {
             glBindBuffer(static_cast<GLenum>(_target), id);
-            target_map[_target] = id;
+            state->buffer_target[_target] = id;
         }
     }
 }
 
 void StateBuffer::bindBaseAs(Type _target, GLuint index) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto* state = ContextState::getState(window);
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
         auto& point_map = state->buffer_point;
         auto& target_map = state->buffer_target;
         if (point_map[{_target, index}] != id) {
@@ -93,11 +96,9 @@ void StateBuffer::bindBaseAs(Type _target, GLuint index) const noexcept {
 }
 
 void StateBuffer::bindBase(GLuint index) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto* state = ContextState::getState(window);
-        auto &point_map = state->buffer_point;
-        auto &target_map = state->buffer_target;
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        auto& point_map = state->buffer_point;
+        auto& target_map = state->buffer_target;
         if (point_map[{target, index}] != id) {
             glBindBufferBase(static_cast<GLenum>(target), index, id);
             point_map[{target, index}] = id;
@@ -108,7 +109,6 @@ void StateBuffer::bindBase(GLuint index) const noexcept {
 
 void StateBuffer::bufferData(const void* data) const noexcept {
     bind();
-
     glBufferData(static_cast<GLenum>(target), size, data, static_cast<GLenum>(std::get<Usage>(usage_flags)));
 }
 
@@ -127,13 +127,11 @@ void StateBuffer::bufferStorage(const void* data) {
 
 void StateBuffer::bufferSubData(GLintptr offset, size_t sub_size, const void* data) const noexcept {
     bind();
-
     glBufferSubData(static_cast<GLenum>(target), offset, sub_size, data);
 }
 
 void StateBuffer::clearData(GLenum internalformat, GLenum format, GLenum type, const void* data) const noexcept {
     bind();
-
     glClearBufferData(static_cast<GLenum>(target), internalformat, format, type, data);
 }
 
@@ -153,13 +151,13 @@ void StateBuffer::mapData(const void* data, size_t data_size) {
     if (data_size == 0) return;
 
     if (data_size > size) {
-        throw std::logic_error("Buffer capacity is not enough to map data.");
+        throw buffer_error{"Buffer capacity is not enough to map data"};
     }
 
     if (access.index() == 0) {
         switch (std::get<MutableAccess>(access)) {
             case MutableAccess::None:
-                throw std::runtime_error("Static created buffer should not be mapped.");
+                throw buffer_error{"Static created buffer should not be mapped"};
             case MutableAccess::Write:
                 [[fallthrough]];
             case MutableAccess::WriteOrphaning:
@@ -177,7 +175,7 @@ void StateBuffer::mapData(const void* data, size_t data_size) {
     if (access.index() == 1) {
         switch (std::get<ImmutableAccess>(access)) {
             case ImmutableAccess::None:
-                throw std::runtime_error("Static created storage cannot be mapped.");
+                throw buffer_error{"Static created storage cannot be mapped"};
             case ImmutableAccess::WritePersistence:
                 waitFence();
                 std::memcpy(persistent_ptr.value(), data, data_size);
@@ -205,7 +203,7 @@ void* StateBuffer::mapBufferRange(GLintptr offset, GLsizeiptr map_size) const {
     auto* ptr = glMapBufferRange(static_cast<GLenum>(target), offset, map_size, acc);
     if (!ptr) {
         unmapBuffer();
-        throw std::runtime_error("Buffer cannot get pointer to data.");
+        throw buffer_error{"Buffer cannot get pointer to data."};
     }
 
     return ptr;
@@ -213,7 +211,6 @@ void* StateBuffer::mapBufferRange(GLintptr offset, GLsizeiptr map_size) const {
 
 void StateBuffer::unmapBuffer() const noexcept {
     bind();
-
     glUnmapBuffer(static_cast<GLenum>(target));
 }
 
@@ -230,18 +227,15 @@ void StateBuffer::fence() noexcept {
     }
 
     if (access.index() == 1) {
-        auto acc = std::get<ImmutableAccess>(access);
-        if (acc == ImmutableAccess::WritePersistence || acc == ImmutableAccess::WriteCoherent) {
+        if (auto acc = std::get<ImmutableAccess>(access); acc == ImmutableAccess::WritePersistence || acc == ImmutableAccess::WriteCoherent) {
             sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         }
     }
 }
 
 void StateBuffer::bindBufferRangeAs(Buffer::Type _target, GLuint index, GLintptr offset) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto& point_map = ContextState::getState(window)->buffer_point;
-        if (point_map[{_target, index}] != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (auto& point_map = state->buffer_point; point_map[{_target, index}] != id) {
             glBindBufferRange(static_cast<GLenum>(_target), index, id, offset, size);
             point_map[{_target, index}] = id;
         }
@@ -249,10 +243,8 @@ void StateBuffer::bindBufferRangeAs(Buffer::Type _target, GLuint index, GLintptr
 }
 
 void StateBuffer::bindBufferRange(GLuint index, GLintptr offset) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto& point_map = ContextState::getState(window)->buffer_point;
-        if (point_map[{target, index}] != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (auto& point_map = state->buffer_point; point_map[{target, index}] != id) {
             glBindBufferRange(static_cast<GLenum>(target), index, id, offset, size);
             point_map[{target, index}] = id;
         }
@@ -277,6 +269,5 @@ const std::variant<Buffer::MutableAccess, Buffer::ImmutableAccess>& StateBuffer:
 
 void StateBuffer::clearSubData(GLenum internalformat, GLintptr offset, GLsizeiptr sub_size, GLenum format, GLenum type, const void *data) const noexcept {
     bind();
-
     glClearBufferSubData(static_cast<GLenum>(target), internalformat, offset, sub_size, format, type, data);
 }
