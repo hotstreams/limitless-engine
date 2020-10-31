@@ -1,9 +1,14 @@
 #pragma once
 
 #include <core/context_debug.hpp>
+#include <stdexcept>
 #include <variant>
 
 namespace GraphicsEngine {
+    struct buffer_error : public std::runtime_error {
+        explicit buffer_error(const char* error) noexcept : runtime_error(error) {}
+    };
+
     class Buffer {
     public:
         enum class Type {

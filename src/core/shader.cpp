@@ -79,6 +79,7 @@ void Shader::replaceExtensions() noexcept {
     if (ContextInitializer::isExtensionSupported(bindless_texture)) {
         extensions.append(extension_bindless_texture);
         extensions.append(bindless_texture_define);
+        extensions.append("layout(bindless_sampler) uniform;\n");
     }
 
     replaceKey(extensions_key, extensions);

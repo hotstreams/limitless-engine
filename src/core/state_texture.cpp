@@ -211,14 +211,14 @@ void StateTexture::texStorage2DMultisample(uint8_t _samples, InternalFormat _int
 
 StateTexture::~StateTexture() {
     if (id != 0) {
-        auto* window = glfwGetCurrentContext();
-        if (ContextState::hasState(window)) {
-            auto& target_map = ContextState::getState(window)->texture_bound;
-            for (auto& [unit, bound_id] : target_map) {
-                if (bound_id == id) {
-                    bound_id = 0;
-                }
-            }
+        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+            auto& target_map = state->texture_bound;
+
+            std::for_each(target_map.begin(), target_map.end(), [&] (auto& state) {
+                auto& [s_unit, s_id] = state;
+                if (s_id == id) s_id = 0;
+            });
+
             glDeleteTextures(1, &id);
         }
     }
@@ -226,35 +226,29 @@ StateTexture::~StateTexture() {
 
 void StateTexture::texSubImage2D(GLint xoffset, GLint yoffset, glm::uvec2 _size, const void* data) const noexcept {
     bind(0);
-
     glTexSubImage2D(static_cast<GLenum>(target), 0, xoffset, yoffset, _size.x, _size.y, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
 void StateTexture::texSubImage3D(GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 _size, const void* data) const noexcept {
     bind(0);
-
     glTexSubImage3D(static_cast<GLenum>(target), 0, xoffset, yoffset, zoffset, _size.x, _size.y, _size.z, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
 void StateTexture::activate(GLuint index) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto &activated = ContextState::getState(window)->active_texture;
-        if (activated != index) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->active_texture != index) {
             glActiveTexture(GL_TEXTURE0 + index);
-            activated = index;
+            state->active_texture = index;
         }
     }
 }
 
 void StateTexture::bind(GLuint index) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto &bound = ContextState::getState(window)->texture_bound[index];
-        if (bound != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->texture_bound[index] != id) {
             activate(index);
             glBindTexture(static_cast<GLenum>(target), id);
-            bound = id;
+            state->texture_bound[index] = id;
         }
     }
 }

@@ -1,15 +1,11 @@
 #include <core/shader_program.hpp>
 
-#include <algorithm>
-
-#include <core/context_state.hpp>
 #include <core/context_initializer.hpp>
-
-#include <core/texture_binder.hpp>
-#include <core/uniform.hpp>
 #include <material_system/material.hpp>
 #include <core/bindless_texture.hpp>
-#include <iostream>
+#include <core/texture_binder.hpp>
+#include <core/context_state.hpp>
+#include <core/uniform.hpp>
 
 using namespace GraphicsEngine;
 
@@ -28,10 +24,10 @@ GLint ShaderProgram::getUniformLocation(const Uniform& uniform) const noexcept {
 }
 
 void ShaderProgram::use() {
-    if (auto* window = glfwGetCurrentContext(); ContextState::hasState(window)) {
-        if (auto& current_id = ContextState::getState(window)->shader_id; current_id != id) {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->shader_id != id) {
+            state->shader_id = id;
             glUseProgram(id);
-            current_id = id;
         }
 
         bindIndexedBuffers();
@@ -111,7 +107,11 @@ void ShaderProgram::getIndexedBufferBounds() noexcept {
 
 ShaderProgram::~ShaderProgram() {
     if (id != 0) {
-        //TODO: del from state
+        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+            if (state->shader_id == id) {
+                state->shader_id = 0;
+            }
+        }
         glDeleteProgram(id);
     }
 }
@@ -170,7 +170,7 @@ ShaderProgram& ShaderProgram::operator<<(const Material& material) {
 
     auto found = std::find_if(indexed_binds.begin(), indexed_binds.end(), [] (const auto& buf) { return buf.name == "material_buffer"; });
     if (found == indexed_binds.end()) {
-        throw std::runtime_error("There is no material in shader.");
+        throw shader_program_error{"There is no material in shader"};
     }
 
     material.material_buffer->bindBase(found->bound_point);
