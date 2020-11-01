@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <core/texture_visitor.hpp>
+#include <core/context_debug.hpp>
 
 namespace GraphicsEngine {
     class Texture;
@@ -51,6 +52,7 @@ namespace GraphicsEngine {
     class UniformSampler : public UniformValue<int> {
     private:
         std::shared_ptr<Texture> sampler;
+        GLuint sampler_id {};
     public:
         UniformSampler(const std::string& name, std::shared_ptr<Texture> sampler) noexcept;
         ~UniformSampler() override = default;

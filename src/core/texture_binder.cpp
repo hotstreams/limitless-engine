@@ -6,31 +6,31 @@
 #include <iterator>
 
 using namespace GraphicsEngine;
-
-GLint TextureBinder::bind(Texture& texture) noexcept {
-    // contains [unit_index, texture_id]
-    const auto& texture_bound = ContextState::getState(glfwGetCurrentContext())->texture_bound;
-
-    // checks if there is already bound texture
-    const auto already_bound = std::find_if(texture_bound.begin(), texture_bound.end(), [&] (const auto& bind) { return bind.second == texture.getId(); });
-    if (already_bound != texture_bound.end()) {
-        return already_bound->first;
-    }
-
-    // checks for free slots
-    const auto empty_slot = std::find_if(texture_bound.begin(), texture_bound.end(), [] (const auto& bind) { return bind.second == 0; });
-    if (empty_slot != texture_bound.end()) {
-        texture.bind(empty_slot->first);
-        return empty_slot->first;
-    }
-
-    const auto unit = current_bind;
-    texture.bind(unit);
-
-    current_bind = ++current_bind >= ContextInitializer::limits.max_texture_units ? 0 : current_bind;
-
-    return unit;
-}
+//
+//GLint TextureBinder::bind(Texture& texture) noexcept {
+//    // contains [unit_index, texture_id]
+//    const auto& texture_bound = ContextState::getState(glfwGetCurrentContext())->texture_bound;
+//
+//    // checks if there is already bound texture
+//    const auto already_bound = std::find_if(texture_bound.begin(), texture_bound.end(), [&] (const auto& bind) { return bind.second == texture.getId(); });
+//    if (already_bound != texture_bound.end()) {
+//        return already_bound->first;
+//    }
+//
+//    // checks for free slots
+//    const auto empty_slot = std::find_if(texture_bound.begin(), texture_bound.end(), [] (const auto& bind) { return bind.second == 0; });
+//    if (empty_slot != texture_bound.end()) {
+//        texture.bind(empty_slot->first);
+//        return empty_slot->first;
+//    }
+//
+//    const auto unit = current_bind;
+//    texture.bind(unit);
+//
+//    current_bind = ++current_bind >= ContextInitializer::limits.max_texture_units ? 0 : current_bind;
+//
+//    return unit;
+//}
 
 std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
     if (textures.size() > static_cast<size_t>(ContextInitializer::limits.max_texture_units)) {
@@ -90,3 +90,28 @@ std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
 
     return indices;
 }
+//
+//GLint TextureBinder::bind(GLenum target, const ExtensionTexture& texture) noexcept {
+//    // contains [unit_index, texture_id]
+//    const auto& texture_bound = ContextState::getState(glfwGetCurrentContext())->texture_bound;
+//
+//    // checks if there is already bound texture
+//    const auto already_bound = std::find_if(texture_bound.begin(), texture_bound.end(), [&] (const auto& bind) { return bind.second == texture.getId(); });
+//    if (already_bound != texture_bound.end()) {
+//        return already_bound->first;
+//    }
+//
+//    // checks for free slots
+//    const auto empty_slot = std::find_if(texture_bound.begin(), texture_bound.end(), [] (const auto& bind) { return bind.second == 0; });
+//    if (empty_slot != texture_bound.end()) {
+//        texture.bind(target, empty_slot->first);
+//        return empty_slot->first;
+//    }
+//
+//    const auto unit = current_bind;
+//    texture.bind(target, unit);
+//
+//    current_bind = ++current_bind >= ContextInitializer::limits.max_texture_units ? 0 : current_bind;
+//
+//    return unit;
+//}

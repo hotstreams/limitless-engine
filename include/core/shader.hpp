@@ -45,15 +45,15 @@ namespace GraphicsEngine {
 
         void checkStatus() const;
 
-        Shader() noexcept = default;
+        Shader() = default;
         static std::string getSource(const fs::path &filepath);
         friend void swap(Shader& lhs, Shader&rhs) noexcept;
     public:
         Shader(fs::path path, Type type);
         ~Shader();
 
-        Shader(const Shader&) noexcept = delete;
-        Shader& operator=(const Shader&) noexcept = delete;
+        Shader(const Shader&) = delete;
+        Shader& operator=(const Shader&) = delete;
 
         Shader(Shader&&) noexcept;
         Shader& operator=(Shader&&) noexcept;

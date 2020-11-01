@@ -6,27 +6,25 @@
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 
-#include <iostream>
-
 using namespace GraphicsEngine;
 
-template<typename T, typename T1>
+template<typename V, typename I>
 std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(aiMesh* m, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
     auto name = path.string() + PATH_SEPARATOR + mesh_name;
 
-    if (assets.meshes.isExist(name)) {
-        return [&, name = std::move(name)] () { return assets.meshes[name]; };
-    }
-
-    auto vertices = loadVertices<T>(m);
-    auto indices = loadIndices<T1>(m);
+    auto vertices = loadVertices<V>(m);
+    auto indices = loadIndices<I>(m);
     auto weights = loadBoneWeights(m, bones, bone_map);
 
     return [vertices = std::move(vertices), indices = std::move(indices), name = std::move(name), weights = std::move(weights), skinned = !bone_map.empty()] () mutable {
+        if (assets.meshes.isExist(name)) {
+            return assets.meshes[name];
+        }
+
         auto mesh = !skinned ?
-                    std::shared_ptr<AbstractMesh>(new IndexedMesh<T, T1>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
-                    std::shared_ptr<AbstractMesh>(new SkinnedMesh<T, T1>(std::move(vertices), std::move(indices), std::move(weights), std::move(name), MeshDataType::Static, DrawMode::Triangles));
+                    std::shared_ptr<AbstractMesh>(new IndexedMesh<V, I>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
+                    std::shared_ptr<AbstractMesh>(new SkinnedMesh<V, I>(std::move(vertices), std::move(indices), std::move(weights), std::move(name), MeshDataType::Static, DrawMode::Triangles));
 
         assets.meshes.add(mesh->getName(), mesh);
 

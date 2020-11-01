@@ -31,7 +31,7 @@ private:
     bool done {false};
     static constexpr glm::uvec2 window_size {1920 , 1080};
 public:
-    Game() : context{"Features", window_size, {{ WindowHint::Resizable, false }}}, camera{window_size}, render{context} {
+    Game() : context{"Features", window_size, {{ WindowHint::Resizable, true }}}, camera{window_size}, render{context} {
         camera.setPosition({0.0f, 0.0f, 0.0f});
 
         context.makeCurrent();

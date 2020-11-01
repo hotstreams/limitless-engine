@@ -2,6 +2,7 @@
 
 #include <core/shader_program.hpp>
 #include <core/bindless_texture.hpp>
+#include <core/texture.hpp>
 
 using namespace GraphicsEngine;
 
@@ -98,8 +99,9 @@ UniformSampler::UniformSampler(const std::string& name, std::shared_ptr<Texture>
     : UniformValue{name, UniformType::Sampler, -1}, sampler{std::move(sampler)} { }
 
 void UniformSampler::setSampler(const std::shared_ptr<Texture>& texture) noexcept {
-    if (sampler != texture) {
+    if (sampler != texture || sampler_id != texture->getId()) {
         sampler = texture;
+        sampler_id = texture->getId();
         changed = true;
     }
 }
@@ -112,9 +114,10 @@ void UniformSampler::set(const ShaderProgram& shader) {
     // else regular -> set texture unit
 
     //TODO: remove RTTI
-    if (const auto* texture = dynamic_cast<BindlessTexture*>(sampler.get()); texture) {
-        glUniformHandleui64ARB(location, texture->getHandle());
-    } else {
+    try {
+        const auto& texture = dynamic_cast<const BindlessTexture&>(sampler->getExtensionTexture());
+        glUniformHandleui64ARB(location, texture.getHandle());
+    } catch (...) {
         UniformValue::set(shader);
     }
 }
@@ -173,9 +176,9 @@ std::string GraphicsEngine::getUniformDeclaration(const Uniform& uniform) noexce
                 case Texture::Type::TexCubeMapArray:
                     declaration.append("samplerCubeArray ");
                     break;
-                case Texture::Type::Tex2DMS:
-                    declaration.append("gsampler2DMS ");
-                    break;
+//                case Texture::Type::Tex2DMS:
+//                    declaration.append("gsampler2DMS ");
+//                    break;
             }
             break;
     }

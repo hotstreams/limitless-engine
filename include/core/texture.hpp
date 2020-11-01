@@ -1,6 +1,7 @@
 #pragma once
 
 #include <core/texture_visitor.hpp>
+#include <core/extension_texture.hpp>
 #include <core/context_debug.hpp>
 #include <glm/glm.hpp>
 #include <functional>
@@ -20,7 +21,7 @@ namespace GraphicsEngine {
             CubeMap = GL_TEXTURE_CUBE_MAP,
             Tex2DArray = GL_TEXTURE_2D_ARRAY,
             TexCubeMapArray = GL_TEXTURE_CUBE_MAP_ARRAY,
-            Tex2DMS = GL_TEXTURE_2D_MULTISAMPLE
+            //Tex2DMS = GL_TEXTURE_2D_MULTISAMPLE
         };
 
         enum class InternalFormat {
@@ -78,12 +79,14 @@ namespace GraphicsEngine {
         Texture& operator=(Texture&&) noexcept = default;
         
         virtual void bind(GLuint index) const noexcept = 0;
+
+        // resizes texture; content becomes empty
         virtual void resize(glm::uvec3 size) = 0;
 
-        virtual void texSubImage2D(GLint xoffset, GLint yoffset, glm::uvec2 size, const void* data) const noexcept = 0;
-        virtual void texSubImage3D(GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 size, const void* data) const noexcept = 0;
+        virtual void texSubImage2D(glm::uvec2 offset, glm::uvec2 size, const void *data) const noexcept = 0;
+        virtual void texSubImage3D(glm::uvec3 offset, glm::uvec3 size, const void *data) const noexcept = 0;
 
-        virtual void generateMipMap() const noexcept = 0;
+        virtual void generateMipMap() noexcept = 0;
 
         virtual Texture& operator<<(const TexParameter<GLint>& param) noexcept = 0;
         virtual Texture& operator<<(const TexParameter<GLfloat>& param) noexcept = 0;
@@ -93,6 +96,7 @@ namespace GraphicsEngine {
         [[nodiscard]] virtual GLuint getId() const noexcept = 0;
         [[nodiscard]] virtual Type getType() const noexcept = 0;
         [[nodiscard]] virtual glm::uvec3 getSize() const noexcept = 0;
+        [[nodiscard]] virtual const ExtensionTexture& getExtensionTexture() const noexcept = 0;
 
         // texture visitors
         virtual void accept(TextureVisitor& visitor) noexcept = 0;

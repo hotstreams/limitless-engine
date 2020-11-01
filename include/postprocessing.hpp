@@ -23,12 +23,12 @@ namespace GraphicsEngine {
 
     class PostProcessing {
     public:
-        bool bloom {false};
+        bool bloom {true};
 
         bool tone_mapping {true};
         float exposure {1.0f};
 
-        bool gamma_correction {false};
+        bool gamma_correction {true};
         float gamma {2.2f};
 
         bool vignette {false};

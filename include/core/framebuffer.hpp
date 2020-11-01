@@ -9,9 +9,9 @@ namespace GraphicsEngine {
 
     class RenderTarget {
     protected:
-        GLuint id;
+        GLuint id {};
     public:
-        RenderTarget() noexcept : id(0) { }
+        RenderTarget() = default;
         virtual ~RenderTarget() = default;
     };
 
@@ -48,11 +48,11 @@ namespace GraphicsEngine {
         Framebuffer() noexcept;
         ~Framebuffer() override;
 
-        Framebuffer(const Framebuffer&) noexcept = delete;
+        Framebuffer(const Framebuffer&) = delete;
         Framebuffer& operator=(const Framebuffer&) = delete;
 
-        Framebuffer(Framebuffer&&) noexcept = default;
-        Framebuffer& operator=(Framebuffer&&) = default;
+        Framebuffer(Framebuffer&&) noexcept = delete;
+        Framebuffer& operator=(Framebuffer&&) noexcept = delete;
 
         const TextureAttachment& get(FramebufferAttachment attachment) const;
         void specifyLayer(FramebufferAttachment attachment, uint32_t layer);

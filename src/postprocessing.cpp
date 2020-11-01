@@ -38,12 +38,14 @@ void Bloom::blurImage() {
     }
 }
 
-Bloom::Bloom(ContextEventObserver& ctx) :
-    brightness(ctx), blur{ Framebuffer(ctx), Framebuffer(ctx) } {
+Bloom::Bloom(ContextEventObserver& ctx)
+    : brightness(ctx), blur{ Framebuffer(ctx), Framebuffer(ctx) } {
 
     auto param_set = [] (Texture& texture) {
         texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR};
+                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
+                << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
+                << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
     };
     auto texture = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGB16F, ctx.getSize(), Texture::Format::RGB, Texture::DataType::Float, nullptr, param_set);
 
