@@ -102,7 +102,9 @@ void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
 void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
     auto param_set = [] (Texture& texture) {
         texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR};
+                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
+                << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
+                << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
     };
     auto color0 = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr, param_set);
     auto depth = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::Depth32F, ctx.getSize(), Texture::Format::DepthComponent, Texture::DataType::Float, nullptr, param_set);
@@ -117,7 +119,7 @@ void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
 }
 
 Renderer::Renderer(ContextEventObserver& context)
-    : postprocess{context}, effect_renderer{context} {
+    : postprocess{context}, effect_renderer{context}, offscreen{context} {
     initializeOffscreenBuffer(context);
 }
 

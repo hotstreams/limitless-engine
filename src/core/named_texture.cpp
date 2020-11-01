@@ -1,226 +1,104 @@
 #include <core/named_texture.hpp>
 #include <core/context_state.hpp>
-#include <stdexcept>
+#include <algorithm>
 
 using namespace GraphicsEngine;
 
-void NamedTexture::texStorage2D(GLsizei levels, InternalFormat internal) const noexcept {
-    glTextureStorage2D(id, levels, static_cast<GLenum>(internal), size.x, size.y);
+NamedTexture::NamedTexture(GLenum _target) noexcept : target{_target} {
+    glCreateTextures(target, 1, &id);
 }
 
-void NamedTexture::texStorage3D(GLsizei levels, InternalFormat internal, glm::uvec3 _size) const noexcept {
-    glTextureStorage3D(id, levels, static_cast<GLenum>(internal), _size.x, _size.y, _size.z);
-}
+NamedTexture::~NamedTexture() {
+    if (id != 0) {
+        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+            auto& target_map = state->texture_bound;
 
-void NamedTexture::texStorage2DMultisample(uint8_t samples, InternalFormat internal) const noexcept {
-    glTextureStorage2DMultisample(id, samples, static_cast<GLenum>(internal), size.x, size.y, GL_FALSE);
-}
+            std::for_each(target_map.begin(), target_map.end(), [&] (auto& state) {
+                auto& [s_unit, s_id] = state;
+                if (s_id == id) s_id = 0;
+            });
 
-void NamedTexture::texSubImage2D(GLint xoffset, GLint yoffset, glm::uvec2 _size, const void* data) const noexcept {
-    glTextureSubImage2D(id, 0, xoffset, yoffset, _size.x, _size.y, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
-}
-
-void NamedTexture::texSubImage3D(GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 _size, const void *data) const noexcept {
-    glTextureSubImage3D(id, 0, xoffset, yoffset, zoffset, _size.x, _size.y, _size.z, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
-}
-
-void NamedTexture::generateMipMap() const noexcept {
-    glGenerateTextureMipmap(id);
-}
-
-void NamedTexture::bind(GLuint index) const noexcept {
-    auto* window = glfwGetCurrentContext();
-    if (ContextState::hasState(window)) {
-        auto &bound = ContextState::getState(window)->texture_bound[index];
-        if (bound != id) {
-            glBindTextureUnit(index, id);
-            bound = id;
+            glDeleteTextures(1, &id);
         }
     }
 }
 
-NamedTexture& NamedTexture::operator<<(const TexParameter<GLint>& param) noexcept {
-    glTextureParameteri(id, param.name, param.param);
-    return *this;
+void NamedTexture::texStorage2D([[maybe_unused]] GLenum _target, GLsizei levels, GLenum internal_format, glm::uvec2 size) const noexcept {
+    glTextureStorage2D(id, levels, internal_format, size.x, size.y);
 }
 
-NamedTexture& NamedTexture::operator<<(const TexParameter<GLfloat>& param) noexcept {
-    glTextureParameterf(id, param.name, param.param);
-    return *this;
+void NamedTexture::texStorage3D([[maybe_unused]] GLenum _target, GLsizei levels, GLenum internal_format, glm::uvec3 size) const noexcept {
+    glTextureStorage3D(id, levels, internal_format, size.x, size.y, size.z);
 }
 
-NamedTexture& NamedTexture::operator<<(const TexParameter<GLint*>& param) noexcept {
-    glTextureParameteriv(id, param.name, param.param);
-    return *this;
+void NamedTexture::texStorage2DMultisample([[maybe_unused]] GLenum _target, uint8_t samples, GLenum internal_format, glm::uvec2 size) const noexcept {
+    glTextureStorage2DMultisample(id, samples, internal_format, size.x, size.y, GL_FALSE);
 }
 
-NamedTexture& NamedTexture::operator<<(const TexParameter<GLfloat*>& param) noexcept {
-    glTextureParameterfv(id, param.name, param.param);
-    return *this;
+void NamedTexture::texImage2D(GLenum _target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, const void* data) const noexcept {
+    glTextureImage2DEXT(id, _target, levels, internal_format, size.x, size.y, 0, format, type, data);
 }
 
-NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const void* data, const texture_parameters& params)
-        : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
-    glCreateTextures(static_cast<GLenum>(target), 1, &id);
+void NamedTexture::texImage3D(GLenum _target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, const void *data) const noexcept {
+    glTextureImage3DEXT(id, _target, levels, internal_format, size.x, size.y, size.z, 0, format, type, data);
+}
 
-    params(*this);
+void NamedTexture::texImage2DMultiSample(GLenum _target, uint8_t samples, GLenum internal_format, glm::uvec3 size) const noexcept {
+    glTextureImage2DMultisampleNV(id, _target, samples, internal_format, size.x, size.y, GL_FALSE);
+}
 
-    switch (target) {
-        case Type::Tex2D:
-            texImage2D(static_cast<GLenum>(target), internal, data);
-            break;
-        case Type::Tex2DArray:
-        case Type::Tex3D:
-        case Type::CubeMap:
-        case Type::TexCubeMapArray:
-        case Type::Tex2DMS:
-            glDeleteTextures(1, &id);
-            throw std::logic_error("Wrong constructor usage to build texture.");
+void NamedTexture::texSubImage2D([[maybe_unused]] GLenum _target, GLint level, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) const noexcept {
+    glTextureSubImage2D(id, level, xoffset, yoffset, size.x, size.y, format, type, data);
+}
+
+void NamedTexture::texSubImage3D([[maybe_unused]] GLenum _target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 size, GLenum format, GLenum type, const void* data) const noexcept {
+    glTextureSubImage3D(id, level, xoffset, yoffset, zoffset, size.x, size.y, size.z, format, type, data);
+}
+
+void NamedTexture::bind([[maybe_unused]] GLenum _target, GLuint index) const noexcept {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->texture_bound[index] != id) {
+            glBindTextureUnit(index, id);
+            state->texture_bound[index] = id;
+        }
     }
 }
 
-NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec3 size, Format format, DataType data_type, const void* data, const texture_parameters& params)
-        : StateTexture(0, target, size, internal, format, data_type) {
-    glCreateTextures(static_cast<GLenum>(target), 1, &id);
-
-    params(*this);
-
-    switch (target) {
-        case Type::Tex2DArray:
-            [[fallthrough]];
-        case Type::Tex3D:
-            texImage3D(static_cast<GLenum>(target), internal, size, data);
-            break;
-        case Type::TexCubeMapArray:
-            texImage3D(static_cast<GLenum>(target), internal, { size.x, size.y, size.z * 6 }, nullptr);
-            break;
-        case Type::Tex2D:
-        case Type::CubeMap:
-        case Type::Tex2DMS:
-            glDeleteTextures(1, &id);
-            throw std::logic_error("Wrong constructor usage to build texture.");
-    }
+void NamedTexture::generateMipMap([[maybe_unused]] GLenum _target) const noexcept {
+    glGenerateTextureMipmap(id);
 }
 
-NamedTexture::NamedTexture(Type target, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const std::array<void*, 6>& data, const texture_parameters& params)
-        : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
-    glCreateTextures(static_cast<GLenum>(target), 1, &id);
-
-    params(*this);
-
-    switch (target) {
-        case Type::CubeMap:
-            for (int i = 0; i < 6; ++i) {
-                texImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internal, data[i]);
-            }
-            break;
-        case Type::Tex2D:
-        case Type::Tex3D:
-        case Type::Tex2DArray:
-        case Type::TexCubeMapArray:
-        case Type::Tex2DMS:
-            glDeleteTextures(1, &id);
-            throw std::logic_error("Wrong constructor usage to build texture.");
-    }
+void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLint param) const noexcept {
+    glTextureParameteri(id, name, param);
 }
 
-NamedTexture::NamedTexture(Type target, uint8_t samples, InternalFormat internal, glm::uvec2 size, bool immutable, const texture_parameters& params)
-        : StateTexture(0, target, { size.x, size.y, 0 }, internal, Format::RGB, DataType::Int) {
-    glCreateTextures(static_cast<GLenum>(target), 1, &id);
-
-    params(*this);
-
-    switch (target) {
-        case Type::Tex2DMS:
-            immutable ? NamedTexture::texStorage2DMultisample(samples, internal) : texImage2DMultiSample(target, samples, internal);
-            break;
-        case Type::CubeMap:
-        case Type::Tex2D:
-        case Type::Tex3D:
-        case Type::Tex2DArray:
-        case Type::TexCubeMapArray:
-            glDeleteTextures(1, &id);
-            throw std::logic_error("Wrong constructor usage to build texture.");
-    }
+void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLfloat param) const noexcept {
+    glTextureParameterf(id, name, param);
 }
 
-NamedTexture::NamedTexture(Type target, GLsizei levels, InternalFormat internal, glm::uvec2 size, Format format, DataType data_type, const void* data, const texture_parameters& params)
-        : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
-    glCreateTextures(static_cast<GLenum>(target), 1, &id);
-
-    params(*this);
-
-    switch (target) {
-        case Type::Tex2D:
-            texStorage2D(levels, internal);
-            if (data) {
-                NamedTexture::texSubImage2D(0, 0, size, data);
-            }
-            break;
-        case Type::Tex2DArray:
-        case Type::Tex3D:
-        case Type::CubeMap:
-        case Type::TexCubeMapArray:
-        case Type::Tex2DMS:
-            glDeleteTextures(1, &id);
-            throw std::logic_error("Wrong constructor usage to build texture.");
-    }
+void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLint* params) const noexcept {
+    glTextureParameteriv(id, name, params);
 }
 
-NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTexture::InternalFormat internal, glm::uvec3 size, StateTexture::Format format, StateTexture::DataType data_type, const void *data, const texture_parameters& params)
-        : StateTexture(0, target, size, internal, format, data_type) {
-    glCreateTextures(static_cast<GLenum>(target), 1, &id);
-
-    params(*this);
-
-    switch (target) {
-        case Type::Tex2DArray:
-            [[fallthrough]];
-        case Type::Tex3D:
-            texStorage3D(levels, internal, size);
-            if (data) {
-                NamedTexture::texSubImage3D(0, 0, 0, size, data);
-            }
-            break;
-        case Type::TexCubeMapArray:
-            texStorage3D(levels, internal, { size.x, size.y, size.z * 6 });
-            if (data) {
-                NamedTexture::texSubImage3D(0, 0, 0, { size.x, size.y, size.z * 6 }, data);
-            }
-            break;
-        case Type::Tex2D:
-        case Type::CubeMap:
-        case Type::Tex2DMS:
-            glDeleteTextures(1, &id);
-            throw std::logic_error("Wrong constructor usage to build texture.");
-    }
+void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLfloat* params) const noexcept {
+    glTextureParameterfv(id, name, params);
 }
 
-NamedTexture::NamedTexture(StateTexture::Type target, GLsizei levels, StateTexture::InternalFormat internal, glm::uvec2 size, StateTexture::Format format, StateTexture::DataType data_type, const std::array<void*, 6>& data, const texture_parameters& params)
-        : StateTexture(0, target, { size.x, size.y, 0 }, internal, format, data_type) {
-    glCreateTextures(static_cast<GLenum>(target), 1, &id);
-
-    params(*this);
-
-    switch (target) {
-        case Type::CubeMap:
-            StateTexture::texStorage2D(GL_TEXTURE_CUBE_MAP, levels, internal);
-            for (int i = 0; i < 6; ++i) {
-                if (data[i]) {
-                    NamedTexture::texSubImage3D(0, 0, 0, { size.x, size.y, i }, data[i]);
-                }
-            }
-            break;
-        case Type::Tex2D:
-        case Type::Tex3D:
-        case Type::Tex2DArray:
-        case Type::TexCubeMapArray:
-        case Type::Tex2DMS:
-            glDeleteTextures(1, &id);
-            throw std::logic_error("Wrong constructor usage to build texture.");
-    }
+NamedTexture* NamedTexture::clone() const {
+    return new NamedTexture(target);
 }
 
-void NamedTexture::accept(TextureVisitor &visitor) noexcept {
+void NamedTexture::accept(TextureVisitor& visitor) noexcept {
     visitor.visit(*this);
+}
+
+NamedTexture::NamedTexture(NamedTexture&& rhs) noexcept {
+    std::swap(id, rhs.id);
+    std::swap(target, rhs.target);
+}
+
+NamedTexture& NamedTexture::operator=(NamedTexture&& rhs) noexcept {
+    std::swap(id, rhs.id);
+    std::swap(target, rhs.target);
+    return *this;
 }

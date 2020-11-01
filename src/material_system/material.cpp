@@ -1,6 +1,7 @@
 #include <material_system/material.hpp>
 
 #include <core/bindless_texture.hpp>
+#include <core/texture.hpp>
 #include <cstring>
 
 #include <core/buffer_builder.hpp>
@@ -49,7 +50,7 @@ void Material::update() const noexcept {
                     auto& uniform = static_cast<UniformSampler&>(*properties.at(type));
                     auto offset = uniform_offsets.at(uniform.getName());
                     auto& texture = uniform.getSampler();
-                    std::memcpy(data.data() + offset, &static_cast<BindlessTexture&>(*texture).getHandle(), sizeof(uint64_t));
+                    std::memcpy(data.data() + offset, &static_cast<const BindlessTexture&>(texture->getExtensionTexture()).getHandle(), sizeof(uint64_t));
                 }
                 break;
         }

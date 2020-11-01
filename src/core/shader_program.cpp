@@ -200,7 +200,7 @@ struct TextureResidentMaker : public TextureVisitor {
         texture.makeResident();
     }
 
-    void visit([[maybe_unused]] Texture& texture) noexcept override {}
+    void visit([[maybe_unused]] ExtensionTexture& texture) noexcept override {}
 };
 
 void ShaderProgram::bindTextures() const noexcept {

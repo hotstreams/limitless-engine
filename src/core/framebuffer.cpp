@@ -29,11 +29,13 @@ Framebuffer::~Framebuffer() {
             glDeleteBuffers(1, &id);
         }
     }
+    //TODO: unregister observer
 }
 
 void Framebuffer::onFramebufferChange(glm::uvec2 size) {
     for (auto& [type, attachment] : attachments) {
         attachment.texture->resize({ size, attachment.texture->getSize().z });
+        *this << attachment;
     }
 }
 
@@ -104,7 +106,6 @@ Framebuffer& Framebuffer::operator<<(const TextureAttachment& attachment) noexce
 
     switch (attachment.texture->getType()) {
         case Texture::Type::Tex2D:
-        case Texture::Type::Tex2DMS:
             glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(attachment.attachment), static_cast<GLenum>(attachment.texture->getType()), attachment.texture->getId(), 0);
             break;
         case Texture::Type::CubeMap:

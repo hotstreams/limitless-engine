@@ -5,11 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 #set(EXTRA_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
 
-option(OPENGL_DEBUG "Enables OpenGL error message callback" ON)
-
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused)
-    add_compile_definitions(NDEBUG)
+    add_compile_definitions(NDEBUG GL_DEBUG)
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -83,6 +81,8 @@ set(ENGINE_CORE
         src/core/state_texture.cpp
         src/core/named_texture.cpp
         src/core/context_thread_pool.cpp
+        src/core/mutable_texture.cpp
+        src/core/immutable_texture.cpp
    )
 
 set(ENGINE_MATERIAL_SYSTEM
