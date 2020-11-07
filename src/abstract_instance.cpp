@@ -1,6 +1,20 @@
 #include <abstract_instance.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace GraphicsEngine;
+
+void AbstractInstance::calculateModelMatrix() noexcept {
+    model_matrix = glm::mat4{1.0f};
+
+    model_matrix = glm::translate(model_matrix, position);
+
+    model_matrix = glm::rotate(model_matrix, rotation.x, glm::vec3{1.0f, 0.f, 0.f});
+    model_matrix = glm::rotate(model_matrix, rotation.y, glm::vec3{0.0f, 1.f, 0.f});
+    model_matrix = glm::rotate(model_matrix, rotation.z, glm::vec3{0.0f, 0.f, 1.f});
+
+    model_matrix = glm::scale(model_matrix, scale);
+}
 
 void AbstractInstance::reveal() noexcept {
     hidden = false;

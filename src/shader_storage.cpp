@@ -70,4 +70,5 @@ void ShaderStorage::initialize() {
     add("brightness", compiler.compile(SHADER_DIR "postprocessing/brightness"));
     add("postprocess", compiler.compile(SHADER_DIR "postprocessing/postprocess"));
     add("skybox", compiler.compile(SHADER_DIR "pipeline/skybox"));
+    add("text", compiler.compile(SHADER_DIR "pipeline/text"));
 }

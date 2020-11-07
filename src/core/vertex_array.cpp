@@ -59,14 +59,14 @@ VertexArray& VertexArray::operator<<(const VertexAttribute& attribute) noexcept 
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<Vertex, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr, attribute.second }
+    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position), attribute.second }
           << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv), attribute.second };
 
     return *this;
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<VertexNormal, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), nullptr, attribute.second }
+    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(Vertex, position), attribute.second }
           << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(VertexNormal, normal), attribute.second }
           << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(VertexNormal, uv), attribute.second };
 
@@ -74,7 +74,7 @@ VertexArray& VertexArray::operator<<(const std::pair<VertexNormal, Buffer&>& att
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<VertexNormalTangent, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), nullptr, attribute.second }
+    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(Vertex, position), attribute.second }
           << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, normal), attribute.second }
           << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, tangent), attribute.second }
           << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, uv), attribute.second };
@@ -83,7 +83,7 @@ VertexArray& VertexArray::operator<<(const std::pair<VertexNormalTangent, Buffer
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<VertexPackedNormalTangent, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexPackedNormalTangent), nullptr, attribute.second }
+    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(Vertex, position), attribute.second }
           << VertexAttribute{ 4, GL_INT_2_10_10_10_REV, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, normal), attribute.second }
           << VertexAttribute{ 4, GL_INT_2_10_10_10_REV, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, tangent), attribute.second }
           << VertexAttribute{ 2, GL_UNSIGNED_SHORT, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, uv), attribute.second };
@@ -111,4 +111,11 @@ void GraphicsEngine::swap(VertexArray& lhs, VertexArray& rhs) {
 
     swap(lhs.id, rhs.id);
     swap(lhs.next_attribute_index, rhs.next_attribute_index);
+}
+
+VertexArray& VertexArray::operator<<(const std::pair<TextVertex, Buffer&>& attribute) noexcept {
+    *this << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, position), attribute.second }
+          << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, uv), attribute.second };
+
+    return *this;
 }
