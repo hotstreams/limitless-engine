@@ -9,9 +9,10 @@ namespace GraphicsEngine {
         AbstractMesh() = default;
         virtual ~AbstractMesh() = default;
 
-        [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
         virtual void draw() const noexcept = 0;
         virtual void draw_instanced(size_t count) const noexcept = 0;
+
+        [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
     };
 
     enum class MeshDataType { Static, Dynamic, Stream };
@@ -54,6 +55,11 @@ namespace GraphicsEngine {
             initialize();
         }
 
+        Mesh(std::string name, MeshDataType _data_type, DrawMode _draw_mode)
+            : vertices{1000}, name{std::move(name)}, data_type{_data_type}, draw_mode{_draw_mode} {
+            initialize();
+        }
+
         ~Mesh() override = default;
 
         Mesh(const Mesh&) = delete;
@@ -63,6 +69,8 @@ namespace GraphicsEngine {
         Mesh& operator=(Mesh&&) noexcept = default;
 
         void draw() const noexcept override {
+            if (vertices.empty()) return;
+
             vertex_array.bind();
 
             glDrawArrays(static_cast<GLenum>(draw_mode), 0, vertices.size());
@@ -71,11 +79,24 @@ namespace GraphicsEngine {
         }
 
         void draw_instanced(size_t count) const noexcept override {
+            if (vertices.empty() || !count) return;
+
             vertex_array.bind();
 
             glDrawArraysInstanced(static_cast<GLenum>(draw_mode), 0, vertices.size(), count);
 
             vertex_buffer->fence();
+        }
+
+        template<typename VertexArray>
+        void updateVertices(VertexArray&& new_vertices) {
+            vertices = std::forward<VertexArray>(new_vertices);
+
+            if (vertices.size() * sizeof(T) > vertex_buffer->getSize()) {
+                initialize();
+            }
+
+            vertex_buffer->mapData(vertices.data(), sizeof(T) * vertices.size());
         }
 
         [[nodiscard]] const std::string& getName() const noexcept override { return name; }

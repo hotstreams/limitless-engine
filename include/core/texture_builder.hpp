@@ -27,10 +27,10 @@ namespace GraphicsEngine {
             return extension_texture;
         }
     public:
-        static std::shared_ptr<Texture> build(Texture::Type target, Texture::InternalFormat internal, glm::uvec2 size, Texture::Format format, Texture::DataType data_type, const void* data, const texture_parameters& params) {
-            std::shared_ptr<Texture> texture;
+        static std::unique_ptr<Texture> build(Texture::Type target, Texture::InternalFormat internal, glm::uvec2 size, Texture::Format format, Texture::DataType data_type, const void* data, const texture_parameters& params) {
+            std::unique_ptr<Texture> texture;
 
-            texture = std::make_shared<MutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedExtensionTexture(target)), target, internal, size, format, data_type, data, params);
+            texture = std::make_unique<MutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedExtensionTexture(target)), target, internal, size, format, data_type, data, params);
 
             return texture;
         }
