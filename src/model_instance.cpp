@@ -41,25 +41,38 @@ void ModelInstance::draw(MaterialShader material_type, Blending blending, const 
 
     calculateModelMatrix();
 
+    // iterates over all visible meshes
     for (auto& [name, mesh] : meshes) {
         if (mesh.isHidden()) {
             continue;
         }
 
-        auto materials = mesh.getMaterial().getMaterials();
-
-        for (const auto& material : materials) {
+        // iterates over all material layers
+        auto first_opaque {true};
+        for (const auto& [layer, material] : mesh.getMaterial()) {
+            // following blending order
             if (material->getBlending() == blending) {
-                auto& shader = shader_storage.get(material_type, shader_type, material->getShaderIndex());
-
-                *shader << *material
-                        << UniformValue{"model", model_matrix};
-
-                for (const auto& uniform_set : uniform_setter) {
-                    uniform_set(*shader);
+                // sets blending mode dependent on layers count
+                if (blending == Blending::Opaque && mesh.getMaterial().count() > 1 && !first_opaque) {
+                    setBlendingMode(Blending::OpaqueHalf);
+                } else {
+                    setBlendingMode(blending);
+                    if (blending == Blending::Opaque) first_opaque = false;
                 }
 
-                shader->use();
+                // gets required shader from storage
+                auto& shader = *shader_storage.get(material_type, shader_type, material->getShaderIndex());
+
+                // updates model/material uniforms
+                shader << *material
+                       << UniformValue{"model", model_matrix};
+
+                // sets custom pass-dependent uniforms
+                for (const auto& uniform_set : uniform_setter) {
+                    uniform_set(shader);
+                }
+
+                shader.use();
 
                 mesh.draw();
             }

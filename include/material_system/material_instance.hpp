@@ -21,6 +21,9 @@ namespace GraphicsEngine {
         // resets base material to first initialized
         void reset() noexcept;
 
+        // clears all applied materials
+        void clear() noexcept;
+
         // applies material as a layer and returns its id
         uint64_t apply(const std::shared_ptr<Material>& material) noexcept;
 
@@ -28,9 +31,14 @@ namespace GraphicsEngine {
         void remove(uint64_t id);
 
         // gets material layer; gets base material by default
-        [[nodiscard]] auto& get(uint64_t id = 0) const { return *materials.at(id); }
+        Material& operator[](uint64_t id) { return *materials.at(id); }
 
-        // gets all material layers
-        [[nodiscard]] std::vector<std::shared_ptr<Material>> getMaterials() const noexcept;
+        [[nodiscard]] auto count() const noexcept { return materials.size(); }
+
+        [[nodiscard]] auto begin() const noexcept { return materials.cbegin(); }
+        [[nodiscard]] auto begin() noexcept { return materials.begin(); }
+
+        [[nodiscard]] auto end() const noexcept { return materials.cend(); }
+        [[nodiscard]] auto end() noexcept { return materials.end(); }
     };
 }

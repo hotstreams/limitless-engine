@@ -4,8 +4,8 @@
 
 using namespace GraphicsEngine;
 
-MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<Material>& material) noexcept
-    : mesh{std::move(mesh)}, material{material} {
+MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> _mesh, const std::shared_ptr<Material>& _material) noexcept
+    : mesh{std::move(_mesh)}, material{_material} {
 
 }
 

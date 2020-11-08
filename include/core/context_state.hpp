@@ -33,6 +33,30 @@ namespace GraphicsEngine {
         Always = GL_ALWAYS
     };
 
+    enum class DepthMask {
+        True = GL_TRUE,
+        False = GL_FALSE
+    };
+
+    enum class Enable {
+        DepthTest = GL_DEPTH_TEST,
+        Blending = GL_BLEND,
+        ProgramPointSize = GL_PROGRAM_POINT_SIZE
+    };
+
+    enum class BlendFactor {
+        None,
+        Zero = GL_ZERO,
+        One = GL_ONE,
+        DstColor = GL_DST_COLOR,
+        SrcColor = GL_SRC_COLOR,
+        SrcAlpha = GL_SRC_ALPHA,
+        DstAplha = GL_DST_ALPHA,
+        OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA,
+        OneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA,
+        BlendColor = GL_CONSTANT_COLOR
+    };
+
     enum class CullFace {
         Front = GL_FRONT,
         Back = GL_BACK,
@@ -54,27 +78,29 @@ namespace GraphicsEngine {
 
     class ContextState {
     protected:
-        std::unordered_map<GLenum, bool> enable_map;
+        std::unordered_map<Enable, bool> enable_map;
         glm::uvec2 viewport {};
         glm::vec4 clear_color {};
 
         DepthFunc depth_func {DepthFunc::Less};
-        GLboolean depth_mask {GL_TRUE};
+        DepthMask depth_mask {DepthMask::True};
         CullFace cull_face {CullFace::Back};
         FrontFace front_face {FrontFace::CCW};
         CullFace polygon_face {CullFace::FrontBack};
         PolygonMode polygon_mode {PolygonMode::Fill};
+        BlendFactor src_factor {BlendFactor::None}, dst_factor {BlendFactor::Zero};
+        glm::vec4 blending_color {0.0f};
 
-        GLuint shader_id {0};
-        GLuint vertex_array_id {0};
-        GLuint framebuffer_id {0};
+        GLuint shader_id {};
+        GLuint vertex_array_id {};
+        GLuint framebuffer_id {};
 
         // contains [target, last buffer id]
         std::unordered_map<Buffer::Type, GLuint> buffer_target;
         // contains [binding point, last_buffer_id]
         std::map<BindingPoint, GLuint> buffer_point;
 
-        GLuint active_texture {0};
+        GLuint active_texture {};
         // contains [texture_image_unit, texture_id]
         std::map<GLuint, GLuint> texture_bound;
         // contains [texture_handle, resident]
@@ -113,12 +139,14 @@ namespace GraphicsEngine {
         void setViewPort(glm::uvec2 viewport_size) noexcept;
         void clearColor(const glm::vec4& color) noexcept;
         void setDepthFunc(DepthFunc func) noexcept;
-        void setDepthMask(GLboolean mask) noexcept;
+        void setDepthMask(DepthMask mask) noexcept;
         void setCullFace(CullFace mode) noexcept;
         void setFrontFace(FrontFace mode) noexcept;
         void setPolygonMode(CullFace face, PolygonMode mode) noexcept;
+        void setBlendFunc(BlendFactor src, BlendFactor dst) noexcept;
+        void setBlendColor(const glm::vec4& color) noexcept;
         void clear(Clear bits) noexcept;
-        void disable(GLenum func) noexcept;
-        void enable(GLenum func) noexcept;
+        void disable(Enable func) noexcept;
+        void enable(Enable func) noexcept;
     };
 }

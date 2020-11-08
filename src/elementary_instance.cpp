@@ -41,20 +41,26 @@ void ElementaryInstance::draw(MaterialShader material_type, Blending blending, c
         return ;
     }
 
-    auto materials = mesh.getMaterial().getMaterials();
-
-    for (const auto& material : materials) {
+    auto first_opaque {true};
+    for (const auto& [layer, material] : mesh.getMaterial()) {
         if (material->getBlending() == blending) {
-            auto& shader = shader_storage.get(material_type, shader_type, material->getShaderIndex());
-
-            *shader << *material
-                    << UniformValue{"model", model_matrix};
-
-            for (const auto& uniform_set : uniform_setter) {
-                uniform_set(*shader);
+            if (blending == Blending::Opaque && mesh.getMaterial().count() > 1 && !first_opaque) {
+                setBlendingMode(Blending::OpaqueHalf);
+            } else {
+                setBlendingMode(blending);
+                if (blending == Blending::Opaque) first_opaque = false;
             }
 
-            shader->use();
+            auto& shader = *shader_storage.get(material_type, shader_type, material->getShaderIndex());
+
+            shader << *material
+                   << UniformValue{"model", model_matrix};
+
+            for (const auto& uniform_set : uniform_setter) {
+                uniform_set(shader);
+            }
+
+            shader.use();
 
             mesh.draw();
         }

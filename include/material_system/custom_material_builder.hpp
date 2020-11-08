@@ -5,8 +5,6 @@
 
 namespace GraphicsEngine {
     class CustomMaterialBuilder : public MaterialBuilder {
-    private:
-        std::unique_ptr<CustomMaterial> material;
     public:
         CustomMaterialBuilder() = default;
         ~CustomMaterialBuilder() override = default;

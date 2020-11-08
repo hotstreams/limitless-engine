@@ -16,6 +16,7 @@
 #include <iostream>
 #include <util/thread_pool.hpp>
 #include <asset_loader.hpp>
+#include <material_system/custom_material_builder.hpp>
 
 using namespace GraphicsEngine;
 
@@ -67,6 +68,49 @@ public:
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("material4"), glm::vec3{ 6.0f, 0.0f, 0.0f });
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("material5"), glm::vec3{ 8.0f, 0.0f, 0.0f });
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("material6"), glm::vec3{ 10.0f, 0.0f, 0.0f });
+
+        CustomMaterialBuilder builder;
+
+        builder.create("custom")
+                           .setFragmentCode("uv.y -= 0.1;\n"
+                                            "vec2 panned = vec2(uv.x + time * 0.5 + fs_properties.x, uv.y + time * 0.8 + fs_properties.y);\n"
+                                            "uv += texture(noise, panned).g * 0.3;\n"
+                                            "\n"
+                                            "vec2 offset_panned1 = vec2(uv.x + time * 0.66, uv.y + time * 0.33);\n"
+                                            "float offset1 = texture(noise, offset_panned1).r;\n"
+                                            "\n"
+                                            "vec2 offset_panned2 = vec2(uv.x + time * 0.45, uv.y + time * 0.71);\n"
+                                            "float offset2 = texture(noise, offset_panned2).r;\n"
+                                            "\n"
+                                            "float r = offset1 * offset2;\n"
+                                            "\n"
+                                            "mat_diffuse = texture(material_diffuse, uv);\n"
+                                            "mat_diffuse.rgb *= clamp((mat_diffuse.a - fs_properties.z) * r, 0, 1);")
+                           .addUniform("time", new UniformTime("time"))
+                           .addUniform("noise", new UniformSampler("noise", TextureLoader::load(ASSETS_DIR "textures/true_noise.tga")))
+                           .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/true_fire.tga"))
+                           .add(PropertyType::EmissiveColor, glm::vec4{10.0f, 3.0f, 1.0f, 1.0f})
+                           .setShading(Shading::Unlit)
+                           .setBlending(Blending::Additive);
+        auto test = builder.build({ModelShader::Effect});
+
+        EffectBuilder eb;
+        auto effect = eb.create("eff")
+                .createEmitter<SpriteEmitter>("test")
+                .addModule<InitialRotation>(EmitterModuleType::InitialRotation, new RangeDistribution{glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{6.28f, 0.0f, 0.0f}})
+                .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.2f, 0.4f))
+                .addModule<InitialSize>(EmitterModuleType::InitialSize, new ConstDistribution(512.0f))
+                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(256.0f, 512.0f), -1.0f)
+                .addModule<CustomMaterialModule>(EmitterModuleType::CustomMaterial, new RangeDistribution(0.0f, 0.9f), new RangeDistribution(0.0f, 0.9f), new ConstDistribution(0.0f))
+                .addModule<CustomMaterialModuleOverLife>(EmitterModuleType::CustomMaterialOverLife, nullptr, nullptr, new ConstDistribution(1.0f))
+                .setMaterial(test)
+                .setSpawnMode(EmitterSpawn::Mode::Spray)
+                .setMaxCount(100)
+                .setSpawnRate(100.0f)
+                .build();
+
+        scene.add<EffectInstance>(effect, glm::vec3{-1.f, -1.f, -1.f})
+            .setPosition(glm::vec3{-3.f, -3.f, -3.f});
 
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 10.5f}, 8.0f);
         scene.lighting.point_lights.emplace_back(glm::vec4{12.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 8.7f, 10.5f}, 3.0f);

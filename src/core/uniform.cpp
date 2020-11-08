@@ -130,6 +130,7 @@ std::string GraphicsEngine::getUniformDeclaration(const Uniform& uniform) noexce
     std::string declaration = "uniform ";
 
     switch (uniform.getType()) {
+        case UniformType::Time:
         case UniformType::Value:
             switch (uniform.getValueType()) {
                 case UniformValueType::Float:
@@ -186,6 +187,28 @@ std::string GraphicsEngine::getUniformDeclaration(const Uniform& uniform) noexce
     declaration.append(uniform.getName() + ";\n");
 
     return declaration;
+}
+
+UniformTime::UniformTime(const std::string& name) noexcept
+    : UniformValue{name, UniformType::Time, 0.0f} {
+
+}
+
+void UniformTime::update() noexcept {
+    if (start == std::chrono::time_point<std::chrono::steady_clock>{}) {
+        start = std::chrono::steady_clock::now();
+    }
+
+    setValue(std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start).count());
+}
+
+void UniformTime::set(const ShaderProgram& shader) {
+    update();
+    UniformValue::set(shader);
+}
+
+UniformTime* UniformTime::clone() noexcept {
+    return new UniformTime(*this);
 }
 
 namespace GraphicsEngine {
