@@ -17,6 +17,7 @@ out vec4 color;
 
 void main()
 {
+    vec2 uv = fs_data.uv;
     #include "glsl/material_variables.glsl"
 
     #ifdef CUSTOM_MATERIAL

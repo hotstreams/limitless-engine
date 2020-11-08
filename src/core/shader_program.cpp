@@ -6,6 +6,7 @@
 #include <core/texture_binder.hpp>
 #include <core/context_state.hpp>
 #include <core/uniform.hpp>
+#include <material_system/custom_material.hpp>
 
 using namespace GraphicsEngine;
 
@@ -178,6 +179,15 @@ ShaderProgram& ShaderProgram::operator<<(const Material& material) {
     for (const auto& [type, uniform] : material.properties) {
         if (uniform->getType() == UniformType::Sampler) {
             *this << static_cast<UniformSampler&>(*uniform);
+        }
+    }
+
+    if (material.isCustom()) {
+        const auto& custom = static_cast<const CustomMaterial&>(material);
+        for (const auto& [name, uniform] : custom.uniforms) {
+            if (uniform->getType() == UniformType::Sampler) {
+                *this << static_cast<UniformSampler&>(*uniform);
+            }
         }
     }
 

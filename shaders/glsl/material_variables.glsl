@@ -12,29 +12,29 @@
 #endif
 
 #ifdef MATERIAL_DIFFUSE
-    vec4 mat_diffuse = texture(material_diffuse, fs_data.uv);
+    vec4 mat_diffuse = texture(material_diffuse, uv);
 #endif
 
 #ifdef MATERIAL_SPECULAR
-    float mat_specular = texture(material_specular, fs_data.uv).a;
+    float mat_specular = texture(material_specular, uv).a;
 #else
     float mat_specular = 0.5;
 #endif
 
 #ifdef MATERIAL_NORMAL
-    vec3 mat_normal = texture(material_normal, fs_data.uv).rgb;
+    vec3 mat_normal = texture(material_normal, uv).rgb;
 #endif
 
 #ifdef MATERIAL_DISPLACEMENT
-    vec3 mat_displacement = texture(material_displacement, fs_data.uv).rgb;
+    vec3 mat_displacement = texture(material_displacement, uv).rgb;
 #endif
 
 #ifdef MATERIAL_EMISSIVEMASK
-    vec3 mat_emissive_mask = texture(material_emissive_mask, fs_data.uv).rgb;
+    vec3 mat_emissive_mask = texture(material_emissive_mask, uv).rgb;
 #endif
 
 #ifdef MATERIAL_BLENDMASK
-    float mat_blend_mask = texture(material_blend_mask, fs_data.uv).r;
+    float mat_blend_mask = texture(material_blend_mask, uv).r;
 #endif
 
 #ifdef MATERIAL_SHININESS
@@ -45,7 +45,7 @@
 
 #ifdef PBR
     #ifdef MATERIAL_METALLIC_TEXTURE
-        float mat_metallic = texture(material_metallic_texture, fs_data.uv).r;
+        float mat_metallic = texture(material_metallic_texture, uv).r;
     #else
         #ifdef MATERIAL_METALLIC
             float mat_metallic = material_metallic;
@@ -55,7 +55,7 @@
     #endif
 
     #ifdef MATERIAL_ROUGHNESS_TEXTURE
-        float mat_roughness = texture(material_roughness_texture, fs_data.uv).r;
+        float mat_roughness = texture(material_roughness_texture, uv).r;
     #else
         #ifdef MATERIAL_ROUGHNESS
             float mat_roughness = material_roughness;

@@ -7,7 +7,7 @@
 using namespace GraphicsEngine;
 
 CustomMaterialBuilder& CustomMaterialBuilder::addUniform(std::string name, Uniform* uniform) {
-    auto result = material->uniforms.emplace(std::move(name), uniform);
+    auto result = static_cast<CustomMaterial&>(*material).uniforms.emplace(std::move(name), uniform);
     if (!result.second) {
         throw std::runtime_error("Failed to add uniform to custom material, already exists.");
     }
@@ -15,12 +15,12 @@ CustomMaterialBuilder& CustomMaterialBuilder::addUniform(std::string name, Unifo
 }
 
 CustomMaterialBuilder& CustomMaterialBuilder::setVertexCode(std::string vs_code) noexcept {
-    material->vertex_code = std::move(vs_code);
+    static_cast<CustomMaterial&>(*material).vertex_code = std::move(vs_code);
     return *this;
 }
 
 CustomMaterialBuilder& CustomMaterialBuilder::setFragmentCode(std::string fs_code) noexcept {
-    material->fragment_code = std::move(fs_code);
+    static_cast<CustomMaterial&>(*material).fragment_code = std::move(fs_code);
     return *this;
 }
 
@@ -30,7 +30,7 @@ std::shared_ptr<Material> CustomMaterialBuilder::build(const ModelShaders& model
         throw std::runtime_error("Forgot to call create(name)!");
     }
     // checks for empty buffer
-    if (material->properties.empty() && material->uniforms.empty()) {
+    if (material->properties.empty() && static_cast<CustomMaterial&>(*material).uniforms.empty()) {
         throw std::runtime_error("Properties & Uniforms cannot be empty.");
     }
 
@@ -40,16 +40,20 @@ std::shared_ptr<Material> CustomMaterialBuilder::build(const ModelShaders& model
         material->shader_index = next_shader_index++;
     }
 
-    // compiles every material/shader combination
     MaterialCompiler compiler;
     for (const auto& mat_shader : material_shaders) {
         for (const auto& mod_shader : model_shaders) {
-            compiler.compile(*material, mat_shader, mod_shader);
+            // Effect custom material shaders can be used if even it is not compiled, because we do not know that modules it will use
+            if (mod_shader != ModelShader::Effect) {
+                compiler.compile(*material, mat_shader, mod_shader);
+            }
         }
     }
 
     // initializes uniform material buffer using program shader introspection
-    initializeMaterialBuffer(*shader_storage.get(material_shaders[0], model_shaders[0], material->shader_index));
+    if (auto it = std::find_if(model_shaders.begin(), model_shaders.end(), [] (auto& shader) { return shader != ModelShader::Effect; }); it != model_shaders.end()) {
+        initializeMaterialBuffer(*material, *shader_storage.get(material_shaders[0], *it, material->shader_index));
+    }
 
     // adds compiled material to assets
     auto compiled = std::shared_ptr<Material>(std::move(material));

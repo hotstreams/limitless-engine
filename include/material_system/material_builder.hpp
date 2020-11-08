@@ -10,13 +10,14 @@ namespace GraphicsEngine {
     private:
         static inline std::map<MaterialType, uint64_t> unique_materials;
 
-        std::unique_ptr<Material> material;
         [[nodiscard]] MaterialType getMaterialType() const noexcept;
     protected:
         static inline uint64_t next_shader_index {0};
         static inline std::mutex mutex;
 
-        void initializeMaterialBuffer(const ShaderProgram& shader) noexcept;
+        std::unique_ptr<Material> material;
+        friend class EffectBuilder;
+        static void initializeMaterialBuffer(Material& mat, const ShaderProgram& shader) noexcept;
     public:
         MaterialBuilder() = default;
         virtual ~MaterialBuilder() = default;
@@ -26,7 +27,6 @@ namespace GraphicsEngine {
 
         MaterialBuilder(MaterialBuilder&&) = delete;
         MaterialBuilder& operator=(MaterialBuilder&&) = delete;
-
 
         MaterialBuilder& add(PropertyType type, std::shared_ptr<Texture> texture);
         MaterialBuilder& add(PropertyType type, const glm::vec4& value);

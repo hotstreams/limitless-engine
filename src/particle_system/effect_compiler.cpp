@@ -51,9 +51,9 @@ std::string EffectCompiler::getEmitterDefines(const Emitter& emitter) noexcept {
 //            case EmitterModuleType::SphereLocation:
 //                defines.append("#define SphereLocation_MODULE\n");
 //                break;
-//            case EmitterModuleType::CustomMaterial:
-//                defines.append("#define CustomMaterial_MODULE\n");
-//                break;
+            case EmitterModuleType::CustomMaterial:
+                defines.append("#define CustomMaterial_MODULE\n");
+                break;
         }
     }
     return defines;

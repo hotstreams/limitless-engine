@@ -56,20 +56,35 @@ void ContextState::clearColor(const glm::vec4& color) noexcept {
     }
 }
 
+void ContextState::setBlendFunc(BlendFactor src, BlendFactor dst) noexcept {
+    if (src_factor != src || dst_factor != dst) {
+        src_factor = src;
+        dst_factor = dst;
+        glBlendFunc(static_cast<GLenum>(src_factor), static_cast<GLenum>(dst_factor));
+    }
+}
+
+void ContextState::setBlendColor(const glm::vec4& color) noexcept {
+    if (blending_color != color) {
+        blending_color = color;
+        glBlendColor(color.r, color.g, color.b, color.a);
+    }
+}
+
 void ContextState::clear(Clear bits) noexcept {
     glClear(static_cast<GLbitfield>(bits));
 }
 
-void ContextState::enable(GLenum func) noexcept {
+void ContextState::enable(Enable func) noexcept {
     if (!enable_map[func]) {
-        glEnable(func);
+        glEnable(static_cast<GLenum>(func));
         enable_map[func] = true;
     }
 }
 
-void ContextState::disable(GLenum func) noexcept {
+void ContextState::disable(Enable func) noexcept {
     if (enable_map[func]) {
-        glDisable(func);
+        glDisable(static_cast<GLenum>(func));
         enable_map[func] = false;
     }
 }
@@ -88,9 +103,9 @@ void ContextState::setDepthFunc(DepthFunc func) noexcept {
     }
 }
 
-void ContextState::setDepthMask(GLboolean mask) noexcept {
+void ContextState::setDepthMask(DepthMask mask) noexcept {
     if (depth_mask != mask) {
-        glDepthMask(mask);
+        glDepthMask(static_cast<GLenum>(mask));
         depth_mask = mask;
     }
 }

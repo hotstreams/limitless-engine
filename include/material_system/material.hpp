@@ -2,6 +2,7 @@
 
 #include <core/uniform.hpp>
 
+#include <material_system/properties.hpp>
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include <vector>
@@ -9,25 +10,6 @@
 
 namespace GraphicsEngine {
     class Buffer;
-
-    enum class PropertyType {
-        Color,
-        EmissiveColor,
-        Diffuse,
-        Specular,
-        Normal,
-        Displacement,
-        EmissiveMask,
-        BlendMask,
-        Shininess,
-        Metallic,
-        MetallicTexture,
-        Roughness,
-        RoughnessTexture
-    };
-
-    enum class Blending { Opaque, Translucent, Additive, Modulate };
-    enum class Shading { Lit, Unlit };
 
     class Material {
     protected:
@@ -43,6 +25,8 @@ namespace GraphicsEngine {
 
         friend class ShaderProgram;
         friend class MaterialBuilder;
+        friend class CustomMaterialBuilder;
+        friend class EffectBuilder;
         friend class MaterialCompiler;
         friend void swap(Material& lhs, Material& rhs) noexcept;
         Material() noexcept;

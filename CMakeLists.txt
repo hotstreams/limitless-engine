@@ -86,6 +86,7 @@ set(ENGINE_CORE
    )
 
 set(ENGINE_MATERIAL_SYSTEM
+        src/material_system/properties.cpp
         src/material_system/material.cpp
         src/material_system/material_builder.cpp
         src/material_system/custom_material.cpp
