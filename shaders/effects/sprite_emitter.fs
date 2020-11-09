@@ -38,7 +38,7 @@ void main()
     #ifdef InitialRotation_MODULE
         vec2 center = vec2(0.5, 0.5);
         vec2 translated = uv - center;
-        mat2 rotation = mat2(cos(p_angle.x), sin(p_angle.x), -sin(p_angle.x), cos(p_angle.x));
+        mat2 rotation = mat2(cos(fs_rotation.x), sin(fs_rotation.x), -sin(fs_rotation.x), cos(fs_rotation.x));
         translated = rotation * translated;
         translated = translated + center;
         uv = clamp(translated, 0.0, 1.0);

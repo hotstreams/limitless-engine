@@ -3,6 +3,8 @@
 #include <core/extension_texture.hpp>
 #include <core/texture_visitor.hpp>
 #include <memory>
+#include "context_state.hpp"
+
 
 namespace GraphicsEngine {
     class BindlessTexture : public ExtensionTexture {

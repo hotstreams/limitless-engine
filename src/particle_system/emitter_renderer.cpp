@@ -4,7 +4,7 @@
 #include <core/buffer_builder.hpp>
 #include <particle_system/unique_emitter.hpp>
 #include <particle_system/emitter.hpp>
-#include <iostream>
+#include <material_system/material.hpp>
 
 using namespace GraphicsEngine;
 
@@ -48,11 +48,14 @@ void SpriteEmitterRenderer::draw(const UniqueSpriteEmitter& emitter) {
 
     vertex_array.bind();
 
-    const auto& shader = shader_storage.get(emitter);
+    auto& shader = *shader_storage.get(emitter);
 
-    *shader << *emitter.material;
+    setBlendingMode(emitter.material->getBlending());
 
-    shader->use();
+    shader << *emitter.material;
+
+    shader.use();
+
     glDrawArrays(GL_POINTS, 0, current_particle_count);
 }
 
@@ -78,11 +81,13 @@ void MeshEmitterRenderer::update(MeshParticleCollector& collector) {
 void MeshEmitterRenderer::draw(const UniqueMeshEmitter& emitter) {
     if (current_particle_count == 0) return;
 
-    const auto& shader = shader_storage.get(emitter);
+    auto& shader = *shader_storage.get(emitter);
 
-    *shader << *emitter.material;
+    setBlendingMode(emitter.material->getBlending());
 
-    shader->use();
+    shader << *emitter.material;
+
+    shader.use();
 
     emitter.mesh->draw_instanced(current_particle_count);
 }

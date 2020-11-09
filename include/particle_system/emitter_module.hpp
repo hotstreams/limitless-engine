@@ -23,7 +23,8 @@ namespace GraphicsEngine {
         RotationRate,
         SizeByLife,
         //SphereLocation,
-        //CustomMaterial
+        CustomMaterial,
+        CustomMaterialOverLife,
 
         //lifetime should be updated at last
         Lifetime
@@ -279,5 +280,39 @@ namespace GraphicsEngine {
         void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
 
         [[nodiscard]] MeshLocation* clone() const noexcept override;
+    };
+
+    class CustomMaterialModule : public EmitterModule {
+    private:
+        std::array<std::unique_ptr<Distribution<float>>, 4> properties;
+    public:
+        explicit CustomMaterialModule(Distribution<float>* prop1,
+                                      Distribution<float>* prop2 = nullptr,
+                                      Distribution<float>* prop3 = nullptr,
+                                      Distribution<float>* prop4 = nullptr) noexcept;
+        ~CustomMaterialModule() override = default;
+
+        CustomMaterialModule(const CustomMaterialModule&);
+
+        void initialize(Emitter& emitter, Particle& particle) noexcept override;
+
+        [[nodiscard]] CustomMaterialModule* clone() const noexcept override;
+    };
+
+    class CustomMaterialModuleOverLife : public EmitterModule {
+    private:
+        std::array<std::unique_ptr<Distribution<float>>, 4> properties;
+    public:
+        explicit CustomMaterialModuleOverLife(Distribution<float>* prop1,
+                                              Distribution<float>* prop2 = nullptr,
+                                              Distribution<float>* prop3 = nullptr,
+                                              Distribution<float>* prop4 = nullptr) noexcept;
+        ~CustomMaterialModuleOverLife() override = default;
+
+        CustomMaterialModuleOverLife(const CustomMaterialModuleOverLife&);
+
+        void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
+
+        [[nodiscard]] CustomMaterialModuleOverLife* clone() const noexcept override;
     };
 }

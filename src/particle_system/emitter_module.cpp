@@ -354,3 +354,69 @@ void MeshLocation::update([[maybe_unused]] Emitter& emitter, [[maybe_unused]] st
 MeshLocation* MeshLocation::clone() const noexcept {
     return new MeshLocation(*this);
 }
+
+CustomMaterialModule::CustomMaterialModule(Distribution<float>* prop1,
+                                           Distribution<float>* prop2,
+                                           Distribution<float>* prop3,
+                                           Distribution<float>* prop4) noexcept
+    : properties{std::unique_ptr<Distribution<float>>(prop1),
+                 std::unique_ptr<Distribution<float>>(prop2),
+                 std::unique_ptr<Distribution<float>>(prop3),
+                 std::unique_ptr<Distribution<float>>(prop4)} {
+
+}
+
+CustomMaterialModule::CustomMaterialModule(const CustomMaterialModule& rhs) {
+    for (uint32_t i = 0; i < rhs.properties.size(); ++i) {
+        if (rhs.properties[i]) {
+            properties[i] = std::unique_ptr<Distribution<float>>(rhs.properties[i]->clone());
+        }
+    }
+}
+
+void CustomMaterialModule::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
+    for (uint32_t i = 0; i < properties.size(); i++) {
+        if (properties[i]) {
+            particle.properties[i] = properties[i]->get();
+
+        }
+    }
+}
+
+CustomMaterialModule *CustomMaterialModule::clone() const noexcept {
+    return new CustomMaterialModule(*this);
+}
+
+CustomMaterialModuleOverLife::CustomMaterialModuleOverLife(Distribution<float>* prop1,
+                                           Distribution<float>* prop2,
+                                           Distribution<float>* prop3,
+                                           Distribution<float>* prop4) noexcept
+        : properties{std::unique_ptr<Distribution<float>>(prop1),
+                     std::unique_ptr<Distribution<float>>(prop2),
+                     std::unique_ptr<Distribution<float>>(prop3),
+                     std::unique_ptr<Distribution<float>>(prop4)} {
+
+}
+
+CustomMaterialModuleOverLife::CustomMaterialModuleOverLife(const CustomMaterialModuleOverLife& rhs) {
+    for (uint32_t i = 0; i < rhs.properties.size(); ++i) {
+        if (rhs.properties[i]) {
+            properties[i] = std::unique_ptr<Distribution<float>>(rhs.properties[i]->clone());
+        }
+    }
+}
+
+CustomMaterialModuleOverLife *CustomMaterialModuleOverLife::clone() const noexcept {
+    return new CustomMaterialModuleOverLife(*this);
+}
+
+void CustomMaterialModuleOverLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+    for (auto& particle : particles) {
+        for (uint32_t i = 0; i < properties.size(); ++i) {
+            if (properties[i]) {
+                auto tick = particle.lifetime / dt;
+                particle.properties[i] += (properties[i]->get() - particle.properties[i]) / tick;
+            }
+        }
+    }
+}

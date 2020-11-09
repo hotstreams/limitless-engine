@@ -1,7 +1,7 @@
 #pragma once
 
-#include <postprocessing.hpp>
 #include <particle_system/effect_renderer.hpp>
+#include <postprocessing.hpp>
 #include <scene_data.hpp>
 
 namespace GraphicsEngine {

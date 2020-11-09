@@ -126,6 +126,12 @@ void CustomMaterial::update() const noexcept {
                     std::memcpy(data.data() + offset, &static_cast<const BindlessTexture&>(texture->getExtensionTexture()).getHandle(), sizeof(uint64_t));
                 }
                 break;
+            case UniformType::Time:
+                auto& uniform_time = static_cast<UniformTime&>(*uniform);
+                uniform_time.update();
+                auto offset = uniform_offsets.at(name);
+                std::memcpy(data.data() + offset, &uniform_time.getValue(), sizeof(float));
+                break;
         }
     }
 

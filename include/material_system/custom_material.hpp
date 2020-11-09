@@ -13,6 +13,8 @@ namespace GraphicsEngine {
 
         friend class CustomMaterialBuilder;
         friend class MaterialCompiler;
+        friend class EffectBuilder;
+        friend class ShaderProgram;
         friend void swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept;
         CustomMaterial() noexcept;
     public:

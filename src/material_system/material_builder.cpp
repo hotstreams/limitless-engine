@@ -8,7 +8,7 @@
 
 using namespace GraphicsEngine;
 
-void MaterialBuilder::initializeMaterialBuffer(const ShaderProgram& shader) noexcept {
+void MaterialBuilder::initializeMaterialBuffer(Material& material, const ShaderProgram& shader) noexcept {
     const auto found = std::find_if(shader.indexed_binds.begin(), shader.indexed_binds.end(), [&] (const auto& data) { return data.name == "material_buffer"; });
     const auto block_index = found->block_index;
 
@@ -19,7 +19,7 @@ void MaterialBuilder::initializeMaterialBuffer(const ShaderProgram& shader) noex
     std::array<GLint, 2> block_values = { 0 };
     glGetProgramResourceiv(shader.getId(), GL_UNIFORM_BLOCK, block_index, block_properties.size(), block_properties.data(), block_values.size(), nullptr, block_values.data());
 
-    material->material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, sizeof(std::byte) * block_values[1], Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+    material.material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, sizeof(std::byte) * block_values[1], Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 
     std::vector<GLint> block_uniforms(block_values[0]);
     glGetProgramResourceiv(shader.getId(), GL_UNIFORM_BLOCK, block_index, 1, &active_variables, block_values[0], nullptr, block_uniforms.data());
@@ -34,7 +34,7 @@ void MaterialBuilder::initializeMaterialBuffer(const ShaderProgram& shader) noex
 
         glGetProgramResourceName(shader.getId(), GL_UNIFORM, block_uniforms[i], values[0], nullptr, name.data());
 
-        material->uniform_offsets.emplace(name, values[1]);
+        material.uniform_offsets.emplace(name, values[1]);
     }
 }
 
@@ -174,7 +174,7 @@ std::shared_ptr<Material> MaterialBuilder::build(const ModelShaders& model_shade
     }
 
     // initializes uniform material buffer using program shader introspection
-    initializeMaterialBuffer(*shader_storage.get(material_shaders[0], model_shaders[0], material->shader_index));
+    initializeMaterialBuffer(*material, *shader_storage.get(material_shaders[0], model_shaders[0], material->shader_index));
 
     // adds compiled material to assets
     auto compiled = std::shared_ptr<Material>(std::move(material));
