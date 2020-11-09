@@ -48,22 +48,33 @@ void SkeletalInstance::draw(MaterialShader material_shader, Blending blending, c
             continue;
         }
 
-        auto materials = mesh.getMaterial().getMaterials();
-
-        for (const auto& material : materials) {
+        // iterates over all material layers
+        auto first_opaque {true};
+        for (const auto& [layer, material] : mesh.getMaterial()) {
+            // following blending order
             if (material->getBlending() == blending) {
-                auto& shader = shader_storage.get(material_shader, shader_type, material->getShaderIndex());
+                // sets blending mode dependent on layers count
+                if (blending == Blending::Opaque && mesh.getMaterial().count() > 1 && !first_opaque) {
+                    setBlendingMode(Blending::OpaqueHalf);
+                } else {
+                    setBlendingMode(blending);
+                    if (blending == Blending::Opaque) first_opaque = false;
+                }
+                // gets required shader from storage
+                auto& shader = *shader_storage.get(material_shader, shader_type, material->getShaderIndex());
 
-                *shader << *material
-                        << UniformValue{"model", model_matrix};
+                // updates model/material uniforms
+                shader << *material
+                       << UniformValue{"model", model_matrix};
 
+                // sets custom pass-dependent uniforms
                 for (const auto& uniform_set : uniform_setter) {
-                    uniform_set(*shader);
+                    uniform_set(shader);
                 }
 
                 bone_buffer->bindBase(IndexedBuffer::getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
 
-                shader->use();
+                shader.use();
 
                 mesh.draw();
             }

@@ -81,17 +81,15 @@ PostProcessing::PostProcessing(ContextEventObserver& ctx) : bloom_process(ctx) {
 void PostProcessing::process(Context& context, const Framebuffer& offscreen) {
     auto& postprocess_shader = *shader_storage.get("postprocess");
 
+    context.disable(Enable::DepthTest);
+    context.setDepthMask(DepthMask::True);
+    context.disable(Enable::Blending);
+
     if (bloom) {
         bloom_process.process(offscreen.get(FramebufferAttachment::Color0).texture);
     }
 
     Framebuffer::bindDefault();
-
-    context.disable(GL_DEPTH_TEST);
-    context.setDepthFunc(DepthFunc::Less);
-    context.setDepthMask(GL_TRUE);
-    context.disable(GL_BLEND);
-
     context.clear(Clear::ColorDepthStencil);
 
     postprocess_shader << UniformValue("bloom", static_cast<int>(bloom))

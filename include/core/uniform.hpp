@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <chrono>
 #include <core/texture_visitor.hpp>
 #include <core/context_debug.hpp>
 
@@ -9,7 +10,7 @@ namespace GraphicsEngine {
     class Texture;
     class ShaderProgram;
 
-    enum class UniformType { Value, Sampler };
+    enum class UniformType { Value, Sampler, Time };
     enum class UniformValueType { Float, Int, Uint, Vec2, Vec3, Vec4, Mat3, Mat4 };
 
     class Uniform {
@@ -25,7 +26,7 @@ namespace GraphicsEngine {
         [[nodiscard]] auto getType() const noexcept { return type; }
         [[nodiscard]] auto getValueType() const noexcept { return value_type; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
-        [[nodiscard]] auto& getChanged() noexcept { return changed; }
+        [[nodiscard]] virtual bool& getChanged() noexcept { return changed; }
 
         [[nodiscard]] virtual Uniform* clone() noexcept = 0;
         virtual void set(const ShaderProgram& shader) = 0;
@@ -61,6 +62,21 @@ namespace GraphicsEngine {
         void setSampler(const std::shared_ptr<Texture>& texture) noexcept;
 
         [[nodiscard]] UniformSampler* clone() noexcept override;
+        void set(const ShaderProgram& shader) override;
+    };
+
+    class UniformTime : public UniformValue<float> {
+    private:
+        std::chrono::time_point<std::chrono::steady_clock> start;
+    public:
+        explicit UniformTime(const std::string& name) noexcept;
+        ~UniformTime() override = default;
+
+        void update() noexcept;
+
+        [[nodiscard]] bool& getChanged() noexcept override { changed = true; return changed; }
+
+        [[nodiscard]] UniformTime* clone() noexcept override;
         void set(const ShaderProgram& shader) override;
     };
 

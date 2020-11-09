@@ -14,7 +14,7 @@ layout(location = 0) in vec3 position;
 #endif
 #ifdef InitialRotation_MODULE
     layout(location = 2) in vec3 rotation;
-    out vec4 fs_rotation;
+    out vec3 fs_rotation;
 #endif
 #ifdef InitialVelocity_MODULE
     layout(location = 3) in vec3 velocity;

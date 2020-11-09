@@ -41,36 +41,6 @@ struct BackToFrontSorter {
 };
 
 void Renderer::dispatchInstances(const std::vector<AbstractInstance*>& instances, Context& context, MaterialShader shader_type, Blending blending) const {
-    switch (blending) {
-        case Blending::Opaque:
-            context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(DepthFunc::Less);
-            context.setDepthMask(GL_TRUE);
-            context.disable(GL_BLEND);
-            break;
-        case Blending::Additive:
-            context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(DepthFunc::Less);
-            context.setDepthMask(GL_FALSE);
-            context.enable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_ONE);
-            break;
-        case Blending::Modulate:
-            context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(DepthFunc::Less);
-            context.setDepthMask(GL_FALSE);
-            context.enable(GL_BLEND);
-            glBlendFunc(GL_DST_COLOR, GL_ZERO);
-            break;
-        case Blending::Translucent:
-            context.enable(GL_DEPTH_TEST);
-            context.setDepthFunc(DepthFunc::Less);
-            context.setDepthMask(GL_FALSE);
-            context.enable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-    }
-
     for (auto* const instance : instances) {
         instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 
@@ -83,10 +53,10 @@ void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
         return;
     }
 
-    context.enable(GL_DEPTH_TEST);
+    context.enable(Enable::DepthTest);
     context.setDepthFunc(DepthFunc::Less);
-    context.setDepthMask(GL_FALSE);
-    context.disable(GL_BLEND);
+    context.setDepthMask(DepthMask::False);
+    context.disable(Enable::DepthTest);
 
     static auto sphere_instance = ElementaryInstance(assets.models["sphere"], assets.materials["default"], glm::vec3(0.0f));
 
@@ -106,11 +76,11 @@ void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
                 << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
                 << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
     };
-    auto color0 = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr, param_set);
+    auto color = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr, param_set);
     auto depth = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::Depth32F, ctx.getSize(), Texture::Format::DepthComponent, Texture::DataType::Float, nullptr, param_set);
 
     offscreen.bind();
-    offscreen << TextureAttachment{FramebufferAttachment::Color0, color0}
+    offscreen << TextureAttachment{FramebufferAttachment::Color0, color}
               << TextureAttachment{FramebufferAttachment::Depth, depth};
 
     offscreen.drawBuffer(FramebufferAttachment::Color0);
@@ -125,7 +95,6 @@ Renderer::Renderer(ContextEventObserver& context)
 
 void Renderer::draw(Context& context, Scene& scene, Camera& camera) {
     scene.update();
-
     scene_data.update(context, scene, camera);
 
     context.setViewPort(context.getSize());
@@ -133,15 +102,18 @@ void Renderer::draw(Context& context, Scene& scene, Camera& camera) {
     offscreen.bind();
     offscreen.clear();
 
-    //TODO: performing frustum culling; gets vector<instance_ptr>
     auto instances = performFrustumCulling(scene, camera);
 
     effect_renderer.update(instances);
 
+    auto draw_scene = [&] (Blending blending) {
+        dispatchInstances(instances, context, MaterialShader::Default, blending);
+        effect_renderer.draw(blending);
+    };
+
     // rendering front to back
     std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});
-    dispatchInstances(instances, context, MaterialShader::Default, Blending::Opaque);
-    effect_renderer.draw(Blending::Opaque);
+    draw_scene(Blending::Opaque);
 
     // draws skybox if it exists
     if (scene.getSkybox()) {
@@ -155,15 +127,9 @@ void Renderer::draw(Context& context, Scene& scene, Camera& camera) {
 
     // rendering back to front to follow the translucent order
     std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
-
-    dispatchInstances(instances, context, MaterialShader::Default, Blending::Additive);
-    effect_renderer.draw(Blending::Additive);
-
-    dispatchInstances(instances, context, MaterialShader::Default, Blending::Modulate);
-    effect_renderer.draw(Blending::Modulate);
-
-    dispatchInstances(instances, context, MaterialShader::Default, Blending::Translucent);
-    effect_renderer.draw(Blending::Translucent);
+    draw_scene(Blending::Additive);
+    draw_scene(Blending::Modulate);
+    draw_scene(Blending::Translucent);
 
     offscreen.unbind();
 

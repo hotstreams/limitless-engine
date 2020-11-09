@@ -4,7 +4,6 @@
 #include <particle_system/emitter_renderer.hpp>
 #include <material_system/material.hpp>
 #include <shader_types.hpp>
-#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -61,5 +60,5 @@ void EffectRenderer::draw(Blending blending) {
 }
 
 EffectRenderer::EffectRenderer(Context &context) noexcept {
-    context.enable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    context.enable(Enable::ProgramPointSize);
 }

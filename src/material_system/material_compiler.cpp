@@ -105,7 +105,7 @@ std::string MaterialCompiler::getModelDefines(const ModelShader& type) noexcept 
 std::string MaterialCompiler::getCustomMaterialScalarUniforms(const CustomMaterial& material) noexcept {
     std::string uniforms;
     for (const auto& [name, uniform] : material.uniforms) {
-        if (uniform->getType() == UniformType::Value) {
+        if (uniform->getType() == UniformType::Value || uniform->getType() == UniformType::Time) {
             uniforms.append(getUniformDeclaration(*uniform));
         }
     }

@@ -3,7 +3,10 @@
 #include <effect_instance.hpp>
 #include <particle_system/mesh_emitter.hpp>
 #include <particle_system/effect_compiler.hpp>
+#include <material_system/material.hpp>
 #include <assets.hpp>
+#include <shader_storage.hpp>
+#include <material_system/material_builder.hpp>
 
 using namespace GraphicsEngine;
 
@@ -70,6 +73,30 @@ EffectBuilder& EffectBuilder::setMesh(const std::shared_ptr<AbstractMesh>& mesh)
 std::shared_ptr<EffectInstance> EffectBuilder::build() {
     EffectCompiler compiler;
     compiler.compile(*effect);
+
+    for (const auto& [name, emitter] : *effect) {
+        switch (emitter->getType()) {
+            case EmitterType::Mesh: {
+                auto& sprite_emitter = effect->get<MeshEmitter>(name);
+                auto buffer = effect->get<MeshEmitter>(name).getMaterial().material_buffer;
+                if (!sprite_emitter.getMaterial().material_buffer) {
+                    // initializes uniform material buffer using program shader introspection
+                    MaterialBuilder::initializeMaterialBuffer(sprite_emitter.getMaterial(), *shader_storage.get(sprite_emitter.getEmitterType()));
+                }
+                break;
+            }
+            case EmitterType::Sprite: {
+                auto& sprite_emitter = effect->get<SpriteEmitter>(name);
+                auto buffer = effect->get<SpriteEmitter>(name).getMaterial().material_buffer;
+                if (!sprite_emitter.getMaterial().material_buffer) {
+                    // initializes uniform material buffer using program shader introspection
+                    MaterialBuilder::initializeMaterialBuffer(sprite_emitter.getMaterial(), *shader_storage.get(sprite_emitter.getEmitterType()));
+                }
+                break;
+            }
+        }
+    }
+
     auto compiled = std::shared_ptr<EffectInstance>(std::move(effect));
     assets.effects.add(effect_name, compiled);
     return compiled;
