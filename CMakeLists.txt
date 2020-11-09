@@ -47,16 +47,16 @@ if (WIN32)
     include_directories(${ASSIMP_INCLUDE_DIRS})
     link_directories(${ASSIMP_LIBRARIES})
 
-    #find_package(freetype REQUIRED)
-    #message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
-    #include_directories(${FREETYPE_INCLUDE_DIRS})
-    #link_directories(${FREETYPE_LIBRARIES})
+    find_package(freetype REQUIRED)
+    message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
+    include_directories(${FREETYPE_INCLUDE_DIRS})
+    link_directories(${FREETYPE_LIBRARIES})
 
-    link_libraries(opengl32 glew32 glfw3 assimp)
+    link_libraries(opengl32 glew32 glfw3 assimp freetype)
 endif()
 
 if (UNIX)
-    link_libraries(GLEW glfw GL assimp)
+    link_libraries(GLEW glfw GL assimp freetype)
 endif()
 
 set(ENGINE_CORE
@@ -139,6 +139,8 @@ set(ENGINE_SRC
         src/threaded_model_loader.cpp
         src/util/thread_pool.cpp
         src/asset_loader.cpp
+        src/font_atlas.cpp
+        src/text_instance.cpp
     )
 
 #file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")

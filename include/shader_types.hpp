@@ -7,7 +7,8 @@ namespace GraphicsEngine {
         ForwardPlus,
         DirectionalShadow,
         PointShadow,
-        ColorPicker
+        ColorPicker,
+        Text
     };
 
     enum class ModelShader {
@@ -15,7 +16,8 @@ namespace GraphicsEngine {
         Skeletal,
         Instanced,
         SkeletalInstanced,
-        Effect
+        Effect,
+        Text
     };
 
     using MaterialShaders = std::vector<MaterialShader>;

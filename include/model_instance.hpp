@@ -12,9 +12,6 @@ namespace GraphicsEngine {
     protected:
         std::unordered_map<std::string, MeshInstance> meshes;
         std::shared_ptr<AbstractModel> model;
-        glm::mat4 model_matrix;
-
-        void calculateModelMatrix() noexcept;
     public:
         ModelInstance(decltype(model) model, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
         ModelInstance(Lighting* lighting, decltype(model) model, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});

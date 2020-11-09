@@ -15,6 +15,7 @@ namespace GraphicsEngine {
     class Texture;
     class Material;
     class Skybox;
+    class FontAtlas;
 
     struct resource_container_error : public std::runtime_error {
         explicit resource_container_error(const std::string& error) : runtime_error(error) {}
@@ -72,6 +73,7 @@ namespace GraphicsEngine {
         ResourceContainer<Material> materials;
         ResourceContainer<Skybox> skyboxes;
         ResourceContainer<EffectInstance> effects;
+        ResourceContainer<FontAtlas> fonts;
 
         void load();
     };

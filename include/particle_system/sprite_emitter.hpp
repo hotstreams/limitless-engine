@@ -28,7 +28,7 @@ namespace GraphicsEngine {
         [[nodiscard]] auto& getMaterial() noexcept { return *material; }
         [[nodiscard]] const auto& getMaterial() const noexcept { return *material; }
 
-        UniqueSpriteEmitter getEmitterType() const noexcept;
+        [[nodiscard]] UniqueSpriteEmitter getEmitterType() const noexcept;
 
         void accept(EmitterVisitor& visitor) noexcept override;
     };
