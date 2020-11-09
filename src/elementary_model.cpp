@@ -22,7 +22,11 @@ Quad::Quad() {
     };
 
     auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "quad_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
-    assets.meshes.add("quad_mesh", mesh);
+
+    if (!assets.meshes.isExist("quad_mesh")) {
+	    assets.meshes.add("quad_mesh", mesh);
+    }
+
     meshes.emplace_back(std::move(mesh));
 }
 

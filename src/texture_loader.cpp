@@ -7,8 +7,8 @@
 using namespace GraphicsEngine;
 
 std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_left_start) {
-    if (assets.textures.isExist(path.string())) {
-        return assets.textures[path.string()];
+    if (assets.textures.isExist(path.stem().string())) {
+        return assets.textures[path.stem().string()];
     }
 
     stbi_set_flip_vertically_on_load(bottom_left_start);
@@ -54,7 +54,7 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_l
 
         stbi_image_free(data);
 
-        assets.textures.add(path.string(), texture);
+        assets.textures.add(path.stem().string(), texture);
         return texture;
     } else {
         throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());

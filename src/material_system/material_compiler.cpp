@@ -106,7 +106,9 @@ std::string MaterialCompiler::getCustomMaterialScalarUniforms(const CustomMateri
     std::string uniforms;
     for (const auto& [name, uniform] : material.uniforms) {
         if (uniform->getType() == UniformType::Value || uniform->getType() == UniformType::Time) {
-            uniforms.append(getUniformDeclaration(*uniform));
+        	auto decl = getUniformDeclaration(*uniform);
+        	decl.erase(decl.find("uniform"), 7);
+            uniforms.append(decl);
         }
     }
     return uniforms;

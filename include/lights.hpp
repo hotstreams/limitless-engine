@@ -24,6 +24,9 @@ namespace GraphicsEngine {
 
         glm::vec4 direction {};
         glm::vec4 color {};
+
+        DirectionalLight(const glm::vec4& _direction, const glm::vec4& _color) noexcept
+            : direction{_direction}, color{_color} {}
     };
 
     struct SpotLight {

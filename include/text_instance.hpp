@@ -39,6 +39,8 @@ namespace GraphicsEngine {
             return *this;
         }
 
+        auto& getColor() const noexcept { return color; }
+
         TextInstance* clone() noexcept override;
 
         void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) override;

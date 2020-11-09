@@ -156,7 +156,7 @@ void GraphicsEngine::swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept {
 CustomMaterial::CustomMaterial(const CustomMaterial& material)
     : Material{material} {
     uniforms.reserve(uniforms.size());
-    for (const auto& [name, uniform] : uniforms) {
+    for (const auto& [name, uniform] : material.uniforms) {
         uniforms.emplace(name, uniform->clone());
     }
 }

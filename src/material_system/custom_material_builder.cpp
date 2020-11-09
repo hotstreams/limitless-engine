@@ -63,7 +63,7 @@ std::shared_ptr<Material> CustomMaterialBuilder::build(const ModelShaders& model
 }
 
 CustomMaterialBuilder& CustomMaterialBuilder::create(std::string name) {
-    material = std::unique_ptr<CustomMaterial>(new CustomMaterial());
+    material = std::unique_ptr<Material>(new CustomMaterial());
     material->name = std::move(name);
     return *this;
 }

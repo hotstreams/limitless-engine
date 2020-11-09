@@ -6,6 +6,11 @@
 using namespace GraphicsEngine;
 
 template<typename T>
+LightContainer<T>::LightContainer() : LightContainer{1} {
+
+}
+
+template<typename T>
 LightContainer<T>::LightContainer(uint64_t reserve_count) {
     reserve(reserve_count);
 }
