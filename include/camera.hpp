@@ -16,7 +16,7 @@ namespace GraphicsEngine {
 
         glm::mat4 projection, view;
 
-        CameraMode mode { CameraMode::Free };
+        CameraMode mode { CameraMode::Panning };
 
         float pitch;
         float yaw;
@@ -40,11 +40,13 @@ namespace GraphicsEngine {
         [[nodiscard]] const auto& getFar() const noexcept { return far_distance; }
         [[nodiscard]] const auto& getFov() const noexcept { return fov; }
 
-        [[nodiscard]] auto& getMoveSpeed() const noexcept { return move_speed; }
-        [[nodiscard]] auto& getMouseSence() const noexcept { return mouse_sence; }
+        [[nodiscard]] auto& getMoveSpeed() noexcept { return move_speed; }
+        [[nodiscard]] auto& getMouseSence() noexcept { return mouse_sence; }
+        [[nodiscard]] auto& getMode() noexcept { return mode; }
 
         void setPosition(const glm::vec3& position) noexcept;
         void setFront(const glm::vec3& front) noexcept;
+        void setFov(glm::uvec2 size, float fov) noexcept;
 
         void mouseMove(glm::dvec2 offset) noexcept;
         void mouseScroll(float yoffset) noexcept;

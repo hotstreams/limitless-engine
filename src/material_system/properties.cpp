@@ -40,6 +40,13 @@ void GraphicsEngine::setBlendingMode(ContextState& context, Blending blending) n
             context.setBlendColor({0.5f, 0.5f, 0.5f, 1.0f});
             context.setBlendFunc(BlendFactor::BlendColor, BlendFactor::BlendColor);
             break;
+	    case Blending::Text:
+		    context.disable(Enable::DepthTest);
+		    context.setDepthFunc(DepthFunc::Less);
+		    context.setDepthMask(DepthMask::False);
+		    context.enable(Enable::Blending);
+		    context.setBlendFunc(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
+		    break;
     }
 }
 

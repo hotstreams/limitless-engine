@@ -1,3 +1,5 @@
+#pragma once
+
 #include <material_system/material.hpp>
 
 #include <stdexcept>
@@ -36,7 +38,7 @@ namespace GraphicsEngine {
         template<typename T>
         T& getUniform(const std::string& name) {
             try {
-                return static_cast<T&>(uniforms.at(name));
+                return static_cast<T&>(*uniforms.at(name));
             } catch (const std::out_of_range& e) {
                 throw std::runtime_error("No such uniform in custom material.");
             }

@@ -125,3 +125,8 @@ void Camera::setFront(const glm::vec3& _front) noexcept {
     updateView();
 }
 
+void Camera::setFov(glm::uvec2 size, float _fov) noexcept {
+	fov = _fov;
+	updateProjection(size);
+}
+

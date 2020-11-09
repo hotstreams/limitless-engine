@@ -1,6 +1,7 @@
 #include <skeletal_instance.hpp>
 #include <shader_types.hpp>
 #include <shader_storage.hpp>
+#include <iostream>
 
 using namespace GraphicsEngine;
 
@@ -127,7 +128,7 @@ void SkeletalInstance::update() {
 
         auto local_transform = !bones[*node].isFake() ? bones[*node].node_transform : glm::mat4(1.f);
 
-        if (anim_node) {
+	    if (anim_node) {
             glm::vec3 scale = anim_node->scalingLerp(anim_time);
             glm::vec3 position = anim_node->positionLerp(anim_time);
             auto rotation = anim_node->rotationLerp(anim_time);
@@ -140,10 +141,9 @@ void SkeletalInstance::update() {
         }
 
         auto transform = parent_mat * local_transform;
+	    bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform;
 
-        bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform * bones[*node].offset_matrix;
-
-        for (size_t i = 0; i < node.size(); ++i) {
+	    for (size_t i = 0; i < node.size(); ++i) {
             node_traversal(node[i], transform);
         }
     };

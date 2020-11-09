@@ -48,6 +48,7 @@ namespace GraphicsEngine {
 
         void reveal() noexcept;
         void hide() noexcept;
+	    [[nodiscard]] bool isHidden() const noexcept { return hidden; }
 
         [[nodiscard]] bool isKilled() const noexcept;
         void kill() noexcept;

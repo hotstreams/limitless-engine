@@ -30,7 +30,7 @@ namespace GraphicsEngine {
         // removes 'id' layer
         void remove(uint64_t id);
 
-        // gets material layer; gets base material by default
+        // gets material layer;
         Material& operator[](uint64_t id) { return *materials.at(id); }
 
         [[nodiscard]] auto count() const noexcept { return materials.size(); }

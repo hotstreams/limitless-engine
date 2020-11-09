@@ -28,6 +28,12 @@ namespace GraphicsEngine {
 
         MeshInstance& operator[](const std::string& mesh);
 
+        auto begin() noexcept { return meshes.begin(); }
+        auto begin() const noexcept { return meshes.cbegin(); }
+
+	    auto end() noexcept { return meshes.end(); }
+	    auto end() const noexcept { return meshes.cend(); }
+
         using AbstractInstance::draw;
         void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
     };

@@ -35,6 +35,6 @@ namespace GraphicsEngine {
         MaterialBuilder& add(PropertyType type, float value);
 
         MaterialBuilder& create(std::string name);
-        std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model}, const MaterialShaders& material_shaders = {MaterialShader::Default});
+        virtual std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model}, const MaterialShaders& material_shaders = {MaterialShader::Default});
     };
 }

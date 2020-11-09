@@ -17,7 +17,7 @@ namespace GraphicsEngine {
         RoughnessTexture
     };
 
-    enum class Blending { Opaque, Translucent, Additive, Modulate, OpaqueHalf };
+    enum class Blending { Opaque, Translucent, Additive, Modulate, OpaqueHalf, Text };
     enum class Shading { Lit, Unlit };
 
     class ContextState;

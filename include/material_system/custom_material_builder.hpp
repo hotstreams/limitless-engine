@@ -14,6 +14,6 @@ namespace GraphicsEngine {
         CustomMaterialBuilder& addUniform(std::string name, Uniform* uniform);
 
         CustomMaterialBuilder& create(std::string name);
-        std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model}, const MaterialShaders& material_shaders = {MaterialShader::Default});
+        virtual std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model}, const MaterialShaders& material_shaders = {MaterialShader::Default}) override;
     };
 }

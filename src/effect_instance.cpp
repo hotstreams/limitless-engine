@@ -74,13 +74,17 @@ EffectInstance::EffectInstance(Lighting *lighting, const std::shared_ptr<EffectI
     for (const auto& [name, emitter] : effect->emitters) {
         emitters.emplace(name, emitter->clone());
     }
+
+	EffectInstance::setPosition(position);
+	EffectInstance::setRotation(rotation);
 }
 
 EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
     : EffectInstance{nullptr, effect, position, rotation}  {
+	EffectInstance::setPosition(position);
+	EffectInstance::setRotation(rotation);
 }
 
 EffectInstance::EffectInstance() noexcept
     : AbstractInstance{ModelShader::Effect, glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f}} {
-
 }

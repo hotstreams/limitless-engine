@@ -28,7 +28,7 @@ namespace GraphicsEngine {
         bool tone_mapping {true};
         float exposure {1.0f};
 
-        bool gamma_correction {true};
+        bool gamma_correction { false};
         float gamma {2.2f};
 
         bool vignette {false};

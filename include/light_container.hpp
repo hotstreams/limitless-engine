@@ -21,7 +21,7 @@ namespace GraphicsEngine {
         bool modified {false};
     public:
         explicit LightContainer(uint64_t reserve_count);
-        LightContainer() = default;
+        LightContainer();
         ~LightContainer() = default;
 
         LightContainer(const LightContainer&) = delete;
