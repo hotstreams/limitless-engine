@@ -50,6 +50,7 @@ namespace GraphicsEngine {
         [[nodiscard]] auto& getBlending() noexcept { return blending; }
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
+        [[nodiscard]] const auto& getProperties() const noexcept { return properties; }
 
         Material(Material&&) noexcept;
         Material& operator=(Material&&) noexcept;

@@ -32,6 +32,16 @@ namespace GraphicsEngine {
         virtual void set(const ShaderProgram& shader) = 0;
     };
 
+    template <typename W>
+    class UniformSerializer {
+    public:
+    	static void serialize(const Uniform& u, W& writer) {
+    		writer << u.getName()
+    		       << u.getType()
+    		       << u.getValueType();
+    	}
+    };
+
     template<typename T>
     class UniformValue : public Uniform {
     protected:
