@@ -21,6 +21,9 @@ namespace GraphicsEngine {
         bool wireframe {false};
 
         glm::vec3 position, rotation, scale;
+        glm::mat4 model_matrix {1.f};
+
+        void calculateModelMatrix() noexcept;
 
         AbstractInstance(Lighting* lighting, ModelShader shader_type, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept;
         AbstractInstance(ModelShader shader_type, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept;

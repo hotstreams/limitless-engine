@@ -16,6 +16,7 @@
 #include <iostream>
 #include <util/thread_pool.hpp>
 #include <asset_loader.hpp>
+#include <text_instance.hpp>
 #include <material_system/custom_material_builder.hpp>
 
 using namespace GraphicsEngine;
@@ -69,7 +70,11 @@ public:
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("material5"), glm::vec3{ 8.0f, 0.0f, 0.0f });
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("material6"), glm::vec3{ 10.0f, 0.0f, 0.0f });
 
-        CustomMaterialBuilder builder;
+        scene.add(new TextInstance("test", {400.0f, 400.0f}, {1.0f, 1.0f}, {1.5f, 3.8f, 2.4f, 1.f}, assets.fonts.at("nunito"), context));
+
+        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 1.5f}, 8.0f);
+
+      CustomMaterialBuilder builder;
 
         builder.create("custom")
                            .setFragmentCode("uv.y -= 0.1;\n"
@@ -123,6 +128,8 @@ public:
         assets.models.add("nanosuit", model_loader.loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(ASSETS_DIR "models/cyborg/cyborg.obj"));
         assets.skyboxes.add("skybox", std::make_shared<Skybox>(ASSETS_DIR "skyboxes/sky/sky.png"));
+
+        assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
 
         MaterialBuilder builder;
 

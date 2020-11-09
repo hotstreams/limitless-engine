@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vertex.hpp>
+#include <core/vertex.hpp>
 #include <core/context_debug.hpp>
 
 namespace GraphicsEngine {
@@ -40,6 +40,7 @@ namespace GraphicsEngine {
         VertexArray& operator<<(const Buffer& element_buffer) noexcept;
         VertexArray& operator<<(const VertexAttribute& attribute) noexcept;
         VertexArray& operator<<(const std::pair<Vertex, Buffer&>& attribute) noexcept;
+        VertexArray& operator<<(const std::pair<TextVertex, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexNormal, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexNormalTangent, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexPackedNormalTangent, Buffer&>& attribute) noexcept;
