@@ -16,6 +16,8 @@ void TextInstance::draw([[maybe_unused]] MaterialShader shader_type, Blending bl
 
     calculateModelMatrix();
 
+    setBlendingMode(Blending::Translucent);
+
     // if 2d disable depth testing
 
     shader << UniformSampler{"bitmap", font->getTexture()}
