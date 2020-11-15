@@ -97,6 +97,8 @@ namespace GraphicsEngine {
         [[nodiscard]] virtual Type getType() const noexcept = 0;
         [[nodiscard]] virtual glm::uvec3 getSize() const noexcept = 0;
         [[nodiscard]] virtual const ExtensionTexture& getExtensionTexture() const noexcept = 0;
+        [[nodiscard]] virtual const std::optional<std::string>& getName() const noexcept = 0;
+        virtual void setName(const std::string& new_name) = 0;
 
         // texture visitors
         virtual void accept(TextureVisitor& visitor) noexcept = 0;

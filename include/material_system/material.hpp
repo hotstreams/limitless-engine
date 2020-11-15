@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <map>
+#include <util/bytereader.hpp>
+#include <util/serializer.hpp>
 
 namespace GraphicsEngine {
     class Buffer;
@@ -51,6 +53,8 @@ namespace GraphicsEngine {
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
         [[nodiscard]] const auto& getProperties() const noexcept { return properties; }
+        [[nodiscard]] const auto& getUniformOffsets() const noexcept { return uniform_offsets; }
+        [[nodiscard]] auto getShading() const noexcept { return shading; }
 
         Material(Material&&) noexcept;
         Material& operator=(Material&&) noexcept;
@@ -59,6 +63,12 @@ namespace GraphicsEngine {
         Material& operator=(Material) noexcept;
 
         [[nodiscard]] virtual Material* clone() const noexcept;
+
+        static constexpr uint32_t serial_version = 0x1;
+
+	    void serialize(ByteWriter& writer);
+
+	    static std::shared_ptr<Material> deserialize(ByteReader& reader);
 
         virtual ~Material() = default;
     };

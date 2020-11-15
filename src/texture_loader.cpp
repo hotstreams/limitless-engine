@@ -51,6 +51,7 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_l
         };
         auto texture = TextureBuilder::build(Texture::Type::Tex2D, mipmap_count, internal, { width, height }, format, Texture::DataType::UnsignedByte, data, param_set);
         texture->generateMipMap();
+        texture->setName(path.string());
 
         stbi_image_free(data);
 

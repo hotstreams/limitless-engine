@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include <core/buffer_builder.hpp>
+#include <material_system/material_builder.hpp>
 
 using namespace GraphicsEngine;
 
@@ -152,7 +153,11 @@ UniformSampler& Material::getBlendMask() const {
 }
 
 Material::Material(const Material& material) noexcept
-    : uniform_offsets{material.uniform_offsets}, blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index} {
+    : uniform_offsets{material.uniform_offsets}
+    , blending{material.blending}
+    , shading{material.shading}
+    , name{material.name}
+    , shader_index{material.shader_index} {
     for (const auto& [type, property] : material.properties) {
         properties.emplace(type, property->clone());
     }
@@ -211,6 +216,42 @@ Material& Material::operator=(Material&& rhs) noexcept {
 Material::Material() noexcept
     : blending{Blending::Opaque}, shading{Shading::Unlit}, shader_index{0} {
 
+}
+
+std::shared_ptr<Material> Material::deserialize(ByteReader& reader) {
+		uint32_t version = reader;
+
+		if (version != serial_version) {
+			throw deserialization_exception{
+					"wrong version: " + std::to_string(version) + " instead of " + std::to_string(serial_version)
+			};
+		}
+
+		MaterialBuilder material_builder;
+		material_builder
+		    .create(reader)
+		    .setBlending(reader)
+		    .setShading(reader);
+
+		{
+			size_t size {reader};
+			for (size_t i = 0; i < size; ++i) {
+				PropertyType ptype {reader};
+				auto uptr = deserializeUniform(reader);
+				material_builder.add(ptype, std::move(uptr));
+			}
+		}
+
+		return material_builder.build();
+
+}
+
+void Material::serialize(ByteWriter& writer) {
+	writer << serial_version;
+	writer << name;
+	writer << blending;
+	writer << shading;
+	writer << properties;
 }
 
 bool GraphicsEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {

@@ -15,7 +15,8 @@ namespace GraphicsEngine {
         glm::uvec3 size;
         Format format;
         Type target;
-        bool mipmap {};
+        bool mipmap {false};
+        std::optional<std::string> name;
 
         void texImage2D(GLenum target, GLsizei levels, InternalFormat internal_format, Format format, DataType type, glm::uvec2 size, const void* data) const noexcept;
         void texImage3D(GLenum target, GLsizei levels, InternalFormat internal_format, Format format, DataType type, glm::uvec3 size, const void *data) const noexcept;
@@ -44,6 +45,8 @@ namespace GraphicsEngine {
         [[nodiscard]] Type getType() const noexcept override;
         [[nodiscard]] glm::uvec3 getSize() const noexcept override;
         [[nodiscard]] const ExtensionTexture& getExtensionTexture() const noexcept override;
+	    [[nodiscard]] const std::optional<std::string>& getName() const noexcept override { return name; }
+	    void setName(const std::string& new_name) override { name = new_name; }
 
         void accept(TextureVisitor& visitor) noexcept override;
     };

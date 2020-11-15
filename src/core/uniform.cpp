@@ -65,7 +65,7 @@ template<typename T>
 }
 
 template<typename T>
-constexpr UniformValueType UniformValue<T>::getUniformValueType() {
+constexpr UniformValueType UniformValue<T>::getUniformValueType() const {
     if constexpr (std::is_same<T, int>::value) {
         return UniformValueType::Int;
     }
@@ -93,6 +93,25 @@ constexpr UniformValueType UniformValue<T>::getUniformValueType() {
     else {
         static_assert(!std::is_same<T, T>::value, "Unimplemented value type for uniform T.");
     }
+}
+
+template <typename T>
+ByteWriter& UniformValue<T>::serialize(ByteWriter& writer) const {
+	writer << UniformType::Value;
+	writer << getUniformValueType();
+	return serializeFields(writer);
+}
+
+template <typename T>
+ByteWriter& UniformValue<T>::serializeFields(ByteWriter& writer) const {
+	Uniform::serialize(writer);
+	writer << value;
+	return writer;
+}
+
+template <typename T>
+UniformValue<T>::UniformValue(ByteReader& reader) : Uniform{reader} {
+	reader >> value;
 }
 
 UniformSampler::UniformSampler(const std::string& name, std::shared_ptr<Texture> sampler) noexcept
@@ -124,6 +143,29 @@ void UniformSampler::set(const ShaderProgram& shader) {
 
 [[nodiscard]] UniformSampler* UniformSampler::clone() noexcept {
     return new UniformSampler(*this);
+}
+
+ByteWriter& UniformSampler::serialize(ByteWriter& writer) const {
+	if (sampler->getName()) {
+		writer << UniformType::Sampler;
+		UniformValue<int>::serializeFields(writer);
+		return writer << *sampler->getName();
+	} else {
+		throw serialization_exception("sampler texture has no name");
+	}
+}
+
+UniformSampler::UniformSampler(ByteReader& reader) : UniformValue{reader} {
+	std::string path;
+	reader >> path;
+	try {
+		sampler = assets.textures.at(path);
+	}
+	catch (const resource_container_error& err) {
+		sampler = TextureLoader::load(path); // guaranteed to be inserted into assets
+	}
+
+	sampler_id = sampler->getId();
 }
 
 std::string GraphicsEngine::getUniformDeclaration(const Uniform& uniform) noexcept {
@@ -220,4 +262,31 @@ namespace GraphicsEngine {
     template class UniformValue<glm::vec4>;
     template class UniformValue<glm::mat3>;
     template class UniformValue<glm::mat4>;
+}
+
+std::unique_ptr<Uniform> GraphicsEngine::deserializeUniformValue(ByteReader& reader) {
+	UniformValueType value_type {};
+	reader >> value_type;
+	switch (value_type) {
+		case UniformValueType::Float: return std::make_unique<UniformValue<float>>(reader);
+		case UniformValueType::Int:   return std::make_unique<UniformValue<int>>(reader);
+		case UniformValueType::Uint:  return std::make_unique<UniformValue<unsigned int>>(reader);
+		case UniformValueType::Vec2:  return std::make_unique<UniformValue<glm::vec2>>(reader);
+		case UniformValueType::Vec3:  return std::make_unique<UniformValue<glm::vec3>>(reader);
+		case UniformValueType::Vec4:  return std::make_unique<UniformValue<glm::vec4>>(reader);
+		case UniformValueType::Mat3:  return std::make_unique<UniformValue<glm::mat3>>(reader);
+		case UniformValueType::Mat4:  return std::make_unique<UniformValue<glm::mat4>>(reader);
+		default: throw deserialization_exception{"unknown value type " + std::to_string((int)value_type)};
+	}
+}
+
+std::unique_ptr<Uniform> GraphicsEngine::deserializeUniform(ByteReader& reader) {
+	UniformType type {};
+	reader >> type;
+	switch (type) {
+		case UniformType::Value: return deserializeUniformValue(reader);
+		case UniformType::Sampler: return std::make_unique<UniformSampler>(reader);
+		case UniformType::Time: return std::make_unique<UniformTime>(reader);
+		default: throw deserialization_exception{"unknown uniform type " + std::to_string((int)type)};
+	}
 }

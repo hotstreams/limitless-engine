@@ -192,3 +192,8 @@ MaterialType MaterialBuilder::getMaterialType() const noexcept {
 
     return MaterialType{std::move(props), material->shading};
 }
+
+MaterialBuilder& MaterialBuilder::add(PropertyType type, std::unique_ptr<Uniform> uniform) {
+	material->properties.emplace(type, std::move(uniform));
+	return *this;
+}

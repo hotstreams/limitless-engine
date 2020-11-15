@@ -141,7 +141,12 @@ set(ENGINE_SRC
         src/asset_loader.cpp
         src/font_atlas.cpp
         src/text_instance.cpp
+        src/util/bytebuffer.cpp
+        src/util/bytereader.cpp
+        src/util/bytewriter.cpp
     )
+
+set(TEST_SRC tests/test_main.cpp tests/test_serialization.cpp)
 
 #file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
 #foreach(file ${list})
@@ -150,3 +155,4 @@ set(ENGINE_SRC
 #    add_executable(${filename} ${ENGINE_SRC} ${file})
 #endforeach()
 add_executable(demo ${ENGINE_SRC} "demo/demo.cpp")
+add_executable(tests ${ENGINE_SRC} ${TEST_SRC})

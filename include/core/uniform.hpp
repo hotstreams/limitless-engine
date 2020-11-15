@@ -5,13 +5,24 @@
 #include <chrono>
 #include <core/texture_visitor.hpp>
 #include <core/context_debug.hpp>
+#include <util/bytewriter.hpp>
+#include <util/bytereader.hpp>
+#include <util/serializer.hpp>
+#include <glm/glm.hpp>
+#include <assets.hpp>
+#include <core/texture.hpp>
+#include <texture_loader.hpp>
 
 namespace GraphicsEngine {
     class Texture;
     class ShaderProgram;
+    class Uniform;
 
     enum class UniformType { Value, Sampler, Time };
-    enum class UniformValueType { Float, Int, Uint, Vec2, Vec3, Vec4, Mat3, Mat4 };
+    enum class UniformValueType { Invalid, Float, Int, Uint, Vec2, Vec3, Vec4, Mat3, Mat4 };
+
+	template <typename Reader>
+	std::unique_ptr<Uniform> deserializeUniformValue(Reader&& reader);
 
     class Uniform {
     protected:
@@ -19,7 +30,15 @@ namespace GraphicsEngine {
         UniformType type;
         UniformValueType value_type;
         bool changed;
+
+        virtual ByteWriter& serialize(ByteWriter& writer) const {
+        	return writer << name << type << value_type;
+        }
     public:
+    	explicit Uniform(ByteReader& reader) : changed{false} {
+    		reader >> name >> type >> value_type;
+    	}
+
         Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;
 
@@ -30,16 +49,10 @@ namespace GraphicsEngine {
 
         [[nodiscard]] virtual Uniform* clone() noexcept = 0;
         virtual void set(const ShaderProgram& shader) = 0;
-    };
 
-    template <typename W>
-    class UniformSerializer {
-    public:
-    	static void serialize(const Uniform& u, W& writer) {
-    		writer << u.getName()
-    		       << u.getType()
-    		       << u.getValueType();
-    	}
+        friend ByteWriter& operator<<(ByteWriter& writer, const Uniform& u) {
+            return u.serialize(writer);
+        }
     };
 
     template<typename T>
@@ -47,9 +60,14 @@ namespace GraphicsEngine {
     protected:
         T value;
 
-        constexpr UniformValueType getUniformValueType();
+        [[nodiscard]] constexpr UniformValueType getUniformValueType() const;
         UniformValue(const std::string& name, UniformType type, const T& value);
+
+        ByteWriter& serializeFields(ByteWriter& writer) const;
+        ByteWriter& serialize(ByteWriter& writer) const override;
     public:
+    	explicit UniformValue(ByteReader& reader);
+
         UniformValue(const std::string& name, const T& value) noexcept;
         ~UniformValue() override = default;
 
@@ -64,7 +82,11 @@ namespace GraphicsEngine {
     private:
         std::shared_ptr<Texture> sampler;
         GLuint sampler_id {};
+    protected:
+    	ByteWriter& serialize(ByteWriter& writer) const override;
     public:
+        explicit UniformSampler(ByteReader& reader);
+
         UniformSampler(const std::string& name, std::shared_ptr<Texture> sampler) noexcept;
         ~UniformSampler() override = default;
 
@@ -78,7 +100,15 @@ namespace GraphicsEngine {
     class UniformTime : public UniformValue<float> {
     private:
         std::chrono::time_point<std::chrono::steady_clock> start;
+    protected:
+	    ByteWriter& serialize(ByteWriter& writer) const override {
+	    	writer << UniformType::Time;
+	    	UniformValue::serializeFields(writer);
+	    	return writer;
+	    }
     public:
+    	explicit UniformTime(ByteReader& reader) : UniformValue{reader} {}
+
         explicit UniformTime(const std::string& name) noexcept;
         ~UniformTime() override = default;
 
@@ -91,4 +121,8 @@ namespace GraphicsEngine {
     };
 
     std::string getUniformDeclaration(const Uniform& uniform) noexcept;
+
+	std::unique_ptr<Uniform> deserializeUniformValue(ByteReader& reader);
+
+	std::unique_ptr<Uniform> deserializeUniform(ByteReader& reader);
 }

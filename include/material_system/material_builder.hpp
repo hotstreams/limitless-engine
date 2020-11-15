@@ -30,6 +30,7 @@ namespace GraphicsEngine {
 
         MaterialBuilder& add(PropertyType type, std::shared_ptr<Texture> texture);
         MaterialBuilder& add(PropertyType type, const glm::vec4& value);
+        MaterialBuilder& add(PropertyType type, std::unique_ptr<Uniform> uniform);
         MaterialBuilder& setBlending(Blending blending) noexcept;
         MaterialBuilder& setShading(Shading shading) noexcept;
         MaterialBuilder& add(PropertyType type, float value);
