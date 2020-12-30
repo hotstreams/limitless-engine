@@ -29,6 +29,7 @@ namespace GraphicsEngine {
         std::map<char, FontCharacter> chars;
         std::shared_ptr<Texture> texture;
         FT_Face face {nullptr};
+        uint32_t font_size;
     public:
         FontAtlas(const fs::path& path, uint32_t size);
         ~FontAtlas();
