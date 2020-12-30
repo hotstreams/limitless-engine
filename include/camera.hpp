@@ -16,7 +16,7 @@ namespace GraphicsEngine {
 
         glm::mat4 projection, view;
 
-        CameraMode mode { CameraMode::Panning };
+        CameraMode mode {};
 
         float pitch;
         float yaw;
