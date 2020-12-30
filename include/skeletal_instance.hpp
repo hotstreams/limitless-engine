@@ -1,3 +1,4 @@
+#pragma once
 #include <model_instance.hpp>
 #include <skeletal_model.hpp>
 
