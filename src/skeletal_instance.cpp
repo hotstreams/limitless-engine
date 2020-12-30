@@ -141,7 +141,7 @@ void SkeletalInstance::update() {
         }
 
         auto transform = parent_mat * local_transform;
-	    bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform;
+	    bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform * bones[*node].offset_matrix;
 
 	    for (size_t i = 0; i < node.size(); ++i) {
             node_traversal(node[i], transform);
