@@ -2,7 +2,7 @@
 
 #include <mesh.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template<typename T, typename T1>
     class IndexedMesh : public Mesh<T> {
     protected:

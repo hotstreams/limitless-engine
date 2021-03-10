@@ -3,7 +3,7 @@
 #include <effect_instance.hpp>
 #include <particle_system/mesh_emitter.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Material;
 
     class EffectBuilder {
@@ -11,6 +11,9 @@ namespace GraphicsEngine {
         std::unique_ptr<EffectInstance> effect;
         std::string effect_name;
         std::string last_emitter;
+
+        EffectBuilder& setModules(decltype(Emitter::modules)&& modules) noexcept;
+        friend class EmitterSerializer;
     public:
         EffectBuilder() = default;
         ~EffectBuilder() = default;
@@ -26,6 +29,7 @@ namespace GraphicsEngine {
         EffectBuilder& setEmitterType(EmitterType type) noexcept;
         EffectBuilder& setMaxCount(uint64_t max_count) noexcept;
         EffectBuilder& setSpawnRate(float spawn_rate) noexcept;
+        EffectBuilder& setSpawn(EmitterSpawn&& spawn) noexcept;
         EffectBuilder& setLoops(int loops) noexcept;
 
         EffectBuilder& create(std::string name);
@@ -38,7 +42,7 @@ namespace GraphicsEngine {
         }
 
         template<typename T, typename... Args>
-        EffectBuilder& addModule(EmitterModuleType module_type, Args&& ... args) {
+        EffectBuilder& addModule(EmitterModuleType module_type, Args&&... args) {
             effect->emitters[last_emitter]->modules.emplace(module_type, new T{std::forward<Args>(args)...});
             return *this;
         }

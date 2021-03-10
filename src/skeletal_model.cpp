@@ -1,6 +1,6 @@
 #include <skeletal_model.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone& bone) noexcept
     : positions(std::move(positions)), rotations(std::move(rotations)), scales(std::move(scales)), bone(bone) {}

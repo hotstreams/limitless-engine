@@ -4,7 +4,7 @@
 #include <particle_system/unique_emitter.hpp>
 #include <particle_system/emitter_visitor.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 MeshEmitter* MeshEmitter::clone() const noexcept {
     return new MeshEmitter(*this);

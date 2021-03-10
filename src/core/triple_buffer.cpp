@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <cstdlib>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 TripleBuffer::TripleBuffer(decltype(buffers) buffers) noexcept
         : buffers(std::move(buffers)), curr_index(0) {

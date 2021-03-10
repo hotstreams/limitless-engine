@@ -6,7 +6,7 @@
 #include <abstract_instance.hpp>
 #include <unordered_map>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Emitter;
     class SpriteEmitter;
     class MeshEmitter;
@@ -19,6 +19,7 @@ namespace GraphicsEngine {
         bool isDone() const noexcept;
 
         friend class EffectBuilder;
+        friend class EffectSerializer;
         EffectInstance() noexcept;
     public:
         EffectInstance(Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;

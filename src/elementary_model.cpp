@@ -3,7 +3,7 @@
 #include <indexed_mesh.hpp>
 #include <util/math.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 Line::Line(const glm::vec3 &a, const glm::vec3 &b) {
     std::vector<Vertex> vertices = {{ a,  glm::vec2(0.0f) }, { b,  glm::vec2(0.0f) }};
@@ -28,6 +28,23 @@ Quad::Quad() {
     }
 
     meshes.emplace_back(std::move(mesh));
+}
+
+Rectangle::Rectangle() {
+	std::vector<Vertex> vertices = {
+			{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+			{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+			{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
+	};
+
+	auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "rectangle_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
+
+	if (!assets.meshes.isExist("rectangle_mesh")) {
+		assets.meshes.add("rectangle_mesh", mesh);
+	}
+
+	meshes.emplace_back(std::move(mesh));
 }
 
 Cube::Cube() {

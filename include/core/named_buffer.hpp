@@ -2,7 +2,7 @@
 
 #include <core/state_buffer.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class NamedBuffer : public StateBuffer {
     private:
         void bufferStorage(const void* data) override;

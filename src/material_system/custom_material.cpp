@@ -6,7 +6,7 @@
 #include <core/context_initializer.hpp>
 #include <core/buffer.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void CustomMaterial::update() const noexcept {
     // checks if there are values need to be mapped into material buffer
@@ -146,7 +146,7 @@ void CustomMaterial::update() const noexcept {
     }
 }
 
-void GraphicsEngine::swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept {
+void LimitlessEngine::swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept {
     using std::swap;
 
     swap(static_cast<Material&>(lhs), static_cast<Material&>(rhs));

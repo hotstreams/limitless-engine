@@ -3,7 +3,7 @@
 #include <particle_system/unique_emitter.hpp>
 #include <particle_system/mesh_emitter.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 SpriteParticleCollector::SpriteParticleCollector(const UniqueSpriteEmitter& emitter) noexcept : unique_emitter{emitter} {
 

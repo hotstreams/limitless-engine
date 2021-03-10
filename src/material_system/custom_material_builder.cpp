@@ -3,11 +3,12 @@
 #include <assets.hpp>
 #include <material_system/material_compiler.hpp>
 #include <shader_storage.hpp>
+#include <iostream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 CustomMaterialBuilder& CustomMaterialBuilder::addUniform(std::string name, Uniform* uniform) {
-    auto result = static_cast<CustomMaterial&>(*material).uniforms.emplace(std::move(name), uniform);
+    auto result = dynamic_cast<CustomMaterial&>(*material).uniforms.emplace(std::move(name), uniform);
     if (!result.second) {
         throw std::runtime_error("Failed to add uniform to custom material, already exists.");
     }
@@ -67,3 +68,9 @@ CustomMaterialBuilder& CustomMaterialBuilder::create(std::string name) {
     material->name = std::move(name);
     return *this;
 }
+
+CustomMaterialBuilder& CustomMaterialBuilder::setUniforms(decltype(CustomMaterial::uniforms)&& uniforms) {
+    static_cast<CustomMaterial&>(*material).uniforms = std::move(uniforms);
+    return *this;
+}
+

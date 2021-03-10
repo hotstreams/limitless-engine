@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template<typename T> class UniformValue;
     class UniformSampler;
     class Material;

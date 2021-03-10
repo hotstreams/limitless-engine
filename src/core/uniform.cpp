@@ -4,7 +4,7 @@
 #include <core/bindless_texture.hpp>
 #include <core/texture.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 Uniform::Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept
     : name{std::move(name)}, type{type}, value_type{value_type}, changed{true} {}
@@ -126,7 +126,7 @@ void UniformSampler::set(const ShaderProgram& shader) {
     return new UniformSampler(*this);
 }
 
-std::string GraphicsEngine::getUniformDeclaration(const Uniform& uniform) noexcept {
+std::string LimitlessEngine::getUniformDeclaration(const Uniform& uniform) noexcept {
     std::string declaration = "uniform ";
 
     switch (uniform.getType()) {
@@ -211,7 +211,7 @@ UniformTime* UniformTime::clone() noexcept {
     return new UniformTime(*this);
 }
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template class UniformValue<int>;
     template class UniformValue<float>;
     template class UniformValue<unsigned int>;

@@ -1,9 +1,9 @@
 #include <material_system/properties.hpp>
 #include <core/context_state.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
-void GraphicsEngine::setBlendingMode(ContextState& context, Blending blending) noexcept {
+void LimitlessEngine::setBlendingMode(ContextState& context, Blending blending) noexcept {
     switch (blending) {
         case Blending::Opaque:
             context.enable(Enable::DepthTest);
@@ -50,7 +50,7 @@ void GraphicsEngine::setBlendingMode(ContextState& context, Blending blending) n
     }
 }
 
-void GraphicsEngine::setBlendingMode(Blending blending) noexcept {
+void LimitlessEngine::setBlendingMode(Blending blending) noexcept {
     if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
         setBlendingMode(*state, blending);
     }

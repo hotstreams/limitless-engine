@@ -4,7 +4,7 @@
 #include <skybox.hpp>
 #include <particle_system/effect_renderer.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class AbstractInstance;
 
     class Scene {

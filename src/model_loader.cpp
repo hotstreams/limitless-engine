@@ -8,7 +8,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 glm::mat4 glm::convert(const aiMatrix4x4& aimat) noexcept {
     return glm::mat4(aimat.a1, aimat.b1, aimat.c1, aimat.d1,
@@ -54,7 +54,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool
 
     auto meshes = loadMeshes(scene, path, bones, bone_map);
 
-    auto materials = loadMaterials(scene, path);
+    auto materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
 
     auto animations = loadAnimations(scene, bones, bone_map);
 
@@ -64,7 +64,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool
 
     importer.FreeScene();
 
-    auto model = animations.empty() ?
+    auto model = bone_map.empty() ?
         std::shared_ptr<AbstractModel>(new Model(std::move(meshes), std::move(materials))) :
         std::shared_ptr<AbstractModel>(new SkeletalModel(std::move(meshes), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), global_matrix));
 
@@ -74,7 +74,8 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool
 template<typename T, typename T1>
 std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* m, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
-    auto name = path.string() + PATH_SEPARATOR + mesh_name;
+//    auto name = path.string() + PATH_SEPARATOR + mesh_name;
+    auto name = path.string() + PATH_SEPARATOR + mesh_name + std::to_string(unnamed_mesh_index++);
 
     if (assets.meshes.isExist(name)) {
         return assets.meshes[name];
@@ -269,10 +270,8 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
     return bone_weights;
 }
 
-std::vector<std::shared_ptr<Material>> ModelLoader::loadMaterials(const aiScene* scene, const fs::path& path) {
+std::vector<std::shared_ptr<Material>> ModelLoader::loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader) {
     std::vector<std::shared_ptr<Material>> materials;
-
-    auto model_shader = scene->mNumAnimations != 0 ? ModelShader::Skeletal : ModelShader::Model;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
         auto* mesh = scene->mMeshes[i];

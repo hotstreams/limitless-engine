@@ -3,7 +3,7 @@
 #include <shader_storage.hpp>
 #include <effect_instance.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 std::string EffectCompiler::getEmitterDefines(const Emitter& emitter) noexcept {
     std::string defines;
@@ -64,7 +64,7 @@ void EffectCompiler::compile(const SpriteEmitter& emitter) {
         replaceMaterialSettings(shader, emitter.getMaterial(), ModelShader::Effect);
         replaceRenderSettings(shader);
 
-        shader.replaceKey("GraphicsEngine::EmitterType", getEmitterDefines(emitter));
+        shader.replaceKey("LimitlessEngine::EmitterType", getEmitterDefines(emitter));
     };
 
     shader_storage.add(emitter.getEmitterType(), compile(SHADER_DIR "effects" PATH_SEPARATOR "sprite_emitter", props));
@@ -75,7 +75,7 @@ void EffectCompiler::compile(const MeshEmitter& emitter) {
         replaceMaterialSettings(shader, emitter.getMaterial(), ModelShader::Effect);
         replaceRenderSettings(shader);
 
-        shader.replaceKey("GraphicsEngine::EmitterType", getEmitterDefines(emitter));
+        shader.replaceKey("LimitlessEngine::EmitterType", getEmitterDefines(emitter));
     };
 
     shader_storage.add(emitter.getEmitterType(), compile(SHADER_DIR "effects" PATH_SEPARATOR "mesh_emitter", props));

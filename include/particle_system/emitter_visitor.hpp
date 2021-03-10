@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class SpriteEmitter;
     class MeshEmitter;
 

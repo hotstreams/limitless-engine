@@ -1,6 +1,6 @@
 #include <lighting.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 Lighting::Lighting(uint64_t p_count, uint64_t d_count, uint64_t s_count)
     : point_lights{p_count}, directional_lights{d_count}, spot_lights{s_count} {
@@ -13,7 +13,7 @@ void Lighting::update() {
     spot_lights.update();
 }
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template Lighting::operator LightContainer<PointLight>&() noexcept;
     template Lighting::operator LightContainer<DirectionalLight>&() noexcept;
     template Lighting::operator LightContainer<SpotLight>&() noexcept;

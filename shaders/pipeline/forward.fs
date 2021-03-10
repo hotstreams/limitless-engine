@@ -1,8 +1,8 @@
-GraphicsEngine::GLSL_VERSION
-GraphicsEngine::Extensions
-GraphicsEngine::Settings
-GraphicsEngine::MaterialType
-GraphicsEngine::ModelType
+LimitlessEngine::GLSL_VERSION
+LimitlessEngine::Extensions
+LimitlessEngine::Settings
+LimitlessEngine::MaterialType
+LimitlessEngine::ModelType
 
 #include "glsl/input_data_fs.glsl"
 #include "glsl/material.glsl"
@@ -21,7 +21,7 @@ void main()
     #include "glsl/material_variables.glsl"
 
     #ifdef CUSTOM_MATERIAL
-        GraphicsEngine::CustomMaterialFragmentCode
+        LimitlessEngine::CustomMaterialFragmentCode
     #endif
 
     // computing final color

@@ -8,7 +8,7 @@
 #include <core/uniform.hpp>
 #include <material_system/custom_material.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 ShaderProgram::ShaderProgram(GLuint id) : id{id} {
     getUniformLocations();
@@ -52,7 +52,7 @@ ShaderProgram&  ShaderProgram::operator=(ShaderProgram&& rhs) noexcept {
     return *this;
 }
 
-void GraphicsEngine::swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept {
+void LimitlessEngine::swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept {
     using std::swap;
 
     swap(lhs.id, rhs.id);
@@ -248,7 +248,7 @@ void ShaderProgram::bindTextures() const noexcept {
     }
 }
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template ShaderProgram& ShaderProgram::operator<<(const UniformValue<int>& uniform) noexcept;
     template ShaderProgram& ShaderProgram::operator<<(const UniformValue<float>& uniform) noexcept;
     template ShaderProgram& ShaderProgram::operator<<(const UniformValue<unsigned int>& uniform) noexcept;

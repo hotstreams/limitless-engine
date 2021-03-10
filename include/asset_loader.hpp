@@ -7,8 +7,8 @@
 #include <assets.hpp>
 #include <texture_loader.hpp>
 
-namespace GraphicsEngine {
-    class AssetLoader {
+namespace LimitlessEngine {
+    class AssetManager {
     private:
         using future_model = std::future<std::function<std::shared_ptr<AbstractModel>()>>;
         using future_asset = std::future<void>;
@@ -18,22 +18,25 @@ namespace GraphicsEngine {
         std::vector<future_asset> asset_futures;
         ContextThreadPool pool;
     public:
-        explicit AssetLoader(Context& shared, uint32_t pool_size = std::thread::hardware_concurrency());
-        ~AssetLoader() = default;
+        explicit AssetManager(Context& shared, uint32_t pool_size = std::thread::hardware_concurrency());
+        ~AssetManager() = default;
 
         void loadModel(std::string asset_name, fs::path path, bool flip_uv = false);
         void loadTexture(std::string asset_name, fs::path path, bool bottom_left_start = true);
+        //TODO:
 
-        struct model_loading { std::string asset_name; fs::path path; bool flip_uv {false}; };
+//        void loadMaterial(std::string name, fs::path path);
+//        void loadEffect(std::string name, fs::path path);
+
+
+
+        struct model_loading { std::string asset_name; fs::path path; bool flip_uv{}; };
         void loadModels(const std::vector<model_loading>& models);
 
-        struct texture_loading { std::string asset_name; fs::path path; bool bottom_left_start {true}; };
+        struct texture_loading { std::string asset_name; fs::path path; bool bottom_left_origin{true}; };
         void loadTextures(const std::vector<texture_loading>& textures);
 
         void build(std::function<void()> f);
-        //TODO:
-//        void loadMaterial(std::string name, fs::path path);
-//        void loadEffect(std::string name, fs::path path);
 
         // makes work on ready futures
         void delayed_work();

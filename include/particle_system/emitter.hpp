@@ -8,7 +8,7 @@
 #include <particle_system/emitter_spawn.hpp>
 #include <particle_system/particle.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class EmitterVisitor;
 
     enum class EmitterType { Sprite, Mesh, /*Beam, GPU*/ };
@@ -22,7 +22,7 @@ namespace GraphicsEngine {
 
         EmitterSpawn spawn;
         std::chrono::duration<float> duration {0.0f};
-        bool done {false};
+        bool done {};
 
         std::chrono::time_point<std::chrono::steady_clock> start_time;
         std::chrono::time_point<std::chrono::steady_clock> last_time;
@@ -36,6 +36,7 @@ namespace GraphicsEngine {
         void killParticles() noexcept;
 
         friend class EffectBuilder;
+        friend class EmitterSerializer;
         friend void swap(Emitter& lhs, Emitter& rhs) noexcept;
         explicit Emitter(EmitterType type) noexcept;
     public:

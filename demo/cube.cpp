@@ -5,7 +5,7 @@
 #include <assets.hpp>
 #include <material_system/material_builder.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 bool done = false;
 

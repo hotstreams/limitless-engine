@@ -4,7 +4,7 @@
 #include <core/extension_texture.hpp>
 #include <memory>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class MutableTexture : public Texture {
     private:
         std::unique_ptr<ExtensionTexture> texture;

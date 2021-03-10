@@ -9,7 +9,7 @@
 
 #define ASSETS_DIR "../assets/"
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 class Triangle {
 private:

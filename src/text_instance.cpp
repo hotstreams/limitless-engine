@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <material_system/material.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void TextInstance::updateVertices() {
     mesh.updateVertices(font->generate(string));
@@ -12,22 +12,39 @@ void TextInstance::updateVertices() {
 void TextInstance::draw([[maybe_unused]] MaterialShader shader_type, Blending blending, [[maybe_unused]] const UniformSetter& uniform_set) {
     if (hidden || blending != Blending::Translucent) return;
 
-    auto& shader = *shader_storage.get("text");
-
     calculateModelMatrix();
 
-    setBlendingMode(Blending::Text);
+    ctx.disable(Enable::DepthTest);
+    ctx.disable(Enable::Blending);
 
-    // if 2d disable depth testing
+    // draw selection
+    if (selection_mesh) {
+        auto& shader = *shader_storage.get("text_selection");
 
-    shader << UniformSampler{"bitmap", font->getTexture()}
-           << UniformValue{"model", model_matrix}
-           << UniformValue{"proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y))}
-           << UniformValue{"color", color};
+        shader << UniformValue{"model", model_matrix}
+               << UniformValue{"proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y))}
+               << UniformValue{"color", selection_color};
 
-    shader.use();
+        shader.use();
 
-    mesh.draw();
+        selection_mesh->draw();
+    }
+
+    // draw text
+    {
+        auto& shader = *shader_storage.get("text");
+
+        setBlendingMode(Blending::Text);
+
+        shader << UniformSampler{"bitmap", font->getTexture()}
+               << UniformValue{"model", model_matrix}
+               << UniformValue{"proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y))}
+               << UniformValue{"color", color};
+
+        shader.use();
+
+        mesh.draw();
+    }
 }
 
 TextInstance* TextInstance::clone() noexcept {

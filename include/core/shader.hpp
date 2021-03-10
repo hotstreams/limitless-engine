@@ -8,7 +8,7 @@
 
 #define SHADER_DIR "../shaders/"
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class shader_file_not_found : public std::runtime_error {
     public:
         explicit shader_file_not_found(const std::string& error) : std::runtime_error(error) {}

@@ -8,7 +8,7 @@
 
 #define ASSETS_DIR "../assets/"
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class AbstractMesh;
     class AbstractModel;
     class EffectInstance;

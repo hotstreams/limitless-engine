@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <functional>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template<typename T>
     struct TexParameter {
         GLenum name;

@@ -1,7 +1,7 @@
 #include <core/indexed_buffer.hpp>
 #include <core/context_initializer.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 std::shared_ptr<Buffer> IndexedBuffer::get(std::string_view name) {
     const auto count = buffers.count(name.data());

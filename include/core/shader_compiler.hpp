@@ -7,7 +7,7 @@
 
 #define SHADER_DIR "../shaders/"
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ShaderProgram;
 
     class shader_linking_error : public std::runtime_error {

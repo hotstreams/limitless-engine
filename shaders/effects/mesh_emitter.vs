@@ -1,8 +1,8 @@
-GraphicsEngine::GLSL_VERSION
-GraphicsEngine::Extensions
-GraphicsEngine::Settings
-GraphicsEngine::MaterialType
-GraphicsEngine::EmitterType
+LimitlessEngine::GLSL_VERSION
+LimitlessEngine::Extensions
+LimitlessEngine::Settings
+LimitlessEngine::MaterialType
+LimitlessEngine::EmitterType
 
 #include "glsl/material.glsl"
 #include "glsl/scene.glsl"
@@ -23,7 +23,7 @@ void main()
     vec4 vertex_position = vec4(position, 1.0);
 
     #ifdef CUSTOM_MATERIAL
-        GraphicsEngine::CustomMaterialVertexCode
+        LimitlessEngine::CustomMaterialVertexCode
     #endif
 
 	gl_Position = projection * view * model * vertex_position;

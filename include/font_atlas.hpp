@@ -11,7 +11,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct FontCharacter {
         glm::ivec2 size;
         glm::ivec2 bearing;
@@ -34,8 +34,15 @@ namespace GraphicsEngine {
         FontAtlas(const fs::path& path, uint32_t size);
         ~FontAtlas();
 
+        auto getFontSize() { return font_size; }
+
         [[nodiscard]] const auto& getTexture() const { return texture; }
 
         [[nodiscard]] std::vector<TextVertex> generate(const std::string& text) const;
+
+        glm::vec2 getTextSize(const std::string& text) const;
+        auto& getFontCharacter(char c) noexcept { return chars[c]; }
+
+        std::vector<TextVertex> getSelectionGeometry(std::string_view text, size_t begin, size_t end);
     };
 }

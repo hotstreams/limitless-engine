@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class AbstractModel;
 
     class ModelInstance : public AbstractInstance {

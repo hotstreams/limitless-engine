@@ -2,9 +2,9 @@
 #include <core/context_initializer.hpp>
 #include <core/context.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
-bool GraphicsEngine::operator<(const BindingPoint& a, const BindingPoint& b) noexcept
+bool LimitlessEngine::operator<(const BindingPoint& a, const BindingPoint& b) noexcept
 {
     return (a.target == b.target) ? a.point < b.point : a.target < b.target;
 }

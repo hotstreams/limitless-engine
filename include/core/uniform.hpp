@@ -6,7 +6,7 @@
 #include <core/texture_visitor.hpp>
 #include <core/context_debug.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Texture;
     class ShaderProgram;
 
@@ -19,6 +19,7 @@ namespace GraphicsEngine {
         UniformType type;
         UniformValueType value_type;
         bool changed;
+        friend class UniformSerializer;
     public:
         Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;
@@ -39,6 +40,8 @@ namespace GraphicsEngine {
 
         constexpr UniformValueType getUniformValueType();
         UniformValue(const std::string& name, UniformType type, const T& value);
+        friend class UniformSerializer;
+
     public:
         UniformValue(const std::string& name, const T& value) noexcept;
         ~UniformValue() override = default;
@@ -53,7 +56,8 @@ namespace GraphicsEngine {
     class UniformSampler : public UniformValue<int> {
     private:
         std::shared_ptr<Texture> sampler;
-        GLuint sampler_id {};
+        GLuint sampler_id{};
+        friend class UniformSerializer;
     public:
         UniformSampler(const std::string& name, std::shared_ptr<Texture> sampler) noexcept;
         ~UniformSampler() override = default;
@@ -68,6 +72,7 @@ namespace GraphicsEngine {
     class UniformTime : public UniformValue<float> {
     private:
         std::chrono::time_point<std::chrono::steady_clock> start;
+        friend class UniformSerializer;
     public:
         explicit UniformTime(const std::string& name) noexcept;
         ~UniformTime() override = default;

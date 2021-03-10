@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <random>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class DistributionType { Const, Range, Curve };
 
     template<typename T>
@@ -34,13 +34,34 @@ namespace GraphicsEngine {
         }
     };
 
+    template<typename T, typename E = void>
+    class uniform_distribution { static_assert("kek i shrek bratya na vek"); };
+
+    template<typename T>
+    class uniform_distribution<T, typename std::enable_if_t<std::is_integral_v<T>>> {
+        std::uniform_int_distribution<T> distribution;
+    public:
+        uniform_distribution(T min, T max) : distribution{min, max} {}
+        void set(const T& min, const T& max) { distribution = std::uniform_int_distribution{min, max}; }
+        template<typename Gen> auto operator()(Gen&& gen) { return distribution(std::forward<Gen>(gen)); }
+    };
+
+    template<typename T>
+    class uniform_distribution<T, typename std::enable_if_t<std::is_floating_point_v<T>>> {
+        std::uniform_real_distribution<T> distribution;
+    public:
+        uniform_distribution(T min, T max) : distribution{min, max} {}
+        void set(const T& min, const T& max) { distribution = std::uniform_real_distribution{min, max}; }
+        template<typename Gen> auto operator()(Gen&& gen) { return distribution(std::forward<Gen>(gen)); }
+    };
+
     template<typename T>
     class RangeDistribution : public Distribution<T> {
     private:
         T min, max;
 
         std::default_random_engine generator;
-        std::uniform_real_distribution<T> distribution;
+        uniform_distribution<T> distribution;
     public:
         RangeDistribution(const T& min, const T& max) noexcept
             : Distribution<T>(DistributionType::Range), min(min), max(max), distribution(min, max) { }
@@ -51,12 +72,12 @@ namespace GraphicsEngine {
 
         void setMin(const T& _min) noexcept {
             min = _min;
-            distribution = std::uniform_real_distribution<T>(min, max);
+            distribution.set(min, max);
         }
 
         void setMax(const T& _max) noexcept {
             max = _max;
-            distribution = std::uniform_real_distribution<T>(min, max);
+            distribution.set(min, max);
         }
 
         T get() override {
@@ -79,6 +100,8 @@ namespace GraphicsEngine {
 }
 
 namespace std {
+    template<glm::length_t L, typename T, glm::qualifier Q> struct std::is_floating_point<glm::vec<L, T, Q>> : public true_type {};
+
     template<>
     class uniform_real_distribution<glm::vec2> {
     private:

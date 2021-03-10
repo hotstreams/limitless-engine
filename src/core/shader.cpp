@@ -3,11 +3,11 @@
 #include <string>
 #include <sstream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 namespace {
-    inline constexpr auto version_key = "GraphicsEngine::GLSL_VERSION";
-    inline constexpr auto extensions_key = "GraphicsEngine::Extensions";
+    inline constexpr auto version_key = "LimitlessEngine::GLSL_VERSION";
+    inline constexpr auto extensions_key = "LimitlessEngine::Extensions";
 
     inline constexpr auto bindless_texture = "GL_ARB_bindless_texture";
     inline constexpr auto bindless_texture_define = "#define BINDLESS_TEXTURE\n";
@@ -136,7 +136,7 @@ void Shader::compile() const {
     checkStatus();
 }
 
-void GraphicsEngine::swap(Shader &lhs, Shader &rhs) noexcept {
+void LimitlessEngine::swap(Shader &lhs, Shader &rhs) noexcept {
     using std::swap;
 
     swap(lhs.source, rhs.source);

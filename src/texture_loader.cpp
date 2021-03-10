@@ -4,7 +4,7 @@
 #include <stb_image.h>
 #include <assets.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 std::shared_ptr<Texture> TextureLoader::load(const fs::path& path, bool bottom_left_start) {
     if (assets.textures.isExist(path.stem().string())) {

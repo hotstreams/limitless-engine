@@ -3,7 +3,7 @@
 #include <shader_storage.hpp>
 #include <iostream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 constexpr auto skeletal_buffer_name = "bone_buffer";
 

@@ -6,7 +6,7 @@
 #include <material_system/material_compiler.hpp>
 #include <core/buffer_builder.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void MaterialBuilder::initializeMaterialBuffer(Material& material, const ShaderProgram& shader) noexcept {
     const auto found = std::find_if(shader.indexed_binds.begin(), shader.indexed_binds.end(), [&] (const auto& data) { return data.name == "material_buffer"; });
@@ -191,4 +191,8 @@ MaterialType MaterialBuilder::getMaterialType() const noexcept {
     }
 
     return MaterialType{std::move(props), material->shading};
+}
+
+void MaterialBuilder::setProperties(decltype(Material::properties)&& props) {
+    material->properties = std::move(props);
 }

@@ -2,7 +2,7 @@
 #include <effect_instance.hpp>
 #include <particle_system/emitter.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 EffectAttachable::Attachment::Attachment(const glm::vec3& _offset, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
     : instance{std::make_unique<EffectInstance>(effect, position, rotation)}, offset{_offset} {

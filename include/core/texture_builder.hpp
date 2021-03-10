@@ -9,7 +9,7 @@
 #include <core/state_texture.hpp>
 #include <core/named_texture.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class TextureBuilder {
         static ExtensionTexture* getSupportedExtensionTexture(Texture::Type target) {
             ExtensionTexture* extension_texture {};

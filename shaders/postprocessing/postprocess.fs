@@ -1,5 +1,5 @@
-GraphicsEngine::GLSL_VERSION
-GraphicsEngine::Extensions
+LimitlessEngine::GLSL_VERSION
+LimitlessEngine::Extensions
 
 in vec2 fs_uv;
 

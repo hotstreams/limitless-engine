@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template <typename T>
     class Tree {
     private:

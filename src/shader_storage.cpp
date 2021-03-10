@@ -1,9 +1,9 @@
 #include <shader_storage.hpp>
 #include <core/shader_compiler.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
-bool GraphicsEngine::operator<(const ShaderKey& lhs, const ShaderKey& rhs) noexcept {
+bool LimitlessEngine::operator<(const ShaderKey& lhs, const ShaderKey& rhs) noexcept {
     return std::tie(lhs.material_type, lhs.model_type, lhs.material_index) < std::tie(rhs.material_type, rhs.model_type, rhs.material_index);
 }
 
@@ -71,4 +71,5 @@ void ShaderStorage::initialize() {
     add("postprocess", compiler.compile(SHADER_DIR "postprocessing/postprocess"));
     add("skybox", compiler.compile(SHADER_DIR "pipeline/skybox"));
     add("text", compiler.compile(SHADER_DIR "pipeline/text"));
+    add("text_selection", compiler.compile(SHADER_DIR "pipeline/text_selection"));
 }

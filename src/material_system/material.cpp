@@ -6,7 +6,7 @@
 
 #include <core/buffer_builder.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void Material::update() const noexcept {
     // checks if there are values need to be mapped into material buffer
@@ -161,7 +161,7 @@ Material::Material(const Material& material) noexcept
     material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, data, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
 }
 
-void GraphicsEngine::swap(Material& lhs, Material& rhs) noexcept {
+void LimitlessEngine::swap(Material& lhs, Material& rhs) noexcept {
     using std::swap;
 
     swap(lhs.properties, rhs.properties);
@@ -213,6 +213,6 @@ Material::Material() noexcept
 
 }
 
-bool GraphicsEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {
+bool LimitlessEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {
     return std::tie(lhs.properties, lhs.shading) < std::tie(rhs.properties, rhs.shading);
 }

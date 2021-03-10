@@ -8,7 +8,7 @@
 #include <shader_storage.hpp>
 #include <material_system/material_builder.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 EffectBuilder& EffectBuilder::setEmitterType(EmitterType type) noexcept {
     effect->emitters[last_emitter]->type = type;
@@ -71,6 +71,7 @@ EffectBuilder& EffectBuilder::setMesh(const std::shared_ptr<AbstractMesh>& mesh)
 }
 
 std::shared_ptr<EffectInstance> EffectBuilder::build() {
+    //todo check material != nullptr
     EffectCompiler compiler;
     compiler.compile(*effect);
 
@@ -105,5 +106,15 @@ std::shared_ptr<EffectInstance> EffectBuilder::build() {
 EffectBuilder& EffectBuilder::create(std::string name) {
     effect = std::unique_ptr<EffectInstance>(new EffectInstance());
     effect_name = std::move(name);
+    return *this;
+}
+
+EffectBuilder& EffectBuilder::setSpawn(EmitterSpawn&& spawn) noexcept {
+    effect->emitters[last_emitter]->spawn = std::move(spawn);
+    return *this;
+}
+
+EffectBuilder& EffectBuilder::setModules(decltype(Emitter::modules)&& modules) noexcept {
+    effect->emitters[last_emitter]->modules = std::move(modules);
     return *this;
 }

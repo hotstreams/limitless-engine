@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 ContextEventObserver::ContextEventObserver(std::string_view title, glm::uvec2 size, const WindowHints& hints)
     : Context(title, size, hints) {

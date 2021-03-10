@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct PointLight {
         static constexpr auto shader_storage_name = "point_light_buffer";
 

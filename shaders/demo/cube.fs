@@ -1,4 +1,4 @@
-GraphicsEngine::GLSL_VERSION
+LimitlessEngine::GLSL_VERSION
 
 out vec4 color;
 

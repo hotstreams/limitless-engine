@@ -70,6 +70,7 @@ set(ENGINE_CORE
         src/core/shader_compiler.cpp
         src/core/shader_program.cpp
         src/core/uniform.cpp
+        src/core/uniform_serializer.cpp
         src/core/texture_binder.cpp
         src/core/vertex_array.cpp
         src/core/framebuffer.cpp
@@ -88,11 +89,13 @@ set(ENGINE_CORE
 set(ENGINE_MATERIAL_SYSTEM
         src/material_system/properties.cpp
         src/material_system/material.cpp
+        src/material_system/material_serializer.cpp
         src/material_system/material_builder.cpp
         src/material_system/custom_material.cpp
         src/material_system/custom_material_builder.cpp
         src/material_system/material_compiler.cpp
         src/material_system/material_instance.cpp
+        src/material_system/material_loader.cpp
     )
 
 set(ENGINE_PARTICLE_SYSTEM
@@ -107,6 +110,10 @@ set(ENGINE_PARTICLE_SYSTEM
         src/particle_system/unique_emitter.cpp
         src/particle_system/effect_builder.cpp
         src/particle_system/effect_compiler.cpp
+        src/particle_system/effect_serializer.cpp
+        src/particle_system/emitter_serializer.cpp
+        src/particle_system/module_serializer.cpp
+        src/particle_system/distribution_serializer.cpp
    )
 
 set(ENGINE_SRC
@@ -150,3 +157,9 @@ set(ENGINE_SRC
 #    add_executable(${filename} ${ENGINE_SRC} ${file})
 #endforeach()
 add_executable(demo ${ENGINE_SRC} "demo/demo.cpp")
+
+add_executable(tests ${ENGINE_SRC} "tests/catch_amalgamated.cpp"
+        "tests/uniform_serializer_test.cpp"
+        "tests/material_serializer_test.cpp"
+        "tests/bytebuffer_test.cpp"
+        "tests/effect_serializer_test.cpp")

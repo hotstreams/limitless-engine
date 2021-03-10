@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Material;
 
     class MaterialInstance {

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <fstream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void ContextInitializer::initializeGLEW() {
     if (glewInit() != GLEW_OK) {

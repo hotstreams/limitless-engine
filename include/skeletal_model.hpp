@@ -7,7 +7,7 @@
 #include <skinned_mesh.hpp>
 #include <util/tree.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template <typename T>
     struct KeyFrame {
         T data;

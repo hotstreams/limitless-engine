@@ -4,7 +4,7 @@
 #include <core/vertex_array.hpp>
 #include <memory>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Emitter;
 
     static constexpr auto emitter_storage_instance_count = 5;

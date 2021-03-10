@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     #ifdef GL_DEBUG
         inline uint64_t gl_error_count = 0;
 

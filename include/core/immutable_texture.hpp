@@ -4,7 +4,7 @@
 #include <core/texture.hpp>
 #include <memory>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ImmutableTexture : public Texture {
     private:
         std::unique_ptr<ExtensionTexture> texture;

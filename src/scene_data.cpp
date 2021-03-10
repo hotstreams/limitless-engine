@@ -4,7 +4,7 @@
 #include <camera.hpp>
 #include <scene.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 SceneDataStorage::SceneDataStorage() {
     buffer = BufferBuilder::buildIndexed("scene_data", Buffer::Type::Uniform, sizeof(SceneData), Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);

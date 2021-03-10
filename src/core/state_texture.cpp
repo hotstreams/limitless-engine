@@ -3,7 +3,7 @@
 #include <core/context_state.hpp>
 #include <algorithm>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 StateTexture::StateTexture() noexcept {
     glGenTextures(1, &id);

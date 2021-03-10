@@ -2,7 +2,7 @@
 #include <core/context_state.hpp>
 #include <core/buffer.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 VertexArray::VertexArray(GLuint id) noexcept : id(id), next_attribute_index(0) {}
 
@@ -106,7 +106,7 @@ VertexArray &VertexArray::operator=(VertexArray&& rhs) noexcept {
     return *this;
 }
 
-void GraphicsEngine::swap(VertexArray& lhs, VertexArray& rhs) {
+void LimitlessEngine::swap(VertexArray& lhs, VertexArray& rhs) {
     using std::swap;
 
     swap(lhs.id, rhs.id);

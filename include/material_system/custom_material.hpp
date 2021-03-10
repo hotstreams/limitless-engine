@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class CustomMaterial : public Material {
     private:
         std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
@@ -17,6 +17,7 @@ namespace GraphicsEngine {
         friend class MaterialCompiler;
         friend class EffectBuilder;
         friend class ShaderProgram;
+        friend class MaterialSerializer;
         friend void swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept;
         CustomMaterial() noexcept;
     public:

@@ -3,7 +3,7 @@
 #include <core/vertex.hpp>
 #include <core/context_debug.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Buffer;
 
     struct VertexAttribute {

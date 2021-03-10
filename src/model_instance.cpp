@@ -4,7 +4,7 @@
 #include <model.hpp>
 #include <shader_storage.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 ModelInstance::ModelInstance(decltype(model) _model, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
     : ModelInstance{nullptr, std::move(_model), _position, _rotation, _scale} {

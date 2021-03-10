@@ -4,7 +4,7 @@
 #include <light_attachable.hpp>
 #include <functional>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class MaterialShader;
     enum class ModelShader;
     enum class Blending;

@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class EffectInstance;
     class Lighting;
 

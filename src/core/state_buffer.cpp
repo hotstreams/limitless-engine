@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cstring>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 StateBuffer::StateBuffer() noexcept
     : id{0}, target{Type::Array}, size{0}, usage_flags{Usage::StaticDraw}, access{MutableAccess::WriteOrphaning} { }
@@ -44,7 +44,7 @@ StateBuffer::~StateBuffer() {
     }
 }
 
-void GraphicsEngine::swap(StateBuffer& lhs, StateBuffer& rhs) noexcept {
+void LimitlessEngine::swap(StateBuffer& lhs, StateBuffer& rhs) noexcept {
     using std::swap;
 
     swap(lhs.id, rhs.id);

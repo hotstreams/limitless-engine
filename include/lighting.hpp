@@ -3,7 +3,7 @@
 #include <light_container.hpp>
 #include <lights.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Lighting {
     public:
         glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 0.5f};

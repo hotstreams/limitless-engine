@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void EmitterModule::initialize([[maybe_unused]] Emitter& emitter, [[maybe_unused]] Particle& particle) noexcept {
 

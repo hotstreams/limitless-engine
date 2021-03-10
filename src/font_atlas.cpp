@@ -1,9 +1,10 @@
 #include <font_atlas.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 using namespace std::literals::string_literals;
 
-FontAtlas::FontAtlas(const fs::path& path, uint32_t size) {
+FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
+    : font_size{size} {
     static FT_Library ft {nullptr};
 
     if (!ft) {
@@ -111,7 +112,79 @@ std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
         vertices.emplace_back(glm::vec2{x + fc.size.x, y + fc.size.y}, fc.uvs[3]);
 
         offset.x += (fc.advance >> 6);
+
+        if (c == '\n') {
+            offset.y -= font_size;
+            offset.x = 0;
+        }
     }
+
+    return vertices;
+}
+
+glm::vec2 FontAtlas::getTextSize(const std::string& text) const {
+	glm::vec2 max_size {0, font_size};
+	float size {};
+	for (const auto c : text) {
+		auto& fc = chars.at(c);
+
+		size += (fc.advance >> 6);
+
+		if (c == '\n') {
+			max_size.y += font_size;
+			size = 0;
+		}
+
+		max_size.x = std::max(max_size.x, size);
+	}
+
+	return max_size;
+}
+
+std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, size_t begin, size_t end) {
+    std::vector<TextVertex> vertices;
+
+    // adding rect function
+    auto add_rect = [&] (glm::vec2 pos, glm::vec2 size) {
+        vertices.emplace_back(glm::vec2{pos.x, -pos.y + size.y}, glm::vec2{});
+        vertices.emplace_back(glm::vec2{pos.x, -pos.y}, glm::vec2{});
+        vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y}, glm::vec2{});
+
+        vertices.emplace_back(glm::vec2{pos.x, -pos.y + size.y}, glm::vec2{});
+        vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y}, glm::vec2{});
+        vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y + size.y}, glm::vec2{});
+    };
+
+    // finds first offset
+    glm::ivec2 offset{};
+    for (size_t i = 0; i < begin; ++i) {
+        offset.x += (chars.at(text[i]).advance >> 6);
+    }
+
+    // finds character max y value
+    for (const auto& [c, fc] : chars) {
+        offset.y = std::max(offset.y, fc.size.y - fc.bearing.y);
+    }
+
+    size_t size{};
+    for (size_t i = begin; i < end; ++i) {
+        if (text[i] == '\n') {
+            add_rect({offset.x, offset.y}, glm::vec2{size, font_size});
+            size = 0;
+            offset.x = 0;
+            offset.y += font_size;
+
+            if (i != end - 1) {
+                if (text[i + 1] == '\n') {
+                    size += chars.at(' ').advance >> 6;
+                }
+            }
+        } else {
+            size += chars.at(text[i]).advance >> 6;
+        }
+    }
+
+    add_rect({offset.x, offset.y}, glm::vec2{size, font_size});
 
     return vertices;
 }

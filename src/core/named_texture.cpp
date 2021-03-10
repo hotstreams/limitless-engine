@@ -2,7 +2,7 @@
 #include <core/context_state.hpp>
 #include <algorithm>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 NamedTexture::NamedTexture(GLenum _target) noexcept : target{_target} {
     glCreateTextures(target, 1, &id);

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Lighting;
 
     struct light_attachable_error : std::runtime_error {

@@ -2,7 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void AbstractInstance::calculateModelMatrix() noexcept {
     model_matrix = glm::mat4{1.0f};

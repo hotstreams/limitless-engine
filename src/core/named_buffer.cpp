@@ -1,7 +1,7 @@
 #include <core/named_buffer.hpp>
 #include <stdexcept>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 NamedBuffer::NamedBuffer(NamedBuffer&& rhs) noexcept : StateBuffer() {
     swap(*this, rhs);

@@ -6,11 +6,11 @@
 #include <particle_system/emitter.hpp>
 #include <material_system/material.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 constexpr auto shader_mesh_buffer_name = "mesh_emitter_particles";
 
-VertexArray& GraphicsEngine::operator<<(VertexArray& vertex_array, const std::pair<Particle, Buffer&>& attribute) noexcept {
+VertexArray& LimitlessEngine::operator<<(VertexArray& vertex_array, const std::pair<Particle, Buffer&>& attribute) noexcept {
     vertex_array << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, position), attribute.second }
                  << VertexAttribute{ 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, color), attribute.second }
                  << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (GLvoid*)offsetof(Particle, rotation), attribute.second }
