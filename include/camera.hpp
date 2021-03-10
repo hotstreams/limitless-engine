@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class CameraMovement { Forward, Backward, Left, Right, Up, Down };
     enum class CameraMode { Free, Panning };
 

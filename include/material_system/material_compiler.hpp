@@ -2,7 +2,7 @@
 
 #include <core/shader_compiler.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class MaterialShader;
     enum class ModelShader;
     class CustomMaterial;

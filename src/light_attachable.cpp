@@ -1,6 +1,6 @@
 #include <light_attachable.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 LightAttachable::LightAttachable(Lighting* _lighting) noexcept
     : lighting{_lighting} { }

@@ -7,7 +7,7 @@
 #include <mutex>
 #include <map>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct BindingPoint {
         Buffer::Type target;
         GLuint point;

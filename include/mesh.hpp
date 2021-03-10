@@ -3,7 +3,7 @@
 #include <core/vertex_array.hpp>
 #include <core/buffer_builder.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class AbstractMesh {
     public:
         AbstractMesh() = default;
@@ -19,6 +19,8 @@ namespace GraphicsEngine {
     enum class DrawMode {
         Triangles = GL_TRIANGLES,
         TriangleStrip = GL_TRIANGLE_STRIP,
+        TriangleStripAdj = GL_TRIANGLE_STRIP_ADJACENCY,
+        TriangleFan = GL_TRIANGLE_FAN,
         Lines = GL_LINES
     };
 

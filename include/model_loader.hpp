@@ -14,7 +14,7 @@ namespace glm {
     glm::mat4 convert(const aiMatrix4x4& aimat) noexcept;
 }
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class AbstractModel;
     class AbstractMesh;
     class Material;
@@ -41,7 +41,8 @@ namespace GraphicsEngine {
         std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const;
         Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const;
         std::shared_ptr<Material> loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
-        std::vector<std::shared_ptr<Material>> loadMaterials(const aiScene* scene, const fs::path& path);
+        std::vector<std::shared_ptr<Material>>
+        loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader);
 
         template<typename T>
         std::vector<T> loadVertices(aiMesh* mesh) const noexcept;

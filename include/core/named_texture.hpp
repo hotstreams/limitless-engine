@@ -3,7 +3,7 @@
 #include <core/extension_texture.hpp>
 #include <core/texture_visitor.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class NamedTexture : public ExtensionTexture {
     private:
         GLuint id {};

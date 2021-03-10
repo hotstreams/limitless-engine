@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Texture;
     class Context;
 

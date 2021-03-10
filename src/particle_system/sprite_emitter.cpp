@@ -2,9 +2,9 @@
 #include <particle_system/unique_emitter.hpp>
 #include <particle_system/emitter_visitor.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
-void GraphicsEngine::swap(SpriteEmitter &lhs, SpriteEmitter &rhs) noexcept {
+void LimitlessEngine::swap(SpriteEmitter &lhs, SpriteEmitter &rhs) noexcept {
     swap(static_cast<Emitter&>(lhs), static_cast<Emitter&>(rhs));
 
     using std::swap;

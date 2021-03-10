@@ -2,7 +2,7 @@
 
 #include <particle_system/emitter_renderer.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class SpriteEmitterRenderer;
     class MeshEmitterRenderer;
 

@@ -2,7 +2,7 @@
 
 #include <mesh.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> _mesh, const std::shared_ptr<Material>& _material) noexcept
     : mesh{std::move(_mesh)}, material{_material} {

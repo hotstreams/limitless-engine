@@ -2,7 +2,7 @@
 
 #include <material_system/material_instance.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class AbstractMesh;
 
     class MeshInstance {

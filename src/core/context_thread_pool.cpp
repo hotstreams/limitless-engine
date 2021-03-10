@@ -1,7 +1,7 @@
 #include <core/context_thread_pool.hpp>
 #include <iostream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 ContextThreadPool::ContextThreadPool(Context& shared, uint32_t pool_size) : ThreadPool{} {
     //context_workers.reserve(pool_size);

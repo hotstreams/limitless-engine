@@ -3,7 +3,7 @@
 #include <util/thread_pool.hpp>
 #include <core/context.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ContextThreadPool : public ThreadPool {
     private:
         std::vector<Context> context_workers;

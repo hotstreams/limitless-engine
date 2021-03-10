@@ -3,7 +3,7 @@
 #include <fstream>
 #include <core/shader_program.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 namespace {
     inline constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {

@@ -4,7 +4,7 @@
 
 #include <shader_types.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 AbstractInstance& Scene::operator[](uint64_t id) noexcept { return *instances[id]; }
 AbstractInstance& Scene::at(uint64_t id) { return *instances.at(id); }

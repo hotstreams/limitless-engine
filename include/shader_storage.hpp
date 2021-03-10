@@ -6,7 +6,7 @@
 #include <shader_types.hpp>
 #include <mutex>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct ShaderKey {
         MaterialShader material_type;
         ModelShader model_type;

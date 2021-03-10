@@ -5,7 +5,7 @@
 #include <model.hpp>
 #include <core/texture_builder.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void Bloom::extractBrightness(const std::shared_ptr<Texture>& image) {
     auto& brightness_shader = *shader_storage.get("brightness");

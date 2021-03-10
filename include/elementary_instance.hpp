@@ -2,7 +2,7 @@
 
 #include <model_instance.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ElementaryInstance : public AbstractInstance {
     protected:
         std::shared_ptr<AbstractModel> model;

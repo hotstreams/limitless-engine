@@ -1,7 +1,7 @@
 #include <camera.hpp>
 #include <iostream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 Camera::Camera(glm::uvec2 window_size) noexcept
     : position{0.0f}, front{1.0f, 0.0f, 0.0f}, up{0.0f, 1.0f, 0.0f}, right{0.0f, 0.0f, 1.0f}, world_up{0.0f, 1.0f, 0.0f},

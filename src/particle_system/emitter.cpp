@@ -1,6 +1,6 @@
 #include <particle_system/emitter.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 Emitter::Emitter(EmitterType type) noexcept
     : type{type}, local_position{0.0f}, position{0.0f}, local_rotation{0.0f}, rotation{0.0f}, local_space{false} {
@@ -145,7 +145,7 @@ Emitter& Emitter::operator=(const Emitter& emitter) noexcept {
     return *this;
 }
 
-void GraphicsEngine::swap(Emitter& lhs, Emitter& rhs) noexcept {
+void LimitlessEngine::swap(Emitter& lhs, Emitter& rhs) noexcept {
     using std::swap;
 
     swap(lhs.type, rhs.type);

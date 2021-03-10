@@ -1,8 +1,8 @@
 #include <particle_system/emitter_spawn.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
-void GraphicsEngine::swap(EmitterSpawn& lhs, EmitterSpawn& rhs) noexcept {
+void LimitlessEngine::swap(EmitterSpawn& lhs, EmitterSpawn& rhs) noexcept {
     using std::swap;
 
     swap(lhs.mode, rhs.mode);

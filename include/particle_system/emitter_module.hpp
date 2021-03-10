@@ -1,10 +1,10 @@
 #pragma once
 
-#include <distribution.hpp>
+#include <particle_system/distribution.hpp>
 #include <mesh.hpp>
 #include <chrono>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Emitter;
     struct Particle;
 
@@ -26,17 +26,21 @@ namespace GraphicsEngine {
         CustomMaterial,
         CustomMaterialOverLife,
 
-        //lifetime should be updated at last
+        // should be at last
         Lifetime
     };
 
     class EmitterModule {
+    private:
+        EmitterModuleType type{};
     public:
         EmitterModule() noexcept = default;
         virtual ~EmitterModule() = default;
 
         virtual void initialize(Emitter& emitter, Particle& particle) noexcept;
         virtual void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept;
+
+        const auto& getType() const { return type; }
 
         [[nodiscard]] virtual EmitterModule* clone() const noexcept = 0;
     };

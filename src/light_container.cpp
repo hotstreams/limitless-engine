@@ -3,7 +3,7 @@
 #include <core/buffer_builder.hpp>
 #include <lights.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 template<typename T>
 LightContainer<T>::LightContainer() : LightContainer{1} {
@@ -44,7 +44,7 @@ void LightContainer<T>::update() {
     }
 }
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     template class LightContainer<PointLight>;
     template class LightContainer<DirectionalLight>;
     template class LightContainer<SpotLight>;

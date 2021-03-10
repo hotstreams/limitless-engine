@@ -3,7 +3,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Context;
     class Camera;
     class Buffer;

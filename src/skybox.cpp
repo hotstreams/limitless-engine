@@ -5,7 +5,7 @@
 #include <assets.hpp>
 #include <model.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 Skybox::Skybox(const fs::path& path) {
     cubemap = TextureLoader::loadCubemap(path);

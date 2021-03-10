@@ -1,10 +1,10 @@
 #include <asset_loader.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
-AssetLoader::AssetLoader(Context& shared, uint32_t pool_size) : pool{shared, pool_size} {}
+AssetManager::AssetManager(Context& shared, uint32_t pool_size) : pool{shared, pool_size} {}
 
-void AssetLoader::loadTexture(std::string asset_name, fs::path path, bool bottom_left_start) {
+void AssetManager::loadTexture(std::string asset_name, fs::path path, bool bottom_left_start) {
     auto load_texture = [name = std::move(asset_name), path = std::move(path), bottom_left_start] () {
         assets.textures.add(name, TextureLoader::load(path, bottom_left_start));
     };
@@ -12,7 +12,7 @@ void AssetLoader::loadTexture(std::string asset_name, fs::path path, bool bottom
     asset_futures.emplace_back(pool.add(std::move(load_texture)));
 }
 
-void AssetLoader::loadModel(std::string asset_name, fs::path path, bool flip_uv) {
+void AssetManager::loadModel(std::string asset_name, fs::path path, bool flip_uv) {
     auto load_model = [name = asset_name, path = std::move(path), flip_uv] () {
         ThreadedModelLoader loader;
         return loader.loadModel(path, flip_uv);
@@ -25,7 +25,7 @@ void AssetLoader::loadModel(std::string asset_name, fs::path path, bool flip_uv)
     model_futures.emplace_back(model_postwork{pool.add(std::move(load_model)), std::move(addition)});
 }
 
-bool AssetLoader::isDone() {
+bool AssetManager::isDone() {
     using namespace std::chrono;
 
     for (auto it = asset_futures.begin(); it != asset_futures.end();) {
@@ -46,7 +46,7 @@ bool AssetLoader::isDone() {
     return true;
 }
 
-void AssetLoader::wait() {
+void AssetManager::wait() {
     for (auto& future : asset_futures) {
         future.wait();
         future.get();
@@ -61,7 +61,7 @@ void AssetLoader::wait() {
     model_futures.clear();
 }
 
-void AssetLoader::delayed_work() {
+void AssetManager::delayed_work() {
     using namespace std::chrono;
     for (auto it = model_futures.begin(); it != model_futures.end();) {
         auto& [future, addition] = *it;
@@ -75,18 +75,18 @@ void AssetLoader::delayed_work() {
     }
 }
 
-void AssetLoader::loadModels(const std::vector<model_loading>& models) {
+void AssetManager::loadModels(const std::vector<model_loading>& models) {
     for (auto& [name, path, flip] : models) {
         loadModel(name, path, flip);
     }
 }
 
-void AssetLoader::loadTextures(const std::vector<texture_loading>& textures) {
+void AssetManager::loadTextures(const std::vector<texture_loading>& textures) {
     for (auto& [name, path, flip] : textures) {
         loadTexture(name, path, flip);
     }
 }
 
-void AssetLoader::build(std::function<void()> f) {
+void AssetManager::build(std::function<void()> f) {
     asset_futures.emplace_back(pool.add(std::move(f)));
 }

@@ -1,6 +1,6 @@
 #include <core/immutable_texture.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 ImmutableTexture::ImmutableTexture(std::unique_ptr<ExtensionTexture> _texture, Type target, GLsizei levels, InternalFormat internal_format, glm::uvec2 size, Format format, DataType data_type, const void* data, const texture_parameters& params) noexcept
     : texture{std::move(_texture)}, internal_format{internal_format}, params{params}, data_type{data_type}, levels{levels}, size{size, 0.0f}, format{format}, target{target} {

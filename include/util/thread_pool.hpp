@@ -8,7 +8,7 @@
 #include <queue>
 #include <mutex>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ThreadPool {
     protected:
         std::queue<std::function<void()>> tasks;

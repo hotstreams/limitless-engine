@@ -1,6 +1,6 @@
 #include <core/mutable_texture.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 MutableTexture::MutableTexture(std::unique_ptr<ExtensionTexture> _texture, Type target, InternalFormat internal_format, glm::uvec2 size, Format format, DataType data_type, const void* data, const texture_parameters& params) noexcept
     : texture{std::move(_texture)}, internal_format{internal_format}, params{params}, data_type{data_type}, size{size, 0.0f}, format{format}, target{target}  {

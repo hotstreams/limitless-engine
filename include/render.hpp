@@ -4,7 +4,7 @@
 #include <postprocessing.hpp>
 #include <scene_data.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class MaterialShader;
     class AbstractInstance;
     enum class Blending;

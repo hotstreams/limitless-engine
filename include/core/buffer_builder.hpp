@@ -5,7 +5,7 @@
 #include <core/indexed_buffer.hpp>
 #include <core/triple_buffer.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class BufferBuilder {
     public:
         template<typename T>

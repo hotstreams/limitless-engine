@@ -3,7 +3,7 @@
 #include <mesh.hpp>
 #include <material_system/material.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class AbstractModel {
     protected:
         std::vector<std::shared_ptr<AbstractMesh>> meshes;
@@ -32,5 +32,6 @@ namespace GraphicsEngine {
         Model& operator=(Model&&) noexcept = default;
 
         [[nodiscard]] const auto& getMaterials() const noexcept { return materials; }
+        [[nodiscard]] auto& getMaterials() noexcept { return materials; }
     };
 }

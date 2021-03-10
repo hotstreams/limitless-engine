@@ -2,9 +2,9 @@
 #include <particle_system/mesh_emitter.hpp>
 #include <shader_types.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
-void GraphicsEngine::swap(EffectInstance& lhs, EffectInstance& rhs) noexcept {
+void LimitlessEngine::swap(EffectInstance& lhs, EffectInstance& rhs) noexcept {
     std::swap(lhs.emitters, rhs.emitters);
 }
 

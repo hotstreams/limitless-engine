@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ExtensionTexture;
     class BindlessTexture;
 

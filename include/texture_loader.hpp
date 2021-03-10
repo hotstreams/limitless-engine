@@ -4,7 +4,7 @@
 #include <util/filesystem.hpp>
 #include <mutex>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class TextureLoader {
     public:
         static std::shared_ptr<Texture> load(const fs::path& path, bool bottom_left_start = true);

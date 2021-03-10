@@ -3,7 +3,7 @@
 #include <core/buffer.hpp>
 #include <optional>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class StateBuffer : public Buffer {
     protected:
         GLuint id;

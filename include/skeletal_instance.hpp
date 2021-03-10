@@ -2,7 +2,7 @@
 #include <model_instance.hpp>
 #include <skeletal_model.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class SkeletalInstance : public ModelInstance {
     private:
         std::vector<glm::mat4> bone_transform;

@@ -4,7 +4,7 @@
 #include <core/texture.hpp>
 #include <vector>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class TextureBinder {
     private:
         //TODO: move to context state

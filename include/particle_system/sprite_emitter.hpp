@@ -2,7 +2,7 @@
 
 #include <particle_system/emitter.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct UniqueSpriteEmitter;
     class Material;
 

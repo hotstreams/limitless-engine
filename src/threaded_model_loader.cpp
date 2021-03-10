@@ -6,7 +6,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 template<typename V, typename I>
 std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(aiMesh* m, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
@@ -61,7 +61,7 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(c
 
     auto meshes = loadMeshes(scene, path, bones, bone_map);
 
-    auto materials = loadMaterials(scene, path);
+    auto materials = loadMaterials(scene, path, ModelShader::Instanced);
 
     auto animations = loadAnimations(scene, bones, bone_map);
 

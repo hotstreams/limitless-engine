@@ -4,7 +4,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Texture;
 
     class RenderTarget {

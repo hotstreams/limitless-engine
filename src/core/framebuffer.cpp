@@ -1,7 +1,7 @@
 #include <core/framebuffer.hpp>
 #include <core/texture.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 Framebuffer::Framebuffer(ContextEventObserver& context) noexcept : Framebuffer() {
     context.registerObserver(this);

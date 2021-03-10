@@ -2,7 +2,7 @@
 
 #include <indexed_mesh.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct Bone {
         std::string name;
         glm::mat4 node_transform {1.0f};

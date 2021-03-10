@@ -3,7 +3,7 @@
 #include <core/framebuffer.hpp>
 #include <array>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Bloom {
     private:
         static constexpr uint8_t blur_iterations = 8;

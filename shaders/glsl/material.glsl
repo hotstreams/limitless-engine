@@ -41,7 +41,7 @@ layout(std140) uniform material_buffer {
         #endif
 
         #ifdef CUSTOM_MATERIAL
-            GraphicsEngine::CustomMaterialSamplerUniforms
+            LimitlessEngine::CustomMaterialSamplerUniforms
         #endif
     #endif
 
@@ -58,7 +58,7 @@ layout(std140) uniform material_buffer {
     #endif
 
     #ifdef CUSTOM_MATERIAL
-        GraphicsEngine::CustomMaterialScalarUniforms
+        LimitlessEngine::CustomMaterialScalarUniforms
     #endif
 
     // for cases if there is no scalar values in buffer and no bindless textures
@@ -100,6 +100,6 @@ layout(std140) uniform material_buffer {
     #endif
 
     #ifdef CUSTOM_MATERIAL
-        GraphicsEngine::CustomMaterialSamplerUniforms
+        LimitlessEngine::CustomMaterialSamplerUniforms
     #endif
 #endif

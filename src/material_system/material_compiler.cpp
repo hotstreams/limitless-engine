@@ -5,7 +5,7 @@
 #include <material_system/material.hpp>
 #include <material_system/custom_material_builder.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 std::string MaterialCompiler::getMaterialDefines(const Material& material) noexcept {
     std::string property_defines;
@@ -142,20 +142,20 @@ void MaterialCompiler::replaceRenderSettings(Shader& shader) noexcept {
         settings.append("#define NORMAL_MAPPING\n");
     }
 
-    shader.replaceKey("GraphicsEngine::Settings", settings);
+    shader.replaceKey("LimitlessEngine::Settings", settings);
 }
 
 void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept {
-    shader.replaceKey("GraphicsEngine::MaterialType", getMaterialDefines(material));
-    shader.replaceKey("GraphicsEngine::ModelType", getModelDefines(model_shader));
+    shader.replaceKey("LimitlessEngine::MaterialType", getMaterialDefines(material));
+    shader.replaceKey("LimitlessEngine::ModelType", getModelDefines(model_shader));
 
     if (material.isCustom()) {
         const auto& custom = static_cast<const CustomMaterial&>(material);
 
-        shader.replaceKey("GraphicsEngine::CustomMaterialVertexCode", custom.getVertexCode());
-        shader.replaceKey("GraphicsEngine::CustomMaterialFragmentCode", custom.getFragmentCode());
-        shader.replaceKey("GraphicsEngine::CustomMaterialScalarUniforms", getCustomMaterialScalarUniforms(custom));
-        shader.replaceKey("GraphicsEngine::CustomMaterialSamplerUniforms", getCustomMaterialSamplerUniforms(custom));
+        shader.replaceKey("LimitlessEngine::CustomMaterialVertexCode", custom.getVertexCode());
+        shader.replaceKey("LimitlessEngine::CustomMaterialFragmentCode", custom.getFragmentCode());
+        shader.replaceKey("LimitlessEngine::CustomMaterialScalarUniforms", getCustomMaterialScalarUniforms(custom));
+        shader.replaceKey("LimitlessEngine::CustomMaterialSamplerUniforms", getCustomMaterialSamplerUniforms(custom));
     }
 }
 

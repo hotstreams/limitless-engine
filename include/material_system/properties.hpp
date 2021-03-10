@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class PropertyType {
         Color,
         EmissiveColor,

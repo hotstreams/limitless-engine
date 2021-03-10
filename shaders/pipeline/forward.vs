@@ -1,8 +1,8 @@
-GraphicsEngine::GLSL_VERSION
-GraphicsEngine::Extensions
-GraphicsEngine::Settings
-GraphicsEngine::MaterialType
-GraphicsEngine::ModelType
+LimitlessEngine::GLSL_VERSION
+LimitlessEngine::Extensions
+LimitlessEngine::Settings
+LimitlessEngine::MaterialType
+LimitlessEngine::ModelType
 
 #include "glsl/output_data_vs.glsl"
 #include "glsl/material.glsl"
@@ -33,7 +33,7 @@ void main()
     vec4 vertex_position = vec4(position, 1.0);
 
     #ifdef CUSTOM_MATERIAL
-        GraphicsEngine::CustomMaterialVertexCode
+        LimitlessEngine::CustomMaterialVertexCode
     #endif
 
     #ifdef SKELETAL_MODEL

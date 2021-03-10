@@ -4,7 +4,7 @@
 #include <elementary_model.hpp>
 #include <shader_storage.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void ElementaryInstance::calculateModelMatrix() noexcept {
     model_matrix = glm::mat4{1.0f};

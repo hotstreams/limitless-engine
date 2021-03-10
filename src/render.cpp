@@ -8,9 +8,8 @@
 #include <elementary_instance.hpp>
 #include <camera.hpp>
 #include <scene.hpp>
-#include <iostream>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 struct FrontToBackSorter {
     const Camera& camera;

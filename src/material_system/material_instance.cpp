@@ -3,7 +3,7 @@
 #include <material_system/material.hpp>
 #include <stdexcept>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 MaterialInstance::MaterialInstance(const std::shared_ptr<Material>& material) noexcept {
     base = std::shared_ptr<Material>(material->clone());

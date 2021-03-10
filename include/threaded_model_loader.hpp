@@ -2,7 +2,7 @@
 
 #include <model_loader.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ThreadedModelLoader : protected ModelLoader {
     private:
         std::function<std::vector<std::shared_ptr<AbstractMesh>>()> loadMeshes(const aiScene* scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);

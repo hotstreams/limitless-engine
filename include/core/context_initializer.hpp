@@ -6,7 +6,7 @@
 #include <vector>
 #include <string_view>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct ImplementationLimits {
         GLint uniform_buffer_max_count;
         GLint shader_storage_max_count;

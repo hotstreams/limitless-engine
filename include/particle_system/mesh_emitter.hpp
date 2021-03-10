@@ -3,7 +3,7 @@
 #include <particle_system/sprite_emitter.hpp>
 #include <mesh.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct UniqueMeshEmitter;
 
     class MeshEmitter : public SpriteEmitter {

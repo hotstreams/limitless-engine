@@ -2,7 +2,7 @@
 
 #include <model.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class ElementaryModel : public AbstractModel {
     protected:
         ElementaryModel() = default;
@@ -41,6 +41,18 @@ namespace GraphicsEngine {
         Quad(Quad&&) noexcept = default;
         Quad& operator=(Quad&&) noexcept = default;
     };
+
+	class Rectangle : public ElementaryModel {
+	public:
+		Rectangle();
+		~Rectangle() override = default;
+
+		Rectangle(const Rectangle&) noexcept = delete;
+		Rectangle& operator=(const Rectangle&) noexcept = delete;
+
+		Rectangle(Rectangle&&) noexcept = default;
+		Rectangle& operator=(Rectangle&&) noexcept = default;
+	};
 
     class Cube : public ElementaryModel {
     public:

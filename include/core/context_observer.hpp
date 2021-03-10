@@ -2,7 +2,7 @@
 
 #include <core/context.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class MouseButton : uint8_t { Left, Right, Middle };
     enum class InputState : uint8_t { Released, Pressed, Repeat};
     enum class Modifier : uint8_t { Shift = 1, Control = 2, Alt = 4, Super = 8, CapsLock = 16, NumLock = 32 };

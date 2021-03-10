@@ -2,7 +2,7 @@
 
 #include <material_system/material_compiler.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Emitter;
     class SpriteEmitter;
     class MeshEmitter;

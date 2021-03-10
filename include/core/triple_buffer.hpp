@@ -4,7 +4,7 @@
 #include <array>
 #include <memory>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class TripleBuffer : public Buffer {
     private:
         std::array<std::shared_ptr<Buffer>, 3> buffers;

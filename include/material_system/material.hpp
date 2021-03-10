@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Buffer;
 
     class Material {
@@ -28,6 +28,7 @@ namespace GraphicsEngine {
         friend class CustomMaterialBuilder;
         friend class EffectBuilder;
         friend class MaterialCompiler;
+        friend class MaterialSerializer;
         friend void swap(Material& lhs, Material& rhs) noexcept;
         Material() noexcept;
     public:

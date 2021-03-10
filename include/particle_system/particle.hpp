@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     struct Particle {
         glm::vec4 color {1.0f};
         // xy - scaling factor; zw - frame uv

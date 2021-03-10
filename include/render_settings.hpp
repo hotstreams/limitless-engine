@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     enum class ShadingModel { Phong, BlinnPhong };
 
     struct RenderSettings {

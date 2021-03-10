@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class Buffer;
 
     template<typename T>

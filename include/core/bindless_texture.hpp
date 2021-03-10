@@ -6,7 +6,7 @@
 #include "context_state.hpp"
 
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class BindlessTexture : public ExtensionTexture {
     private:
         std::unique_ptr<ExtensionTexture> texture;

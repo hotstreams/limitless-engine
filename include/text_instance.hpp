@@ -6,14 +6,16 @@
 #include <utility>
 #include <mesh.hpp>
 
-namespace GraphicsEngine {
+namespace LimitlessEngine {
     class TextInstance : public AbstractInstance {
     private:
         std::shared_ptr<FontAtlas> font;
         std::string string;
         glm::vec4 color;
+        glm::vec4 selection_color;
 
         Mesh<TextVertex> mesh;
+        std::optional<Mesh<TextVertex>> selection_mesh;
         Context& ctx;
 
         void updateVertices();
@@ -39,9 +41,19 @@ namespace GraphicsEngine {
             return *this;
         }
 
-        auto& getColor() const noexcept { return color; }
+        [[nodiscard]] auto& getColor() const noexcept { return color; }
 
         TextInstance* clone() noexcept override;
+
+        void setSelection(size_t begin, size_t end) {
+            selection_mesh = {"text_selection", MeshDataType::Dynamic, DrawMode::Triangles};
+
+            selection_mesh->updateVertices(font->getSelectionGeometry(string, begin, end));
+        }
+
+        void setSelectionColor(const glm::vec4& sel_color) {
+            selection_color = sel_color;
+        }
 
         void draw(MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) override;
     };

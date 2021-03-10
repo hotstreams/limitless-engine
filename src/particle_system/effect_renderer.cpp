@@ -5,7 +5,7 @@
 #include <material_system/material.hpp>
 #include <shader_types.hpp>
 
-using namespace GraphicsEngine;
+using namespace LimitlessEngine;
 
 void EffectRenderer::visitEmitters(const std::vector<AbstractInstance*>& instances, EmitterVisitor& emitter_visitor) noexcept {
     auto effect_instance_visitor = [] (const EffectInstance& effect_instance, EmitterVisitor& visitor) {
