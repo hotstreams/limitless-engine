@@ -117,7 +117,7 @@ public:
                 .build();
 
         scene.add<EffectInstance>(effect, glm::vec3{-1.f, -1.f, -1.f})
-            .setPosition(glm::vec3{-3.f, -3.f, -3.f});
+             .setPosition(glm::vec3{-3.f, -3.f, -3.f});
 
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 10.5f}, 8.0f);
         scene.lighting.point_lights.emplace_back(glm::vec4{12.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 8.7f, 10.5f}, 3.0f);
@@ -287,7 +287,7 @@ public:
 
             context.swapBuffers();
         }
-        loader.delayed_work();
+        loader.delayed_job();
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -355,28 +355,9 @@ public:
     }
 };
 
-class kek {
-public:
-    int a = 3228;
-
-    explicit kek() = delete;
-    kek(int a) : a{a} {
-
-    }
-
-    kek(const kek& b) : a{b.a} {
-        std::cout << "copy\n";
-    }
-
-//    kek(kek&&) = delete;
-    //kek& operator=(kek&&) =aaa default;
-};
-
-#include <material_system/material_serializer.hpp>
-
 int main() {
     Game game;
-//    game.gameLoop();
+    game.gameLoop();
 
     return 0;
 }

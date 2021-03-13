@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <string>
+#include <iostream>
 
 namespace LimitlessEngine {
     class ByteBuffer final {
@@ -20,7 +21,7 @@ namespace LimitlessEngine {
         ByteBuffer() = default;
 
         explicit ByteBuffer(size_t size) {
-            buffer.reserve(size);
+            buffer.resize(size);
         }
 
         ~ByteBuffer() = default;
@@ -30,6 +31,24 @@ namespace LimitlessEngine {
 
         ByteBuffer(ByteBuffer&&) = default;
         ByteBuffer& operator=(ByteBuffer&&) = default;
+
+        [[nodiscard]] auto size() const noexcept { return buffer.size(); }
+        [[nodiscard]] auto capacity() const noexcept { return buffer.capacity(); }
+        [[nodiscard]] auto data() const noexcept { return buffer.data(); }
+        [[nodiscard]] auto cdata() noexcept { return reinterpret_cast<char*>(buffer.data()); }
+        void reserve(size_t size) noexcept { buffer.reserve(size); }
+
+
+        template<typename Iter>
+        auto insert(Iter first, Iter last) {
+            return buffer.insert(buffer.begin(), first, last);
+        }
+
+        void print() {
+            for (const auto c : buffer)
+                std::cout << '\'' << static_cast<char>(c) << '\'' << ' ';
+            std::cout << std::endl;
+        }
 
         void write(const std::string& str) {
             write(str.size());

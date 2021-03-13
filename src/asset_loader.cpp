@@ -61,7 +61,7 @@ void AssetManager::wait() {
     model_futures.clear();
 }
 
-void AssetManager::delayed_work() {
+void AssetManager::delayed_job() {
     using namespace std::chrono;
     for (auto it = model_futures.begin(); it != model_futures.end();) {
         auto& [future, addition] = *it;
@@ -72,18 +72,6 @@ void AssetManager::delayed_work() {
         } else {
             ++it;
         }
-    }
-}
-
-void AssetManager::loadModels(const std::vector<model_loading>& models) {
-    for (auto& [name, path, flip] : models) {
-        loadModel(name, path, flip);
-    }
-}
-
-void AssetManager::loadTextures(const std::vector<texture_loading>& textures) {
-    for (auto& [name, path, flip] : textures) {
-        loadTexture(name, path, flip);
     }
 }
 

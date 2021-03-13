@@ -162,4 +162,5 @@ add_executable(tests ${ENGINE_SRC} "tests/catch_amalgamated.cpp"
         "tests/uniform_serializer_test.cpp"
         "tests/material_serializer_test.cpp"
         "tests/bytebuffer_test.cpp"
-        "tests/effect_serializer_test.cpp")
+        "tests/effect_serializer_test.cpp"
+        "tests/material_loader_test.cpp")

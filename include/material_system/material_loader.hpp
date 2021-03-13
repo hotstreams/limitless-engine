@@ -8,7 +8,7 @@ namespace LimitlessEngine {
 
     class MaterialLoader {
     public:
-        std::shared_ptr<Material> load(std::string_view asset_name);
-        void save(std::string_view asset_name);
+        std::shared_ptr<Material> load(const std::string& asset_name);
+        void save(std::string asset_name);
     };
 }
