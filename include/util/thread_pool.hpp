@@ -15,7 +15,7 @@ namespace LimitlessEngine {
         std::condition_variable condition;
         std::vector<std::thread> threads;
         std::mutex mutex;
-        bool stop {};
+        bool stop{};
         ThreadPool() = default;
     public:
         explicit ThreadPool(uint32_t pool_size);

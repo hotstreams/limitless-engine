@@ -6,8 +6,6 @@
 #include <iterator>
 #include <mutex>
 
-#define ASSETS_DIR "../assets/"
-
 namespace LimitlessEngine {
     class AbstractMesh;
     class AbstractModel;
