@@ -100,7 +100,7 @@ namespace LimitlessEngine {
 }
 
 namespace std {
-    template<glm::length_t L, typename T, glm::qualifier Q> struct std::is_floating_point<glm::vec<L, T, Q>> : public true_type {};
+    template<glm::length_t L, typename T, glm::qualifier Q> struct is_floating_point<glm::vec<L, T, Q>> : public true_type {};
 
     template<>
     class uniform_real_distribution<glm::vec2> {

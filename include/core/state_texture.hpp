@@ -5,7 +5,7 @@
 
 namespace LimitlessEngine {
     class StateTexture : public ExtensionTexture {
-    private:
+    protected:
         GLuint id {};
     public:
         StateTexture() noexcept;

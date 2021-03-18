@@ -21,7 +21,8 @@ namespace LimitlessEngine {
         TriangleStrip = GL_TRIANGLE_STRIP,
         TriangleStripAdj = GL_TRIANGLE_STRIP_ADJACENCY,
         TriangleFan = GL_TRIANGLE_FAN,
-        Lines = GL_LINES
+        Lines = GL_LINES,
+        LineLoop = GL_LINE_LOOP
     };
 
     template<typename T>

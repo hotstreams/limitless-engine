@@ -51,11 +51,11 @@ void MutableTexture::texImage2DMultiSample(uint8_t _samples, InternalFormat _int
 }
 
 void MutableTexture::texSubImage2D(glm::uvec2 offset, glm::uvec2 _size, const void *data) const noexcept {
-    glTexSubImage2D(static_cast<GLenum>(target), 0, offset.x, offset.y, _size.x, _size.y, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
+    texture->texSubImage2D(static_cast<GLenum>(target), 0, offset.x, offset.y, _size, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
 void MutableTexture::texSubImage3D(glm::uvec3 offset, glm::uvec3 _size, const void *data) const noexcept {
-    glTexSubImage3D(static_cast<GLenum>(target), 0, offset.x, offset.y, offset.z, _size.x, _size.y, _size.z, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
+    texture->texSubImage3D(static_cast<GLenum>(target), 0, offset.x, offset.y, offset.z, _size, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
 void MutableTexture::bind(GLuint index) const noexcept {

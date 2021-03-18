@@ -60,5 +60,5 @@ void EffectRenderer::draw(Blending blending) {
 }
 
 EffectRenderer::EffectRenderer(Context &context) noexcept {
-    context.enable(Enable::ProgramPointSize);
+    context.enable(Capabilities::ProgramPointSize);
 }

@@ -35,6 +35,13 @@ namespace LimitlessEngine {
         virtual ~KeyObserver() = default;
     };
 
+    class CharObserver {
+    public:
+        virtual void onChar(uint32_t utf8) = 0;
+
+        virtual ~CharObserver() = default;
+    };
+
     class ScrollObserver {
     public:
         virtual void onScroll(glm::dvec2 pos) = 0;
@@ -51,18 +58,21 @@ namespace LimitlessEngine {
         std::vector<MouseMoveObserver*> mousemove_observers;
         std::vector<KeyObserver*> key_observers;
         std::vector<ScrollObserver*> scroll_observers;
+        std::vector<CharObserver*> char_observers;
 
         static void framebufferCallback(GLFWwindow* win, int w, int h);
         static void mouseclickCallback(GLFWwindow* win, int button, int action, int modifiers);
         static void mousemoveCallback(GLFWwindow* win, double x, double y);
         static void keyboardCallback(GLFWwindow* win, int key, int scancode, int action, int modifiers);
         static void scrollCallback(GLFWwindow* win, double x, double y);
+        static void charCallback(GLFWwindow* win, uint32_t utf);
 
         void onFramebufferChange(glm::uvec2 size);
         void onMouseClick(glm::dvec2 pos, MouseButton button, InputState state, Modifier modifier) const;
         void onMouseMove(glm::dvec2 pos) const;
         void onKey(int key, int scancode, InputState state, Modifier modifier) const;
         void onScroll(glm::dvec2 pos) const;
+        void onChar(uint32_t utf8) const;
     public:
         ContextEventObserver(std::string_view title, glm::uvec2 size, const WindowHints& hints = WindowHints{});
         ~ContextEventObserver() override;
@@ -84,11 +94,13 @@ namespace LimitlessEngine {
         void registerObserver(MouseMoveObserver* obs);
         void registerObserver(KeyObserver* obs);
         void registerObserver(ScrollObserver* obs);
+        void registerObserver(CharObserver* obs);
 
         void unregisterObserver(FramebufferObserver* obs);
         void unregisterObserver(MouseClickObserver* obs);
         void unregisterObserver(MouseMoveObserver* obs);
         void unregisterObserver(KeyObserver* obs);
         void unregisterObserver(ScrollObserver* obs);
+        void unregisterObserver(CharObserver* obs);
     };
 }

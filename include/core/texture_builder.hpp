@@ -10,7 +10,7 @@
 #include <core/named_texture.hpp>
 
 namespace LimitlessEngine {
-    class TextureBuilder {
+   class TextureBuilder {
         static ExtensionTexture* getSupportedExtensionTexture(Texture::Type target) {
             ExtensionTexture* extension_texture {};
 

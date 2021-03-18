@@ -52,10 +52,10 @@ void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
         return;
     }
 
-    context.enable(Enable::DepthTest);
+    context.enable(Capabilities::DepthTest);
     context.setDepthFunc(DepthFunc::Less);
     context.setDepthMask(DepthMask::False);
-    context.disable(Enable::DepthTest);
+    context.disable(Capabilities::DepthTest);
 
     static auto sphere_instance = ElementaryInstance(assets.models["sphere"], assets.materials["default"], glm::vec3(0.0f));
 

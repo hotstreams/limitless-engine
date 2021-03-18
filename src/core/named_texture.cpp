@@ -35,16 +35,19 @@ void NamedTexture::texStorage2DMultisample([[maybe_unused]] GLenum _target, uint
     glTextureStorage2DMultisample(id, samples, internal_format, size.x, size.y, GL_FALSE);
 }
 
+// there are no such functions in DSA Extension
+// so we are using StateTexture funcs
+
 void NamedTexture::texImage2D(GLenum _target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, const void* data) const noexcept {
-    glTextureImage2DEXT(id, _target, levels, internal_format, size.x, size.y, 0, format, type, data);
+    StateTexture::texImage2D(_target, levels, internal_format, format, type, size, data);
 }
 
 void NamedTexture::texImage3D(GLenum _target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, const void *data) const noexcept {
-    glTextureImage3DEXT(id, _target, levels, internal_format, size.x, size.y, size.z, 0, format, type, data);
+    StateTexture::texImage3D(_target, levels, internal_format, format, type, size, data);
 }
 
 void NamedTexture::texImage2DMultiSample(GLenum _target, uint8_t samples, GLenum internal_format, glm::uvec3 size) const noexcept {
-    glTextureImage2DMultisampleNV(id, _target, samples, internal_format, size.x, size.y, GL_FALSE);
+    StateTexture::texImage2DMultiSample(_target, samples, internal_format, size);
 }
 
 void NamedTexture::texSubImage2D([[maybe_unused]] GLenum _target, GLint level, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) const noexcept {

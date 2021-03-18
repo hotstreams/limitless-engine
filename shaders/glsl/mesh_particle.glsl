@@ -12,7 +12,6 @@ struct MeshParticle {
     float size;
 };
 
-#extension GL_ARB_shader_storage_buffer_object : require
 layout (std430) buffer mesh_emitter_particles {
     MeshParticle particles[];
 };

@@ -34,14 +34,14 @@ namespace LimitlessEngine {
         FontAtlas(const fs::path& path, uint32_t size);
         ~FontAtlas();
 
-        auto getFontSize() { return font_size; }
+        [[nodiscard]] auto getFontSize() const noexcept { return font_size; }
+        [[nodiscard]] const auto& getFontCharacter(char c) const { return chars.at(c); }
 
         [[nodiscard]] const auto& getTexture() const { return texture; }
 
         [[nodiscard]] std::vector<TextVertex> generate(const std::string& text) const;
 
-        glm::vec2 getTextSize(const std::string& text) const;
-        auto& getFontCharacter(char c) noexcept { return chars[c]; }
+        [[nodiscard]] glm::vec2 getTextSize(const std::string& text) const;
 
         std::vector<TextVertex> getSelectionGeometry(std::string_view text, size_t begin, size_t end);
     };

@@ -61,7 +61,7 @@ layout(std140) uniform material_buffer {
         LimitlessEngine::CustomMaterialScalarUniforms
     #endif
 
-    // for cases if there is no scalar values in buffer and no bindless textures
+    // for cases if there are no scalar values in buffer and no bindless textures
     // GLSL cannot compile empty uniform block :/
     bool empty;
 };

@@ -14,10 +14,10 @@ Skybox::Skybox(const fs::path& path) {
 void Skybox::draw(Context& context) {
     auto& shader = *shader_storage.get("skybox");
 
-    context.enable(Enable::DepthTest);
+    context.enable(Capabilities::DepthTest);
     context.setDepthFunc(DepthFunc::Lequal);
     context.setDepthMask(DepthMask::True);
-    context.disable(Enable::Blending);
+    context.disable(Capabilities::Blending);
 
     shader << UniformSampler{"skybox", cubemap};
 
