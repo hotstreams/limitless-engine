@@ -14,8 +14,8 @@ void TextInstance::draw([[maybe_unused]] MaterialShader shader_type, Blending bl
 
     calculateModelMatrix();
 
-    ctx.disable(Enable::DepthTest);
-    ctx.disable(Enable::Blending);
+    ctx.disable(Capabilities::DepthTest);
+    ctx.disable(Capabilities::Blending);
 
     // draw selection
     if (selection_mesh) {

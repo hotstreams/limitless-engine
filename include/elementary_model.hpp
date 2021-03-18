@@ -77,16 +77,4 @@ namespace LimitlessEngine {
         Sphere(Sphere&&) noexcept = default;
         Sphere& operator=(Sphere&&) noexcept = default;
     };
-
-	class Plane : public ElementaryModel {
-	public:
-		Plane();
-		~Plane() override = default;
-
-		Plane(const Plane&) = delete;
-		Plane& operator=(const Plane&) = delete;
-
-		Plane(Plane&&) noexcept = default;
-		Plane& operator=(Plane&&) noexcept = default;
-	};
 }

@@ -11,11 +11,11 @@ Uniform::Uniform(std::string name, UniformType type, UniformValueType value_type
 
 template<typename T>
 UniformValue<T>::UniformValue(const std::string& name, UniformType type, const T& value)
-    : Uniform{name, type, getUniformValueType()}, value{std::move(value)} { }
+    : Uniform{name, type, UniformValue::getUniformValueType()}, value{std::move(value)} { }
 
 template<typename T>
 UniformValue<T>::UniformValue(const std::string& name, const T& value) noexcept
-    : Uniform{name, UniformType::Value, getUniformValueType()}, value{std::move(value)} { }
+    : Uniform{name, UniformType::Value, UniformValue::getUniformValueType()}, value{std::move(value)} { }
 
 template<typename T>
 void UniformValue<T>::setValue(const T& val) noexcept {

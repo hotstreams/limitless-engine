@@ -220,9 +220,9 @@ void ShaderProgram::bindTextures() const noexcept {
         // binds them to units for current usage
         // sets unit index value to samplers in shader
         std::vector<Texture*> to_bind;
-        for (const auto&[name, uniform] : uniforms) {
+        for (const auto& [name, uniform] : uniforms) {
             if (uniform->getType() == UniformType::Sampler) {
-                const auto &sampler = static_cast<UniformSampler&>(*uniform);
+                const auto& sampler = static_cast<UniformSampler&>(*uniform);
                 to_bind.emplace_back(sampler.getSampler().get());
             }
         }

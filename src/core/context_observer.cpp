@@ -15,6 +15,7 @@ ContextEventObserver::ContextEventObserver(std::string_view title, glm::uvec2 si
     glfwSetCursorPosCallback(window, ContextEventObserver::mousemoveCallback);
     glfwSetKeyCallback(window, ContextEventObserver::keyboardCallback);
     glfwSetScrollCallback(window, ContextEventObserver::scrollCallback);
+    glfwSetCharCallback(window, ContextEventObserver::charCallback);
 }
 
 ContextEventObserver::~ContextEventObserver() {
@@ -44,6 +45,10 @@ void ContextEventObserver::keyboardCallback(GLFWwindow *win, int key, int scanco
 
 void ContextEventObserver::scrollCallback(GLFWwindow *win, double x, double y) {
     callbacks[win]->onScroll({ x, y });
+}
+
+void ContextEventObserver::charCallback(GLFWwindow* win, uint32_t utf) {
+    callbacks[win]->onChar(utf);
 }
 
 void ContextEventObserver::onFramebufferChange(glm::uvec2 s) {
@@ -78,6 +83,12 @@ void ContextEventObserver::onScroll(glm::dvec2 pos) const {
         ptr->onScroll(pos);
 }
 
+void ContextEventObserver::onChar(uint32_t utf8) const {
+    for (auto* observer : char_observers) {
+        observer->onChar(utf8);
+    }
+}
+
 void ContextEventObserver::registerObserver(FramebufferObserver* obs) {
     framebuffer_observers.emplace_back(obs);
 }
@@ -98,6 +109,10 @@ void ContextEventObserver::registerObserver(ScrollObserver* obs) {
     scroll_observers.emplace_back(obs);
 }
 
+void ContextEventObserver::registerObserver(CharObserver* obs) {
+    char_observers.emplace_back(obs);
+}
+
 void ContextEventObserver::unregisterObserver(FramebufferObserver* obs) {
     framebuffer_observers.erase(std::find(framebuffer_observers.begin(), framebuffer_observers.end(), obs));
 }
@@ -116,6 +131,10 @@ void ContextEventObserver::unregisterObserver(KeyObserver* obs) {
 
 void ContextEventObserver::unregisterObserver(ScrollObserver* obs) {
     scroll_observers.erase(std::find(scroll_observers.begin(), scroll_observers.end(), obs));
+}
+
+void ContextEventObserver::unregisterObserver(CharObserver* obs) {
+    char_observers.erase(std::find(char_observers.begin(), char_observers.end(), obs));
 }
 
 void ContextEventObserver::setStickyMouseButtons(bool value) const noexcept {

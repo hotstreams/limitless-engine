@@ -13,7 +13,7 @@ namespace LimitlessEngine {
         std::string getCustomMaterialScalarUniforms(const CustomMaterial& material) noexcept;
         std::string getCustomMaterialSamplerUniforms(const CustomMaterial& material) noexcept;
         std::string getMaterialDefines(const Material& material) noexcept;
-        std::string getModelDefines(const ModelShader& type) noexcept;
+        std::string getModelDefines(const ModelShader& type);
 
         void replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept;
         void replaceRenderSettings(Shader& src) noexcept;

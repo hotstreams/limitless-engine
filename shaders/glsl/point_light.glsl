@@ -7,7 +7,6 @@ struct PointLight {
     float radius;
 };
 
-#extension GL_ARB_shader_storage_buffer_object : require
 layout(std140) buffer point_light_buffer {
     PointLight point_lights[];
 };

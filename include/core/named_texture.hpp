@@ -1,12 +1,11 @@
 #pragma once
 
-#include <core/extension_texture.hpp>
+#include <core/state_texture.hpp>
 #include <core/texture_visitor.hpp>
 
 namespace LimitlessEngine {
-    class NamedTexture : public ExtensionTexture {
+    class NamedTexture : public StateTexture {
     private:
-        GLuint id {};
         GLenum target;
     public:
         explicit NamedTexture(GLenum target) noexcept;

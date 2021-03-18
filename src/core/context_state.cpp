@@ -75,14 +75,14 @@ void ContextState::clear(Clear bits) noexcept {
     glClear(static_cast<GLbitfield>(bits));
 }
 
-void ContextState::enable(Enable func) noexcept {
+void ContextState::enable(Capabilities func) noexcept {
     if (!enable_map[func]) {
         glEnable(static_cast<GLenum>(func));
         enable_map[func] = true;
     }
 }
 
-void ContextState::disable(Enable func) noexcept {
+void ContextState::disable(Capabilities func) noexcept {
     if (enable_map[func]) {
         glDisable(static_cast<GLenum>(func));
         enable_map[func] = false;
@@ -142,4 +142,12 @@ void ContextState::setPolygonMode(CullFace face, PolygonMode mode) noexcept {
 
 bool ContextState::hasState(GLFWwindow* window) noexcept {
     return window ? state_map.find(window) != state_map.end() : false;
+}
+
+void ContextState::setScissorTest(glm::uvec2 origin, glm::uvec2 size) noexcept {
+    if (scissor_origin != origin || scissor_size != size) {
+        glScissor(origin.x, origin.y, size.x, size.y);
+        scissor_origin = origin;
+        scissor_size = size;
+    }
 }

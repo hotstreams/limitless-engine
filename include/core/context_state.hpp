@@ -38,10 +38,13 @@ namespace LimitlessEngine {
         False = GL_FALSE
     };
 
-    enum class Enable {
+    // enable or disable server-side GL capabilities
+    enum class Capabilities {
         DepthTest = GL_DEPTH_TEST,
         Blending = GL_BLEND,
-        ProgramPointSize = GL_PROGRAM_POINT_SIZE
+        ProgramPointSize = GL_PROGRAM_POINT_SIZE,
+        ScissorTest = GL_SCISSOR_TEST,
+        StencilTest = GL_STENCIL_TEST
     };
 
     enum class BlendFactor {
@@ -78,7 +81,7 @@ namespace LimitlessEngine {
 
     class ContextState {
     protected:
-        std::unordered_map<Enable, bool> enable_map;
+        std::unordered_map<Capabilities, bool> enable_map;
         glm::uvec2 viewport {};
         glm::vec4 clear_color {};
 
@@ -90,6 +93,7 @@ namespace LimitlessEngine {
         PolygonMode polygon_mode {PolygonMode::Fill};
         BlendFactor src_factor {BlendFactor::None}, dst_factor {BlendFactor::Zero};
         glm::vec4 blending_color {0.0f};
+        glm::uvec2 scissor_origin {}, scissor_size {};
 
         GLuint shader_id {};
         GLuint vertex_array_id {};
@@ -145,8 +149,9 @@ namespace LimitlessEngine {
         void setPolygonMode(CullFace face, PolygonMode mode) noexcept;
         void setBlendFunc(BlendFactor src, BlendFactor dst) noexcept;
         void setBlendColor(const glm::vec4& color) noexcept;
+        void setScissorTest(glm::uvec2 origin, glm::uvec2 size) noexcept;
         void clear(Clear bits) noexcept;
-        void disable(Enable func) noexcept;
-        void enable(Enable func) noexcept;
+        void disable(Capabilities func) noexcept;
+        void enable(Capabilities func) noexcept;
     };
 }
