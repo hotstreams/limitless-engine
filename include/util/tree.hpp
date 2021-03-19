@@ -24,6 +24,10 @@ namespace LimitlessEngine {
             return children.emplace_back(std::forward<T1>(node));
         }
 
+        bool operator==(const Tree<T>& rhs) const {
+            return data == rhs.data && children == rhs.children;
+        }
+
         [[nodiscard]] auto size() const noexcept { return children.size(); }
 
         const Tree& operator[](size_t i) const noexcept { return children[i]; }

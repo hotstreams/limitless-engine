@@ -327,6 +327,7 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
 
     return animations;
 }
+#include <iostream>
 
 Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
     auto bone_finder = [&] (const std::string& str){
@@ -378,29 +379,36 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene
     return meshes;
 }
 
-void ModelLoader::loadAnimations(const fs::path& path, const SkeletalModel& model) {
-//    Assimp::Importer importer;
-//    const aiScene* scene;
-//
-//    auto scene_flags = aiProcess_ValidateDataStructure |
-//                       aiProcess_Triangulate |
-//                       aiProcess_GenUVCoords |
-//                       aiProcess_GenNormals |
-//                       aiProcess_GenSmoothNormals |
-//                       aiProcess_CalcTangentSpace |
-//                       aiProcess_ImproveCacheLocality;
-//
-//    scene = importer.ReadFile(path.string().c_str(), scene_flags);
-//
-//    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-//        throw model_loader_error(importer.GetErrorString());
-//    }
-//
-//
-//    std::unordered_map<std::string, uint32_t> bone_map;
-//    std::vector<Bone> bones;
-//
-//    auto animations = loadAnimations(scene, bones, bone_map);
-//
-//    auto animation_tree = loadAnimationTree(scene, bones, bone_map);
+void ModelLoader::addAnimation(const fs::path& path, SkeletalModel& model) {
+    Assimp::Importer importer;
+    const aiScene* scene;
+
+    auto scene_flags = aiProcess_ValidateDataStructure |
+                       aiProcess_Triangulate |
+                       aiProcess_GenUVCoords |
+                       aiProcess_GenNormals |
+                       aiProcess_GenSmoothNormals |
+                       aiProcess_CalcTangentSpace |
+                       aiProcess_ImproveCacheLocality;
+
+    scene = importer.ReadFile(path.string().c_str(), scene_flags);
+
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        throw model_loader_error(importer.GetErrorString());
+    }
+
+    auto& bone_map = model.getBoneMap();
+    auto& bones = model.getBones();
+    auto& animations = model.getAnimations();
+    auto& skeleton = model.getSkeletonTree();
+    auto& global_inverse = model.getGlobalInverseMatrix();
+
+    auto loaded = loadAnimations(scene, bones, bone_map);
+    animations.insert(animations.end(), std::make_move_iterator(loaded.begin()), std::make_move_iterator(loaded.end()));
+
+    skeleton = loadAnimationTree(scene, bones, bone_map);
+
+    global_inverse = glm::convert(scene->mRootNode->mTransformation.Inverse());
+
+    importer.FreeScene();
 }
