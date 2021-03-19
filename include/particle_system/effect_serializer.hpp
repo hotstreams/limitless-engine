@@ -8,7 +8,7 @@ namespace LimitlessEngine {
 
     class EffectSerializer {
     public:
-        ByteBuffer serialize(std::string name, const EffectInstance& instance);
+        ByteBuffer serialize(const EffectInstance& instance);
         std::shared_ptr<EffectInstance> deserialize(ByteBuffer& buffer);
     };
 

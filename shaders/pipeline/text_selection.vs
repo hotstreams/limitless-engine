@@ -5,8 +5,6 @@ layout (location = 0) in vec2 position;
 
 uniform mat4 model;
 
-#include "glsl/scene.glsl"
-
 uniform mat4 proj;
 
 void main()

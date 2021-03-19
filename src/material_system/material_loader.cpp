@@ -7,12 +7,12 @@
 #include <util/bytebuffer.hpp>
 #include <material_system/material.hpp>
 #include <material_system/material_serializer.hpp>
-#include "asset_loader.hpp"
+#include <asset_loader.hpp>
 
 using namespace LimitlessEngine;
 
 std::shared_ptr<Material> MaterialLoader::load(const std::string& asset_name) {
-    std::ifstream stream(ASSETS_DIR "materials/" + asset_name, std::ios::binary | std::ios::ate);
+    std::ifstream stream(MATERIAL_DIR + asset_name, std::ios::binary | std::ios::ate);
 
     auto filesize = stream.tellg();
     ByteBuffer buffer{static_cast<size_t>(filesize)};
@@ -25,8 +25,8 @@ std::shared_ptr<Material> MaterialLoader::load(const std::string& asset_name) {
     return material;
 }
 
-void MaterialLoader::save(std::string asset_name) {
-    std::ofstream stream(ASSETS_DIR "materials/" + asset_name, std::ios::binary);
+void MaterialLoader::save(const std::string& asset_name) {
+    std::ofstream stream(MATERIAL_DIR + asset_name, std::ios::binary);
 
     ByteBuffer buffer;
     buffer << *assets.materials[asset_name];

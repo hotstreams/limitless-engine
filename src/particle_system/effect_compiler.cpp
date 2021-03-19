@@ -54,6 +54,9 @@ std::string EffectCompiler::getEmitterDefines(const Emitter& emitter) noexcept {
             case EmitterModuleType::CustomMaterial:
                 defines.append("#define CustomMaterial_MODULE\n");
                 break;
+            case EmitterModuleType::CustomMaterialOverLife:
+                assert("TODO");
+                break;
         }
     }
     return defines;

@@ -8,8 +8,6 @@ out vec2 vs_uv;
 
 uniform mat4 model;
 
-#include "glsl/scene.glsl"
-
 uniform mat4 proj;
 
 void main()
