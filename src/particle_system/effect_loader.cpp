@@ -11,8 +11,8 @@
 
 using namespace LimitlessEngine;
 
-std::shared_ptr<EffectInstance> EffectLoader::load(const std::string& asset_name) {
-    std::ifstream stream(EFFECT_DIR + asset_name, std::ios::binary | std::ios::ate);
+std::shared_ptr<EffectInstance> EffectLoader::load(const fs::path& path) {
+    std::ifstream stream(path, std::ios::binary | std::ios::ate);
 
     auto filesize = stream.tellg();
     ByteBuffer buffer{static_cast<size_t>(filesize)};
@@ -25,8 +25,8 @@ std::shared_ptr<EffectInstance> EffectLoader::load(const std::string& asset_name
     return effect;
 }
 
-void EffectLoader::save(const std::string& asset_name) {
-    std::ofstream stream(EFFECT_DIR + asset_name, std::ios::binary);
+void EffectLoader::save(const fs::path& path, const std::string& asset_name) {
+    std::ofstream stream(path, std::ios::binary);
 
     ByteBuffer buffer;
     buffer << *assets.effects[asset_name];

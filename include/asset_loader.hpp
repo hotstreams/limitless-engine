@@ -5,7 +5,6 @@
 
 #include <threaded_model_loader.hpp>
 #include <assets.hpp>
-#include <texture_loader.hpp>
 #include <unordered_map>
 #include <memory>
 #include <stdexcept>
@@ -25,12 +24,12 @@ namespace LimitlessEngine {
         using future_model = std::future<std::function<std::shared_ptr<AbstractModel>()>>;
         using future_asset = std::future<void>;
 
-        struct model_postwork {
+        struct model_postproc {
             future_model future;
             std::function<void(future_model&)> addition;
         };
 
-        std::vector<model_postwork> model_futures;
+        std::vector<model_postproc> model_futures;
         std::vector<future_asset> asset_futures;
         ContextThreadPool pool;
     public:
@@ -40,8 +39,8 @@ namespace LimitlessEngine {
         void loadModel(std::string asset_name, fs::path path, bool flip_uv = false);
         void loadTexture(std::string asset_name, fs::path path, bool bottom_left_start = true);
 
-//        void loadMaterial(std::string name, fs::path path);
-//        void loadEffect(std::string name, fs::path path);
+        void loadMaterial(std::string asset_name, fs::path path);
+        void loadEffect(std::string asset_name, fs::path path);
 
         void build(std::function<void()> f);
         // makes job on ready futures

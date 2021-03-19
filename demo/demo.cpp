@@ -51,7 +51,7 @@ public:
 
         loadScene();
 
-        //loadingSceneConcurrently();
+//        loadingSceneConcurrently();
 
         scene.setSkybox("skybox");
 
@@ -283,13 +283,14 @@ public:
         loader.build(std::move(m6));
         loader.build(std::move(m7));
 
-        while (!loader.isDone()) {
+        while (!loader) {
             context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
 
             // loading screen ;)
 
             context.swapBuffers();
         }
+
         loader.delayed_job();
     }
 
