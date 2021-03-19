@@ -19,6 +19,9 @@ ByteBuffer DistributionSerializer::serialize(Distribution<T>& distr) {
             buffer << static_cast<RangeDistribution<T>&>(distr).getMin()
                    << static_cast<RangeDistribution<T>&>(distr).getMax();
             break;
+        case DistributionType::Curve:
+            assert("TODO");
+            break;
     }
 
     return buffer;
@@ -44,6 +47,9 @@ std::unique_ptr<Distribution<T>> DistributionSerializer::deserialize(ByteBuffer&
             distribution = std::unique_ptr<Distribution<T>>(new RangeDistribution<T>(min, max));
             break;
         }
+        case DistributionType::Curve:
+            assert("TODO");
+            break;
     }
 
     return distribution;

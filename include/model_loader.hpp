@@ -16,6 +16,7 @@ namespace glm {
 
 namespace LimitlessEngine {
     class AbstractModel;
+    class SkeletalModel;
     class AbstractMesh;
     class Material;
 
@@ -34,8 +35,8 @@ namespace LimitlessEngine {
         template<typename T, typename T1>
         std::shared_ptr<AbstractMesh> loadMesh(aiMesh* mesh, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
     protected:
-        uint32_t unnamed_material_index {0};
-        uint32_t unnamed_mesh_index {0};
+        uint32_t unnamed_material_index {};
+        uint32_t unnamed_mesh_index {};
 
         std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const;
         std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const;
@@ -51,5 +52,7 @@ namespace LimitlessEngine {
         std::vector<T> loadIndices(aiMesh* mesh) const noexcept;
     public:
         std::shared_ptr<AbstractModel> loadModel(const fs::path& path, bool flip_uv = false);
+
+        void loadAnimations(const fs::path& path, const SkeletalModel& model);
     };
 }
