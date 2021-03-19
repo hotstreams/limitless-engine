@@ -1,5 +1,9 @@
 #include <asset_loader.hpp>
 
+#include <texture_loader.hpp>
+#include <material_system/material_loader.hpp>
+#include <particle_system/effect_loader.hpp>
+
 using namespace LimitlessEngine;
 
 AssetManager::AssetManager(Context& shared, uint32_t pool_size) : pool{shared, pool_size} {}
@@ -22,7 +26,7 @@ void AssetManager::loadModel(std::string asset_name, fs::path path, bool flip_uv
         assets.models.add(name, future.get()());
     };
 
-    model_futures.emplace_back(model_postwork{pool.add(std::move(load_model)), std::move(addition)});
+    model_futures.emplace_back(model_postproc{pool.add(std::move(load_model)), std::move(addition)});
 }
 
 bool AssetManager::isDone() {
@@ -37,13 +41,7 @@ bool AssetManager::isDone() {
         }
     }
 
-    for (auto& [future, addition] : model_futures) {
-        if (future.wait_for(0ms) != std::future_status::ready) {
-            return false;
-        }
-    }
-
-    return true;
+    return std::any_of(model_futures.begin(), model_futures.end(), [] (auto& post) { return post.future.wait_for(0ms) != std::future_status::ready; });
 }
 
 void AssetManager::wait() {
@@ -77,4 +75,20 @@ void AssetManager::delayed_job() {
 
 void AssetManager::build(std::function<void()> f) {
     asset_futures.emplace_back(pool.add(std::move(f)));
+}
+
+void AssetManager::loadMaterial(std::string asset_name, fs::path path) {
+    auto load_material = [name = std::move(asset_name), path = std::move(path)] () {
+        assets.materials.add(name, MaterialLoader::load(path));
+    };
+
+    asset_futures.emplace_back(pool.add(std::move(load_material)));
+}
+
+void AssetManager::loadEffect(std::string asset_name, fs::path path) {
+    auto load_effect = [name = std::move(asset_name), path = std::move(path)] () {
+        assets.effects.add(name, EffectLoader::load(path));
+    };
+
+    asset_futures.emplace_back(pool.add(std::move(load_effect)));
 }

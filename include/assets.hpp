@@ -31,7 +31,6 @@ namespace LimitlessEngine {
         }
 
         const auto& at(const std::string& name) {
-            std::unique_lock lock(mutex);
             try {
                 return resource.at(name);
             } catch (...) {
@@ -53,7 +52,6 @@ namespace LimitlessEngine {
         }
 
         [[nodiscard]] bool isExist(const std::string& name) noexcept {
-            std::unique_lock lock(mutex);
             return resource.find(name) != resource.end();
         }
 
@@ -64,7 +62,8 @@ namespace LimitlessEngine {
         auto end() const noexcept { return resource.end(); }
     };
 
-    struct Assets {
+    class Assets {
+    public:
         ResourceContainer<AbstractModel> models;
         ResourceContainer<AbstractMesh> meshes;
         ResourceContainer<Texture> textures;
@@ -73,7 +72,7 @@ namespace LimitlessEngine {
         ResourceContainer<EffectInstance> effects;
         ResourceContainer<FontAtlas> fonts;
 
-        void load();
+        virtual void load();
     };
 
     inline Assets assets;

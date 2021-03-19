@@ -1,13 +1,14 @@
 #pragma once
 
 #include <memory>
+#include <util/filesystem.hpp>
 
 namespace LimitlessEngine {
     class EffectInstance;
 
     class EffectLoader {
     public:
-        static std::shared_ptr<EffectInstance> load(const std::string& asset_name);
-        static void save(const std::string& asset_name);
+        static std::shared_ptr<EffectInstance> load(const fs::path& path);
+        static void save(const fs::path& path, const std::string& asset_name);
     };
 }

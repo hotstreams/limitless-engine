@@ -11,8 +11,8 @@
 
 using namespace LimitlessEngine;
 
-std::shared_ptr<Material> MaterialLoader::load(const std::string& asset_name) {
-    std::ifstream stream(MATERIAL_DIR + asset_name, std::ios::binary | std::ios::ate);
+std::shared_ptr<Material> MaterialLoader::load(const fs::path& path) {
+    std::ifstream stream(path, std::ios::binary | std::ios::ate);
 
     auto filesize = stream.tellg();
     ByteBuffer buffer{static_cast<size_t>(filesize)};
@@ -25,8 +25,8 @@ std::shared_ptr<Material> MaterialLoader::load(const std::string& asset_name) {
     return material;
 }
 
-void MaterialLoader::save(const std::string& asset_name) {
-    std::ofstream stream(MATERIAL_DIR + asset_name, std::ios::binary);
+void MaterialLoader::save(const fs::path& path, const std::string& asset_name) {
+    std::ofstream stream(path, std::ios::binary);
 
     ByteBuffer buffer;
     buffer << *assets.materials[asset_name];
