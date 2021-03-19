@@ -60,6 +60,12 @@ namespace LimitlessEngine {
         const auto& getGlobalInverseMatrix() const noexcept { return global_inverse; }
         const auto& getSkeletonTree() const noexcept { return skeleton; }
 
+        auto& getAnimations() noexcept { return animations; }
+        auto& getBones() noexcept { return bones; }
+        auto& getGlobalInverseMatrix() noexcept { return global_inverse; }
+        auto& getSkeletonTree() noexcept { return skeleton; }
+        auto& getBoneMap() noexcept { return bone_map; }
+
         SkeletalModel(const SkeletalModel&) = delete;
         SkeletalModel& operator=(const SkeletalModel&) = delete;
     };

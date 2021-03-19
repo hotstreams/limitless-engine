@@ -4,7 +4,7 @@ project(engine)
 set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused)
+    add_compile_options(-O3 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused)
     add_compile_definitions(NDEBUG GL_DEBUG)
 endif()
 
