@@ -14,10 +14,10 @@
 
 #define ASSETS_DIR "../assets/"
 
-#define MATERIAL_DIR ASSETS_DIR"materials"
-#define TEXTURE_DIR ASSETS_DIR"textures"
-#define EFFECT_DIR ASSETS_DIR"effects"
-#define MODEL_DIR ASSETS_DIR"models"
+#define MATERIAL_DIR ASSETS_DIR"materials/"
+#define TEXTURE_DIR ASSETS_DIR"textures/"
+#define EFFECT_DIR ASSETS_DIR"effects/"
+#define MODEL_DIR ASSETS_DIR"models/"
 
 namespace LimitlessEngine {
     class AssetManager final {

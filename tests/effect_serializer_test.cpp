@@ -47,7 +47,7 @@ TEST_CASE("serialize Effect") {
     assets.materials.remove("material1");
 
     EffectSerializer serializer;
-    auto buffer = serializer.serialize("kekos", *effect);
+    auto buffer = serializer.serialize(*effect);
 
     auto shrek = serializer.deserialize(buffer);
 
