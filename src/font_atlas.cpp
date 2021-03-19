@@ -155,15 +155,21 @@ std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, s
         vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y + size.y}, glm::vec2{});
     };
 
-    // finds first offset
+
     glm::ivec2 offset{};
-    for (size_t i = 0; i < begin; ++i) {
-        offset.x += (chars.at(text[i]).advance >> 6);
-    }
 
     // finds character max y value
     for (const auto& [c, fc] : chars) {
         offset.y = std::max(offset.y, fc.size.y - fc.bearing.y);
+    }
+
+    // finds first offset
+    for (size_t i = 0; i < begin; ++i) {
+        offset.x += (chars.at(text[i]).advance >> 6);
+        if (text[i] == '\n') {
+            offset.x = 0;
+            offset.y += font_size;
+        }
     }
 
     size_t size{};

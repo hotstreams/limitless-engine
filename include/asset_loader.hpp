@@ -50,5 +50,7 @@ namespace LimitlessEngine {
         bool isDone();
         // waits until all is completed
         void wait();
+
+        operator bool() { return isDone(); }
     };
 }

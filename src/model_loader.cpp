@@ -377,3 +377,30 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene
 
     return meshes;
 }
+
+void ModelLoader::loadAnimations(const fs::path& path, const SkeletalModel& model) {
+//    Assimp::Importer importer;
+//    const aiScene* scene;
+//
+//    auto scene_flags = aiProcess_ValidateDataStructure |
+//                       aiProcess_Triangulate |
+//                       aiProcess_GenUVCoords |
+//                       aiProcess_GenNormals |
+//                       aiProcess_GenSmoothNormals |
+//                       aiProcess_CalcTangentSpace |
+//                       aiProcess_ImproveCacheLocality;
+//
+//    scene = importer.ReadFile(path.string().c_str(), scene_flags);
+//
+//    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+//        throw model_loader_error(importer.GetErrorString());
+//    }
+//
+//
+//    std::unordered_map<std::string, uint32_t> bone_map;
+//    std::vector<Bone> bones;
+//
+//    auto animations = loadAnimations(scene, bones, bone_map);
+//
+//    auto animation_tree = loadAnimationTree(scene, bones, bone_map);
+}
