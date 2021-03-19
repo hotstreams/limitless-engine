@@ -379,7 +379,7 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene
     return meshes;
 }
 
-void ModelLoader::addAnimation(const fs::path& path, SkeletalModel& model) {
+void ModelLoader::addAnimation(const fs::path& path, SkeletalModel& model, const std::string& name) {
     Assimp::Importer importer;
     const aiScene* scene;
 
@@ -404,6 +404,11 @@ void ModelLoader::addAnimation(const fs::path& path, SkeletalModel& model) {
     auto& global_inverse = model.getGlobalInverseMatrix();
 
     auto loaded = loadAnimations(scene, bones, bone_map);
+
+    if (!name.empty()) {
+        loaded.at(0).name = name;
+    }
+
     animations.insert(animations.end(), std::make_move_iterator(loaded.begin()), std::make_move_iterator(loaded.end()));
 
     skeleton = loadAnimationTree(scene, bones, bone_map);

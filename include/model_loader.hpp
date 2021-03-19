@@ -53,6 +53,6 @@ namespace LimitlessEngine {
     public:
         std::shared_ptr<AbstractModel> loadModel(const fs::path& path, bool flip_uv = false);
 
-        void addAnimation(const fs::path& path, SkeletalModel& model);
+        void addAnimation(const fs::path& path, SkeletalModel& model, const std::string& name = {});
     };
 }
