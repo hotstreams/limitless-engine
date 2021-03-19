@@ -51,6 +51,10 @@ namespace LimitlessEngine {
             selection_mesh->updateVertices(font->getSelectionGeometry(string, begin, end));
         }
 
+        void removeSelection() {
+            selection_mesh = std::nullopt;
+        }
+
         void setSelectionColor(const glm::vec4& sel_color) {
             selection_color = sel_color;
         }

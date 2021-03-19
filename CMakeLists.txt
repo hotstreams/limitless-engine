@@ -3,8 +3,6 @@ project(engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
-#set(EXTRA_WARNINGS "-Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast")
-
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused)
     add_compile_definitions(NDEBUG GL_DEBUG)
@@ -84,6 +82,7 @@ set(ENGINE_CORE
         src/core/context_thread_pool.cpp
         src/core/mutable_texture.cpp
         src/core/immutable_texture.cpp
+        src/core/texture_builder.cpp
    )
 
 set(ENGINE_MATERIAL_SYSTEM
@@ -114,6 +113,7 @@ set(ENGINE_PARTICLE_SYSTEM
         src/particle_system/emitter_serializer.cpp
         src/particle_system/module_serializer.cpp
         src/particle_system/distribution_serializer.cpp
+        src/particle_system/effect_loader.cpp
    )
 
 set(ENGINE_SRC
@@ -150,12 +150,6 @@ set(ENGINE_SRC
         src/text_instance.cpp
     )
 
-#file(GLOB list RELATIVE ${CMAKE_SOURCE_DIR} "demo/*.cpp")
-#foreach(file ${list})
-#    string(REPLACE ".cpp" "" exec_name ${file})
-#    get_filename_component(filename ${exec_name} NAME)
-#    add_executable(${filename} ${ENGINE_SRC} ${file})
-#endforeach()
 add_executable(demo ${ENGINE_SRC} "demo/demo.cpp")
 
 add_executable(tests ${ENGINE_SRC} "tests/catch_amalgamated.cpp"

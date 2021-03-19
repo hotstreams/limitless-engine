@@ -105,6 +105,7 @@ std::shared_ptr<EffectInstance> EffectBuilder::build() {
 
 EffectBuilder& EffectBuilder::create(std::string name) {
     effect = std::unique_ptr<EffectInstance>(new EffectInstance());
+    effect->name = name;
     effect_name = std::move(name);
     return *this;
 }

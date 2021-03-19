@@ -3,11 +3,11 @@
 #include <memory>
 
 namespace LimitlessEngine {
-    class Material;
+    class EffectInstance;
 
-    class MaterialLoader {
+    class EffectLoader {
     public:
-        static std::shared_ptr<Material> load(const std::string& asset_name);
+        static std::shared_ptr<EffectInstance> load(const std::string& asset_name);
         static void save(const std::string& asset_name);
     };
 }

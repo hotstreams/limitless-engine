@@ -14,6 +14,7 @@ namespace LimitlessEngine {
     class EffectInstance : public AbstractInstance {
     private:
         std::unordered_map<std::string, std::unique_ptr<Emitter>> emitters;
+        std::string name;
 
         friend void swap(EffectInstance&, EffectInstance&) noexcept;
         bool isDone() const noexcept;
@@ -54,6 +55,8 @@ namespace LimitlessEngine {
                 throw std::runtime_error("No such emitter " + name);
             }
         }
+
+        const auto& getName() const noexcept { return name; }
 
         auto begin() noexcept { return emitters.begin(); }
         auto end() noexcept { return emitters.end(); }

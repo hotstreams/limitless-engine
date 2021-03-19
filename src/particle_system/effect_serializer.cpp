@@ -6,10 +6,10 @@
 
 using namespace LimitlessEngine;
 
-ByteBuffer EffectSerializer::serialize(std::string name, const EffectInstance& instance) {
+ByteBuffer EffectSerializer::serialize(const EffectInstance& instance) {
     ByteBuffer buffer;
 
-    buffer << name
+    buffer << instance.name
            << instance.emitters;
 
     return buffer;
@@ -30,4 +30,16 @@ std::shared_ptr<EffectInstance> EffectSerializer::deserialize(ByteBuffer& buffer
     }
 
     return builder.build();
+}
+
+ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, const EffectInstance& effect) {
+    EffectSerializer serializer;
+    buffer << serializer.serialize(effect);
+    return buffer;
+}
+
+ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, std::shared_ptr<EffectInstance>& instance) {
+    EffectSerializer serializer;
+    instance = serializer.deserialize(buffer);
+    return buffer;
 }
