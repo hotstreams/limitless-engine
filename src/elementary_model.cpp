@@ -31,14 +31,23 @@ Quad::Quad() {
 }
 
 Rectangle::Rectangle() {
-	std::vector<Vertex> vertices = {
-			{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-			{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-			{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
-			{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
-	};
+    std::vector<VertexNormalTangent> vertices = {
+            {{-1.0f, 1.0f, 0.0f}, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f),{0.0f, 1.0f}},
+            {{-1.0f, -1.0f, 0.0f}, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f),{0.0f, 0.0f}},
+            {{1.0f, 1.0f, 0.0f}, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f),{1.0f, 1.0f}},
+            {{1.0f, -1.0f, 0.0f}, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f),{1.0f, 0.0f}}
+    };
 
-	auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "rectangle_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
+
+
+//	std::vector<Vertex> vertices = {
+//			{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+//			{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+//			{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+//			{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
+//	};
+
+	auto mesh = std::make_shared<Mesh<VertexNormalTangent>>(std::move(vertices), "rectangle_mesh", MeshDataType::Static, DrawMode::TriangleStrip);
 
 	if (!assets.meshes.isExist("rectangle_mesh")) {
 		assets.meshes.add("rectangle_mesh", mesh);

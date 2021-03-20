@@ -116,8 +116,8 @@ public:
                 .setSpawnRate(100.0f)
                 .build();
 
-        scene.add<EffectInstance>(effect, glm::vec3{-1.f, -1.f, -1.f})
-             .setPosition(glm::vec3{-3.f, -3.f, -3.f});
+//        scene.add<EffectInstance>(effect, glm::vec3{-1.f, -1.f, -1.f})
+//             .setPosition(glm::vec3{-3.f, -3.f, -3.f});
 
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 10.5f}, 8.0f);
         scene.lighting.point_lights.emplace_back(glm::vec4{12.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 8.7f, 10.5f}, 3.0f);
@@ -189,7 +189,7 @@ public:
                 .setSpawnRate(1.0f)
                 .build();
 
-        scene.add<EffectInstance>(effect1, glm::vec3{0.f, 1.f, 0.f});
+//        scene.add<EffectInstance>(effect1, glm::vec3{0.f, 1.f, 0.f});
 
         auto effect2 = eb.create("test_effect2")
                 .createEmitter<MeshEmitter>("test")
@@ -206,7 +206,53 @@ public:
                 .setSpawnRate(1.0f)
                 .build();
 
-        scene.add<EffectInstance>(effect2, glm::vec3{0.f, 1.f, 0.f});
+//        scene.add<EffectInstance>(effect2, glm::vec3{0.f, 1.f, 0.f});
+
+
+        CustomMaterialBuilder b;
+
+        auto flash = b.create("conflagrate_flash")
+                .setFragmentCode("float r = length(uv * 2.0 - 1.0);\n"
+                                 "float d = 1 - distance(uv, vec2(0.5)) * 4;\n"
+                                 "mat_color *= clamp(step(0.2, r) * step(r, 0.35) * d, 0, 1);")
+                .add(PropertyType::Color, glm::vec4{1.0f})
+                .setBlending(Blending::Additive)
+                .setShading(Shading::Unlit)
+                .build({ModelShader::Effect});
+
+
+        MaterialBuilder b1;
+        auto aura = b1.create("aura")
+                .add(PropertyType::Diffuse, TextureLoader::load(ASSETS_DIR "textures/aura.png"))
+                .setShading(Shading::Unlit)
+                .setBlending(Blending::Additive)
+                .build({ModelShader::Effect});
+
+        auto conf = eb.create("conf")
+//                .createEmitter<MeshEmitter>("emitter0")
+//                .setMesh(assets.meshes.at("rectangle_mesh"))
+//                .setMaterial(aura)
+//                .setMaxCount(1)
+//                .addModule<ColorByLife>(EmitterModuleType::ColorByLife, new RangeDistribution(glm::vec4{5.0f, 0.0f, 5.0f, 1.0f}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}))
+//                .addModule<InitialSize>(EmitterModuleType::InitialSize, new ConstDistribution(1.0f))
+//                .addModule<InitialRotation>(EmitterModuleType::InitialRotation, new ConstDistribution(glm::vec3{pi / 2.0f, 0.0f, 0.0f}))
+//                .addModule<RotationRate>(EmitterModuleType::RotationRate, new ConstDistribution(glm::vec3{0.0f, 0.0f, 1.0f}))
+
+                .createEmitter<MeshEmitter>("emitter1")
+                        .setMesh(assets.meshes.at("rectangle_mesh"))
+                .setMaterial(flash)
+//                .setDuration(std::chrono::seconds(2))
+                .setMaxCount(1)
+                .addModule<InitialColor>(EmitterModuleType::InitialColor, new ConstDistribution(glm::vec4{0.0f, 0.0f, 2.0f, 1.0f}))
+                .addModule<InitialSize>(EmitterModuleType::InitialSize, new ConstDistribution(1.0f))
+                .addModule<RotationRate>(EmitterModuleType::RotationRate, new ConstDistribution(glm::vec3{0.0f, 1.0f, 0.0f}))
+                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.1f, 0.7f), 1.0f)
+
+                .build();
+
+        scene.add<EffectInstance>(conf, glm::vec3{2.f, 0.f, 2.f});
+        scene.add<EffectInstance>(conf, glm::vec3{0.f, 0.f, 0.f});
+        scene.add<EffectInstance>(conf, glm::vec3{1.f, 0.f, 1.f});
     }
 
     void loadingSceneConcurrently() {

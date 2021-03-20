@@ -71,6 +71,48 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& path, bool
     return model;
 }
 
+template<typename T>
+std::vector<T> ModelLoader::loadVertices(aiMesh* mesh) const noexcept {
+    std::vector<T> vertices;
+    vertices.reserve(mesh->mNumVertices);
+
+    for (uint32_t j = 0; j < mesh->mNumVertices; ++j) {
+        auto vertex = glm::convert3f(mesh->mVertices[j]);
+        auto normal = glm::convert3f(mesh->mNormals[j]);
+        auto tangent = glm::convert3f(mesh->mTangents[j]);
+        auto uv = glm::convert2f(mesh->mTextureCoords[0][j]);
+
+        if constexpr (std::is_same<T, VertexNormalTangent>::value) {
+            vertices.emplace_back(T{vertex, normal, tangent, uv});
+        }
+
+        if constexpr (std::is_same<T, VertexPackedNormalTangent>::value) {
+            auto packed_normal = pack(normal);
+            auto packed_tangent = pack(tangent);
+            auto packed_uv = glm::packHalf2x16(uv);
+
+            vertices.emplace_back(T{vertex, packed_normal, packed_tangent, packed_uv});
+        }
+    }
+
+    return vertices;
+}
+
+template<typename T>
+std::vector<T> ModelLoader::loadIndices(aiMesh* mesh) const noexcept {
+    std::vector<T> indices;
+    indices.reserve(mesh->mNumFaces * 3);
+
+    for (uint32_t k = 0; k < mesh->mNumFaces; ++k) {
+        auto face = mesh->mFaces[k];
+        indices.emplace_back(face.mIndices[0]);
+        indices.emplace_back(face.mIndices[1]);
+        indices.emplace_back(face.mIndices[2]);
+    }
+
+    return indices;
+}
+
 template<typename T, typename T1>
 std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh* m, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
@@ -193,48 +235,6 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
     return builder.build(model_shaders);
 }
 
-template<typename T>
-std::vector<T> ModelLoader::loadVertices(aiMesh* mesh) const noexcept {
-    std::vector<T> vertices;
-    vertices.reserve(mesh->mNumVertices);
-
-    for (uint32_t j = 0; j < mesh->mNumVertices; ++j) {
-        auto vertex = glm::convert3f(mesh->mVertices[j]);
-        auto normal = glm::convert3f(mesh->mNormals[j]);
-        auto tangent = glm::convert3f(mesh->mTangents[j]);
-        auto uv = glm::convert2f(mesh->mTextureCoords[0][j]);
-
-        if constexpr (std::is_same<T, VertexNormalTangent>::value) {
-            vertices.emplace_back(T{vertex, normal, tangent, uv});
-        }
-
-        if constexpr (std::is_same<T, VertexPackedNormalTangent>::value) {
-            auto packed_normal = pack(normal);
-            auto packed_tangent = pack(tangent);
-            auto packed_uv = glm::packHalf2x16(uv);
-
-            vertices.emplace_back(T{vertex, packed_normal, packed_tangent, packed_uv});
-        }
-    }
-
-    return vertices;
-}
-
-template<typename T>
-std::vector<T> ModelLoader::loadIndices(aiMesh* mesh) const noexcept {
-    std::vector<T> indices;
-    indices.reserve(mesh->mNumFaces * 3);
-
-    for (uint32_t k = 0; k < mesh->mNumFaces; ++k) {
-        auto face = mesh->mFaces[k];
-        indices.emplace_back(face.mIndices[0]);
-        indices.emplace_back(face.mIndices[1]);
-        indices.emplace_back(face.mIndices[2]);
-    }
-
-    return indices;
-}
-
 std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
     std::vector<VertexBoneWeight> bone_weights;
     if (mesh->HasBones()) {
@@ -327,7 +327,6 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
 
     return animations;
 }
-#include <iostream>
 
 Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
     auto bone_finder = [&] (const std::string& str){
