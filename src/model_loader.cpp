@@ -416,3 +416,11 @@ void ModelLoader::addAnimation(const fs::path& path, SkeletalModel& model, const
 
     importer.FreeScene();
 }
+
+namespace LimitlessEngine {
+    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh) const noexcept;
+
+    template std::vector<GLubyte> ModelLoader::loadIndices<GLubyte>(aiMesh* mesh) const noexcept;
+    template std::vector<GLushort> ModelLoader::loadIndices<GLushort>(aiMesh* mesh) const noexcept;
+    template std::vector<GLuint> ModelLoader::loadIndices<GLuint>(aiMesh* mesh) const noexcept;
+}
