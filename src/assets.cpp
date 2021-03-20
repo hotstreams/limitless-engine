@@ -20,4 +20,6 @@ void Assets::load() {
     models.add("quad", std::make_shared<Quad>());
     // used in skybox render
     models.add("cube", std::make_shared<Cube>());
+
+    models.add("rectangle", std::make_shared<Rectangle>());
 }
