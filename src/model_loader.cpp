@@ -417,6 +417,7 @@ void ModelLoader::addAnimation(const fs::path& path, SkeletalModel& model, const
     importer.FreeScene();
 }
 
+// explicit instantiation for dumb compilers (not clang)
 namespace LimitlessEngine {
     template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh) const noexcept;
 
