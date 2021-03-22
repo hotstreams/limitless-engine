@@ -3,10 +3,10 @@
 #include <core/context.hpp>
 
 #include <particle_system/effect_builder.hpp>
-#include <particle_system/effect_serializer.hpp>
+#include <serialization/effect_serializer.hpp>
 #include <util/bytebuffer.hpp>
 #include <material_system/material_builder.hpp>
-#include <assets.hpp>
+#include <limitless/assets.hpp>
 
 using namespace LimitlessEngine;
 

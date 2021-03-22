@@ -1,12 +1,12 @@
 #include "catch_amalgamated.hpp"
 
 #include <core/context.hpp>
-#include <material_system/material_loader.hpp>
+#include <limitless/loaders/material_loader.hpp>
 #include <material_system/material_builder.hpp>
 #include <iostream>
-#include <asset_loader.hpp>
+#include <limitless/loaders/asset_loader.hpp>
 #include <particle_system/effect_builder.hpp>
-#include <particle_system/effect_loader.hpp>
+#include <limitless/loaders/effect_loader.hpp>
 
 
 using namespace LimitlessEngine;

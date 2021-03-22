@@ -1,9 +1,9 @@
 #include "catch_amalgamated.hpp"
 
-#include <material_system/material_serializer.hpp>
+#include <serialization/material_serializer.hpp>
 #include <material_system/custom_material_builder.hpp>
 #include <util/bytebuffer.hpp>
-#include <assets.hpp>
+#include <limitless/assets.hpp>
 #include <core/context.hpp>
 
 using namespace LimitlessEngine;

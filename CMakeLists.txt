@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
-project(engine)
+project(limitless_engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(-O3 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused)
+    add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused)
     add_compile_definitions(NDEBUG GL_DEBUG)
 endif()
 
@@ -54,66 +54,66 @@ if (WIN32)
 endif()
 
 if (UNIX)
-    link_libraries(GLEW glfw GL assimp freetype)
+    link_libraries(GLEW glfw GL assimp freetype pthread)
 endif()
 
 set(ENGINE_CORE
-        src/core/bindless_texture.cpp
-        src/core/buffer_builder.cpp
-        src/core/context.cpp
-        src/core/context_debug.cpp
-        src/core/context_initializer.cpp
-        src/core/context_observer.cpp
-        src/core/context_state.cpp
-        src/core/shader_compiler.cpp
-        src/core/shader_program.cpp
-        src/core/uniform.cpp
-        src/core/uniform_serializer.cpp
-        src/core/texture_binder.cpp
-        src/core/vertex_array.cpp
-        src/core/framebuffer.cpp
-        src/core/state_buffer.cpp
-        src/core/named_buffer.cpp
-        src/core/triple_buffer.cpp
-        src/core/indexed_buffer.cpp
-        src/core/shader.cpp
-        src/core/state_texture.cpp
-        src/core/named_texture.cpp
-        src/core/context_thread_pool.cpp
-        src/core/mutable_texture.cpp
-        src/core/immutable_texture.cpp
-        src/core/texture_builder.cpp
+        src/limitless/core/bindless_texture.cpp
+        src/limitless/core/buffer_builder.cpp
+        src/limitless/core/context.cpp
+        src/limitless/core/context_debug.cpp
+        src/limitless/core/context_initializer.cpp
+        src/limitless/core/context_observer.cpp
+        src/limitless/core/context_state.cpp
+        src/limitless/core/shader_compiler.cpp
+        src/limitless/core/shader_program.cpp
+        src/limitless/core/uniform.cpp
+        src/limitless/serialization/uniform_serializer.cpp
+        src/limitless/core/texture_binder.cpp
+        src/limitless/core/vertex_array.cpp
+        src/limitless/core/framebuffer.cpp
+        src/limitless/core/state_buffer.cpp
+        src/limitless/core/named_buffer.cpp
+        src/limitless/core/triple_buffer.cpp
+        src/limitless/core/indexed_buffer.cpp
+        src/limitless/core/shader.cpp
+        src/limitless/core/state_texture.cpp
+        src/limitless/core/named_texture.cpp
+        src/limitless/core/context_thread_pool.cpp
+        src/limitless/core/mutable_texture.cpp
+        src/limitless/core/immutable_texture.cpp
+        src/limitless/core/texture_builder.cpp
    )
 
 set(ENGINE_MATERIAL_SYSTEM
-        src/material_system/properties.cpp
-        src/material_system/material.cpp
-        src/material_system/material_serializer.cpp
-        src/material_system/material_builder.cpp
-        src/material_system/custom_material.cpp
-        src/material_system/custom_material_builder.cpp
-        src/material_system/material_compiler.cpp
-        src/material_system/material_instance.cpp
-        src/material_system/material_loader.cpp
+        src/limitless/material_system/properties.cpp
+        src/limitless/material_system/material.cpp
+        src/limitless/serialization/material_serializer.cpp
+        src/limitless/material_system/material_builder.cpp
+        src/limitless/material_system/custom_material.cpp
+        src/limitless/material_system/custom_material_builder.cpp
+        src/limitless/material_system/material_compiler.cpp
+        src/limitless/material_system/material_instance.cpp
+        src/limitless/loaders/material_loader.cpp
     )
 
 set(ENGINE_PARTICLE_SYSTEM
-        src/particle_system/emitter.cpp
-        src/particle_system/emitter_module.cpp
-        src/particle_system/sprite_emitter.cpp
-        src/particle_system/mesh_emitter.cpp
-        src/particle_system/effect_renderer.cpp
-        src/particle_system/emitter_renderer.cpp
-        src/particle_system/emitter_spawn.cpp
-        src/particle_system/emitter_visitor.cpp
-        src/particle_system/unique_emitter.cpp
-        src/particle_system/effect_builder.cpp
-        src/particle_system/effect_compiler.cpp
-        src/particle_system/effect_serializer.cpp
-        src/particle_system/emitter_serializer.cpp
-        src/particle_system/module_serializer.cpp
-        src/particle_system/distribution_serializer.cpp
-        src/particle_system/effect_loader.cpp
+        src/limitless/particle_system/emitter.cpp
+        src/limitless/particle_system/emitter_module.cpp
+        src/limitless/particle_system/sprite_emitter.cpp
+        src/limitless/particle_system/mesh_emitter.cpp
+        src/limitless/particle_system/effect_renderer.cpp
+        src/limitless/particle_system/emitter_renderer.cpp
+        src/limitless/particle_system/emitter_spawn.cpp
+        src/limitless/particle_system/emitter_visitor.cpp
+        src/limitless/particle_system/unique_emitter.cpp
+        src/limitless/particle_system/effect_builder.cpp
+        src/limitless/particle_system/effect_compiler.cpp
+        src/limitless/serialization/effect_serializer.cpp
+        src/limitless/serialization/emitter_serializer.cpp
+        src/limitless/serialization/module_serializer.cpp
+        src/limitless/serialization/distribution_serializer.cpp
+        src/limitless/loaders/effect_loader.cpp
    )
 
 set(ENGINE_SRC
@@ -121,38 +121,46 @@ set(ENGINE_SRC
         ${ENGINE_MATERIAL_SYSTEM}
         ${ENGINE_PARTICLE_SYSTEM}
 
-        src/texture_loader.cpp
-        src/skeletal_model.cpp
-        src/camera.cpp
-        src/model_loader.cpp
-        src/assets.cpp
-        src/model_instance.cpp
-        src/scene.cpp
-        src/elementary_model.cpp
-        src/skeletal_instance.cpp
-        src/mesh_instance.cpp
-        src/shader_storage.cpp
-        src/effect_instance.cpp
-        src/postprocessing.cpp
-        src/render.cpp
-        src/scene_data.cpp
-        src/skybox.cpp
-        src/abstract_instance.cpp
-        src/effect_attachable.cpp
-        src/light_attachable.cpp
-        src/elementary_instance.cpp
-        src/lighting.cpp
-        src/light_container.cpp
-        src/threaded_model_loader.cpp
-        src/util/thread_pool.cpp
-        src/asset_loader.cpp
-        src/font_atlas.cpp
-        src/text_instance.cpp
+        src/limitless/loaders/texture_loader.cpp
+        src/limitless/models/skeletal_model.cpp
+        src/limitless/camera.cpp
+        src/limitless/loaders/model_loader.cpp
+        src/limitless/assets.cpp
+        src/limitless/instances/model_instance.cpp
+        src/limitless/scene.cpp
+        src/limitless/models/elementary_model.cpp
+        src/limitless/instances/skeletal_instance.cpp
+        src/limitless/instances/mesh_instance.cpp
+        src/limitless/shader_storage.cpp
+        src/limitless/instances/effect_instance.cpp
+        src/limitless/postprocessing.cpp
+        src/limitless/render.cpp
+        src/limitless/scene_data.cpp
+        src/limitless/skybox.cpp
+        src/limitless/instances/abstract_instance.cpp
+        src/limitless/instances/effect_attachable.cpp
+        src/limitless/instances/light_attachable.cpp
+        src/limitless/instances/elementary_instance.cpp
+        src/limitless/lighting/lighting.cpp
+        src/limitless/lighting/light_container.cpp
+        src/limitless/loaders/threaded_model_loader.cpp
+        src/limitless/util/thread_pool.cpp
+        src/limitless/loaders/asset_loader.cpp
+        src/limitless/font_atlas.cpp
+        src/limitless/instances/text_instance.cpp
     )
 
-add_executable(demo ${ENGINE_SRC} "demo/demo.cpp")
+add_library(limitless_engine_objects OBJECT ${ENGINE_SRC})
+add_library(limitless_engine SHARED ${ENGINE_SRC})
 
-add_executable(tests ${ENGINE_SRC} "tests/catch_amalgamated.cpp"
+add_executable(limitless_demo
+        $<TARGET_OBJECTS:limitless_engine_objects>
+        demo/demo.cpp
+        )
+
+add_executable(limitless_engine_tests
+        $<TARGET_OBJECTS:limitless_engine_objects>
+        "tests/catch_amalgamated.cpp"
         "tests/uniform_serializer_test.cpp"
         "tests/material_serializer_test.cpp"
         "tests/bytebuffer_test.cpp"

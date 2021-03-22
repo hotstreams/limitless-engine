@@ -1,6 +1,6 @@
 #include "catch_amalgamated.hpp"
 
-#include <core/uniform_serializer.hpp>
+#include <serialization/uniform_serializer.hpp>
 #include <core/uniform.hpp>
 #include <util/bytebuffer.hpp>
 

@@ -45,7 +45,7 @@ void main()
     #endif
 
     #ifdef MATERIAL_COLOR
-        fragment_color *= material_color;
+        fragment_color *= mat_color;
     #endif
 
     #ifdef MATERIAL_DIFFUSE
