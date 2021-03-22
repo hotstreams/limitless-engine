@@ -1,6 +1,6 @@
-#include <effect_instance.hpp>
-#include <particle_system/mesh_emitter.hpp>
-#include <shader_types.hpp>
+#include <limitless/effect_instance.hpp>
+#include <limitless/particle_system/mesh_emitter.hpp>
+#include <limitless/shader_types.hpp>
 
 using namespace LimitlessEngine;
 

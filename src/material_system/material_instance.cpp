@@ -1,6 +1,6 @@
-#include <material_system/material_instance.hpp>
+#include <limitless/material_system/material_instance.hpp>
 
-#include <material_system/material.hpp>
+#include <limitless/material_system/material.hpp>
 #include <stdexcept>
 
 using namespace LimitlessEngine;

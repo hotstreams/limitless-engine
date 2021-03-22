@@ -1,8 +1,9 @@
-#include <texture_loader.hpp>
+#include <limitless/texture_loader.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include <assets.hpp>
+#include <limitless/assets.hpp>
+#include <iostream>
 
 using namespace LimitlessEngine;
 

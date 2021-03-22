@@ -1,8 +1,7 @@
-#include <particle_system/emitter_module.hpp>
-#include <particle_system/emitter.hpp>
+#include <limitless/particle_system/emitter_module.hpp>
+#include <limitless/particle_system/emitter.hpp>
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
 
 using namespace LimitlessEngine;
 

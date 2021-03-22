@@ -1,8 +1,8 @@
-#include <particle_system/effect_serializer.hpp>
+#include <limitless/particle_system/effect_serializer.hpp>
 
-#include <util/bytebuffer.hpp>
-#include <particle_system/effect_builder.hpp>
-#include <particle_system/emitter_serializer.hpp>
+#include <limitless/util/bytebuffer.hpp>
+#include <limitless/particle_system/effect_builder.hpp>
+#include <limitless/particle_system/emitter_serializer.hpp>
 
 using namespace LimitlessEngine;
 

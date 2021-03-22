@@ -1,6 +1,6 @@
-#include <particle_system/sprite_emitter.hpp>
-#include <particle_system/unique_emitter.hpp>
-#include <particle_system/emitter_visitor.hpp>
+#include <limitless/particle_system/sprite_emitter.hpp>
+#include <limitless/particle_system/unique_emitter.hpp>
+#include <limitless/particle_system/emitter_visitor.hpp>
 
 using namespace LimitlessEngine;
 

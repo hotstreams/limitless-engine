@@ -1,12 +1,12 @@
-#include <core/shader_program.hpp>
+#include <limitless/core/shader_program.hpp>
 
-#include <core/context_initializer.hpp>
-#include <material_system/material.hpp>
-#include <core/bindless_texture.hpp>
-#include <core/texture_binder.hpp>
-#include <core/context_state.hpp>
-#include <core/uniform.hpp>
-#include <material_system/custom_material.hpp>
+#include <limitless/core/context_initializer.hpp>
+#include <limitless/material_system/material.hpp>
+#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/texture_binder.hpp>
+#include <limitless/core/context_state.hpp>
+#include <limitless/core/uniform.hpp>
+#include <limitless/material_system/custom_material.hpp>
 
 using namespace LimitlessEngine;
 

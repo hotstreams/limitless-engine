@@ -1,4 +1,4 @@
-#include <skeletal_model.hpp>
+#include <limitless/skeletal_model.hpp>
 
 using namespace LimitlessEngine;
 

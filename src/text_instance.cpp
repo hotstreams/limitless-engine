@@ -1,7 +1,7 @@
-#include <text_instance.hpp>
-#include <shader_storage.hpp>
+#include <limitless/text_instance.hpp>
+#include <limitless/shader_storage.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <material_system/material.hpp>
+#include <limitless/material_system/material.hpp>
 
 using namespace LimitlessEngine;
 

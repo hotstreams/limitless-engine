@@ -1,8 +1,8 @@
-#include <core/uniform.hpp>
+#include <limitless/core/uniform.hpp>
 
-#include <core/shader_program.hpp>
-#include <core/bindless_texture.hpp>
-#include <core/texture.hpp>
+#include <limitless/core/shader_program.hpp>
+#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/texture.hpp>
 
 using namespace LimitlessEngine;
 

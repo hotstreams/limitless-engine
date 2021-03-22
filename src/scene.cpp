@@ -1,8 +1,8 @@
-#include <scene.hpp>
-#include <skeletal_instance.hpp>
-#include <assets.hpp>
+#include <limitless/scene.hpp>
+#include <limitless/skeletal_instance.hpp>
+#include <limitless/assets.hpp>
 
-#include <shader_types.hpp>
+#include <limitless/shader_types.hpp>
 
 using namespace LimitlessEngine;
 

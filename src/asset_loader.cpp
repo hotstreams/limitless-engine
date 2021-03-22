@@ -1,8 +1,8 @@
-#include <asset_loader.hpp>
+#include <limitless/asset_loader.hpp>
 
-#include <texture_loader.hpp>
-#include <material_system/material_loader.hpp>
-#include <particle_system/effect_loader.hpp>
+#include <limitless/texture_loader.hpp>
+#include <limitless/material_system/material_loader.hpp>
+#include <limitless/particle_system/effect_loader.hpp>
 
 using namespace LimitlessEngine;
 

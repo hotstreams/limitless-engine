@@ -1,7 +1,7 @@
-#include <elementary_model.hpp>
-#include <assets.hpp>
-#include <indexed_mesh.hpp>
-#include <util/math.hpp>
+#include <limitless/elementary_model.hpp>
+#include <limitless/assets.hpp>
+#include <limitless/indexed_mesh.hpp>
+#include <limitless/util/math.hpp>
 
 using namespace LimitlessEngine;
 

@@ -1,7 +1,7 @@
-#include <core/shader_compiler.hpp>
+#include <limitless/core/shader_compiler.hpp>
 
 #include <fstream>
-#include <core/shader_program.hpp>
+#include <limitless/core/shader_program.hpp>
 
 using namespace LimitlessEngine;
 

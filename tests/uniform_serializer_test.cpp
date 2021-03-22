@@ -1,8 +1,8 @@
 #include "catch_amalgamated.hpp"
 
-#include <core/uniform_serializer.hpp>
-#include <core/uniform.hpp>
-#include <util/bytebuffer.hpp>
+#include <limitless/core/uniform_serializer.hpp>
+#include <limitless/core/uniform.hpp>
+#include <limitless/util/bytebuffer.hpp>
 
 using namespace LimitlessEngine;
 

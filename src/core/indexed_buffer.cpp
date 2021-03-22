@@ -1,5 +1,5 @@
-#include <core/indexed_buffer.hpp>
-#include <core/context_initializer.hpp>
+#include <limitless/core/indexed_buffer.hpp>
+#include <limitless/core/context_initializer.hpp>
 
 using namespace LimitlessEngine;
 

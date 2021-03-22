@@ -1,8 +1,8 @@
-#include <model_instance.hpp>
+#include <limitless/model_instance.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <model.hpp>
-#include <shader_storage.hpp>
+#include <limitless/model.hpp>
+#include <limitless/shader_storage.hpp>
 
 using namespace LimitlessEngine;
 

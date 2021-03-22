@@ -1,7 +1,7 @@
-#include <particle_system/effect_compiler.hpp>
-#include <particle_system/mesh_emitter.hpp>
-#include <shader_storage.hpp>
-#include <effect_instance.hpp>
+#include <limitless/particle_system/effect_compiler.hpp>
+#include <limitless/particle_system/mesh_emitter.hpp>
+#include <limitless/shader_storage.hpp>
+#include <limitless/effect_instance.hpp>
 
 using namespace LimitlessEngine;
 

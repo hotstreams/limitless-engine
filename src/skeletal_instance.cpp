@@ -1,6 +1,6 @@
-#include <skeletal_instance.hpp>
-#include <shader_types.hpp>
-#include <shader_storage.hpp>
+#include <limitless/skeletal_instance.hpp>
+#include <limitless/shader_types.hpp>
+#include <limitless/shader_storage.hpp>
 #include <iostream>
 
 using namespace LimitlessEngine;

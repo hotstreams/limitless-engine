@@ -1,7 +1,7 @@
-#include <particle_system/emitter_visitor.hpp>
-#include <particle_system/emitter_renderer.hpp>
-#include <particle_system/unique_emitter.hpp>
-#include <particle_system/mesh_emitter.hpp>
+#include <limitless/particle_system/emitter_visitor.hpp>
+#include <limitless/particle_system/emitter_renderer.hpp>
+#include <limitless/particle_system/unique_emitter.hpp>
+#include <limitless/particle_system/mesh_emitter.hpp>
 
 using namespace LimitlessEngine;
 

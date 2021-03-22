@@ -1,5 +1,5 @@
-#include <core/framebuffer.hpp>
-#include <core/texture.hpp>
+#include <limitless/core/framebuffer.hpp>
+#include <limitless/core/texture.hpp>
 
 using namespace LimitlessEngine;
 

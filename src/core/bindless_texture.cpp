@@ -1,5 +1,5 @@
-#include <core/bindless_texture.hpp>
-#include <core/context_state.hpp>
+#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/context_state.hpp>
 
 using namespace LimitlessEngine;
 

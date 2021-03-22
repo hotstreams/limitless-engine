@@ -1,10 +1,10 @@
-#include <particle_system/emitter_renderer.hpp>
+#include <limitless/particle_system/emitter_renderer.hpp>
 
-#include <shader_storage.hpp>
-#include <core/buffer_builder.hpp>
-#include <particle_system/unique_emitter.hpp>
-#include <particle_system/emitter.hpp>
-#include <material_system/material.hpp>
+#include <limitless/shader_storage.hpp>
+#include <limitless/core/buffer_builder.hpp>
+#include <limitless/particle_system/unique_emitter.hpp>
+#include <limitless/particle_system/emitter.hpp>
+#include <limitless/material_system/material.hpp>
 
 using namespace LimitlessEngine;
 

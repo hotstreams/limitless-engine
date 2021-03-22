@@ -1,12 +1,12 @@
-#include <particle_system/effect_builder.hpp>
+#include <limitless/particle_system/effect_builder.hpp>
 
-#include <effect_instance.hpp>
-#include <particle_system/mesh_emitter.hpp>
-#include <particle_system/effect_compiler.hpp>
-#include <material_system/material.hpp>
-#include <assets.hpp>
-#include <shader_storage.hpp>
-#include <material_system/material_builder.hpp>
+#include <limitless/effect_instance.hpp>
+#include <limitless/particle_system/mesh_emitter.hpp>
+#include <limitless/particle_system/effect_compiler.hpp>
+#include <limitless/material_system/material.hpp>
+#include <limitless/assets.hpp>
+#include <limitless/shader_storage.hpp>
+#include <limitless/material_system/material_builder.hpp>
 
 using namespace LimitlessEngine;
 

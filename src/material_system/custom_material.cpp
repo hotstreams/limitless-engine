@@ -1,10 +1,10 @@
-#include <material_system/custom_material.hpp>
-#include <core/bindless_texture.hpp>
-#include <core/extension_texture.hpp>
-#include <core/texture.hpp>
+#include <limitless/material_system/custom_material.hpp>
+#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/extension_texture.hpp>
+#include <limitless/core/texture.hpp>
 #include <cstring>
-#include <core/context_initializer.hpp>
-#include <core/buffer.hpp>
+#include <limitless/core/context_initializer.hpp>
+#include <limitless/core/buffer.hpp>
 
 using namespace LimitlessEngine;
 

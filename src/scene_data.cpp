@@ -1,8 +1,8 @@
-#include <scene_data.hpp>
+#include <limitless/scene_data.hpp>
 
-#include <core/buffer_builder.hpp>
-#include <camera.hpp>
-#include <scene.hpp>
+#include <limitless/core/buffer_builder.hpp>
+#include <limitless/camera.hpp>
+#include <limitless/scene.hpp>
 
 using namespace LimitlessEngine;
 

@@ -1,5 +1,5 @@
-#include <core/shader.hpp>
-#include <core/context_initializer.hpp>
+#include <limitless/core/shader.hpp>
+#include <limitless/core/context_initializer.hpp>
 #include <string>
 #include <sstream>
 

@@ -1,9 +1,9 @@
-#include <particle_system/effect_renderer.hpp>
+#include <limitless/particle_system/effect_renderer.hpp>
 
-#include <effect_instance.hpp>
-#include <particle_system/emitter_renderer.hpp>
-#include <material_system/material.hpp>
-#include <shader_types.hpp>
+#include <limitless/effect_instance.hpp>
+#include <limitless/particle_system/emitter_renderer.hpp>
+#include <limitless/material_system/material.hpp>
+#include <limitless/shader_types.hpp>
 
 using namespace LimitlessEngine;
 

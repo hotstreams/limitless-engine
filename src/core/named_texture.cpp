@@ -1,5 +1,5 @@
-#include <core/named_texture.hpp>
-#include <core/context_state.hpp>
+#include <limitless/core/named_texture.hpp>
+#include <limitless/core/context_state.hpp>
 #include <algorithm>
 
 using namespace LimitlessEngine;

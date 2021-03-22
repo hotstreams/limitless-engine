@@ -1,7 +1,7 @@
-#include <threaded_model_loader.hpp>
+#include <limitless/threaded_model_loader.hpp>
 
-#include <skeletal_model.hpp>
-#include <assets.hpp>
+#include <limitless/skeletal_model.hpp>
+#include <limitless/assets.hpp>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>

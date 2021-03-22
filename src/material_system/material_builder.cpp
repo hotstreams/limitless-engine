@@ -1,10 +1,10 @@
-#include <material_system/material_builder.hpp>
-#include <core/shader_compiler.hpp>
-#include <assets.hpp>
-#include <core/shader_program.hpp>
-#include <shader_storage.hpp>
-#include <material_system/material_compiler.hpp>
-#include <core/buffer_builder.hpp>
+#include <limitless/material_system/material_builder.hpp>
+#include <limitless/core/shader_compiler.hpp>
+#include <limitless/assets.hpp>
+#include <limitless/core/shader_program.hpp>
+#include <limitless/shader_storage.hpp>
+#include <limitless/material_system/material_compiler.hpp>
+#include <limitless/core/buffer_builder.hpp>
 
 using namespace LimitlessEngine;
 

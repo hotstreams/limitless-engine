@@ -1,7 +1,7 @@
-#include <particle_system/distribution_serializer.hpp>
+#include <limitless/particle_system/distribution_serializer.hpp>
 
-#include <particle_system/distribution.hpp>
-#include <util/bytebuffer.hpp>
+#include <limitless/particle_system/distribution.hpp>
+#include <limitless/util/bytebuffer.hpp>
 
 using namespace LimitlessEngine;
 

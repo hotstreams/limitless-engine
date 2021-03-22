@@ -1,13 +1,13 @@
-#include <particle_system/effect_loader.hpp>
+#include <limitless/particle_system/effect_loader.hpp>
 
 #include <ostream>
 #include <fstream>
 
-#include <assets.hpp>
-#include <asset_loader.hpp>
-#include <util/bytebuffer.hpp>
-#include <effect_instance.hpp>
-#include <particle_system/effect_serializer.hpp>
+#include <limitless/assets.hpp>
+#include <limitless/asset_loader.hpp>
+#include <limitless/util/bytebuffer.hpp>
+#include <limitless/effect_instance.hpp>
+#include <limitless/particle_system/effect_serializer.hpp>
 
 using namespace LimitlessEngine;
 

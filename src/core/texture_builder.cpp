@@ -1,11 +1,11 @@
-#include <core/texture_builder.hpp>
+#include <limitless/core/texture_builder.hpp>
 
-#include <core/context_initializer.hpp>
-#include <core/named_texture.hpp>
-#include <core/state_texture.hpp>
-#include <core/bindless_texture.hpp>
-#include <core/mutable_texture.hpp>
-#include <core/immutable_texture.hpp>
+#include <limitless/core/context_initializer.hpp>
+#include <limitless/core/named_texture.hpp>
+#include <limitless/core/state_texture.hpp>
+#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/mutable_texture.hpp>
+#include <limitless/core/immutable_texture.hpp>
 
 using namespace LimitlessEngine;
 

@@ -1,6 +1,6 @@
-#include <core/texture_binder.hpp>
-#include <core/context_state.hpp>
-#include <core/context_initializer.hpp>
+#include <limitless/core/texture_binder.hpp>
+#include <limitless/core/context_state.hpp>
+#include <limitless/core/context_initializer.hpp>
 #include <algorithm>
 #include <stdexcept>
 #include <iterator>

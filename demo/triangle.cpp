@@ -1,6 +1,6 @@
 #include <core/context_observer.hpp>
 #include <core/shader_compiler.hpp>
-#include <texture_loader.hpp>
+#include <limitless/texture_loader.hpp>
 #include <core/buffer_builder.hpp>
 #include <core/vertex_array.hpp>
 #include <material_system/material_compiler.hpp>

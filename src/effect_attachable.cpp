@@ -1,6 +1,6 @@
-#include <effect_attachable.hpp>
-#include <effect_instance.hpp>
-#include <particle_system/emitter.hpp>
+#include <limitless/effect_attachable.hpp>
+#include <limitless/effect_instance.hpp>
+#include <limitless/particle_system/emitter.hpp>
 
 using namespace LimitlessEngine;
 
