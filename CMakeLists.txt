@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(engine)
+project(limitless_engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -18,13 +18,18 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(stb_image REQUIRED)
-message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
-include_directories(${STB_IMAGE_INCLUDE_DIRS})
-
 include_directories(include)
 
+find_package(freetype REQUIRED)
+message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
+include_directories(${FREETYPE_INCLUDE_DIRS})
+link_directories(${FREETYPE_LIBRARIES})
+
 if (WIN32)
+    find_package(stb_image REQUIRED)
+    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
+    include_directories(${STB_IMAGE_INCLUDE_DIRS})
+
     find_package(glm REQUIRED)
     message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
     include_directories(${GLM_INCLUDE_DIRS})
@@ -45,19 +50,14 @@ if (WIN32)
     include_directories(${ASSIMP_INCLUDE_DIRS})
     link_directories(${ASSIMP_LIBRARIES})
 
-    find_package(freetype REQUIRED)
-    message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
-    include_directories(${FREETYPE_INCLUDE_DIRS})
-    link_directories(${FREETYPE_LIBRARIES})
-
     link_libraries(opengl32 glew32 glfw3 assimp freetype)
 endif()
 
 if (UNIX)
-    link_libraries(GLEW glfw GL assimp freetype)
+    link_libraries(GLEW glfw GL assimp freetype pthread)
 endif()
 
-set(ENGINE_CORE
+set(LIMITLESS_ENGINE_CORE_SRC
         src/core/bindless_texture.cpp
         src/core/buffer_builder.cpp
         src/core/context.cpp
@@ -85,7 +85,7 @@ set(ENGINE_CORE
         src/core/texture_builder.cpp
    )
 
-set(ENGINE_MATERIAL_SYSTEM
+set(LIMITLESS_ENGINE_MATERIAL_SYSTEM_SRC
         src/material_system/properties.cpp
         src/material_system/material.cpp
         src/material_system/material_serializer.cpp
@@ -97,7 +97,7 @@ set(ENGINE_MATERIAL_SYSTEM
         src/material_system/material_loader.cpp
     )
 
-set(ENGINE_PARTICLE_SYSTEM
+set(LIMITLESS_ENGINE_PARTICLE_SYSTEM_SRC
         src/particle_system/emitter.cpp
         src/particle_system/emitter_module.cpp
         src/particle_system/sprite_emitter.cpp
@@ -116,10 +116,10 @@ set(ENGINE_PARTICLE_SYSTEM
         src/particle_system/effect_loader.cpp
    )
 
-set(ENGINE_SRC
-        ${ENGINE_CORE}
-        ${ENGINE_MATERIAL_SYSTEM}
-        ${ENGINE_PARTICLE_SYSTEM}
+set(LIMITLESS_ENGINE_SRC
+        ${LIMITLESS_ENGINE_CORE_SRC}
+        ${LIMITLESS_ENGINE_MATERIAL_SYSTEM_SRC}
+        ${LIMITLESS_ENGINE_PARTICLE_SYSTEM_SRC}
 
         src/texture_loader.cpp
         src/skeletal_model.cpp
@@ -150,9 +150,17 @@ set(ENGINE_SRC
         src/text_instance.cpp
     )
 
-add_executable(demo ${ENGINE_SRC} "demo/demo.cpp")
+add_library(limitless_engine_objects OBJECT ${LIMITLESS_ENGINE_SRC})
+add_library(limitless_engine SHARED ${LIMITLESS_ENGINE_SRC})
 
-add_executable(tests ${ENGINE_SRC} "tests/catch_amalgamated.cpp"
+add_executable(limitless_engine_demo
+        $<TARGET_OBJECTS:limitless_engine_objects>
+        demo/demo.cpp
+        )
+
+add_executable(limitless_engine_tests
+        $<TARGET_OBJECTS:limitless_engine_objects>
+        "tests/catch_amalgamated.cpp"
         "tests/uniform_serializer_test.cpp"
         "tests/material_serializer_test.cpp"
         "tests/bytebuffer_test.cpp"

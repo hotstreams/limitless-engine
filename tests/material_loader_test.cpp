@@ -61,7 +61,7 @@ TEST_CASE("effect loader save") {
             .build();
 
     EffectLoader loader;
-    loader.save("test_effect");
+    loader.save("test_effect", "test_effect");
 }
 
 TEST_CASE("effect loader load") {

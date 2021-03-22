@@ -157,6 +157,8 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         aiString texture_name;
         mat->GetTexture(aiTextureType_DIFFUSE, 0, &texture_name);
 
+        convertPathSeparators(texture_name.data);
+
         builder.add(PropertyType::Diffuse, TextureLoader::load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
@@ -164,12 +166,16 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         aiString texture_name;
         mat->GetTexture(aiTextureType_HEIGHT, 0, &texture_name);
 
+	    convertPathSeparators(texture_name.data);
+
         builder.add(PropertyType::Normal, TextureLoader::load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto specular_count = mat->GetTextureCount(aiTextureType_SPECULAR); specular_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_SPECULAR, 0, &texture_name);
+
+	    convertPathSeparators(texture_name.data);
 
         builder.add(PropertyType::Specular, TextureLoader::load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
@@ -182,12 +188,16 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         aiString texture_name;
         mat->GetTexture(aiTextureType_OPACITY, 0, &texture_name);
 
+	    convertPathSeparators(texture_name.data);
+
         builder.add(PropertyType::BlendMask, TextureLoader::load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto emissive_mask = mat->GetTextureCount(aiTextureType_EMISSIVE); emissive_mask != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_EMISSIVE, 0, &texture_name);
+
+	    convertPathSeparators(texture_name.data);
 
         builder.add(PropertyType::EmissiveMask, TextureLoader::load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }

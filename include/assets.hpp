@@ -73,6 +73,8 @@ namespace LimitlessEngine {
         ResourceContainer<FontAtlas> fonts;
 
         virtual void load();
+
+        virtual ~Assets() = default;
     };
 
     inline Assets assets;

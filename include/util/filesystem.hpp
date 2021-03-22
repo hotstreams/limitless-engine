@@ -10,6 +10,22 @@
 
 #ifdef WIN32
     #define PATH_SEPARATOR "\\"
+
+	inline void convertPathSeparators(char* c_str) {
+		for (char* p = c_str; *p; ++p) {
+			if (*p == '/') {
+				*p = '\\';
+			}
+		}
+	}
 #else
     #define PATH_SEPARATOR "/"
+
+	inline void convertPathSeparators(char* c_str) {
+		for (char* p = c_str; *p; ++p) {
+			if (*p == '\\') {
+				*p = '/';
+			}
+		}
+	}
 #endif
