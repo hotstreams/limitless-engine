@@ -3,7 +3,7 @@
 using namespace LimitlessEngine;
 
 Emitter::Emitter(EmitterType type) noexcept
-    : type{type}, local_position{0.0f}, position{0.0f}, local_rotation{0.0f}, rotation{0.0f}, local_space{false} {
+    : type{type}, local_position{0.0f}, position{0.0f}, local_rotation{}, rotation{}, local_space{false} {
 
 }
 
@@ -12,7 +12,7 @@ void Emitter::emit(uint32_t count) noexcept {
         Particle particle;
 
         particle.position = local_position + position;
-        particle.rotation = local_rotation + rotation;
+        particle.rotation = glm::eulerAngles(rotation * local_rotation);
 
         for (const auto& [type, module] : modules) {
             module->initialize(*this, particle);
@@ -36,15 +36,15 @@ void Emitter::setPosition(const glm::vec3& new_position) noexcept {
 
 void Emitter::setRotation([[maybe_unused]] const glm::quat& new_rotation) noexcept {
     //TODO: check this
-//    if (local_space) {
-////        auto diff = new_rotation + local_rotation - rotation;
-////
-////        for (auto& particle : particles) {
-////            particle.rotation += diff;
-////        }
-//    }
-//
-//    rotation = local_rotation + new_rotation;
+    if (local_space) {
+        auto diff = new_rotation + local_rotation - rotation;
+
+        for (auto& particle : particles) {
+            particle.rotation += glm::eulerAngles(diff);
+        }
+    }
+
+    rotation = new_rotation;
 }
 
 void Emitter::spawnParticles() noexcept {

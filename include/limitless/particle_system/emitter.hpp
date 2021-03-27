@@ -4,6 +4,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include <glm/gtx/quaternion.hpp>
+
 #include <limitless/particle_system/emitter_module.hpp>
 #include <limitless/particle_system/emitter_spawn.hpp>
 #include <limitless/particle_system/particle.hpp>
@@ -17,7 +19,7 @@ namespace LimitlessEngine {
     protected:
         EmitterType type;
         glm::vec3 local_position, position;
-        glm::vec3 local_rotation, rotation;
+        glm::quat local_rotation, rotation;
         bool local_space;
 
         EmitterSpawn spawn;
