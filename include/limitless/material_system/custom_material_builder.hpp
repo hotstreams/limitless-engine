@@ -18,6 +18,7 @@ namespace LimitlessEngine {
         CustomMaterialBuilder& addUniform(std::string name, Uniform* uniform);
 
         CustomMaterialBuilder& create(std::string name) override;
-        std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model}, const MaterialShaders& material_shaders = {MaterialShader::Default}) override;
+        std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model},
+                                        const MaterialShaders& material_shaders = {MaterialShader::Forward, MaterialShader::DirectionalShadow}) override;
     };
 }

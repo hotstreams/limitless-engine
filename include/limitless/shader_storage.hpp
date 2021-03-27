@@ -19,11 +19,11 @@ namespace LimitlessEngine {
     bool operator<(const ShaderKey& lhs, const ShaderKey& rhs) noexcept;
 
     inline const std::map<MaterialShader, std::string> material_shader_path = {
-        {MaterialShader::Default,           "pipeline/forward" },
+        {MaterialShader::Forward,           "pipeline/forward" },
         {MaterialShader::Deferred,          "pipeline/deferred" },
         {MaterialShader::ForwardPlus,       "pipeline/forward+" },
-        {MaterialShader::DirectionalShadow, "shadows/directional" },
-        {MaterialShader::PointShadow,       "shadows/point" },
+        {MaterialShader::DirectionalShadow, "pipeline/directional_shadows" },
+        {MaterialShader::PointShadow,       "shadows/point_shadows" },
         {MaterialShader::ColorPicker,       "other/color_picker" }
     };
 

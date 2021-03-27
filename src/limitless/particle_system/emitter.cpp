@@ -34,13 +34,14 @@ void Emitter::setPosition(const glm::vec3& new_position) noexcept {
     position = local_position + new_position;
 }
 
-void Emitter::setRotation(const glm::quat& new_rotation) noexcept {
+void Emitter::setRotation([[maybe_unused]] const glm::quat& new_rotation) noexcept {
+    //TODO: check this
 //    if (local_space) {
-//        auto diff = new_rotation + local_rotation - rotation;
-//
-//        for (auto& particle : particles) {
-//            particle.rotation += diff;
-//        }
+////        auto diff = new_rotation + local_rotation - rotation;
+////
+////        for (auto& particle : particles) {
+////            particle.rotation += diff;
+////        }
 //    }
 //
 //    rotation = local_rotation + new_rotation;

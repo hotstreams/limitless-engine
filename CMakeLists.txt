@@ -143,6 +143,8 @@ set(ENGINE_SRC
         src/limitless/instances/elementary_instance.cpp
         src/limitless/lighting/lighting.cpp
         src/limitless/lighting/light_container.cpp
+        src/limitless/lighting/cascade_shadows.cpp
+        src/limitless/lighting/shadow_mapping.cpp
         src/limitless/loaders/threaded_model_loader.cpp
         src/limitless/util/thread_pool.cpp
         src/limitless/loaders/asset_loader.cpp

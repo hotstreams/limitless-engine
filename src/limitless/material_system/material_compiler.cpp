@@ -76,7 +76,7 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
     };
 
     if ((prop_exist(PropertyType::MetallicTexture) || prop_exist(PropertyType::RoughnessTexture) || prop_exist(PropertyType::Metallic) || prop_exist(PropertyType::Roughness)) &&
-        render_settings.physically_based_rendering) {
+        RenderSettings::PHYSICALLY_BASED_RENDER) {
         property_defines.append("#define PBR\n");
     }
 
@@ -133,7 +133,7 @@ void MaterialCompiler::replaceRenderSettings(Shader& shader) noexcept {
     std::string settings;
 
     // sets shading model
-    switch (render_settings.shading_model) {
+    switch (RenderSettings::SHADING_MODEL) {
         case ShadingModel::Phong:
             settings.append("#define PHONG_MODEL\n");
             break;
@@ -143,8 +143,18 @@ void MaterialCompiler::replaceRenderSettings(Shader& shader) noexcept {
     }
 
     // sets normal mapping
-    if (render_settings.normal_mapping) {
+    if (RenderSettings::NORMAL_MAPPING) {
         settings.append("#define NORMAL_MAPPING\n");
+    }
+
+    if (RenderSettings::DIRECTIONAL_CSM) {
+        settings.append("#define DIRECTIONAL_CSM\n");
+
+        settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(RenderSettings::DIRECTIONAL_SPLIT_COUNT) + '\n');
+
+        if (RenderSettings::DIRECTIONAL_PFC) {
+            settings.append("#define DIRECTIONAL_PFC\n");
+        }
     }
 
     shader.replaceKey("LimitlessEngine::Settings", settings);

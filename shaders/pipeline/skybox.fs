@@ -1,7 +1,7 @@
 LimitlessEngine::GLSL_VERSION
 LimitlessEngine::Extensions
 
-#include "glsl/scene.glsl"
+#include "glsl/scene_lighting.glsl"
 
 out vec4 color;
 

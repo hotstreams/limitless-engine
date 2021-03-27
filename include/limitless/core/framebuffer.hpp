@@ -26,13 +26,14 @@ namespace LimitlessEngine {
         Color4 = GL_COLOR_ATTACHMENT4,
         Color5 = GL_COLOR_ATTACHMENT5,
         Color6 = GL_COLOR_ATTACHMENT6,
-        Color7 = GL_COLOR_ATTACHMENT7
+        Color7 = GL_COLOR_ATTACHMENT7,
+        None = GL_NONE
     };
 
     struct TextureAttachment {
         FramebufferAttachment attachment;
         std::shared_ptr<Texture> texture;
-        uint32_t layer {0};
+        uint32_t layer {};
     };
 
     class framebuffer_error : public std::runtime_error {
@@ -59,6 +60,7 @@ namespace LimitlessEngine {
         bool hasAttachment(FramebufferAttachment a) const noexcept;
         void drawBuffers(const std::vector<FramebufferAttachment>& a) noexcept;
         void drawBuffer(FramebufferAttachment a) noexcept;
+        void readBuffer(FramebufferAttachment a) noexcept;
         void unbind() noexcept;
         void bind() noexcept;
         void clear() noexcept;

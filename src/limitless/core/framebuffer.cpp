@@ -85,6 +85,14 @@ void Framebuffer::drawBuffer(FramebufferAttachment a) noexcept {
     bind();
 
     glDrawBuffers(1, reinterpret_cast<const GLenum*>(&a));
+
+    glDrawBuffer(static_cast<GLenum>(a));
+}
+
+void Framebuffer::readBuffer(FramebufferAttachment a) noexcept {
+    bind();
+
+    glReadBuffer(static_cast<GLenum>(a));
 }
 
 void Framebuffer::specifyLayer(FramebufferAttachment attachment, uint32_t layer) {

@@ -17,8 +17,8 @@ namespace LimitlessEngine {
         std::unordered_map<uint64_t, uint64_t> lights_map;
         std::shared_ptr<Buffer> buffer;
         std::vector<T> lights;
-        uint64_t next_id {0};
-        bool modified {false};
+        uint64_t next_id {};
+        bool modified {};
     public:
         explicit LightContainer(uint64_t reserve_count);
         LightContainer();
