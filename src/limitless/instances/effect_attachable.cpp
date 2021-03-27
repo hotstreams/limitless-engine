@@ -48,25 +48,13 @@ void EffectAttachable::detachEffect(uint64_t index) noexcept {
     attachments.erase(attachments.begin() + index);
 }
 
-EffectAttachable::EffectAttachable() noexcept {
-    // DO NOT REMOVE THIS
-    //[[maybe_unused]] char empty;
-}
+EffectAttachable::EffectAttachable() noexcept = default;
 
-EffectAttachable::~EffectAttachable() {
-    // DO NOT REMOVE THIS
-    //[[maybe_unused]] char empty;
-}
+EffectAttachable::~EffectAttachable() = default;
 
-EffectAttachable::EffectAttachable(const EffectAttachable& e) noexcept
-    : attachments{e.attachments} {
+EffectAttachable::EffectAttachable(const EffectAttachable& e) noexcept = default;
 
-}
-
-EffectAttachable& EffectAttachable::operator=(const EffectAttachable& e) noexcept {
-    attachments = e.attachments;
-    return *this;
-}
+EffectAttachable& EffectAttachable::operator=(const EffectAttachable& e) noexcept = default;
 
 EffectAttachable::EffectAttachable(EffectAttachable&& e) noexcept
     : attachments{std::move(e.attachments)} {

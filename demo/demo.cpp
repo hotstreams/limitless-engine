@@ -76,7 +76,7 @@ public:
         auto effect = EffectLoader::load(assets, EFFECT_DIR "eff");
 
         scene.add<EffectInstance>(effect, glm::vec3{-1.f, -1.f, -1.f})
-             .setPosition(glm::vec3{-3.f, -3.f, -3.f});
+             .setPosition(glm::vec3{2.f, 2.f, 2.f});
 
         scene.lighting.point_lights.emplace_back(glm::vec4{0.0f, 3.0f, 2.0f, 1.0f}, glm::vec4{6.3f, 5.1f, 3.7f, 1.5f}, 3.2f);
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 3.0f, 5.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 3.7f, 1.5f}, 2.5f);
@@ -188,33 +188,32 @@ public:
                 .setBlending(Blending::Additive)
                 .build({ModelShader::Effect});
 
-//        auto conf = eb.create("conf")
-//                .createEmitter<MeshEmitter>("emitter0")
-//                .setMesh(assets.meshes.at("plane_mesh"))
-//                .setMaterial(aura)
-//                .setMaxCount(1)
-//                .addModule<ColorByLife>(EmitterModuleType::ColorByLife, new RangeDistribution(glm::vec4{5.0f, 0.0f, 5.0f, 1.0f}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}))
-//                .addModule<InitialSize>(EmitterModuleType::InitialSize, new ConstDistribution(1.0f))
-//                .addModule<InitialRotation>(EmitterModuleType::InitialRotation, new ConstDistribution(glm::vec3{pi / 2.0f, 0.0f, 0.0f}))
-//                .addModule<RotationRate>(EmitterModuleType::RotationRate, new ConstDistribution(glm::vec3{0.0f, 0.0f, 1.0f}))
-//
-//                .createEmitter<MeshEmitter>("emitter1")
-//                .setMesh(assets.meshes.at("plane_mesh"))
-//                .setMaterial(flash)
-////                .setDuration(std::chrono::seconds(2))
-//                .setMaxCount(3)
-//                .setSpawnRate(0.001f)
-//                .addModule<InitialColor>(EmitterModuleType::InitialColor, new ConstDistribution(glm::vec4{0.1f, 0.2f, 0.7f, 1.0f}))
-//                .addModule<InitialSize>(EmitterModuleType::InitialSize, new ConstDistribution(0.1f))
-//                .addModule<InitialRotation>(EmitterModuleType::InitialRotation, new ConstDistribution(glm::vec3{pi / 2.0f, 0.0f, 0.0f}))
-//                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.1f, 30.0f), 1.0f)
-//                .addModule<Lifetime>(EmitterModuleType::Lifetime, new ConstDistribution(0.7f))
-//
-//                .build();
+        auto conf = eb.create("conf")
+                .createEmitter<MeshEmitter>("emitter0")
+                .setMesh(assets.meshes.at("plane_mesh"))
+                .setMaterial(aura)
+                .setMaxCount(1)
+                .addModule<ColorByLife>(EmitterModuleType::ColorByLife, new RangeDistribution(glm::vec4{5.0f, 0.0f, 5.0f, 1.0f}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}))
+                .addModule<InitialSize>(EmitterModuleType::InitialSize, new ConstDistribution(1.0f))
+                .addModule<InitialRotation>(EmitterModuleType::InitialRotation, new ConstDistribution(glm::vec3{pi / 2.0f, 0.0f, 0.0f}))
+                .addModule<RotationRate>(EmitterModuleType::RotationRate, new ConstDistribution(glm::vec3{0.0f, 0.0f, 1.0f}))
+
+                .createEmitter<MeshEmitter>("emitter1")
+                .setMesh(assets.meshes.at("plane_mesh"))
+                .setMaterial(flash)
+                .setMaxCount(3)
+                .setSpawnRate(0.001f)
+                .addModule<InitialColor>(EmitterModuleType::InitialColor, new ConstDistribution(glm::vec4{0.1f, 0.2f, 0.7f, 1.0f}))
+                .addModule<InitialSize>(EmitterModuleType::InitialSize, new ConstDistribution(0.1f))
+                .addModule<InitialRotation>(EmitterModuleType::InitialRotation, new ConstDistribution(glm::vec3{pi / 2.0f, 0.0f, 0.0f}))
+                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.1f, 30.0f), 1.0f)
+                .addModule<Lifetime>(EmitterModuleType::Lifetime, new ConstDistribution(0.7f))
+
+                .build();
 
 //        scene.add<EffectInstance>(conf, glm::vec3{2.f, 0.f, 2.f});
 //        scene.add<EffectInstance>(conf, glm::vec3{0.f, 0.f, 0.f});
-//        scene.add<EffectInstance>(conf, glm::vec3{1.f, 0.f, 1.f});
+        scene.add<EffectInstance>(conf, glm::vec3{1.f, 0.f, 1.f});
     }
 
 //    void loadingSceneConcurrently() {
