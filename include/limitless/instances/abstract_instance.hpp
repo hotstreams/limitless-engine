@@ -2,8 +2,9 @@
 
 #include <limitless/instances/effect_attachable.hpp>
 #include <limitless/instances/light_attachable.hpp>
-#include <functional>
+
 #include <glm/gtx/quaternion.hpp>
+#include <functional>
 
 namespace LimitlessEngine {
     enum class MaterialShader;

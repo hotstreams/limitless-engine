@@ -1,18 +1,23 @@
 #pragma once
 
+#include <glm/vec2.hpp>
+
 namespace LimitlessEngine {
     enum class ShadingModel { Phong, BlinnPhong };
 
     struct RenderSettings {
-        // static flags at load time
-        ShadingModel shading_model {ShadingModel::BlinnPhong};
+        // material settings
+        static constexpr auto SHADING_MODEL {ShadingModel::BlinnPhong};
+        static constexpr auto PHYSICALLY_BASED_RENDER {true};
+        static constexpr auto NORMAL_MAPPING {true};
 
-        bool normal_mapping {true};
-        bool physically_based_rendering {true};
+        // shadows settings
+        static constexpr auto DIRECTIONAL_CSM {true};
+        static constexpr auto DIRECTIONAL_SHADOW_RESOLUTION = glm::uvec2{ 512, 512 };
+        static constexpr auto DIRECTIONAL_SPLIT_COUNT {3}; // four is max
+        static constexpr auto DIRECTIONAL_PFC {false};
 
-        // dynamic flags
-        bool light_radius {false};
+        // king of debug settings
+        static constexpr auto LIGHT_RADIUS {false};
     };
-
-    inline RenderSettings render_settings;
 }

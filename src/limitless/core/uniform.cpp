@@ -30,11 +30,11 @@ void UniformValue<T>::set(const ShaderProgram& shader) {
     auto location = shader.getUniformLocation(*this);
     if (location == -1) return;
 
-    if constexpr (std::is_same<T, int>::value) {
-        glUniform1i(location, value);
-    }
-    else if constexpr (std::is_same<T, unsigned int>::value) {
+    if constexpr (std::is_same<T, unsigned int>::value) {
         glUniform1ui(location, value);
+    }
+    else if constexpr (std::is_same<T, int>::value) {
+        glUniform1i(location, value);
     }
     else if constexpr (std::is_same<T, float>::value) {
         glUniform1f(location, value);

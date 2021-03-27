@@ -14,9 +14,7 @@ namespace LimitlessEngine {
         float radius {1.0f};
 
         PointLight() = default;
-
-        PointLight(const glm::vec3& _position, const glm::vec4& _color, float _radius) noexcept
-                : position{_position, 1.0f}, color{_color}, radius{_radius} {}
+        PointLight(const glm::vec3& _position, const glm::vec4& _color, float _radius) noexcept : position{_position, 1.0f}, color{_color}, radius{_radius} {}
     };
 
     struct DirectionalLight {
@@ -25,8 +23,8 @@ namespace LimitlessEngine {
         glm::vec4 direction {};
         glm::vec4 color {};
 
-        DirectionalLight(const glm::vec4& _direction, const glm::vec4& _color) noexcept
-            : direction{_direction}, color{_color} {}
+        DirectionalLight() = default;
+        DirectionalLight(const glm::vec4& _direction, const glm::vec4& _color) noexcept : direction{_direction}, color{_color} {}
     };
 
     struct SpotLight {

@@ -30,6 +30,7 @@ namespace LimitlessEngine {
         enum class InternalFormat {
             Depth = GL_DEPTH_COMPONENT,
             Depth16 = GL_DEPTH_COMPONENT16,
+            Depth24 = GL_DEPTH_COMPONENT24,
             Depth32 = GL_DEPTH_COMPONENT32,
             Depth32F = GL_DEPTH_COMPONENT32F,
             DepthStencil = GL_DEPTH_STENCIL,

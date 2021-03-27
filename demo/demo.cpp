@@ -28,7 +28,7 @@ private:
     Assets assets;
 
     bool done {};
-    static constexpr glm::uvec2 window_size {1920 , 1080};
+    static constexpr glm::uvec2 window_size {1920, 1024};
 public:
     Game() : context{"Features", window_size, {{ WindowHint::Resizable, true }}}, camera{window_size}, render{context} {
         camera.setPosition({7.0f, 0.0f, 3.0f});
@@ -52,6 +52,8 @@ public:
         scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.1f});
         scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.35f});
 
+        scene.add<ElementaryInstance>(assets.models.at("cube"), assets.materials.at("material1"), glm::vec3{3.0f, -3.0f, 0.0f}, glm::vec3{0.0f}, glm::vec3{50.0f, 0.5f, 50.0f});
+
         scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
                .setScale(glm::vec3{0.02f})
                .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
@@ -67,15 +69,17 @@ public:
         auto test_text = new TextInstance("test", {400.0f, 400.0f}, {1.0f, 1.0f}, {1.5f, 3.8f, 2.4f, 1.f}, assets.fonts.at("nunito"), context);
         scene.add(test_text);
 
-        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 1.5f}, 4.0f);
+        scene.lighting.directional_light = { glm::vec4{2.0f, -5.0f, 2.0f, 1.0f}, glm::vec4{2.0f, 0.0f, 1.7f, 1.0f} };
+
+        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 3.0f, 2.0f, 1.0f}, glm::vec4{3.3f, 8.1f, 8.7f, 1.5f}, 2.6f);
 
         auto effect = EffectLoader::load(assets, EFFECT_DIR "eff");
 
         scene.add<EffectInstance>(effect, glm::vec3{-1.f, -1.f, -1.f})
              .setPosition(glm::vec3{-3.f, -3.f, -3.f});
 
-        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{8.3f, 8.1f, 8.7f, 10.5f}, 8.0f);
-        scene.lighting.point_lights.emplace_back(glm::vec4{12.0f, 0.0f, 2.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 8.7f, 10.5f}, 3.0f);
+        scene.lighting.point_lights.emplace_back(glm::vec4{0.0f, 3.0f, 2.0f, 1.0f}, glm::vec4{6.3f, 5.1f, 3.7f, 1.5f}, 3.2f);
+        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 3.0f, 5.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 3.7f, 1.5f}, 2.5f);
     }
 
     ~Game() override {

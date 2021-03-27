@@ -37,7 +37,7 @@ namespace LimitlessEngine {
         std::string source;
         fs::path path;
         Type type {Type::Vertex};
-        GLuint id {0};
+        GLuint id {};
 
         void replaceExtensions() noexcept;
         void replaceVersion() noexcept;

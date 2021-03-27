@@ -46,6 +46,6 @@ namespace LimitlessEngine {
         virtual MaterialBuilder& create(std::string name);
         // builds shaders
         virtual std::shared_ptr<Material> build(const ModelShaders& model_shaders = {ModelShader::Model},
-                                                const MaterialShaders& material_shaders = {MaterialShader::Default});
+                                                const MaterialShaders& material_shaders = {MaterialShader::Forward, MaterialShader::DirectionalShadow});
     };
 }

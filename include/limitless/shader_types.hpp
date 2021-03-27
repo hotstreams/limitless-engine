@@ -4,7 +4,7 @@
 
 namespace LimitlessEngine {
     enum class MaterialShader {
-        Default,
+        Forward,
         Deferred,
         ForwardPlus,
         DirectionalShadow,

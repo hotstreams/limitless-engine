@@ -14,8 +14,6 @@ namespace LimitlessEngine {
         glm::mat4 view {1.0f};
         glm::mat4 VP {1.0f};
         glm::vec4 camera_position {};
-        glm::vec4 ambient_color {1.0f};
-        uint32_t point_lights_size {};
     };
 
     class SceneDataStorage {
@@ -25,6 +23,6 @@ namespace LimitlessEngine {
     public:
         SceneDataStorage();
 
-        void update(Context& context, Scene& scene, Camera& camera);
+        void update(Context& context, Camera& camera);
     };
 }

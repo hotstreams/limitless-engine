@@ -35,6 +35,12 @@ namespace {
         }
     }
 
+    void calculateTangentSpaceTriangle(std::vector<VertexNormalTangent>& vertices) {
+        for (size_t i = 0; i < vertices.size(); i += 3) {
+            calculateTangentSpace(vertices.at(i), vertices.at(i + 1), vertices.at(i + 2));
+        }
+    }
+
     void calculateTangentSpaceTriangleStrip(std::vector<VertexNormalTangent>& vertices, const std::vector<GLuint>& indices) {
         for (size_t i = 2; i < indices.size(); ++i) {
             const auto i0 = indices.at(i - 2);
@@ -86,52 +92,54 @@ Plane::Plane() {
 }
 
 Cube::Cube() {
-    std::vector<Vertex> vertices = {
+    std::vector<VertexNormalTangent> vertices = {
             // back face
-            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}}, // bottom-left
-            {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f}}, // bottom-right
-            {{0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-right
-            {{0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-right
-            {{ -0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}}, // top-left
-            {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f}}, // bottom-left
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
+            {{0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // bottom-right
+            {{0.5f,  0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
+            {{0.5f,  0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
+            {{ -0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-left
+            {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
             // front face
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-left
-            {{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}}, // top-right
-            {{0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}}, // bottom-right
-            {{0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}}, // top-right
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-left
-            {{-0.5f,  0.5f,  0.5f},  {0.0f, 1.0f}}, // top-left
+            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
+            {{ 0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
+            {{0.5f, -0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // bottom-right
+            {{0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
+            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
+            {{-0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-left
             // left face
-            {{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}}, // top-right
-            {{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-left
-            {{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-left
-            {{ -0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-left
-            {{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}}, // top-right
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-right
+            {{-0.5f,  0.5f,  0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // top-right
+            {{-0.5f, -0.5f, -0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-left
+            {{-0.5f,  0.5f, -0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-left
+            {{ -0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-left
+            {{-0.5f,  0.5f,  0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // top-right
+            {{-0.5f, -0.5f,  0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-right
             // right face
-            {{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}}, // top-left
-            {{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}}, // top-right
-            {{ 0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-right
-            {{ 0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // bottom-right
-            {{  0.5f, -0.5f,  0.5f}, { 0.0f, 0.0f}}, // bottom-left
-            {{  0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}}, // top-left
+            {{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // top-left
+            {{ 0.5f,  0.5f, -0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
+            {{ 0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-right
+            {{ 0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-right
+            {{  0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 0.0f}}, // bottom-left
+            {{  0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // top-left
             // bottom face
-            {{ -0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}}, // top-right
-            {{  0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}}, // bottom-left
-            {{  0.5f, -0.5f, -0.5f},  {1.0f, 1.0f}}, // top-left
-            {{ 0.5f, -0.5f,  0.5f}, { 1.0f, 0.0f}}, // bottom-left
-            {{ -0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}}, // top-right
-            {{ -0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}}, // bottom-right
+            {{ -0.5f, -0.5f, -0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-right
+            {{  0.5f, -0.5f,  0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // bottom-left
+            {{  0.5f, -0.5f, -0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-left
+            {{ 0.5f, -0.5f,  0.5f},   {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // bottom-left
+            {{ -0.5f, -0.5f, -0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 1.0f}}, // top-right
+            {{ -0.5f, -0.5f,  0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-right
             // top face
-            {{ -0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}}, // top-left
-            {{ 0.5f,  0.5f, -0.5f}, { 1.0f, 1.0f}}, // top-right
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}}, // bottom-right
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}}, // bottom-right
-            {{ -0.5f,  0.5f,  0.5f}, { 0.0f, 0.0f}}, // bottom-left
-            {{ -0.5f,  0.5f, -0.5f}, { 0.0f, 1.0f}}  // top-left
+            {{ -0.5f,  0.5f, -0.5f},  {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-left
+            {{ 0.5f,  0.5f, -0.5f},  {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 1.0f}}, // top-right
+            {{ 0.5f,  0.5f,  0.5f},  {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // bottom-right
+            {{ 0.5f,  0.5f,  0.5f},  {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // bottom-right
+            {{ -0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 0.0f}}, // bottom-left
+            {{ -0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 1.0f}}  // top-left
     };
 
-    auto mesh = std::make_shared<Mesh<Vertex>>(std::move(vertices), "cube_mesh", MeshDataType::Static, DrawMode::Triangles);
+    calculateTangentSpaceTriangle(vertices);
+
+    auto mesh = std::make_shared<Mesh<VertexNormalTangent>>(std::move(vertices), "cube_mesh", MeshDataType::Static, DrawMode::Triangles);
     meshes.emplace_back(mesh);
 }
 

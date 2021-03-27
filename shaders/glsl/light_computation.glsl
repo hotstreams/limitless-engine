@@ -1,4 +1,5 @@
 #include "glsl/point_light.glsl"
+#include "glsl/directional_light.glsl"
 
 #ifdef PBR
     #include "glsl/pbr.glsl"
@@ -36,15 +37,18 @@
             Lo += (kD * fragment_color / PI + specular) * radiance * NdotL;
         }
 
+        // TODO: PBR directional lights
+
         return ambient + Lo;
     }
 #else
     vec3 getShadedColor(vec3 fragment_color, vec3 normal, float specular, float shininess) {
         vec3 ambient = ambient_color.xyz * ambient_color.w * fragment_color;
-
         vec3 view_dir = normalize(camera_position.xyz - fs_data.world_position);
 
         vec3 light = vec3(0.0);
+
+        // computing point lights
         for (uint i = uint(0); i < point_lights_count; ++i) {
             PointLight point_light = point_lights[i];
             float distance = length(point_light.position.xyz - fs_data.world_position);
@@ -52,6 +56,15 @@
             if (distance <= point_light.radius) {
                 light += computePointLight(point_light, normal, fragment_color, view_dir, specular, shininess);
             }
+        }
+
+        if (dir_lights_count != uint(0)) {
+            #ifdef DIRECTIONAL_CSM
+                float shadow = computeDirectionalShadow(dir_light, normal);
+                light += (1.0 - shadow) * computeDirLight(dir_light, normal, fragment_color, view_dir, specular, shininess);
+            #else
+                light += computeDirLight(dir_light, normal, fragment_color, view_dir, specular, shininess);
+            #endif
         }
 
         return ambient + light;

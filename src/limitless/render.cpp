@@ -37,15 +37,21 @@ struct BackToFrontSorter {
     }
 };
 
-void Renderer::dispatchInstances(const std::vector<AbstractInstance*>& instances, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending) const {
-    for (auto* const instance : instances) {
-        instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+//void Renderer::dispatchInstances(Context& context,
+//                                 const Assets& assets,
+//                                 MaterialShader shader_type,
+//                                 Blending blending,
+//                                 UniformSetter& uniform_set) const {
+////    for (auto* const instance : instances) {
+////        instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+////
+////        instance->draw(assets, shader_type, blending, uniform_setter);
+////    }
+//
+//
+//}
 
-        instance->draw(assets, shader_type, blending);
-    }
-}
-
-void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
+void Renderer::renderLightsVolume(Context& context, Scene& scene, const Assets& assets) const {
     if (scene.lighting.point_lights.empty()) {
         return;
     }
@@ -55,16 +61,15 @@ void Renderer::renderLightsVolume(Context& context, Scene& scene) const {
     context.setDepthMask(DepthMask::False);
     context.disable(Capabilities::DepthTest);
 
-    //TODO
-//    static auto sphere_instance = ElementaryInstance(assets.models["sphere"], assets.materials["default"], glm::vec3(0.0f));
-//
-//    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-//    for (const auto& light : scene.lighting.point_lights) {
-//        sphere_instance.setPosition(light.position);
-//        sphere_instance.setScale(glm::vec3(light.radius));
-//        sphere_instance.draw(MaterialShader::Default, Blending::Opaque);
-//    }
-//    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+    auto sphere_instance = ElementaryInstance(assets.models.at("sphere"), assets.materials.at("default"), glm::vec3(0.0f));
+
+    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
+    for (const auto& light : scene.lighting.point_lights) {
+        sphere_instance.setPosition(light.position);
+        sphere_instance.setScale(glm::vec3(light.radius));
+        sphere_instance.draw(assets, MaterialShader::Forward, Blending::Opaque);
+    }
+    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
 void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
@@ -93,19 +98,27 @@ Renderer::Renderer(ContextEventObserver& context)
 
 void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
     scene.update();
-    scene_data.update(context, scene, camera);
-
-    context.setViewPort(context.getSize());
-
-    offscreen.bind();
-    offscreen.clear();
+    scene_data.update(context, camera);
 
     auto instances = performFrustumCulling(scene, camera);
 
     effect_renderer.update(instances);
 
+    // shadows pass
+    shadow_mapping.castShadows(*this, assets, scene, context, camera);
+
+    // forward pass
+    context.setViewPort(context.getSize());
+
+    offscreen.bind();
+    offscreen.clear();
+
     auto draw_scene = [&] (Blending blending) {
-        dispatchInstances(instances, context, assets, MaterialShader::Default, blending);
+        auto setter = [&] (ShaderProgram& shader) {
+            shadow_mapping.setUniform(shader);
+        };
+
+        dispatchInstances(scene, context, assets, MaterialShader::Forward, blending, { setter });
         effect_renderer.draw(assets, blending);
     };
 
@@ -119,8 +132,8 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
     }
 
     // draws lights influence radius
-    if (render_settings.light_radius) {
-        renderLightsVolume(context, scene);
+    if (RenderSettings::LIGHT_RADIUS) {
+        renderLightsVolume(context, scene, assets);
     }
 
     // rendering back to front to follow the translucent order
@@ -144,4 +157,12 @@ std::vector<AbstractInstance*> Renderer::performFrustumCulling(Scene &scene, [[m
     }
 
     return culled;
+}
+
+void Renderer::dispatchInstances(Scene& scene, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) const {
+    for (auto& [id, instance] : scene) {
+        instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+
+        instance->draw(assets, shader_type, blending, uniform_set);
+    }
 }
