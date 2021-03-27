@@ -13,10 +13,10 @@ namespace LimitlessEngine {
 
     class ShadowFrustum {
     public:
-        glm::vec3 points[8] {};
+        glm::vec3 points[8];
         glm::mat4 crop {1.0f};
-        float near {};
-        float far {};
+        float near_distance {};
+        float far_distance {};
         float fov {};
         float ratio {};
     };

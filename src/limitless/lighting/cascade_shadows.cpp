@@ -55,22 +55,22 @@ void CascadeShadows::updateFrustums(Context& ctx, Camera& camera) {
         const auto near = camera.getNear();
         const auto ratio = far / near;
 
-        frustums[0].near = near;
+        frustums[0].near_distance = near;
 
         for (uint32_t i = 1; i < SPLIT_COUNT; ++i) {
             const auto si = static_cast<float>(i) / static_cast<float>(SPLIT_COUNT);
-            frustums[i].near = SPLIT_WEIGHT * (near * glm::pow(ratio, si)) + (1 - SPLIT_WEIGHT) * (near + (far - near) * si);
-            frustums[i - 1].far = frustums[i].near * 1.005f;
+            frustums[i].near_distance = SPLIT_WEIGHT * (near * glm::pow(ratio, si)) + (1 - SPLIT_WEIGHT) * (near + (far - near) * si);
+            frustums[i - 1].far_distance = frustums[i].near_distance * 1.005f;
         }
 
-        frustums[SPLIT_COUNT - 1].far = far;
+        frustums[SPLIT_COUNT - 1].far_distance = far;
     }
 
     // updates far distances for uniform
     {
         const auto projection = camera.getProjection();
         for (uint32_t i = 0; i < SPLIT_COUNT; ++i) {
-            far_bounds[i] = 0.5f * (-frustums[i].far * projection[2][2] + projection[3][2]) / frustums[i].far + 0.5f;
+            far_bounds[i] = 0.5f * (-frustums[i].far_distance * projection[2][2] + projection[3][2]) / frustums[i].far_distance + 0.5f;
         }
     }
 
@@ -82,11 +82,11 @@ void CascadeShadows::updateFrustums(Context& ctx, Camera& camera) {
         const auto up = camera.getUp();
 
         for (auto& frustum : frustums) {
-            const auto fc = position + front * frustum.far;
-            const auto nc = position + front * frustum.near;
+            const auto fc = position + front * frustum.far_distance;
+            const auto nc = position + front * frustum.near_distance;
 
-            const auto near_height = glm::tan(frustum.fov / 2.0f) * frustum.near;
-            const auto far_height = glm::tan(frustum.fov / 2.0f) * frustum.far;
+            const auto near_height = glm::tan(frustum.fov / 2.0f) * frustum.near_distance;
+            const auto far_height = glm::tan(frustum.fov / 2.0f) * frustum.far_distance;
 
             const auto near_width = near_height * frustum.ratio;
             const auto far_width = far_height * frustum.ratio;
