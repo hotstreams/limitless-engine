@@ -26,6 +26,10 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 link_directories(${FREETYPE_LIBRARIES})
 
 if (WIN32)
+    find_package(stb_image REQUIRED)
+    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
+    include_directories(${STB_IMAGE_INCLUDE_DIRS})
+
     find_package(glm REQUIRED)
     message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
     include_directories(${GLM_INCLUDE_DIRS})
@@ -45,10 +49,6 @@ if (WIN32)
     message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIRS}")
     include_directories(${ASSIMP_INCLUDE_DIRS})
     link_directories(${ASSIMP_LIBRARIES})
-
-    find_package(stb_image REQUIRED)
-    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
-    include_directories(${STB_IMAGE_INCLUDE_DIRS})
 
     link_libraries(opengl32 glew32 glfw3 assimp freetype)
 endif()
