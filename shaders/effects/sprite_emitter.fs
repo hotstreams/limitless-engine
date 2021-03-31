@@ -11,7 +11,7 @@ LimitlessEngine::EmitterType
     in vec4 fs_color;
 #endif
 #ifdef InitialRotation_MODULE
-    in vec4 fs_rotation;
+    in vec3 fs_rotation;
 #endif
 #ifdef InitialVelocity_MODULE
     in vec3 fs_velocity;
