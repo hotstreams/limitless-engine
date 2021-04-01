@@ -39,11 +39,11 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
 
     std::vector<std::byte> data(side_size.x * side_size.y);
 
-    uint32_t x {};
-    uint32_t y {};
+    uint32_t x {0};
+    uint32_t y {0};
     for (char c = 0; c < 127; ++c) {
-        if (isSynthetizedGlyph(c))
-            continue;
+    	if (isSynthetizedGlyph(c))
+    		continue;
 
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
             throw font_error{"Failed to load character "s + c + " (code " + std::to_string((int)c) + ")"};
