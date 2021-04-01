@@ -55,7 +55,6 @@ AbstractInstance& AbstractInstance::rotateBy(const glm::quat& _rotation) noexcep
     return *this;
 }
 
-
 AbstractInstance& AbstractInstance::setScale(const glm::vec3& _scale) noexcept {
     scale = _scale;
     return *this;
