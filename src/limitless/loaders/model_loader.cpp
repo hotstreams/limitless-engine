@@ -262,8 +262,14 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
     return builder.build();
 }
 
-std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
+std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(
+		aiMesh* mesh,
+		std::vector<Bone>& bones,
+        std::unordered_map<std::string, uint32_t>& bone_map,
+        const ModelLoaderFlags& flags
+) const {
     std::vector<VertexBoneWeight> bone_weights;
+
     if (mesh->HasBones()) {
         bone_weights.resize(mesh->mNumVertices);
 
@@ -313,7 +319,12 @@ std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(const aiSc
     return materials;
 }
 
-std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
+std::vector<Animation> ModelLoader::loadAnimations(
+		const aiScene* scene,
+		std::vector<Bone>& bones,
+        std::unordered_map<std::string, uint32_t>& bone_map,
+		const ModelLoaderFlags& flags
+) const {
     std::vector<Animation> animations;
     for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
         const auto* anim = scene->mAnimations[i];
