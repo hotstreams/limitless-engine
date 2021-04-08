@@ -29,7 +29,7 @@ ByteBuffer EmitterSerializer::serialize(const Emitter& emitter) {
     return buffer;
 }
 
-void EmitterSerializer::deserialize(Assets& assets, ByteBuffer& buffer, EffectBuilder& builder) {
+void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer& buffer, EffectBuilder& builder) {
     std::string name;
     EmitterType type;
     glm::vec3 local_position;
@@ -47,8 +47,8 @@ void EmitterSerializer::deserialize(Assets& assets, ByteBuffer& buffer, EffectBu
            >> local_space
            >> spawn
            >> duration
-           >> AssetDeserializer<decltype(modules)>{assets, modules}
-           >> AssetDeserializer<std::shared_ptr<Material>>{assets, material};
+           >> AssetDeserializer<decltype(modules)>{context, assets, modules}
+           >> AssetDeserializer<std::shared_ptr<Material>>{context, assets, material};
 
     switch (type) {
         case EmitterType::Sprite: {

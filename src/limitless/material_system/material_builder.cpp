@@ -7,8 +7,8 @@
 
 using namespace LimitlessEngine;
 
-MaterialBuilder::MaterialBuilder(Assets& _assets) noexcept
-    : assets {_assets} { }
+MaterialBuilder::MaterialBuilder(Context& _context, Assets& _assets) noexcept
+    : context{_context}, assets {_assets} { }
 
 void MaterialBuilder::initializeMaterialBuffer(Material& material, const ShaderProgram& shader) noexcept {
     const auto found = std::find_if(shader.indexed_binds.begin(), shader.indexed_binds.end(), [&] (const auto& data) { return data.name == "material_buffer"; });
@@ -21,7 +21,12 @@ void MaterialBuilder::initializeMaterialBuffer(Material& material, const ShaderP
     std::array<GLint, 2> block_values = { 0 };
     glGetProgramResourceiv(shader.getId(), GL_UNIFORM_BLOCK, block_index, block_properties.size(), block_properties.data(), block_values.size(), nullptr, block_values.data());
 
-    material.material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, sizeof(std::byte) * block_values[1], Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+    BufferBuilder builder;
+    material.material_buffer = builder  .setTarget(Buffer::Type::Uniform)
+                                        .setUsage(Buffer::Usage::DynamicDraw)
+                                        .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                                        .setDataSize(sizeof(std::byte) * block_values[1])
+                                        .build();
 
     std::vector<GLint> block_uniforms(block_values[0]);
     glGetProgramResourceiv(shader.getId(), GL_UNIFORM_BLOCK, block_index, 1, &active_variables, block_values[0], nullptr, block_uniforms.data());
@@ -170,10 +175,10 @@ std::shared_ptr<Material> MaterialBuilder::build(const ModelShaders& model_shade
 
     // TODO: napisat commenty potomu chto ya uje zabyl chto eto delaet i pochmy razniy code compare to custom builder :(
     // compiles every material/shader combination
-    MaterialCompiler compiler {assets};
+    MaterialCompiler compiler {context, assets};
     for (const auto& mat_shader : material_shaders) {
         for (const auto& mod_shader : model_shaders) {
-            if (!assets.shaders.exists(mat_shader, mod_shader, material->shader_index)) {
+            if (!assets.shaders.contains(mat_shader, mod_shader, material->shader_index)) {
                 compiler.compile(*material, mat_shader, mod_shader);
             }
         }
@@ -198,4 +203,9 @@ MaterialType MaterialBuilder::getMaterialType() const noexcept {
 
 void MaterialBuilder::setProperties(decltype(Material::properties)&& props) {
     material->properties = std::move(props);
+}
+
+MaterialBuilder& MaterialBuilder::setTwoSided(bool two_sided) noexcept {
+    material->two_sided = two_sided;
+    return *this;
 }

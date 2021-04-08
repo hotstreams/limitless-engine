@@ -9,7 +9,7 @@ namespace LimitlessEngine {
         template<typename T, typename T1>
         std::function<std::shared_ptr<AbstractMesh>()> loadMesh(aiMesh* mesh, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
     public:
-        ThreadedModelLoader(Assets& assets) noexcept : ModelLoader {assets} {}
+        ThreadedModelLoader(Context& context, Assets& assets) noexcept : ModelLoader {context, assets} {}
 
         std::function<std::shared_ptr<AbstractModel>()> loadModel(const fs::path& path, bool flip_uv = false);
     };

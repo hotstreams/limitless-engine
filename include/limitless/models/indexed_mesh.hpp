@@ -11,15 +11,26 @@ namespace LimitlessEngine {
         std::unique_ptr<Buffer> indices_buffer;
     private:
         void initialize() {
+            BufferBuilder builder;
+            builder.setTarget(Buffer::Type::Element)
+                    .setData(indices.data())
+                    .setDataSize(indices.size() * sizeof(T1));
+
             switch (this->data_type) {
                 case MeshDataType::Static:
-                    indices_buffer = BufferBuilder::build(Buffer::Type::Element, indices, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
+                    indices_buffer = builder.setUsage(Buffer::Storage::Static)
+                                            .setAccess(Buffer::ImmutableAccess::None)
+                                            .build();
                     break;
                 case MeshDataType::Dynamic:
-                    indices_buffer = BufferBuilder::build(Buffer::Type::Element, indices, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+                    indices_buffer = builder.setUsage(Buffer::Usage::DynamicDraw)
+                                            .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                                            .build();
                     break;
                 case MeshDataType::Stream:
-                    indices_buffer = BufferBuilder::buildTriple(Buffer::Type::Element, indices, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+//                    indices_buffer = builder.setUsage(Buffer::Storage::DynamicCoherentWrite)
+//                                            .setAccess(Buffer::ImmutableAccess::WriteCoherent)
+//                                            .buildTriple();
                     break;
             }
 

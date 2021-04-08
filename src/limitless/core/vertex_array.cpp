@@ -38,24 +38,29 @@ void VertexArray::disableAttribute(GLuint index) const noexcept {
     glDisableVertexAttribArray(index);
 }
 
-VertexArray& VertexArray::operator<<(const VertexAttribute& attribute) noexcept {
+VertexArray& VertexArray::setAttribute(GLuint attr_id, const VertexAttribute& attribute) noexcept {
     bind();
 
     const auto& [size, type, normalized, stride, pointer, buffer] = attribute;
 
     buffer.bind();
 
-    enableAttribute(next_attribute_index);
+    enableAttribute(attr_id);
 
     if (type == GL_INT) {
-        glVertexAttribIPointer(next_attribute_index, size, type, stride, pointer);
+        glVertexAttribIPointer(attr_id, size, type, stride, pointer);
     } else {
-        glVertexAttribPointer(next_attribute_index, size, type, normalized, stride, pointer);
+        glVertexAttribPointer(attr_id, size, type, normalized, stride, pointer);
     }
 
-    ++next_attribute_index;
+    //todo: fix shitty logic
+    next_attribute_index = std::max(next_attribute_index, attr_id + 1);
 
     return *this;
+}
+
+VertexArray& VertexArray::operator<<(const VertexAttribute& attribute) noexcept {
+    return setAttribute(next_attribute_index, attribute);
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<Vertex, Buffer&>& attribute) noexcept {
@@ -114,8 +119,8 @@ void LimitlessEngine::swap(VertexArray& lhs, VertexArray& rhs) {
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<TextVertex, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, position), attribute.second }
-          << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, uv), attribute.second };
+    setAttribute(0, VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, position), attribute.second });
+    setAttribute(1, VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, uv), attribute.second });
 
     return *this;
 }

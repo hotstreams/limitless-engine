@@ -37,7 +37,7 @@ namespace LimitlessEngine {
         virtual void generateMipMap(GLenum target) const noexcept = 0;
 
         // binds texture to specified index
-        virtual void bind(GLenum target, GLuint index) const noexcept = 0;
+        virtual void bind(GLenum target, GLuint index) const = 0;
 
         // sets various of parameters
         virtual void texParameter(GLenum target, GLenum name, GLint param) const noexcept = 0;

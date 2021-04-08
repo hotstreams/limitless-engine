@@ -10,6 +10,7 @@
 
 namespace LimitlessEngine {
     class ShaderProgram;
+    class Context;
 
     struct ShaderKey {
         MaterialShader material_type;
@@ -44,7 +45,7 @@ namespace LimitlessEngine {
         ShaderStorage() = default;
         ~ShaderStorage() = default;
 
-        void initialize();
+        void initialize(Context& ctx);
 
         ShaderProgram& get(const std::string& name) const;
         ShaderProgram& get(MaterialShader material_type, ModelShader model_type, uint64_t material_index) const;
@@ -56,6 +57,6 @@ namespace LimitlessEngine {
         void add(const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept;
         void add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept;
 
-        bool exists(MaterialShader material_type, ModelShader model_type, uint64_t material_index) noexcept;
+        bool contains(MaterialShader material_type, ModelShader model_type, uint64_t material_index) noexcept;
     };
 }

@@ -40,7 +40,8 @@ ImmutableTexture::ImmutableTexture(std::unique_ptr<ExtensionTexture> _texture, T
 
     for (auto* ptr : data) {
         if (ptr) {
-            ImmutableTexture::texSubImage2D({0, 0}, size, ptr);
+//            ImmutableTexture::texSubImage2D({0, 0}, size, ptr);
+//            texture->texSubImage3D(static_cast<GLenum>(target), 0, offset.x, offset.y, offset.z, _size, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
         }
     }
 }

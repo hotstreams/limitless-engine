@@ -3,35 +3,41 @@
 #include <limitless/core/texture.hpp>
 #include <limitless/core/extension_texture.hpp>
 
+#include <variant>
 #include <memory>
 
 namespace LimitlessEngine {
-   class TextureBuilder {
-   private:
+    class TextureBuilder {
+    private:
         static ExtensionTexture* getSupportedTexture(Texture::Type target);
-    public:
-        static std::unique_ptr<Texture> build(Texture::Type target, Texture::InternalFormat internal, glm::uvec2 size, Texture::Format format, Texture::DataType data_type, const void* data, const texture_parameters& params);
-        static std::shared_ptr<Texture> build(Texture::Type target, Texture::InternalFormat internal, glm::uvec3 size, Texture::Format format, Texture::DataType data_type, const void* data, const texture_parameters& params);
-        static std::shared_ptr<Texture> build(Texture::Type target, Texture::InternalFormat internal, glm::uvec2 size, Texture::Format format, Texture::DataType data_type, const std::array<void*, 6>& data, const texture_parameters& params);
-        static std::shared_ptr<Texture> build(Texture::Type target, GLsizei levels, Texture::InternalFormat internal, glm::uvec2 size, Texture::Format format, Texture::DataType data_type, const void* data, const texture_parameters& params);
-        static std::shared_ptr<Texture> build(Texture::Type target, GLsizei levels, Texture::InternalFormat internal, glm::uvec3 size, Texture::Format format, Texture::DataType data_type, const void* data, const texture_parameters& params);
-        static std::shared_ptr<Texture> build(Texture::Type target, GLsizei levels, Texture::InternalFormat internal, glm::uvec2 size, Texture::Format format, Texture::DataType data_type, const std::array<void*, 6>& data, const texture_parameters& params);
 
-//        static std::shared_ptr<Texture> build(Texture::Type target, uint8_t samples, Texture::InternalFormat internal, glm::uvec2 size, bool immutable, const texture_parameters& params) {
-//            std::shared_ptr<Texture> texture;
-//            bool imm = immutable & ContextInitializer::isExtensionSupported("GL_ARB_texture_storage");
-//
-//            if (ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access")) {
-//                texture = std::make_shared<NamedTexture>(target, samples, internal, size, imm, params);
-//            } else {
-//                texture = std::make_shared<StateTexture>(target, samples, internal, size, imm, params);
-//            }
-//
-//            if (ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
-//                return std::shared_ptr<Texture>(new BindlessTexture(std::move(texture)));
-//            }
-//
-//            return texture;
-//        }
+        Texture::InternalFormat internal {Texture::InternalFormat::RGB};
+        Texture::Type target {Texture::Type::Tex2D};
+        Texture::Format format {Texture::InternalFormat::RGB};
+        Texture::DataType data_type {Texture::DataType::UnsignedByte};
+
+        std::variant<const void*, std::array<void*, 6>> data {};
+
+        texture_parameters params {};
+        std::variant<glm::uvec2, glm::uvec3> size {};
+        GLsizei levels {1};
+        bool mipmap {};
+    public:
+        TextureBuilder& setInternalFormat(Texture::InternalFormat _internal);
+        TextureBuilder& setParameters(const texture_parameters& _params);
+        TextureBuilder& setDataType(Texture::DataType _data_type);
+        TextureBuilder& setFormat(Texture::Format _format);
+        TextureBuilder& setTarget(Texture::Type _target);
+        TextureBuilder& setData(const void* _data);
+        TextureBuilder& setData(const std::array<void*, 6>& _data);
+        TextureBuilder& setLevels(GLsizei _levels);
+        TextureBuilder& setSize(glm::uvec2 _size);
+        TextureBuilder& setSize(glm::uvec3 _size);
+        TextureBuilder& setMipMap(bool _mipmap);
+
+        std::shared_ptr<Texture> buildMutable();
+        // builds immutable texture if supported
+        // otherwise mutable
+        std::shared_ptr<Texture> build();
     };
 }

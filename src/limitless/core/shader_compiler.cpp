@@ -1,6 +1,7 @@
 #include <limitless/core/shader_compiler.hpp>
 
 #include <fstream>
+#include <limitless/core/context.hpp>
 #include <limitless/core/shader_program.hpp>
 
 using namespace LimitlessEngine;
@@ -13,6 +14,11 @@ namespace {
             { ".gs",  Shader::Type::Geometry },
             { ".fs",  Shader::Type::Fragment },
             { ".cs",  Shader::Type::Compute } };
+}
+
+ShaderCompiler::ShaderCompiler(Context& _context)
+    : context{_context} {
+
 }
 
 void ShaderCompiler::checkStatus(const GLuint program_id) {
@@ -62,11 +68,11 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
 
     shaders.clear();
 
-    return std::shared_ptr<ShaderProgram>(new ShaderProgram(program_id));
+    return std::shared_ptr<ShaderProgram>(new ShaderProgram(context, program_id));
 }
 
 std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, const ShaderAction& action) {
-    uint8_t shader_count {0};
+    uint8_t shader_count {};
     for (const auto& [extension, type] : shader_file_extensions) {
         try {
             Shader shader { path.string() + extension.data(), type };

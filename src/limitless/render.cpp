@@ -7,6 +7,8 @@
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
 
+#include <limitless/models/elementary_model.hpp>
+
 using namespace LimitlessEngine;
 
 struct FrontToBackSorter {
@@ -79,8 +81,23 @@ void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
                 << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
                 << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
     };
-    auto color = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGBA16F, ctx.getSize(), Texture::Format::RGBA, Texture::DataType::Float, nullptr, param_set);
-    auto depth = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::Depth32F, ctx.getSize(), Texture::Format::DepthComponent, Texture::DataType::Float, nullptr, param_set);
+
+    TextureBuilder builder;
+    auto color = builder.setTarget(Texture::Type::Tex2D)
+                        .setInternalFormat(Texture::InternalFormat::RGBA16F)
+                        .setSize(ctx.getSize())
+                        .setFormat(Texture::Format::RGBA)
+                        .setDataType(Texture::DataType::Float)
+                        .setParameters(param_set)
+                        .build();
+
+    auto depth = builder.setTarget(Texture::Type::Tex2D)
+                        .setInternalFormat(Texture::InternalFormat::Depth32F)
+                        .setSize(ctx.getSize())
+                        .setFormat(Texture::Format::DepthComponent)
+                        .setDataType(Texture::DataType::Float)
+                        .setParameters(param_set)
+                        .build();
 
     offscreen.bind();
     offscreen << TextureAttachment{FramebufferAttachment::Color0, color}
@@ -92,7 +109,7 @@ void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
 }
 
 Renderer::Renderer(ContextEventObserver& context)
-    : postprocess{context}, effect_renderer{context}, offscreen{context} {
+    : postprocess{context}, effect_renderer{context}, scene_data{context}, offscreen{context}, shadow_mapping{context} {
     initializeOffscreenBuffer(context);
 }
 
@@ -142,6 +159,10 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
     draw_scene(Blending::Modulate);
     draw_scene(Blending::Translucent);
 
+    if (RenderSettings::COORDINATE_SYSTEM_AXES) {
+        renderCoordinateSystemAxes(context, scene, assets);
+    }
+
     offscreen.unbind();
 
     postprocess.process(context, assets, offscreen);
@@ -165,4 +186,25 @@ void Renderer::dispatchInstances(Scene& scene, Context& context, const Assets& a
 
         instance->draw(assets, shader_type, blending, uniform_set);
     }
+}
+
+void Renderer::renderCoordinateSystemAxes(Context& context, Scene& scene, const Assets& assets) const {
+    context.enable(Capabilities::DepthTest);
+    context.setDepthFunc(DepthFunc::Less);
+    context.setDepthMask(DepthMask::False);
+    context.disable(Capabilities::DepthTest);
+
+    glLineWidth(5.0f);
+
+    static const auto x = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
+    static const auto y = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+    static const auto z = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f});
+
+    static ElementaryInstance x_i {x, assets.materials.at("green"), {5.0f, 1.0f, 0.0f}};
+    static ElementaryInstance y_i {y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}};
+    static ElementaryInstance z_i {z, assets.materials.at("red"), {5.0f, 1.0f, 0.0f}};
+
+    x_i.draw(assets, MaterialShader::Forward, Blending::Opaque);
+    y_i.draw(assets, MaterialShader::Forward, Blending::Opaque);
+    z_i.draw(assets, MaterialShader::Forward, Blending::Opaque);
 }

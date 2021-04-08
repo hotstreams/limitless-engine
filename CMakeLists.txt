@@ -83,6 +83,7 @@ set(ENGINE_CORE
         src/limitless/core/mutable_texture.cpp
         src/limitless/core/immutable_texture.cpp
         src/limitless/core/texture_builder.cpp
+        src/limitless/core/state_query.cpp
    )
 
 set(ENGINE_MATERIAL_SYSTEM
@@ -163,8 +164,5 @@ add_executable(limitless_demo
 add_executable(limitless_engine_tests
         $<TARGET_OBJECTS:limitless_engine_objects>
         "tests/catch_amalgamated.cpp"
-        "tests/uniform_serializer_test.cpp"
-        "tests/material_serializer_test.cpp"
-        "tests/bytebuffer_test.cpp"
-        "tests/effect_serializer_test.cpp"
-        "tests/material_loader_test.cpp")
+
+        "tests/core/texture_tests.cpp")

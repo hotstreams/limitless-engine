@@ -3,7 +3,8 @@
 
 using namespace LimitlessEngine;
 
-BindlessTexture::BindlessTexture(ExtensionTexture* texture) : texture(texture) {
+BindlessTexture::BindlessTexture(ExtensionTexture* texture)
+    : texture(texture) {
 }
 
 void BindlessTexture::makeBindless() const noexcept {
@@ -14,7 +15,12 @@ void BindlessTexture::makeBindless() const noexcept {
 
 BindlessTexture::~BindlessTexture() {
     makeNonresident();
-    //TODO: del handle from ctx?
+
+    if (handle) {
+        if (auto *state = ContextState::getState(glfwGetCurrentContext()); state) {
+            state->texture_resident.erase(handle);
+        }
+    }
 }
 
 void BindlessTexture::makeResident() const noexcept {

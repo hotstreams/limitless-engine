@@ -7,7 +7,7 @@ namespace LimitlessEngine {
     private:
         CascadeShadows directional_shadow;
     public:
-        ShadowMapping();
+        explicit ShadowMapping(Context& context);
         ~ShadowMapping() = default;
 
         void castShadows(Renderer& render, const Assets& assets, Scene& scene, Context& ctx, Camera& camera);

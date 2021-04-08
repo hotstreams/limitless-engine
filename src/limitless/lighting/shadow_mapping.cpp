@@ -4,7 +4,8 @@
 
 using namespace LimitlessEngine;
 
-ShadowMapping::ShadowMapping() {
+ShadowMapping::ShadowMapping(Context& context)
+    : directional_shadow{context} {
 
 }
 

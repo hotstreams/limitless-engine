@@ -2,6 +2,7 @@
 
 #include <limitless/core/buffer_builder.hpp>
 #include <limitless/lighting/lights.hpp>
+#include <limitless/core/context_state.hpp>
 
 using namespace LimitlessEngine;
 
@@ -19,8 +20,18 @@ template<typename T>
 void LightContainer<T>::reserve(size_t n) {
     lights.reserve(n);
     lights_map.reserve(n);
-    IndexedBuffer::remove(T::shader_storage_name, buffer);
-    buffer = BufferBuilder::buildIndexed(T::shader_storage_name, Buffer::Type::ShaderStorage, sizeof(T) * n, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+
+    auto& buffers = ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers();
+
+    buffers.remove(T::shader_storage_name, buffer);
+
+    BufferBuilder builder;
+    buffer = builder.setTarget(Buffer::Type::ShaderStorage)
+                    .setUsage(Buffer::Usage::DynamicDraw)
+                    .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                    .setDataSize(sizeof(T) * n)
+                    .build(T::shader_storage_name, *ContextState::getState(glfwGetCurrentContext()));
+
     modified = true;
 }
 

@@ -6,7 +6,7 @@
 namespace LimitlessEngine {
     class NamedTexture : public StateTexture {
     private:
-        GLenum target;
+        GLenum target {};
     public:
         explicit NamedTexture(GLenum target) noexcept;
         ~NamedTexture() override;
@@ -30,7 +30,7 @@ namespace LimitlessEngine {
         void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) const noexcept override;
         void texSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 size, GLenum format, GLenum type, const void* data) const noexcept override;
 
-        void bind(GLenum target, GLuint index) const noexcept override;
+        void bind(GLenum target, GLuint index) const override;
         void generateMipMap(GLenum target) const noexcept override;
 
         void texParameter(GLenum target, GLenum name, GLint param) const noexcept override;

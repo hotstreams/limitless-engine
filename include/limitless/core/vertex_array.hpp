@@ -37,6 +37,8 @@ namespace LimitlessEngine {
         void disableAttribute(GLuint index) const noexcept;
         [[nodiscard]] auto getId() const noexcept { return id; }
 
+        VertexArray& setAttribute(GLuint attr_id, const VertexAttribute& attribute) noexcept;
+
         VertexArray& operator<<(const Buffer& element_buffer) noexcept;
         VertexArray& operator<<(const VertexAttribute& attribute) noexcept;
         VertexArray& operator<<(const std::pair<Vertex, Buffer&>& attribute) noexcept;

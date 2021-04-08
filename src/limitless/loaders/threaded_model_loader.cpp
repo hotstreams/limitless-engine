@@ -13,9 +13,9 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(aiM
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
     auto name = path.string() + PATH_SEPARATOR + mesh_name;
 
-    auto vertices = loadVertices<V>(m);
+    auto vertices = loadVertices<V>(m, ModelLoaderFlags{});
     auto indices = loadIndices<I>(m);
-    auto weights = loadBoneWeights(m, bones, bone_map);
+    auto weights = loadBoneWeights(m, bones, bone_map, ModelLoaderFlags{});
 
     return [vertices = std::move(vertices), indices = std::move(indices), name = std::move(name), weights = std::move(weights), skinned = !bone_map.empty()] () mutable {
 //        if (assets.meshes.exists(name)) {
@@ -66,9 +66,9 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(c
 
     auto materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
 
-    auto animations = loadAnimations(scene, bones, bone_map);
+    auto animations = loadAnimations(scene, bones, bone_map, {});
 
-    auto animation_tree = loadAnimationTree(scene, bones, bone_map);
+    auto animation_tree = loadAnimationTree(scene, bones, bone_map, {});
 
     auto global_matrix = glm::convert(scene->mRootNode->mTransformation.Inverse());
 

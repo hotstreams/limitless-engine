@@ -21,7 +21,7 @@ namespace LimitlessEngine {
         SceneData scene_data;
         std::shared_ptr<Buffer> buffer;
     public:
-        SceneDataStorage();
+        SceneDataStorage(Context& context);
 
         void update(Context& context, Camera& camera);
     };

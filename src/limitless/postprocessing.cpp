@@ -41,23 +41,41 @@ Bloom::Bloom(ContextEventObserver& ctx)
     : brightness {ctx}
     , blur { Framebuffer(ctx), Framebuffer(ctx) } {
 
-    auto param_set = [] (Texture& texture) {
-        texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
-                << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
-    };
-    auto texture = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGB16F, ctx.getSize(), Texture::Format::RGB, Texture::DataType::Float, nullptr, param_set);
+    {
+        TextureBuilder builder;
+        auto texture = builder.setTarget(Texture::Type::Tex2D)
+                              .setInternalFormat(Texture::InternalFormat::RGB16F)
+                              .setSize(ctx.getSize())
+                              .setFormat(Texture::Format::RGB)
+                              .setDataType(Texture::DataType::Float)
+                              .setParameters([](Texture& texture) {
+                                    texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+                                            << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
+                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
+                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
+                              })
+                              .build();
 
-
-    brightness << TextureAttachment{FramebufferAttachment::Color0, texture};
-    brightness.drawBuffer(FramebufferAttachment::Color0);
-    brightness.checkStatus();
+        brightness << TextureAttachment{FramebufferAttachment::Color0, texture};
+        brightness.drawBuffer(FramebufferAttachment::Color0);
+        brightness.checkStatus();
+    }
 
     for (auto& fbo : blur) {
-        auto tex = TextureBuilder::build(Texture::Type::Tex2D, 1, Texture::InternalFormat::RGB16F, ctx.getSize(), Texture::Format::RGB, Texture::DataType::Float, nullptr, param_set);
-
-        fbo << TextureAttachment{FramebufferAttachment::Color0, tex};
+        TextureBuilder builder;
+        auto texture = builder.setTarget(Texture::Type::Tex2D)
+                              .setInternalFormat(Texture::InternalFormat::RGB16F)
+                              .setSize(ctx.getSize())
+                              .setFormat(Texture::Format::RGB)
+                              .setDataType(Texture::DataType::Float)
+                              .setParameters([] (Texture& texture) {
+                                    texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+                                            << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
+                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
+                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
+                              })
+                              .build();
+        fbo << TextureAttachment{FramebufferAttachment::Color0, texture};
         fbo.drawBuffer(FramebufferAttachment::Color0);
         fbo.checkStatus();
 

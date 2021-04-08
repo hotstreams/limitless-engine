@@ -166,7 +166,7 @@ ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, const Uniform& unifo
 
 ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::unique_ptr<Uniform>>& asset) {
     UniformSerializer serializer;
-    auto& [assets, uniform] = asset;
+    auto& [context, assets, uniform] = asset;
     uniform = serializer.deserialize(buffer, assets);
     return buffer;
 }

@@ -32,8 +32,8 @@ namespace LimitlessEngine {
 
         void generateMipMap(GLenum target) const noexcept override;
 
-        void activate(GLuint index) const noexcept;
-        void bind(GLenum target, GLuint index) const noexcept override;
+        static void activate(GLuint index);
+        void bind(GLenum target, GLuint index) const override;
 
         void texParameter(GLenum target, GLenum name, GLint param) const noexcept override;
         void texParameter(GLenum target, GLenum name, GLfloat param) const noexcept override;

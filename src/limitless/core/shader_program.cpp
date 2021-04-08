@@ -4,15 +4,14 @@
 #include <limitless/material_system/material.hpp>
 #include <limitless/core/bindless_texture.hpp>
 #include <limitless/core/texture_binder.hpp>
-#include <limitless/core/context_state.hpp>
-#include <limitless/core/uniform.hpp>
 #include <limitless/material_system/custom_material.hpp>
+#include <limitless/core/context.hpp>
 
 using namespace LimitlessEngine;
 
-ShaderProgram::ShaderProgram(GLuint id) : id{id} {
+ShaderProgram::ShaderProgram(ContextState& ctx, GLuint id) : id{id} {
     getUniformLocations();
-    getIndexedBufferBounds();
+    getIndexedBufferBounds(ctx);
 }
 
 GLint ShaderProgram::getUniformLocation(const Uniform& uniform) const noexcept {
@@ -31,7 +30,7 @@ void ShaderProgram::use() {
             glUseProgram(id);
         }
 
-        bindIndexedBuffers();
+        bindIndexedBuffers(*state);
         bindTextures();
 
         for (auto& [name, uniform] : uniforms) {
@@ -81,7 +80,7 @@ void ShaderProgram::getUniformLocations() noexcept {
     }
 }
 
-void ShaderProgram::getIndexedBufferBounds() noexcept {
+void ShaderProgram::getIndexedBufferBounds(ContextState& ctx) noexcept {
     std::array types = { IndexedBuffer::Type::UniformBuffer, IndexedBuffer::Type::ShaderStorage };
 
     for (const auto& type : types) {
@@ -101,7 +100,7 @@ void ShaderProgram::getIndexedBufferBounds() noexcept {
 
             const auto index = glGetProgramResourceIndex(id, static_cast<GLenum>(type), name.data());
 
-            indexed_binds.emplace_back(type, name, index, IndexedBuffer::getBindingPoint(type, name));
+            indexed_binds.emplace_back(type, name, index, ctx.getIndexedBuffers().getBindingPoint(type, name));
         }
     }
 }
@@ -117,7 +116,7 @@ ShaderProgram::~ShaderProgram() {
     }
 }
 
-void ShaderProgram::bindIndexedBuffers() {
+void ShaderProgram::bindIndexedBuffers(ContextState& ctx) {
     for (auto& [target, name, block_index, bound_point, connected] : indexed_binds) {
         // connects index block inside program with state binding point
         if (!connected) {
@@ -134,7 +133,7 @@ void ShaderProgram::bindIndexedBuffers() {
 
         // binds buffer to state binding point
         try {
-            auto buffer = IndexedBuffer::get(name);
+            auto buffer = ctx.getIndexedBuffers().get(name);
 
             Buffer::Type program_target;
             switch (target) {
@@ -148,8 +147,6 @@ void ShaderProgram::bindIndexedBuffers() {
 
             buffer->bindBaseAs(program_target, bound_point);
         } catch (const buffer_not_found& e) {
-            throw e;
-        } catch (const multiple_indexed_buffers& e) {
             continue;
         }
     }

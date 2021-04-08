@@ -33,11 +33,11 @@ namespace LimitlessEngine {
         std::shared_ptr<Buffer> light_buffer;
         std::vector<glm::mat4> light_space;
 
-        void initBuffers();
+        void initBuffers(Context& context);
         void updateFrustums(Context& ctx, Camera& camera);
         void updateLightMatrices(DirectionalLight& light);
     public:
-        CascadeShadows();
+        explicit CascadeShadows(Context& context);
         ~CascadeShadows() = default;
 
         void castShadows(Renderer& render, const Assets& assets, Scene& scene, Context& ctx, Camera& camera);

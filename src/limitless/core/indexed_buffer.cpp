@@ -4,26 +4,18 @@
 using namespace LimitlessEngine;
 
 std::shared_ptr<Buffer> IndexedBuffer::get(std::string_view name) {
-    const auto count = buffers.count(name.data());
-
-    switch (count) {
-        case 0:
-            throw buffer_not_found("Failed to find IndexedBuffer with name " + std::string(name.data()));
-        case 1:
-            return buffers.find(name.data())->second;
-        default:
-            throw multiple_indexed_buffers("More than one buffer, should be set manually which one");
+    if (buffers.count(name.data()) == 1) {
+        return buffers.find(name.data())->second;
+    } else {
+        throw buffer_not_found{"Buffer not found, should be set manually which one"};
     }
 }
 
 void IndexedBuffer::add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept {
-    std::unique_lock lock(mutex);
     buffers.emplace(name, std::move(buffer));
 }
 
 GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept {
-    std::unique_lock lock(mutex);
-
     const auto identifier = Identifier{type, name};
 
     const auto point_bound = bound.find(identifier);
@@ -64,23 +56,9 @@ GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept
 void IndexedBuffer::remove(const std::string &name, const std::shared_ptr<Buffer>& buffer) {
     if (buffer == nullptr) return;
 
-    {
-        std::unique_lock lock(mutex);
+    auto found = buffers.find(name);
 
-        auto found = buffers.find(name);
+    while (found->second != buffer) { ++found; }
 
-        while (found->second != buffer) { ++found; }
-
-        buffers.erase(found);
-    }
-}
-
-void IndexedBuffer::clear() {
-    {
-        std::unique_lock lock(mutex);
-
-        buffers.clear();
-        current_bind.clear();
-        bound.clear();
-    }
+    buffers.erase(found);
 }

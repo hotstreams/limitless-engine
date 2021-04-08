@@ -9,7 +9,7 @@ namespace LimitlessEngine {
     private:
         std::shared_ptr<AbstractMesh> mesh;
         MaterialInstance material;
-        bool hidden {false};
+        bool hidden {};
     public:
         MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<Material>& material) noexcept;
 

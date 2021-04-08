@@ -10,7 +10,7 @@
 
 using namespace LimitlessEngine;
 
-std::shared_ptr<Material> MaterialLoader::load(Assets& assets, const fs::path& _path) {
+std::shared_ptr<Material> MaterialLoader::load(Context& context, Assets& assets, const fs::path& _path) {
     auto path = convertPathSeparators(_path);
     std::ifstream stream(path, std::ios::binary | std::ios::ate);
 
@@ -21,7 +21,7 @@ std::shared_ptr<Material> MaterialLoader::load(Assets& assets, const fs::path& _
     stream.read(buffer.cdata(), buffer.size());
 
     std::shared_ptr<Material> material;
-    buffer >> AssetDeserializer<std::shared_ptr<Material>>{assets, material};
+    buffer >> AssetDeserializer<std::shared_ptr<Material>>{context, assets, material};
     return material;
 }
 
