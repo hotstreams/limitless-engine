@@ -33,7 +33,7 @@ void ShaderStorage::add(MaterialShader material_type, ModelShader model_type, ui
     material_shaders.emplace(ShaderKey{material_type, model_type, material_index}, std::move(program));
 }
 
-bool ShaderStorage::exists(MaterialShader material_type, ModelShader model_type, uint64_t material_index) noexcept {
+bool ShaderStorage::contains(MaterialShader material_type, ModelShader model_type, uint64_t material_index) noexcept {
     std::unique_lock lock(mutex);
     return material_shaders.find({material_type, model_type, material_index}) != material_shaders.end();
 }
@@ -64,8 +64,8 @@ void ShaderStorage::add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<S
     mesh_emitter_shaders.emplace(emitter_type, std::move(program));
 }
 
-void ShaderStorage::initialize() {
-    ShaderCompiler compiler;
+void ShaderStorage::initialize(Context& ctx) {
+    ShaderCompiler compiler{ctx};
 
     add("blur", compiler.compile(SHADER_DIR "postprocessing/blur"));
     add("brightness", compiler.compile(SHADER_DIR "postprocessing/brightness"));

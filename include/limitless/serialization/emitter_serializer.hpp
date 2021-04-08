@@ -8,11 +8,12 @@ namespace LimitlessEngine {
     class ByteBuffer;
     class EffectBuilder;
     class Assets;
+    class Context;
 
     class EmitterSerializer {
     public:
         ByteBuffer serialize(const Emitter& emitter);
-        void deserialize(Assets& ctx, ByteBuffer& buffer, EffectBuilder& builder);
+        void deserialize(Context& context, Assets& ctx, ByteBuffer& buffer, EffectBuilder& builder);
     };
 
     ByteBuffer& operator<<(ByteBuffer& buffer, const EmitterSpawn& spawn);

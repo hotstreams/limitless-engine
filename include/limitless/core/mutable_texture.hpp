@@ -11,7 +11,6 @@ namespace LimitlessEngine {
         InternalFormat internal_format;
         texture_parameters params;
         DataType data_type;
-        [[maybe_unused]] uint8_t samples {};
         glm::uvec3 size;
         Format format;
         Type target;

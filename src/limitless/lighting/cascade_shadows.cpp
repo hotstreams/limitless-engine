@@ -14,18 +14,22 @@
 
 using namespace LimitlessEngine;
 
-void CascadeShadows::initBuffers() {
-    auto param_set = [] (Texture& texture) {
-        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER}
-                << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER}
-                << TexParameter<float*>{GL_TEXTURE_BORDER_COLOR, borderColor};
-    };
-
-    // GL_DEPTH_COMPONENT16 is the only depth-renderable format ???
-    auto depth = TextureBuilder::build(Texture::Type::Tex2DArray, 1, Texture::InternalFormat::Depth16, glm::uvec3{SHADOW_RESOLUTION, SPLIT_COUNT}, Texture::Format::DepthComponent, Texture::DataType::Float, nullptr, param_set);
+void CascadeShadows::initBuffers(Context& context) {
+    TextureBuilder builder;
+    auto depth = builder.setTarget(Texture::Type::Tex2DArray)
+                        .setInternalFormat(Texture::InternalFormat::Depth16)
+                        .setSize(glm::uvec3{SHADOW_RESOLUTION, SPLIT_COUNT})
+                        .setFormat(Texture::Format::DepthComponent)
+                        .setDataType(Texture::DataType::Float)
+                        .setParameters([] (Texture& texture) {
+                            float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+                            texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+                                    << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
+                                    << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER}
+                                    << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER}
+                                    << TexParameter<float*>{GL_TEXTURE_BORDER_COLOR, borderColor};
+                        })
+                        .build();
 
     fbo.bind();
     fbo << TextureAttachment{FramebufferAttachment::Depth, depth};
@@ -35,11 +39,17 @@ void CascadeShadows::initBuffers() {
     fbo.checkStatus();
     fbo.unbind();
 
-    light_buffer = BufferBuilder::buildIndexed("directional_shadows", Buffer::Type::ShaderStorage, sizeof(glm::mat4) * SPLIT_COUNT, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+
+    BufferBuilder buffer_builder;
+    light_buffer = buffer_builder .setTarget(Buffer::Type::ShaderStorage)
+                                  .setUsage(Buffer::Usage::DynamicDraw)
+                                  .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                                  .setDataSize(sizeof(glm::mat4) * SPLIT_COUNT)
+                                  .build("directional_shadows", context);
 }
 
-CascadeShadows::CascadeShadows() {
-    initBuffers();
+CascadeShadows::CascadeShadows(Context& context) {
+    initBuffers(context);
     light_space.reserve(SPLIT_COUNT);
 }
 

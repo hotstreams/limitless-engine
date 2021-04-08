@@ -9,7 +9,7 @@ namespace LimitlessEngine {
 
     class MaterialInstance {
     private:
-        uint64_t next_id {0};
+        uint64_t next_id {};
         std::shared_ptr<Material> base;
         std::map<uint64_t, std::shared_ptr<Material>> materials;
     public:

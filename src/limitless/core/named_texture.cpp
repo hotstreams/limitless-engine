@@ -1,5 +1,6 @@
 #include <limitless/core/named_texture.hpp>
 #include <limitless/core/context_state.hpp>
+#include <limitless/core/context_initializer.hpp>
 #include <algorithm>
 
 using namespace LimitlessEngine;
@@ -35,9 +36,6 @@ void NamedTexture::texStorage2DMultisample([[maybe_unused]] GLenum _target, uint
     glTextureStorage2DMultisample(id, samples, internal_format, size.x, size.y, GL_FALSE);
 }
 
-// there are no such functions in DSA Extension
-// so we are using StateTexture funcs
-
 void NamedTexture::texImage2D(GLenum _target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, const void* data) const noexcept {
     StateTexture::texImage2D(_target, levels, internal_format, format, type, size, data);
 }
@@ -58,8 +56,12 @@ void NamedTexture::texSubImage3D([[maybe_unused]] GLenum _target, GLint level, G
     glTextureSubImage3D(id, level, xoffset, yoffset, zoffset, size.x, size.y, size.z, format, type, data);
 }
 
-void NamedTexture::bind([[maybe_unused]] GLenum _target, GLuint index) const noexcept {
+void NamedTexture::bind([[maybe_unused]] GLenum _target, GLuint index) const {
     if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (index >= static_cast<GLuint>(ContextInitializer::limits.max_texture_units)) {
+            throw std::logic_error{"Failed to bind texture to unit greater than accessible"};
+        }
+
         if (state->texture_bound[index] != id) {
             glBindTextureUnit(index, id);
             state->texture_bound[index] = id;

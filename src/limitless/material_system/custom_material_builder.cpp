@@ -10,7 +10,7 @@ using namespace LimitlessEngine;
 CustomMaterialBuilder& CustomMaterialBuilder::addUniform(std::string name, Uniform* uniform) {
     auto result = dynamic_cast<CustomMaterial&>(*material).uniforms.emplace(std::move(name), uniform);
     if (!result.second) {
-        throw std::runtime_error("Failed to add uniform to custom material, already exists.");
+        throw std::runtime_error("Failed to add uniform to custom material, already contains.");
     }
     return *this;
 }
@@ -44,7 +44,7 @@ std::shared_ptr<Material> CustomMaterialBuilder::build(const ModelShaders& model
         material->shader_index = next_shader_index++;
     }
 
-    MaterialCompiler compiler {assets};
+    MaterialCompiler compiler {context, assets};
     for (const auto& mat_shader : material_shaders) {
         for (const auto& mod_shader : model_shaders) {
             // Effect custom material shaders can be used if even it is not compiled, because we do not know that modules it will use

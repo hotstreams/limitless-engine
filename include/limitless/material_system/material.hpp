@@ -17,10 +17,11 @@ namespace LimitlessEngine {
         std::map<PropertyType, std::unique_ptr<Uniform>> properties;
         std::unordered_map<std::string, uint64_t> uniform_offsets;
         std::shared_ptr<Buffer> material_buffer;
-        Blending blending;
-        Shading shading;
+        Blending blending {Blending::Opaque};
+        Shading shading {Shading::Unlit};
         std::string name;
-        uint64_t shader_index;
+        uint64_t shader_index {};
+        bool two_sided {};
 
         ModelShaders model_shaders;
 
@@ -33,7 +34,7 @@ namespace LimitlessEngine {
         friend class MaterialCompiler;
         friend class MaterialSerializer;
         friend void swap(Material& lhs, Material& rhs) noexcept;
-        Material() noexcept;
+        Material() = default;
     public:
         // gets specified property parameter
         [[nodiscard]] UniformValue<glm::vec4>& getColor() const;
@@ -55,6 +56,7 @@ namespace LimitlessEngine {
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
         [[nodiscard]] const auto& getModelShaders() const noexcept { return model_shaders; }
+        [[nodiscard]] auto& getTwoSided() noexcept { return two_sided; }
 
         Material(Material&&) noexcept;
         Material& operator=(Material&&) noexcept;

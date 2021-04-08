@@ -7,8 +7,8 @@
 
 using namespace LimitlessEngine;
 
-MaterialCompiler::MaterialCompiler(Assets& _assets) noexcept
-    :  assets{_assets} {}
+MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets) noexcept
+    :  ShaderCompiler{context}, assets{_assets} {}
 
 std::string MaterialCompiler::getMaterialDefines(const Material& material) noexcept {
     std::string property_defines;

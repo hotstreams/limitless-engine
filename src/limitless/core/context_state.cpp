@@ -76,16 +76,16 @@ void ContextState::clear(Clear bits) noexcept {
 }
 
 void ContextState::enable(Capabilities func) noexcept {
-    if (!enable_map[func]) {
+    if (!capability_map[func]) {
         glEnable(static_cast<GLenum>(func));
-        enable_map[func] = true;
+        capability_map[func] = true;
     }
 }
 
 void ContextState::disable(Capabilities func) noexcept {
-    if (enable_map[func]) {
+    if (capability_map[func]) {
         glDisable(static_cast<GLenum>(func));
-        enable_map[func] = false;
+        capability_map[func] = false;
     }
 }
 

@@ -23,8 +23,7 @@ namespace LimitlessEngine {
             Tex3D = GL_TEXTURE_3D,
             CubeMap = GL_TEXTURE_CUBE_MAP,
             Tex2DArray = GL_TEXTURE_2D_ARRAY,
-            TexCubeMapArray = GL_TEXTURE_CUBE_MAP_ARRAY,
-            //Tex2DMS = GL_TEXTURE_2D_MULTISAMPLE
+            TexCubeMapArray = GL_TEXTURE_CUBE_MAP_ARRAY
         };
 
         enum class InternalFormat {

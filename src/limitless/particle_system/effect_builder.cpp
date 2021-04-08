@@ -10,8 +10,8 @@
 
 using namespace LimitlessEngine;
 
-EffectBuilder::EffectBuilder(Assets& _assets) noexcept
-    : assets {_assets} {}
+EffectBuilder::EffectBuilder(Context& _context, Assets& _assets) noexcept
+    : context{_context}, assets {_assets} {}
 
 EffectBuilder& EffectBuilder::setEmitterType(EmitterType type) noexcept {
     effect->emitters[last_emitter]->type = type;
@@ -82,7 +82,7 @@ EffectBuilder& EffectBuilder::setMesh(const std::shared_ptr<AbstractMesh>& mesh)
 }
 
 std::shared_ptr<EffectInstance> EffectBuilder::build() {
-    EffectCompiler compiler {assets};
+    EffectCompiler compiler {context, assets};
     compiler.compile(*effect);
 
     for (const auto& [name, emitter] : *effect) {

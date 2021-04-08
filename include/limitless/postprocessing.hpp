@@ -29,14 +29,14 @@ namespace LimitlessEngine {
         bool tone_mapping {true};
         float exposure {1.0f};
 
-        bool gamma_correction {false};
+        bool gamma_correction {};
         float gamma {2.2f};
 
-        bool vignette {false};
+        bool vignette {};
         float vignette_radius {0.75f};
         float vignette_softness {0.45f};
 
-        bool tone_shading {false};
+        bool tone_shading {};
         float number_of_colors {7.7f};
         float line_texel_offset {5.0f};
         float line_multiplier {1000.0f};

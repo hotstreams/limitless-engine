@@ -39,11 +39,14 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
 
     std::vector<std::byte> data(side_size.x * side_size.y);
 
-    uint32_t x {0};
-    uint32_t y {0};
+    uint32_t x {};
+    uint32_t y {};
     for (char c = 0; c < 127; ++c) {
+        if (isSynthetizedGlyph(c))
+            continue;
+
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-            throw font_error{"Failted to load character"};
+            throw font_error{"Failed to load character "s + c + " (code " + std::to_string((int)c) + ")"};
         }
 
         const auto glyph_w = face->glyph->bitmap.width;
@@ -74,15 +77,24 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
         x += glyph_w;
     }
 
+    chars.emplace('\t', chars.at(' '));
+    chars.at('\t').advance *= TAB_WIDTH_IN_SPACES;
+
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    //TODO: make it immutable?
-    auto params = [] (Texture& tex) {
-        tex << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
-            << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}
-            << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-            << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR};
-    };
-    texture = TextureBuilder::build(Texture::Type::Tex2D, Texture::InternalFormat::R, side_size, Texture::Format::Red, Texture::DataType::UnsignedByte, data.data(), std::move(params));
+    TextureBuilder builder;
+    texture = builder.setTarget(Texture::Type::Tex2D)
+                     .setInternalFormat(Texture::InternalFormat::R)
+                     .setSize(side_size)
+                     .setFormat(Texture::Format::Red)
+                     .setDataType(Texture::DataType::UnsignedByte)
+                     .setData(data.data())
+                     .setParameters([] (Texture& tex) {
+                         tex << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
+                             << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}
+                             << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
+                             << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR};
+                     })
+                     .buildMutable();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
@@ -100,6 +112,12 @@ std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
     for (const auto c : text) {
         auto& fc = chars.at(c);
 
+        if (c == '\n') {
+            offset.y -= font_size;
+            offset.x = 0;
+            continue;
+        }
+
         float x = offset.x + fc.bearing.x;
         float y = offset.y + fc.bearing.y - fc.size.y;
 
@@ -112,11 +130,6 @@ std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
         vertices.emplace_back(glm::vec2{x + fc.size.x, y + fc.size.y}, fc.uvs[3]);
 
         offset.x += (fc.advance >> 6);
-
-        if (c == '\n') {
-            offset.y -= font_size;
-            offset.x = 0;
-        }
     }
 
     return vertices;
@@ -193,4 +206,13 @@ std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, s
     add_rect({offset.x, offset.y}, glm::vec2{size, font_size});
 
     return vertices;
+}
+
+bool FontAtlas::isSynthetizedGlyph(uint32_t utf32_codepoint) const noexcept {
+    switch (utf32_codepoint) {
+        case '\t':
+            return true;
+        default:
+            return false;
+    }
 }

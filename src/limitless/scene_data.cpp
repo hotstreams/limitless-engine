@@ -1,13 +1,19 @@
 #include <limitless/scene_data.hpp>
 
+#include <limitless/core/context.hpp>
 #include <limitless/core/buffer_builder.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
 
 using namespace LimitlessEngine;
 
-SceneDataStorage::SceneDataStorage() {
-    buffer = BufferBuilder::buildIndexed("scene_data", Buffer::Type::Uniform, sizeof(SceneData), Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+SceneDataStorage::SceneDataStorage(Context& context) {
+    BufferBuilder builder;
+    buffer = builder.setTarget(Buffer::Type::Uniform)
+                    .setUsage(Buffer::Usage::DynamicDraw)
+                    .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                    .setDataSize(sizeof(SceneData))
+                    .build("scene_data", context);
 }
 
 void SceneDataStorage::update([[maybe_unused]] Context& context, Camera& camera) {

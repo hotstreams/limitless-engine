@@ -33,9 +33,10 @@ namespace LimitlessEngine {
         std::vector<future_asset> asset_futures;
         ContextThreadPool pool;
 
+        Context& context;
         Assets& assets;
     public:
-        AssetManager(Assets& assets, Context& shared, uint32_t pool_size = std::thread::hardware_concurrency());
+        AssetManager(Context& context, Assets& assets, Context& shared, uint32_t pool_size = std::thread::hardware_concurrency());
         //TODO: wait on loading
         ~AssetManager() = default;
 

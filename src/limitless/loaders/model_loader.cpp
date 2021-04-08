@@ -17,19 +17,63 @@ glm::mat4 glm::convert(const aiMatrix4x4& aimat) noexcept {
                      aimat.a4, aimat.b4, aimat.c4, aimat.d4);
 }
 
-glm::vec3 glm::convert3f(const aiVector3D &aivec) noexcept {
+glm::vec3 glm::convert3f(const aiVector3D& aivec) noexcept {
     return glm::vec3(aivec.x, aivec.y, aivec.z);
 }
 
-glm::vec2 glm::convert2f(const aiVector3D &aivec) noexcept {
+glm::vec2 glm::convert2f(const aiVector3D& aivec) noexcept {
     return glm::vec2(aivec.x, aivec.y);
 }
 
-ModelLoader::ModelLoader(Assets& _assets) noexcept
-    : assets {_assets} {}
+glm::fquat convertQuat(const aiQuaternion& aiquat) noexcept {
+    return { aiquat.w, aiquat.x, aiquat.y, aiquat.z };
+}
+
+namespace {
+    glm::vec3 flipYZ(const glm::vec3& v) noexcept {
+        return { v.x, v.z, v.y };
+    }
+
+    glm::fquat flipYZ(const glm::fquat& q) noexcept {
+        return { -q.w, q.x, q.z, q.y };
+    }
+
+    glm::mat4 flipYZ(const glm::mat4& m) noexcept {
+        const glm::mat4 rot = {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        };
+        return rot * m;
+    }
+
+    glm::mat4 flipYZTransformationMatrix(const glm::mat4& m) noexcept {
+        glm::vec3 translation = { m[0][3], m[1][3], m[2][3] };
+        // TODO: fix for negatives
+        glm::vec3 scale = { glm::length(glm::vec3{m[0][0], m[1][0], m[2][0]}),
+                            glm::length(glm::vec3{m[0][1], m[1][1], m[2][1]}),
+                            glm::length(glm::vec3{m[0][2], m[1][2], m[2][2]}) };
+        glm::mat4 rotation = {
+            m[0][0] / scale.x, m[0][1] / scale.y, m[0][2] / scale.z, 0.0f,
+            m[1][0] / scale.x, m[1][1] / scale.y, m[1][2] / scale.z, 0.0f,
+            m[2][0] / scale.x, m[2][1] / scale.y, m[2][2] / scale.z, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f,
+        };
+
+        translation = flipYZ(translation);
+        scale = flipYZ(scale);
+        rotation = flipYZ(rotation);
+
+        return glm::translate(glm::mat4{1.0f}, translation) * rotation * glm::scale(glm::mat4{1.0f}, scale);
+    }
+}
+
+ModelLoader::ModelLoader(Context& _context, Assets& _assets) noexcept
+    : context{_context}, assets {_assets} {}
 
 std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, const ModelLoaderFlags& flags) {
-    auto path = convertPathSeparators(_path);
+    const auto path = convertPathSeparators(_path);
 
     Assimp::Importer importer;
     const aiScene* scene;
@@ -42,7 +86,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
 
-    if (std::any_of(flags.begin(), flags.end(), [] (auto& flag) { return flag == ModelLoaderFlag::FlipUV; })) {
+    if (flags.find(ModelLoaderFlag::FlipUV) != flags.end()) {
         scene_flags |= aiProcess_FlipUVs;
     }
 
@@ -62,23 +106,27 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
 
     auto materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
 
-    auto animations = loadAnimations(scene, bones, bone_map);
+    auto animations = loadAnimations(scene, bones, bone_map, flags);
 
-    auto animation_tree = loadAnimationTree(scene, bones, bone_map);
+    auto animation_tree = loadAnimationTree(scene, bones, bone_map, flags);
 
-    auto global_matrix = glm::convert(scene->mRootNode->mTransformation.Inverse());
+    auto global_matrix = glm::convert(scene->mRootNode->mTransformation);
+
+    if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+        global_matrix = flipYZ(global_matrix);
+    }
 
     importer.FreeScene();
 
     auto model = bone_map.empty() ?
         std::shared_ptr<AbstractModel>(new Model(std::move(meshes), std::move(materials))) :
-        std::shared_ptr<AbstractModel>(new SkeletalModel(std::move(meshes), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), global_matrix));
+        std::shared_ptr<AbstractModel>(new SkeletalModel(std::move(meshes), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix)));
 
     return model;
 }
 
 template<typename T>
-std::vector<T> ModelLoader::loadVertices(aiMesh* mesh) const noexcept {
+std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept {
     std::vector<T> vertices;
     vertices.reserve(mesh->mNumVertices);
 
@@ -87,6 +135,12 @@ std::vector<T> ModelLoader::loadVertices(aiMesh* mesh) const noexcept {
         auto normal = glm::convert3f(mesh->mNormals[j]);
         auto tangent = glm::convert3f(mesh->mTangents[j]);
         auto uv = glm::convert2f(mesh->mTextureCoords[0][j]);
+
+//        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+//            vertex = flipYZ(vertex);
+//            normal = flipYZ(normal);
+//            tangent = flipYZ(tangent);
+//        }
 
         if constexpr (std::is_same<T, VertexNormalTangent>::value) {
             vertices.emplace_back(T{vertex, normal, tangent, uv});
@@ -110,7 +164,7 @@ std::vector<T> ModelLoader::loadIndices(aiMesh* mesh) const noexcept {
     indices.reserve(mesh->mNumFaces * 3);
 
     for (uint32_t k = 0; k < mesh->mNumFaces; ++k) {
-        auto face = mesh->mFaces[k];
+        const auto face = mesh->mFaces[k];
         indices.emplace_back(face.mIndices[0]);
         indices.emplace_back(face.mIndices[1]);
         indices.emplace_back(face.mIndices[2]);
@@ -124,7 +178,7 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh *m, const fs::path& p
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
     std::string name = path.string() + PATH_SEPARATOR + mesh_name;
 
-    if (std::any_of(flags.begin(), flags.end(), [] (auto flag) { return flag == ModelLoaderFlag::GenerateUniqueMeshNames; })) {
+    if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
         name += std::to_string(unnamed_mesh_index++);
     }
 
@@ -132,9 +186,9 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh *m, const fs::path& p
         return assets.meshes.at(name);
     }
 
-    auto vertices = loadVertices<T>(m);
+    auto vertices = loadVertices<T>(m, flags);
     auto indices = loadIndices<T1>(m);
-    auto weights = loadBoneWeights(m, bones, bone_map);
+    auto weights = loadBoneWeights(m, bones, bone_map, flags);
 
     auto mesh = bone_map.empty() ?
         std::shared_ptr<AbstractMesh>(new IndexedMesh<T, T1>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
@@ -157,7 +211,7 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         return assets.materials.at(name);
     }
 
-    MaterialBuilder builder {assets};
+    MaterialBuilder builder {context, assets};
     TextureLoader loader {assets};
 
     builder.create(std::move(name))
@@ -216,6 +270,14 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         }
     }
 
+//    {
+//        int twosided {};
+//
+//        mat->Get(AI_MATKEY_TWOSIDED, twosided);
+//
+//        builder.setTwoSided(twosided);
+//    }
+
     {
         aiColor3D color{0.0f};
         mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
@@ -245,7 +307,7 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
     return builder.build(model_shaders);
 }
 
-std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
+std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
     std::vector<VertexBoneWeight> bone_weights;
     if (mesh->HasBones()) {
         bone_weights.resize(mesh->mNumVertices);
@@ -254,8 +316,12 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
             std::string bone_name = mesh->mBones[j]->mName.C_Str();
 
             auto bi = bone_map.find(bone_name);
-            auto& om = mesh->mBones[j]->mOffsetMatrix;
-            auto offset_mat = glm::convert(om);
+            auto offset_mat = glm::convert(mesh->mBones[j]->mOffsetMatrix);
+
+//            if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+//                offset_mat = flipYZ(offset_mat);
+////                offset_mat = flipYZTransformationMatrix(offset_mat);
+//            }
 
             uint32_t bone_index;
             if (bi == bone_map.end()) {
@@ -284,7 +350,7 @@ std::vector<std::shared_ptr<Material>> ModelLoader::loadMaterials(const aiScene*
     std::vector<std::shared_ptr<Material>> materials;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
-        auto* mesh = scene->mMeshes[i];
+        const auto* mesh = scene->mMeshes[i];
         auto* material = scene->mMaterials[mesh->mMaterialIndex];
         materials.emplace_back(loadMaterial(material, path, {model_shader}));
     }
@@ -292,16 +358,16 @@ std::vector<std::shared_ptr<Material>> ModelLoader::loadMaterials(const aiScene*
     return materials;
 }
 
-std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
+std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
     std::vector<Animation> animations;
-    for (unsigned int i = 0; i < scene->mNumAnimations; ++i) {
-        auto* anim = scene->mAnimations[i];
+    for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
+        const auto* anim = scene->mAnimations[i];
 
         std::string anim_name(anim->mName.C_Str());
         std::vector<AnimationNode> anim_nodes;
 
         for (uint32_t j = 0; j < anim->mNumChannels; ++j) {
-            auto* channel = anim->mChannels[j];
+            const auto* channel = anim->mChannels[j];
 
             auto bi = bone_map.find(channel->mNodeName.C_Str());
             if (bi == bone_map.end()) {
@@ -315,18 +381,33 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
             std::vector<KeyFrame<glm::vec3>> scale_frames;
 
             for (uint32_t k = 0; k < channel->mNumPositionKeys; ++k) {
-                auto& vec = channel->mPositionKeys[k].mValue;
-                pos_frames.emplace_back(glm::vec3{vec.x, vec.y, vec.z}, channel->mPositionKeys[k].mTime);
+                auto vec = glm::convert3f(channel->mPositionKeys[k].mValue);
+
+//                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+//                    vec = flipYZ(vec);
+//                }
+
+                pos_frames.emplace_back(vec, channel->mPositionKeys[k].mTime);
             }
 
             for (uint32_t k = 0; k < channel->mNumRotationKeys; ++k) {
-                auto& vec = channel->mRotationKeys[k].mValue;
-                rot_frames.emplace_back(glm::fquat{vec.w, vec.x, vec.y, vec.z}, channel->mRotationKeys[k].mTime);
+                auto quat = convertQuat(channel->mRotationKeys[k].mValue);
+
+//                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+//                    quat = flipYZ(quat);
+//                }
+
+                rot_frames.emplace_back(quat, channel->mRotationKeys[k].mTime);
             }
 
             for (uint32_t k = 0; k < channel->mNumScalingKeys; ++k) {
-                auto& vec = channel->mScalingKeys[k].mValue;
-                scale_frames.emplace_back(glm::vec3{vec.x, vec.y, vec.z}, channel->mScalingKeys[k].mTime);
+                auto vec = glm::convert3f(channel->mScalingKeys[k].mValue);
+
+//                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+//                    vec = flipYZ(vec);
+//                }
+
+                scale_frames.emplace_back(vec, channel->mScalingKeys[k].mTime);
             }
 
             anim_nodes.emplace_back(pos_frames, rot_frames, scale_frames, bone);
@@ -338,7 +419,7 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
     return animations;
 }
 
-Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const {
+Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
     auto bone_finder = [&] (const std::string& str){
         if (auto bi = bone_map.find(str); bi != bone_map.end()) {
             return bi->second;
@@ -354,6 +435,11 @@ Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<
     std::function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
     dfs = [&] (Tree<uint32_t>& tree, const aiNode* node, int depth) {
         bones[*tree].node_transform = glm::convert(node->mTransformation);
+
+//        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+//            bones[*tree].node_transform = flipYZTransformationMatrix(bones[*tree].node_transform);
+//            bones[*tree].node_transform = flipYZ(bones[*tree].node_transform);
+//        }
 
         for (uint32_t i = 0; i < node->mNumChildren; ++i) {
             auto& child = tree.add(bone_finder(node->mChildren[i]->mName.C_Str()));
@@ -388,7 +474,9 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene
     return meshes;
 }
 
-void ModelLoader::addAnimation(const fs::path& _path, SkeletalModel& model, const std::string& name) {
+void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<AbstractModel>& skeletal) {
+    auto& model = dynamic_cast<SkeletalModel&>(*skeletal);
+
     auto path = convertPathSeparators(_path);
     Assimp::Importer importer;
     const aiScene* scene;
@@ -403,33 +491,30 @@ void ModelLoader::addAnimation(const fs::path& _path, SkeletalModel& model, cons
 
     scene = importer.ReadFile(path.string().c_str(), scene_flags);
 
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+    if (!scene || !scene->mRootNode) {
         throw model_loader_error(importer.GetErrorString());
     }
 
     auto& bone_map = model.getBoneMap();
     auto& bones = model.getBones();
     auto& animations = model.getAnimations();
-    auto& skeleton = model.getSkeletonTree();
-    auto& global_inverse = model.getGlobalInverseMatrix();
 
-    auto loaded = loadAnimations(scene, bones, bone_map);
+    auto loaded = loadAnimations(scene, bones, bone_map, {});
 
-    if (!name.empty()) {
-        loaded.at(0).name = name;
+    if (loaded.empty()) {
+        throw model_loader_error{"Animations are empty!"};
     }
 
+    for (auto& a : loaded)
+        std::cout << a.name << std::endl;
+
     animations.insert(animations.end(), std::make_move_iterator(loaded.begin()), std::make_move_iterator(loaded.end()));
-
-    skeleton = loadAnimationTree(scene, bones, bone_map);
-
-    global_inverse = glm::convert(scene->mRootNode->mTransformation.Inverse());
 
     importer.FreeScene();
 }
 
 namespace LimitlessEngine {
-    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh) const noexcept;
+    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
 
     template std::vector<GLubyte> ModelLoader::loadIndices<GLubyte>(aiMesh* mesh) const noexcept;
     template std::vector<GLushort> ModelLoader::loadIndices<GLushort>(aiMesh* mesh) const noexcept;

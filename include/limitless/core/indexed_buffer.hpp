@@ -16,27 +16,20 @@ namespace LimitlessEngine {
         explicit buffer_not_found(const std::string& name) : runtime_error(name) {}
     };
 
-    struct multiple_indexed_buffers : public std::runtime_error {
-        explicit multiple_indexed_buffers(const std::string& name) : runtime_error(name) {}
-    };
-
-    class IndexedBuffer {
+    class IndexedBuffer final {
     public:
         enum class Type { UniformBuffer = GL_UNIFORM_BLOCK, ShaderStorage = GL_SHADER_STORAGE_BLOCK };
         using Identifier = std::pair<Type, std::string>;
     private:
-        static inline std::unordered_multimap<std::string, std::shared_ptr<Buffer>> buffers;
-        static inline std::unordered_map<Type, GLint> current_bind;
-        static inline std::map<Identifier, GLuint> bound;
-        static inline std::mutex mutex;
+        std::unordered_multimap<std::string, std::shared_ptr<Buffer>> buffers;
+        std::unordered_map<Type, GLint> current_bind;
+        std::map<Identifier, GLuint> bound;
     public:
-        static GLuint getBindingPoint(Type type, std::string_view name) noexcept;
+        GLuint getBindingPoint(Type type, std::string_view name) noexcept;
 
-        static void add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept;
-        static void remove(const std::string& name, const std::shared_ptr<Buffer>& buffer);
-        static std::shared_ptr<Buffer> get(std::string_view name);
-
-        static void clear();
+        void add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept;
+        void remove(const std::string& name, const std::shared_ptr<Buffer>& buffer);
+        std::shared_ptr<Buffer> get(std::string_view name);
     };
 
     struct IndexedBufferData {

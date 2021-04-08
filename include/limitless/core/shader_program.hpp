@@ -9,12 +9,13 @@ namespace LimitlessEngine {
     class UniformSampler;
     class Material;
     class Uniform;
+    class ContextState;
 
     struct shader_program_error : public std::runtime_error {
         explicit shader_program_error(const char* error) noexcept : runtime_error{error} {}
     };
 
-    class ShaderProgram {
+    class ShaderProgram final {
     private:
         GLuint id{};
         // stores uniform locations inside the shader
@@ -27,13 +28,13 @@ namespace LimitlessEngine {
         GLint getUniformLocation(const Uniform& uniform) const noexcept;
 
         void getUniformLocations() noexcept;
-        void getIndexedBufferBounds() noexcept;
+        void getIndexedBufferBounds(ContextState& ctx) noexcept;
 
-        void bindIndexedBuffers();
+        void bindIndexedBuffers(ContextState& ctx);
         void bindTextures() const noexcept;
 
         ShaderProgram() noexcept = default;
-        explicit ShaderProgram(GLuint id);
+        ShaderProgram(ContextState& ctx, GLuint id);
 
         template<typename T> friend class UniformValue;
         friend class UniformSampler;

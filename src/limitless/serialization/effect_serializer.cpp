@@ -15,8 +15,8 @@ ByteBuffer EffectSerializer::serialize(const EffectInstance& instance) {
     return buffer;
 }
 
-std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Assets& assets, ByteBuffer& buffer) {
-    EffectBuilder builder {assets};
+std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Context& context, Assets& assets, ByteBuffer& buffer) {
+    EffectBuilder builder {context, assets};
     std::string name;
     size_t size;
 
@@ -26,7 +26,7 @@ std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Assets& assets, By
 
     for (size_t i = 0; i < size; ++i) {
         EmitterSerializer serializer;
-        serializer.deserialize(assets, buffer, builder);
+        serializer.deserialize(context, assets, buffer, builder);
     }
 
     return builder.build();
@@ -38,9 +38,9 @@ ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, const EffectInstance
     return buffer;
 }
 
-ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, const std::pair<Assets&, std::shared_ptr<EffectInstance>&>& pair) {
+ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<EffectInstance>>& asset) {
     EffectSerializer serializer;
-    auto& [assets, effect] = pair;
-    effect = serializer.deserialize(assets, buffer);
+    auto& [context, assets, effect] = asset;
+    effect = serializer.deserialize(context, assets, buffer);
     return buffer;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/core/context_debug.hpp>
+#include <limitless/core/indexed_buffer.hpp>
 #include <limitless/core/buffer.hpp>
 #include <unordered_map>
 #include <glm/glm.hpp>
@@ -44,7 +45,8 @@ namespace LimitlessEngine {
         Blending = GL_BLEND,
         ProgramPointSize = GL_PROGRAM_POINT_SIZE,
         ScissorTest = GL_SCISSOR_TEST,
-        StencilTest = GL_STENCIL_TEST
+        StencilTest = GL_STENCIL_TEST,
+        CullFace = GL_CULL_FACE
     };
 
     enum class BlendFactor {
@@ -81,7 +83,7 @@ namespace LimitlessEngine {
 
     class ContextState {
     protected:
-        std::unordered_map<Capabilities, bool> enable_map;
+        std::unordered_map<Capabilities, bool> capability_map;
         glm::uvec2 viewport {};
         glm::vec4 clear_color {};
 
@@ -93,7 +95,8 @@ namespace LimitlessEngine {
         PolygonMode polygon_mode {PolygonMode::Fill};
         BlendFactor src_factor {BlendFactor::None}, dst_factor {BlendFactor::Zero};
         glm::vec4 blending_color {0.0f};
-        glm::uvec2 scissor_origin {}, scissor_size {};
+        glm::uvec2 scissor_origin {};
+        glm::uvec2 scissor_size {};
 
         GLuint shader_id {};
         GLuint vertex_array_id {};
@@ -103,6 +106,8 @@ namespace LimitlessEngine {
         std::unordered_map<Buffer::Type, GLuint> buffer_target;
         // contains [binding point, last_buffer_id]
         std::map<BindingPoint, GLuint> buffer_point;
+
+        IndexedBuffer indexed_buffers;
 
         GLuint active_texture {};
         // contains [texture_image_unit, texture_id]
@@ -153,5 +158,25 @@ namespace LimitlessEngine {
         void clear(Clear bits) noexcept;
         void disable(Capabilities func) noexcept;
         void enable(Capabilities func) noexcept;
+
+        auto& getIndexedBuffers() noexcept { return indexed_buffers; }
+
+        const auto& getViewPort() const noexcept { return viewport; }
+        const auto& getClearColor() const noexcept { return clear_color; }
+        const auto& getDepthFunc() const noexcept { return depth_func; }
+        const auto& getDepthMask() const noexcept { return depth_mask; }
+        const auto& getCullFace() const noexcept { return cull_face; }
+        const auto& getFrontFace() const noexcept { return front_face; }
+        const auto& getPolygonMode() const noexcept { return polygon_mode; }
+        auto getBlendFunc() const noexcept { return std::pair{src_factor, dst_factor}; }
+        const auto& getBlendColor() const noexcept { return blending_color; }
+        auto getScissorTest() const noexcept { return std::pair{scissor_origin, scissor_size}; }
+        const auto& getCapabilities() const noexcept { return capability_map; }
+
+        auto getActiveTexture() const noexcept { return active_texture; }
+        const auto& getTextureBound() const noexcept { return texture_bound; }
+
+        auto getShaderId() const noexcept { return shader_id; }
+        auto getVertexArrayId() const noexcept { return vertex_array_id; }
     };
 }

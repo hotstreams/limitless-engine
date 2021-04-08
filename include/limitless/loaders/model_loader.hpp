@@ -9,6 +9,7 @@
 #include <limitless/core/vertex.hpp>
 #include <limitless/core/context_debug.hpp>
 #include <memory>
+#include <set>
 
 namespace glm {
     glm::vec3 convert3f(const aiVector3D &aivec) noexcept;
@@ -22,6 +23,7 @@ namespace LimitlessEngine {
     class AbstractMesh;
     class Material;
     class Assets;
+    class Context;
 
     struct VertexBoneWeight;
     struct Animation;
@@ -33,9 +35,10 @@ namespace LimitlessEngine {
 
     enum class ModelLoaderFlag {
         FlipUV,
-        GenerateUniqueMeshNames
+        GenerateUniqueMeshNames,
+        FlipYZ
     };
-    using ModelLoaderFlags = std::vector<ModelLoaderFlag>;
+    using ModelLoaderFlags = std::set<ModelLoaderFlag>;
 
     class ModelLoader {
     private:
@@ -46,24 +49,22 @@ namespace LimitlessEngine {
         uint32_t unnamed_material_index {};
         uint32_t unnamed_mesh_index {};
 
+        Context& context;
         Assets& assets;
 
-        std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const;
-        std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const;
-        Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) const;
+        std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
+        std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
+        Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
         std::shared_ptr<Material> loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
-        std::vector<std::shared_ptr<Material>>
-        loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader);
-        template<typename T>
-        std::vector<T> loadVertices(aiMesh* mesh) const noexcept;
-        template<typename T>
-        std::vector<T> loadIndices(aiMesh* mesh) const noexcept;
+        std::vector<std::shared_ptr<Material>> loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader);
+        template<typename T> std::vector<T> loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
+        template<typename T> std::vector<T> loadIndices(aiMesh* mesh) const noexcept;
     public:
-        explicit ModelLoader(Assets& assets) noexcept;
+        ModelLoader(Context& context, Assets& assets) noexcept;
         virtual ~ModelLoader() = default;
 
         std::shared_ptr<AbstractModel> loadModel(const fs::path& path, const ModelLoaderFlags& flags = {});
 
-        void addAnimation(const fs::path& path, SkeletalModel& model, const std::string& name = {});
+        void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal);
     };
 }

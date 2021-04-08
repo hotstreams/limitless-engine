@@ -1,5 +1,6 @@
 #include <limitless/material_system/material.hpp>
 
+#include <limitless/core/context_initializer.hpp>
 #include <limitless/core/bindless_texture.hpp>
 #include <limitless/core/texture.hpp>
 #include <cstring>
@@ -153,13 +154,17 @@ UniformSampler& Material::getBlendMask() const {
 }
 
 Material::Material(const Material& material) noexcept
-    : uniform_offsets{material.uniform_offsets}, blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index} {
+    : uniform_offsets{material.uniform_offsets}, blending{material.blending}, shading{material.shading}, name{material.name}, shader_index{material.shader_index}, two_sided{material.two_sided} {
     for (const auto& [type, property] : material.properties) {
         properties.emplace(type, property->clone());
     }
 
-    std::vector<std::byte> data(material.material_buffer->getSize());
-    material_buffer = BufferBuilder::buildIndexed("material_buffer", Buffer::Type::Uniform, data, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+    BufferBuilder builder;
+    material_buffer = builder.setTarget(Buffer::Type::Uniform)
+                             .setUsage(Buffer::Usage::DynamicDraw)
+                             .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                             .setDataSize(material.material_buffer->getSize())
+                             .build();
 }
 
 void LimitlessEngine::swap(Material& lhs, Material& rhs) noexcept {
@@ -172,6 +177,7 @@ void LimitlessEngine::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.shading, rhs.shading);
     swap(lhs.name, rhs.name);
     swap(lhs.shader_index, rhs.shader_index);
+    swap(lhs.two_sided, rhs.two_sided);
 }
 
 Material &Material::operator=(Material material) noexcept {
@@ -207,11 +213,6 @@ Material::Material(Material&& rhs) noexcept
 Material& Material::operator=(Material&& rhs) noexcept {
     swap(*this, rhs);
     return *this;
-}
-
-Material::Material() noexcept
-    : blending{Blending::Opaque}, shading{Shading::Unlit}, shader_index{0} {
-
 }
 
 bool LimitlessEngine::operator<(const MaterialType& lhs, const MaterialType& rhs) noexcept {

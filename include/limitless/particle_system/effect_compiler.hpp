@@ -14,7 +14,7 @@ namespace LimitlessEngine {
         void compile(const SpriteEmitter& emitter);
         void compile(const MeshEmitter& emitter);
     public:
-        explicit EffectCompiler(Assets& assets) : MaterialCompiler {assets} {}
+        explicit EffectCompiler(Context& context, Assets& assets) : MaterialCompiler{context, assets} {}
 
         using ShaderCompiler::compile;
         void compile(const EffectInstance& instance);

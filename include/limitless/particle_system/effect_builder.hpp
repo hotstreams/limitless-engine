@@ -5,6 +5,7 @@
 
 namespace LimitlessEngine {
     class Material;
+    class Context;
 
     class EffectBuilder {
     private:
@@ -12,12 +13,13 @@ namespace LimitlessEngine {
         std::string effect_name;
         std::string last_emitter;
 
+        Context& context;
         Assets& assets;
 
         EffectBuilder& setModules(decltype(Emitter::modules)&& modules) noexcept;
         friend class EmitterSerializer;
     public:
-        explicit EffectBuilder(Assets& assets) noexcept;
+        EffectBuilder(Context& context, Assets& assets) noexcept;
         ~EffectBuilder() = default;
 
         EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count) noexcept;

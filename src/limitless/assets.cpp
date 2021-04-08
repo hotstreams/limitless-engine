@@ -6,13 +6,16 @@
 
 using namespace LimitlessEngine;
 
-void Assets::load() {
+void Assets::load(Context& context) {
     // engine-required assets
-    shaders.initialize();
+    shaders.initialize(context);
 
     // used in render as light radius material
-    MaterialBuilder builder {*this};
+    MaterialBuilder builder {context, *this};
     builder.create("default").add(PropertyType::Color, {0.0f, 0.0f, 0.0f, 1.0f}).build();
+    builder.create("red").add(PropertyType::Color, {1.0f, 0.0f, 0.0f, 1.0f}).build();
+    builder.create("blue").add(PropertyType::Color, {0.0f, 0.0f, 1.0f, 1.0f}).build();
+    builder.create("green").add(PropertyType::Color, {0.0f, 1.0f, 0.0f, 1.0f}).build();
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(100, 100));

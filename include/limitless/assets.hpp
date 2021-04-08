@@ -81,6 +81,6 @@ namespace LimitlessEngine {
         Assets() = default;
         virtual ~Assets() = default;
 
-        virtual void load();
+        virtual void load(Context& context);
     };
 }

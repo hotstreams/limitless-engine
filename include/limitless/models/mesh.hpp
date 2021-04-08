@@ -2,6 +2,8 @@
 
 #include <limitless/core/vertex_array.hpp>
 #include <limitless/core/buffer_builder.hpp>
+
+#include <vector>
 #include <memory>
 
 namespace LimitlessEngine {
@@ -40,15 +42,26 @@ namespace LimitlessEngine {
         std::unique_ptr<Buffer> vertex_buffer;
     private:
         void initialize() {
+            BufferBuilder builder;
+            builder .setTarget(Buffer::Type::Array)
+                    .setData(vertices.data())
+                    .setDataSize(vertices.size() * sizeof(T));
+
             switch (data_type) {
                 case MeshDataType::Static:
-                    vertex_buffer = BufferBuilder::build(Buffer::Type::Array, vertices, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
+                    vertex_buffer = builder .setUsage(Buffer::Storage::Static)
+                                            .setAccess(Buffer::ImmutableAccess::None)
+                                            .build();
                     break;
                 case MeshDataType::Dynamic:
-                    vertex_buffer = BufferBuilder::build(Buffer::Type::Array, vertices, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+                    vertex_buffer = builder .setUsage(Buffer::Usage::DynamicDraw)
+                                            .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                                            .build();
                     break;
                 case MeshDataType::Stream:
-                    vertex_buffer = BufferBuilder::buildTriple(Buffer::Type::Array, vertices, Buffer::Storage::DynamicCoherentWrite, Buffer::ImmutableAccess::WriteCoherent);
+//                    vertex_buffer = builder .setUsage(Buffer::Storage::DynamicCoherentWrite)
+//                                            .setAccess(Buffer::ImmutableAccess::WriteCoherent)
+//                                            .buildTriple();
                     break;
             }
 

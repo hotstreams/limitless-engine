@@ -21,7 +21,7 @@ namespace LimitlessEngine {
         void replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept;
         void replaceRenderSettings(Shader& src) noexcept;
     public:
-        explicit MaterialCompiler(Assets& assets) noexcept;
+        MaterialCompiler(Context& context, Assets& assets) noexcept;
         ~MaterialCompiler() override = default;
 
         using ShaderCompiler::compile;

@@ -4,6 +4,7 @@
 #include <limitless/models/model.hpp>
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader_program.hpp>
+#include <limitless/core/context_state.hpp>
 #include <limitless/assets.hpp>
 
 using namespace LimitlessEngine;
@@ -48,6 +49,12 @@ void ModelInstance::draw(const Assets& assets, MaterialShader material_type, Ble
                 } else {
                     setBlendingMode(blending);
                     if (blending == Blending::Opaque) first_opaque = false;
+                }
+
+                if (auto* state = ContextState::getState(glfwGetCurrentContext()); material->getTwoSided()) {
+                    state->disable(Capabilities::CullFace);
+                } else {
+                    state->enable(Capabilities::CullFace);
                 }
 
                 // gets required shader from storage

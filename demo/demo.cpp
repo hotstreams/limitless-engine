@@ -28,7 +28,7 @@ private:
     Assets assets;
 
     bool done {};
-    static constexpr glm::uvec2 window_size {1920, 1024};
+    static constexpr glm::uvec2 window_size {800, 800};
 public:
     Game() : context{"Features", window_size, {{ WindowHint::Resizable, true }}}, camera{window_size}, render{context} {
         camera.setPosition({7.0f, 0.0f, 3.0f});
@@ -42,7 +42,7 @@ public:
         context.registerObserver(static_cast<KeyObserver*>(this));
         context.registerObserver(static_cast<MouseMoveObserver*>(this));
 
-        assets.load();
+        assets.load(context);
 
         loadScene();
 
@@ -52,7 +52,7 @@ public:
         scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.1f});
         scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.35f});
 
-        scene.add<ElementaryInstance>(assets.models.at("cube"), assets.materials.at("material1"), glm::vec3{3.0f, -3.0f, 0.0f}, glm::vec3{0.0f}, glm::vec3{50.0f, 0.5f, 50.0f});
+        scene.add<ElementaryInstance>(assets.models.at("plane"), assets.materials.at("material1"), glm::vec3{3.0f, -1.0f, 0.0f}, glm::vec3{0.0f}, glm::vec3{20.0f, 1.0f, 20.0f});
 
         scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
                .setScale(glm::vec3{0.02f})
@@ -66,14 +66,14 @@ public:
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("material5"), glm::vec3{ 8.0f, 0.0f, 0.0f });
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("material6"), glm::vec3{ 10.0f, 0.0f, 0.0f });
 
-        auto test_text = new TextInstance("test", {400.0f, 400.0f}, {1.0f, 1.0f}, {1.5f, 3.8f, 2.4f, 1.f}, assets.fonts.at("nunito"), context);
+        auto test_text = new TextInstance("test", {10.0f, 10.0f}, {1.0f, 1.0f}, {1.5f, 3.8f, 2.4f, 1.f}, assets.fonts.at("nunito"), context);
         scene.add(test_text);
 
         scene.lighting.directional_light = { glm::vec4{2.0f, -5.0f, 2.0f, 1.0f}, glm::vec4{2.0f, 0.0f, 1.7f, 1.0f} };
 
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 3.0f, 2.0f, 1.0f}, glm::vec4{3.3f, 8.1f, 8.7f, 1.5f}, 2.6f);
 
-        auto effect = EffectLoader::load(assets, EFFECT_DIR "eff");
+        auto effect = EffectLoader::load(context, assets, EFFECT_DIR "eff");
 
         scene.add<EffectInstance>(effect, glm::vec3{-1.f, -1.f, -1.f})
              .setPosition(glm::vec3{2.f, 2.f, 2.f});
@@ -82,12 +82,8 @@ public:
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 3.0f, 5.0f, 1.0f}, glm::vec4{2.3f, 7.1f, 3.7f, 1.5f}, 2.5f);
     }
 
-    ~Game() override {
-        IndexedBuffer::clear();
-    }
-
     void loadScene() {
-        ModelLoader model_loader {assets};
+        ModelLoader model_loader {context, assets};
         assets.models.add("bob", model_loader.loadModel(ASSETS_DIR "models/boblamp/boblampclean.md5mesh"));
         assets.models.add("backpack", model_loader.loadModel(ASSETS_DIR "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
         assets.models.add("nanosuit", model_loader.loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
@@ -97,11 +93,12 @@ public:
 
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
 
-        MaterialBuilder builder {assets};
+        MaterialBuilder builder {context, assets};
         TextureLoader l {assets};
         auto material1 = builder.create("material1")
                 .add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
                 .setShading(Shading::Lit)
+                .setTwoSided(true)
                 .build();
 
         auto material2 = builder.create("material2")
@@ -123,6 +120,7 @@ public:
 
         auto material5 = builder.create("material5")
                 .add(PropertyType::BlendMask, l.load(ASSETS_DIR "textures/bricks.jpg"))
+                .setTwoSided(true)
                 .add(PropertyType::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
                 .setShading(Shading::Lit)
                 .build();
@@ -135,7 +133,7 @@ public:
                 .setShading(Shading::Lit)
                 .build();
 
-        EffectBuilder eb {assets};
+        EffectBuilder eb {context, assets};
 
         auto effect1 = eb.create("test_effect1")
                 .createEmitter<SpriteEmitter>("test")
@@ -169,7 +167,7 @@ public:
 
         scene.add<EffectInstance>(effect2, glm::vec3{0.f, 1.f, 0.f});
 
-        CustomMaterialBuilder b {assets};
+        CustomMaterialBuilder b {context, assets};
 
         auto flash = b.create("conflagrate_flash")
                 .setFragmentCode("float r = length(uv * 2.0 - 1.0);\n"
@@ -181,7 +179,7 @@ public:
                 .build({ModelShader::Effect});
 
 
-        MaterialBuilder b1 {assets};
+        MaterialBuilder b1 {context, assets};
         auto aura = b1.create("aura")
                 .add(PropertyType::Diffuse, l.load(ASSETS_DIR "textures/aura.png"))
                 .setShading(Shading::Unlit)

@@ -2,9 +2,8 @@
 
 #include <limitless/core/extension_texture.hpp>
 #include <limitless/core/texture_visitor.hpp>
+#include <limitless/core/context_state.hpp>
 #include <memory>
-#include "context_state.hpp"
-
 
 namespace LimitlessEngine {
     class BindlessTexture : public ExtensionTexture {

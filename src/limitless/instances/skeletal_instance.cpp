@@ -2,6 +2,7 @@
 #include <limitless/shader_types.hpp>
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader_program.hpp>
+#include <limitless/core/context_state.hpp>
 #include <limitless/assets.hpp>
 
 using namespace LimitlessEngine;
@@ -14,7 +15,14 @@ SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
     bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
-    bone_buffer = BufferBuilder::buildIndexed(skeletal_buffer_name, Buffer::Type::ShaderStorage, bone_transform, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+
+    BufferBuilder builder;
+    bone_buffer = builder.setTarget(Buffer::Type::ShaderStorage)
+                         .setUsage(Buffer::Usage::DynamicDraw)
+                         .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                         .setData(bone_transform.data())
+                         .setDataSize(bone_transform.size() * sizeof(glm::mat4))
+                         .build();
 }
 
 SkeletalInstance::SkeletalInstance(Lighting *lighting, std::shared_ptr<AbstractModel> m, const glm::vec3& position)
@@ -23,7 +31,13 @@ SkeletalInstance::SkeletalInstance(Lighting *lighting, std::shared_ptr<AbstractM
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
     bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
-    bone_buffer = BufferBuilder::buildIndexed(skeletal_buffer_name, Buffer::Type::ShaderStorage, bone_transform, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+    BufferBuilder builder;
+    bone_buffer = builder.setTarget(Buffer::Type::ShaderStorage)
+                         .setUsage(Buffer::Usage::DynamicDraw)
+                         .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                         .setData(bone_transform.data())
+                         .setDataSize(bone_transform.size() * sizeof(glm::mat4))
+                         .build();
 }
 
 const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const noexcept {
@@ -77,6 +91,13 @@ void SkeletalInstance::draw(const Assets& assets, MaterialShader material_shader
                     setBlendingMode(blending);
                     if (blending == Blending::Opaque) first_opaque = false;
                 }
+
+                if (auto* state = ContextState::getState(glfwGetCurrentContext()); material->getTwoSided()) {
+                    state->disable(Capabilities::CullFace);
+                } else {
+                    state->enable(Capabilities::CullFace);
+                }
+
                 // gets required shader from storage
                 auto& shader = assets.shaders.get(material_shader, shader_type, material->getShaderIndex());
 
@@ -87,7 +108,8 @@ void SkeletalInstance::draw(const Assets& assets, MaterialShader material_shader
                 // sets custom pass-dependent uniforms
                 std::for_each(uniform_setter.begin(), uniform_setter.end(), [&] (auto& setter) { setter(shader); });
 
-                bone_buffer->bindBase(IndexedBuffer::getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
+                //todo: fix nullptr
+                bone_buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
 
                 shader.use();
 

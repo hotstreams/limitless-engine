@@ -1,5 +1,6 @@
 #include <limitless/lighting/lighting.hpp>
 
+#include <limitless/core/context_state.hpp>
 #include <limitless/core/buffer_builder.hpp>
 
 using namespace LimitlessEngine;
@@ -15,12 +16,21 @@ namespace {
 
 Lighting::Lighting(uint64_t p_count, uint64_t s_count)
     : point_lights{p_count}, spot_lights{s_count} {
-    buffer = BufferBuilder::buildIndexed("scene_lighting", Buffer::Type::ShaderStorage, sizeof(SceneLighting), Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
+    BufferBuilder builder;
+    buffer = builder.setTarget(Buffer::Type::ShaderStorage)
+           .setUsage(Buffer::Usage::DynamicDraw)
+           .setAccess(Buffer::MutableAccess::WriteOrphaning)
+           .setDataSize(sizeof(SceneLighting))
+           .build("scene_lighting", *ContextState::getState(glfwGetCurrentContext()));
 }
 
 Lighting::Lighting() {
-    buffer = BufferBuilder::buildIndexed("scene_lighting", Buffer::Type::ShaderStorage, sizeof(SceneLighting), Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
-}
+    BufferBuilder builder;
+    buffer = builder.setTarget(Buffer::Type::ShaderStorage)
+            .setUsage(Buffer::Usage::DynamicDraw)
+            .setAccess(Buffer::MutableAccess::WriteOrphaning)
+            .setDataSize(sizeof(SceneLighting))
+            .build("scene_lighting", *ContextState::getState(glfwGetCurrentContext()));}
 
 void Lighting::updateLightBuffer() {
     SceneLighting light_info {directional_light,

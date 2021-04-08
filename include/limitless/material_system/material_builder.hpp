@@ -8,6 +8,7 @@
 
 namespace LimitlessEngine {
     class Assets;
+    class Context;
 
     class MaterialBuilder {
     private:
@@ -19,6 +20,7 @@ namespace LimitlessEngine {
 
         std::unique_ptr<Material> material;
 
+        Context& context;
         Assets& assets;
 
         static void initializeMaterialBuffer(Material& mat, const ShaderProgram& shader) noexcept;
@@ -27,7 +29,7 @@ namespace LimitlessEngine {
         friend class EffectBuilder;
         friend class MaterialSerializer;
     public:
-        explicit MaterialBuilder(Assets& _ctx) noexcept;
+        MaterialBuilder(Context& context, Assets& _ctx) noexcept;
         virtual ~MaterialBuilder() = default;
 
         MaterialBuilder(const MaterialBuilder&) = delete;
@@ -41,6 +43,7 @@ namespace LimitlessEngine {
         MaterialBuilder& setBlending(Blending blending) noexcept;
         MaterialBuilder& setShading(Shading shading) noexcept;
         MaterialBuilder& add(PropertyType type, float value);
+        MaterialBuilder& setTwoSided(bool two_sided) noexcept;
 
         // creates Material
         virtual MaterialBuilder& create(std::string name);

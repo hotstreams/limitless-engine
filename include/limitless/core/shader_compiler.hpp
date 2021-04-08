@@ -7,6 +7,7 @@
 
 namespace LimitlessEngine {
     class ShaderProgram;
+    class Context;
 
     class shader_linking_error : public std::runtime_error {
     public:
@@ -17,8 +18,9 @@ namespace LimitlessEngine {
     protected:
         std::vector<Shader> shaders;
         static void checkStatus(GLuint program_id);
+        Context& context;
     public:
-        ShaderCompiler() = default;
+        explicit ShaderCompiler(Context& ctx);
         virtual ~ShaderCompiler() = default;
 
         ShaderCompiler(const ShaderCompiler&) noexcept = delete;

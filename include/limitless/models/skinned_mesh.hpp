@@ -38,7 +38,14 @@ namespace LimitlessEngine {
         std::unique_ptr<Buffer> bone_buffer;
 
         void initialize() {
-            bone_buffer = BufferBuilder::build(Buffer::Type::Array, bone_weights, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
+            BufferBuilder builder;
+            bone_buffer = builder.setTarget(Buffer::Type::Array)
+                                 .setUsage(Buffer::Storage::Static)
+                                 .setAccess(Buffer::ImmutableAccess::None)
+                                 .setData(bone_weights.data())
+                                 .setDataSize(bone_weights.size() * sizeof(VertexBoneWeight))
+                                 .build();
+
             this->vertex_array << VertexAttribute{VertexBoneWeight::bone_count, GL_INT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), *bone_buffer}
                                << VertexAttribute{VertexBoneWeight::bone_count, GL_FLOAT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), *bone_buffer};
         };

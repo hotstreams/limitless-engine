@@ -10,7 +10,7 @@ namespace LimitlessEngine {
         CustomMaterialBuilder& setUniforms(decltype(CustomMaterial::uniforms)&& uniforms);
         friend class MaterialSerializer;
     public:
-        explicit CustomMaterialBuilder(Assets& assets) : MaterialBuilder {assets} {}
+        explicit CustomMaterialBuilder(Context& context, Assets& assets) : MaterialBuilder {context, assets} {}
         ~CustomMaterialBuilder() override = default;
 
         CustomMaterialBuilder& setFragmentCode(std::string fs_code) noexcept;

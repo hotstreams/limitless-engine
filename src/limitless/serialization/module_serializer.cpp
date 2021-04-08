@@ -205,7 +205,7 @@ ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, EmitterModule& modul
 
 ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::unique_ptr<EmitterModule>>& asset) {
     ModuleSerializer serializer;
-    auto& [assets, module] = asset;
+    auto& [context, assets, module] = asset;
     module = serializer.deserialize(buffer, assets);
     return buffer;
 }
