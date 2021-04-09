@@ -20,15 +20,15 @@ in vertex_data {
     vec2 uv;
 } in_data;
 
-#include "glsl/material.glsl"
+#include "../glsl/material.glsl"
 
-#include "glsl/scene.glsl"
+#include "../glsl/scene.glsl"
 
 void main()
 {
     vec2 uv = in_data.uv;
 
-    #include "glsl/material_variables.glsl"
+    #include "../glsl/material_variables.glsl"
 
     Limitless::CustomMaterialFragmentCode
 
