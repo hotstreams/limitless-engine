@@ -4,8 +4,8 @@ Limitless::Settings
 Limitless::MaterialType
 Limitless::EmitterType
 
-#include "glsl/material.glsl"
-#include "glsl/scene.glsl"
+#include "../glsl/material.glsl"
+#include "../glsl/scene.glsl"
 
 layout (location = 0) in vec3 position;
 layout (location = 3) in vec2 uv;
@@ -13,7 +13,7 @@ layout (location = 3) in vec2 uv;
 out vec2 fs_uv;
 flat out int particle_id;
 
-#include "glsl/mesh_particle.glsl"
+#include "../glsl/mesh_particle.glsl"
 
 void main()
 {
