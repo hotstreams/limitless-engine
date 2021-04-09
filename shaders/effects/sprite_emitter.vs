@@ -4,8 +4,8 @@ Limitless::Settings
 Limitless::MaterialType
 Limitless::EmitterType
 
-#include "glsl/material.glsl"
-#include "glsl/scene.glsl"
+#include "../glsl/material.glsl"
+#include "../glsl/scene.glsl"
 
 layout(location = 0) in vec3 position;
 #if defined(InitialColor_MODULE)

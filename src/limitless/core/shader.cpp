@@ -31,7 +31,7 @@ Shader::Shader(fs::path _path, Type _type, const ShaderAction& action)
 
     replaceVersion();
     replaceExtensions();
-    replaceIncludes();
+	replaceIncludes(path.parent_path());
 
     if (action) {
         action(*this);
@@ -113,7 +113,7 @@ void Shader::replaceExtensions() noexcept {
     replaceKey(extensions_key, extensions);
 }
 
-std::string Shader::getSource(const fs::path &filepath) {
+std::string Shader::getSource(const fs::path& filepath) {
     try {
         std::ifstream file(filepath);
         std::string file_source;
@@ -133,7 +133,7 @@ std::string Shader::getSource(const fs::path &filepath) {
     }
 }
 
-void Shader::replaceIncludes() {
+void Shader::replaceIncludes(const std::filesystem::path& base_dir) {
     static constexpr std::string_view include = "#include";
 
     size_t found = 0;
@@ -151,7 +151,7 @@ void Shader::replaceIncludes() {
         std::string file_name = source.substr(beg, name_length);
 
         try {
-            const auto& include_src = getSource(SHADER_DIR + file_name);
+            const auto& include_src = getSource(base_dir/file_name);
             source.replace(found, include.length() + 3 + name_length, include_src);
         } catch (const shader_file_not_found& not_found) {
             throw shader_include_not_found(not_found.what());

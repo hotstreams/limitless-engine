@@ -1,8 +1,8 @@
-#include "glsl/point_light.glsl"
-#include "glsl/directional_light.glsl"
+#include "../glsl/point_light.glsl"
+#include "../glsl/directional_light.glsl"
 
 #if defined(PBR)
-    #include "glsl/pbr.glsl"
+    #include "../glsl/pbr.glsl"
 
     vec3 getPBRShadedColor(vec3 N, vec3 fragment_color, float metallic, float roughness) {
         vec3 ambient = ambient_color.xyz * ambient_color.w * fragment_color;

@@ -6,8 +6,6 @@
 #include <fstream>
 #include <utility>
 
-#define SHADER_DIR "../shaders/"
-
 namespace Limitless {
     class shader_file_not_found : public std::runtime_error {
     public:
@@ -42,7 +40,7 @@ namespace Limitless {
 
         void replaceExtensions() noexcept;
         void replaceVersion() noexcept;
-        void replaceIncludes();
+        void replaceIncludes(const std::filesystem::path& base_dir);
 
         void checkStatus() const;
 

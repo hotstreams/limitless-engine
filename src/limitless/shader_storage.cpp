@@ -81,14 +81,14 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
 //    }
 //}
 
-void ShaderStorage::initialize(Context& ctx) {
-    ShaderCompiler compiler{ctx};
+void ShaderStorage::initialize(Context& ctx, const std::filesystem::path& shader_dir) {
+    ShaderCompiler compiler {ctx};
 
-    add("blur", compiler.compile(SHADER_DIR "postprocessing/blur"));
-    add("brightness", compiler.compile(SHADER_DIR "postprocessing/brightness"));
-    add("postprocess", compiler.compile(SHADER_DIR "postprocessing/postprocess"));
-    add("text", compiler.compile(SHADER_DIR "pipeline/text"));
-    add("text_selection", compiler.compile(SHADER_DIR "pipeline/text_selection"));
+    add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
+    add("brightness", compiler.compile(shader_dir / "postprocessing/brightness"));
+    add("postprocess", compiler.compile(shader_dir / "postprocessing/postprocess"));
+    add("text", compiler.compile(shader_dir / "pipeline/text"));
+    add("text_selection", compiler.compile(shader_dir / "pipeline/text_selection"));
 }
 
 void ShaderStorage::clearMaterialShaders() {
