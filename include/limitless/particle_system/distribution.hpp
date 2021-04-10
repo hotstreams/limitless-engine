@@ -3,6 +3,63 @@
 #include <glm/glm.hpp>
 #include <random>
 
+namespace std {
+    template<> struct is_floating_point<glm::vec2> : public true_type {};
+    template<> struct is_floating_point<glm::vec3> : public true_type {};
+    template<> struct is_floating_point<glm::vec4> : public true_type {};
+
+    template<>
+    class uniform_real_distribution<glm::vec2> {
+    private:
+        glm::vec2 min, max;
+    public:
+        uniform_real_distribution(const glm::vec2& min, const glm::vec2& max) noexcept
+                : min(min), max(max) {}
+
+        template<typename _UniformRandomNumberGenerator>
+        glm::vec2 operator()(_UniformRandomNumberGenerator& __urng) {
+            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
+            return { __aurng() * (max.x - min.x) + min.x,
+                     __aurng() * (max.y - min.y) + min.y };
+        }
+    };
+
+    template<>
+    class uniform_real_distribution<glm::vec3> {
+    private:
+        glm::vec3 min, max;
+    public:
+        uniform_real_distribution(const glm::vec3& min, const glm::vec3& max) noexcept
+                : min(min), max(max) {}
+
+        template<typename _UniformRandomNumberGenerator>
+        glm::vec3 operator()(_UniformRandomNumberGenerator& __urng) {
+            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
+            return { __aurng() * (max.x - min.x) + min.x,
+                     __aurng() * (max.y - min.y) + min.y,
+                     __aurng() * (max.z - min.z) + min.z };
+        }
+    };
+
+    template<>
+    class uniform_real_distribution<glm::vec4> {
+    private:
+        glm::vec4 min, max;
+    public:
+        uniform_real_distribution(const glm::vec4& min, const glm::vec4& max)
+                : min(min), max(max) {}
+
+        template<typename _UniformRandomNumberGenerator>
+        glm::vec4 operator()(_UniformRandomNumberGenerator& __urng) {
+            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
+            return { __aurng() * (max.x - min.x) + min.x,
+                     __aurng() * (max.y - min.y) + min.y,
+                     __aurng() * (max.z - min.z) + min.z,
+                     __aurng() * (max.w - min.w) + min.w };
+        }
+    };
+}
+
 namespace LimitlessEngine {
     enum class DistributionType { Const, Range, Curve };
 
@@ -96,60 +153,5 @@ namespace LimitlessEngine {
 
     public:
 
-    };
-}
-
-namespace std {
-    template<glm::length_t L, typename T, glm::qualifier Q> struct is_floating_point<glm::vec<L, T, Q>> : public true_type {};
-
-    template<>
-    class uniform_real_distribution<glm::vec2> {
-    private:
-        glm::vec2 min, max;
-    public:
-        uniform_real_distribution(const glm::vec2& min, const glm::vec2& max) noexcept
-                : min(min), max(max) {}
-
-        template<typename _UniformRandomNumberGenerator>
-        glm::vec2 operator()(_UniformRandomNumberGenerator& __urng) {
-            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
-            return { __aurng() * (max.x - min.x) + min.x,
-                     __aurng() * (max.y - min.y) + min.y };
-        }
-    };
-
-    template<>
-    class uniform_real_distribution<glm::vec3> {
-    private:
-        glm::vec3 min, max;
-    public:
-        uniform_real_distribution(const glm::vec3& min, const glm::vec3& max) noexcept
-            : min(min), max(max) {}
-
-        template<typename _UniformRandomNumberGenerator>
-        glm::vec3 operator()(_UniformRandomNumberGenerator& __urng) {
-            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
-            return { __aurng() * (max.x - min.x) + min.x,
-                     __aurng() * (max.y - min.y) + min.y,
-                     __aurng() * (max.z - min.z) + min.z };
-        }
-    };
-
-    template<>
-    class uniform_real_distribution<glm::vec4> {
-    private:
-        glm::vec4 min, max;
-    public:
-        uniform_real_distribution(const glm::vec4& min, const glm::vec4& max)
-                : min(min), max(max) {}
-
-        template<typename _UniformRandomNumberGenerator>
-        glm::vec4 operator()(_UniformRandomNumberGenerator& __urng) {
-            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
-            return { __aurng() * (max.x - min.x) + min.x,
-                     __aurng() * (max.y - min.y) + min.y,
-                     __aurng() * (max.z - min.z) + min.z,
-                     __aurng() * (max.w - min.w) + min.w };
-        }
     };
 }
