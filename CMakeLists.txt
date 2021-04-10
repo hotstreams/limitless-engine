@@ -18,11 +18,12 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(stb_image REQUIRED)
-message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
-include_directories(${STB_IMAGE_INCLUDE_DIRS})
-
 include_directories(include)
+
+find_package(freetype REQUIRED)
+message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
+include_directories(${FREETYPE_INCLUDE_DIRS})
+link_directories(${FREETYPE_LIBRARIES})
 
 if (WIN32)
     find_package(glm REQUIRED)
@@ -45,10 +46,9 @@ if (WIN32)
     include_directories(${ASSIMP_INCLUDE_DIRS})
     link_directories(${ASSIMP_LIBRARIES})
 
-    find_package(freetype REQUIRED)
-    message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
-    include_directories(${FREETYPE_INCLUDE_DIRS})
-    link_directories(${FREETYPE_LIBRARIES})
+    find_package(stb_image REQUIRED)
+    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
+    include_directories(${STB_IMAGE_INCLUDE_DIRS})
 
     link_libraries(opengl32 glew32 glfw3 assimp freetype)
 endif()

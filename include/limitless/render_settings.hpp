@@ -14,12 +14,12 @@ namespace LimitlessEngine {
         // shadows settings
         static constexpr auto DIRECTIONAL_CSM {true};
         static constexpr auto DIRECTIONAL_SHADOW_RESOLUTION = glm::uvec2{ 1024, 1024 };
-        static constexpr auto DIRECTIONAL_SPLIT_COUNT {4}; // four is max
+        static constexpr auto DIRECTIONAL_SPLIT_COUNT {3}; // four is max
 
-        static constexpr auto DIRECTIONAL_PFC {true};
+        static constexpr auto DIRECTIONAL_PFC {false};
 
         // king of debug settings
         static constexpr auto LIGHT_RADIUS {false};
-        static constexpr auto COORDINATE_SYSTEM_AXES {true};
+        static constexpr auto COORDINATE_SYSTEM_AXES {false};
     };
 }
