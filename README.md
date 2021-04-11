@@ -2,8 +2,6 @@
 
 ## The project is 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL & C++17.
 
----
-
 ### Core Features
 - OpenGL state caching for reducing driver overhead 
 - Multithreaded OpenGL context resource sharing
@@ -88,6 +86,8 @@
 ![me](screenshots/tone_shading.png)
 
 ![me](screenshots/sponza.png)
+
+![me](screenshots/warlocks.png)
 
 # Build
 The project uses C++17 and CMake's find_package for dependencies.
