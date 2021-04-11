@@ -89,7 +89,6 @@ std::shared_ptr<EffectInstance> EffectBuilder::build() {
         switch (emitter->getType()) {
             case EmitterType::Mesh: {
                 auto& sprite_emitter = effect->get<MeshEmitter>(name);
-                auto buffer = effect->get<MeshEmitter>(name).getMaterial().material_buffer;
                 if (!sprite_emitter.getMaterial().material_buffer) {
                     // initializes uniform material buffer using program shader introspection
                     MaterialBuilder::initializeMaterialBuffer(sprite_emitter.getMaterial(), assets.shaders.get(sprite_emitter.getEmitterType()));
@@ -108,7 +107,9 @@ std::shared_ptr<EffectInstance> EffectBuilder::build() {
         }
     }
 
-    return std::move(effect);
+    assets.effects.add(effect_name, std::move(effect));
+
+    return assets.effects.at(effect_name);
 }
 
 EffectBuilder& EffectBuilder::create(std::string name) {

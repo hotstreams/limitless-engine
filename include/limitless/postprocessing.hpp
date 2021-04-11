@@ -33,8 +33,8 @@ namespace LimitlessEngine {
         float gamma {2.2f};
 
         bool vignette {};
-        float vignette_radius {0.75f};
-        float vignette_softness {0.45f};
+        float vignette_radius {0.55f};
+        float vignette_softness {0.15f};
 
         bool tone_shading {};
         float number_of_colors {7.7f};

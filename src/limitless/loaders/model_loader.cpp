@@ -508,6 +508,9 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
     for (auto& a : loaded)
         std::cout << a.name << std::endl;
 
+    loaded.at(0).tps = 20.0f;
+    loaded.at(0).duration = 20.0f;
+
     animations.insert(animations.end(), std::make_move_iterator(loaded.begin()), std::make_move_iterator(loaded.end()));
 
     importer.FreeScene();
