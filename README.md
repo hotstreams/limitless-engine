@@ -2,7 +2,9 @@
 
 ## The project is 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL.
 
-## Engine Features
+### Features
+
+---
 
 ### Core
 - OpenGL state caching for reducing driver overhead 
@@ -74,17 +76,17 @@
 
 ---
   
-![](screenshots/materials.png)
+![me](screenshots/materials.png)
 
-![](screenshots/effect.png)
+![me](screenshots/effect.png)
 
-![](screenshots/full.png)
+![me](screenshots/full.png)
 
-![](screenshots/model_loader.gif)
+![me](screenshots/model_loader.gif)
 
-![](screenshots/tone_shading.png)
+![me](screenshots/tone_shading.png)
 
-![](screenshots/sponza.png)
+![me](screenshots/sponza.png)
 
 # Build
 The project uses C++17 and CMake's find_package for dependencies.
