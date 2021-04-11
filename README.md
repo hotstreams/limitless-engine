@@ -1,12 +1,10 @@
-# C++ Graphics Engine
+# Limitless Engine
 
-## The project is 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL.
-
-### Features
+## The project is 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL & C++17.
 
 ---
 
-### Core
+### Core Features
 - OpenGL state caching for reducing driver overhead 
 - Multithreaded OpenGL context resource sharing
 - ShaderCompiler & ShaderProgram introspection
@@ -48,6 +46,7 @@
 ---
 
 ### Model Loading & Skeletal animations using Assimp
+
 ---
 
 ### Lighting 
@@ -72,6 +71,8 @@
   - Tone shading
   - FXAA
 
+---
+
 ### Text rendering using FreeType
 
 ---
@@ -90,6 +91,7 @@
 
 # Build
 The project uses C++17 and CMake's find_package for dependencies.
+
 # Dependencies
 - glfw3
 - glew
