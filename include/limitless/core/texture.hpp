@@ -102,7 +102,7 @@ namespace LimitlessEngine {
         [[nodiscard]] virtual GLuint getId() const noexcept = 0;
         [[nodiscard]] virtual Type getType() const noexcept = 0;
         [[nodiscard]] virtual glm::uvec3 getSize() const noexcept = 0;
-        [[nodiscard]] virtual const ExtensionTexture& getExtensionTexture() const noexcept = 0;
+        [[nodiscard]] virtual ExtensionTexture& getExtensionTexture() noexcept = 0;
 
         // texture visitors
         virtual void accept(TextureVisitor& visitor) noexcept = 0;

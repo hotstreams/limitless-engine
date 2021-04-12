@@ -44,16 +44,17 @@ namespace LimitlessEngine {
     class Framebuffer : public RenderTarget, public FramebufferObserver {
     private:
         std::unordered_map<FramebufferAttachment, TextureAttachment> attachments;
+        ContextEventObserver* context {};
     public:
-        explicit Framebuffer(ContextEventObserver &context) noexcept;
+        explicit Framebuffer(ContextEventObserver& context) noexcept;
         Framebuffer() noexcept;
         ~Framebuffer() override;
 
         Framebuffer(const Framebuffer&) = delete;
         Framebuffer& operator=(const Framebuffer&) = delete;
 
-        Framebuffer(Framebuffer&&) noexcept = delete;
-        Framebuffer& operator=(Framebuffer&&) noexcept = delete;
+        Framebuffer(Framebuffer&&) = delete;
+        Framebuffer& operator=(Framebuffer&&) = delete;
 
         const TextureAttachment& get(FramebufferAttachment attachment) const;
         void specifyLayer(FramebufferAttachment attachment, uint32_t layer);

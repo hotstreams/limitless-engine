@@ -22,6 +22,7 @@ namespace LimitlessEngine {
         bool done {};
         bool hidden {};
         bool wireframe {};
+        bool shadow_cast {true};
 
         glm::vec3 position;
         glm::quat rotation {};
@@ -60,6 +61,10 @@ namespace LimitlessEngine {
 
         void asWireFrame() noexcept;
         void asModel() noexcept;
+
+        [[nodiscard]] bool isCastsShadows() const noexcept { return shadow_cast; }
+        void castShadow() noexcept { shadow_cast = true; }
+        void removeShadow() noexcept { shadow_cast = false; }
 
         virtual void update();
 

@@ -133,6 +133,6 @@ void MutableTexture::accept(TextureVisitor& visitor) noexcept {
     texture->accept(visitor);
 }
 
-const ExtensionTexture& MutableTexture::getExtensionTexture() const noexcept {
+ExtensionTexture& MutableTexture::getExtensionTexture() noexcept {
     return *texture;
 }

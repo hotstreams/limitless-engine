@@ -3,8 +3,9 @@
 
 using namespace LimitlessEngine;
 
-Framebuffer::Framebuffer(ContextEventObserver& context) noexcept : Framebuffer() {
-    context.registerObserver(this);
+Framebuffer::Framebuffer(ContextEventObserver& _context) noexcept : Framebuffer() {
+    context = &_context;
+    context->registerObserver(this);
 }
 
 Framebuffer::Framebuffer() noexcept {
@@ -29,7 +30,10 @@ Framebuffer::~Framebuffer() {
             glDeleteBuffers(1, &id);
         }
     }
-    //TODO: unregister observer
+
+    if (context) {
+        context->unregisterObserver(this);
+    }
 }
 
 void Framebuffer::onFramebufferChange(glm::uvec2 size) {

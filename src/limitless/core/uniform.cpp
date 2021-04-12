@@ -115,7 +115,8 @@ void UniformSampler::set(const ShaderProgram& shader) {
 
     //TODO: remove RTTI
     try {
-        const auto& texture = dynamic_cast<const BindlessTexture&>(sampler->getExtensionTexture());
+        auto& texture = dynamic_cast<BindlessTexture&>(sampler->getExtensionTexture());
+        texture.makeResident();
         glUniformHandleui64ARB(location, texture.getHandle());
     } catch (...) {
         UniformValue::set(shader);

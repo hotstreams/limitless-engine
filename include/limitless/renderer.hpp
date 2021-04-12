@@ -32,6 +32,6 @@ namespace LimitlessEngine {
 
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
 
-        void dispatchInstances(Scene& scene, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) const;
+        void dispatch(Scene& scene, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) const;
     };
 }

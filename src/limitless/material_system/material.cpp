@@ -52,7 +52,9 @@ void Material::update() const noexcept {
                     auto& uniform = static_cast<UniformSampler&>(*properties.at(type));
                     auto offset = uniform_offsets.at(uniform.getName());
                     auto& texture = uniform.getSampler();
-                    std::memcpy(data.data() + offset, &static_cast<const BindlessTexture&>(texture->getExtensionTexture()).getHandle(), sizeof(uint64_t));
+                    auto& bindless = static_cast<BindlessTexture&>(texture->getExtensionTexture());
+                    bindless.makeResident();
+                    std::memcpy(data.data() + offset, &bindless.getHandle(), sizeof(uint64_t));
                 }
                 break;
         }
