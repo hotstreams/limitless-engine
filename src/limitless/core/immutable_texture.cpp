@@ -3,8 +3,18 @@
 using namespace LimitlessEngine;
 
 ImmutableTexture::ImmutableTexture(std::unique_ptr<ExtensionTexture> _texture, Type target, GLsizei levels, InternalFormat internal_format, glm::uvec2 size, Format format, DataType data_type, const void* data, const texture_parameters& params) noexcept
-    : texture{std::move(_texture)}, internal_format{internal_format}, params{params}, data_type{data_type}, levels{levels}, size{size, 0.0f}, format{format}, target{target} {
-    if (params) params(*this);
+    : texture{std::move(_texture)}
+    , internal_format{internal_format}
+    , params{params}
+    , data_type{data_type}
+    , levels{levels}
+    , size{size, 0.0f}
+    , format{format}
+    , target{target} {
+
+    if (params) {
+        params(*this);
+    }
 
     texStorage2D(static_cast<GLenum>(target), levels, internal_format, size);
 
@@ -104,26 +114,22 @@ void ImmutableTexture::resize(glm::uvec3 _size) noexcept {
 
     switch (target) {
         case Type::Tex2D: {
-            ImmutableTexture new_texture{std::unique_ptr<ExtensionTexture>(texture->clone()), target, levels, internal_format, glm::uvec2{size}, format, data_type, nullptr, {}};
+            ImmutableTexture new_texture{std::unique_ptr<ExtensionTexture>(texture->clone()), target, levels, internal_format, glm::uvec2{size}, format, data_type, nullptr, params};
             *this = std::move(new_texture);
             break;
         }
         case Type::Tex2DArray:
         case Type::TexCubeMapArray:
         case Type::Tex3D: {
-            ImmutableTexture new_texture{std::unique_ptr<ExtensionTexture>(texture->clone()), target, levels, internal_format, size, format, data_type, nullptr, {}};
+            ImmutableTexture new_texture{std::unique_ptr<ExtensionTexture>(texture->clone()), target, levels, internal_format, size, format, data_type, nullptr, params};
             *this = std::move(new_texture);
             break;
         }
         case Type::CubeMap: {
-            ImmutableTexture new_texture{std::unique_ptr<ExtensionTexture>(texture->clone()), target, levels, internal_format, glm::uvec2{size}, format, data_type, std::array<void *, 6>{}, {}};
+            ImmutableTexture new_texture{std::unique_ptr<ExtensionTexture>(texture->clone()), target, levels, internal_format, glm::uvec2{size}, format, data_type, std::array<void *, 6>{}, params};
             *this = std::move(new_texture);
             break;
         }
-    }
-
-    if (params) {
-        params(*this);
     }
 
     if (mipmap) {
@@ -143,6 +149,6 @@ glm::uvec3 ImmutableTexture::getSize() const noexcept {
     return size;
 }
 
-const ExtensionTexture& ImmutableTexture::getExtensionTexture() const noexcept {
+ExtensionTexture& ImmutableTexture::getExtensionTexture() noexcept {
     return *texture;
 }

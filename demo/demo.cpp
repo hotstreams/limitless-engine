@@ -2,7 +2,7 @@
 #include <limitless/loaders/texture_loader.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
-#include <limitless/render.hpp>
+#include <limitless/renderer.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/instances/elementary_instance.hpp>
 #include <limitless/particle_system/effect_builder.hpp>
@@ -18,7 +18,7 @@
 
 using namespace LimitlessEngine;
 
-class Game : public MouseMoveObserver, public KeyObserver {
+class Game : public MouseMoveObserver, public KeyObserver, public FramebufferObserver {
 private:
     ContextEventObserver context;
     Scene scene;
@@ -40,6 +40,7 @@ public:
 
         context.registerObserver(static_cast<KeyObserver*>(this));
         context.registerObserver(static_cast<MouseMoveObserver*>(this));
+        context.registerObserver(static_cast<FramebufferObserver*>(this));
 
         assets.load(context);
 
@@ -50,10 +51,16 @@ public:
 //        auto test_text = new TextInstance("Limitless-engine", {20.0f, window_size.y - 40.0f}, {1.0f, 1.0f}, {1.5f, 3.8f, 2.4f, 1.f}, assets.fonts.at("nunito"), context);
 //        scene.add(test_text);
 
-        scene.lighting.directional_light = { glm::vec4{2.0f, -5.0f, 2.0f, 1.0f}, glm::vec4{0.1f, 0.1f, 0.1f, 8.0f} };
+        scene.lighting.directional_light = { glm::vec4{2.0f, -5.0f, 2.0f, 1.0f}, glm::vec4{0.1f, 0.7f, 1.3f, 1.0f} };
         scene.lighting.point_lights.emplace_back(glm::vec4{-1.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{2.3f, 1.1f, 1.2f, 2.0f}, 4.6f);
         scene.lighting.point_lights.emplace_back(glm::vec4{3.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 0.3f, 2.7f, 2.0f}, 4.2f);
         scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.3f, 1.7f, 2.0f}, 4.5f);
+    }
+
+    ~Game() override {
+        context.unregisterObserver(static_cast<KeyObserver*>(this));
+        context.unregisterObserver(static_cast<MouseMoveObserver*>(this));
+        context.unregisterObserver(static_cast<FramebufferObserver*>(this));
     }
 
     void addModels() {
@@ -161,6 +168,10 @@ public:
         }
     }
 
+    void onFramebufferChange(glm::uvec2 size) override {
+        camera.updateProjection(size);
+    }
+
     void handleInput(float delta) noexcept {
         if (context.isPressed(GLFW_KEY_W)) {
             camera.movement(CameraMovement::Forward, delta);
@@ -190,8 +201,9 @@ public:
             render.draw(context, assets, scene, camera);
 
             handleInput(delta);
-            context.pollEvents();
+
             context.swapBuffers();
+            context.pollEvents();
         }
     }
 };

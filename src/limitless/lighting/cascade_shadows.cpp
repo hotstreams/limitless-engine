@@ -7,8 +7,10 @@
 
 #include <limitless/material_system/properties.hpp>
 
+#include <limitless/instances/abstract_instance.hpp>
+
 #include <limitless/lighting/lights.hpp>
-#include <limitless/render.hpp>
+#include <limitless/renderer.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
 
@@ -185,7 +187,13 @@ void CascadeShadows::castShadows(Renderer& render, const Assets& assets, Scene& 
             shader << UniformValue{"light_space", frustums[i].crop};
         };
 
-        render.dispatchInstances(scene, ctx, assets, MaterialShader::DirectionalShadow, Blending::Opaque, { uniform_set });
+        for (auto& [id, instance] : scene) {
+            if (!instance->isCastsShadows()) {
+                continue;
+            }
+
+            instance->draw(assets, MaterialShader::DirectionalShadow, Blending::Opaque, { uniform_set });
+        }
     }
 
     fbo.unbind();

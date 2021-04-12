@@ -30,10 +30,10 @@ namespace LimitlessEngine {
         LightContainer(LightContainer&&) noexcept = default;
         LightContainer& operator=(LightContainer&&) noexcept = default;
 
-        [[nodiscard]] auto begin() noexcept { return lights.begin(); }
+        [[nodiscard]] auto begin() noexcept { modified = true; return lights.begin(); }
         [[nodiscard]] auto begin() const noexcept { return lights.begin(); }
 
-        [[nodiscard]] auto end() noexcept { return lights.end(); }
+        [[nodiscard]] auto end() noexcept { modified = true; return lights.end(); }
         [[nodiscard]] auto end() const noexcept { return lights.end(); }
 
         [[nodiscard]] auto size() const noexcept { return lights.size(); }
@@ -49,7 +49,7 @@ namespace LimitlessEngine {
         T& at(size_t id) {  modified = true; return lights.at(lights_map.at(id)); }
         [[nodiscard]] const T& at(size_t id) const { return lights.at(lights_map.at(id)); }
 
-        T& back() noexcept { return lights.back(); }
+        T& back() noexcept { modified = true; return lights.back(); }
         const T& back() const noexcept { return lights.back(); }
 
         void erase(uint64_t id);

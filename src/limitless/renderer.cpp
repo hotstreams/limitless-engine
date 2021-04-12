@@ -1,4 +1,4 @@
-#include <limitless/render.hpp>
+#include <limitless/renderer.hpp>
 
 #include <limitless/render_settings.hpp>
 #include <limitless/core/texture_builder.hpp>
@@ -135,7 +135,7 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
             shadow_mapping.setUniform(shader);
         };
 
-        dispatchInstances(scene, context, assets, MaterialShader::Forward, blending, { setter });
+        dispatch(scene, context, assets, MaterialShader::Forward, blending, {setter});
         effect_renderer.draw(assets, blending);
     };
 
@@ -180,7 +180,7 @@ std::vector<AbstractInstance*> Renderer::performFrustumCulling(Scene &scene, [[m
     return culled;
 }
 
-void Renderer::dispatchInstances(Scene& scene, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) const {
+void Renderer::dispatch(Scene& scene, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) const {
     for (auto& [id, instance] : scene) {
         instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 

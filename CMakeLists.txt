@@ -135,7 +135,7 @@ set(ENGINE_SRC
         src/limitless/shader_storage.cpp
         src/limitless/instances/effect_instance.cpp
         src/limitless/postprocessing.cpp
-        src/limitless/render.cpp
+        src/limitless/renderer.cpp
         src/limitless/scene_data.cpp
         src/limitless/skybox.cpp
         src/limitless/instances/abstract_instance.cpp

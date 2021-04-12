@@ -51,7 +51,7 @@ namespace LimitlessEngine {
         [[nodiscard]] GLuint getId() const noexcept override;
         [[nodiscard]] Type getType() const noexcept override;
         [[nodiscard]] glm::uvec3 getSize() const noexcept override;
-        [[nodiscard]] const ExtensionTexture& getExtensionTexture() const noexcept override;
+        [[nodiscard]] ExtensionTexture& getExtensionTexture() noexcept override;
 
         void accept(TextureVisitor& visitor) noexcept override;
     };
