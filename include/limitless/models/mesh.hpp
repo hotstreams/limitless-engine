@@ -1,24 +1,16 @@
 #pragma once
 
+#include <limitless/models/abstract_mesh.hpp>
 #include <limitless/core/vertex_array.hpp>
 #include <limitless/core/buffer_builder.hpp>
 
-#include <vector>
-#include <memory>
-
 namespace LimitlessEngine {
-    class AbstractMesh {
-    public:
-        AbstractMesh() = default;
-        virtual ~AbstractMesh() = default;
-
-        virtual void draw() const noexcept = 0;
-        virtual void draw_instanced(size_t count) const noexcept = 0;
-
-        [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
+    enum class MeshDataType {
+        Static,
+        Dynamic,
+        Stream
     };
 
-    enum class MeshDataType { Static, Dynamic, Stream };
     enum class DrawMode {
         Triangles = GL_TRIANGLES,
         TriangleStrip = GL_TRIANGLE_STRIP,
@@ -32,14 +24,15 @@ namespace LimitlessEngine {
     template<typename T>
     class Mesh : public AbstractMesh {
     protected:
+        std::unique_ptr<Buffer> vertex_buffer;
+        VertexArray vertex_array;
         std::vector<T> vertices;
-        std::string name;
 
         MeshDataType data_type;
         DrawMode draw_mode;
+        std::string name;
 
-        VertexArray vertex_array;
-        std::unique_ptr<Buffer> vertex_buffer;
+        BoundingBox bounding_box;
     private:
         void initialize() {
             BufferBuilder builder;
@@ -62,17 +55,29 @@ namespace LimitlessEngine {
 //                    vertex_buffer = builder .setUsage(Buffer::Storage::DynamicCoherentWrite)
 //                                            .setAccess(Buffer::ImmutableAccess::WriteCoherent)
 //                                            .buildTriple();
+//TODO:
                     break;
             }
 
             vertex_array << std::pair<T, Buffer&>(T{}, *vertex_buffer);
         }
+
+        void calculateBoundingBox() {
+            bounding_box = LimitlessEngine::calculateBoundingBox(vertices);
+        }
     public:
-        Mesh(std::vector<T>&& vertices, std::string name, MeshDataType data_type, DrawMode draw_mode)
-            : vertices{std::move(vertices)}, name{std::move(name)}, data_type{data_type}, draw_mode{draw_mode} {
+        Mesh(std::vector<T>&& _vertices, std::string _name, MeshDataType _data_type, DrawMode _draw_mode)
+            : vertices{std::move(_vertices)}
+            , data_type{_data_type}
+            , draw_mode{_draw_mode}
+            , name{std::move(_name)} {
+
             initialize();
+            calculateBoundingBox();
         }
 
+        //TODO: remove shrek ?1000?
+        //TODO 2: remove at all?
         Mesh(std::string name, MeshDataType _data_type, DrawMode _draw_mode)
             : vertices{1000}, name{std::move(name)}, data_type{_data_type}, draw_mode{_draw_mode} {
             initialize();
@@ -87,7 +92,9 @@ namespace LimitlessEngine {
         Mesh& operator=(Mesh&&) noexcept = default;
 
         void draw() const noexcept override {
-            if (vertices.empty()) return;
+            if (vertices.empty()) {
+                return;
+            }
 
             vertex_array.bind();
 
@@ -97,7 +104,9 @@ namespace LimitlessEngine {
         }
 
         void draw_instanced(size_t count) const noexcept override {
-            if (vertices.empty() || !count) return;
+            if (vertices.empty() || !count) {
+                return;
+            }
 
             vertex_array.bind();
 
@@ -106,9 +115,9 @@ namespace LimitlessEngine {
             vertex_buffer->fence();
         }
 
-        template<typename VertexArray>
-        void updateVertices(VertexArray&& new_vertices) {
-            vertices = std::forward<VertexArray>(new_vertices);
+        template<typename Vertices>
+        void updateVertices(Vertices&& new_vertices) {
+            vertices = std::forward<Vertices>(new_vertices);
 
             if (vertices.size() * sizeof(T) > vertex_buffer->getSize()) {
                 initialize();
@@ -117,6 +126,7 @@ namespace LimitlessEngine {
             vertex_buffer->mapData(vertices.data(), sizeof(T) * vertices.size());
         }
 
+        [[nodiscard]] const BoundingBox& getBoundingBox() noexcept override { return bounding_box; }
         [[nodiscard]] const std::string& getName() const noexcept override { return name; }
         [[nodiscard]] const auto& getVertices() const noexcept { return vertices; }
     };

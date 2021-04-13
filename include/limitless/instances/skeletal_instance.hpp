@@ -8,8 +8,10 @@ namespace LimitlessEngine {
         std::vector<glm::mat4> bone_transform;
         std::shared_ptr<Buffer> bone_buffer;
 
-        const Animation* animation {nullptr};
-        bool paused {false};
+        const Animation* animation {};
+        bool paused {};
+
+        void calculateBoundingBox() noexcept override;
 
         const AnimationNode* findAnimationNode(const Bone& bone) const noexcept;
     public:

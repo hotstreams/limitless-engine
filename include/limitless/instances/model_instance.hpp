@@ -2,8 +2,6 @@
 
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/instances/mesh_instance.hpp>
-#include <glm/glm.hpp>
-#include <string>
 
 namespace LimitlessEngine {
     class AbstractModel;
@@ -12,6 +10,8 @@ namespace LimitlessEngine {
     protected:
         std::unordered_map<std::string, MeshInstance> meshes;
         std::shared_ptr<AbstractModel> model;
+
+        void calculateBoundingBox() noexcept override;
     public:
         ModelInstance(decltype(model) model, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
         ModelInstance(Lighting* lighting, decltype(model) model, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
@@ -27,12 +27,6 @@ namespace LimitlessEngine {
         ModelInstance* clone() noexcept override;
 
         MeshInstance& operator[](const std::string& mesh);
-
-        auto begin() noexcept { return meshes.begin(); }
-        auto begin() const noexcept { return meshes.cbegin(); }
-
-	    auto end() noexcept { return meshes.end(); }
-	    auto end() const noexcept { return meshes.cend(); }
 
         using AbstractInstance::draw;
         void draw(const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;

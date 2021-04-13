@@ -22,10 +22,7 @@ namespace LimitlessEngine {
         Framebuffer offscreen;
         ShadowMapping shadow_mapping;
 
-        void renderLightsVolume(Context& context, Scene& scene, const Assets& assets) const;
-        void renderCoordinateSystemAxes(Context& context, Scene& scene, const Assets& assets) const;
-        void initializeOffscreenBuffer(ContextEventObserver& ctx);
-
+        void initialize(ContextEventObserver& ctx);
         std::vector<AbstractInstance*> performFrustumCulling(Scene& scene, Camera& camera) const noexcept;
     public:
         explicit Renderer(ContextEventObserver& context);

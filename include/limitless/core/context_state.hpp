@@ -97,6 +97,7 @@ namespace LimitlessEngine {
         glm::vec4 blending_color {0.0f};
         glm::uvec2 scissor_origin {};
         glm::uvec2 scissor_size {};
+        float line_width {};
 
         GLuint shader_id {};
         GLuint vertex_array_id {};
@@ -156,6 +157,7 @@ namespace LimitlessEngine {
         void setBlendColor(const glm::vec4& color) noexcept;
         void setScissorTest(glm::uvec2 origin, glm::uvec2 size) noexcept;
         void clear(Clear bits) noexcept;
+        void setLineWidth(float width) noexcept;
         void disable(Capabilities func) noexcept;
         void enable(Capabilities func) noexcept;
 

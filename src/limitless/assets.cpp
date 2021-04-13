@@ -1,8 +1,12 @@
 #include <limitless/assets.hpp>
 
-#include <limitless/skybox.hpp>
-#include <limitless/models/elementary_model.hpp>
 #include <limitless/material_system/material_builder.hpp>
+#include <limitless/skybox.hpp>
+
+#include <limitless/models/sphere.hpp>
+#include <limitless/models/quad.hpp>
+#include <limitless/models/cube.hpp>
+#include <limitless/models/plane.hpp>
 
 using namespace LimitlessEngine;
 
@@ -27,6 +31,7 @@ void Assets::load(Context& context) {
 
     // used in skybox render
     models.add("cube", std::make_shared<Cube>());
+    meshes.add("cube_mesh", models.at("cube")->getMeshes().at(0));
 
     models.add("plane", std::make_shared<Plane>());
     meshes.add("plane_mesh", models.at("plane")->getMeshes().at(0));

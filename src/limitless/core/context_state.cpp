@@ -75,6 +75,13 @@ void ContextState::clear(Clear bits) noexcept {
     glClear(static_cast<GLbitfield>(bits));
 }
 
+void ContextState::setLineWidth(float width) noexcept {
+    if (line_width != width) {
+        glLineWidth(width);
+        line_width = width;
+    }
+}
+
 void ContextState::enable(Capabilities func) noexcept {
     if (!capability_map[func]) {
         glEnable(static_cast<GLenum>(func));

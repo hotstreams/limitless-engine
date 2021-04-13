@@ -1,25 +1,84 @@
 #include <limitless/instances/text_instance.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <limitless/material_system/material.hpp>
+
+#include <limitless/material_system/properties.hpp>
 #include <limitless/core/shader_program.hpp>
+#include <limitless/core/uniform.hpp>
+#include <limitless/core/context.hpp>
+#include <limitless/font_atlas.hpp>
 #include <limitless/assets.hpp>
+
+#include <glm/gtx/transform.hpp>
 
 using namespace LimitlessEngine;
 
-void TextInstance::updateVertices() {
-    mesh.updateVertices(font->generate(string));
+TextInstance::TextInstance(std::string _text, const glm::vec2& _position, std::shared_ptr<FontAtlas> _font)
+    : text_model {_font->generate(_text)}
+    , text {std::move(_text)}
+    , position {_position}
+    , font {std::move(_font)} {
+    calculateModelMatrix();
 }
 
-void TextInstance::draw(const Assets& assets, [[maybe_unused]] MaterialShader shader_type, Blending blending, [[maybe_unused]] const UniformSetter& uniform_set) {
-    if (hidden || blending != Blending::Translucent) return;
-
+TextInstance::TextInstance(size_t count, const glm::vec2& _position, std::shared_ptr<FontAtlas> _font)
+    : text_model {count}
+    , text {}
+    , position {_position}
+    , font {std::move(_font)} {
     calculateModelMatrix();
+}
 
+void TextInstance::calculateModelMatrix() noexcept {
+    const auto translation_matrix = glm::translate(glm::mat4{1.0f}, glm::vec3{position, 0.0f});
+    const auto scaling_matrix = glm::scale(glm::mat4{1.0f}, glm::vec3{size, 0.0f});
+
+    model_matrix = translation_matrix * scaling_matrix;
+}
+
+TextInstance& TextInstance::setText(std::string _text) {
+    text = std::move(_text);
+    text_model.update(font->generate(text));
+    return *this;
+}
+
+TextInstance& TextInstance::setColor(const glm::vec4& _color) noexcept {
+    color = _color;
+    return *this;
+}
+
+TextInstance& TextInstance::setSelectionColor(const glm::vec4& _color) noexcept {
+    selection_color = _color;
+    return *this;
+}
+
+TextInstance& TextInstance::setSelection(size_t begin, size_t end) {
+    selection_model = TextModel{font->getSelectionGeometry(text, begin, end)};
+    return *this;
+}
+
+TextInstance& TextInstance::removeSelection() noexcept {
+    selection_model = std::nullopt;
+    return *this;
+}
+
+TextInstance& TextInstance::setPosition(const glm::vec2& _position) noexcept {
+    position = _position;
+    calculateModelMatrix();
+    return *this;
+}
+
+TextInstance& TextInstance::setSize(const glm::vec2& _size) noexcept {
+    size = _size;
+    calculateModelMatrix();
+    return *this;
+}
+
+void TextInstance::draw(Context& ctx, const Assets& assets) {
     ctx.disable(Capabilities::DepthTest);
-    ctx.disable(Capabilities::Blending);
 
     // draw selection
-    if (selection_mesh) {
+    if (selection_model) {
+        ctx.disable(Capabilities::Blending);
+
         auto& shader = assets.shaders.get("text_selection");
 
         shader << UniformValue{"model", model_matrix}
@@ -28,7 +87,7 @@ void TextInstance::draw(const Assets& assets, [[maybe_unused]] MaterialShader sh
 
         shader.use();
 
-        selection_mesh->draw();
+        selection_model->draw();
     }
 
     // draw text
@@ -44,10 +103,6 @@ void TextInstance::draw(const Assets& assets, [[maybe_unused]] MaterialShader sh
 
         shader.use();
 
-        mesh.draw();
+        text_model.draw();
     }
-}
-
-TextInstance* TextInstance::clone() noexcept {
-    return new TextInstance(string, position, scale, color, font, ctx);
 }

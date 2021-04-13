@@ -19,6 +19,8 @@ namespace LimitlessEngine {
         friend void swap(EffectInstance&, EffectInstance&) noexcept;
         bool isDone() const noexcept;
 
+        void calculateBoundingBox() noexcept override;
+
         friend class EffectBuilder;
         friend class EffectSerializer;
         EffectInstance() noexcept;

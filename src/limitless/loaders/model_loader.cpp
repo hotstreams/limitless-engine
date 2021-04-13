@@ -8,6 +8,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 
+#include <glm/gtx/quaternion.hpp>
+
 using namespace LimitlessEngine;
 
 glm::mat4 glm::convert(const aiMatrix4x4& aimat) noexcept {

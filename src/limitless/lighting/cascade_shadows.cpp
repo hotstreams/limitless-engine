@@ -178,6 +178,7 @@ void CascadeShadows::castShadows(Renderer& render, const Assets& assets, Scene& 
     fbo.bind();
 
     ctx.setViewPort(SHADOW_RESOLUTION);
+    ctx.setDepthMask(DepthMask::True);
 
     for (uint32_t i = 0; i < SPLIT_COUNT; ++i) {
         fbo.specifyLayer(FramebufferAttachment::Depth, i);

@@ -1,80 +1,15 @@
 #include <limitless/renderer.hpp>
 
-#include <limitless/render_settings.hpp>
 #include <limitless/core/texture_builder.hpp>
-#include <limitless/material_system/material.hpp>
-#include <limitless/instances/elementary_instance.hpp>
-#include <limitless/camera.hpp>
+#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/material_system/properties.hpp>
+#include <limitless/util/renderer_helper.hpp>
+#include <limitless/util/sorter.hpp>
 #include <limitless/scene.hpp>
-
-#include <limitless/models/elementary_model.hpp>
 
 using namespace LimitlessEngine;
 
-struct FrontToBackSorter {
-    const Camera& camera;
-
-    explicit FrontToBackSorter(const Camera& _camera) noexcept : camera{_camera} {}
-
-    bool operator()(const AbstractInstance* const lhs, const AbstractInstance* const rhs) const noexcept {
-        const auto& a_pos = lhs->getPosition();
-        const auto& b_pos = rhs->getPosition();
-        const auto& c_pos = camera.getPosition();
-
-        return glm::distance(c_pos, a_pos) < glm::distance(c_pos, b_pos);
-    }
-};
-
-struct BackToFrontSorter {
-    const Camera& camera;
-
-    explicit BackToFrontSorter(const Camera& _camera) noexcept : camera{_camera} {}
-
-    bool operator()(const AbstractInstance* const lhs, const AbstractInstance* const rhs) const noexcept {
-        const auto& a_pos = lhs->getPosition();
-        const auto& b_pos = rhs->getPosition();
-        const auto& c_pos = camera.getPosition();
-
-        return glm::distance(c_pos, a_pos) > glm::distance(c_pos, b_pos);
-    }
-};
-
-//void Renderer::dispatchInstances(Context& context,
-//                                 const Assets& assets,
-//                                 MaterialShader shader_type,
-//                                 Blending blending,
-//                                 UniformSetter& uniform_set) const {
-////    for (auto* const instance : instances) {
-////        instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
-////
-////        instance->draw(assets, shader_type, blending, uniform_setter);
-////    }
-//
-//
-//}
-
-void Renderer::renderLightsVolume(Context& context, Scene& scene, const Assets& assets) const {
-    if (scene.lighting.point_lights.empty()) {
-        return;
-    }
-
-    context.enable(Capabilities::DepthTest);
-    context.setDepthFunc(DepthFunc::Less);
-    context.setDepthMask(DepthMask::False);
-    context.disable(Capabilities::DepthTest);
-
-    auto sphere_instance = ElementaryInstance(assets.models.at("sphere"), assets.materials.at("default"), glm::vec3(0.0f));
-
-    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& light : scene.lighting.point_lights) {
-        sphere_instance.setPosition(light.position);
-        sphere_instance.setScale(glm::vec3(light.radius));
-        sphere_instance.draw(assets, MaterialShader::Forward, Blending::Opaque);
-    }
-    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
-}
-
-void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
+void Renderer::initialize(ContextEventObserver& ctx) {
     auto param_set = [] (Texture& texture) {
         texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
                 << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
@@ -110,7 +45,7 @@ void Renderer::initializeOffscreenBuffer(ContextEventObserver& ctx) {
 
 Renderer::Renderer(ContextEventObserver& context)
     : postprocess{context}, effect_renderer{context}, scene_data{context}, offscreen{context}, shadow_mapping{context} {
-    initializeOffscreenBuffer(context);
+    initialize(context);
 }
 
 void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
@@ -148,20 +83,13 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
         scene.getSkybox()->draw(context, assets);
     }
 
-    // draws lights influence radius
-    if (RenderSettings::LIGHT_RADIUS) {
-        renderLightsVolume(context, scene, assets);
-    }
-
     // rendering back to front to follow the translucent order
     std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
     draw_scene(Blending::Additive);
     draw_scene(Blending::Modulate);
     draw_scene(Blending::Translucent);
 
-    if (RenderSettings::COORDINATE_SYSTEM_AXES) {
-        renderCoordinateSystemAxes(context, scene, assets);
-    }
+    RendererHelper::render(context, assets, scene);
 
     offscreen.unbind();
 
@@ -186,25 +114,4 @@ void Renderer::dispatch(Scene& scene, Context& context, const Assets& assets, Ma
 
         instance->draw(assets, shader_type, blending, uniform_set);
     }
-}
-
-void Renderer::renderCoordinateSystemAxes(Context& context, Scene& scene, const Assets& assets) const {
-    context.enable(Capabilities::DepthTest);
-    context.setDepthFunc(DepthFunc::Less);
-    context.setDepthMask(DepthMask::False);
-    context.disable(Capabilities::DepthTest);
-
-    glLineWidth(5.0f);
-
-    static const auto x = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
-    static const auto y = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
-    static const auto z = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f});
-
-    static ElementaryInstance x_i {x, assets.materials.at("green"), {5.0f, 1.0f, 0.0f}};
-    static ElementaryInstance y_i {y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}};
-    static ElementaryInstance z_i {z, assets.materials.at("red"), {5.0f, 1.0f, 0.0f}};
-
-    x_i.draw(assets, MaterialShader::Forward, Blending::Opaque);
-    y_i.draw(assets, MaterialShader::Forward, Blending::Opaque);
-    z_i.draw(assets, MaterialShader::Forward, Blending::Opaque);
 }

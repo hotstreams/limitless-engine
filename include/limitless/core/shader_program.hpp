@@ -1,8 +1,9 @@
 #pragma once
 
 #include <limitless/core/indexed_buffer.hpp>
-#include <glm/glm.hpp>
 #include <vector>
+#include "context_state.hpp"
+
 
 namespace LimitlessEngine {
     template<typename T> class UniformValue;
@@ -45,15 +46,15 @@ namespace LimitlessEngine {
     public:
         ~ShaderProgram();
 
-        void use();
-
-        [[nodiscard]] auto getId() const noexcept { return id; }
-
         ShaderProgram(const ShaderProgram&) noexcept = delete;
         ShaderProgram& operator=(const ShaderProgram&) noexcept = delete;
 
         ShaderProgram(ShaderProgram&& rhs) noexcept;
         ShaderProgram& operator=(ShaderProgram&& rhs) noexcept;
+
+        [[nodiscard]] auto getId() const noexcept { return id; }
+
+        void use();
 
         template<typename T>
         ShaderProgram& operator<<(const UniformValue<T>& uniform) noexcept;

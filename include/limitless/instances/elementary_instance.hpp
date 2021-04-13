@@ -7,6 +7,8 @@ namespace LimitlessEngine {
     protected:
         std::shared_ptr<AbstractModel> model;
         MeshInstance mesh;
+
+        void calculateBoundingBox() noexcept override;
     public:
         ElementaryInstance(decltype(model) model, std::shared_ptr<Material> material, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
         ElementaryInstance(Lighting* lighting, decltype(model) model, std::shared_ptr<Material> material, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});

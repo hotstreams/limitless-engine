@@ -42,8 +42,6 @@ void LimitlessEngine::setBlendingMode(ContextState& context, Blending blending) 
             break;
 	    case Blending::Text:
 		    context.disable(Capabilities::DepthTest);
-		    context.setDepthFunc(DepthFunc::Less);
-		    context.setDepthMask(DepthMask::False);
 		    context.enable(Capabilities::Blending);
 		    context.setBlendFunc(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
 		    break;

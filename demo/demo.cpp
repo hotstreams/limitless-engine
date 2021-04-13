@@ -15,6 +15,7 @@
 #include <limitless/assets.hpp>
 #include <limitless/loaders/model_loader.hpp>
 #include <limitless/loaders/asset_loader.hpp>
+#include <limitless/font_atlas.hpp>
 
 using namespace LimitlessEngine;
 
@@ -29,8 +30,13 @@ private:
 
     bool done {};
     static constexpr glm::uvec2 window_size {800, 800};
+
+    std::unique_ptr<TextInstance> text;
 public:
-    Game() : context{"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}, camera{window_size}, render{context} {
+    Game()
+        : context{"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
+        , camera{window_size}
+        , render{context} {
         camera.setPosition({7.0f, 0.0f, 3.0f});
 
         context.makeCurrent();
@@ -48,8 +54,8 @@ public:
         addSpheres();
         addEffects();
 
-//        auto test_text = new TextInstance("Limitless-engine", {20.0f, window_size.y - 40.0f}, {1.0f, 1.0f}, {1.5f, 3.8f, 2.4f, 1.f}, assets.fonts.at("nunito"), context);
-//        scene.add(test_text);
+        text = std::make_unique<TextInstance>("Limitless-engine", glm::vec2{20.0f, window_size.y - 40.0f}, assets.fonts.at("nunito"));
+        text->setColor({0.1f, 0.8f, 0.4f, 1.0f});
 
         scene.lighting.directional_light = { glm::vec4{2.0f, -5.0f, 2.0f, 1.0f}, glm::vec4{0.1f, 0.7f, 1.3f, 1.0f} };
         scene.lighting.point_lights.emplace_back(glm::vec4{-1.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{2.3f, 1.1f, 1.2f, 2.0f}, 4.6f);
@@ -199,6 +205,7 @@ public:
             last_time = time;
 
             render.draw(context, assets, scene, camera);
+            text->draw(context, assets);
 
             handleInput(delta);
 
