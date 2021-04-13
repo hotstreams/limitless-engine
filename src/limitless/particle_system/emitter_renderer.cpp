@@ -6,6 +6,7 @@
 #include <limitless/particle_system/emitter.hpp>
 #include <limitless/material_system/material.hpp>
 #include <limitless/core/shader_program.hpp>
+#include <limitless/core/uniform_setter.hpp>
 #include <limitless/assets.hpp>
 
 using namespace LimitlessEngine;
@@ -24,69 +25,42 @@ VertexArray& LimitlessEngine::operator<<(VertexArray& vertex_array, const std::p
     return vertex_array;
 }
 
-void SpriteEmitterRenderer::checkStorageSize(uint64_t count) {
-    if (count > max_particle_count) {
-        max_particle_count = count;
-        BufferBuilder builder;
-        buffer = builder .setTarget(Buffer::Type::Array)
-                         .setUsage(Buffer::Usage::DynamicDraw)
-                         .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                         .setDataSize(sizeof(Particle) * max_particle_count)
-                         .build();
-    }
-}
-
 SpriteEmitterRenderer::SpriteEmitterRenderer(const Emitter& emitter, uint64_t emitter_instance_count)
-    : max_particle_count{emitter.getSpawn().max_count * emitter_instance_count} {
-    BufferBuilder builder;
-    buffer = builder .setTarget(Buffer::Type::Array)
-            .setUsage(Buffer::Usage::DynamicDraw)
-            .setAccess(Buffer::MutableAccess::WriteOrphaning)
-            .setDataSize(sizeof(Particle) * max_particle_count)
-            .build();
-
-    vertex_array << std::pair<Particle, Buffer&>(Particle{}, *buffer);
+    : mesh {emitter.getSpawn().max_count * emitter_instance_count, "sprite_emitter", MeshDataType::Dynamic, DrawMode::Points} {
 }
 
 void SpriteEmitterRenderer::update(SpriteParticleCollector& collector) {
-    const auto& particles = collector.yield();
-    checkStorageSize(particles.size());
-    current_particle_count = particles.size();
-    buffer->mapData(particles.data(), sizeof(Particle) * particles.size());
+    mesh.updateVertices(collector.yield());
 }
 
-void SpriteEmitterRenderer::draw(const Assets& assets, const UniqueSpriteEmitter& emitter) {
-    if (current_particle_count == 0) return;
-
-    vertex_array.bind();
-
-    auto& shader = assets.shaders.get(emitter);
+void SpriteEmitterRenderer::draw(const Assets& assets, MaterialShader shader_type, const UniqueSpriteEmitter& emitter, const UniformSetter& setter) {
+    auto& shader = assets.shaders.get(shader_type, emitter);
 
     setBlendingMode(emitter.material->getBlending());
 
     shader << *emitter.material;
 
+    setter(shader);
+
     shader.use();
 
-    glDrawArrays(GL_POINTS, 0, current_particle_count);
+    mesh.draw();
 }
 
 void MeshEmitterRenderer::checkStorageSize(uint64_t count) {
     if (count > max_particle_count) {
         max_particle_count = count;
-//        buffer = BufferBuilder::buildIndexed(shader_mesh_buffer_name, Buffer::Type::ShaderStorage, sizeof(MeshParticle) * max_particle_count, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
         BufferBuilder builder;
         buffer = builder .setTarget(Buffer::Type::ShaderStorage)
-                .setUsage(Buffer::Usage::DynamicDraw)
-                .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                .setDataSize(sizeof(MeshParticle) * max_particle_count)
-                .build();
+                         .setUsage(Buffer::Usage::DynamicDraw)
+                         .setAccess(Buffer::MutableAccess::WriteOrphaning)
+                         .setDataSize(sizeof(MeshParticle) * max_particle_count)
+                         .build();
     }
 }
 
 MeshEmitterRenderer::MeshEmitterRenderer(const Emitter& emitter, uint64_t emitter_instance_count)
     : max_particle_count{emitter.getSpawn().max_count * emitter_instance_count} {
-//    buffer = BufferBuilder::buildIndexed(shader_mesh_buffer_name, Buffer::Type::ShaderStorage, sizeof(MeshParticle) * max_particle_count, Buffer::Usage::DynamicDraw, Buffer::MutableAccess::WriteOrphaning);
     BufferBuilder builder;
     buffer = builder .setTarget(Buffer::Type::ShaderStorage)
             .setUsage(Buffer::Usage::DynamicDraw)

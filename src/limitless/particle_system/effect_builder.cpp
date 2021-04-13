@@ -81,26 +81,28 @@ EffectBuilder& EffectBuilder::setMesh(const std::shared_ptr<AbstractMesh>& mesh)
     return *this;
 }
 
-std::shared_ptr<EffectInstance> EffectBuilder::build() {
+std::shared_ptr<EffectInstance> EffectBuilder::build(const MaterialShaders& material_shaders) {
     EffectCompiler compiler {context, assets};
-    compiler.compile(*effect);
+
+    for (const auto& mat_shader : material_shaders) {
+        compiler.compile(*effect, mat_shader);
+    }
 
     for (const auto& [name, emitter] : *effect) {
         switch (emitter->getType()) {
             case EmitterType::Mesh: {
-                auto& sprite_emitter = effect->get<MeshEmitter>(name);
-                if (!sprite_emitter.getMaterial().material_buffer) {
+                auto& mesh_emitter = effect->get<MeshEmitter>(name);
+                if (!mesh_emitter.getMaterial().material_buffer) {
                     // initializes uniform material buffer using program shader introspection
-                    MaterialBuilder::initializeMaterialBuffer(sprite_emitter.getMaterial(), assets.shaders.get(sprite_emitter.getEmitterType()));
+                    MaterialBuilder::initializeMaterialBuffer(mesh_emitter.getMaterial(), assets.shaders.get(mesh_emitter.getEmitterType()));
                 }
                 break;
             }
             case EmitterType::Sprite: {
                 auto& sprite_emitter = effect->get<SpriteEmitter>(name);
-                auto buffer = effect->get<SpriteEmitter>(name).getMaterial().material_buffer;
                 if (!sprite_emitter.getMaterial().material_buffer) {
                     // initializes uniform material buffer using program shader introspection
-                    MaterialBuilder::initializeMaterialBuffer(sprite_emitter.getMaterial(), assets.shaders.get(sprite_emitter.getEmitterType()));
+                    MaterialBuilder::initializeMaterialBuffer(sprite_emitter.getMaterial(), assets.shaders.get(material_shaders.at(0), sprite_emitter.getEmitterType()));
                 }
                 break;
             }

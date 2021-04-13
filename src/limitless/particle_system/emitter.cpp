@@ -2,9 +2,13 @@
 
 using namespace LimitlessEngine;
 
-Emitter::Emitter(EmitterType type) noexcept
-    : type{type}, local_position{0.0f}, position{0.0f}, local_rotation{}, rotation{}, local_space{false} {
-
+Emitter::Emitter(EmitterType _type) noexcept
+    : type {_type}
+    , local_position {}
+    , position {}
+    , local_rotation {}
+    , rotation {}
+    , local_space {} {
 }
 
 void Emitter::emit(uint32_t count) noexcept {
@@ -34,7 +38,7 @@ void Emitter::setPosition(const glm::vec3& new_position) noexcept {
     position = local_position + new_position;
 }
 
-void Emitter::setRotation([[maybe_unused]] const glm::quat& new_rotation) noexcept {
+void Emitter::setRotation(const glm::quat& new_rotation) noexcept {
     //TODO: check this
     if (local_space) {
         auto diff = new_rotation + local_rotation - rotation;
@@ -52,7 +56,7 @@ void Emitter::spawnParticles() noexcept {
         return;
     }
 
-    auto current_time = std::chrono::steady_clock::now();
+    const auto current_time = std::chrono::steady_clock::now();
 
     switch (spawn.mode) {
         case EmitterSpawn::Mode::Spray:
@@ -128,7 +132,7 @@ void Emitter::update() {
 }
 
 Emitter* Emitter::clone() const noexcept {
-    return nullptr;
+    return new Emitter(*this);
 }
 
 Emitter::Emitter(const Emitter& emitter) noexcept

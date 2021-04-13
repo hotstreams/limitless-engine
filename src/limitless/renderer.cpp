@@ -4,6 +4,7 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/material_system/properties.hpp>
 #include <limitless/util/renderer_helper.hpp>
+#include <limitless/core/uniform_setter.hpp>
 #include <limitless/util/sorter.hpp>
 #include <limitless/scene.hpp>
 
@@ -44,8 +45,40 @@ void Renderer::initialize(ContextEventObserver& ctx) {
 }
 
 Renderer::Renderer(ContextEventObserver& context)
-    : postprocess{context}, effect_renderer{context}, scene_data{context}, offscreen{context}, shadow_mapping{context} {
+    : postprocess{context}
+    , effect_renderer{context}
+    , scene_data{context}
+    , offscreen{context}
+    , shadow_mapping{context} {
     initialize(context);
+}
+
+void Renderer::dispatch(Context& ctx, const Assets& assets, Scene& scene, MaterialShader shader, Camera& camera, const UniformSetter& setter) {
+    auto instances = performFrustumCulling(scene, camera);
+
+    // rendering OPAQUE objects front to back
+    std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});
+    dispatch(ctx, assets, scene, shader, Blending::Opaque, setter);
+
+    // draws skybox
+    if (scene.getSkybox()) {
+        scene.getSkybox()->draw(ctx, assets);
+    }
+
+    // rendering TRANSLUCENT objects back to front
+    std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
+
+    dispatch(ctx, assets, scene, shader, Blending::Additive, setter);
+    dispatch(ctx, assets, scene, shader, Blending::Modulate, setter);
+    dispatch(ctx, assets, scene, shader, Blending::Translucent, setter);
+}
+
+void Renderer::dispatch(Context& ctx, const Assets& assets, Scene& scene, MaterialShader shader, Blending blending, const UniformSetter& setter) {
+    for (auto& [id, instance] : scene) {
+        instance->draw(ctx, assets, shader, blending, setter);
+    }
+
+    effect_renderer.draw(assets, shader, blending, setter);
 }
 
 void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
@@ -56,8 +89,16 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
 
     effect_renderer.update(instances);
 
+    UniformSetter uniform_setter;
+
     // shadows pass
-    shadow_mapping.castShadows(*this, assets, scene, context, camera);
+    if (RenderSettings::DIRECTIONAL_CSM) {
+        shadow_mapping.castShadows(*this, assets, scene, context, camera);
+
+        uniform_setter.add([&] (ShaderProgram& shader) {
+            shadow_mapping.setUniform(shader);
+        });
+    }
 
     // forward pass
     context.setViewPort(context.getSize());
@@ -65,29 +106,7 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
     offscreen.bind();
     offscreen.clear();
 
-    auto draw_scene = [&] (Blending blending) {
-        auto setter = [&] (ShaderProgram& shader) {
-            shadow_mapping.setUniform(shader);
-        };
-
-        dispatch(scene, context, assets, MaterialShader::Forward, blending, {setter});
-        effect_renderer.draw(assets, blending);
-    };
-
-    // rendering front to back
-    std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});
-    draw_scene(Blending::Opaque);
-
-    // draws skybox if it exists
-    if (scene.getSkybox()) {
-        scene.getSkybox()->draw(context, assets);
-    }
-
-    // rendering back to front to follow the translucent order
-    std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
-    draw_scene(Blending::Additive);
-    draw_scene(Blending::Modulate);
-    draw_scene(Blending::Translucent);
+    dispatch(context, assets, scene, MaterialShader::Forward, camera, uniform_setter);
 
     RendererHelper::render(context, assets, scene);
 
@@ -106,12 +125,4 @@ std::vector<AbstractInstance*> Renderer::performFrustumCulling(Scene &scene, [[m
     }
 
     return culled;
-}
-
-void Renderer::dispatch(Scene& scene, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) const {
-    for (auto& [id, instance] : scene) {
-        instance->isWireFrame() ? context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line) : context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
-
-        instance->draw(assets, shader_type, blending, uniform_set);
-    }
 }

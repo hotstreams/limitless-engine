@@ -68,7 +68,7 @@ namespace LimitlessEngine {
 
         void update() override;
 
-        void draw(const Assets& assets, MaterialShader shader_type, Blending blending,
+        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending,
                   const UniformSetter& uniform_set) override;
     };
 

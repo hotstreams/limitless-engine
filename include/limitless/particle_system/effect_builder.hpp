@@ -2,6 +2,7 @@
 
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/particle_system/mesh_emitter.hpp>
+#include <limitless/shader_types.hpp>
 
 namespace LimitlessEngine {
     class Material;
@@ -51,6 +52,6 @@ namespace LimitlessEngine {
             return *this;
         }
 
-        std::shared_ptr<EffectInstance> build();
+        std::shared_ptr<EffectInstance> build(const MaterialShaders& material_shaders = {MaterialShader::Forward, MaterialShader::DirectionalShadow});
     };
 }

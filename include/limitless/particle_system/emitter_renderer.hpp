@@ -2,27 +2,24 @@
 
 #include <limitless/particle_system/emitter_visitor.hpp>
 #include <limitless/core/vertex_array.hpp>
+#include <limitless/shader_types.hpp>
 #include <memory>
 
 namespace LimitlessEngine {
     class Emitter;
     class Assets;
+    class UniformSetter;
 
-    static constexpr auto EMITTER_STORAGE_INSTANCE_COUNT = 5;
+    static constexpr auto EMITTER_STORAGE_INSTANCE_COUNT = 3;
 
     class SpriteEmitterRenderer {
     private:
-        VertexArray vertex_array;
-        std::unique_ptr<Buffer> buffer;
-        uint64_t max_particle_count {};
-
-        uint64_t current_particle_count {};
-        void checkStorageSize(uint64_t count);
+        Mesh<Particle> mesh;
     public:
         explicit SpriteEmitterRenderer(const Emitter& emitter, uint64_t emitter_instance_count = EMITTER_STORAGE_INSTANCE_COUNT);
 
         void update(SpriteParticleCollector& collector);
-        void draw(const Assets& assets, const UniqueSpriteEmitter& emitter);
+        void draw(const Assets& assets, MaterialShader shader, const UniqueSpriteEmitter& emitter, const UniformSetter& setter);
     };
 
     class MeshEmitterRenderer {

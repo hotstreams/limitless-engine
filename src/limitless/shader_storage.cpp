@@ -7,6 +7,10 @@ bool LimitlessEngine::operator<(const ShaderKey& lhs, const ShaderKey& rhs) noex
     return std::tie(lhs.material_type, lhs.model_type, lhs.material_index) < std::tie(rhs.material_type, rhs.model_type, rhs.material_index);
 }
 
+bool LimitlessEngine::operator<(const SpriteEmitterKey& lhs, const SpriteEmitterKey& rhs) noexcept {
+    return std::tie(lhs.material_type, lhs.emitter_type) < std::tie(rhs.material_type, rhs.emitter_type);
+}
+
 ShaderProgram& ShaderStorage::get(const std::string& name) const {
     try {
         return *shaders.at(name);
@@ -38,9 +42,14 @@ bool ShaderStorage::contains(MaterialShader material_type, ModelShader model_typ
     return material_shaders.find({material_type, model_type, material_index}) != material_shaders.end();
 }
 
-ShaderProgram& ShaderStorage::get(const UniqueSpriteEmitter &emitter_type) const {
+bool ShaderStorage::contains(MaterialShader material_type, const UniqueSpriteEmitter& emitter_type) noexcept {
+    std::unique_lock lock(mutex);
+    return sprite_emitter_shaders.find({material_type, emitter_type}) != sprite_emitter_shaders.end();
+}
+
+ShaderProgram& ShaderStorage::get(MaterialShader material_type, const UniqueSpriteEmitter &emitter_type) const {
     try {
-        return *sprite_emitter_shaders.at(emitter_type);
+        return *sprite_emitter_shaders.at({material_type, emitter_type});
     } catch (const std::out_of_range& e) {
         throw shader_storage_error("No such sprite emitter shader");
     }
@@ -54,9 +63,9 @@ ShaderProgram& ShaderStorage::get(const UniqueMeshEmitter &emitter_type) const {
     }
 }
 
-void ShaderStorage::add(const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept {
+void ShaderStorage::add(MaterialShader material_type, const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept {
     std::unique_lock lock(mutex);
-    sprite_emitter_shaders.emplace(emitter_type, std::move(program));
+    sprite_emitter_shaders.emplace(SpriteEmitterKey{material_type, emitter_type}, std::move(program));
 }
 
 void ShaderStorage::add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept {

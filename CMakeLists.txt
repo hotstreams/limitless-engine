@@ -68,6 +68,7 @@ set(ENGINE_CORE
         src/limitless/core/shader_compiler.cpp
         src/limitless/core/shader_program.cpp
         src/limitless/core/uniform.cpp
+        src/limitless/core/uniform_setter.cpp
         src/limitless/serialization/uniform_serializer.cpp
         src/limitless/core/texture_binder.cpp
         src/limitless/core/vertex_array.cpp
