@@ -2,11 +2,9 @@
 #include <limitless/shader_types.hpp>
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader_program.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/instances/elementary_instance.hpp>
-#include <limitless/render_settings.hpp>
-
+#include <limitless/core/uniform_setter.hpp>
 #include <limitless/material_system/material.hpp>
 
 using namespace LimitlessEngine;
@@ -71,7 +69,8 @@ SkeletalInstance& SkeletalInstance::setScale(const glm::vec3& scale) noexcept {
     return *this;
 }
 
-void SkeletalInstance::draw(const Assets& assets, MaterialShader material_shader, Blending blending, const UniformSetter& uniform_setter) {
+void SkeletalInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader, Blending blending,
+                            const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }
@@ -96,10 +95,10 @@ void SkeletalInstance::draw(const Assets& assets, MaterialShader material_shader
                     if (blending == Blending::Opaque) first_opaque = false;
                 }
 
-                if (auto* state = ContextState::getState(glfwGetCurrentContext()); material->getTwoSided()) {
-                    state->disable(Capabilities::CullFace);
+                if (material->getTwoSided()) {
+                    ctx.disable(Capabilities::CullFace);
                 } else {
-                    state->enable(Capabilities::CullFace);
+                    ctx.enable(Capabilities::CullFace);
                 }
 
                 // gets required shader from storage
@@ -110,10 +109,10 @@ void SkeletalInstance::draw(const Assets& assets, MaterialShader material_shader
                        << UniformValue{"model", model_matrix};
 
                 // sets custom pass-dependent uniforms
-                std::for_each(uniform_setter.begin(), uniform_setter.end(), [&] (auto& setter) { setter(shader); });
+                uniform_setter(shader);
 
                 //todo: fix nullptr
-                bone_buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
+                bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
 
                 shader.use();
 

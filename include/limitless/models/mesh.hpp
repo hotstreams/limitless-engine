@@ -34,11 +34,11 @@ namespace LimitlessEngine {
 
         BoundingBox bounding_box;
     private:
-        void initialize() {
+        void initialize(size_t count) {
             BufferBuilder builder;
             builder .setTarget(Buffer::Type::Array)
-                    .setData(vertices.data())
-                    .setDataSize(vertices.size() * sizeof(T));
+                    .setData(vertices.empty() ? nullptr : vertices.data())
+                    .setDataSize(count * sizeof(T));
 
             switch (data_type) {
                 case MeshDataType::Static:
@@ -72,15 +72,18 @@ namespace LimitlessEngine {
             , draw_mode{_draw_mode}
             , name{std::move(_name)} {
 
-            initialize();
+            initialize(vertices.size());
             calculateBoundingBox();
         }
 
-        //TODO: remove shrek ?1000?
-        //TODO 2: remove at all?
-        Mesh(std::string name, MeshDataType _data_type, DrawMode _draw_mode)
-            : vertices{1000}, name{std::move(name)}, data_type{_data_type}, draw_mode{_draw_mode} {
-            initialize();
+        Mesh(size_t count, std::string _name, MeshDataType _data_type, DrawMode _draw_mode)
+            : vertices{}
+            , data_type{_data_type}
+            , draw_mode{_draw_mode}
+            , name{std::move(_name)} {
+
+            initialize(count);
+            calculateBoundingBox();
         }
 
         ~Mesh() override = default;
@@ -120,7 +123,8 @@ namespace LimitlessEngine {
             vertices = std::forward<Vertices>(new_vertices);
 
             if (vertices.size() * sizeof(T) > vertex_buffer->getSize()) {
-                initialize();
+                initialize(vertices.size());
+                //todo resize
             }
 
             vertex_buffer->mapData(vertices.data(), sizeof(T) * vertices.size());

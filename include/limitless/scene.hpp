@@ -50,6 +50,8 @@ namespace LimitlessEngine {
         auto end() noexcept { return instances.end(); }
         auto end() const noexcept { return instances.end(); }
 
+        auto& getInstances() noexcept { return instances; }
+
         auto size() const noexcept { return instances.size(); }
 
 #ifdef NDEBUG

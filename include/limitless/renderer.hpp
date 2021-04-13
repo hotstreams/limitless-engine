@@ -10,8 +10,7 @@ namespace LimitlessEngine {
     enum class MaterialShader;
     enum class Blending;
     class AbstractInstance;
-
-    using UniformSetter = std::vector<std::function<void(ShaderProgram&)>>;
+    class UniformSetter;
 
     class Renderer {
     public:
@@ -24,11 +23,13 @@ namespace LimitlessEngine {
 
         void initialize(ContextEventObserver& ctx);
         std::vector<AbstractInstance*> performFrustumCulling(Scene& scene, Camera& camera) const noexcept;
+
+        void dispatch(Context& ctx, const Assets& assets, Scene& scene, MaterialShader shader, Blending blending, const UniformSetter& setter);
     public:
         explicit Renderer(ContextEventObserver& context);
 
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
 
-        void dispatch(Scene& scene, Context& context, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) const;
+        void dispatch(Context& ctx, const Assets& assets, Scene& scene, MaterialShader shader, Camera& camera, const UniformSetter& setter);
     };
 }

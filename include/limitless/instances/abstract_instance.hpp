@@ -2,18 +2,17 @@
 
 #include <limitless/instances/effect_attachable.hpp>
 #include <limitless/instances/light_attachable.hpp>
-
 #include <limitless/util/bounding_box.hpp>
-
 #include <glm/gtx/quaternion.hpp>
-#include <functional>
 
 namespace LimitlessEngine {
     enum class MaterialShader;
     enum class ModelShader;
     enum class Blending;
     class ShaderProgram;
+    class UniformSetter;
     class Assets;
+    class Context;
 
     class AbstractInstance : public EffectAttachable, public LightAttachable {
     private:
@@ -23,13 +22,12 @@ namespace LimitlessEngine {
         ModelShader shader_type;
         bool done {};
         bool hidden {};
-        bool wireframe {};
         bool shadow_cast {true};
 
         glm::vec3 position;
         glm::quat rotation {};
         glm::vec3 scale;
-        glm::mat4 model_matrix {1.f};
+        glm::mat4 model_matrix {1.0f};
 
         BoundingBox bounding_box {};
 
@@ -50,7 +48,6 @@ namespace LimitlessEngine {
         virtual AbstractInstance* clone() noexcept = 0;
 
         [[nodiscard]] auto getShaderType() const noexcept { return shader_type; }
-        [[nodiscard]] auto isWireFrame() const noexcept { return wireframe; }
         [[nodiscard]] auto getId() const noexcept { return id; }
 
         [[nodiscard]] const auto& getPosition() const noexcept { return position; }
@@ -66,9 +63,6 @@ namespace LimitlessEngine {
         [[nodiscard]] bool isKilled() const noexcept;
         void kill() noexcept;
 
-        void asWireFrame() noexcept;
-        void asModel() noexcept;
-
         [[nodiscard]] bool isCastsShadows() const noexcept { return shadow_cast; }
         void castShadow() noexcept { shadow_cast = true; }
         void removeShadow() noexcept { shadow_cast = false; }
@@ -80,9 +74,8 @@ namespace LimitlessEngine {
         virtual AbstractInstance& setScale(const glm::vec3& scale) noexcept;
 
         // draws instance with no extra uniform setting
-        void draw(const Assets& assets, MaterialShader shader_type, Blending blending);
+        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending);
 
-        using UniformSetter = std::vector<std::function<void(ShaderProgram&)>>;
-        virtual void draw(const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) = 0;
+        virtual void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) = 0;
     };
 }

@@ -1,10 +1,11 @@
 #include <limitless/instances/model_instance.hpp>
 
 #include <limitless/core/shader_program.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/shader_storage.hpp>
 #include <limitless/models/model.hpp>
 #include <limitless/material_system/material.hpp>
+#include <limitless/core/uniform_setter.hpp>
 #include <limitless/assets.hpp>
 
 using namespace LimitlessEngine;
@@ -30,7 +31,7 @@ ModelInstance::ModelInstance(Lighting* lighting, decltype(model) _model, const g
     }
 }
 
-void ModelInstance::draw(const Assets& assets, MaterialShader material_shader, Blending blending, const UniformSetter& uniform_setter) {
+void ModelInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader, Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }
@@ -54,21 +55,21 @@ void ModelInstance::draw(const Assets& assets, MaterialShader material_shader, B
                     if (blending == Blending::Opaque) first_opaque = false;
                 }
 
-                if (auto* state = ContextState::getState(glfwGetCurrentContext()); material->getTwoSided()) {
-                    state->disable(Capabilities::CullFace);
+                if (material->getTwoSided()) {
+                    ctx.disable(Capabilities::CullFace);
                 } else {
-                    state->enable(Capabilities::CullFace);
+                    ctx.enable(Capabilities::CullFace);
                 }
 
                 // gets required shader from storage
                 auto& shader = assets.shaders.get(material_shader, shader_type, material->getShaderIndex());
 
                 // updates model/material uniforms
-                shader << *material
-                       << UniformValue{"model", model_matrix};
+                shader << UniformValue{"model", model_matrix}
+                       << *material;
 
                 // sets custom pass-dependent uniforms
-                std::for_each(uniform_setter.begin(), uniform_setter.end(), [&] (auto& setter) { setter(shader); });
+                uniform_setter(shader);
 
                 shader.use();
 

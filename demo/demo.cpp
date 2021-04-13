@@ -146,13 +146,13 @@ public:
                 .createEmitter<SpriteEmitter>("test")
                 .addModule<InitialVelocity>(EmitterModuleType::InitialVelocity, new RangeDistribution{glm::vec3{-5.0f}, glm::vec3{5.0f}})
                 .addModule<Lifetime>(EmitterModuleType::Lifetime, new RangeDistribution(0.2f, 0.5f))
-                .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.0f, 50.0f))
-                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.0f, 100.0f), -1.0f)
+                .addModule<InitialSize>(EmitterModuleType::InitialSize, new RangeDistribution(0.0f, 25.0f))
+                .addModule<SizeByLife>(EmitterModuleType::SizeByLife, new RangeDistribution(0.0f, 25.0f), -1.0f)
                 .addModule<InitialColor>(EmitterModuleType::InitialColor, new RangeDistribution(glm::vec4{}, glm::vec4{2.0f}))
                 .setMaterial(assets.materials.at("EmissiveColor"))
                 .setSpawnMode(EmitterSpawn::Mode::Burst)
-                .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(1000))
-                .setMaxCount(1000)
+                .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(100))
+                .setMaxCount(100)
                 .setSpawnRate(1.0f)
                 .build();
 

@@ -6,6 +6,7 @@
 #include <limitless/shader_types.hpp>
 #include <limitless/particle_system/emitter.hpp>
 #include <limitless/core/context.hpp>
+#include <limitless/core/uniform_setter.hpp>
 
 using namespace LimitlessEngine;
 
@@ -50,10 +51,10 @@ void EffectRenderer::update(const std::vector<AbstractInstance*>& instances) {
     }
 }
 
-void EffectRenderer::draw(const Assets& assets, Blending blending) {
+void EffectRenderer::draw(const Assets& assets, MaterialShader shader, Blending blending, const UniformSetter& setter) {
     for (auto& [emitter, storage] : sprite_renderer) {
         if (emitter.material->getBlending() == blending)
-            storage.draw(assets, emitter);
+            storage.draw(assets, shader, emitter, setter);
     }
     for (auto& [emitter, storage] : mesh_renderer) {
         if (emitter.material->getBlending() == blending)

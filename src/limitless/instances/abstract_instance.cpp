@@ -1,6 +1,7 @@
 #include <limitless/instances/abstract_instance.hpp>
-
+#include <limitless/core/uniform_setter.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <limitless/postprocessing.hpp>
 
 using namespace LimitlessEngine;
 
@@ -30,14 +31,6 @@ bool AbstractInstance::isKilled() const noexcept {
     return done;
 }
 
-void AbstractInstance::asWireFrame() noexcept {
-    wireframe = true;
-}
-
-void AbstractInstance::asModel() noexcept {
-    wireframe = false;
-}
-
 AbstractInstance& AbstractInstance::setPosition(const glm::vec3& _position) noexcept {
     EffectAttachable::setPosition(_position);
     LightAttachable::setPosition(_position);
@@ -59,8 +52,8 @@ AbstractInstance& AbstractInstance::setScale(const glm::vec3& _scale) noexcept {
     return *this;
 }
 
-void AbstractInstance::draw(const Assets& assets, MaterialShader material_shader_type, Blending blending) {
-    draw(assets, material_shader_type, blending, UniformSetter{});
+void AbstractInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader_type, Blending blending) {
+    draw(ctx, assets, material_shader_type,blending, UniformSetter{});
 }
 
 void AbstractInstance::update() {

@@ -29,6 +29,6 @@ namespace LimitlessEngine {
         MeshInstance& operator[](const std::string& mesh);
 
         using AbstractInstance::draw;
-        void draw(const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
+        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

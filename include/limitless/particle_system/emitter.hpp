@@ -14,7 +14,13 @@
 namespace LimitlessEngine {
     class EmitterVisitor;
 
-    enum class EmitterType { Sprite, Mesh, /*Beam, GPU*/ };
+    enum class EmitterType {
+        Sprite,
+        Mesh,
+        /* Beam,
+         * GPU
+         */
+    };
 
     class Emitter {
     protected:
@@ -48,8 +54,8 @@ namespace LimitlessEngine {
         Emitter(const Emitter&) noexcept;
         Emitter& operator=(const Emitter&) noexcept;
 
-        Emitter(Emitter&&) noexcept = default;
-        Emitter& operator=(Emitter&&) noexcept = default;
+        Emitter(Emitter&&) = default;
+        Emitter& operator=(Emitter&&) = default;
 
         [[nodiscard]] virtual Emitter* clone() const noexcept;
 

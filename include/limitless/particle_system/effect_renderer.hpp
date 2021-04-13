@@ -1,10 +1,13 @@
 #pragma once
 
 #include <limitless/particle_system/emitter_renderer.hpp>
+#include <limitless/shader_types.hpp>
 
 namespace LimitlessEngine {
     class SpriteEmitterRenderer;
     class MeshEmitterRenderer;
+
+    class UniformSetter;
 
     class EmitterVisitor;
 
@@ -25,6 +28,6 @@ namespace LimitlessEngine {
         ~EffectRenderer() = default;
 
         void update(const std::vector<AbstractInstance*>& instances);
-        void draw(const Assets& assets, Blending blending);
+        void draw(const Assets& assets, MaterialShader shader, Blending blending, const UniformSetter& setter);
     };
 }

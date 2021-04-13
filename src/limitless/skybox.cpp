@@ -1,14 +1,11 @@
 #include <limitless/skybox.hpp>
 
 #include <limitless/loaders/texture_loader.hpp>
-#include <limitless/shader_storage.hpp>
-#include <limitless/assets.hpp>
-#include <limitless/models/model.hpp>
-#include <limitless/models/elementary_model.hpp>
-#include <limitless/core/context.hpp>
 #include <limitless/core/shader_program.hpp>
-
+#include <limitless/shader_storage.hpp>
 #include <limitless/core/uniform.hpp>
+#include <limitless/core/context.hpp>
+#include <limitless/assets.hpp>
 
 using namespace LimitlessEngine;
 

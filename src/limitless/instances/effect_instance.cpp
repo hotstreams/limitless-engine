@@ -1,6 +1,7 @@
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/particle_system/mesh_emitter.hpp>
 #include <limitless/shader_types.hpp>
+#include <limitless/postprocessing.hpp>
 
 using namespace LimitlessEngine;
 
@@ -59,10 +60,9 @@ void EffectInstance::update() {
     }
 }
 
-void EffectInstance::draw([[maybe_unused]] const Assets& assets,
-                          [[maybe_unused]] MaterialShader shader_type,
-                          [[maybe_unused]] Blending blending,
-                          [[maybe_unused]] const UniformSetter& uniform_set) {
+void
+EffectInstance::draw(LimitlessEngine::Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending,
+                     const UniformSetter& uniform_set) {
     // One does not simply render effect instance!
     // use EffectRenderer
 }

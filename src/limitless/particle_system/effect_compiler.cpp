@@ -6,6 +6,11 @@
 
 using namespace LimitlessEngine;
 
+inline const std::map<MaterialShader, std::string> effect_shader_path = {
+    {MaterialShader::Forward,           "effects/sprite_emitter" },
+    {MaterialShader::DirectionalShadow, "effects/sprite_CSM" },
+};
+
 std::string EffectCompiler::getEmitterDefines(const Emitter& emitter) noexcept {
     std::string defines;
     for (const auto& [type, module] : emitter.getModules()) {
@@ -63,7 +68,7 @@ std::string EffectCompiler::getEmitterDefines(const Emitter& emitter) noexcept {
     return defines;
 }
 
-void EffectCompiler::compile(const SpriteEmitter& emitter) {
+void EffectCompiler::compile(MaterialShader shader_type, const SpriteEmitter& emitter) {
     const auto props = [&] (Shader& shader) {
         replaceMaterialSettings(shader, emitter.getMaterial(), ModelShader::Effect);
         replaceRenderSettings(shader);
@@ -71,7 +76,7 @@ void EffectCompiler::compile(const SpriteEmitter& emitter) {
         shader.replaceKey("LimitlessEngine::EmitterType", getEmitterDefines(emitter));
     };
 
-    assets.shaders.add(emitter.getEmitterType(), compile(SHADER_DIR "effects" PATH_SEPARATOR "sprite_emitter", props));
+    assets.shaders.add(shader_type, emitter.getEmitterType(), compile(SHADER_DIR + effect_shader_path.at(shader_type), props));
 }
 
 void EffectCompiler::compile(const MeshEmitter& emitter) {
@@ -85,11 +90,13 @@ void EffectCompiler::compile(const MeshEmitter& emitter) {
     assets.shaders.add(emitter.getEmitterType(), compile(SHADER_DIR "effects" PATH_SEPARATOR "mesh_emitter", props));
 }
 
-void EffectCompiler::compile(const EffectInstance& instance) {
+void EffectCompiler::compile(const EffectInstance& instance, MaterialShader shader_type) {
     for (const auto& [name, emitter] : instance) {
         switch (emitter->getType()) {
             case EmitterType::Sprite:
-                compile(instance.get<SpriteEmitter>(name));
+                if (!assets.shaders.contains(shader_type, instance.get<SpriteEmitter>(name).getEmitterType())) {
+                    compile(shader_type, instance.get<SpriteEmitter>(name));
+                }
                 break;
             case EmitterType::Mesh:
                 compile(instance.get<MeshEmitter>(name));

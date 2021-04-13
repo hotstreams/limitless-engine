@@ -5,9 +5,8 @@
 #include <limitless/core/shader_program.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/context_state.hpp>
-
+#include <limitless/core/uniform_setter.hpp>
 #include <limitless/material_system/material.hpp>
-
 
 using namespace LimitlessEngine;
 
@@ -23,7 +22,8 @@ ElementaryInstance *ElementaryInstance::clone() noexcept {
     return new ElementaryInstance(*this);
 }
 
-void ElementaryInstance::draw(const Assets& assets, MaterialShader material_type, Blending blending, const UniformSetter& uniform_setter) {
+void ElementaryInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_type, Blending blending,
+                              const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }
@@ -52,9 +52,10 @@ void ElementaryInstance::draw(const Assets& assets, MaterialShader material_type
 
             auto& shader = assets.shaders.get(material_type, shader_type, material->getShaderIndex());
 
-            shader << *material << UniformValue{"model", model_matrix};
+            shader << *material
+                   << UniformValue{"model", model_matrix};
 
-            std::for_each(uniform_setter.begin(), uniform_setter.end(), [&] (auto& setter) { setter(shader); });
+            uniform_setter(shader);
 
             shader.use();
 
