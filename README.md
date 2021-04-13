@@ -74,6 +74,8 @@
 ### Text rendering using FreeType
 
 ---
+
+### Screenshots
   
 ![me](screenshots/materials.png)
 
