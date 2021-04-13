@@ -7,7 +7,6 @@ namespace LimitlessEngine {
         std::string name;
         glm::mat4 node_transform {1.0f};
         glm::mat4 offset_matrix;
-        glm::vec3 pivot_point {0.0f};
 
         Bone(std::string name, const glm::mat4& offset_matrix) noexcept : name{std::move(name)}, offset_matrix{offset_matrix} {}
 
@@ -15,16 +14,16 @@ namespace LimitlessEngine {
     };
 
     struct VertexBoneWeight {
-        static constexpr uint32_t bone_count = 4;
+        static constexpr uint32_t BONE_COUNT = 4;
 
-        std::array<uint32_t, bone_count> bone_index;
-        std::array<float, bone_count> weight;
+        std::array<uint32_t, BONE_COUNT> bone_index;
+        std::array<float, BONE_COUNT> weight;
 
         void addBoneWeight(uint32_t id, float w) noexcept {
             uint32_t i;
-            for (i = 0; i < bone_count && weight[i] != 0.0f; ++i);
+            for (i = 0; i < BONE_COUNT && weight[i] != 0.0f; ++i);
 
-            if (i >= bone_count) {/* no more weight slots */ return; }
+            if (i >= BONE_COUNT) {/* no more weight slots */ return; }
 
             bone_index[i] = id;
             weight[i] = w;
@@ -46,8 +45,8 @@ namespace LimitlessEngine {
                                  .setDataSize(bone_weights.size() * sizeof(VertexBoneWeight))
                                  .build();
 
-            this->vertex_array << VertexAttribute{VertexBoneWeight::bone_count, GL_INT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), *bone_buffer}
-                               << VertexAttribute{VertexBoneWeight::bone_count, GL_FLOAT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), *bone_buffer};
+            this->vertex_array << VertexAttribute{VertexBoneWeight::BONE_COUNT, GL_INT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), *bone_buffer}
+                               << VertexAttribute{VertexBoneWeight::BONE_COUNT, GL_FLOAT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), *bone_buffer};
         };
     public:
         SkinnedMesh(std::vector<T>&& vertices, std::vector<T1>&& indices, std::vector<VertexBoneWeight>&& bones, std::string material, MeshDataType data_type, DrawMode draw_mode)

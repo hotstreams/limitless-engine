@@ -8,6 +8,8 @@
 #include <limitless/core/context.hpp>
 #include <limitless/core/shader_program.hpp>
 
+#include <limitless/core/uniform.hpp>
+
 using namespace LimitlessEngine;
 
 Skybox::Skybox(Assets& assets, const fs::path& path) {
@@ -27,7 +29,5 @@ void Skybox::draw(Context& context, const Assets& assets) {
 
     shader.use();
 
-    static Cube cube;
-    cube.getMesh()->draw();
-//    assets.models["cube"]->getMeshes()[0]->draw();
+    assets.meshes.at("cube_mesh")->draw();
 }

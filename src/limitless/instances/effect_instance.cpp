@@ -91,3 +91,7 @@ EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, co
 EffectInstance::EffectInstance() noexcept
     : AbstractInstance{ModelShader::Effect, glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f}} {
 }
+
+void EffectInstance::calculateBoundingBox() noexcept {
+    //TODO:
+}

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 #include <limitless/models/model.hpp>
 #include <limitless/models/skinned_mesh.hpp>
 #include <limitless/util/tree.hpp>
+#include <glm/gtx/quaternion.hpp>
+
+#include <unordered_map>
 
 namespace LimitlessEngine {
     template <typename T>
@@ -14,12 +14,13 @@ namespace LimitlessEngine {
         double time;
 
         KeyFrame(T data, double time) noexcept
-            : data{std::move(data)}, time(time) { }
+            : data{std::move(data)}
+            , time(time) {}
     };
 
     struct AnimationNode {
-        std::vector<KeyFrame<glm::vec3>> positions;
         std::vector<KeyFrame<glm::fquat>> rotations;
+        std::vector<KeyFrame<glm::vec3>> positions;
         std::vector<KeyFrame<glm::vec3>> scales;
         Bone &bone;
 
@@ -34,39 +35,42 @@ namespace LimitlessEngine {
     };
 
     struct Animation {
+        std::vector<AnimationNode> nodes;
         std::string name;
         double duration;
         double tps;
-        std::vector<AnimationNode> nodes;
 
         Animation(std::string name, double duration, double tps, decltype(nodes) nodes) noexcept
-            : name(std::move(name)), duration(duration), tps(tps), nodes(std::move(nodes)) {}
+            : nodes(std::move(nodes))
+            , name(std::move(name))
+            , duration(duration)
+            , tps(tps) {
+        }
     };
 
     class SkeletalModel : public Model {
     protected:
-        std::vector<Bone> bones;
         std::unordered_map<std::string, uint32_t> bone_map;
         std::vector<Animation> animations;
-        Tree<uint32_t> skeleton;
-
+        std::vector<Bone> bones;
         glm::mat4 global_inverse;
+        Tree<uint32_t> skeleton;
     public:
         SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& bones, decltype(bone_map)&& bone_map, decltype(skeleton)&& skeleton, decltype(animations)&& a, const glm::mat4& global_matrix) noexcept;
         ~SkeletalModel() override = default;
 
-        const auto& getAnimations() const noexcept { return animations; }
-        const auto& getBones() const noexcept { return bones; }
-        const auto& getGlobalInverseMatrix() const noexcept { return global_inverse; }
-        const auto& getSkeletonTree() const noexcept { return skeleton; }
-
-        auto& getAnimations() noexcept { return animations; }
-        auto& getBones() noexcept { return bones; }
-        auto& getGlobalInverseMatrix() noexcept { return global_inverse; }
-        auto& getSkeletonTree() noexcept { return skeleton; }
-        auto& getBoneMap() noexcept { return bone_map; }
-
         SkeletalModel(const SkeletalModel&) = delete;
         SkeletalModel& operator=(const SkeletalModel&) = delete;
+
+        [[nodiscard]] const auto& getGlobalInverseMatrix() const noexcept { return global_inverse; }
+        [[nodiscard]] const auto& getAnimations() const noexcept { return animations; }
+        [[nodiscard]] const auto& getSkeletonTree() const noexcept { return skeleton; }
+        [[nodiscard]] const auto& getBones() const noexcept { return bones; }
+
+        auto& getGlobalInverseMatrix() noexcept { return global_inverse; }
+        auto& getSkeletonTree() noexcept { return skeleton; }
+        auto& getAnimations() noexcept { return animations; }
+        auto& getBoneMap() noexcept { return bone_map; }
+        auto& getBones() noexcept { return bones; }
     };
 }

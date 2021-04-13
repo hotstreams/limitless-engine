@@ -1,66 +1,43 @@
 #pragma once
 
-#include <limitless/instances/abstract_instance.hpp>
-#include <limitless/shader_types.hpp>
-#include <limitless/font_atlas.hpp>
-#include <utility>
-#include <limitless/models/mesh.hpp>
-#include <limitless/core/context.hpp>
+#include <limitless/models/text_model.hpp>
+#include <string>
+#include <optional>
 
 namespace LimitlessEngine {
-    class TextInstance : public AbstractInstance {
+    class FontAtlas;
+    class Context;
+    class Assets;
+
+    class TextInstance {
     private:
+        TextModel text_model;
+        std::string text;
+        glm::vec2 position;
+        glm::vec4 color {};
+        glm::vec2 size {1.0f};
         std::shared_ptr<FontAtlas> font;
-        std::string string;
-        glm::vec4 color;
-        glm::vec4 selection_color;
 
-        Mesh<TextVertex> mesh;
-        std::optional<Mesh<TextVertex>> selection_mesh;
-        Context& ctx;
+        std::optional<TextModel> selection_model {};
+        glm::vec4 selection_color {};
 
-        void updateVertices();
+        glm::mat4 model_matrix {1.0f};
+        void calculateModelMatrix() noexcept;
     public:
-        template<typename str>
-        TextInstance(str&& text, glm::vec2 _position, glm::vec2 _scale, const glm::vec4& _color, std::shared_ptr<FontAtlas> _font, Context& _ctx)
-            : AbstractInstance{ModelShader::Text, glm::vec3{_position, 0.0f}, glm::vec3{0.f}, glm::vec3{_scale, 0.0f}}, font{std::move(_font)}, string{std::forward<str>(text)}, color{_color}, mesh{"text", MeshDataType::Dynamic, DrawMode::Triangles}, ctx{_ctx} {
-                updateVertices();
-            }
+        TextInstance(std::string text, const glm::vec2& position, std::shared_ptr<FontAtlas> font);
+        TextInstance(size_t count, const glm::vec2& position, std::shared_ptr<FontAtlas> font);
 
-        template<typename str>
-        TextInstance& setText(str&& text) noexcept {
-            if (string != text) {
-                string = std::forward<str>(text);
-                updateVertices();
-            }
+        TextInstance& setText(std::string text);
+        TextInstance& setColor(const glm::vec4& color) noexcept;
+        TextInstance& setPosition(const glm::vec2& position) noexcept;
+        TextInstance& setSize(const glm::vec2& size) noexcept;
+        TextInstance& setSelectionColor(const glm::vec4& color) noexcept;
 
-            return *this;
-        }
+        TextInstance& setSelection(size_t begin, size_t end);
+        TextInstance& removeSelection() noexcept;
 
-        TextInstance& setColor(const glm::vec4& _color) noexcept {
-            color = _color;
-            return *this;
-        }
+        [[nodiscard]] const auto& getColor() const noexcept { return color; }
 
-        [[nodiscard]] auto& getColor() const noexcept { return color; }
-
-        TextInstance* clone() noexcept override;
-
-        void setSelection(size_t begin, size_t end) {
-            selection_mesh = {"text_selection", MeshDataType::Dynamic, DrawMode::Triangles};
-
-            selection_mesh->updateVertices(font->getSelectionGeometry(string, begin, end));
-        }
-
-        void removeSelection() {
-            selection_mesh = std::nullopt;
-        }
-
-        void setSelectionColor(const glm::vec4& sel_color) {
-            selection_color = sel_color;
-        }
-
-        using AbstractInstance::draw;
-        void draw(const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) override;
+        void draw(Context& context, const Assets& assets);
     };
 }

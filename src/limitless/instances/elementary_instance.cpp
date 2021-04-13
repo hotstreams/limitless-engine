@@ -6,6 +6,9 @@
 #include <limitless/assets.hpp>
 #include <limitless/core/context_state.hpp>
 
+#include <limitless/material_system/material.hpp>
+
+
 using namespace LimitlessEngine;
 
 ElementaryInstance::ElementaryInstance(decltype(model) _model, std::shared_ptr<Material> material, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
@@ -58,4 +61,9 @@ void ElementaryInstance::draw(const Assets& assets, MaterialShader material_type
             mesh.draw();
         }
     }
+}
+
+void ElementaryInstance::calculateBoundingBox() noexcept {
+    bounding_box.center = glm::vec4{position, 1.0f} + glm::vec4{model->getBoundingBox().center, 1.0f} * model_matrix;
+    bounding_box.size = glm::vec4{model->getBoundingBox().size, 1.0f} * model_matrix;
 }

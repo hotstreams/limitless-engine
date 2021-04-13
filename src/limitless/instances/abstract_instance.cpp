@@ -65,6 +65,9 @@ void AbstractInstance::draw(const Assets& assets, MaterialShader material_shader
 
 void AbstractInstance::update() {
     EffectAttachable::update();
+
+    calculateModelMatrix();
+    calculateBoundingBox();
 }
 
 AbstractInstance::AbstractInstance(Lighting* _lighting, ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept

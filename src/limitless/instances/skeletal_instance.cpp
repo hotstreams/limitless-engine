@@ -4,6 +4,10 @@
 #include <limitless/core/shader_program.hpp>
 #include <limitless/core/context_state.hpp>
 #include <limitless/assets.hpp>
+#include <limitless/instances/elementary_instance.hpp>
+#include <limitless/render_settings.hpp>
+
+#include <limitless/material_system/material.hpp>
 
 using namespace LimitlessEngine;
 
@@ -205,4 +209,10 @@ void SkeletalInstance::update() {
 
 SkeletalInstance* SkeletalInstance::clone() noexcept {
     return new SkeletalInstance(*this);
+}
+
+void SkeletalInstance::calculateBoundingBox() noexcept {
+//    ModelInstance::calculateBoundingBox();
+    bounding_box = {};
+    //TODO:
 }

@@ -12,7 +12,9 @@ namespace LimitlessEngine {
         glm::vec2 position;
         glm::vec2 uv;
 
-        TextVertex(glm::vec2 _position, glm::vec2 _uv) noexcept : position{_position}, uv{_uv} { }
+        TextVertex(glm::vec2 _position, glm::vec2 _uv) noexcept
+            : position{_position}
+            , uv{_uv} {}
 
         TextVertex() = default;
     };

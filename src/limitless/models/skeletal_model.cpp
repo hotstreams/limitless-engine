@@ -2,8 +2,12 @@
 
 using namespace LimitlessEngine;
 
-AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone& bone) noexcept
-    : positions(std::move(positions)), rotations(std::move(rotations)), scales(std::move(scales)), bone(bone) {}
+AnimationNode::AnimationNode(decltype(positions) _positions, decltype(rotations) _rotations, decltype(scales) _scales, Bone& _bone) noexcept
+    : rotations(std::move(_rotations))
+    , positions(std::move(_positions))
+    , scales(std::move(_scales))
+    , bone(_bone) {
+}
 
 size_t AnimationNode::findPositionKeyframe(double anim_time) const {
     for (size_t i = 0; i < positions.size() - 1; ++i) {
@@ -51,7 +55,6 @@ glm::vec3 AnimationNode::positionLerp(double anim_time) const {
     }
 
     return glm::mix(a.data, b.data, norm);
-//    return a.data + (b.data - a.data) * static_cast<float>(norm);
 }
 
 glm::fquat AnimationNode::rotationLerp(double anim_time) const {
@@ -97,10 +100,13 @@ glm::vec3 AnimationNode::scalingLerp(double anim_time) const {
     }
 
     return glm::mix(a.data, b.data, norm);
-//    return a.data + (b.data - a.data) * static_cast<float>(norm);
 }
 
-SkeletalModel::SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& bones, decltype(bone_map)&& bone_map, decltype(skeleton)&& skeleton, decltype(animations)&& animations, const glm::mat4& global_matrix) noexcept
-    : Model{std::move(meshes), std::move(materials)}, bones{std::move(bones)}, bone_map{std::move(bone_map)},  animations{std::move(animations)}, skeleton{std::move(skeleton)}, global_inverse{global_matrix} {
-
+SkeletalModel::SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& _bones, decltype(bone_map)&& _bone_map, decltype(skeleton)&& _skeleton, decltype(animations)&& _animations, const glm::mat4& _global_matrix) noexcept
+    : Model{std::move(meshes), std::move(materials)}
+    , bone_map{std::move(_bone_map)}
+    , animations{std::move(_animations)}
+    , bones{std::move(_bones)}
+    , global_inverse{_global_matrix}
+    , skeleton{std::move(_skeleton)} {
 }

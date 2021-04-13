@@ -101,8 +101,6 @@ std::string MaterialCompiler::getModelDefines(const ModelShader& type) {
         case ModelShader::Effect:
             defines.append("#define EFFECT_MODEL\n");
             break;
-        case ModelShader::Text:
-            throw std::logic_error{"Cannot compile material shader for text model!"};
     }
     return defines;
 }

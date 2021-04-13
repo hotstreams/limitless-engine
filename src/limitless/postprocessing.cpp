@@ -4,6 +4,8 @@
 #include <limitless/core/texture_builder.hpp>
 #include <limitless/core/shader_program.hpp>
 
+#include <limitless/core/uniform.hpp>
+
 using namespace LimitlessEngine;
 
 void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Texture>& image) {

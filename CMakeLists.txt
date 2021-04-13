@@ -124,12 +124,20 @@ set(ENGINE_SRC
 
         src/limitless/loaders/texture_loader.cpp
         src/limitless/models/skeletal_model.cpp
+        src/limitless/models/abstract_model.cpp
+        src/limitless/models/cube.cpp
+        src/limitless/models/line.cpp
+        src/limitless/models/plane.cpp
+        src/limitless/models/quad.cpp
+        src/limitless/models/sphere.cpp
+        src/limitless/models/model.cpp
         src/limitless/camera.cpp
         src/limitless/loaders/model_loader.cpp
         src/limitless/assets.cpp
         src/limitless/instances/model_instance.cpp
         src/limitless/scene.cpp
         src/limitless/models/elementary_model.cpp
+        src/limitless/models/text_model.cpp
         src/limitless/instances/skeletal_instance.cpp
         src/limitless/instances/mesh_instance.cpp
         src/limitless/shader_storage.cpp
@@ -148,6 +156,8 @@ set(ENGINE_SRC
         src/limitless/lighting/shadow_mapping.cpp
         src/limitless/loaders/threaded_model_loader.cpp
         src/limitless/util/thread_pool.cpp
+        src/limitless/util/sorter.cpp
+        src/limitless/util/renderer_helper.cpp
         src/limitless/loaders/asset_loader.cpp
         src/limitless/font_atlas.cpp
         src/limitless/instances/text_instance.cpp

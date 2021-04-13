@@ -18,8 +18,7 @@ namespace LimitlessEngine {
         Skeletal,
         Instanced,
         SkeletalInstanced,
-        Effect,
-        Text
+        Effect
     };
 
     using MaterialShaders = std::vector<MaterialShader>;

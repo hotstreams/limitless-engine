@@ -25,7 +25,7 @@ namespace LimitlessEngine {
         };
         std::vector<Attachment> attachments;
     protected:
-        void update();
+        virtual void update();
 
         void setPosition(const glm::vec3& position) noexcept;
         void setRotation(const glm::quat& rotation) noexcept;
