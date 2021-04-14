@@ -9,8 +9,7 @@ namespace LimitlessEngine {
         ForwardPlus,
         DirectionalShadow,
         PointShadow,
-        ColorPicker,
-        Text
+        ColorPicker
     };
 
     enum class ModelShader {

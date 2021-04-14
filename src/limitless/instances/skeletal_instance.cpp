@@ -69,9 +69,12 @@ SkeletalInstance& SkeletalInstance::setScale(const glm::vec3& scale) noexcept {
     return *this;
 }
 
-void SkeletalInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader, Blending blending,
-                            const UniformSetter& uniform_setter) {
+void SkeletalInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader, Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
+        return;
+    }
+
+    if (!shadow_cast && material_shader == MaterialShader::DirectionalShadow) {
         return;
     }
 
@@ -111,7 +114,6 @@ void SkeletalInstance::draw(Context& ctx, const Assets& assets, MaterialShader m
                 // sets custom pass-dependent uniforms
                 uniform_setter(shader);
 
-                //todo: fix nullptr
                 bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
 
                 shader.use();

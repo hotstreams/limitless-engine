@@ -36,6 +36,10 @@ void ModelInstance::draw(Context& ctx, const Assets& assets, MaterialShader mate
         return;
     }
 
+    if (!shadow_cast && material_shader == MaterialShader::DirectionalShadow) {
+        return;
+    }
+
     // iterates over all visible meshes
     for (auto& [name, mesh] : meshes) {
         if (mesh.isHidden()) {

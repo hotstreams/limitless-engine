@@ -25,6 +25,12 @@ namespace LimitlessEngine {
     };
     bool operator<(const SpriteEmitterKey& lhs, const SpriteEmitterKey& rhs) noexcept;
 
+    struct MeshEmitterKey {
+        MaterialShader material_type;
+        UniqueMeshEmitter emitter_type;
+    };
+    bool operator<(const MeshEmitterKey& lhs, const MeshEmitterKey& rhs) noexcept;
+
     inline const std::map<MaterialShader, std::string> material_shader_path = {
         {MaterialShader::Forward,           "pipeline/forward" },
         {MaterialShader::Deferred,          "pipeline/deferred" },
@@ -44,10 +50,8 @@ namespace LimitlessEngine {
         std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> shaders;
         std::map<ShaderKey, std::shared_ptr<ShaderProgram>> material_shaders;
 
-//        std::map<UniqueSpriteEmitter, std::shared_ptr<ShaderProgram>> sprite_emitter_shaders;
-        std::map<UniqueMeshEmitter, std::shared_ptr<ShaderProgram>> mesh_emitter_shaders;
-
         std::map<SpriteEmitterKey, std::shared_ptr<ShaderProgram>> sprite_emitter_shaders;
+        std::map<MeshEmitterKey, std::shared_ptr<ShaderProgram>> mesh_emitter_shaders;
 
         std::mutex mutex;
     public:
@@ -59,14 +63,16 @@ namespace LimitlessEngine {
         ShaderProgram& get(const std::string& name) const;
         ShaderProgram& get(MaterialShader material_type, ModelShader model_type, uint64_t material_index) const;
         ShaderProgram& get(MaterialShader material_type, const UniqueSpriteEmitter& emitter_type) const;
-        ShaderProgram& get(const UniqueMeshEmitter& emitter_type) const;
+        ShaderProgram& get(MaterialShader material_type, const UniqueMeshEmitter& emitter_type) const;
 
-        void add(std::string name, std::shared_ptr<ShaderProgram> program) noexcept;
-        void add(MaterialShader material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) noexcept;
-        void add(MaterialShader material_type, const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept;
-        void add(const UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) noexcept;
+        void add(std::string name, std::shared_ptr<ShaderProgram> program);
+        void add(MaterialShader material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program);
+
+        void add(MaterialShader material_type, const UniqueSpriteEmitter& emitter_type, std::shared_ptr<ShaderProgram> program);
+        void add(MaterialShader material_type, const UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program);
 
         bool contains(MaterialShader material_type, ModelShader model_type, uint64_t material_index) noexcept;
         bool contains(MaterialShader material_type, const UniqueSpriteEmitter& emitter_type) noexcept;
+        bool contains(MaterialShader material_type, const UniqueMeshEmitter& emitter_type) noexcept;
     };
 }

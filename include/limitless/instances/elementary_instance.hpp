@@ -27,7 +27,6 @@ namespace LimitlessEngine {
         [[nodiscard]] const MeshInstance& getMesh() const noexcept { return mesh; }
 
         using AbstractInstance::draw;
-        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending,
-                  const UniformSetter& uniform_setter) override;
+        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

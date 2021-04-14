@@ -10,7 +10,7 @@ namespace LimitlessEngine {
 
     class EffectBuilder {
     private:
-        std::unique_ptr<EffectInstance> effect;
+        std::shared_ptr<EffectInstance> effect;
         std::string effect_name;
         std::string last_emitter;
 
@@ -24,8 +24,8 @@ namespace LimitlessEngine {
         ~EffectBuilder() = default;
 
         EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count) noexcept;
-        EffectBuilder& setMaterial(const std::shared_ptr<Material>& material);
-        EffectBuilder& setMesh(const std::shared_ptr<AbstractMesh>& mesh);
+        EffectBuilder& setMaterial(std::shared_ptr<Material> material);
+        EffectBuilder& setMesh(std::shared_ptr<AbstractMesh> mesh);
         EffectBuilder& setDuration(std::chrono::duration<float> duration) noexcept;
         EffectBuilder& setLocalPosition(const glm::vec3& local_position) noexcept;
         EffectBuilder& setLocalRotation(const glm::vec3& local_rotation) noexcept;
@@ -48,6 +48,8 @@ namespace LimitlessEngine {
 
         template<typename T, typename... Args>
         EffectBuilder& addModule(EmitterModuleType module_type, Args&&... args) {
+            if constexpr (std::is_same_v<T, InitialVelocity>)
+
             effect->emitters[last_emitter]->modules.emplace(module_type, new T{std::forward<Args>(args)...});
             return *this;
         }

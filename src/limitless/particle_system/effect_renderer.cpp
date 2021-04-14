@@ -1,9 +1,7 @@
 #include <limitless/particle_system/effect_renderer.hpp>
 
 #include <limitless/instances/effect_instance.hpp>
-#include <limitless/particle_system/emitter_renderer.hpp>
 #include <limitless/material_system/material.hpp>
-#include <limitless/shader_types.hpp>
 #include <limitless/particle_system/emitter.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/core/uniform_setter.hpp>
@@ -58,7 +56,7 @@ void EffectRenderer::draw(const Assets& assets, MaterialShader shader, Blending 
     }
     for (auto& [emitter, storage] : mesh_renderer) {
         if (emitter.material->getBlending() == blending)
-            storage.draw(assets, emitter);
+            storage.draw(assets, shader, emitter, setter);
     }
 }
 

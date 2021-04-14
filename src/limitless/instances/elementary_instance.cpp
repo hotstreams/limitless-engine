@@ -22,13 +22,16 @@ ElementaryInstance *ElementaryInstance::clone() noexcept {
     return new ElementaryInstance(*this);
 }
 
-void ElementaryInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_type, Blending blending,
-                              const UniformSetter& uniform_setter) {
+void ElementaryInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_type, Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }
 
     if (mesh.isHidden()) {
+        return;
+    }
+
+    if (!shadow_cast && material_type == MaterialShader::DirectionalShadow) {
         return;
     }
 

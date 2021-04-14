@@ -15,6 +15,8 @@ flat out int particle_id;
 
 #include "glsl/mesh_particle.glsl"
 
+uniform mat4 light_space;
+
 void main()
 {
     fs_uv = uv;
@@ -26,7 +28,7 @@ void main()
         LimitlessEngine::CustomMaterialVertexCode
     #endif
 
-	gl_Position = VP * model * vertex_position;
+	gl_Position = light_space * model * vertex_position;
 
 	particle_id = gl_InstanceID;
 }

@@ -76,14 +76,16 @@ void MeshEmitterRenderer::update(MeshParticleCollector& collector) {
     buffer->mapData(particles.data(), sizeof(MeshParticle) * current_particle_count);
 }
 
-void MeshEmitterRenderer::draw(const Assets& assets, const UniqueMeshEmitter& emitter) const {
+void MeshEmitterRenderer::draw(const Assets& assets, MaterialShader shader_type, const UniqueMeshEmitter& emitter, const UniformSetter& setter) const {
     if (current_particle_count == 0) return;
 
-    auto& shader = assets.shaders.get(emitter);
+    auto& shader = assets.shaders.get(shader_type, emitter);
 
     setBlendingMode(emitter.material->getBlending());
 
     shader << *emitter.material;
+
+    setter(shader);
 
     buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, shader_mesh_buffer_name));
 
