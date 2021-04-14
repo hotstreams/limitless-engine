@@ -10,16 +10,19 @@
 using namespace LimitlessEngine;
 
 void Material::update() const noexcept {
+//    bool changed = false;
+//    for (const auto& [type, uniform] : properties) {
+//        if (uniform->getChanged()) {
+//            changed = true;
+//            break;
+//        }
+//    }
     // checks if there are values need to be mapped into material buffer
-    bool changed = false;
-    for (const auto& [type, uniform] : properties) {
-        if (uniform->getChanged()) {
-            changed = true;
-            break;
-        }
-    }
+    bool changed = std::any_of(properties.begin(), properties.end(), [] (auto& property) { return property.second->getChanged(); });
 
-    if (!changed) return;
+    if (!changed) {
+        return;
+    }
 
     std::vector<std::byte> data(material_buffer->getSize());
     for (const auto& [type, prop] : properties) {
