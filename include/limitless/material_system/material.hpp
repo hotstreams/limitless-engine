@@ -51,11 +51,11 @@ namespace LimitlessEngine {
         [[nodiscard]] UniformSampler& getEmissiveMask() const;
         [[nodiscard]] UniformSampler& getBlendMask() const;
 
-        [[nodiscard]] auto getShaderIndex() const noexcept { return shader_index; }
-        [[nodiscard]] auto& getBlending() noexcept { return blending; }
-        [[nodiscard]] const auto& getName() const noexcept { return name; }
-        [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
         [[nodiscard]] const auto& getModelShaders() const noexcept { return model_shaders; }
+        [[nodiscard]] auto getShaderIndex() const noexcept { return shader_index; }
+        [[nodiscard]] virtual bool isCustom() const noexcept { return false; }
+        [[nodiscard]] const auto& getName() const noexcept { return name; }
+        [[nodiscard]] auto& getBlending() noexcept { return blending; }
         [[nodiscard]] auto& getTwoSided() noexcept { return two_sided; }
 
         Material(Material&&) noexcept;

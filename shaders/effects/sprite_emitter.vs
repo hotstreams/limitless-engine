@@ -42,10 +42,10 @@ void main()
 	gl_Position = VP * vec4(position, 1.0);
 
 	#ifdef InitialSize_MODULE
-	    gl_PointSize = max(size.x / gl_Position.w, 1.0);
-	#else
-	    gl_PointSize = max(1.0, 32.0 / gl_Position.w);
-	#endif
+        gl_PointSize = projection[1][1] * size.x / gl_Position.w;
+    #else
+        gl_PointSize = projection[1][1] * 16.0 / gl_Position.w;
+    #endif
 
     #ifdef InitialColor_MODULE
         fs_color = color;
