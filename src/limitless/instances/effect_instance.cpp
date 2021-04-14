@@ -60,9 +60,7 @@ void EffectInstance::update() {
     }
 }
 
-void
-EffectInstance::draw(LimitlessEngine::Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending,
-                     const UniformSetter& uniform_set) {
+void EffectInstance::draw(LimitlessEngine::Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) {
     // One does not simply render effect instance!
     // use EffectRenderer
 }

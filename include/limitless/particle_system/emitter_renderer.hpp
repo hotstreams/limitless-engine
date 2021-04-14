@@ -33,7 +33,7 @@ namespace LimitlessEngine {
         explicit MeshEmitterRenderer(const Emitter& emitter, uint64_t emitter_instance_count = EMITTER_STORAGE_INSTANCE_COUNT);
 
         void update(MeshParticleCollector& collector);
-        void draw(const Assets& assets, const UniqueMeshEmitter& emitter) const;
+        void draw(const Assets& assets, MaterialShader shader_type, const UniqueMeshEmitter& emitter, const UniformSetter& setter) const;
     };
 
     VertexArray& operator<<(VertexArray& vertex_array, const std::pair<Particle, Buffer&>& attribute) noexcept;

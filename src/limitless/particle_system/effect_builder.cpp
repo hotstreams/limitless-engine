@@ -1,17 +1,16 @@
 #include <limitless/particle_system/effect_builder.hpp>
 
-#include <limitless/instances/effect_instance.hpp>
-#include <limitless/particle_system/mesh_emitter.hpp>
+#include <limitless/material_system/material_builder.hpp>
 #include <limitless/particle_system/effect_compiler.hpp>
 #include <limitless/material_system/material.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/shader_storage.hpp>
-#include <limitless/material_system/material_builder.hpp>
 
 using namespace LimitlessEngine;
 
 EffectBuilder::EffectBuilder(Context& _context, Assets& _assets) noexcept
-    : context{_context}, assets {_assets} {}
+    : context{_context}
+    , assets {_assets} {
+}
 
 EffectBuilder& EffectBuilder::setEmitterType(EmitterType type) noexcept {
     effect->emitters[last_emitter]->type = type;
@@ -63,27 +62,30 @@ EffectBuilder& EffectBuilder::setDuration(std::chrono::duration<float> duration)
     return *this;
 }
 
-EffectBuilder& EffectBuilder::setMaterial(const std::shared_ptr<Material>& material) {
+EffectBuilder& EffectBuilder::setMaterial(std::shared_ptr<Material> material) {
     if (!material) {
         throw std::runtime_error{"Cannot set empty material for emitter!"};
     }
 
-    effect->get<SpriteEmitter>(last_emitter).material = material;
+    effect->get<SpriteEmitter>(last_emitter).material = std::move(material);
     return *this;
 }
 
-EffectBuilder& EffectBuilder::setMesh(const std::shared_ptr<AbstractMesh>& mesh) {
+EffectBuilder& EffectBuilder::setMesh(std::shared_ptr<AbstractMesh> mesh) {
     if (!mesh) {
         throw std::runtime_error{"Cannot set empty mesh for emitter!"};
     }
 
-    effect->get<MeshEmitter>(last_emitter).mesh = mesh;
+    if (effect->emitters[last_emitter]->getType() != EmitterType::Mesh) {
+        throw std::runtime_error{"Cannot set mesh for not MeshEmitter!"};
+    }
+
+    effect->get<MeshEmitter>(last_emitter).mesh =std::move(mesh);
     return *this;
 }
 
 std::shared_ptr<EffectInstance> EffectBuilder::build(const MaterialShaders& material_shaders) {
     EffectCompiler compiler {context, assets};
-
     for (const auto& mat_shader : material_shaders) {
         compiler.compile(*effect, mat_shader);
     }
@@ -94,7 +96,7 @@ std::shared_ptr<EffectInstance> EffectBuilder::build(const MaterialShaders& mate
                 auto& mesh_emitter = effect->get<MeshEmitter>(name);
                 if (!mesh_emitter.getMaterial().material_buffer) {
                     // initializes uniform material buffer using program shader introspection
-                    MaterialBuilder::initializeMaterialBuffer(mesh_emitter.getMaterial(), assets.shaders.get(mesh_emitter.getEmitterType()));
+                    MaterialBuilder::initializeMaterialBuffer(mesh_emitter.getMaterial(), assets.shaders.get(material_shaders.at(0), mesh_emitter.getEmitterType()));
                 }
                 break;
             }
@@ -109,13 +111,13 @@ std::shared_ptr<EffectInstance> EffectBuilder::build(const MaterialShaders& mate
         }
     }
 
-    assets.effects.add(effect_name, std::move(effect));
+    assets.effects.add(effect_name, effect);
 
-    return assets.effects.at(effect_name);
+    return effect;
 }
 
 EffectBuilder& EffectBuilder::create(std::string name) {
-    effect = std::unique_ptr<EffectInstance>(new EffectInstance());
+    effect = std::shared_ptr<EffectInstance>(new EffectInstance());
     effect->name = name;
     effect_name = std::move(name);
     return *this;

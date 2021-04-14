@@ -2,8 +2,6 @@
 
 #include <limitless/core/indexed_buffer.hpp>
 #include <vector>
-#include "context_state.hpp"
-
 
 namespace LimitlessEngine {
     template<typename T> class UniformValue;

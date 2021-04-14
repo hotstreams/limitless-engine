@@ -11,8 +11,9 @@ namespace LimitlessEngine {
     class EffectCompiler : public MaterialCompiler {
     private:
         std::string getEmitterDefines(const Emitter& emitter) noexcept;
-        void compile(MaterialShader shader_type, const SpriteEmitter& emitter);
-        void compile(const MeshEmitter& emitter);
+
+        template<typename T>
+        void compile(MaterialShader shader_type, const T& emitter);
     public:
         explicit EffectCompiler(Context& context, Assets& assets) : MaterialCompiler{context, assets} {}
 
