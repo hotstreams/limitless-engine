@@ -6,8 +6,8 @@ Emitter::Emitter(EmitterType _type) noexcept
     : type {_type}
     , local_position {}
     , position {}
-    , local_rotation {}
-    , rotation {}
+    , local_rotation {1.0f, 0.0f, 0.0f, 0.0f}
+    , rotation {1.0f, 0.0f, 0.0f, 0.0f}
     , local_space {} {
 }
 
@@ -28,23 +28,27 @@ void Emitter::emit(uint32_t count) noexcept {
 
 void Emitter::setPosition(const glm::vec3& new_position) noexcept {
     if (local_space) {
-        auto diff = new_position + local_position - position;
+        const auto final_position = new_position + local_position;
+        const auto diff = final_position - (position + local_position);
 
         for (auto& particle : particles) {
             particle.position += diff;
         }
     }
 
-    position = local_position + new_position;
+    position = new_position;
 }
 
 void Emitter::setRotation(const glm::quat& new_rotation) noexcept {
-    //TODO: check this
     if (local_space) {
-        auto diff = new_rotation + local_rotation - rotation;
+        const auto final_rotation = new_rotation * local_rotation;
+        const auto diff = final_rotation * glm::inverse(rotation * local_rotation);
 
         for (auto& particle : particles) {
             particle.rotation += glm::eulerAngles(diff);
+
+            particle.velocity = diff * particle.velocity;
+            particle.acceleration = diff * particle.acceleration;
         }
     }
 

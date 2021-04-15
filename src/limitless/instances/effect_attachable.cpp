@@ -81,3 +81,9 @@ void EffectAttachable::setRotation(const glm::quat& rotation) noexcept {
         instance->setRotation(rotation);
 }
 
+void EffectAttachable::rotateBy(const glm::quat& rotation) noexcept {
+    for (auto& [instance, offset] : attachments) {
+        instance->rotateBy(rotation);
+    }
+}
+

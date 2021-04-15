@@ -29,6 +29,7 @@ namespace LimitlessEngine {
 
         void setPosition(const glm::vec3& position) noexcept;
         void setRotation(const glm::quat& rotation) noexcept;
+        void rotateBy(const glm::quat& rotation) noexcept;
     public:
         EffectAttachable() noexcept;
         virtual ~EffectAttachable();

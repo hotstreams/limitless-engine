@@ -4,7 +4,7 @@
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader_program.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/uniform_setter.hpp>
 #include <limitless/material_system/material.hpp>
 
@@ -47,10 +47,10 @@ void ElementaryInstance::draw(Context& ctx, const Assets& assets, MaterialShader
                 if (blending == Blending::Opaque) first_opaque = false;
             }
 
-            if (auto* state = ContextState::getState(glfwGetCurrentContext()); material->getTwoSided()) {
-                state->disable(Capabilities::CullFace);
+            if (material->getTwoSided()) {
+                ctx.disable(Capabilities::CullFace);
             } else {
-                state->enable(Capabilities::CullFace);
+                ctx.enable(Capabilities::CullFace);
             }
 
             auto& shader = assets.shaders.get(material_type, shader_type, material->getShaderIndex());

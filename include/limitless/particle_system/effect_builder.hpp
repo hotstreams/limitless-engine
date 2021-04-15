@@ -17,42 +17,54 @@ namespace LimitlessEngine {
         Context& context;
         Assets& assets;
 
-        EffectBuilder& setModules(decltype(Emitter::modules)&& modules) noexcept;
+        EffectBuilder& setModules(decltype(Emitter::modules)&& modules);
         friend class EmitterSerializer;
     public:
         EffectBuilder(Context& context, Assets& assets) noexcept;
         ~EffectBuilder() = default;
 
-        EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count) noexcept;
+        EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count);
         EffectBuilder& setMaterial(std::shared_ptr<Material> material);
         EffectBuilder& setMesh(std::shared_ptr<AbstractMesh> mesh);
-        EffectBuilder& setDuration(std::chrono::duration<float> duration) noexcept;
-        EffectBuilder& setLocalPosition(const glm::vec3& local_position) noexcept;
-        EffectBuilder& setLocalRotation(const glm::vec3& local_rotation) noexcept;
-        EffectBuilder& setSpawnMode(EmitterSpawn::Mode mode) noexcept;
-        EffectBuilder& setLocalSpace(bool _local_space) noexcept;
-        EffectBuilder& setEmitterType(EmitterType type) noexcept;
-        EffectBuilder& setMaxCount(uint64_t max_count) noexcept;
-        EffectBuilder& setSpawnRate(float spawn_rate) noexcept;
-        EffectBuilder& setSpawn(EmitterSpawn&& spawn) noexcept;
-        EffectBuilder& setLoops(int loops) noexcept;
+        EffectBuilder& setDuration(std::chrono::duration<float> duration);
+        EffectBuilder& setLocalPosition(const glm::vec3& local_position);
+        EffectBuilder& setLocalRotation(const glm::quat& local_rotation);
+        EffectBuilder& setSpawnMode(EmitterSpawn::Mode mode);
+        EffectBuilder& setLocalSpace(bool _local_space);
+        EffectBuilder& setEmitterType(EmitterType type);
+        EffectBuilder& setMaxCount(uint64_t max_count);
+        EffectBuilder& setSpawnRate(float spawn_rate);
+        EffectBuilder& setSpawn(EmitterSpawn&& spawn);
+        EffectBuilder& setLoops(int loops);
 
         EffectBuilder& create(std::string name);
 
-        template<typename T>
-        EffectBuilder& createEmitter(std::string name) {
-            last_emitter = name;
-            effect->emitters.emplace(std::move(name), new T());
-            return *this;
-        }
+        template<typename Emitter>
+        EffectBuilder& createEmitter(const std::string& name);
 
-        template<typename T, typename... Args>
-        EffectBuilder& addModule(EmitterModuleType module_type, Args&&... args) {
-            if constexpr (std::is_same_v<T, InitialVelocity>)
+        EffectBuilder& addInitialLocation(std::unique_ptr<Distribution<glm::vec3>> distribution);
+        EffectBuilder& addInitialRotation(std::unique_ptr<Distribution<glm::vec3>> distribution);
+        EffectBuilder& addInitialVelocity(std::unique_ptr<Distribution<glm::vec3>> distribution);
+        EffectBuilder& addInitialColor(std::unique_ptr<Distribution<glm::vec4>> distribution);
+        EffectBuilder& addInitialSize(std::unique_ptr<Distribution<float>> distribution);
+        EffectBuilder& addInitialAcceleration(std::unique_ptr<Distribution<glm::vec3>> distribution);
+        EffectBuilder& addMeshLocation(std::shared_ptr<AbstractMesh> mesh);
+        EffectBuilder& addSubUV(const glm::vec2& size, float fps, const glm::vec2& frame_count);
+        EffectBuilder& addVelocityByLife(std::unique_ptr<Distribution<glm::vec3>> distribution);
+        EffectBuilder& addColorByLife(std::unique_ptr<Distribution<glm::vec4>> distribution);
+        EffectBuilder& addRotationRate(std::unique_ptr<Distribution<glm::vec3>> distribution);
+        EffectBuilder& addSizeByLife(std::unique_ptr<Distribution<float>> distribution, float factor);
+        EffectBuilder& addLifetime(std::unique_ptr<Distribution<float>> distribution);
 
-            effect->emitters[last_emitter]->modules.emplace(module_type, new T{std::forward<Args>(args)...});
-            return *this;
-        }
+        EffectBuilder& addCustomMaterial(std::unique_ptr<Distribution<float>> p1,
+                                         std::unique_ptr<Distribution<float>> p2,
+                                         std::unique_ptr<Distribution<float>> p3,
+                                         std::unique_ptr<Distribution<float>> p4);
+
+        EffectBuilder& addCustomMaterialByLife(std::unique_ptr<Distribution<float>> p1,
+                                               std::unique_ptr<Distribution<float>> p2,
+                                               std::unique_ptr<Distribution<float>> p3,
+                                               std::unique_ptr<Distribution<float>> p4);
 
         std::shared_ptr<EffectInstance> build(const MaterialShaders& material_shaders = {MaterialShader::Forward, MaterialShader::DirectionalShadow});
     };

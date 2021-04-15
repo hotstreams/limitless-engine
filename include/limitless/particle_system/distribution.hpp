@@ -121,7 +121,10 @@ namespace LimitlessEngine {
         uniform_distribution<T> distribution;
     public:
         RangeDistribution(const T& min, const T& max) noexcept
-            : Distribution<T>(DistributionType::Range), min(min), max(max), distribution(min, max) { }
+            : Distribution<T>(DistributionType::Range)
+            , min(min)
+            , max(max)
+            , distribution(min, max) {}
         ~RangeDistribution() override = default;
 
         [[nodiscard]] const T& getMin() const noexcept { return min; }

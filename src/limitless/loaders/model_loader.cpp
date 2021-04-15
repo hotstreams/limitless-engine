@@ -138,11 +138,11 @@ std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& f
         auto tangent = glm::convert3f(mesh->mTangents[j]);
         auto uv = glm::convert2f(mesh->mTextureCoords[0][j]);
 
-//        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-//            vertex = flipYZ(vertex);
-//            normal = flipYZ(normal);
-//            tangent = flipYZ(tangent);
-//        }
+        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+            vertex = flipYZ(vertex);
+            normal = flipYZ(normal);
+            tangent = flipYZ(tangent);
+        }
 
         if constexpr (std::is_same<T, VertexNormalTangent>::value) {
             vertices.emplace_back(T{vertex, normal, tangent, uv});
@@ -320,10 +320,10 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
             auto bi = bone_map.find(bone_name);
             auto offset_mat = glm::convert(mesh->mBones[j]->mOffsetMatrix);
 
-//            if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-//                offset_mat = flipYZ(offset_mat);
-////                offset_mat = flipYZTransformationMatrix(offset_mat);
-//            }
+            if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+                offset_mat = flipYZ(offset_mat);
+//                offset_mat = flipYZTransformationMatrix(offset_mat);
+            }
 
             uint32_t bone_index;
             if (bi == bone_map.end()) {
@@ -385,9 +385,9 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
             for (uint32_t k = 0; k < channel->mNumPositionKeys; ++k) {
                 auto vec = glm::convert3f(channel->mPositionKeys[k].mValue);
 
-//                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-//                    vec = flipYZ(vec);
-//                }
+                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+                    vec = flipYZ(vec);
+                }
 
                 pos_frames.emplace_back(vec, channel->mPositionKeys[k].mTime);
             }
@@ -395,9 +395,9 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
             for (uint32_t k = 0; k < channel->mNumRotationKeys; ++k) {
                 auto quat = convertQuat(channel->mRotationKeys[k].mValue);
 
-//                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-//                    quat = flipYZ(quat);
-//                }
+                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+                    quat = flipYZ(quat);
+                }
 
                 rot_frames.emplace_back(quat, channel->mRotationKeys[k].mTime);
             }
@@ -405,9 +405,9 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
             for (uint32_t k = 0; k < channel->mNumScalingKeys; ++k) {
                 auto vec = glm::convert3f(channel->mScalingKeys[k].mValue);
 
-//                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-//                    vec = flipYZ(vec);
-//                }
+                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+                    vec = flipYZ(vec);
+                }
 
                 scale_frames.emplace_back(vec, channel->mScalingKeys[k].mTime);
             }
@@ -438,10 +438,10 @@ Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<
     dfs = [&] (Tree<uint32_t>& tree, const aiNode* node, int depth) {
         bones[*tree].node_transform = glm::convert(node->mTransformation);
 
-//        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-//            bones[*tree].node_transform = flipYZTransformationMatrix(bones[*tree].node_transform);
-//            bones[*tree].node_transform = flipYZ(bones[*tree].node_transform);
-//        }
+        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
+            bones[*tree].node_transform = flipYZTransformationMatrix(bones[*tree].node_transform);
+            bones[*tree].node_transform = flipYZ(bones[*tree].node_transform);
+        }
 
         for (uint32_t i = 0; i < node->mNumChildren; ++i) {
             auto& child = tree.add(bone_finder(node->mChildren[i]->mName.C_Str()));

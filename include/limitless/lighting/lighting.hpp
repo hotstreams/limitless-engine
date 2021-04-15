@@ -14,9 +14,9 @@ namespace LimitlessEngine {
         DirectionalLight directional_light;
 
         LightContainer<PointLight> point_lights;
-        LightContainer<SpotLight> spot_lights;
+//        LightContainer<SpotLight> spot_lights;
 
-        Lighting(uint64_t p_count, uint64_t s_count);
+        Lighting(uint64_t p_count);
         Lighting();
         ~Lighting() = default;
 

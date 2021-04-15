@@ -18,13 +18,12 @@ namespace LimitlessEngine {
 
         MeshLocation,
         SubUV,
-        //VelocityByLife,
+        VelocityByLife,
         ColorByLife,
         RotationRate,
         SizeByLife,
-        //SphereLocation,
         CustomMaterial,
-        CustomMaterialOverLife,
+        CustomMaterialByLife,
 
         // should be at last
         Lifetime
@@ -34,7 +33,7 @@ namespace LimitlessEngine {
     private:
         EmitterModuleType type;
     public:
-        explicit EmitterModule(EmitterModuleType _type) noexcept;
+        explicit EmitterModule(EmitterModuleType type) noexcept;
         virtual ~EmitterModule() = default;
 
         virtual void initialize(Emitter& emitter, Particle& particle) noexcept;
@@ -49,7 +48,7 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<glm::vec3>> distribution;
     public:
-        explicit InitialLocation(Distribution<glm::vec3>* distribution) noexcept;
+        explicit InitialLocation(std::unique_ptr<Distribution<glm::vec3>> distribution) noexcept;
         ~InitialLocation() override = default;
 
         InitialLocation(const InitialLocation&) noexcept;
@@ -65,7 +64,7 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<glm::vec3>> distribution;
     public:
-        explicit InitialRotation(Distribution<glm::vec3>* distribution) noexcept;
+        explicit InitialRotation(std::unique_ptr<Distribution<glm::vec3>> distribution) noexcept;
         ~InitialRotation() override = default;
 
         InitialRotation(const InitialRotation&) noexcept;
@@ -81,7 +80,7 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<glm::vec3>> distribution;
     public:
-        explicit InitialVelocity(Distribution<glm::vec3>* distribution) noexcept;
+        explicit InitialVelocity(std::unique_ptr<Distribution<glm::vec3>> distribution) noexcept;
         ~InitialVelocity() override = default;
 
         InitialVelocity(const InitialVelocity&) noexcept;
@@ -97,7 +96,7 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<glm::vec4>> distribution;
     public:
-        explicit InitialColor(Distribution<glm::vec4>* distribution) noexcept;
+        explicit InitialColor(std::unique_ptr<Distribution<glm::vec4>> distribution) noexcept;
         ~InitialColor() override = default;
 
         InitialColor(const InitialColor&) noexcept;
@@ -113,7 +112,7 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<float>> distribution;
     public:
-        explicit InitialSize(Distribution<float>* distribution) noexcept;
+        explicit InitialSize(std::unique_ptr<Distribution<float>> distribution) noexcept;
         ~InitialSize() override = default;
 
         InitialSize(const InitialSize&) noexcept;
@@ -129,7 +128,7 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<glm::vec3>> distribution;
     public:
-        explicit InitialAcceleration(Distribution<glm::vec3>* distribution) noexcept;
+        explicit InitialAcceleration(std::unique_ptr<Distribution<glm::vec3>> distribution) noexcept;
         ~InitialAcceleration() override = default;
 
         InitialAcceleration(const InitialAcceleration&) noexcept;
@@ -139,6 +138,30 @@ namespace LimitlessEngine {
         [[nodiscard]] InitialAcceleration* clone() const noexcept override;
 
         [[nodiscard]] auto& getDistribution() noexcept { return distribution; }
+    };
+
+    class MeshLocation : public EmitterModule {
+    private:
+        std::shared_ptr<AbstractMesh> mesh;
+
+        std::default_random_engine generator;
+        std::uniform_real_distribution<float> distribution;
+
+        glm::vec3 getPositionOnTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) noexcept;
+        glm::vec3 getPositionOnMesh() noexcept;
+    public:
+        explicit MeshLocation(std::shared_ptr<AbstractMesh> mesh) noexcept;
+        ~MeshLocation() override = default;
+
+        MeshLocation(const MeshLocation&) noexcept = default;
+        MeshLocation& operator=(const MeshLocation&) noexcept = default;
+
+        auto& getMesh() noexcept { return mesh; }
+
+        void initialize(Emitter& emitter, Particle& particle) noexcept override;
+        void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
+
+        [[nodiscard]] MeshLocation* clone() const noexcept override;
     };
 
     class SubUV : public EmitterModule {
@@ -178,19 +201,18 @@ namespace LimitlessEngine {
         [[nodiscard]] auto& getFPS() const noexcept { return fps; }
     };
 
-    class Lifetime : public EmitterModule {
+    class VelocityByLife : public EmitterModule {
     private:
-        std::unique_ptr<Distribution<float>> distribution;
+        std::unique_ptr<Distribution<glm::vec3>> distribution;
     public:
-        explicit Lifetime(Distribution<float>* distribution) noexcept;
-        ~Lifetime() override = default;
+        explicit VelocityByLife(std::unique_ptr<Distribution<glm::vec3>> distribution) noexcept;
+        ~VelocityByLife() override = default;
 
-        Lifetime(const Lifetime&) noexcept;
+        VelocityByLife(const VelocityByLife&) noexcept;
 
-        void initialize(Emitter& emitter, Particle& particle) noexcept override;
         void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
 
-        [[nodiscard]] Lifetime* clone() const noexcept override;
+        [[nodiscard]] VelocityByLife* clone() const noexcept override;
 
         [[nodiscard]] auto& getDistribution() noexcept { return distribution; }
     };
@@ -199,12 +221,11 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<glm::vec4>> distribution;
     public:
-        explicit ColorByLife(Distribution<glm::vec4>* distribution) noexcept;
+        explicit ColorByLife(std::unique_ptr<Distribution<glm::vec4>> distribution) noexcept;
         ~ColorByLife() override = default;
 
         ColorByLife(const ColorByLife&) noexcept;
 
-        void initialize(Emitter& emitter, Particle& particle) noexcept override;
         void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
 
         [[nodiscard]] ColorByLife* clone() const noexcept override;
@@ -216,7 +237,7 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<glm::vec3>> distribution;
     public:
-        explicit RotationRate(Distribution<glm::vec3>* distribution) noexcept;
+        explicit RotationRate(std::unique_ptr<Distribution<glm::vec3>> distribution) noexcept;
         ~RotationRate() override = default;
 
         RotationRate(const RotationRate&) noexcept;
@@ -232,8 +253,11 @@ namespace LimitlessEngine {
     private:
         std::unique_ptr<Distribution<float>> distribution;
         float factor;
+
+        static constexpr auto MIN_SIZE = 0.0f;
+        static constexpr auto MAX_SIZE = 1000.0f;
     public:
-        explicit SizeByLife(Distribution<float>* distribution, float factor) noexcept;
+        explicit SizeByLife(std::unique_ptr<Distribution<float>> distribution, float factor) noexcept;
         ~SizeByLife() override = default;
 
         SizeByLife(const SizeByLife&) noexcept;
@@ -246,56 +270,14 @@ namespace LimitlessEngine {
         [[nodiscard]] auto& getFactor() noexcept { return factor; }
     };
 
-//    class VelocityByLife : public EmitterModule {
-//    private:
-//        std::unique_ptr<Distribution<glm::vec3>> distribution;
-//        float factor;
-//    public:
-//        explicit VelocityByLife(Distribution<glm::vec3>* distribution, float factor) noexcept;
-//        ~VelocityByLife() override = default;
-//
-//        VelocityByLife(const VelocityByLife&) noexcept;
-//
-//        void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
-//
-//        [[nodiscard]] VelocityByLife* clone() const noexcept override;
-//
-//        [[nodiscard]] auto& getDistribution() noexcept { return distribution; }
-//        [[nodiscard]] auto& getFactor() noexcept { return factor; }
-//    };
-
-    class MeshLocation : public EmitterModule {
-    private:
-        std::shared_ptr<AbstractMesh> mesh;
-
-        std::default_random_engine generator;
-        std::uniform_real_distribution<float> distribution;
-
-        glm::vec3 getPositionOnTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) noexcept;
-        glm::vec3 getPositionOnMesh() noexcept;
-    public:
-        explicit MeshLocation(std::shared_ptr<AbstractMesh> mesh) noexcept;
-        ~MeshLocation() override = default;
-
-        MeshLocation(const MeshLocation&) noexcept = default;
-        MeshLocation& operator=(const MeshLocation&) noexcept = default;
-
-        auto& getMesh() noexcept { return mesh; }
-
-        void initialize(Emitter& emitter, Particle& particle) noexcept override;
-        void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
-
-        [[nodiscard]] MeshLocation* clone() const noexcept override;
-    };
-
     class CustomMaterialModule : public EmitterModule {
     private:
         std::array<std::unique_ptr<Distribution<float>>, 4> properties;
     public:
-        explicit CustomMaterialModule(Distribution<float>* prop1,
-                                      Distribution<float>* prop2 = nullptr,
-                                      Distribution<float>* prop3 = nullptr,
-                                      Distribution<float>* prop4 = nullptr) noexcept;
+        CustomMaterialModule(std::unique_ptr<Distribution<float>> prop1,
+                             std::unique_ptr<Distribution<float>> prop2,
+                             std::unique_ptr<Distribution<float>> prop3,
+                             std::unique_ptr<Distribution<float>> prop4 ) noexcept;
         ~CustomMaterialModule() override = default;
 
         CustomMaterialModule(const CustomMaterialModule&);
@@ -307,22 +289,39 @@ namespace LimitlessEngine {
         [[nodiscard]] CustomMaterialModule* clone() const noexcept override;
     };
 
-    class CustomMaterialModuleOverLife : public EmitterModule {
+    class CustomMaterialModuleByLife : public EmitterModule {
     private:
         std::array<std::unique_ptr<Distribution<float>>, 4> properties;
     public:
-        explicit CustomMaterialModuleOverLife(Distribution<float>* prop1,
-                                              Distribution<float>* prop2 = nullptr,
-                                              Distribution<float>* prop3 = nullptr,
-                                              Distribution<float>* prop4 = nullptr) noexcept;
-        ~CustomMaterialModuleOverLife() override = default;
+        CustomMaterialModuleByLife(std::unique_ptr<Distribution<float>> prop1,
+                                   std::unique_ptr<Distribution<float>> prop2,
+                                   std::unique_ptr<Distribution<float>> prop3,
+                                   std::unique_ptr<Distribution<float>> prop4) noexcept;
+        ~CustomMaterialModuleByLife() override = default;
 
-        CustomMaterialModuleOverLife(const CustomMaterialModuleOverLife&);
+        CustomMaterialModuleByLife(const CustomMaterialModuleByLife&);
 
         auto& getProperties() noexcept { return properties; }
 
         void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
 
-        [[nodiscard]] CustomMaterialModuleOverLife* clone() const noexcept override;
+        [[nodiscard]] CustomMaterialModuleByLife* clone() const noexcept override;
+    };
+
+    class Lifetime : public EmitterModule {
+    private:
+        std::unique_ptr<Distribution<float>> distribution;
+    public:
+        explicit Lifetime(std::unique_ptr<Distribution<float>> distribution) noexcept;
+        ~Lifetime() override = default;
+
+        Lifetime(const Lifetime&) noexcept;
+
+        void initialize(Emitter& emitter, Particle& particle) noexcept override;
+        void update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept override;
+
+        [[nodiscard]] Lifetime* clone() const noexcept override;
+
+        [[nodiscard]] auto& getDistribution() noexcept { return distribution; }
     };
 }

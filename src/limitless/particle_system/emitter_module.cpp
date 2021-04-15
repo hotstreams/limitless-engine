@@ -6,20 +6,18 @@
 using namespace LimitlessEngine;
 
 EmitterModule::EmitterModule(EmitterModuleType _type) noexcept
-    : type {_type} {}
+    : type {_type} {
+}
 
 void EmitterModule::initialize([[maybe_unused]] Emitter& emitter, [[maybe_unused]] Particle& particle) noexcept {
-
 }
 
 void EmitterModule::update([[maybe_unused]] Emitter& emitter, [[maybe_unused]] std::vector<Particle>& particles, [[maybe_unused]] float dt) noexcept {
-
 }
 
-InitialLocation::InitialLocation(Distribution<glm::vec3>* distribution) noexcept
+InitialLocation::InitialLocation(std::unique_ptr<Distribution<glm::vec3>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::InitialLocation)
-    , distribution{distribution} {
-
+    , distribution{std::move(_distribution)} {
 }
 
 InitialLocation::InitialLocation(const InitialLocation& module) noexcept
@@ -35,14 +33,15 @@ InitialLocation* InitialLocation::clone() const noexcept {
     return new InitialLocation(*this);
 }
 
-InitialRotation::InitialRotation(Distribution<glm::vec3>* distribution) noexcept
+InitialRotation::InitialRotation(std::unique_ptr<Distribution<glm::vec3>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::InitialRotation)
-    , distribution{distribution} {
+    , distribution{std::move(_distribution)} {
 
 }
 
 void InitialRotation::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
-    particle.rotation += distribution->get();
+    const auto rot = emitter.getRotation() * emitter.getLocalRotation();
+    particle.rotation += distribution->get() * rot;
 }
 
 InitialRotation* InitialRotation::clone() const noexcept {
@@ -54,20 +53,14 @@ InitialRotation::InitialRotation(const InitialRotation& module) noexcept
     , distribution{module.distribution->clone()} {
 }
 
-InitialVelocity::InitialVelocity(Distribution<glm::vec3>* distribution) noexcept
+InitialVelocity::InitialVelocity(std::unique_ptr<Distribution<glm::vec3>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::InitialVelocity)
-    , distribution{distribution} {
-
+    , distribution{std::move(_distribution)} {
 }
 
 void InitialVelocity::initialize(Emitter& emitter, Particle& particle) noexcept {
-    const auto& rotation = emitter.getLocalRotation() + emitter.getRotation();
-
-    auto rot_matrix = glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-    rot_matrix = glm::rotate(rot_matrix, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-    rot_matrix = glm::rotate(rot_matrix, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-
-    particle.velocity += glm::vec3(rot_matrix * glm::vec4(distribution->get(), 1.0));
+    const auto rot = emitter.getRotation() * emitter.getLocalRotation();
+    particle.velocity = distribution->get() * rot;
 }
 
 InitialVelocity* InitialVelocity::clone() const noexcept {
@@ -79,9 +72,9 @@ InitialVelocity::InitialVelocity(const InitialVelocity& module) noexcept
     , distribution{module.distribution->clone()} {
 }
 
-InitialColor::InitialColor(Distribution<glm::vec4>* distribution) noexcept
+InitialColor::InitialColor(std::unique_ptr<Distribution<glm::vec4>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::InitialColor)
-    , distribution{distribution} {
+    , distribution{std::move(_distribution)} {
 }
 
 void InitialColor::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
@@ -97,9 +90,9 @@ InitialColor::InitialColor(const InitialColor& module) noexcept
     , distribution{module.distribution->clone()} {
 }
 
-InitialSize::InitialSize(Distribution<float>* distribution) noexcept
+InitialSize::InitialSize(std::unique_ptr<Distribution<float>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::InitialSize)
-    , distribution{distribution} {
+    , distribution{std::move(_distribution)} {
 }
 
 void InitialSize::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
@@ -115,31 +108,26 @@ InitialSize::InitialSize(const InitialSize& module) noexcept
     , distribution{module.distribution->clone()} {
 }
 
-InitialAcceleration::InitialAcceleration(Distribution<glm::vec3>* distribution) noexcept
+InitialAcceleration::InitialAcceleration(std::unique_ptr<Distribution<glm::vec3>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::InitialAcceleration)
-    , distribution{distribution} {
+    , distribution{std::move(_distribution)} {
 }
 
 void InitialAcceleration::initialize(Emitter& emitter, Particle& particle) noexcept {
-    const auto& rotation = emitter.getLocalRotation() + emitter.getRotation();
-
-    auto rot_matrix = glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-    rot_matrix = glm::rotate(rot_matrix, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-    rot_matrix = glm::rotate(rot_matrix, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-
-    particle.acceleration += glm::vec3(rot_matrix * glm::vec4(distribution->get(), 1.0));
+    const auto rot = emitter.getRotation() * emitter.getLocalRotation();
+    particle.acceleration = distribution->get() * rot;
 }
 
 InitialAcceleration* InitialAcceleration::clone() const noexcept {
     return new InitialAcceleration(*this);
 }
 
-SubUV::SubUV(const glm::vec2& tex_size, float fps, const glm::vec2& frame_count) noexcept
+SubUV::SubUV(const glm::vec2& tex_size, float _fps, const glm::vec2& _frame_count) noexcept
     : EmitterModule(EmitterModuleType::SubUV)
-    , fps{fps}
-    , subUV_factor{1.0f}
-    , texture_size{tex_size}
-    , frame_count{frame_count} {
+    , fps {_fps}
+    , subUV_factor {1.0f}
+    , texture_size {tex_size}
+    , frame_count {_frame_count} {
     updateFrames();
 }
 
@@ -193,9 +181,9 @@ SubUV* SubUV::clone() const noexcept {
     return new SubUV(*this);
 }
 
-Lifetime::Lifetime(Distribution<float>* distribution) noexcept
+Lifetime::Lifetime(std::unique_ptr<Distribution<float>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::Lifetime)
-    , distribution{distribution} {
+    , distribution{std::move(_distribution)} {
 }
 
 void Lifetime::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
@@ -203,8 +191,9 @@ void Lifetime::initialize([[maybe_unused]] Emitter& emitter, Particle& particle)
 }
 
 void Lifetime::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
-    for (auto& particle : particles)
+    for (auto& particle : particles) {
         particle.lifetime -= dt;
+    }
 }
 
 Lifetime* Lifetime::clone() const noexcept {
@@ -221,9 +210,9 @@ InitialAcceleration::InitialAcceleration(const InitialAcceleration& module) noex
     , distribution{module.distribution->clone()} {
 }
 
-ColorByLife::ColorByLife(Distribution<glm::vec4>* distribution) noexcept
+ColorByLife::ColorByLife(std::unique_ptr<Distribution<glm::vec4>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::ColorByLife)
-    , distribution{distribution} {
+    , distribution{std::move(_distribution)} {
 }
 
 ColorByLife::ColorByLife(const ColorByLife& module) noexcept
@@ -231,34 +220,11 @@ ColorByLife::ColorByLife(const ColorByLife& module) noexcept
     , distribution{module.distribution->clone()} {
 }
 
-void ColorByLife::initialize([[maybe_unused]] Emitter& emitter, Particle& particle) noexcept {
-    switch (distribution->getType()) {
-        case DistributionType::Const:
-            particle.color = distribution->get();
-            break;
-        case DistributionType::Range:
-            particle.color = static_cast<RangeDistribution<glm::vec4>&>(*distribution).getMin();
-            break;
-        case DistributionType::Curve:
-            break;
-    }
-}
-
 void ColorByLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
-    switch (distribution->getType()) {
-        case DistributionType::Const:
-            break;
-        case DistributionType::Range: {
-            const auto &range = static_cast<RangeDistribution<glm::vec4>&>(*distribution);
-            for (auto &particle : particles) {
-                auto tick = particle.lifetime / dt;
-                auto tick_color = (range.getMax() - particle.color) / tick;
-                particle.color += tick_color;
-            }
-            break;
-        }
-        case DistributionType::Curve:
-            break;
+    for (auto& particle : particles) {
+        const auto tick = particle.lifetime / dt;
+        const auto tick_color = glm::abs(distribution->get() - particle.color) / tick;
+        particle.color += tick_color;
     }
 }
 
@@ -266,21 +232,20 @@ ColorByLife* ColorByLife::clone() const noexcept {
     return new ColorByLife(*this);
 }
 
-RotationRate::RotationRate(Distribution<glm::vec3>* distribution) noexcept
+RotationRate::RotationRate(std::unique_ptr<Distribution<glm::vec3>> _distribution) noexcept
     : EmitterModule(EmitterModuleType::RotationRate)
-    , distribution{distribution} {
-
+    , distribution{std::move(_distribution)} {
 }
 
 RotationRate::RotationRate(const RotationRate& module) noexcept
     : EmitterModule(EmitterModuleType::RotationRate)
     , distribution{module.distribution->clone()} {
-
 }
 
 void RotationRate::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+    const auto rot = emitter.getRotation() * emitter.getLocalRotation();
     for (auto& particle : particles) {
-        particle.rotation += distribution->get() * dt;
+        particle.rotation += (distribution->get() * rot) * dt;
     }
 }
 
@@ -288,9 +253,9 @@ RotationRate* RotationRate::clone() const noexcept {
     return new RotationRate(*this);
 }
 
-SizeByLife::SizeByLife(Distribution<float>* distribution, float factor) noexcept
+SizeByLife::SizeByLife(std::unique_ptr<Distribution<float>> _distribution, float _factor) noexcept
     : EmitterModule(EmitterModuleType::SizeByLife)
-    , distribution{distribution}, factor{factor} {
+    , distribution{std::move(_distribution)}, factor{_factor} {
 }
 
 SizeByLife::SizeByLife(const SizeByLife& module) noexcept
@@ -300,21 +265,11 @@ SizeByLife::SizeByLife(const SizeByLife& module) noexcept
 }
 
 void SizeByLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
-    switch (distribution->getType()) {
-        case DistributionType::Const:
-            break;
-        case DistributionType::Range: {
-            const auto &range = static_cast<RangeDistribution<float>&>(*distribution);
-            for (auto& particle : particles) {
-                auto tick = glm::abs(particle.lifetime / dt);
-                auto tick_size = factor < 0.0f ? glm::abs(particle.size - range.getMin()) : glm::abs(range.getMax() - particle.size);
-                particle.size += tick_size * factor / tick;
-                particle.size = std::clamp(particle.size, 0.0f, 1000.0f);
-            }
-            break;
-        }
-        case DistributionType::Curve:
-            break;
+    for (auto& particle : particles) {
+        const auto tick = particle.lifetime / dt;
+        const auto tick_size = glm::abs(distribution->get() - particle.size);
+        particle.size += tick_size * factor / tick;
+        particle.size = std::clamp(particle.size, MIN_SIZE, MAX_SIZE);
     }
 }
 
@@ -322,38 +277,41 @@ SizeByLife* SizeByLife::clone() const noexcept {
     return new SizeByLife(*this);
 }
 
-//VelocityByLife::VelocityByLife(Distribution<glm::vec3>* distribution, float factor) noexcept
-//        : distribution{distribution}, factor{factor} {
-//}
-//
-//VelocityByLife::VelocityByLife(const VelocityByLife& module) noexcept
-//        : distribution{module.distribution->clone()}, factor{module.factor} {
-//}
-//
-//void VelocityByLife::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
-//    switch (distribution->getType()) {
-//        case DistributionType::Const:
-//            break;
-//        case DistributionType::Range:
-//            particle.size = static_cast<RangeDistribution<float>&>(*distribution).getMin();
-//            break;
-//        case DistributionType::Curve:
-//            break;
-//    }
-//}
+VelocityByLife::VelocityByLife(std::unique_ptr<Distribution<glm::vec3>> _distribution) noexcept
+    : EmitterModule(EmitterModuleType::VelocityByLife)
+    , distribution{std::move(_distribution)} {
+}
 
-MeshLocation::MeshLocation(std::shared_ptr<AbstractMesh> mesh) noexcept
+VelocityByLife::VelocityByLife(const VelocityByLife& module) noexcept
+    : EmitterModule(EmitterModuleType::VelocityByLife)
+    , distribution{module.distribution->clone()} {
+}
+
+void VelocityByLife::update(Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+    const auto rot = emitter.getRotation() * emitter.getLocalRotation();
+    for (auto& particle : particles) {
+        const auto tick = particle.lifetime / dt;
+        const auto tick_vel = (rot * distribution->get() - particle.velocity) / tick;
+        particle.velocity += tick_vel;
+    }
+}
+
+VelocityByLife* VelocityByLife::clone() const noexcept {
+    return new VelocityByLife(*this);
+}
+
+MeshLocation::MeshLocation(std::shared_ptr<AbstractMesh> _mesh) noexcept
     : EmitterModule(EmitterModuleType::MeshLocation)
-    , mesh{std::move(mesh)}
+    , mesh{std::move(_mesh)}
     , distribution(0.0f, 1.0f) {
 }
 
 glm::vec3 MeshLocation::getPositionOnTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) noexcept {
-    auto r1 = std::sqrt(distribution(generator));
-    auto r2 = distribution(generator);
-    auto m1 = 1.0f - r1;
-    auto m2 = r1 * (1.0f - r2);
-    auto m3 = r2 * r1;
+    const auto r1 = std::sqrt(distribution(generator));
+    const auto r2 = distribution(generator);
+    const auto m1 = 1.0f - r1;
+    const auto m2 = r1 * (1.0f - r2);
+    const auto m3 = r2 * r1;
 
     return (m1 * a) + (m2 * b) + (m3 * c);
 }
@@ -382,15 +340,15 @@ MeshLocation* MeshLocation::clone() const noexcept {
     return new MeshLocation(*this);
 }
 
-CustomMaterialModule::CustomMaterialModule(Distribution<float>* prop1,
-                                           Distribution<float>* prop2,
-                                           Distribution<float>* prop3,
-                                           Distribution<float>* prop4) noexcept
+CustomMaterialModule::CustomMaterialModule(std::unique_ptr<Distribution<float>> prop1,
+                                           std::unique_ptr<Distribution<float>> prop2,
+                                           std::unique_ptr<Distribution<float>> prop3,
+                                           std::unique_ptr<Distribution<float>> prop4) noexcept
     : EmitterModule(EmitterModuleType::CustomMaterial)
-    , properties{std::unique_ptr<Distribution<float>>(prop1),
-                 std::unique_ptr<Distribution<float>>(prop2),
-                 std::unique_ptr<Distribution<float>>(prop3),
-                 std::unique_ptr<Distribution<float>>(prop4)} {
+    , properties{std::move(prop1),
+                 std::move(prop2),
+                 std::move(prop3),
+                 std::move(prop4)} {
 
 }
 
@@ -407,29 +365,27 @@ void CustomMaterialModule::initialize([[maybe_unused]] Emitter& emitter, Particl
     for (uint32_t i = 0; i < properties.size(); i++) {
         if (properties[i]) {
             particle.properties[i] = properties[i]->get();
-
         }
     }
 }
 
-CustomMaterialModule *CustomMaterialModule::clone() const noexcept {
+CustomMaterialModule* CustomMaterialModule::clone() const noexcept {
     return new CustomMaterialModule(*this);
 }
 
-CustomMaterialModuleOverLife::CustomMaterialModuleOverLife(Distribution<float>* prop1,
-                                           Distribution<float>* prop2,
-                                           Distribution<float>* prop3,
-                                           Distribution<float>* prop4) noexcept
-        : EmitterModule(EmitterModuleType::CustomMaterialOverLife)
-        , properties{std::unique_ptr<Distribution<float>>(prop1),
-                     std::unique_ptr<Distribution<float>>(prop2),
-                     std::unique_ptr<Distribution<float>>(prop3),
-                     std::unique_ptr<Distribution<float>>(prop4)} {
-
+CustomMaterialModuleByLife::CustomMaterialModuleByLife(std::unique_ptr<Distribution<float>> prop1,
+                                                       std::unique_ptr<Distribution<float>> prop2,
+                                                       std::unique_ptr<Distribution<float>> prop3,
+                                                       std::unique_ptr<Distribution<float>> prop4) noexcept
+        : EmitterModule(EmitterModuleType::CustomMaterialByLife)
+        , properties{std::move(prop1),
+                     std::move(prop2),
+                     std::move(prop3),
+                     std::move(prop4)} {
 }
 
-CustomMaterialModuleOverLife::CustomMaterialModuleOverLife(const CustomMaterialModuleOverLife& rhs)
-    : EmitterModule(EmitterModuleType::CustomMaterialOverLife) {
+CustomMaterialModuleByLife::CustomMaterialModuleByLife(const CustomMaterialModuleByLife& rhs)
+    : EmitterModule(EmitterModuleType::CustomMaterialByLife) {
     for (uint32_t i = 0; i < rhs.properties.size(); ++i) {
         if (rhs.properties[i]) {
             properties[i] = std::unique_ptr<Distribution<float>>(rhs.properties[i]->clone());
@@ -437,15 +393,15 @@ CustomMaterialModuleOverLife::CustomMaterialModuleOverLife(const CustomMaterialM
     }
 }
 
-CustomMaterialModuleOverLife *CustomMaterialModuleOverLife::clone() const noexcept {
-    return new CustomMaterialModuleOverLife(*this);
+CustomMaterialModuleByLife *CustomMaterialModuleByLife::clone() const noexcept {
+    return new CustomMaterialModuleByLife(*this);
 }
 
-void CustomMaterialModuleOverLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
+void CustomMaterialModuleByLife::update([[maybe_unused]] Emitter& emitter, std::vector<Particle>& particles, float dt) noexcept {
     for (auto& particle : particles) {
         for (uint32_t i = 0; i < properties.size(); ++i) {
             if (properties[i]) {
-                auto tick = particle.lifetime / dt;
+                const auto tick = particle.lifetime / dt;
                 particle.properties[i] += (properties[i]->get() - particle.properties[i]) / tick;
             }
         }

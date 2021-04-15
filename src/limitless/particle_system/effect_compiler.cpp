@@ -45,9 +45,6 @@ std::string EffectCompiler::getEmitterDefines(const Emitter& emitter) noexcept {
             case EmitterModuleType ::SubUV:
                 defines.append("#define SubUV_MODULE\n");
                 break;
-//            case EmitterModuleType::AccelerationByLife:
-//                defines.append("#define AccelerationByLife_MODULE\n");
-//                break;
             case EmitterModuleType ::ColorByLife:
                 defines.append("#define ColorByLife_MODULE\n");
                 break;
@@ -57,14 +54,14 @@ std::string EffectCompiler::getEmitterDefines(const Emitter& emitter) noexcept {
             case EmitterModuleType ::SizeByLife:
                 defines.append("#define SizeByLife_MODULE\n");
                 break;
-//            case EmitterModuleType::SphereLocation:
-//                defines.append("#define SphereLocation_MODULE\n");
-//                break;
             case EmitterModuleType::CustomMaterial:
                 defines.append("#define CustomMaterial_MODULE\n");
                 break;
-            case EmitterModuleType::CustomMaterialOverLife:
-                assert("TODO");
+            case EmitterModuleType::CustomMaterialByLife:
+                defines.append("#define CustomMaterialByLife_MODULE\n");
+                break;
+            case EmitterModuleType::VelocityByLife:
+                defines.append("#define VelocityByLife_MODULE\n");
                 break;
         }
     }
