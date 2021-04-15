@@ -22,7 +22,7 @@ void CustomMaterialBuilder::checkRequirements() {
 
     const auto& custom = static_cast<CustomMaterial&>(*material);
 
-    if (custom.uniforms.empty() && custom.vertex_code.empty() && custom.fragment_code.empty()) {
+    if (custom.uniforms.empty() && custom.vertex_code.empty() && custom.fragment_code.empty() && custom.global_definitions.empty()) {
         throw material_builder_error{"Uniform, vertex code, fragment code cannot be empty."};
     }
 }
@@ -31,6 +31,12 @@ CustomMaterialBuilder& CustomMaterialBuilder::setVertexCode(std::string vs_code)
     static_cast<CustomMaterial&>(*material).vertex_code = std::move(vs_code);
     return *this;
 }
+
+CustomMaterialBuilder& CustomMaterialBuilder::setGlobalDefinitions(std::string global_code) noexcept {
+    static_cast<CustomMaterial&>(*material).global_definitions = std::move(global_code);
+    return *this;
+}
+
 
 CustomMaterialBuilder& CustomMaterialBuilder::setFragmentCode(std::string fs_code) noexcept {
     static_cast<CustomMaterial&>(*material).fragment_code = std::move(fs_code);

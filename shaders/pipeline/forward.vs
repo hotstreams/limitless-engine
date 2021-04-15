@@ -4,6 +4,7 @@ LimitlessEngine::Settings
 LimitlessEngine::MaterialType
 LimitlessEngine::ModelType
 
+#include "glsl/scene.glsl"
 #include "glsl/output_data_vs.glsl"
 #include "glsl/material.glsl"
 
@@ -20,8 +21,6 @@ layout(location = 3) in vec2 uv;
     layout (location = 4) in ivec4 bone_id;
     layout (location = 5) in vec4 bone_weight;
 #endif
-
-#include "glsl/scene.glsl"
 
 uniform mat4 model;
 

@@ -10,6 +10,7 @@ namespace LimitlessEngine {
         std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
         std::string vertex_code;
         std::string fragment_code;
+        std::string global_definitions;
 
         void update() const noexcept override;
 
@@ -35,6 +36,7 @@ namespace LimitlessEngine {
 
         const auto& getVertexCode() const noexcept { return vertex_code; }
         const auto& getFragmentCode() const noexcept { return fragment_code; }
+        const auto& getGlobalDefinitions() const noexcept { return global_definitions; }
 
         template<typename T>
         T& getUniform(const std::string& name) {

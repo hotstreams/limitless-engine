@@ -18,6 +18,7 @@ namespace LimitlessEngine {
 
         CustomMaterialBuilder& setFragmentCode(std::string fs_code) noexcept;
         CustomMaterialBuilder& setVertexCode(std::string vs_code) noexcept;
+        CustomMaterialBuilder& setGlobalDefinitions(std::string global_code) noexcept;
         CustomMaterialBuilder& addUniform(std::string name, Uniform* uniform);
         CustomMaterialBuilder& removeUniform(const std::string& name);
 

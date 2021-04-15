@@ -103,3 +103,7 @@ layout(std140) uniform material_buffer {
         LimitlessEngine::CustomMaterialSamplerUniforms
     #endif
 #endif
+
+#ifdef CUSTOM_MATERIAL
+    LimitlessEngine::CustomMaterialGlobalDefinitions
+#endif
