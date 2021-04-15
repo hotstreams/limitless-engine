@@ -39,6 +39,7 @@ namespace LimitlessEngine {
 
         EffectInstance& setPosition(const glm::vec3& position) noexcept override;
         EffectInstance& setRotation(const glm::quat& rotation) noexcept override;
+        EffectInstance& rotateBy(const glm::quat& rotation) noexcept override;
 
         template<typename T>
         const T& get(const std::string& name) const {

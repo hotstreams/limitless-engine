@@ -60,8 +60,8 @@ ByteBuffer ModuleSerializer::serialize(EmitterModule& module) {
             }
             break;
         }
-        case EmitterModuleType::CustomMaterialOverLife: {
-            auto& props = static_cast<CustomMaterialModuleOverLife&>(module).getProperties();
+        case EmitterModuleType::CustomMaterialByLife: {
+            auto& props = static_cast<CustomMaterialModuleByLife&>(module).getProperties();
             size_t count = std::count_if(props.begin(), props.end(), [] (const auto& distr) { return distr != nullptr; });
             buffer << count;
             for (uint32_t i = 0; i < props.size(); ++i) {
@@ -73,6 +73,9 @@ ByteBuffer ModuleSerializer::serialize(EmitterModule& module) {
         }
         case EmitterModuleType::Lifetime:
             buffer << static_cast<Lifetime&>(module).getDistribution();
+            break;
+        case EmitterModuleType::VelocityByLife:
+            buffer << static_cast<VelocityByLife&>(module).getDistribution();
             break;
     }
 
@@ -88,37 +91,37 @@ std::unique_ptr<EmitterModule> ModuleSerializer::deserialize(ByteBuffer& buffer,
         case EmitterModuleType::InitialLocation: {
             std::unique_ptr<Distribution<glm::vec3>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new InitialLocation(distr.release()));
+            module = std::make_unique<InitialLocation>(std::move(distr));
             break;
         }
         case EmitterModuleType::InitialRotation: {
             std::unique_ptr<Distribution<glm::vec3>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new InitialRotation(distr.release()));
+            module = std::make_unique<InitialRotation>(std::move(distr));
             break;
         }
         case EmitterModuleType::InitialVelocity: {
             std::unique_ptr<Distribution<glm::vec3>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new InitialVelocity(distr.release()));
+            module = std::make_unique<InitialVelocity>(std::move(distr));
             break;
         }
         case EmitterModuleType::InitialColor: {
             std::unique_ptr<Distribution<glm::vec4>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new InitialColor(distr.release()));
+            module = std::make_unique<InitialColor>(std::move(distr));
             break;
         }
         case EmitterModuleType::InitialSize: {
             std::unique_ptr<Distribution<float>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new InitialSize(distr.release()));
+            module = std::make_unique<InitialSize>(std::move(distr));
             break;
         }
         case EmitterModuleType::InitialAcceleration: {
             std::unique_ptr<Distribution<glm::vec3>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new InitialAcceleration(distr.release()));
+            module = std::make_unique<InitialAcceleration>(std::move(distr));
             break;
         }
         case EmitterModuleType::MeshLocation: {
@@ -132,26 +135,26 @@ std::unique_ptr<EmitterModule> ModuleSerializer::deserialize(ByteBuffer& buffer,
             glm::vec2 frame_count;
             float fps;
             buffer >> texture_size >> fps >> frame_count;
-            module = std::unique_ptr<EmitterModule>(new SubUV(texture_size, fps, frame_count));
+            module = std::make_unique<SubUV>(texture_size, fps, frame_count);
             break;
         }
         case EmitterModuleType::ColorByLife: {
             std::unique_ptr<Distribution<glm::vec4>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new ColorByLife(distr.release()));
+            module = std::make_unique<ColorByLife>(std::move(distr));
             break;
         }
         case EmitterModuleType::RotationRate: {
             std::unique_ptr<Distribution<glm::vec3>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new RotationRate(distr.release()));
+            module = std::make_unique<RotationRate>(std::move(distr));
             break;
         }
         case EmitterModuleType::SizeByLife: {
             std::unique_ptr<Distribution<float>> distr;
             float factor;
             buffer >> distr >> factor;
-            module = std::unique_ptr<EmitterModule>(new SizeByLife(distr.release(), factor));
+            module = std::make_unique<SizeByLife>(std::move(distr), factor);
             break;
         }
         case EmitterModuleType::CustomMaterial: {
@@ -164,13 +167,10 @@ std::unique_ptr<EmitterModule> ModuleSerializer::deserialize(ByteBuffer& buffer,
                 buffer >> properties[index];
             }
 
-            module = std::unique_ptr<EmitterModule>(new CustomMaterialModule(properties[0].release(),
-                                                                             properties[1].release(),
-                                                                             properties[2].release(),
-                                                                             properties[3].release()));
+            module = std::make_unique<CustomMaterialModule>(std::move(properties[0]), std::move(properties[1]), std::move(properties[2]), std::move(properties[3]));
             break;
         }
-        case EmitterModuleType::CustomMaterialOverLife: {
+        case EmitterModuleType::CustomMaterialByLife: {
             std::array<std::unique_ptr<Distribution<float>>, 4> properties {};
             size_t count {};
             buffer >> count;
@@ -180,16 +180,19 @@ std::unique_ptr<EmitterModule> ModuleSerializer::deserialize(ByteBuffer& buffer,
                 buffer >> properties[index];
             }
 
-            module = std::unique_ptr<EmitterModule>(new CustomMaterialModuleOverLife(properties[0].release(),
-                                                                                     properties[1].release(),
-                                                                                     properties[2].release(),
-                                                                                     properties[3].release()));
+            module = std::make_unique<CustomMaterialModuleByLife>(std::move(properties[0]), std::move(properties[1]), std::move(properties[2]), std::move(properties[3]));
             break;
         }
         case EmitterModuleType::Lifetime: {
             std::unique_ptr<Distribution<float>> distr;
             buffer >> distr;
-            module = std::unique_ptr<EmitterModule>(new Lifetime(distr.release()));
+            module = std::make_unique<Lifetime>(std::move(distr));
+            break;
+        }
+        case EmitterModuleType::VelocityByLife: {
+            std::unique_ptr<Distribution<glm::vec3>> distr;
+            buffer >> distr;
+            module = std::make_unique<VelocityByLife>(std::move(distr));
             break;
         }
     }

@@ -54,6 +54,5 @@ void main()
 
     #ifdef MATERIAL_BLENDMASK
         if (mat_blend_mask == 0.0) discard;
-        fragment_color.a *= mat_blend_mask;
     #endif
 }

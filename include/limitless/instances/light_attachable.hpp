@@ -29,6 +29,7 @@ namespace LimitlessEngine {
     protected:
         void setPosition(const glm::vec3& position) noexcept;
         void setRotation(const glm::quat& rotation) noexcept;
+        void rotateBy(const glm::quat& rotation) noexcept;
 
         explicit LightAttachable(Lighting* _lighting) noexcept;
         LightAttachable() = default;

@@ -43,9 +43,18 @@ AbstractInstance& AbstractInstance::setRotation(const glm::quat& _rotation) noex
     EffectAttachable::setRotation(_rotation);
     LightAttachable::setRotation(_rotation);
 
+    rotation = _rotation;
+    return *this;
+}
+
+AbstractInstance& AbstractInstance::rotateBy(const glm::quat& _rotation) noexcept {
+    EffectAttachable::rotateBy(_rotation);
+    LightAttachable::rotateBy(_rotation);
+
     rotation = _rotation * rotation;
     return *this;
 }
+
 
 AbstractInstance& AbstractInstance::setScale(const glm::vec3& _scale) noexcept {
     scale = _scale;
@@ -64,11 +73,20 @@ void AbstractInstance::update() {
 }
 
 AbstractInstance::AbstractInstance(Lighting* _lighting, ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept
-    : EffectAttachable{}, LightAttachable{_lighting}, id{next_id++}, shader_type{_shader_type}, position{_position}, rotation{_rotation}, scale{_scale} {
-
+    : EffectAttachable{}
+    , LightAttachable{_lighting}
+    , id{next_id++}
+    , shader_type{_shader_type}
+    , position{_position}
+    , rotation{_rotation}
+    , scale{_scale} {
 }
 
 AbstractInstance::AbstractInstance(ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept
-    : EffectAttachable{}, id{next_id++}, shader_type{_shader_type}, position{_position}, rotation{_rotation}, scale{_scale} {
-
+    : EffectAttachable{}
+    , id{next_id++}
+    , shader_type{_shader_type}
+    , position{_position}
+    , rotation{_rotation}
+    , scale{_scale} {
 }

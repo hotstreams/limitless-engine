@@ -25,7 +25,7 @@ namespace LimitlessEngine {
         bool shadow_cast {true};
 
         glm::vec3 position;
-        glm::quat rotation {};
+        glm::quat rotation {1.0f, 0.0f, 0.0f, 0.0f};
         glm::vec3 scale;
         glm::mat4 model_matrix {1.0f};
 
@@ -71,6 +71,7 @@ namespace LimitlessEngine {
 
         virtual AbstractInstance& setPosition(const glm::vec3& position) noexcept;
         virtual AbstractInstance& setRotation(const glm::quat& rotation) noexcept;
+        virtual AbstractInstance& rotateBy(const glm::quat& rotation) noexcept;
         virtual AbstractInstance& setScale(const glm::vec3& scale) noexcept;
 
         // draws instance with no extra uniform setting

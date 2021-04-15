@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <limitless/particle_system/effect_builder.hpp>
+
 
 namespace LimitlessEngine {
     class Emitter;

@@ -29,6 +29,16 @@ EffectInstance& EffectInstance::setRotation(const glm::quat& _rotation) noexcept
     return *this;
 }
 
+EffectInstance& EffectInstance::rotateBy(const glm::quat& _rotation) noexcept {
+    AbstractInstance::rotateBy(_rotation);
+
+    for (auto& [name, emitter] : emitters) {
+        emitter->setRotation(rotation);
+    }
+
+    return *this;
+}
+
 bool EffectInstance::isDone() const noexcept {
     bool done = true;
     for (const auto& [name, emitter] : emitters) {
@@ -60,7 +70,11 @@ void EffectInstance::update() {
     }
 }
 
-void EffectInstance::draw(LimitlessEngine::Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) {
+void EffectInstance::draw([[maybe_unused]] LimitlessEngine::Context& ctx,
+                          [[maybe_unused]] const Assets& assets,
+                          [[maybe_unused]] MaterialShader shader_type,
+                          [[maybe_unused]] Blending blending,
+                          [[maybe_unused]] const UniformSetter& uniform_set) {
     // One does not simply render effect instance!
     // use EffectRenderer
 }

@@ -24,6 +24,6 @@ namespace LimitlessEngine {
         // king of debug settings
         static constexpr auto LIGHT_RADIUS {false};
         static constexpr auto COORDINATE_SYSTEM_AXES {false};
-        static constexpr auto BOUNDING_BOX {true};
+        static constexpr auto BOUNDING_BOX {false};
     };
 }
