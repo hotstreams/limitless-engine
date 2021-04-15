@@ -155,14 +155,21 @@ void LimitlessEngine::swap(CustomMaterial& lhs, CustomMaterial& rhs) noexcept {
 
     swap(static_cast<Material&>(lhs), static_cast<Material&>(rhs));
     swap(lhs.uniforms, rhs.uniforms);
+    swap(lhs.vertex_code, rhs.vertex_code);
+    swap(lhs.fragment_code, rhs.fragment_code);
+    swap(lhs.global_definitions, rhs.global_definitions);
 }
 
 CustomMaterial::CustomMaterial(const CustomMaterial& material)
-    : Material{material} {
+    : Material(material) {
     uniforms.reserve(uniforms.size());
     for (const auto& [name, uniform] : material.uniforms) {
         uniforms.emplace(name, uniform->clone());
     }
+
+    vertex_code = material.vertex_code;
+    fragment_code = material.fragment_code;
+    global_definitions = material.global_definitions;
 }
 
 CustomMaterial& CustomMaterial::operator=(CustomMaterial material) {
@@ -175,7 +182,7 @@ CustomMaterial* CustomMaterial::clone() const noexcept {
 }
 
 CustomMaterial::CustomMaterial(CustomMaterial&& rhs) noexcept
-    : CustomMaterial{} {
+    : CustomMaterial() {
     swap(*this, rhs);
 }
 
@@ -184,5 +191,8 @@ CustomMaterial& CustomMaterial::operator=(CustomMaterial&& rhs) noexcept {
     return *this;
 }
 
-CustomMaterial::CustomMaterial() noexcept : Material{} { }
+CustomMaterial::CustomMaterial() noexcept
+    : Material() {
+
+}
 

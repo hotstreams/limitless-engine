@@ -167,6 +167,7 @@ void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& m
 
         shader.replaceKey("LimitlessEngine::CustomMaterialVertexCode", custom.getVertexCode());
         shader.replaceKey("LimitlessEngine::CustomMaterialFragmentCode", custom.getFragmentCode());
+        shader.replaceKey("LimitlessEngine::CustomMaterialGlobalDefinitions", custom.getGlobalDefinitions());
         shader.replaceKey("LimitlessEngine::CustomMaterialScalarUniforms", getCustomMaterialScalarUniforms(custom));
         shader.replaceKey("LimitlessEngine::CustomMaterialSamplerUniforms", getCustomMaterialSamplerUniforms(custom));
     }

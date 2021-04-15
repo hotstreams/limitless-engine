@@ -4,10 +4,9 @@ LimitlessEngine::Settings
 LimitlessEngine::MaterialType
 LimitlessEngine::ModelType
 
+#include "glsl/scene.glsl"
 #include "glsl/input_data_fs.glsl"
 #include "glsl/material.glsl"
-
-#include "glsl/scene.glsl"
 
 #ifdef MATERIAL_LIT
     #include "glsl/scene_lighting.glsl"
