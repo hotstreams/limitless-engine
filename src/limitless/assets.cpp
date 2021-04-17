@@ -43,5 +43,5 @@ void Assets::load(Context& context, const RenderSettings& settings) {
 }
 
 std::filesystem::path Assets::getShaderDir() const noexcept {
-	return base_dir/"shaders";
+	return base_dir/"../shaders";
 }
