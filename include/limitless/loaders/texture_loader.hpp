@@ -11,6 +11,7 @@ namespace Limitless {
     enum class TextureLoaderFlag {
         TopLeftOrigin
     };
+
     using TextureLoaderFlags = std::set<TextureLoaderFlag>;
 
     class TextureLoader final {
@@ -20,7 +21,7 @@ namespace Limitless {
         explicit TextureLoader(Assets& _assets) noexcept;
         ~TextureLoader() = default;
 
-        std::shared_ptr<Texture> load(const fs::path& path, const TextureLoaderFlags& flags = {});
+        std::shared_ptr<Texture> load(const fs::path& path, const TextureLoaderFlags& flags = {}) const;
         std::shared_ptr<Texture> loadCubemap(const fs::path& path, const TextureLoaderFlags& flags = {});
 
         GLFWimage loadGLFWImage(const fs::path& path, const TextureLoaderFlags& flags = {});
