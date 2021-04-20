@@ -2,6 +2,8 @@
 
 #include <limitless/lighting/lighting.hpp>
 #include <stdexcept>
+#include <unordered_map>
+#include <memory>
 
 namespace Limitless {
     class AbstractInstance;
