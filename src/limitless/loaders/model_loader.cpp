@@ -33,6 +33,10 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
 
+	if (flags.find(ModelLoaderFlag::FlipWindingOrder) != flags.end()) {
+		scene_flags |= aiProcess_FlipWindingOrder;
+	}
+
     if (flags.find(ModelLoaderFlag::FlipUV) != flags.end()) {
         scene_flags |= aiProcess_FlipUVs;
     }
