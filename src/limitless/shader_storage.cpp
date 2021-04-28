@@ -81,7 +81,7 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
 //    }
 //}
 
-void ShaderStorage::initialize(Context& ctx, const std::filesystem::path& shader_dir) {
+void ShaderStorage::initialize(Context& ctx, const fs::path& shader_dir) {
     ShaderCompiler compiler {ctx};
 
     add("blur", compiler.compile(shader_dir / "postprocessing/blur"));

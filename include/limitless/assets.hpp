@@ -2,7 +2,7 @@
 
 #include <limitless/util/resource_container.hpp>
 #include <limitless/shader_storage.hpp>
-#include <filesystem>
+#include <limitless/util/filesystem.hpp>
 
 namespace Limitless::ms {
     class Material;
@@ -20,7 +20,7 @@ namespace Limitless {
 
     class Assets {
     private:
-	    std::filesystem::path base_dir;
+        fs::path base_dir;
     public:
         ShaderStorage shaders;
         ResourceContainer<AbstractModel> models;
@@ -31,12 +31,14 @@ namespace Limitless {
         ResourceContainer<EffectInstance> effects;
         ResourceContainer<FontAtlas> fonts;
 
-        Assets(decltype(base_dir) _base_dir);
+        Assets(fs::path _base_dir = "../assets");
         virtual ~Assets() = default;
 
         virtual void load(Context& context, const RenderSettings& settings);
         [[nodiscard]] const auto& getBaseDir() const noexcept { return base_dir; }
-        [[nodiscard]] std::filesystem::path getShaderDir() const noexcept;
+        [[nodiscard]] auto getShaderDir() const noexcept {
+            return base_dir / "../shaders";
+        }
 
         virtual void load(Context& context);
     };

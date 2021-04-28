@@ -7,7 +7,6 @@
 #include <memory>
 #include <mutex>
 #include <map>
-#include <filesystem>
 
 namespace Limitless {
     class ShaderProgram;
@@ -43,7 +42,7 @@ namespace Limitless {
         ShaderStorage() = default;
         ~ShaderStorage() = default;
 
-        void initialize(Context& ctx, const std::filesystem::path& shader_dir);
+        void initialize(Context& ctx, const fs::path& shader_dir);
 
         ShaderProgram& get(const std::string& name) const;
         ShaderProgram& get(ShaderPass material_type, ModelShader model_type, uint64_t material_index) const;
