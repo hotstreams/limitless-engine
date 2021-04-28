@@ -40,7 +40,7 @@ namespace Limitless {
 
         void replaceExtensions() noexcept;
         void replaceVersion() noexcept;
-        void replaceIncludes(const std::filesystem::path& base_dir);
+        void replaceIncludes(const fs::path& base_dir);
 
         void checkStatus() const;
 

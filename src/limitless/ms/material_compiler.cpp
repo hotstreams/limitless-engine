@@ -170,9 +170,13 @@ void MaterialCompiler::compile(const Material& material, ShaderPass pass_shader,
     };
 
     if (material.contains(Property::TessellationFactor)) {
-        *this << Shader { SHADER_DIR "tesselation" PATH_SEPARATOR "tesselation.tcs", Shader::Type::TessControl, props }
-              << Shader { SHADER_DIR "tesselation" PATH_SEPARATOR "tesselation.tes", Shader::Type::TessEval, props };
+        *this << Shader { assets.getShaderDir() / "tesselation" / "tesselation.tcs", Shader::Type::TessControl, props }
+              << Shader { assets.getShaderDir() / "tesselation" / "tesselation.tes", Shader::Type::TessEval, props };
     }
 
-    assets.shaders.add(pass_shader, model_shader, material.getShaderIndex(), compile(SHADER_DIR + SHADER_PASS_PATH.at(pass_shader), props));
+    assets.shaders.add(
+    		pass_shader,
+    		model_shader,
+    		material.getShaderIndex(),
+    		compile(assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props));
 }
