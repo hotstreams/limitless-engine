@@ -46,6 +46,8 @@ namespace Limitless {
 
         void remove(uint64_t id);
 
+        void clear();
+
         AbstractInstance& operator[](uint64_t id) noexcept;
         AbstractInstance& at(uint64_t id);
 

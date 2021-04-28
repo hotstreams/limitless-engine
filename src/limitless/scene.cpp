@@ -13,6 +13,10 @@ AbstractInstance& Scene::at(uint64_t id) { return *instances.at(id); }
 
 void Scene::remove(uint64_t id) { instances.erase(id); }
 
+void Scene::clear() {
+	instances.clear();
+}
+
 void Scene::setSkybox(std::shared_ptr<Skybox> _skybox) {
     skybox = std::move(_skybox);
 }
