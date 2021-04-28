@@ -74,7 +74,7 @@ Context::operator GLFWwindow*() const noexcept {
 
 Context::~Context() {
     if (window) {
-		unregisterState(window);
+        unregisterState(window);
         glfwDestroyWindow(window);
     }
 }

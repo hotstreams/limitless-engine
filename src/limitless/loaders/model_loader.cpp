@@ -33,9 +33,9 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
 
-	if (flags.find(ModelLoaderFlag::FlipWindingOrder) != flags.end()) {
-		scene_flags |= aiProcess_FlipWindingOrder;
-	}
+    if (flags.find(ModelLoaderFlag::FlipWindingOrder) != flags.end()) {
+        scene_flags |= aiProcess_FlipWindingOrder;
+    }
 
     if (flags.find(ModelLoaderFlag::FlipUV) != flags.end()) {
         scene_flags |= aiProcess_FlipUVs;
@@ -267,8 +267,8 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
 }
 
 std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(
-		aiMesh* mesh,
-		std::vector<Bone>& bones,
+        aiMesh* mesh,
+        std::vector<Bone>& bones,
         std::unordered_map<std::string, uint32_t>& bone_map,
         const ModelLoaderFlags& flags
 ) const {
@@ -324,10 +324,10 @@ std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(const aiSc
 }
 
 std::vector<Animation> ModelLoader::loadAnimations(
-		const aiScene* scene,
-		std::vector<Bone>& bones,
+        const aiScene* scene,
+        std::vector<Bone>& bones,
         std::unordered_map<std::string, uint32_t>& bone_map,
-		const ModelLoaderFlags& flags
+        const ModelLoaderFlags& flags
 ) const {
     std::vector<Animation> animations;
     for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {

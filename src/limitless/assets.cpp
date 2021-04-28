@@ -10,7 +10,7 @@
 
 using namespace Limitless;
 
-Assets::Assets(std::filesystem::path _base_dir)
+Assets::Assets(fs::path _base_dir)
 	: base_dir {std::move(_base_dir)}
 {
 }
@@ -40,8 +40,4 @@ void Assets::load(Context& context, const RenderSettings& settings) {
 
     models.add("plane", std::make_shared<Plane>());
     meshes.add("plane_mesh", models.at("plane")->getMeshes().at(0));
-}
-
-std::filesystem::path Assets::getShaderDir() const noexcept {
-	return base_dir/"../shaders";
 }

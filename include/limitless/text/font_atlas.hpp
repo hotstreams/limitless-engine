@@ -29,7 +29,7 @@ namespace Limitless {
     private:
         std::map<char, FontCharacter> chars;
         std::shared_ptr<Texture> texture;
-        FT_Face face {nullptr};
+        FT_Face face {};
         uint32_t font_size;
 
         static constexpr auto TAB_WIDTH_IN_SPACES = 4;
