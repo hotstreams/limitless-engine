@@ -12,7 +12,7 @@ namespace Limitless {
         texture_parameters params;
         DataType data_type;
         //todo: ?
-        [[maybe_unused]] uint8_t samples {};
+        uint8_t samples {};
         GLsizei levels {};
         glm::uvec3 size;
         Format format;
