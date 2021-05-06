@@ -4,7 +4,7 @@
 #include <limitless/core/context_state.hpp>
 #include <limitless/core/named_buffer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 BufferBuilder& BufferBuilder::setTarget(Buffer::Type _target) {
     target = _target;
@@ -83,5 +83,3 @@ std::shared_ptr<Buffer> BufferBuilder::build(std::string_view name, ContextState
     ctx.getIndexedBuffers().add(name, buffer);
     return buffer;
 }
-
-

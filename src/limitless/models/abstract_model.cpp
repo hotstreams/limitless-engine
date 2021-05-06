@@ -2,7 +2,7 @@
 
 #include <limitless/models/mesh.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 AbstractModel::AbstractModel(decltype(meshes)&& _meshes)
     : meshes { std::move(_meshes) } {

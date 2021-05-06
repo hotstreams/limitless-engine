@@ -1,5 +1,5 @@
-LimitlessEngine::GLSL_VERSION
-LimitlessEngine::Extensions
+Limitless::GLSL_VERSION
+Limitless::Extensions
 
 out vec4 FragColor;
 

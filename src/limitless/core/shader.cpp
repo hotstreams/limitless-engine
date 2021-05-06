@@ -3,16 +3,15 @@
 #include <string>
 #include <sstream>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 namespace {
-    inline constexpr auto version_key = "LimitlessEngine::GLSL_VERSION";
-    inline constexpr auto extensions_key = "LimitlessEngine::Extensions";
+    inline constexpr auto version_key = "Limitless::GLSL_VERSION";
+    inline constexpr auto extensions_key = "Limitless::Extensions";
 
     inline constexpr auto bindless_texture = "GL_ARB_bindless_texture";
     inline constexpr auto bindless_texture_define = "#define BINDLESS_TEXTURE\n";
     inline constexpr auto extension_bindless_texture = "#extension GL_ARB_bindless_texture : require\n";
-
     inline constexpr auto bindless_samplers = "layout(bindless_sampler) uniform;\n";
 
     inline constexpr auto shader_storage_buffer_object = "GL_ARB_shader_storage_buffer_object";
@@ -20,14 +19,23 @@ namespace {
 
     inline constexpr auto shading_language_420pack = "GL_ARB_shading_language_420pack";
     inline constexpr auto extension_shading_language_420pack = "#extension GL_ARB_shading_language_420pack : require\n";
+
+    inline constexpr auto explicit_uniform_location = "GL_ARB_explicit_uniform_location";
+    inline constexpr auto extension_explicit_uniform_location = "#extension GL_ARB_explicit_uniform_location : require\n";
 }
 
-Shader::Shader(fs::path _path, Type _type) : path{std::move(_path)}, type{_type} {
+Shader::Shader(fs::path _path, Type _type, const ShaderAction& action)
+    : path{std::move(_path)}
+    , type{_type} {
     source = getSource(path);
 
     replaceVersion();
     replaceExtensions();
     replaceIncludes();
+
+    if (action) {
+        action(*this);
+    }
 
     id = glCreateShader(static_cast<GLenum>(type));
 }
@@ -92,6 +100,10 @@ void Shader::replaceExtensions() noexcept {
         extensions.append(extension_shading_language_420pack);
     }
 
+    if (ContextInitializer::isExtensionSupported(explicit_uniform_location)) {
+        extensions.append(extension_explicit_uniform_location);
+    }
+
     if (ContextInitializer::isExtensionSupported(bindless_texture)) {
         extensions.append(extension_bindless_texture);
         extensions.append(bindless_texture_define);
@@ -116,7 +128,7 @@ std::string Shader::getSource(const fs::path &filepath) {
         }
 
         return file_source;
-    } catch(...) {
+    } catch (...) {
         throw shader_file_not_found(filepath.string());
     }
 }
@@ -138,8 +150,12 @@ void Shader::replaceIncludes() {
 
         std::string file_name = source.substr(beg, name_length);
 
-        const auto& include_src = getSource(SHADER_DIR + file_name);
-        source.replace(found, include.length() + 3 + name_length, include_src);
+        try {
+            const auto& include_src = getSource(SHADER_DIR + file_name);
+            source.replace(found, include.length() + 3 + name_length, include_src);
+        } catch (const shader_file_not_found& not_found) {
+            throw shader_include_not_found(not_found.what());
+        }
     }
 }
 
@@ -152,7 +168,7 @@ void Shader::compile() const {
     checkStatus();
 }
 
-void LimitlessEngine::swap(Shader &lhs, Shader &rhs) noexcept {
+void Limitless::swap(Shader &lhs, Shader &rhs) noexcept {
     using std::swap;
 
     swap(lhs.source, rhs.source);

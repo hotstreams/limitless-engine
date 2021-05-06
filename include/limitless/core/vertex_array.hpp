@@ -3,7 +3,7 @@
 #include <limitless/core/vertex.hpp>
 #include <limitless/core/context_debug.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Buffer;
 
     struct VertexAttribute {

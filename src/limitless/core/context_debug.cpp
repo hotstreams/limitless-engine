@@ -2,11 +2,11 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 #ifdef GL_DEBUG
 
-void LimitlessEngine::activate_debug() {
+void Limitless::activate_debug() {
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 
@@ -21,7 +21,7 @@ void LimitlessEngine::activate_debug() {
 	}
 }
 
-void LimitlessEngine::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, [[maybe_unused]] GLsizei length, const GLchar* message, [[maybe_unused]] const void* userParam) {
+void Limitless::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, [[maybe_unused]] GLsizei length, const GLchar* message, [[maybe_unused]] const void* userParam) {
 	if (type == GL_DEBUG_TYPE_OTHER || severity == GL_DEBUG_SEVERITY_NOTIFICATION) return;
 
 	std::cout << "---------------" << std::endl;

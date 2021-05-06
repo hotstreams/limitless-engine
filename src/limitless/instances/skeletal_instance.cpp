@@ -1,15 +1,25 @@
 #include <limitless/instances/skeletal_instance.hpp>
-#include <limitless/shader_types.hpp>
+#include <limitless/pipeline/shader_pass_types.hpp>
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader_program.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/uniform_setter.hpp>
-#include <limitless/material_system/material.hpp>
+#include <limitless/ms/material.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 constexpr auto skeletal_buffer_name = "bone_buffer";
+
+void SkeletalInstance::initializeBuffer() {
+    BufferBuilder builder;
+    bone_buffer = builder.setTarget(Buffer::Type::ShaderStorage)
+            .setUsage(Buffer::Usage::DynamicDraw)
+            .setAccess(Buffer::MutableAccess::WriteOrphaning)
+            .setData(bone_transform.data())
+            .setDataSize(bone_transform.size() * sizeof(glm::mat4))
+            .build();
+}
 
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
     : ModelInstance{std::move(m), position} {
@@ -17,29 +27,16 @@ SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
     bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
-
-    BufferBuilder builder;
-    bone_buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-                         .setUsage(Buffer::Usage::DynamicDraw)
-                         .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                         .setData(bone_transform.data())
-                         .setDataSize(bone_transform.size() * sizeof(glm::mat4))
-                         .build();
+    initializeBuffer();
 }
 
 SkeletalInstance::SkeletalInstance(Lighting *lighting, std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : ModelInstance{lighting, std::move(m), position} {
+    : ModelInstance {lighting, std::move(m), position} {
     shader_type = ModelShader::Skeletal;
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
     bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
-    BufferBuilder builder;
-    bone_buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-                         .setUsage(Buffer::Usage::DynamicDraw)
-                         .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                         .setData(bone_transform.data())
-                         .setDataSize(bone_transform.size() * sizeof(glm::mat4))
-                         .build();
+    initializeBuffer();
 }
 
 const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const noexcept {
@@ -69,58 +66,18 @@ SkeletalInstance& SkeletalInstance::setScale(const glm::vec3& scale) noexcept {
     return *this;
 }
 
-void SkeletalInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader, Blending blending, const UniformSetter& uniform_setter) {
+void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, ms::Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
-        return;
-    }
-
-    if (!shadow_cast && material_shader == MaterialShader::DirectionalShadow) {
         return;
     }
 
     calculateModelMatrix();
 
+    bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
+
+    // iterates over all meshes
     for (auto& [name, mesh] : meshes) {
-        if (mesh.isHidden()) {
-            continue;
-        }
-
-        // iterates over all material layers
-        auto first_opaque {true};
-        for (const auto& [layer, material] : mesh.getMaterial()) {
-            // following blending order
-            if (material->getBlending() == blending) {
-                // sets blending mode dependent on layers count
-                if (blending == Blending::Opaque && mesh.getMaterial().count() > 1 && !first_opaque) {
-                    setBlendingMode(Blending::OpaqueHalf);
-                } else {
-                    setBlendingMode(blending);
-                    if (blending == Blending::Opaque) first_opaque = false;
-                }
-
-                if (material->getTwoSided()) {
-                    ctx.disable(Capabilities::CullFace);
-                } else {
-                    ctx.enable(Capabilities::CullFace);
-                }
-
-                // gets required shader from storage
-                auto& shader = assets.shaders.get(material_shader, shader_type, material->getShaderIndex());
-
-                // updates model/material uniforms
-                shader << *material
-                       << UniformValue{"model", model_matrix};
-
-                // sets custom pass-dependent uniforms
-                uniform_setter(shader);
-
-                bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, skeletal_buffer_name));
-
-                shader.use();
-
-                mesh.draw();
-            }
-        }
+        mesh.draw(ctx, assets, pass, shader_type, model_matrix, blending, uniform_setter);
     }
 
     bone_buffer->fence();
@@ -128,7 +85,6 @@ void SkeletalInstance::draw(Context& ctx, const Assets& assets, MaterialShader m
 
 SkeletalInstance& SkeletalInstance::play(const std::string& name) {
     const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
-
     const auto& animations = skeletal.getAnimations();
 
     const auto found = std::find_if(animations.begin(), animations.end(), [&] (const auto& anim) { return name == anim.name; });
@@ -156,8 +112,8 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
-void SkeletalInstance::update() {
-    AbstractInstance::update();
+void SkeletalInstance::update(Context& context, Camera& camera) {
+    AbstractInstance::update(context, camera);
 
     if (animation == nullptr || paused) {
         return;
@@ -213,7 +169,6 @@ SkeletalInstance* SkeletalInstance::clone() noexcept {
 }
 
 void SkeletalInstance::calculateBoundingBox() noexcept {
-//    ModelInstance::calculateBoundingBox();
-    bounding_box = {};
-    //TODO:
+    ModelInstance::calculateBoundingBox();
+//    bounding_box = {};
 }

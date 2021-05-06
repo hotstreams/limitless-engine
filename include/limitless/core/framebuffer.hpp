@@ -4,7 +4,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Texture;
 
     class RenderTarget {
@@ -13,6 +13,10 @@ namespace LimitlessEngine {
     public:
         RenderTarget() = default;
         virtual ~RenderTarget() = default;
+
+        virtual void unbind() noexcept = 0;
+        virtual void bind() noexcept = 0;
+        virtual void clear() = 0;
     };
 
     enum class FramebufferAttachment {
@@ -62,15 +66,25 @@ namespace LimitlessEngine {
         void drawBuffers(const std::vector<FramebufferAttachment>& a) noexcept;
         void drawBuffer(FramebufferAttachment a) noexcept;
         void readBuffer(FramebufferAttachment a) noexcept;
-        void unbind() noexcept;
-        void bind() noexcept;
-        void clear() noexcept;
+        void unbind() noexcept override;
+        void bind() noexcept override;
+        void clear() noexcept override;
         void checkStatus();
 
         Framebuffer& operator<<(const TextureAttachment &attachment) noexcept;
 
         void onFramebufferChange(glm::uvec2 size) override;
-
-        static void bindDefault() noexcept;
     };
+
+    class DefaultFramebuffer : public RenderTarget {
+    public:
+        DefaultFramebuffer() = default;
+        ~DefaultFramebuffer() override = default;
+
+        void unbind() noexcept override;
+        void bind() noexcept override;
+        void clear() override;
+    };
+
+    inline DefaultFramebuffer default_framebuffer;
 }

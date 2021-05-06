@@ -2,11 +2,17 @@
 
 #include <limitless/core/indexed_buffer.hpp>
 #include <vector>
+#include <limitless/shader_storage.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless::ms {
+    class Material;
+    class MaterialCompiler;
+    class MaterialBuilder;
+}
+
+namespace Limitless {
     template<typename T> class UniformValue;
     class UniformSampler;
-    class Material;
     class Uniform;
     class ContextState;
 
@@ -37,9 +43,9 @@ namespace LimitlessEngine {
 
         template<typename T> friend class UniformValue;
         friend class UniformSampler;
-        friend class MaterialCompiler;
+        friend class ms::MaterialCompiler;
         friend class ShaderCompiler;
-        friend class MaterialBuilder;
+        friend class ms::MaterialBuilder;
         friend void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept;
     public:
         ~ShaderProgram();
@@ -57,7 +63,7 @@ namespace LimitlessEngine {
         template<typename T>
         ShaderProgram& operator<<(const UniformValue<T>& uniform) noexcept;
         ShaderProgram& operator<<(const UniformSampler& uniform) noexcept;
-        ShaderProgram& operator<<(const Material& material);
+        ShaderProgram& operator<<(const ms::Material& material);
     };
 
     void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept;

@@ -2,12 +2,14 @@
 
 #include <limitless/models/abstract_model.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless::ms {
     class Material;
+}
 
+namespace Limitless {
     class Model : public AbstractModel {
     protected:
-        std::vector<std::shared_ptr<Material>> materials;
+        std::vector<std::shared_ptr<ms::Material>> materials;
     public:
         Model(decltype(meshes)&& mesh, decltype(materials)&& materials);
         ~Model() override = default;

@@ -4,13 +4,14 @@
 #include <fstream>
 
 #include <limitless/util/bytebuffer.hpp>
-#include <limitless/material_system/material.hpp>
+#include <limitless/ms/material.hpp>
 #include <limitless/serialization/material_serializer.hpp>
 #include <limitless/loaders/asset_loader.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
+using namespace Limitless::ms;
 
-std::shared_ptr<Material> MaterialLoader::load(Context& context, Assets& assets, const fs::path& _path) {
+std::shared_ptr<ms::Material> MaterialLoader::load(Context& context, Assets& assets, const fs::path& _path) {
     auto path = convertPathSeparators(_path);
     std::ifstream stream(path, std::ios::binary | std::ios::ate);
 
@@ -20,12 +21,12 @@ std::shared_ptr<Material> MaterialLoader::load(Context& context, Assets& assets,
     stream.seekg(0, std::ios::beg);
     stream.read(buffer.cdata(), buffer.size());
 
-    std::shared_ptr<Material> material;
-    buffer >> AssetDeserializer<std::shared_ptr<Material>>{context, assets, material};
+    std::shared_ptr<ms::Material> material;
+    buffer >> AssetDeserializer<std::shared_ptr<ms::Material>>{context, assets, material};
     return material;
 }
 
-void MaterialLoader::save(const fs::path& _path, const std::shared_ptr<Material>& asset) {
+void MaterialLoader::save(const fs::path& _path, const std::shared_ptr<ms::Material>& asset) {
     auto path = convertPathSeparators(_path);
     std::ofstream stream(path, std::ios::binary);
 

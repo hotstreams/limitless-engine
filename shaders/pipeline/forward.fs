@@ -1,11 +1,28 @@
-LimitlessEngine::GLSL_VERSION
-LimitlessEngine::Extensions
-LimitlessEngine::Settings
-LimitlessEngine::MaterialType
-LimitlessEngine::ModelType
+Limitless::GLSL_VERSION
+Limitless::Extensions
+Limitless::Settings
+Limitless::MaterialType
+Limitless::ModelType
+
+in vertex_data {
+    #ifdef MATERIAL_LIT
+        vec3 world_position;
+
+        #ifdef MATERIAL_NORMAL
+            #ifdef NORMAL_MAPPING
+                mat3 TBN;
+            #else
+                vec3 normal;
+            #endif
+        #else
+            vec3 normal;
+        #endif
+    #endif
+
+    vec2 uv;
+} in_data;
 
 #include "glsl/scene.glsl"
-#include "glsl/input_data_fs.glsl"
 #include "glsl/material.glsl"
 
 #ifdef MATERIAL_LIT
@@ -17,12 +34,10 @@ out vec4 color;
 
 void main()
 {
-    vec2 uv = fs_data.uv;
+    vec2 uv = in_data.uv;
     #include "glsl/material_variables.glsl"
 
-    #ifdef CUSTOM_MATERIAL
-        LimitlessEngine::CustomMaterialFragmentCode
-    #endif
+    Limitless::CustomMaterialFragmentCode
 
     // computing final color
     vec4 fragment_color = vec4(1.0);

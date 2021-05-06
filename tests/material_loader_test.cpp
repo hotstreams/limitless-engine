@@ -2,14 +2,14 @@
 
 #include <core/context.hpp>
 #include <limitless/loaders/material_loader.hpp>
-#include <material_system/material_builder.hpp>
+#include <ms/material_builder.hpp>
 #include <iostream>
 #include <limitless/loaders/asset_loader.hpp>
 #include <particle_system/effect_builder.hpp>
 #include <limitless/loaders/effect_loader.hpp>
 
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 class FakeBackend {
 private:

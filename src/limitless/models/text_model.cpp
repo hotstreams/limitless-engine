@@ -2,7 +2,7 @@
 
 #include <limitless/core/buffer_builder.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 TextModel::TextModel(std::vector<TextVertex>&& _vertices)
     : vertices {_vertices} {

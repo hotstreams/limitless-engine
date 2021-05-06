@@ -1,18 +1,15 @@
 #include <limitless/instances/light_attachable.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 LightAttachable::LightAttachable(Lighting* _lighting) noexcept
-    : lighting{_lighting} {
+    : lighting {_lighting} {
 }
 
 LightAttachable::~LightAttachable() {
     for (const auto& [id, offset] : point_lights) {
         lighting->point_lights.erase(id);
     }
-
-//    for (const auto& [id, offset] : spot_lights)
-//        lighting->spot_lights.erase(id);
 }
 
 void LightAttachable::setPosition(const glm::vec3& position) noexcept {

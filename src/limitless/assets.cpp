@@ -1,25 +1,25 @@
 #include <limitless/assets.hpp>
 
-#include <limitless/material_system/material_builder.hpp>
-#include <limitless/skybox.hpp>
+#include <limitless/ms/material_builder.hpp>
+#include <limitless/skybox/skybox.hpp>
 
 #include <limitless/models/sphere.hpp>
 #include <limitless/models/quad.hpp>
 #include <limitless/models/cube.hpp>
 #include <limitless/models/plane.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 void Assets::load(Context& context) {
     // engine-required assets
     shaders.initialize(context);
 
     // used in render as light radius material
-    MaterialBuilder builder {context, *this};
-    builder.create("default").add(PropertyType::Color, {0.0f, 0.0f, 0.0f, 1.0f}).build();
-    builder.create("red").add(PropertyType::Color, {1.0f, 0.0f, 0.0f, 1.0f}).build();
-    builder.create("blue").add(PropertyType::Color, {0.0f, 0.0f, 1.0f, 1.0f}).build();
-    builder.create("green").add(PropertyType::Color, {0.0f, 1.0f, 0.0f, 1.0f}).build();
+    ms::MaterialBuilder builder {context, *this};
+    builder.setName("default").add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).build();
+    builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).build();
+    builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).build();
+    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).build();
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(100, 100));

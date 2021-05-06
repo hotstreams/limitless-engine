@@ -1,7 +1,7 @@
 #include <limitless/core/bindless_texture.hpp>
 #include <limitless/core/context_state.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 BindlessTexture::BindlessTexture(ExtensionTexture* texture)
     : texture(texture) {

@@ -3,7 +3,7 @@
 #include <limitless/core/context_initializer.hpp>
 #include <algorithm>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 NamedTexture::NamedTexture(GLenum _target) noexcept : target{_target} {
     glCreateTextures(target, 1, &id);

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <limitless/core/framebuffer.hpp>
-#include <limitless/render_settings.hpp>
+#include <limitless/pipeline/render_settings.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct DirectionalLight;
+    class AbstractInstance;
     class ShaderProgram;
     class Renderer;
     class Camera;
@@ -21,6 +22,8 @@ namespace LimitlessEngine {
         float ratio {};
     };
 
+    using Instances = std::vector<std::reference_wrapper<AbstractInstance>>;
+
     class CascadeShadows final {
     private:
         static constexpr glm::uvec2 SHADOW_RESOLUTION = RenderSettings::DIRECTIONAL_SHADOW_RESOLUTION;
@@ -34,13 +37,13 @@ namespace LimitlessEngine {
         std::vector<glm::mat4> light_space;
 
         void initBuffers(Context& context);
-        void updateFrustums(Context& ctx, Camera& camera);
-        void updateLightMatrices(DirectionalLight& light);
+        void updateFrustums(Context& ctx, const Camera& camera);
+        void updateLightMatrices(const DirectionalLight& light);
     public:
         explicit CascadeShadows(Context& context);
         ~CascadeShadows() = default;
 
-        void castShadows(Renderer& render, const Assets& assets, Scene& scene, Context& ctx, Camera& camera);
+        void draw(Instances& instances, const DirectionalLight& light, Context& ctx, const Assets& assets, const Camera& camera);
         void setUniform(ShaderProgram& sh) const;
         void mapData() const;
     };

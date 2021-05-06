@@ -3,23 +3,24 @@
 #include <memory>
 #include <limitless/serialization/asset_deserializer.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Context;
     class Assets;
-    class Material;
     class ByteBuffer;
+}
+
+namespace Limitless::ms {
+    class Material;
     class MaterialBuilder;
-    class CustomMaterialBuilder;
 
     class MaterialSerializer {
     private:
-        void deserializeProperties(ByteBuffer& buffer, Context& context, Assets& assets, MaterialBuilder& builder);
-        void deserializeCustomUniforms(ByteBuffer& buffer, Context& context, Assets& assets, CustomMaterialBuilder& builder);
+        void deserialize(ByteBuffer& buffer, Context& context, Assets& assets, ms::MaterialBuilder& builder);
     public:
-        ByteBuffer serialize(const Material& material);
-        std::shared_ptr<Material> deserialize(Context& ctx, Assets& assets, ByteBuffer& buffer);
+        ByteBuffer serialize(const ms::Material& material);
+        std::shared_ptr<ms::Material> deserialize(Context& ctx, Assets& assets, ByteBuffer& buffer);
     };
 
-    ByteBuffer& operator<<(ByteBuffer& buffer, const Material& material);
-    ByteBuffer& operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<Material>>& material);
+    ByteBuffer& operator<<(ByteBuffer& buffer, const ms::Material& material);
+    ByteBuffer& operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<ms::Material>>& material);
 }

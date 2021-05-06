@@ -6,15 +6,15 @@
 #include <limitless/core/uniform_setter.hpp>
 #include <limitless/core/uniform.hpp>
 
-#include <limitless/material_system/properties.hpp>
+#include <limitless/ms/blending.hpp>
 #include <limitless/instances/abstract_instance.hpp>
 
 #include <limitless/lighting/lights.hpp>
-#include <limitless/renderer.hpp>
+#include <limitless/pipeline/renderer.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 void CascadeShadows::initBuffers(Context& context) {
     TextureBuilder builder;
@@ -55,7 +55,7 @@ CascadeShadows::CascadeShadows(Context& context) {
     light_space.reserve(SPLIT_COUNT);
 }
 
-void CascadeShadows::updateFrustums(Context& ctx, Camera& camera) {
+void CascadeShadows::updateFrustums(Context& ctx, const Camera& camera) {
     for (auto& frustum : frustums) {
         frustum.fov = glm::radians(camera.getFov());
         frustum.ratio = static_cast<float>(ctx.getSize().x) / static_cast<float>(ctx.getSize().y);
@@ -116,7 +116,7 @@ void CascadeShadows::updateFrustums(Context& ctx, Camera& camera) {
     }
 }
 
-void CascadeShadows::updateLightMatrices(DirectionalLight& light) {
+void CascadeShadows::updateLightMatrices(const DirectionalLight& light) {
     // clear matrices
     light_space.clear();
 
@@ -169,9 +169,7 @@ void CascadeShadows::updateLightMatrices(DirectionalLight& light) {
     }
 }
 
-void CascadeShadows::castShadows(Renderer& render, const Assets& assets, Scene& scene, Context& ctx, Camera& camera) {
-    auto& light = scene.lighting.directional_light;
-
+void CascadeShadows::draw(Instances& instances, const DirectionalLight& light, Context& ctx, const Assets& assets, const Camera& camera) {
     updateFrustums(ctx, camera);
     updateLightMatrices(light);
 
@@ -188,7 +186,13 @@ void CascadeShadows::castShadows(Renderer& render, const Assets& assets, Scene& 
             shader << UniformValue{"light_space", frustums[i].crop};
         };
 
-        render.dispatch(ctx, assets, scene, MaterialShader::DirectionalShadow, camera, UniformSetter{uniform_set});
+        for (const auto& instance : instances) {
+            if (!instance.get().doesCastShadow()) {
+                continue;
+            }
+
+            instance.get().draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+        }
     }
 
     fbo.unbind();

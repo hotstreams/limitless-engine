@@ -1,6 +1,6 @@
 #pragma once
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Context;
     class Scene;
     class Assets;

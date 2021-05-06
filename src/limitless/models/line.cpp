@@ -1,6 +1,6 @@
 #include <limitless/models/line.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 #include <limitless/models/mesh.hpp>
 

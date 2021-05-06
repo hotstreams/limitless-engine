@@ -1,9 +1,9 @@
 #include <limitless/lighting/lighting.hpp>
 
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/buffer_builder.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 namespace {
     struct SceneLighting {
@@ -12,41 +12,45 @@ namespace {
         uint32_t point_lights_count {};
         uint32_t dir_lights_count {};
     };
+
+    constexpr auto SCENE_LIGHTING_BUFFER_NAME = "scene_lighting";
 }
 
-Lighting::Lighting(uint64_t p_count)
-    : point_lights{p_count} {
-    BufferBuilder builder;
-    buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-           .setUsage(Buffer::Usage::DynamicDraw)
-           .setAccess(Buffer::MutableAccess::WriteOrphaning)
-           .setDataSize(sizeof(SceneLighting))
-           .build("scene_lighting", *ContextState::getState(glfwGetCurrentContext()));
-}
-
-Lighting::Lighting() {
+void Lighting::createLightBuffer() {
     BufferBuilder builder;
     buffer = builder.setTarget(Buffer::Type::ShaderStorage)
             .setUsage(Buffer::Usage::DynamicDraw)
             .setAccess(Buffer::MutableAccess::WriteOrphaning)
             .setDataSize(sizeof(SceneLighting))
-            .build("scene_lighting", *ContextState::getState(glfwGetCurrentContext()));}
+            .build(SCENE_LIGHTING_BUFFER_NAME, context);
+}
+
+Lighting::Lighting(Context& ctx)
+    : context {ctx} {
+    createLightBuffer();
+}
 
 void Lighting::updateLightBuffer() {
-    SceneLighting light_info {directional_light,
-                              ambient_color,
-                              static_cast<uint32_t>(point_lights.size()),
-                              directional_light.direction != glm::vec4{0.0f}};
+    SceneLighting light_info {
+        directional_light,
+        ambient_color,
+        static_cast<uint32_t>(point_lights.size()),
+        directional_light.direction != glm::vec4(0.0f)
+    };
+
     buffer->mapData(&light_info, sizeof(SceneLighting));
 }
 
 void Lighting::update() {
+    // maps point lights buffer
     point_lights.update();
-    updateLightBuffer();
-}
 
-namespace LimitlessEngine {
-    template Lighting::operator LightContainer<PointLight>&() noexcept;
+    // maps global scene light buffer
+    updateLightBuffer();
+
+    // binds light buffer to the context
+    // in case if there are many scenes or lighting classes
+    buffer->bindBase(context.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SCENE_LIGHTING_BUFFER_NAME));
 }
 
 template<typename T>
@@ -55,4 +59,8 @@ Lighting::operator LightContainer<T>&() noexcept {
         return point_lights;
     else
         static_assert(!std::is_same_v<T, T>, "No such light container for T type");
+}
+
+namespace Limitless {
+    template Lighting::operator LightContainer<PointLight>&() noexcept;
 }

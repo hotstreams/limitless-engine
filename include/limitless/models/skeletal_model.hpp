@@ -7,7 +7,7 @@
 
 #include <unordered_map>
 
-namespace LimitlessEngine {
+namespace Limitless {
     template <typename T>
     struct KeyFrame {
         T data;

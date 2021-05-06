@@ -1,7 +1,7 @@
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/core/texture.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 Framebuffer::Framebuffer(ContextEventObserver& _context) noexcept : Framebuffer() {
     context = &_context;
@@ -151,11 +151,26 @@ void Framebuffer::unbind() noexcept {
     }
 }
 
-void Framebuffer::bindDefault() noexcept {
+void DefaultFramebuffer::unbind() noexcept {
     if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
         if (state->framebuffer_id != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             state->framebuffer_id = 0;
         }
     }
+}
+
+void DefaultFramebuffer::bind() noexcept {
+    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (state->framebuffer_id != 0) {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            state->framebuffer_id = 0;
+        }
+    }
+}
+
+void DefaultFramebuffer::clear() {
+    bind();
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }

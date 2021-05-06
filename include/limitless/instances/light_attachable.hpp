@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Lighting;
 
     struct light_attachable_error : std::runtime_error {
@@ -24,7 +24,6 @@ namespace LimitlessEngine {
         };
 
         std::vector<LightAttachment<PointLight>> point_lights;
-        std::vector<LightAttachment<DirectionalLight>> directional_lights;
         std::vector<LightAttachment<SpotLight>> spot_lights;
     protected:
         void setPosition(const glm::vec3& position) noexcept;
@@ -34,6 +33,9 @@ namespace LimitlessEngine {
         explicit LightAttachable(Lighting* _lighting) noexcept;
         LightAttachable() = default;
         virtual ~LightAttachable();
+
+        LightAttachable(const LightAttachable&) = default;
+        LightAttachable(LightAttachable&&) noexcept = default;
     public:
         template<typename T, typename... Args>
         auto attachLight(const glm::vec3& offset, Args&&... args) {
@@ -45,8 +47,6 @@ namespace LimitlessEngine {
 
             if constexpr (std::is_same_v<T, PointLight>)
                 point_lights.emplace_back(id, offset);
-            else if constexpr (std::is_same_v<T, DirectionalLight>)
-                directional_lights.emplace_back(id, offset);
             else if constexpr (std::is_same_v<T, SpotLight>)
                 spot_lights.emplace_back(id, offset);
             else
@@ -65,8 +65,6 @@ namespace LimitlessEngine {
 
             if constexpr (std::is_same_v<T, PointLight>)
                 point_lights.emplace_back(id, offset);
-            else if constexpr (std::is_same_v<T, DirectionalLight>)
-                directional_lights.emplace_back(id, offset);
             else if constexpr (std::is_same_v<T, SpotLight>)
                 spot_lights.emplace_back(id, offset);
             else
@@ -89,8 +87,6 @@ namespace LimitlessEngine {
 
             if constexpr (std::is_same_v<T, PointLight>)
                 remove_light_attachment(point_lights);
-            else if constexpr (std::is_same_v<T, DirectionalLight>)
-                remove_light_attachment(directional_lights);
             else if constexpr (std::is_same_v<T, SpotLight>)
                 remove_light_attachment(spot_lights);
             else

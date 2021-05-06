@@ -9,7 +9,7 @@
 #include <mutex>
 #include <map>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Buffer;
 
     struct buffer_not_found : public std::runtime_error {

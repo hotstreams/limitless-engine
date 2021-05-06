@@ -43,6 +43,10 @@
     float mat_shininess = 32.0;
 #endif
 
+#ifdef MATERIAL_TESSELATION_FACTOR
+    vec2 mat_tesselation_factor = material_tesselation_factor;
+#endif
+
 #ifdef PBR
     #ifdef MATERIAL_METALLIC_TEXTURE
         float mat_metallic = texture(material_metallic_texture, uv).r;

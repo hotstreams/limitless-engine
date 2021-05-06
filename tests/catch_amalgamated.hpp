@@ -1449,7 +1449,7 @@ namespace Catch {
 
     //! By setting up its preferences, a reporter can modify Catch2's behaviour
     //! in some regards, e.g. it can request Catch2 to capture writes to
-    //! stdout/stderr during test execution, and pass them to the reporter.
+    //! stdout/stderr during generate execution, and pass them to the reporter.
     struct ReporterPreferences {
         //! Catch2 should redirect writes to stdout and pass them to the
         //! reporter
@@ -10360,7 +10360,7 @@ namespace Catch {
 
         static std::string getDescription() {
             using namespace std::string_literals;
-            return "Reports test results in the format of Automake .trs files"s;
+            return "Reports generate results in the format of Automake .trs files"s;
         }
 
         void assertionStarting( AssertionInfo const& ) override {}
@@ -10637,7 +10637,7 @@ namespace Catch {
     // Returns double formatted as %.3f (format expected on output)
     std::string getFormattedDuration( double duration );
 
-    //! Should the reporter show duration of test given current configuration?
+    //! Should the reporter show duration of generate given current configuration?
     bool shouldShowDuration( IConfig const& config, double duration );
 
     std::string serializeFilters( std::vector<std::string> const& filters );
@@ -10783,7 +10783,7 @@ namespace Catch {
 
         static std::string getDescription() {
             using namespace std::string_literals;
-            return "Reports test results in the Generic Test Data SonarQube XML format"s;
+            return "Reports generate results in the Generic Test Data SonarQube XML format"s;
         }
 
         void noMatchingTestCases(std::string const& /*spec*/) override {}
@@ -10834,7 +10834,7 @@ namespace Catch {
 
         static std::string getDescription() {
             using namespace std::string_literals;
-            return "Reports test results in TAP format, suitable for test harnesses"s;
+            return "Reports test results in TAP format, suitable for generate harnesses"s;
         }
 
         void noMatchingTestCases(std::string const& spec) override;
@@ -10878,7 +10878,7 @@ namespace Catch {
 
         static std::string getDescription() {
             using namespace std::string_literals;
-            return "Reports test results as TeamCity service messages"s;
+            return "Reports generate results as TeamCity service messages"s;
         }
 
         void skipTest( TestCaseInfo const& /* testInfo */ ) override {}

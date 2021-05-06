@@ -1,6 +1,6 @@
 #include <limitless/util/thread_pool.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 ThreadPool::ThreadPool(uint32_t pool_size) {
     for (uint32_t i = 0; i < pool_size; ++i) {

@@ -3,7 +3,7 @@
 #include <limitless/core/context_debug.hpp>
 #include <glm/glm.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     enum class QueryState {
         ActiveTexture = GL_ACTIVE_TEXTURE,
         ArrayBufferBinding = GL_ARRAY_BUFFER_BINDING,
@@ -38,11 +38,11 @@ namespace LimitlessEngine {
         ScissorTest = GL_SCISSOR_TEST,
         StencilTest = GL_STENCIL_TEST,
         TextureBinding2D = GL_TEXTURE_BINDING_2D,
-        Viewport = GL_VIEWPORT
+        Viewport = GL_VIEWPORT,
+        TessLevel = GL_MAX_TESS_GEN_LEVEL
     };
 
     class StateQuery {
-    private:
     public:
         GLint geti(QueryState name);
         GLfloat getf(QueryState name);

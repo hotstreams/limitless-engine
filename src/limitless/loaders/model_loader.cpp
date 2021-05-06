@@ -1,6 +1,6 @@
 #include <limitless/loaders/model_loader.hpp>
 
-#include <limitless/material_system/material_builder.hpp>
+#include <limitless/ms/material_builder.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/assets.hpp>
@@ -9,70 +9,13 @@
 #include <assimp/Importer.hpp>
 
 #include <glm/gtx/quaternion.hpp>
+#include <limitless/util/glm.hpp>
 
-using namespace LimitlessEngine;
-
-glm::mat4 glm::convert(const aiMatrix4x4& aimat) noexcept {
-    return glm::mat4(aimat.a1, aimat.b1, aimat.c1, aimat.d1,
-                     aimat.a2, aimat.b2, aimat.c2, aimat.d2,
-                     aimat.a3, aimat.b3, aimat.c3, aimat.d3,
-                     aimat.a4, aimat.b4, aimat.c4, aimat.d4);
-}
-
-glm::vec3 glm::convert3f(const aiVector3D& aivec) noexcept {
-    return glm::vec3(aivec.x, aivec.y, aivec.z);
-}
-
-glm::vec2 glm::convert2f(const aiVector3D& aivec) noexcept {
-    return glm::vec2(aivec.x, aivec.y);
-}
-
-glm::fquat convertQuat(const aiQuaternion& aiquat) noexcept {
-    return { aiquat.w, aiquat.x, aiquat.y, aiquat.z };
-}
-
-namespace {
-    glm::vec3 flipYZ(const glm::vec3& v) noexcept {
-        return { v.x, v.z, v.y };
-    }
-
-    glm::fquat flipYZ(const glm::fquat& q) noexcept {
-        return { -q.w, q.x, q.z, q.y };
-    }
-
-    glm::mat4 flipYZ(const glm::mat4& m) noexcept {
-        const glm::mat4 rot = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-        return rot * m;
-    }
-
-    glm::mat4 flipYZTransformationMatrix(const glm::mat4& m) noexcept {
-        glm::vec3 translation = { m[0][3], m[1][3], m[2][3] };
-        // TODO: fix for negatives
-        glm::vec3 scale = { glm::length(glm::vec3{m[0][0], m[1][0], m[2][0]}),
-                            glm::length(glm::vec3{m[0][1], m[1][1], m[2][1]}),
-                            glm::length(glm::vec3{m[0][2], m[1][2], m[2][2]}) };
-        glm::mat4 rotation = {
-            m[0][0] / scale.x, m[0][1] / scale.y, m[0][2] / scale.z, 0.0f,
-            m[1][0] / scale.x, m[1][1] / scale.y, m[1][2] / scale.z, 0.0f,
-            m[2][0] / scale.x, m[2][1] / scale.y, m[2][2] / scale.z, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f,
-        };
-
-        translation = flipYZ(translation);
-        scale = flipYZ(scale);
-        rotation = flipYZ(rotation);
-
-        return glm::translate(glm::mat4{1.0f}, translation) * rotation * glm::scale(glm::mat4{1.0f}, scale);
-    }
-}
+using namespace Limitless;
 
 ModelLoader::ModelLoader(Context& _context, Assets& _assets) noexcept
-    : context{_context}, assets {_assets} {}
+    : context{_context}
+    , assets {_assets} {}
 
 std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, const ModelLoaderFlags& flags) {
     const auto path = convertPathSeparators(_path);
@@ -90,6 +33,10 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
 
     if (flags.find(ModelLoaderFlag::FlipUV) != flags.end()) {
         scene_flags |= aiProcess_FlipUVs;
+    }
+
+    if (flags.find(ModelLoaderFlag::FlipWindingOrder) != flags.end()) {
+        scene_flags |= aiProcess_FlipWindingOrder;
     }
 
     scene = importer.ReadFile(path.string().c_str(), scene_flags);
@@ -112,7 +59,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
 
     auto animation_tree = loadAnimationTree(scene, bones, bone_map, flags);
 
-    auto global_matrix = glm::convert(scene->mRootNode->mTransformation);
+    auto global_matrix = convert(scene->mRootNode->mTransformation);
 
     if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
         global_matrix = flipYZ(global_matrix);
@@ -133,10 +80,10 @@ std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& f
     vertices.reserve(mesh->mNumVertices);
 
     for (uint32_t j = 0; j < mesh->mNumVertices; ++j) {
-        auto vertex = glm::convert3f(mesh->mVertices[j]);
-        auto normal = glm::convert3f(mesh->mNormals[j]);
-        auto tangent = glm::convert3f(mesh->mTangents[j]);
-        auto uv = glm::convert2f(mesh->mTextureCoords[0][j]);
+        auto vertex = convert3f(mesh->mVertices[j]);
+        auto normal = convert3f(mesh->mNormals[j]);
+        auto tangent = convert3f(mesh->mTangents[j]);
+        auto uv = convert2f(mesh->mTextureCoords[0][j]);
 
         if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
             vertex = flipYZ(vertex);
@@ -201,7 +148,7 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh *m, const fs::path& p
     return mesh;
 }
 
-std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders) {
+std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders) {
     aiString aname;
     mat->Get(AI_MATKEY_NAME, aname);
 
@@ -213,49 +160,49 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         return assets.materials.at(name);
     }
 
-    MaterialBuilder builder {context, assets};
+    ms::MaterialBuilder builder {context, assets};
     TextureLoader loader {assets};
 
-    builder.create(std::move(name))
-           .setShading(Shading::Lit);
+    builder.setName(std::move(name))
+           .setShading(ms::Shading::Lit);
 
     if (auto diffuse_count = mat->GetTextureCount(aiTextureType_DIFFUSE); diffuse_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_DIFFUSE, 0, &texture_name);
 
-        builder.add(PropertyType::Diffuse, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::Diffuse, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto normal_count = mat->GetTextureCount(aiTextureType_HEIGHT); normal_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_HEIGHT, 0, &texture_name);
 
-        builder.add(PropertyType::Normal, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::Normal, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto specular_count = mat->GetTextureCount(aiTextureType_SPECULAR); specular_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_SPECULAR, 0, &texture_name);
 
-        builder.add(PropertyType::Specular, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::Specular, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     float shininess = 16.0f;
     mat->Get(AI_MATKEY_SHININESS, shininess);
-    builder.add(PropertyType::Shininess, shininess);
+    builder.add(ms::Property::Shininess, shininess);
 
     if (auto opacity_mask = mat->GetTextureCount(aiTextureType_OPACITY); opacity_mask != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_OPACITY, 0, &texture_name);
 
-        builder.add(PropertyType::BlendMask, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::BlendMask, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto emissive_mask = mat->GetTextureCount(aiTextureType_EMISSIVE); emissive_mask != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_EMISSIVE, 0, &texture_name);
 
-        builder.add(PropertyType::EmissiveMask, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::EmissiveMask, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     {
@@ -264,10 +211,10 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         switch (blending) {
             case _aiBlendMode_Force32Bit:
             case aiBlendMode_Default:
-                builder.setBlending(Blending::Opaque);
+                builder.setBlending(ms::Blending::Opaque);
                 break;
             case aiBlendMode_Additive:
-                builder.setBlending(Blending::Additive);
+                builder.setBlending(ms::Blending::Additive);
                 break;
         }
     }
@@ -288,11 +235,11 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         mat->Get(AI_MATKEY_OPACITY, opacity);
 
         if (opacity != 1.0f) {
-            builder.setBlending(Blending::Translucent);
+            builder.setBlending(ms::Blending::Translucent);
         }
 
         if (color != aiColor3D{0.0f}) {
-            builder.add(PropertyType::Color, glm::vec4{color.r, color.g, color.b, opacity});
+            builder.add(ms::Property::Color, glm::vec4{color.r, color.g, color.b, opacity});
         }
     }
 
@@ -301,8 +248,8 @@ std::shared_ptr<Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::p
         mat->Get(AI_MATKEY_COLOR_EMISSIVE, color);
 
         if (color != aiColor3D{0.0f}) {
-            builder.add(PropertyType::EmissiveColor, glm::vec4{color.r, color.g, color.b, 1.0f});
-            builder.setShading(Shading::Unlit);
+            builder.add(ms::Property::EmissiveColor, glm::vec4{color.r, color.g, color.b, 1.0f});
+            builder.setShading(ms::Shading::Unlit);
         }
     }
 
@@ -318,7 +265,7 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
             std::string bone_name = mesh->mBones[j]->mName.C_Str();
 
             auto bi = bone_map.find(bone_name);
-            auto offset_mat = glm::convert(mesh->mBones[j]->mOffsetMatrix);
+            auto offset_mat = convert(mesh->mBones[j]->mOffsetMatrix);
 
             if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
                 offset_mat = flipYZ(offset_mat);
@@ -348,8 +295,8 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
     return bone_weights;
 }
 
-std::vector<std::shared_ptr<Material>> ModelLoader::loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader) {
-    std::vector<std::shared_ptr<Material>> materials;
+std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader) {
+    std::vector<std::shared_ptr<ms::Material>> materials;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
         const auto* mesh = scene->mMeshes[i];
@@ -383,7 +330,7 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
             std::vector<KeyFrame<glm::vec3>> scale_frames;
 
             for (uint32_t k = 0; k < channel->mNumPositionKeys; ++k) {
-                auto vec = glm::convert3f(channel->mPositionKeys[k].mValue);
+                auto vec = convert3f(channel->mPositionKeys[k].mValue);
 
                 if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
                     vec = flipYZ(vec);
@@ -403,7 +350,7 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
             }
 
             for (uint32_t k = 0; k < channel->mNumScalingKeys; ++k) {
-                auto vec = glm::convert3f(channel->mScalingKeys[k].mValue);
+                auto vec = convert3f(channel->mScalingKeys[k].mValue);
 
                 if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
                     vec = flipYZ(vec);
@@ -436,7 +383,7 @@ Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<
 
     std::function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
     dfs = [&] (Tree<uint32_t>& tree, const aiNode* node, int depth) {
-        bones[*tree].node_transform = glm::convert(node->mTransformation);
+        bones[*tree].node_transform = convert(node->mTransformation);
 
         if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
             bones[*tree].node_transform = flipYZTransformationMatrix(bones[*tree].node_transform);
@@ -518,7 +465,7 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
     importer.FreeScene();
 }
 
-namespace LimitlessEngine {
+namespace Limitless {
     template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
 
     template std::vector<GLubyte> ModelLoader::loadIndices<GLubyte>(aiMesh* mesh) const noexcept;

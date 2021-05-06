@@ -3,14 +3,17 @@
 #include <memory>
 #include <limitless/util/filesystem.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless::ms {
     class Material;
-    class Assets;
+}
+
+namespace Limitless {
     class Context;
+    class Assets;
 
     class MaterialLoader {
     public:
-        static std::shared_ptr<Material> load(Context& context, Assets& ctx, const fs::path& path);
-        static void save(const fs::path& path, const std::shared_ptr<Material>& asset_name);
+        static std::shared_ptr<ms::Material> load(Context& context, Assets& ctx, const fs::path& path);
+        static void save(const fs::path& path, const std::shared_ptr<ms::Material>& asset_name);
     };
 }

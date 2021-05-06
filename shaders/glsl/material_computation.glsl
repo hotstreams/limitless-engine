@@ -3,7 +3,7 @@
 */
 
 #ifdef MATERIAL_COLOR
-    fragment_color *= material_color;
+    fragment_color *= mat_color;
 #endif
 
 #ifdef MATERIAL_DIFFUSE
@@ -19,12 +19,12 @@
     #ifdef MATERIAL_NORMAL
         #ifdef NORMAL_MAPPING
             vec3 normal = mat_normal * 2.0 - 1.0;
-            normal = normalize(fs_data.TBN * normal);
+            normal = normalize(in_data.TBN * normal);
         #else
-            vec3 normal = normalize(fs_data.normal);
+            vec3 normal = normalize(in_data.normal);
         #endif
     #else
-        vec3 normal = normalize(fs_data.normal);
+        vec3 normal = normalize(in_data.normal);
     #endif
 #endif
 

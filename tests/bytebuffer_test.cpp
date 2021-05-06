@@ -2,7 +2,7 @@
 
 #include <util/bytebuffer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 TEST_CASE("bytebuffer") {
     ByteBuffer buffer;

@@ -3,7 +3,7 @@
 #include <limitless/core/buffer.hpp>
 #include <optional>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class StateBuffer : public Buffer {
     protected:
         GLuint id;

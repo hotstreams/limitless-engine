@@ -6,7 +6,7 @@
 #include <variant>
 #include <memory>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class TextureBuilder {
     private:
         static ExtensionTexture* getSupportedTexture(Texture::Type target);

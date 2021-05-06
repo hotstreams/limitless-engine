@@ -4,26 +4,47 @@
 #include <limitless/serialization/distribution_serializer.hpp>
 #include <limitless/serialization/material_serializer.hpp>
 
-#include <limitless/particle_system/effect_builder.hpp>
-#include <limitless/material_system/material.hpp>
+#include <limitless/fx/effect_builder.hpp>
+#include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
+#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/fx/emitters/sprite_emitter.hpp>
+#include <limitless/fx/emitters/mesh_emitter.hpp>
+#include <limitless/fx/emitters/beam_emitter.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
+using namespace Limitless::fx;
 
-ByteBuffer EmitterSerializer::serialize(const Emitter& emitter) {
+ByteBuffer EmitterSerializer::serialize(const AbstractEmitter& emitter) {
     ByteBuffer buffer;
 
-    buffer << emitter.type
-           << emitter.local_position
-           << emitter.local_rotation
-           << emitter.local_space
-           << emitter.spawn
-           << emitter.duration.count()
-           << emitter.modules
-           << static_cast<const SpriteEmitter&>(emitter).getMaterial();
+    buffer << emitter.getType()
+           << emitter.getLocalPosition()
+           << emitter.getLocalRotation()
+           << emitter.getLocalSpace()
+           << emitter.getSpawn()
+           << emitter.getDuration().count();
 
-    if (emitter.type == EmitterType::Mesh) {
-        buffer << static_cast<const MeshEmitter&>(emitter).getMesh()->getName();
+    switch (emitter.getType()) {
+        case AbstractEmitter::Type::Sprite: {
+            const auto& sprite_emitter = static_cast<const SpriteEmitter&>(emitter);
+            buffer << *sprite_emitter.material
+                   << sprite_emitter.modules;
+            break;
+        }
+        case AbstractEmitter::Type::Mesh: {
+            const auto& mesh_emitter = static_cast<const MeshEmitter&>(emitter);
+            buffer << *mesh_emitter.material
+                   << mesh_emitter.modules
+                   << mesh_emitter.getMesh()->getName();
+            break;
+        }
+        case AbstractEmitter::Type::Beam: {
+            const auto& beam_emitter = static_cast<const BeamEmitter&>(emitter);
+            buffer << *beam_emitter.material
+                   << beam_emitter.modules;
+            break;
+        }
     }
 
     return buffer;
@@ -31,14 +52,13 @@ ByteBuffer EmitterSerializer::serialize(const Emitter& emitter) {
 
 void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer& buffer, EffectBuilder& builder) {
     std::string name;
-    EmitterType type;
+    AbstractEmitter::Type type;
     glm::vec3 local_position;
     glm::vec3 local_rotation;
     bool local_space;
     EmitterSpawn spawn;
     float duration;
-    decltype(Emitter::modules) modules;
-    std::shared_ptr<Material> material;
+    std::shared_ptr<ms::Material> material;
 
     buffer >> name
            >> type
@@ -47,21 +67,36 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer
            >> local_space
            >> spawn
            >> duration
-           >> AssetDeserializer<decltype(modules)>{context, assets, modules}
-           >> AssetDeserializer<std::shared_ptr<Material>>{context, assets, material};
+           >> AssetDeserializer<std::shared_ptr<ms::Material>>{context, assets, material};
 
     switch (type) {
-        case EmitterType::Sprite: {
-            builder.createEmitter<SpriteEmitter>(name);
+        case AbstractEmitter::Type::Sprite: {
+            decltype(SpriteEmitter::modules) modules;
+            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
+
+            builder.createEmitter<SpriteEmitter>(name)
+                   .setModules<SpriteEmitter>(std::move(modules));
             break;
         }
-        case EmitterType::Mesh: {
-            builder.createEmitter<MeshEmitter>(name);
+        case AbstractEmitter::Type::Mesh: {
+            decltype(MeshEmitter::modules) modules;
+            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
+
+            builder.createEmitter<MeshEmitter>(name)
+                   .setModules<MeshEmitter>(std::move(modules));
 
             std::string mesh_name;
             buffer >> mesh_name;
 
             builder.setMesh(assets.meshes.at(mesh_name));
+            break;
+        }
+        case AbstractEmitter::Type::Beam: {
+            decltype(BeamEmitter::modules) modules;
+            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
+
+            builder.createEmitter<BeamEmitter>(name)
+                   .setModules<BeamEmitter>(std::move(modules));
             break;
         }
     }
@@ -71,37 +106,39 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer
             .setLocalSpace(local_space)
             .setSpawn(std::move(spawn))
             .setDuration(std::chrono::duration<float>{duration})
-            .setMaterial(material)
-            .setModules(std::move(modules));
+            .setMaterial(material);
 }
 
-ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, const EmitterSpawn& spawn) {
+ByteBuffer& Limitless::fx::operator<<(ByteBuffer& buffer, const EmitterSpawn& spawn) {
     buffer << spawn.mode
            << spawn.max_count
-           << spawn.spawn_rate
-           << spawn.loops;
+           << spawn.spawn_rate;
 
     if (spawn.mode == EmitterSpawn::Mode::Burst) {
-        buffer << spawn.burst_count;
+        buffer << spawn.burst->burst_count
+               << spawn.burst->loops
+               << spawn.burst->loops_done;
     }
 
     return buffer;
 }
 
-ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, EmitterSpawn& spawn) {
+ByteBuffer& Limitless::fx::operator>>(ByteBuffer& buffer, EmitterSpawn& spawn) {
     buffer >> spawn.mode
            >> spawn.max_count
-           >> spawn.spawn_rate
-           >> spawn.loops;
+           >> spawn.spawn_rate;
 
     if (spawn.mode == EmitterSpawn::Mode::Burst) {
-        buffer >> spawn.burst_count;
+        spawn.burst = {};
+        buffer >> spawn.burst->burst_count
+               >> spawn.burst->loops
+               >> spawn.burst->loops_done;
     }
 
     return buffer;
 }
 
-ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, const Emitter& emitter) {
+ByteBuffer& Limitless::fx::operator<<(ByteBuffer& buffer, const AbstractEmitter& emitter) {
     EmitterSerializer serializer;
     buffer << serializer.serialize(emitter);
     return buffer;

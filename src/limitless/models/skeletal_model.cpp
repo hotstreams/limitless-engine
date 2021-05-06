@@ -1,6 +1,6 @@
 #include <limitless/models/skeletal_model.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 AnimationNode::AnimationNode(decltype(positions) _positions, decltype(rotations) _rotations, decltype(scales) _scales, Bone& _bone) noexcept
     : rotations(std::move(_rotations))

@@ -1,15 +1,11 @@
 #pragma once
 
 #include <limitless/core/context_thread_pool.hpp>
+#include <limitless/models/abstract_model.hpp>
 #include <limitless/util/filesystem.hpp>
 
-#include <limitless/loaders/threaded_model_loader.hpp>
-#include <limitless/assets.hpp>
-#include <unordered_map>
-#include <memory>
-#include <stdexcept>
-#include <iterator>
-#include <mutex>
+#include <limitless/loaders/model_loader.hpp>
+#include <limitless/loaders/texture_loader.hpp>
 
 #define ASSETS_DIR "../assets/"
 
@@ -18,7 +14,9 @@
 #define EFFECT_DIR ASSETS_DIR"effects/"
 #define MODEL_DIR ASSETS_DIR"models/"
 
-namespace LimitlessEngine {
+namespace Limitless {
+    class Assets;
+
     class AssetManager final {
     private:
         using future_model = std::future<std::function<std::shared_ptr<AbstractModel>()>>;
@@ -37,11 +35,10 @@ namespace LimitlessEngine {
         Assets& assets;
     public:
         AssetManager(Context& context, Assets& assets, Context& shared, uint32_t pool_size = std::thread::hardware_concurrency());
-        //TODO: wait on loading
-        ~AssetManager() = default;
+        ~AssetManager();
 
-        void loadModel(std::string asset_name, fs::path path, bool flip_uv = false);
-        void loadTexture(std::string asset_name, fs::path path, bool bottom_left_start = true);
+        void loadModel(std::string asset_name, fs::path path, ModelLoaderFlags flags = {});
+        void loadTexture(std::string asset_name, fs::path path, TextureLoaderFlags flags = {});
 
         void loadMaterial(std::string asset_name, fs::path path);
         void loadEffect(std::string asset_name, fs::path path);

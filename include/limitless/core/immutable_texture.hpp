@@ -4,7 +4,7 @@
 #include <limitless/core/texture.hpp>
 #include <memory>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class ImmutableTexture : public Texture {
     private:
         std::unique_ptr<ExtensionTexture> texture;

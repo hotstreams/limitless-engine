@@ -1,7 +1,7 @@
 #include <limitless/core/named_buffer.hpp>
 #include <stdexcept>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 NamedBuffer::NamedBuffer(NamedBuffer&& rhs) noexcept : StateBuffer() {
     swap(*this, rhs);

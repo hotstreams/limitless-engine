@@ -1,13 +1,12 @@
 #include <limitless/core/shader_program.hpp>
 
 #include <limitless/core/context_initializer.hpp>
-#include <limitless/material_system/material.hpp>
+#include <limitless/ms/material.hpp>
 #include <limitless/core/bindless_texture.hpp>
 #include <limitless/core/texture_binder.hpp>
-#include <limitless/material_system/custom_material.hpp>
 #include <limitless/core/context.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 ShaderProgram::ShaderProgram(ContextState& ctx, GLuint id) : id{id} {
     getUniformLocations();
@@ -51,7 +50,7 @@ ShaderProgram&  ShaderProgram::operator=(ShaderProgram&& rhs) noexcept {
     return *this;
 }
 
-void LimitlessEngine::swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept {
+void Limitless::swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept {
     using std::swap;
 
     swap(lhs.id, rhs.id);
@@ -162,29 +161,27 @@ ShaderProgram& ShaderProgram::operator<<(const UniformSampler& uniform) noexcept
     return *this;
 }
 
-ShaderProgram& ShaderProgram::operator<<(const Material& material) {
+ShaderProgram& ShaderProgram::operator<<(const ms::Material& material) {
     //TODO: update before draw?
-    material.update();
+    const_cast<ms::Material&>(material).update();
 
     auto found = std::find_if(indexed_binds.begin(), indexed_binds.end(), [] (const auto& buf) { return buf.name == "material_buffer"; });
     if (found == indexed_binds.end()) {
-        throw shader_program_error{"There is no material in shader"};
+//        throw shader_program_error{"There is no material in shader"};
+          return *this;
     }
 
-    material.material_buffer->bindBase(found->bound_point);
+    material.getMaterialBuffer()->bindBase(found->bound_point);
 
-    for (const auto& [type, uniform] : material.properties) {
+    for (const auto& [type, uniform] : material.getProperties()) {
         if (uniform->getType() == UniformType::Sampler) {
             *this << static_cast<UniformSampler&>(*uniform);
         }
     }
 
-    if (material.isCustom()) {
-        const auto& custom = static_cast<const CustomMaterial&>(material);
-        for (const auto& [name, uniform] : custom.uniforms) {
-            if (uniform->getType() == UniformType::Sampler) {
-                *this << static_cast<UniformSampler&>(*uniform);
-            }
+    for (const auto& [name, uniform] : material.getUniforms()) {
+        if (uniform->getType() == UniformType::Sampler) {
+            *this << static_cast<UniformSampler&>(*uniform);
         }
     }
 
@@ -245,7 +242,7 @@ void ShaderProgram::bindTextures() const noexcept {
     }
 }
 
-namespace LimitlessEngine {
+namespace Limitless {
     template ShaderProgram& ShaderProgram::operator<<(const UniformValue<int>& uniform) noexcept;
     template ShaderProgram& ShaderProgram::operator<<(const UniformValue<float>& uniform) noexcept;
     template ShaderProgram& ShaderProgram::operator<<(const UniformValue<unsigned int>& uniform) noexcept;

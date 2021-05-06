@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <functional>
 
-namespace LimitlessEngine {
+namespace Limitless {
     template<typename T>
     struct TexParameter {
         GLenum name;

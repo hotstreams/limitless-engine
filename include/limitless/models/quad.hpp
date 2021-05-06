@@ -2,7 +2,7 @@
 
 #include <limitless/models/elementary_model.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     // uses NDC space
     class Quad : public ElementaryModel {
     public:

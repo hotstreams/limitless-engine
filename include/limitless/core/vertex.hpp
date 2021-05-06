@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct Vertex {
         glm::vec3 position;
         glm::vec2 uv;

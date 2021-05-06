@@ -930,7 +930,7 @@ namespace Catch {
     }
     void Session::libIdentify() {
         Catch::cout()
-                << std::left << std::setw(16) << "description: " << "A Catch2 test executable\n"
+                << std::left << std::setw(16) << "description: " << "A Catch2 generate executable\n"
                 << std::left << std::setw(16) << "category: " << "testframework\n"
                 << std::left << std::setw(16) << "framework: " << "Catch Test\n"
                 << std::left << std::setw(16) << "version: " << libraryVersion() << std::endl;
@@ -1135,7 +1135,7 @@ namespace Catch {
 
         std::string makeDefaultName() {
             static size_t counter = 0;
-            return "Anonymous test case " + std::to_string(++counter);
+            return "Anonymous generate case " + std::to_string(++counter);
         }
 
         StringRef extractFilenamePart(StringRef filename) {
@@ -2055,9 +2055,9 @@ namespace Catch {
 
     void IStreamingReporter::listTests(std::vector<TestCaseHandle> const& tests, IConfig const& config) {
         if (config.hasTestFilters()) {
-            Catch::cout() << "Matching test cases:\n";
+            Catch::cout() << "Matching generate cases:\n";
         } else {
-            Catch::cout() << "All available test cases:\n";
+            Catch::cout() << "All available generate cases:\n";
         }
 
         for (auto const& test : tests) {
@@ -2077,15 +2077,15 @@ namespace Catch {
         }
 
         if (!config.hasTestFilters()) {
-            Catch::cout() << pluralise(tests.size(), "test case") << '\n' << std::endl;
+            Catch::cout() << pluralise(tests.size(), "generate case") << '\n' << std::endl;
         } else {
-            Catch::cout() << pluralise(tests.size(), "matching test case") << '\n' << std::endl;
+            Catch::cout() << pluralise(tests.size(), "matching generate case") << '\n' << std::endl;
         }
     }
 
     void IStreamingReporter::listTags(std::vector<TagInfo> const& tags, IConfig const& config) {
         if (config.hasTestFilters()) {
-            Catch::cout() << "Tags for matching test cases:\n";
+            Catch::cout() << "Tags for matching generate cases:\n";
         } else {
             Catch::cout() << "All available tags:\n";
         }
@@ -2951,7 +2951,7 @@ namespace Catch {
             | Help( config.showHelp )
             | Opt( config.listTests )
                 ["-l"]["--list-tests"]
-                ( "list all/matching test cases" )
+                ( "list all/matching generate cases" )
             | Opt( config.listTags )
                 ["-t"]["--list-tags"]
                 ( "list all/matching tags" )
@@ -2987,13 +2987,13 @@ namespace Catch {
                 ( "enable warnings" )
             | Opt( [&]( bool flag ) { config.showDurations = flag ? ShowDurations::Always : ShowDurations::Never; }, "yes|no" )
                 ["-d"]["--durations"]
-                ( "show test durations" )
+                ( "show generate durations" )
             | Opt( config.minDuration, "seconds" )
                 ["-D"]["--min-duration"]
-                ( "show test durations for tests taking at least the given number of seconds" )
+                ( "show generate durations for tests taking at least the given number of seconds" )
             | Opt( loadTestNamesFromFile, "filename" )
                 ["-f"]["--input-file"]
-                ( "load test names to run from a file" )
+                ( "load generate names to run from a file" )
             | Opt( config.filenamesAsTags )
                 ["-#"]["--filenames-as-tags"]
                 ( "adds a tag for the filename" )
@@ -3008,7 +3008,7 @@ namespace Catch {
                 ( "list all reporters" )
             | Opt( setTestOrder, "decl|lex|rand" )
                 ["--order"]
-                ( "test case order (defaults to decl)" )
+                ( "generate case order (defaults to decl)" )
             | Opt( setRngSeed, "'time'|number" )
                 ["--rng-seed"]
                 ( "set a specific seed for random numbers" )
@@ -3035,9 +3035,9 @@ namespace Catch {
                 ( "perform only measurements; do not perform any analysis" )
             | Opt( config.benchmarkWarmupTime, "benchmarkWarmupTime" )
                 ["--benchmark-warmup-time"]
-                ( "amount of time in milliseconds spent on warming up each test (default: 100)" )
-            | Arg( config.testsOrTags, "test name|pattern|tags" )
-                ( "which test or tests to use" );
+                ( "amount of time in milliseconds spent on warming up each generate (default: 100)" )
+            | Arg( config.testsOrTags, "generate name|pattern|tags" )
+                ( "which generate or tests to use" );
 
         return cli;
     }
@@ -5243,7 +5243,7 @@ namespace {
         }
         }
 
-        CATCH_INTERNAL_ERROR("Unknown test order value!");
+        CATCH_INTERNAL_ERROR("Unknown generate order value!");
     }
 
     bool isThrowSafe( TestCaseHandle const& testCase, IConfig const& config ) {
@@ -6920,7 +6920,7 @@ namespace Catch {
 
     void AutomakeReporter::testCaseEnded(TestCaseStats const& _testCaseStats) {
         // Possible values to emit are PASS, XFAIL, SKIP, FAIL, XPASS and ERROR.
-        stream << ":test-result: ";
+        stream << ":generate-result: ";
         if (_testCaseStats.totals.assertions.allPassed()) {
             stream << "PASS";
         } else if (_testCaseStats.totals.assertions.allOk()) {
@@ -6933,7 +6933,7 @@ namespace Catch {
     }
 
     void AutomakeReporter::skipTest(TestCaseInfo const& testInfo) {
-        stream << ":test-result: SKIP " << testInfo.name << '\n';
+        stream << ":generate-result: SKIP " << testInfo.name << '\n';
     }
 
 } // end namespace Catch
@@ -7099,24 +7099,24 @@ void printTotals(std::ostream& out, const Totals& totals) {
             bothOrAll(totals.assertions.failed) : StringRef{};
         out <<
             "Failed " << bothOrAll(totals.testCases.failed)
-            << pluralise(totals.testCases.failed, "test case") << ", "
+            << pluralise(totals.testCases.failed, "generate case") << ", "
             "failed " << qualify_assertions_failed <<
             pluralise(totals.assertions.failed, "assertion") << '.';
     } else if (totals.assertions.total() == 0) {
         out <<
             "Passed " << bothOrAll(totals.testCases.total())
-            << pluralise(totals.testCases.total(), "test case")
+            << pluralise(totals.testCases.total(), "generate case")
             << " (no assertions).";
     } else if (totals.assertions.failed) {
         Colour colour(Colour::ResultError);
         out <<
-            "Failed " << pluralise(totals.testCases.failed, "test case") << ", "
+            "Failed " << pluralise(totals.testCases.failed, "generate case") << ", "
             "failed " << pluralise(totals.assertions.failed, "assertion") << '.';
     } else {
         Colour colour(Colour::ResultSuccess);
         out <<
             "Passed " << bothOrAll(totals.testCases.passed)
-            << pluralise(totals.testCases.passed, "test case") <<
+            << pluralise(totals.testCases.passed, "generate case") <<
             " with " << pluralise(totals.assertions.passed, "assertion") << '.';
     }
 }
@@ -7292,11 +7292,11 @@ private:
 } // anon namespace
 
         std::string CompactReporter::getDescription() {
-            return "Reports test results on a single line, suitable for IDEs";
+            return "Reports generate results on a single line, suitable for IDEs";
         }
 
         void CompactReporter::noMatchingTestCases( std::string const& spec ) {
-            stream << "No test cases matched '" << spec << '\'' << std::endl;
+            stream << "No generate cases matched '" << spec << '\'' << std::endl;
         }
 
         void CompactReporter::assertionStarting( AssertionInfo const& ) {}
@@ -7699,11 +7699,11 @@ ConsoleReporter::ConsoleReporter(ReporterConfig const& config)
 ConsoleReporter::~ConsoleReporter() = default;
 
 std::string ConsoleReporter::getDescription() {
-    return "Reports test results as plain lines of text";
+    return "Reports generate results as plain lines of text";
 }
 
 void ConsoleReporter::noMatchingTestCases(std::string const& spec) {
-    stream << "No test cases matched '" << spec << '\'' << std::endl;
+    stream << "No generate cases matched '" << spec << '\'' << std::endl;
 }
 
 void ConsoleReporter::reportInvalidArguments(std::string const&arg){
@@ -7742,7 +7742,7 @@ void ConsoleReporter::sectionEnded(SectionStats const& _sectionStats) {
         if (m_sectionStack.size() > 1)
             stream << "\nNo assertions in section";
         else
-            stream << "\nNo assertions in test case";
+            stream << "\nNo assertions in generate case";
         stream << " '" << _sectionStats.sectionInfo.name << "'\n" << std::endl;
     }
     double dur = _sectionStats.durationInSeconds;
@@ -7940,7 +7940,7 @@ void ConsoleReporter::printTotals( Totals const& totals ) {
         stream << Colour(Colour::ResultSuccess) << "All tests passed";
         stream << " ("
             << pluralise(totals.assertions.passed, "assertion") << " in "
-            << pluralise(totals.testCases.passed, "test case") << ')'
+            << pluralise(totals.testCases.passed, "generate case") << ')'
             << '\n';
     } else {
 
@@ -7958,7 +7958,7 @@ void ConsoleReporter::printTotals( Totals const& totals ) {
                           .addRow(totals.testCases.failedButOk)
                           .addRow(totals.assertions.failedButOk));
 
-        printSummaryRow("test cases", columns, 0);
+        printSummaryRow("generate cases", columns, 0);
         printSummaryRow("assertions", columns, 1);
     }
 }
@@ -8192,7 +8192,7 @@ namespace Catch {
     JunitReporter::~JunitReporter() {}
 
     std::string JunitReporter::getDescription() {
-        return "Reports test results in an XML format that looks like Ant's junitreport target";
+        return "Reports generate results in an XML format that looks like Ant's junitreport target";
     }
 
     void JunitReporter::noMatchingTestCases( std::string const& /*spec*/ ) {}
@@ -8914,7 +8914,7 @@ namespace Catch {
     TAPReporter::~TAPReporter() {}
 
     void TAPReporter::noMatchingTestCases(std::string const& spec) {
-        stream << "# No test cases matched '" << spec << "'\n";
+        stream << "# No generate cases matched '" << spec << "'\n";
     }
 
     bool TAPReporter::assertionEnded(AssertionStats const& _assertionStats) {
@@ -9045,7 +9045,7 @@ namespace Catch {
             }
 
             if (currentTestCaseInfo->okToFail()) {
-                msg << "- failure ignore as test marked as 'ok to fail'\n";
+                msg << "- failure ignore as generate marked as 'ok to fail'\n";
                 stream << "##teamcity[testIgnored"
                     << " name='" << escape(currentTestCaseInfo->name) << '\''
                     << " message='" << escape(msg.str()) << '\''
@@ -9130,7 +9130,7 @@ namespace Catch {
     XmlReporter::~XmlReporter() = default;
 
     std::string XmlReporter::getDescription() {
-        return "Reports test results as an XML document";
+        return "Reports generate results as an XML document";
     }
 
     std::string XmlReporter::getStylesheetRef() const {

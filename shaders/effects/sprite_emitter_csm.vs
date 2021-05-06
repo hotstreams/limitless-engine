@@ -1,8 +1,8 @@
-LimitlessEngine::GLSL_VERSION
-LimitlessEngine::Extensions
-LimitlessEngine::Settings
-LimitlessEngine::MaterialType
-LimitlessEngine::EmitterType
+Limitless::GLSL_VERSION
+Limitless::Extensions
+Limitless::Settings
+Limitless::MaterialType
+Limitless::EmitterType
 
 #include "glsl/material.glsl"
 #include "glsl/scene.glsl"

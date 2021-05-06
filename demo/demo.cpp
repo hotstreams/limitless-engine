@@ -2,22 +2,26 @@
 #include <limitless/loaders/texture_loader.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
-#include <limitless/renderer.hpp>
+#include <limitless/pipeline/renderer.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/instances/elementary_instance.hpp>
-#include <limitless/particle_system/effect_builder.hpp>
+#include <limitless/fx/effect_builder.hpp>
 #include <limitless/util/math.hpp>
-#include <limitless/instances/text_instance.hpp>
-#include <limitless/material_system/custom_material_builder.hpp>
 #include <limitless/serialization/effect_serializer.hpp>
 #include <limitless/loaders/effect_loader.hpp>
-#include <limitless/loaders/material_loader.hpp>
-#include <limitless/assets.hpp>
+#include <limitless/skybox/skybox.hpp>
 #include <limitless/loaders/model_loader.hpp>
+#include <limitless/text/font_atlas.hpp>
+#include <limitless/text/text_instance.hpp>
+#include <limitless/fx/emitters/beam_emitter.hpp>
+#include <limitless/fx/emitters/sprite_emitter.hpp>
+#include <limitless/instances/effect_instance.hpp>
+#include <limitless/ms/material_builder.hpp>
 #include <limitless/loaders/asset_loader.hpp>
-#include <limitless/font_atlas.hpp>
+#include <limitless/assets.hpp>
+#include <limitless/pipeline/forward.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 class Game : public MouseMoveObserver, public KeyObserver, public FramebufferObserver {
 private:
@@ -35,13 +39,18 @@ private:
     EffectInstance* effect {};
 public:
     Game()
-        : context{"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
-        , camera{window_size}
-        , render{context} {
+        : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
+        , scene {context}
+        , camera {window_size}
+        , render {std::make_unique<Forward>(context, scene)} {
         camera.setPosition({7.0f, 0.0f, 3.0f});
 
+        if (!Limitless::ContextEventObserver::checkMinimumRequirements()) {
+            throw std::runtime_error("Minimum requirements are not met!");
+        }
+
         context.makeCurrent();
-        context.setCursorMode(CursorMode::Disabled);
+        context.setCursorMode(CursorMode::Normal);
         context.setSwapInterval(1);
         context.setStickyKeys(true);
 
@@ -51,7 +60,11 @@ public:
 
         assets.load(context);
 
-        addModels();
+        TextureLoader tex_loader{assets};
+        tex_loader.load(TEXTURE_DIR "red-line.jpg");
+
+//        addModels();
+        addModelsT();
         addSpheres();
         addEffects();
 
@@ -70,6 +83,37 @@ public:
         context.unregisterObserver(static_cast<FramebufferObserver*>(this));
     }
 
+    void addModelsT() {
+        AssetManager manager {context, assets, context};
+
+        manager.loadModel("bob", ASSETS_DIR "models/boblamp/boblampclean.md5mesh");
+        manager.loadModel("backpack", ASSETS_DIR "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
+        manager.loadModel("nanosuit", ASSETS_DIR "models/nanosuit/nanosuit.obj");
+        manager.loadModel("cyborg", ASSETS_DIR "models/cyborg/cyborg.obj");
+
+//        manager.wait();
+        while (!manager) {
+            context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
+
+            // loading screen ;)
+
+            context.swapBuffers();
+        }
+        manager.delayed_job();
+
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, ASSETS_DIR "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
+
+        scene.setSkybox(assets.skyboxes.at("skybox"));
+        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f}, glm::vec3{0.4f});
+        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.1f});
+        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.35f});
+        scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
+                .setScale(glm::vec3{0.02f})
+                .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
+                .play("");
+    }
+
     void addModels() {
         ModelLoader model_loader {context, assets};
 
@@ -77,7 +121,7 @@ public:
         assets.models.add("backpack", model_loader.loadModel(ASSETS_DIR "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
         assets.models.add("nanosuit", model_loader.loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(ASSETS_DIR "models/cyborg/cyborg.obj"));
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, ASSETS_DIR "skyboxes/sky/sky.png"));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, ASSETS_DIR "skyboxes/sky/sky.png"));
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
@@ -91,49 +135,50 @@ public:
     }
 
     void addSpheres() {
-        MaterialBuilder builder {context, assets};
+        ms::MaterialBuilder builder {context, assets};
         TextureLoader tex_loader {assets};
 
         context.setWindowIcon(tex_loader.loadGLFWImage(ASSETS_DIR "icons/demo.png"));
 
-        builder.create("Color")
-                .add(PropertyType::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
-                .setShading(Shading::Lit)
+        builder.setName("Color")
+                .add(ms::Property::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
+                .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{0.0f, 0.0f, 0.0f});
 
-        builder.create("Diffuse")
-                .add(PropertyType::Diffuse, tex_loader.load(ASSETS_DIR "textures/triangle.jpg"))
-                .setShading(Shading::Lit)
+        builder.setName("Diffuse")
+                .add(ms::Property::Diffuse, tex_loader.load(ASSETS_DIR "textures/triangle.jpg"))
+                .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{ 2.0f, 0.0f, 0.0f });
 
-        builder.create("EmissiveColor")
-                .add(PropertyType::EmissiveColor, glm::vec4(3.0f, 2.3, 1.0f, 1.0f))
-                .setShading(Shading::Unlit)
+        builder.setName("EmissiveColor")
+                .add(ms::Property::EmissiveColor, glm::vec4(3.0f, 0.1f, 3.0f, 1.0f))
+                .setShading(ms::Shading::Unlit)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{ 4.0f, 0.0f, 0.0f });
 
-        builder.create("BlendMask")
-                .add(PropertyType::BlendMask, tex_loader.load(ASSETS_DIR "textures/bricks.jpg"))
-                .add(PropertyType::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
-                .setShading(Shading::Lit)
+        builder.setName("BlendMask")
+                .add(ms::Property::BlendMask, tex_loader.load(ASSETS_DIR "textures/bricks.jpg"))
+                .add(ms::Property::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
+                .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{ 6.0f, 0.0f, 0.0f });
 
-        builder.create("PBR")
-                .add(PropertyType::MetallicTexture, tex_loader.load(ASSETS_DIR "textures/rustediron2_metallic.png"))
-                .add(PropertyType::RoughnessTexture, tex_loader.load(ASSETS_DIR "textures/rustediron2_roughness.png"))
-                .add(PropertyType::Diffuse, tex_loader.load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
-                .add(PropertyType::Normal, tex_loader.load(ASSETS_DIR "textures/rustediron2_normal.png"))
-                .setShading(Shading::Lit)
+        builder.setName("PBR")
+                .add(ms::Property::MetallicTexture, tex_loader.load(ASSETS_DIR "textures/rustediron2_metallic.png"))
+                .add(ms::Property::RoughnessTexture, tex_loader.load(ASSETS_DIR "textures/rustediron2_roughness.png"))
+                .add(ms::Property::Diffuse, tex_loader.load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
+                .add(ms::Property::Normal, tex_loader.load(ASSETS_DIR "textures/rustediron2_normal.png"))
+                .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{ 8.0f, 0.0f, 0.0f });
 
-        builder.create("floor")
-                .setShading(Shading::Lit)
-                .add(PropertyType::Diffuse, tex_loader.load(ASSETS_DIR "textures/wood.jpg"))
+        builder.setName("floor")
+                .setShading(ms::Shading::Lit)
+                .add(ms::Property::Diffuse, tex_loader.load(ASSETS_DIR "textures/wood.jpg"))
+                .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("plane"), assets.materials.at("floor"), glm::vec3{3.0f, -1.0f, 0.0f})
@@ -141,10 +186,10 @@ public:
     }
 
     void addEffects() {
-        EffectBuilder builder {context, assets};
+        fx::EffectBuilder builder {context, assets};
 
         builder.create("effect1")
-                .createEmitter<SpriteEmitter>("test")
+                .createEmitter<fx::SpriteEmitter>("generate")
                 .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{-5.0f, 0.0f, -5.0f}, glm::vec3{5.0f}))
                 .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{0.0f}, glm::vec3{0.0f, 5.0f, 0.0f}))
                 .addLifetime(std::make_unique<RangeDistribution<float>>(0.2f, 0.5f))
@@ -152,7 +197,7 @@ public:
                 .addSizeByLife(std::make_unique<RangeDistribution<float>>(0.0f, 25.0f), -1.0f)
                 .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{0.0f}, glm::vec4{2.0f}))
                 .setMaterial(assets.materials.at("EmissiveColor"))
-                .setSpawnMode(EmitterSpawn::Mode::Burst)
+                .setSpawnMode(fx::EmitterSpawn::Mode::Burst)
                 .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(100))
                 .setMaxCount(100)
                 .setSpawnRate(1.0f)
@@ -160,6 +205,19 @@ public:
                 .build();
 
         effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, -5.f});
+
+
+//        MaterialBuildermat_ builder;
+
+        fx::EffectBuilder beam_builder{context, assets};
+        beam_builder.create("test_beam")
+                     .createEmitter<fx::BeamEmitter>("test")
+                     .setMaterial(assets.materials.at("EmissiveColor"))
+                     .addLifetime(std::make_unique<ConstDistribution<float>>(1.0f))
+                     .setMaxCount(1)
+                     .build();
+
+        scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{1.0f, 2.0f, 1.0f});
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -205,10 +263,10 @@ public:
         }
     }
 
+    std::chrono::steady_clock::time_point last_time = std::chrono::steady_clock::now();
     void gameLoop() {
         using namespace std::chrono;
         while (!context.shouldClose() && !done) {
-            static auto last_time = steady_clock::now();
             auto time = steady_clock::now();
             auto delta = duration_cast<duration<float>>(time - last_time).count();
             last_time = time;
@@ -218,10 +276,9 @@ public:
             render.draw(context, assets, scene, camera);
             text->draw(context, assets);
 
-            handleInput(delta);
-
             context.swapBuffers();
             context.pollEvents();
+            handleInput(delta);
         }
     }
 };

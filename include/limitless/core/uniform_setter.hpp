@@ -3,7 +3,7 @@
 #include <vector>
 #include <functional>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class ShaderProgram;
 
     class UniformSetter {

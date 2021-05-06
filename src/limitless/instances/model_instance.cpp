@@ -1,17 +1,12 @@
 #include <limitless/instances/model_instance.hpp>
 
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/context.hpp>
-#include <limitless/shader_storage.hpp>
+#include <limitless/pipeline/shader_pass_types.hpp>
 #include <limitless/models/model.hpp>
-#include <limitless/material_system/material.hpp>
-#include <limitless/core/uniform_setter.hpp>
-#include <limitless/assets.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 ModelInstance::ModelInstance(decltype(model) _model, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
-    : ModelInstance{nullptr, std::move(_model), _position, _rotation, _scale} {
+    : ModelInstance {nullptr, std::move(_model), _position, _rotation, _scale} {
 }
 
 ModelInstance::ModelInstance(Lighting* lighting, decltype(model) _model, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
@@ -31,55 +26,14 @@ ModelInstance::ModelInstance(Lighting* lighting, decltype(model) _model, const g
     }
 }
 
-void ModelInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader, Blending blending, const UniformSetter& uniform_setter) {
+void ModelInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, ms::Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }
 
-    if (!shadow_cast && material_shader == MaterialShader::DirectionalShadow) {
-        return;
-    }
-
-    // iterates over all visible meshes
+    // iterates over all meshes
     for (auto& [name, mesh] : meshes) {
-        if (mesh.isHidden()) {
-            continue;
-        }
-
-        // iterates over all material layers
-        auto first_opaque {true};
-        for (const auto& [layer, material] : mesh.getMaterial()) {
-            // following blending order
-            if (material->getBlending() == blending) {
-                // sets blending mode dependent on layers count
-                if (blending == Blending::Opaque && mesh.getMaterial().count() > 1 && !first_opaque) {
-                    setBlendingMode(Blending::OpaqueHalf);
-                } else {
-                    setBlendingMode(blending);
-                    if (blending == Blending::Opaque) first_opaque = false;
-                }
-
-                if (material->getTwoSided()) {
-                    ctx.disable(Capabilities::CullFace);
-                } else {
-                    ctx.enable(Capabilities::CullFace);
-                }
-
-                // gets required shader from storage
-                auto& shader = assets.shaders.get(material_shader, shader_type, material->getShaderIndex());
-
-                // updates model/material uniforms
-                shader << UniformValue{"model", model_matrix}
-                       << *material;
-
-                // sets custom pass-dependent uniforms
-                uniform_setter(shader);
-
-                shader.use();
-
-                mesh.draw();
-            }
-        }
+        mesh.draw(ctx, assets, pass, shader_type, model_matrix, blending, uniform_setter);
     }
 }
 

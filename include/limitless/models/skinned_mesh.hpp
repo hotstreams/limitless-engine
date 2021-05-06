@@ -2,7 +2,7 @@
 
 #include <limitless/models/indexed_mesh.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct Bone {
         std::string name;
         glm::mat4 node_transform {1.0f};

@@ -3,7 +3,7 @@
 #include <memory>
 #include <limitless/util/filesystem.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class EffectInstance;
     class Assets;
     class Context;

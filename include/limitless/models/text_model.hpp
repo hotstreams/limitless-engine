@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Buffer;
 
     class TextModel {

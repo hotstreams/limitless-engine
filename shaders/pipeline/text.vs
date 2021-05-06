@@ -1,5 +1,5 @@
-LimitlessEngine::GLSL_VERSION
-LimitlessEngine::Extensions
+Limitless::GLSL_VERSION
+Limitless::Extensions
 
 layout (location = 0) in vec2 position;
 layout (location = 1) in vec2 uv;

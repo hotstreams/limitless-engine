@@ -1,27 +1,36 @@
 #include <limitless/loaders/asset_loader.hpp>
 
+#include <limitless/loaders/threaded_model_loader.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 #include <limitless/loaders/material_loader.hpp>
 #include <limitless/loaders/effect_loader.hpp>
+#include <limitless/assets.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 AssetManager::AssetManager(Context& _context, Assets& _assets, Context& shared, uint32_t pool_size)
-    : pool{shared, pool_size}, context{_context}, assets{_assets} {}
+    : pool {shared, pool_size}
+    , context{_context}
+    , assets{_assets} {
+}
 
-void AssetManager::loadTexture(std::string asset_name, fs::path path, bool bottom_left_start) {
-    auto load_texture = [&, name = std::move(asset_name), path = std::move(path), bottom_left_start] () {
+AssetManager::~AssetManager() {
+    wait();
+}
+
+void AssetManager::loadTexture(std::string asset_name, fs::path path, TextureLoaderFlags flags) {
+    auto load_texture = [&, name = std::move(asset_name), path = std::move(path), fl = std::move(flags)] () {
         TextureLoader loader {assets};
-        assets.textures.add(name, loader.load(path, bottom_left_start));
+        assets.textures.add(name, loader.load(path, fl));
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_texture)));
 }
 
-void AssetManager::loadModel(std::string asset_name, fs::path path, bool flip_uv) {
-    auto load_model = [&, name = asset_name, path = std::move(path), flip_uv] () {
+void AssetManager::loadModel(std::string asset_name, fs::path path, ModelLoaderFlags flags) {
+    auto load_model = [&, name = asset_name, path = std::move(path), fl = std::move(flags)] () {
         ThreadedModelLoader loader {context, assets};
-        return loader.loadModel(path, flip_uv);
+        return loader.loadModel(path, fl);
     };
 
     auto addition = [&, name = std::move(asset_name)] (future_model& future) {
@@ -43,17 +52,7 @@ bool AssetManager::isDone() {
         }
     }
 
-
-
-//    return std::any_of(model_futures.begin(), model_futures.end(), [] (auto& post) { return post.future.wait_for(0ms) != std::future_status::ready; });
-
-	for (auto& [future, addition] : model_futures) {
-		if (future.wait_for(0ms) != std::future_status::ready) {
-			return false;
-		}
-	}
-
-	return true;
+    return std::all_of(model_futures.begin(), model_futures.end(), [] (auto& post) { return post.future.wait_for(0ms) == std::future_status::ready; });
 }
 
 void AssetManager::wait() {

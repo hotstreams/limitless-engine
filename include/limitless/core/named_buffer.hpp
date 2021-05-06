@@ -2,7 +2,7 @@
 
 #include <limitless/core/state_buffer.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class NamedBuffer : public StateBuffer {
     private:
         void bufferStorage(const void* data) override;

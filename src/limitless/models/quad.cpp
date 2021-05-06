@@ -1,6 +1,6 @@
 #include <limitless/models/quad.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 #include <limitless/util/tangent_space.hpp>
 #include <limitless/models/mesh.hpp>

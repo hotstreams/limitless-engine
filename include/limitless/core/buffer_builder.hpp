@@ -3,7 +3,7 @@
 #include <limitless/core/buffer.hpp>
 #include <memory>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class ContextState;
 
     class BufferBuilder {

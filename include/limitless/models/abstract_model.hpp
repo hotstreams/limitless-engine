@@ -3,7 +3,7 @@
 #include <limitless/util/bounding_box.hpp>
 #include <memory>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class AbstractMesh;
 
     class AbstractModel {

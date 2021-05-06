@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <iterator>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 //
 //GLint TextureBinder::bind(Texture& texture) noexcept {
 //    // contains [unit_index, texture_id]

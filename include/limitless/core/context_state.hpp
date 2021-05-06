@@ -8,7 +8,7 @@
 #include <mutex>
 #include <map>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct BindingPoint {
         Buffer::Type target;
         GLuint point;
@@ -134,6 +134,7 @@ namespace LimitlessEngine {
         friend class BindlessTexture;
         friend class TextureBinder;
         friend class Framebuffer;
+        friend class DefaultFramebuffer;
     public:
         virtual ~ContextState() = default;
 

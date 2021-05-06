@@ -2,7 +2,7 @@
 
 #include <limitless/core/shader_program.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 UniformSetter::UniformSetter(std::function<void(ShaderProgram&)>&& f)
     : setters {f} {

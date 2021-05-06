@@ -1,98 +1,77 @@
 #include <limitless/serialization/material_serializer.hpp>
 
-#include <limitless/material_system/custom_material_builder.hpp>
+#include <limitless/ms/material_builder.hpp>
 #include <limitless/serialization/uniform_serializer.hpp>
 #include <limitless/serialization/asset_deserializer.hpp>
 #include <limitless/util/bytebuffer.hpp>
 #include <iostream>
 
-using namespace LimitlessEngine;
+using namespace Limitless::ms;
+using namespace Limitless;
 
-void MaterialSerializer::deserializeProperties(ByteBuffer& buffer, Context& context, Assets& assets, MaterialBuilder& builder) {
-    decltype(Material::properties) properties;
+void MaterialSerializer::deserialize(ByteBuffer& buffer, Context& context, Assets& assets, MaterialBuilder& builder) {
+    std::map<Property, std::unique_ptr<Uniform>> properties;
+    std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
     Blending blending{};
     Shading shading{};
     std::string name;
+    std::string vertex_code;
+    std::string fragment_code;
+    std::string global_code;
 
     buffer >> name
            >> shading
            >> blending
-           >> AssetDeserializer<decltype(properties)>{context, assets, properties};
+           >> AssetDeserializer<decltype(properties)>{context, assets, properties}
+           >> AssetDeserializer<decltype(uniforms)>{context, assets, uniforms}
+           >> vertex_code
+           >> fragment_code
+           >> global_code;
 
-    builder .create(name)
+    builder .setName(name)
             .setShading(shading)
             .setBlending(blending)
-            .setProperties(std::move(properties));
-}
-
-void MaterialSerializer::deserializeCustomUniforms(ByteBuffer& buffer, Context& context, Assets& assets, CustomMaterialBuilder& builder) {
-    decltype(CustomMaterial::uniforms) uniforms;
-    std::string vertex_code;
-    std::string fragment_code;
-
-    buffer >> AssetDeserializer<decltype(uniforms)>{context, assets, uniforms}
-           >> vertex_code
-           >> fragment_code;
-
-    builder .setUniforms(std::move(uniforms))
-            .setVertexCode(vertex_code)
-            .setFragmentCode(fragment_code);
+            .set(std::move(properties))
+            .set(std::move(uniforms))
+            .setVertexSnippet(vertex_code)
+            .setFragmentSnippet(fragment_code)
+            .setGlobalSnippet(global_code);
 }
 
 ByteBuffer MaterialSerializer::serialize(const Material& material) {
     ByteBuffer buffer;
 
-    buffer << material.isCustom()
-           << material.name
-           << material.shading
-           << material.blending
-           << material.properties;
-
-    if (material.isCustom()) {
-        const auto& custom_material = static_cast<const CustomMaterial&>(material);
-        buffer << custom_material.uniforms
-               << custom_material.vertex_code
-               << custom_material.fragment_code;
-    }
-
-    buffer << material.model_shaders;
+    buffer << material.getName()
+           << material.getShading()
+           << material.getBlending()
+           << material.getProperties()
+           << material.getUniforms()
+           << material.getVertexSnippet()
+           << material.getFragmentSnippet()
+           << material.getGlobalSnippet()
+           << material.getModelShaders();
 
     return buffer;
 }
 
 std::shared_ptr<Material> MaterialSerializer::deserialize(Context& ctx, Assets& assets, ByteBuffer& buffer) {
-    bool isCustom{};
-    buffer >> isCustom;
+    MaterialBuilder builder {ctx, assets};
 
-    if (isCustom) {
-        CustomMaterialBuilder builder {ctx, assets};
+    deserialize(buffer, ctx, assets, builder);
 
-        deserializeProperties(buffer, ctx, assets, builder);
-        deserializeCustomUniforms(buffer, ctx, assets, builder);
+    ModelShaders compile_models;
+    buffer >> compile_models;
 
-        ModelShaders compile_models;
-        buffer >> compile_models;
-
-        return builder.build(compile_models);
-    } else {
-        MaterialBuilder builder {ctx, assets};
-
-        deserializeProperties(buffer, ctx, assets, builder);
-
-        ModelShaders compile_models;
-        buffer >> compile_models;
-
-        return builder.build(compile_models);
-    }
+    return builder.build(compile_models);
 }
 
-ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, const Material& material) {
+ByteBuffer& Limitless::ms::operator<<(ByteBuffer& buffer, const Material& material) {
     MaterialSerializer serializer;
     buffer << serializer.serialize(material);
     return buffer;
 }
 
-ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<Material>>& asset) {
+ByteBuffer& Limitless::ms::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<Material>>& asset) {
     MaterialSerializer serializer;
     auto& [context, assets, material] = asset;
     material = serializer.deserialize(context, assets, buffer);

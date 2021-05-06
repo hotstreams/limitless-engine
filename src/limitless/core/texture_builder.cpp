@@ -6,7 +6,7 @@
 #include <limitless/core/mutable_texture.hpp>
 #include <limitless/core/immutable_texture.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 ExtensionTexture* TextureBuilder::getSupportedTexture(Texture::Type target) {
     ExtensionTexture* extension_texture = ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access") ?

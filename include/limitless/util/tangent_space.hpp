@@ -3,7 +3,7 @@
 #include <limitless/core/vertex.hpp>
 #include <vector>
 
-namespace LimitlessEngine {
+namespace Limitless {
     inline void calculateTangentSpace(VertexNormalTangent& vertex0, VertexNormalTangent& vertex1, VertexNormalTangent& vertex2) noexcept {
         const auto& v0 = vertex0.position;
         const auto& v1 = vertex1.position;

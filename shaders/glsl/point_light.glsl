@@ -12,8 +12,8 @@ layout(std140) buffer point_light_buffer {
 };
 
 vec3 computePointLight(PointLight light, vec3 normal, vec3 surface_color, vec3 view_dir, float specular, float shininess) {
-    vec3 light_dir = normalize(light.position.xyz - fs_data.world_position);
-    float distance = length(light.position.xyz - fs_data.world_position);
+    vec3 light_dir = normalize(light.position.xyz - in_data.world_position);
+    float distance = length(light.position.xyz - in_data.world_position);
 
     float diffuse_factor = max(dot(normal, light_dir), 0.0);
     vec3 diffuse_light = light.color.rgb * light.color.a * diffuse_factor * surface_color;

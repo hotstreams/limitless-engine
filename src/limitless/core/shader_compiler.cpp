@@ -4,7 +4,7 @@
 #include <limitless/core/context.hpp>
 #include <limitless/core/shader_program.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 namespace {
     inline constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {
@@ -78,7 +78,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
             Shader shader { path.string() + extension.data(), type };
 
             if (action) {
-              action(shader);
+                action(shader);
             }
 
             *this << std::move(shader);
