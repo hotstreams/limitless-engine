@@ -1,0 +1,79 @@
+Limitless::GLSL_VERSION
+#extension GL_ARB_tessellation_shader : enable
+Limitless::Extensions
+Limitless::Settings
+Limitless::MaterialType
+Limitless::ModelType
+
+layout(triangles, equal_spacing, ccw) in;
+
+#include "glsl/scene.glsl"
+#include "glsl/material.glsl"
+
+in vertex_data {
+    #ifdef MATERIAL_LIT
+        vec3 world_position;
+
+        #ifdef MATERIAL_NORMAL
+            #ifdef NORMAL_MAPPING
+                mat3 TBN;
+            #else
+                vec3 normal;
+            #endif
+        #else
+            vec3 normal;
+        #endif
+    #endif
+
+    vec2 uv;
+} in_data[];
+
+out vertex_data {
+    #ifdef MATERIAL_LIT
+        vec3 world_position;
+
+        #ifdef MATERIAL_NORMAL
+            #ifdef NORMAL_MAPPING
+                mat3 TBN;
+            #else
+                vec3 normal;
+            #endif
+        #else
+            vec3 normal;
+        #endif
+    #endif
+
+    vec2 uv;
+} out_data;
+
+vec2 interpolate2D(vec2 v0, vec2 v1, vec2 v2)
+{
+    return vec2(gl_TessCoord.x) * v0 + vec2(gl_TessCoord.y) * v1 + vec2(gl_TessCoord.z) * v2;
+}
+
+vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2)
+{
+    return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
+}
+
+void main() {
+    out_data.uv = interpolate2D(in_data[0].uv, in_data[1].uv, in_data[2].uv);
+
+    #ifdef MATERIAL_LIT
+            out_data.world_position = interpolate3D(in_data[0].world_position, in_data[1].world_position, in_data[2].world_position);
+
+            #ifdef MATERIAL_NORMAL
+                #ifdef NORMAL_MAPPING
+                    //TODO
+                    out_data.TBN = in_data[gl_InvocationID].TBN;
+                #else
+                    out_data.normal = normalize(interpolate3D(in_data[0].normal, in_data[1].normal, in_data[2].normal));
+                #endif
+            #else
+                out_data.normal = normalize(interpolate3D(in_data[0].normal, in_data[1].normal, in_data[2].normal));
+
+            #endif
+        #endif
+
+    gl_Position = VP * vec4(out_data.world_position, 1.0);
+}

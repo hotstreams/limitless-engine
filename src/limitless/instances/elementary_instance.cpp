@@ -6,65 +6,35 @@
 #include <limitless/assets.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/core/uniform_setter.hpp>
-#include <limitless/material_system/material.hpp>
+#include <limitless/ms/material.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
+using namespace Limitless::ms;
 
 ElementaryInstance::ElementaryInstance(decltype(model) _model, std::shared_ptr<Material> material, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
-        : AbstractInstance{ModelShader::Model, _position, _rotation, _scale}, model{std::move(_model)}, mesh{dynamic_cast<ElementaryModel&>(*model).getMesh(), material} {
+    : AbstractInstance {ModelShader::Model, _position, _rotation, _scale}
+    , model {std::move(_model)}
+    , mesh {dynamic_cast<ElementaryModel&>(*model).getMesh(), std::move(material)} {
 }
 
 ElementaryInstance::ElementaryInstance(Lighting *lighting, decltype(model) _model, std::shared_ptr<Material> material, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale)
-        : AbstractInstance{lighting, ModelShader::Model, _position, _rotation, _scale}, model{std::move(_model)}, mesh{dynamic_cast<ElementaryModel&>(*model).getMesh(), material} {
+    : AbstractInstance {lighting, ModelShader::Model, _position, _rotation, _scale}
+    , model {std::move(_model)}
+    , mesh{dynamic_cast<ElementaryModel&>(*model).getMesh(), std::move(material)} {
 }
 
 ElementaryInstance *ElementaryInstance::clone() noexcept {
     return new ElementaryInstance(*this);
 }
 
-void ElementaryInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_type, Blending blending, const UniformSetter& uniform_setter) {
+void ElementaryInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
-        return;
-    }
-
-    if (mesh.isHidden()) {
-        return;
-    }
-
-    if (!shadow_cast && material_type == MaterialShader::DirectionalShadow) {
         return;
     }
 
     calculateModelMatrix();
 
-    auto first_opaque {true};
-    for (const auto& [layer, material] : mesh.getMaterial()) {
-        if (material->getBlending() == blending) {
-            if (blending == Blending::Opaque && mesh.getMaterial().count() > 1 && !first_opaque) {
-                setBlendingMode(Blending::OpaqueHalf);
-            } else {
-                setBlendingMode(blending);
-                if (blending == Blending::Opaque) first_opaque = false;
-            }
-
-            if (material->getTwoSided()) {
-                ctx.disable(Capabilities::CullFace);
-            } else {
-                ctx.enable(Capabilities::CullFace);
-            }
-
-            auto& shader = assets.shaders.get(material_type, shader_type, material->getShaderIndex());
-
-            shader << *material
-                   << UniformValue{"model", model_matrix};
-
-            uniform_setter(shader);
-
-            shader.use();
-
-            mesh.draw();
-        }
-    }
+    mesh.draw(ctx, assets, pass, shader_type, model_matrix, blending, uniform_setter);
 }
 
 void ElementaryInstance::calculateBoundingBox() noexcept {

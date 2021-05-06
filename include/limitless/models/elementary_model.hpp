@@ -2,7 +2,7 @@
 
 #include <limitless/models/abstract_model.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class ElementaryModel : public AbstractModel {
     protected:
         ElementaryModel();

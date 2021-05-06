@@ -4,7 +4,7 @@
 #include <core/uniform.hpp>
 #include <util/bytebuffer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 TEST_CASE("serialize UniformValue") {
     UniformSerializer serializer;

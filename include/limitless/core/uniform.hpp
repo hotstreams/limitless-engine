@@ -6,7 +6,7 @@
 #include <limitless/core/texture_visitor.hpp>
 #include <limitless/core/context_debug.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Texture;
     class ShaderProgram;
 
@@ -86,4 +86,6 @@ namespace LimitlessEngine {
     };
 
     std::string getUniformDeclaration(const Uniform& uniform) noexcept;
+    size_t getUniformSize(const Uniform& uniform);
+    size_t getUniformAlignment(const Uniform& uniform);
 }

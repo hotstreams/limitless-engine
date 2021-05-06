@@ -1,19 +1,29 @@
 #include <limitless/loaders/texture_loader.hpp>
 
+#include <limitless/core/texture_builder.hpp>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <limitless/assets.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
-std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, bool bottom_left_start) {
+TextureLoader::TextureLoader(Assets& _assets) noexcept
+    : assets {_assets} {
+}
+
+std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
     if (assets.textures.exists(path.stem().string())) {
         return assets.textures[path.stem().string()];
     }
 
-    stbi_set_flip_vertically_on_load(bottom_left_start);
+    if (flags.count(TextureLoaderFlag::TopLeftOrigin)) {
+        stbi_set_flip_vertically_on_load(false);
+    } else {
+        stbi_set_flip_vertically_on_load(true);
+    }
 
     int width = 0, height = 0, channels = 0;
     unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
@@ -70,10 +80,14 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, bool bottom_
     }
 }
 
-std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, bool bottom_left_start) {
+std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
-    stbi_set_flip_vertically_on_load(bottom_left_start);
+    if (flags.count(TextureLoaderFlag::TopLeftOrigin)) {
+        stbi_set_flip_vertically_on_load(false);
+    } else {
+        stbi_set_flip_vertically_on_load(true);
+    }
 
     constexpr std::array ext = { "_right", "_left", "_top", "_bottom", "_front", "_back" };
 
@@ -135,10 +149,14 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, bool 
     return texture;
 }
 
-GLFWimage TextureLoader::loadGLFWImage(const fs::path& _path) {
+GLFWimage TextureLoader::loadGLFWImage(const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
-    stbi_set_flip_vertically_on_load(false);
+    if (flags.count(TextureLoaderFlag::TopLeftOrigin)) {
+        stbi_set_flip_vertically_on_load(false);
+    } else {
+        stbi_set_flip_vertically_on_load(true);
+    }
 
     int width = 0, height = 0, channels = 0;
     unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);

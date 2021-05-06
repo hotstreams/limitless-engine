@@ -5,7 +5,7 @@
 
 #include <limitless/core/shader.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class ShaderProgram;
     class Context;
 

@@ -4,23 +4,7 @@
 #include <limitless/core/vertex_array.hpp>
 #include <limitless/core/buffer_builder.hpp>
 
-namespace LimitlessEngine {
-    enum class MeshDataType {
-        Static,
-        Dynamic,
-        Stream
-    };
-
-    enum class DrawMode {
-        Triangles = GL_TRIANGLES,
-        TriangleStrip = GL_TRIANGLE_STRIP,
-        TriangleStripAdj = GL_TRIANGLE_STRIP_ADJACENCY,
-        TriangleFan = GL_TRIANGLE_FAN,
-        Lines = GL_LINES,
-        LineLoop = GL_LINE_LOOP,
-        Points = GL_POINTS
-    };
-
+namespace Limitless {
     template<typename T>
     class Mesh : public AbstractMesh {
     protected:
@@ -32,7 +16,7 @@ namespace LimitlessEngine {
         DrawMode draw_mode;
         std::string name;
 
-        BoundingBox bounding_box;
+        BoundingBox bounding_box {};
     private:
         void initialize(size_t count) {
             BufferBuilder builder;
@@ -63,7 +47,7 @@ namespace LimitlessEngine {
         }
 
         void calculateBoundingBox() {
-            bounding_box = LimitlessEngine::calculateBoundingBox(vertices);
+            bounding_box = Limitless::calculateBoundingBox(vertices);
         }
     public:
         Mesh(std::vector<T>&& _vertices, std::string _name, MeshDataType _data_type, DrawMode _draw_mode)
@@ -106,6 +90,18 @@ namespace LimitlessEngine {
             vertex_buffer->fence();
         }
 
+        void draw(DrawMode mode) const noexcept override {
+            if (vertices.empty()) {
+                return;
+            }
+
+            vertex_array.bind();
+
+            glDrawArrays(static_cast<GLenum>(mode), 0, vertices.size());
+
+            vertex_buffer->fence();
+        }
+
         void draw_instanced(size_t count) const noexcept override {
             if (vertices.empty() || !count) {
                 return;
@@ -133,5 +129,6 @@ namespace LimitlessEngine {
         [[nodiscard]] const BoundingBox& getBoundingBox() noexcept override { return bounding_box; }
         [[nodiscard]] const std::string& getName() const noexcept override { return name; }
         [[nodiscard]] const auto& getVertices() const noexcept { return vertices; }
+        [[nodiscard]] DrawMode getDrawMode() const noexcept override { return draw_mode; }
     };
 }

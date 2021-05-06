@@ -1,7 +1,7 @@
 #include <limitless/core/context.hpp>
 #include <stb_image.h>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 Context::Context(std::string_view title, glm::uvec2 s, const WindowHints& hints)
     : ContextInitializer(), ContextState(), size(s) {
@@ -48,7 +48,7 @@ Context::Context(std::string_view title, glm::uvec2 s, const Context& shared, co
     registerState(window);
 }
 
-void LimitlessEngine::swap(Context& lhs, Context& rhs) noexcept {
+void Limitless::swap(Context& lhs, Context& rhs) noexcept {
     using std::swap;
 
     lhs.swapStateMap(lhs, rhs);

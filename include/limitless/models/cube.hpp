@@ -2,7 +2,7 @@
 
 #include <limitless/models/elementary_model.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Cube : public ElementaryModel {
     public:
         Cube();

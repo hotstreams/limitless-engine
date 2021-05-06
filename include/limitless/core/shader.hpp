@@ -8,10 +8,15 @@
 
 #define SHADER_DIR "../shaders/"
 
-namespace LimitlessEngine {
+namespace Limitless {
     class shader_file_not_found : public std::runtime_error {
     public:
         explicit shader_file_not_found(const std::string& error) : std::runtime_error(error) {}
+    };
+
+    class shader_include_not_found : public std::runtime_error {
+    public:
+        explicit shader_include_not_found(const std::string& error) : std::runtime_error(error) {}
     };
 
     class shader_compilation_error : public std::runtime_error {
@@ -28,10 +33,6 @@ namespace LimitlessEngine {
             Geometry = GL_GEOMETRY_SHADER,
             Fragment = GL_FRAGMENT_SHADER,
             Compute = GL_COMPUTE_SHADER
-
-            // easter egg bonus; TODO: include "GL/glext.h"
-            // Task = GL_TASK_SHADER_NV,
-            // Mesh = GL_MESH_SHADER_NV
         };
     private:
         std::string source;
@@ -49,7 +50,8 @@ namespace LimitlessEngine {
         static std::string getSource(const fs::path &filepath);
         friend void swap(Shader& lhs, Shader&rhs) noexcept;
     public:
-        Shader(fs::path path, Type type);
+        using ShaderAction = std::function<void(Shader&)>;
+        Shader(fs::path path, Type type, const ShaderAction& action = {});
         ~Shader();
 
         Shader(const Shader&) = delete;

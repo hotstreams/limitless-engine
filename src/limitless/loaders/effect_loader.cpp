@@ -3,13 +3,15 @@
 #include <ostream>
 #include <fstream>
 
+#include <limitless/serialization/effect_serializer.hpp>
+
 #include <limitless/assets.hpp>
 #include <limitless/loaders/asset_loader.hpp>
 #include <limitless/util/bytebuffer.hpp>
 #include <limitless/instances/effect_instance.hpp>
-#include <limitless/serialization/effect_serializer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless::fx;
+using namespace Limitless;
 
 std::shared_ptr<EffectInstance> EffectLoader::load(Context& context, Assets& assets, const fs::path& _path) {
     auto path = convertPathSeparators(_path);
@@ -23,7 +25,7 @@ std::shared_ptr<EffectInstance> EffectLoader::load(Context& context, Assets& ass
     stream.read(buffer.cdata(), buffer.size());
 
     std::shared_ptr<EffectInstance> effect;
-    buffer >> AssetDeserializer<std::shared_ptr<EffectInstance>>{context, assets, effect};
+    fx::operator>>(buffer, AssetDeserializer<std::shared_ptr<EffectInstance>>{context, assets, effect});
     return effect;
 }
 

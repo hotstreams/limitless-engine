@@ -1,8 +1,8 @@
-LimitlessEngine::GLSL_VERSION
-LimitlessEngine::Extensions
-LimitlessEngine::Settings
-LimitlessEngine::MaterialType
-LimitlessEngine::EmitterType
+Limitless::GLSL_VERSION
+Limitless::Extensions
+Limitless::Settings
+Limitless::MaterialType
+Limitless::EmitterType
 
 #include "glsl/material.glsl"
 #include "glsl/scene.glsl"
@@ -22,9 +22,7 @@ void main()
     mat4 model = particles[gl_InstanceID].model;
     vec4 vertex_position = vec4(position, 1.0);
 
-    #ifdef CUSTOM_MATERIAL
-        LimitlessEngine::CustomMaterialVertexCode
-    #endif
+    Limitless::CustomMaterialVertexCode
 
 	gl_Position = VP * model * vertex_position;
 

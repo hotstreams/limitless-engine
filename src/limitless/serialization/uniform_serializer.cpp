@@ -7,7 +7,7 @@
 #include <limitless/loaders/texture_loader.hpp>
 #include <limitless/assets.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 void UniformSerializer::serializeUniform(const Uniform& uniform, ByteBuffer& buffer) {
     buffer << uniform.name
@@ -158,13 +158,13 @@ std::unique_ptr<Uniform> UniformSerializer::deserialize(ByteBuffer& buffer, Asse
     return std::unique_ptr<Uniform>(uniform);
 }
 
-ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, const Uniform& uniform) {
+ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const Uniform& uniform) {
     UniformSerializer serializer;
     buffer << serializer.serialize(uniform);
     return buffer;
 }
 
-ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::unique_ptr<Uniform>>& asset) {
+ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::unique_ptr<Uniform>>& asset) {
     UniformSerializer serializer;
     auto& [context, assets, uniform] = asset;
     uniform = serializer.deserialize(buffer, assets);

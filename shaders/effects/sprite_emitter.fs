@@ -1,8 +1,8 @@
-LimitlessEngine::GLSL_VERSION
-LimitlessEngine::Extensions
-LimitlessEngine::Settings
-LimitlessEngine::MaterialType
-LimitlessEngine::EmitterType
+Limitless::GLSL_VERSION
+Limitless::Extensions
+Limitless::Settings
+Limitless::MaterialType
+Limitless::EmitterType
 
 #include "glsl/material.glsl"
 #include "glsl/scene.glsl"
@@ -50,9 +50,7 @@ void main()
 
     #include "glsl/material_variables.glsl"
 
-    #ifdef CUSTOM_MATERIAL
-        LimitlessEngine::CustomMaterialFragmentCode
-    #endif
+    Limitless::CustomMaterialFragmentCode
 
     // computing final color
     vec4 fragment_color = vec4(1.0);
@@ -61,7 +59,7 @@ void main()
     #endif
 
     #ifdef MATERIAL_COLOR
-        fragment_color *= material_color;
+        fragment_color *= mat_color;
     #endif
 
     #ifdef MATERIAL_DIFFUSE

@@ -4,7 +4,7 @@
 #include <limitless/core/context_state.hpp>
 #include <algorithm>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 StateTexture::StateTexture() noexcept {
     glGenTextures(1, &id);

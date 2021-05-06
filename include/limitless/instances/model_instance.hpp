@@ -3,7 +3,7 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/instances/mesh_instance.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class AbstractModel;
 
     class ModelInstance : public AbstractInstance {
@@ -19,16 +19,13 @@ namespace LimitlessEngine {
         ~ModelInstance() override = default;
 
         ModelInstance(const ModelInstance&) = default;
-        ModelInstance& operator=(const ModelInstance&) = default;
-
-        ModelInstance(ModelInstance&&) = default;
-        ModelInstance& operator=(ModelInstance&&) = default;
+        ModelInstance(ModelInstance&&) noexcept = default;
 
         ModelInstance* clone() noexcept override;
 
         MeshInstance& operator[](const std::string& mesh);
 
         using AbstractInstance::draw;
-        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
+        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

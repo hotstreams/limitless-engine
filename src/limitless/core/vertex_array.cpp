@@ -2,7 +2,7 @@
 #include <limitless/core/context_state.hpp>
 #include <limitless/core/buffer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 VertexArray::VertexArray(GLuint id) noexcept : id(id), next_attribute_index(0) {}
 
@@ -111,7 +111,7 @@ VertexArray &VertexArray::operator=(VertexArray&& rhs) noexcept {
     return *this;
 }
 
-void LimitlessEngine::swap(VertexArray& lhs, VertexArray& rhs) {
+void Limitless::swap(VertexArray& lhs, VertexArray& rhs) {
     using std::swap;
 
     swap(lhs.id, rhs.id);

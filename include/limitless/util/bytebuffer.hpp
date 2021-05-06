@@ -3,8 +3,9 @@
 #include <algorithm>
 #include <string>
 #include <memory>
+#include <set>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Assets;
 
     class ByteBuffer final {
@@ -39,7 +40,6 @@ namespace LimitlessEngine {
         [[nodiscard]] auto data() const noexcept { return buffer.data(); }
         [[nodiscard]] auto cdata() noexcept { return reinterpret_cast<char*>(buffer.data()); }
         void reserve(size_t size) noexcept { buffer.reserve(size); }
-
 
         template<typename Iter>
         auto insert(Iter first, Iter last) {
@@ -145,11 +145,24 @@ namespace LimitlessEngine {
             return *this;
         }
 
+        template<typename F, typename S>
+        ByteBuffer& operator<<(const std::pair<F, S>& p) {
+            *this << p.first << p.second;
+            return *this;
+        }
+
+        template<typename K>
+        ByteBuffer& operator<<(const std::set<K>& s) {
+            *this << s.size();
+            std::for_each(s.begin(), s.end(), [this](const auto& k) { *this << k; });
+            return *this;
+        }
+
         // TODO: constraints
         template<typename K, typename V, template<typename...> class M>
         ByteBuffer& operator<<(const M<K, V>& m) {
             *this << m.size();
-            std::for_each(m.begin(), m.end(), [this](const auto& p) { *this << p.first << p.second; });
+            std::for_each(m.begin(), m.end(), [this](const auto& p) { *this << p; });
             return *this;
         }
 
@@ -162,6 +175,18 @@ namespace LimitlessEngine {
                 V value{};
                 *this >> key >> value;
                 m.emplace(std::move(key), std::move(value));
+            }
+            return *this;
+        }
+
+        template<typename K>
+        ByteBuffer& operator>>(std::set<K>& s) {
+            size_t size {};
+            *this >> size;
+            for (size_t i = 0; i < size; ++i) {
+                K key {};
+                *this >> key;
+                s.emplace(std::move(key));
             }
             return *this;
         }

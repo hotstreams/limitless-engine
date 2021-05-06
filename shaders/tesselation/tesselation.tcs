@@ -1,0 +1,69 @@
+Limitless::GLSL_VERSION
+#extension GL_ARB_tessellation_shader : enable
+Limitless::Extensions
+Limitless::Settings
+Limitless::MaterialType
+Limitless::ModelType
+
+#include "glsl/material.glsl"
+
+layout (vertices = 3) out;
+
+in vertex_data {
+    #ifdef MATERIAL_LIT
+        vec3 world_position;
+
+        #ifdef MATERIAL_NORMAL
+            #ifdef NORMAL_MAPPING
+                mat3 TBN;
+            #else
+                vec3 normal;
+            #endif
+        #else
+            vec3 normal;
+        #endif
+    #endif
+
+    vec2 uv;
+} in_data[];
+
+out vertex_data {
+    #ifdef MATERIAL_LIT
+        vec3 world_position;
+
+        #ifdef MATERIAL_NORMAL
+            #ifdef NORMAL_MAPPING
+                mat3 TBN;
+            #else
+                vec3 normal;
+            #endif
+        #else
+            vec3 normal;
+        #endif
+    #endif
+
+    vec2 uv;
+} out_data[];
+
+void main() {
+    out_data[gl_InvocationID].uv = in_data[gl_InvocationID].uv;
+
+    #ifdef MATERIAL_LIT
+        out_data[gl_InvocationID].world_position = in_data[gl_InvocationID].world_position;
+
+        #ifdef MATERIAL_NORMAL
+            #ifdef NORMAL_MAPPING
+                out_data[gl_InvocationID].TBN = in_data[gl_InvocationID].TBN;
+            #else
+                out_data[gl_InvocationID].normal = in_data[gl_InvocationID].normal;
+            #endif
+        #else
+            out_data[gl_InvocationID].normal = in_data[gl_InvocationID].normal;
+        #endif
+    #endif
+
+    gl_TessLevelOuter[0] = material_tessellation_factor.x;
+    gl_TessLevelOuter[1] = material_tessellation_factor.x;
+    gl_TessLevelOuter[2] = material_tessellation_factor.x;
+    gl_TessLevelInner[0] = material_tessellation_factor.y;
+}

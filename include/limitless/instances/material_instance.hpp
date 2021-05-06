@@ -4,19 +4,27 @@
 #include <map>
 #include <vector>
 
-namespace LimitlessEngine {
+namespace Limitless::ms {
     class Material;
+}
 
-    class MaterialInstance {
+namespace Limitless {
+    class Context;
+
+    class MaterialInstance final {
     private:
         uint64_t next_id {};
-        std::shared_ptr<Material> base;
-        std::map<uint64_t, std::shared_ptr<Material>> materials;
+        std::shared_ptr<ms::Material> base;
+        std::map<uint64_t, std::shared_ptr<ms::Material>> materials;
     public:
-        explicit MaterialInstance(const std::shared_ptr<Material>& material) noexcept;
+        explicit MaterialInstance(const std::shared_ptr<ms::Material>& material);
+        ~MaterialInstance() = default;
+
+        MaterialInstance(const MaterialInstance&);
+        MaterialInstance(MaterialInstance&&) = default;
 
         // changes base material
-        void changeMaterial(const std::shared_ptr<Material>& material) noexcept;
+        void changeMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
 
         // resets base material to first initialized
         void reset() noexcept;
@@ -25,13 +33,17 @@ namespace LimitlessEngine {
         void clear() noexcept;
 
         // applies material as a layer and returns its id
-        uint64_t apply(const std::shared_ptr<Material>& material) noexcept;
+        uint64_t apply(const std::shared_ptr<ms::Material>& material) noexcept;
 
         // removes 'id' layer
         void remove(uint64_t id);
 
-        // gets material layer;
-        Material& operator[](uint64_t id) { return *materials.at(id); }
+        // sets context state for %id layer
+        void setMaterialState(Context& ctx, uint64_t id);
+
+        // gets material layer
+        ms::Material& operator[](uint64_t id) { return *materials.at(id); }
+        const ms::Material& operator[](uint64_t id) const { return *materials.at(id); }
 
         [[nodiscard]] auto count() const noexcept { return materials.size(); }
 

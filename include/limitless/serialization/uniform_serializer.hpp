@@ -3,7 +3,7 @@
 #include <memory>
 #include <limitless/serialization/asset_deserializer.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class Uniform;
     class ByteBuffer;
     class Assets;

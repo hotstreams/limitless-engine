@@ -1,11 +1,11 @@
 #include <limitless/instances/effect_instance.hpp>
-#include <limitless/particle_system/mesh_emitter.hpp>
-#include <limitless/shader_types.hpp>
-#include <limitless/postprocessing.hpp>
+#include <limitless/fx/emitters/mesh_emitter.hpp>
+#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/postprocessing.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
-void LimitlessEngine::swap(EffectInstance& lhs, EffectInstance& rhs) noexcept {
+void Limitless::swap(EffectInstance& lhs, EffectInstance& rhs) noexcept {
     std::swap(lhs.emitters, rhs.emitters);
 }
 
@@ -55,25 +55,19 @@ EffectInstance::EffectInstance(const EffectInstance& effect) noexcept
     }
 }
 
-EffectInstance& EffectInstance::operator=(const EffectInstance& effect) noexcept {
-    auto copied = EffectInstance{effect};
-    *this = std::move(copied);
-    return *this;
-}
-
-void EffectInstance::update() {
-    AbstractInstance::update();
+void EffectInstance::update(Context& context, Camera& camera) {
+    AbstractInstance::update(context, camera);
     done = isDone();
 
     for (auto& [name, emitter] : emitters) {
-        emitter->update();
+        emitter->update(context, camera);
     }
 }
 
-void EffectInstance::draw([[maybe_unused]] LimitlessEngine::Context& ctx,
+void EffectInstance::draw([[maybe_unused]] Limitless::Context& ctx,
                           [[maybe_unused]] const Assets& assets,
-                          [[maybe_unused]] MaterialShader shader_type,
-                          [[maybe_unused]] Blending blending,
+                          [[maybe_unused]] ShaderPass shader_type,
+                          [[maybe_unused]] ms::Blending blending,
                           [[maybe_unused]] const UniformSetter& uniform_set) {
     // One does not simply render effect instance!
     // use EffectRenderer

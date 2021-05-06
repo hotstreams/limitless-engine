@@ -1,9 +1,10 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtx/functions.hpp>
 #include <vector>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct BoundingBox {
         glm::vec3 center;
         glm::vec3 size;
@@ -17,8 +18,9 @@ namespace LimitlessEngine {
         auto max = glm::vec3{ std::numeric_limits<float>::min() };
 
         for (const auto& v : vertices) {
-            min = glm::min(min, v.position);
-            max = glm::max(max, v.position);
+            const glm::vec3 position = v.position;
+            min = glm::min(min, position);
+            max = glm::max(max, position);
         }
 
         const auto center = (min + max) / 2.0f;

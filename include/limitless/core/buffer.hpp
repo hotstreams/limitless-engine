@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <variant>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct buffer_error : public std::runtime_error {
         explicit buffer_error(const char* error) noexcept : runtime_error(error) {}
     };

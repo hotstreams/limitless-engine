@@ -12,16 +12,12 @@ layout(std140) uniform material_buffer {
             sampler2D material_diffuse;
         #endif
 
-        #ifdef MATERIAL_SPECULAR
-            sampler2D material_specular;
-        #endif
-
         #ifdef MATERIAL_NORMAL
             sampler2D material_normal;
         #endif
 
-        #ifdef MATERIAL_DISPLACEMENT
-            sampler2D material_displacement;
+        #ifdef MATERIAL_SPECULAR
+            sampler2D material_specular;
         #endif
 
         #ifdef MATERIAL_EMISSIVEMASK
@@ -40,9 +36,13 @@ layout(std140) uniform material_buffer {
             sampler2D material_roughness_texture;
         #endif
 
-        #ifdef CUSTOM_MATERIAL
-            LimitlessEngine::CustomMaterialSamplerUniforms
+        #ifdef MATERIAL_DISPLACEMENT
+            sampler2D material_displacement;
         #endif
+    #endif
+
+    #ifdef MATERIAL_TESSELLATION_FACTOR
+        vec2 material_tessellation_factor;
     #endif
 
     #ifdef MATERIAL_SHININESS
@@ -57,12 +57,15 @@ layout(std140) uniform material_buffer {
         float material_roughness;
     #endif
 
-    #ifdef CUSTOM_MATERIAL
-        LimitlessEngine::CustomMaterialScalarUniforms
+    #ifdef BINDLESS_TEXTURE
+        Limitless::CustomMaterialSamplerUniforms
     #endif
 
-    // for cases if there are no scalar values in buffer and no bindless textures
-    // GLSL cannot compile empty uniform block :/
+    Limitless::CustomMaterialScalarUniforms
+
+    // for tricky cases
+    // when there are no samplers
+    // and bindless texture is present
     bool empty;
 };
 
@@ -99,11 +102,7 @@ layout(std140) uniform material_buffer {
         uniform sampler2D material_roughness_texture;
     #endif
 
-    #ifdef CUSTOM_MATERIAL
-        LimitlessEngine::CustomMaterialSamplerUniforms
-    #endif
+    Limitless::CustomMaterialSamplerUniforms
 #endif
 
-#ifdef CUSTOM_MATERIAL
-    LimitlessEngine::CustomMaterialGlobalDefinitions
-#endif
+Limitless::CustomMaterialGlobalDefinitions

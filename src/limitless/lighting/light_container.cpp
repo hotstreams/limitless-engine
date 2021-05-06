@@ -4,7 +4,7 @@
 #include <limitless/lighting/lights.hpp>
 #include <limitless/core/context_state.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 template<typename T>
 LightContainer<T>::LightContainer() : LightContainer{1} {
@@ -55,7 +55,7 @@ void LightContainer<T>::update() {
     }
 }
 
-namespace LimitlessEngine {
+namespace Limitless {
     template class LightContainer<PointLight>;
     template class LightContainer<DirectionalLight>;
     template class LightContainer<SpotLight>;

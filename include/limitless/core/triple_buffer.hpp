@@ -4,7 +4,7 @@
 #include <array>
 #include <memory>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class TripleBuffer : public Buffer {
     private:
         std::array<std::shared_ptr<Buffer>, 3> buffers;

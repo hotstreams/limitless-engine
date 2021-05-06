@@ -3,7 +3,7 @@
 #include <limitless/core/state_texture.hpp>
 #include <limitless/core/texture_visitor.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class NamedTexture : public StateTexture {
     private:
         GLenum target {};

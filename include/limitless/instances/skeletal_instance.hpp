@@ -1,8 +1,9 @@
 #pragma once
+
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/skeletal_model.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class SkeletalInstance : public ModelInstance {
     private:
         std::vector<glm::mat4> bone_transform;
@@ -12,6 +13,7 @@ namespace LimitlessEngine {
         bool paused {};
 
         void calculateBoundingBox() noexcept override;
+        void initializeBuffer();
 
         const AnimationNode* findAnimationNode(const Bone& bone) const noexcept;
     public:
@@ -20,10 +22,7 @@ namespace LimitlessEngine {
         ~SkeletalInstance() override = default;
 
         SkeletalInstance(const SkeletalInstance&) = default;
-        SkeletalInstance& operator=(const SkeletalInstance&) = default;
-
-        SkeletalInstance(SkeletalInstance&&) = default;
-        SkeletalInstance& operator=(SkeletalInstance&&) = default;
+        SkeletalInstance(SkeletalInstance&&) noexcept = default;
 
         SkeletalInstance& setPosition(const glm::vec3& position) noexcept override;
         SkeletalInstance& setRotation(const glm::quat& rotation) noexcept override;
@@ -31,7 +30,7 @@ namespace LimitlessEngine {
 
         SkeletalInstance* clone() noexcept override;
 
-        void update() override;
+        void update(Context& context, Camera& camera) override;
 
         SkeletalInstance& play(const std::string& name);
         SkeletalInstance& pause() noexcept;
@@ -39,7 +38,7 @@ namespace LimitlessEngine {
         SkeletalInstance& stop() noexcept;
 
         using AbstractInstance::draw;
-        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_setter) override;
+        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }
 

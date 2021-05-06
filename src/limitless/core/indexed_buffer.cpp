@@ -1,7 +1,7 @@
 #include <limitless/core/indexed_buffer.hpp>
 #include <limitless/core/context_initializer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 std::shared_ptr<Buffer> IndexedBuffer::get(std::string_view name) {
     if (buffers.count(name.data()) == 1) {

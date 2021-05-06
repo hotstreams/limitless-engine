@@ -6,7 +6,7 @@
 #include <vector>
 #include <string_view>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct ImplementationLimits {
         GLint uniform_buffer_max_count;
         GLint shader_storage_max_count;
@@ -37,5 +37,6 @@ namespace LimitlessEngine {
         static void defaultHints() noexcept;
         static void printExtensions() noexcept;
         static bool isExtensionSupported(std::string_view name) noexcept;
+        static bool checkMinimumRequirements() noexcept;
     };
 }

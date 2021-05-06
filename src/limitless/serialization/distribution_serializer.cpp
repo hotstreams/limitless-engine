@@ -1,9 +1,9 @@
 #include <limitless/serialization/distribution_serializer.hpp>
 
-#include <limitless/particle_system/distribution.hpp>
+#include <limitless/fx/modules/distribution.hpp>
 #include <limitless/util/bytebuffer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 template<typename T>
 ByteBuffer DistributionSerializer::serialize(Distribution<T>& distr) {
@@ -56,20 +56,20 @@ std::unique_ptr<Distribution<T>> DistributionSerializer::deserialize(ByteBuffer&
 }
 
 template<typename T>
-ByteBuffer& LimitlessEngine::operator<<(ByteBuffer& buffer, Distribution<T>& distr) {
+ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, Distribution<T>& distr) {
     DistributionSerializer serializer;
     buffer << serializer.serialize<T>(distr);
     return buffer;
 }
 
 template<typename T>
-ByteBuffer& LimitlessEngine::operator>>(ByteBuffer& buffer, std::unique_ptr<Distribution<T>>& distr) {
+ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, std::unique_ptr<Distribution<T>>& distr) {
     DistributionSerializer serializer;
     distr = serializer.deserialize<T>(buffer);
     return buffer;
 }
 
-namespace LimitlessEngine {
+namespace Limitless {
     template ByteBuffer& operator<<(ByteBuffer& buffer, Distribution<float>& distr);
     template ByteBuffer& operator<<(ByteBuffer& buffer, Distribution<uint32_t>& distr);
     template ByteBuffer& operator<<(ByteBuffer& buffer, Distribution<glm::vec3>& distr);

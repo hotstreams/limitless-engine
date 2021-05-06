@@ -5,24 +5,29 @@
 #include <memory>
 #include <mutex>
 
-namespace LimitlessEngine {
+namespace Limitless {
     struct resource_container_error : public std::runtime_error {
         explicit resource_container_error(const std::string& error) : runtime_error(error) {}
         explicit resource_container_error(const char* error) : runtime_error(error) {}
     };
 
     template<typename T>
-    class ResourceContainer {
+    class ResourceContainer final {
     private:
         std::unordered_map<std::string, std::shared_ptr<T>> resource;
-        std::mutex mutex;
+        // fix const ^at
+        mutable std::mutex mutex {};
     public:
+        ResourceContainer() = default;
+        ~ResourceContainer() = default;
+
         auto& operator[](const std::string& name) noexcept {
             std::unique_lock lock(mutex);
             return resource[name];
         }
 
         const auto& at(const std::string& name) {
+            std::unique_lock lock(mutex);
             try {
                 return resource.at(name);
             } catch (...) {
@@ -31,6 +36,7 @@ namespace LimitlessEngine {
         }
 
         const auto& at(const std::string& name) const {
+            std::unique_lock lock(mutex);
             try {
                 return resource.at(name);
             } catch (...) {
@@ -51,7 +57,8 @@ namespace LimitlessEngine {
             resource.erase(name);
         }
 
-        [[nodiscard]] bool exists(const std::string& name) noexcept {
+        [[nodiscard]] bool exists(const std::string& name) {
+            std::unique_lock lock(mutex);
             return resource.find(name) != resource.end();
         }
 

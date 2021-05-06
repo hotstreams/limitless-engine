@@ -2,8 +2,7 @@
 
 #include <limitless/models/elementary_model.hpp>
 
-namespace LimitlessEngine {
-    // uses local space
+namespace Limitless {
     class Plane : public ElementaryModel {
     public:
         Plane();

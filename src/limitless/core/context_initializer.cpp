@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <fstream>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 void ContextInitializer::initializeGLEW() {
     if (glewInit() != GLEW_OK) {
@@ -87,4 +87,16 @@ void ContextInitializer::printExtensions() noexcept {
 
 void ContextInitializer::defaultHints() noexcept {
     glfwDefaultWindowHints();
+}
+
+bool ContextInitializer::checkMinimumRequirements() noexcept {
+    std::vector<std::string_view> requirements = {
+        "GL_ARB_shader_storage_buffer_object",
+        "GL_ARB_shading_language_420pack",
+        "GL_ARB_explicit_uniform_location",
+    };
+
+    return std::all_of(requirements.begin(), requirements.end(), [] (const auto& extension) {
+        return isExtensionSupported(extension);
+    });
 }

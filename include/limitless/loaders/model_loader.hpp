@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/util/filesystem.hpp>
-#include <limitless/shader_types.hpp>
+#include <limitless/pipeline/shader_pass_types.hpp>
 #include <assimp/scene.h>
 #include <limitless/util/tree.hpp>
 #include <glm/glm.hpp>
@@ -11,17 +11,14 @@
 #include <memory>
 #include <set>
 
-namespace glm {
-    glm::vec3 convert3f(const aiVector3D &aivec) noexcept;
-    glm::vec2 convert2f(const aiVector3D &aivec) noexcept;
-    glm::mat4 convert(const aiMatrix4x4& aimat) noexcept;
+namespace Limitless::ms {
+    class Material;
 }
 
-namespace LimitlessEngine {
+namespace Limitless {
     class AbstractModel;
     class SkeletalModel;
     class AbstractMesh;
-    class Material;
     class Assets;
     class Context;
 
@@ -36,7 +33,8 @@ namespace LimitlessEngine {
     enum class ModelLoaderFlag {
         FlipUV,
         GenerateUniqueMeshNames,
-        FlipYZ
+        FlipYZ,
+        FlipWindingOrder
     };
     using ModelLoaderFlags = std::set<ModelLoaderFlag>;
 
@@ -55,8 +53,8 @@ namespace LimitlessEngine {
         std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
         std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
         Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
-        std::shared_ptr<Material> loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
-        std::vector<std::shared_ptr<Material>> loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader);
+        std::shared_ptr<ms::Material> loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
+        std::vector<std::shared_ptr<ms::Material>> loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader);
         template<typename T> std::vector<T> loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
         template<typename T> std::vector<T> loadIndices(aiMesh* mesh) const noexcept;
     public:

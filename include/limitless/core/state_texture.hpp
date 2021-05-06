@@ -3,7 +3,7 @@
 #include <limitless/core/extension_texture.hpp>
 #include <limitless/core/texture_visitor.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class StateTexture : public ExtensionTexture {
     protected:
         GLuint id {};

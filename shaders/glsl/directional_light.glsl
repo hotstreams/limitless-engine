@@ -44,7 +44,7 @@ float computeDirectionalShadow(DirLight light, vec3 normal) {
     mat4 light_space = dir_light_space[index];
 
     // transforming from global space to ndc light space
-    vec4 light_pos_space = light_space * vec4(fs_data.world_position, 1.0);
+    vec4 light_pos_space = light_space * vec4(in_data.world_position, 1.0);
     vec3 ndc = light_pos_space.xyz / light_pos_space.w;
     ndc = ndc * 0.5 + 0.5;
 

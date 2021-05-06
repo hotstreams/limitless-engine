@@ -6,14 +6,18 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <unordered_map>
 
-namespace LimitlessEngine {
-    class Emitter;
-    class SpriteEmitter;
-    class MeshEmitter;
+namespace Limitless {
+    namespace fx {
+        class AbstractEmitter;
+        class SpriteEmitter;
+        class MeshEmitter;
+        class EffectBuilder;
+        class EffectSerializer;
+    }
 
     class EffectInstance : public AbstractInstance {
     private:
-        std::unordered_map<std::string, std::unique_ptr<Emitter>> emitters;
+        std::unordered_map<std::string, std::unique_ptr<fx::AbstractEmitter>> emitters;
         std::string name;
 
         friend void swap(EffectInstance&, EffectInstance&) noexcept;
@@ -21,8 +25,8 @@ namespace LimitlessEngine {
 
         void calculateBoundingBox() noexcept override;
 
-        friend class EffectBuilder;
-        friend class EffectSerializer;
+        friend class fx::EffectBuilder;
+        friend class fx::EffectSerializer;
         EffectInstance() noexcept;
     public:
         EffectInstance(Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;
@@ -30,10 +34,7 @@ namespace LimitlessEngine {
         ~EffectInstance() override = default;
 
         EffectInstance(const EffectInstance&) noexcept;
-        EffectInstance& operator=(const EffectInstance&) noexcept;
-
         EffectInstance(EffectInstance&&) noexcept = default;
-        EffectInstance& operator=(EffectInstance&&) noexcept = default;
 
         EffectInstance* clone() noexcept override;
 
@@ -67,9 +68,9 @@ namespace LimitlessEngine {
         auto begin() const noexcept { return emitters.cbegin(); }
         auto end() const noexcept { return emitters.cend(); }
 
-        void update() override;
+        void update(Context& context, Camera& camera) override;
 
-        void draw(Context& ctx, const Assets& assets, MaterialShader shader_type, Blending blending, const UniformSetter& uniform_set) override;
+        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
     };
 
     void swap(EffectInstance&, EffectInstance&) noexcept;

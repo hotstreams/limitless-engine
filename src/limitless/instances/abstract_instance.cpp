@@ -1,9 +1,9 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/core/uniform_setter.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <limitless/postprocessing.hpp>
+#include <limitless/pipeline/postprocessing.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 void AbstractInstance::calculateModelMatrix() noexcept {
     const auto translation_matrix = glm::translate(glm::mat4{1.0f}, position);
@@ -61,12 +61,12 @@ AbstractInstance& AbstractInstance::setScale(const glm::vec3& _scale) noexcept {
     return *this;
 }
 
-void AbstractInstance::draw(Context& ctx, const Assets& assets, MaterialShader material_shader_type, Blending blending) {
+void AbstractInstance::draw(Context& ctx, const Assets& assets, ShaderPass material_shader_type, ms::Blending blending) {
     draw(ctx, assets, material_shader_type,blending, UniformSetter{});
 }
 
-void AbstractInstance::update() {
-    EffectAttachable::update();
+void AbstractInstance::update(Context& context, Camera& camera) {
+    EffectAttachable::update(context, camera);
 
     calculateModelMatrix();
     calculateBoundingBox();

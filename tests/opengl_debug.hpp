@@ -4,7 +4,7 @@
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/state_texture.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     void check_opengl_state() {
         REQUIRE(gl_error_count == 0);
         gl_error_count = 0;

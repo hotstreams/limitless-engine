@@ -1,15 +1,17 @@
 #include <limitless/util/renderer_helper.hpp>
 
-#include <limitless/render_settings.hpp>
+#include <limitless/pipeline/render_settings.hpp>
 #include <limitless/scene.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/context.hpp>
 
-#include <limitless/material_system/properties.hpp>
+#include <limitless/ms/property.hpp>
+#include <limitless/ms/blending.hpp>
 #include <limitless/instances/elementary_instance.hpp>
 #include <limitless/models/line.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
+using namespace Limitless::ms;
 
 void RendererHelper::renderLightsVolume(Context& context, const Scene& scene, const Assets& assets) {
     if (scene.lighting.point_lights.empty()) {
@@ -27,7 +29,7 @@ void RendererHelper::renderLightsVolume(Context& context, const Scene& scene, co
     for (const auto& light : scene.lighting.point_lights) {
         sphere_instance.setPosition(light.position);
         sphere_instance.setScale(glm::vec3(light.radius));
-        sphere_instance.draw(context, assets, MaterialShader::Forward, Blending::Opaque);
+        sphere_instance.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
@@ -48,9 +50,9 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
     static ElementaryInstance y_i {y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}};
     static ElementaryInstance z_i {z, assets.materials.at("red"), {5.0f, 1.0f, 0.0f}};
 
-    x_i.draw(context, assets, MaterialShader::Forward, Blending::Opaque);
-    y_i.draw(context, assets, MaterialShader::Forward, Blending::Opaque);
-    z_i.draw(context, assets, MaterialShader::Forward, Blending::Opaque);
+    x_i.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
+    y_i.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
+    z_i.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
 }
 
 void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Scene& scene) {
@@ -64,7 +66,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
         box.setPosition(bounding_box.center)
                 .setScale(bounding_box.size);
 
-        box.draw(context, assets, MaterialShader::Forward, Blending::Opaque);
+        box.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }

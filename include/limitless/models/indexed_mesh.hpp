@@ -3,7 +3,7 @@
 #include <limitless/models/mesh.hpp>
 #include <iostream>
 
-namespace LimitlessEngine {
+namespace Limitless {
     template<typename T, typename T1>
     class IndexedMesh : public Mesh<T> {
     protected:
@@ -71,6 +71,15 @@ namespace LimitlessEngine {
             this->vertex_array.bind();
 
             glDrawElements(static_cast<GLenum>(this->draw_mode), indices.size(), getIndicesType(), nullptr);
+
+            this->vertex_buffer->fence();
+            indices_buffer->fence();
+        }
+
+        void draw(DrawMode mode) const noexcept override {
+            this->vertex_array.bind();
+
+            glDrawElements(static_cast<GLenum>(mode), indices.size(), getIndicesType(), nullptr);
 
             this->vertex_buffer->fence();
             indices_buffer->fence();

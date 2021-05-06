@@ -2,9 +2,9 @@
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/context.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
-bool LimitlessEngine::operator<(const BindingPoint& a, const BindingPoint& b) noexcept
+bool Limitless::operator<(const BindingPoint& a, const BindingPoint& b) noexcept
 {
     return (a.target == b.target) ? a.point < b.point : a.target < b.target;
 }

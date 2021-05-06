@@ -3,8 +3,9 @@
 #include <limitless/core/shader_program.hpp>
 #include <limitless/core/bindless_texture.hpp>
 #include <limitless/core/texture.hpp>
+#include <limitless/core/context_initializer.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 Uniform::Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept
     : name{std::move(name)}, type{type}, value_type{value_type}, changed{true} {}
@@ -127,7 +128,7 @@ void UniformSampler::set(const ShaderProgram& shader) {
     return new UniformSampler(*this);
 }
 
-std::string LimitlessEngine::getUniformDeclaration(const Uniform& uniform) noexcept {
+std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
     std::string declaration = "uniform ";
 
     switch (uniform.getType()) {
@@ -212,7 +213,7 @@ UniformTime* UniformTime::clone() noexcept {
     return new UniformTime(*this);
 }
 
-namespace LimitlessEngine {
+namespace Limitless {
     template class UniformValue<int>;
     template class UniformValue<float>;
     template class UniformValue<unsigned int>;
@@ -221,4 +222,61 @@ namespace LimitlessEngine {
     template class UniformValue<glm::vec4>;
     template class UniformValue<glm::mat3>;
     template class UniformValue<glm::mat4>;
+}
+
+size_t Limitless::getUniformSize(const Uniform& uniform) {
+    switch (uniform.getType()) {
+        case UniformType::Value:
+            switch (uniform.getValueType()) {
+                case UniformValueType::Float:
+                    return sizeof(float);
+                case UniformValueType::Int:
+                    return sizeof(int32_t);
+                case UniformValueType::Uint:
+                    return sizeof(uint32_t);
+                case UniformValueType::Vec2:
+                    return sizeof(glm::vec2);
+                case UniformValueType::Vec3:
+                    return sizeof(glm::vec3);
+                case UniformValueType::Vec4:
+                    return sizeof(glm::vec4);
+                case UniformValueType::Mat3:
+                    return sizeof(glm::mat3);
+                case UniformValueType::Mat4:
+                    return sizeof(glm::mat4);
+            }
+        case UniformType::Sampler:
+            return ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ? sizeof(uint64_t) : 0;
+        case UniformType::Time:
+            return sizeof(float);
+    }
+}
+
+size_t Limitless::getUniformAlignment(const Uniform& uniform) {
+    switch (uniform.getType()) {
+        case UniformType::Value:
+            switch (uniform.getValueType()) {
+                case UniformValueType::Float:
+                    return sizeof(float);
+                case UniformValueType::Int:
+                    return sizeof(int32_t);
+                case UniformValueType::Uint:
+                    return sizeof(uint32_t);
+                case UniformValueType::Vec2:
+                    return sizeof(glm::vec2);
+                case UniformValueType::Vec3:
+                    return sizeof(glm::vec4); // red zone
+                case UniformValueType::Vec4:
+                    return sizeof(glm::vec4);
+                case UniformValueType::Mat3:
+                    return sizeof(glm::vec4); // red zone
+                case UniformValueType::Mat4:
+                    return sizeof(glm::vec4); // red zone
+            }
+            break;
+        case UniformType::Sampler:
+            return ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ? sizeof(uint64_t) : 0;
+        case UniformType::Time:
+            return sizeof(float);
+    }
 }

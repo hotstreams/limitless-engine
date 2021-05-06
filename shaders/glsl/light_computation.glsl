@@ -7,16 +7,16 @@
     vec3 getPBRShadedColor(vec3 N, vec3 fragment_color, float metallic, float roughness) {
         vec3 ambient = ambient_color.xyz * ambient_color.w * fragment_color;
 
-        vec3 V = normalize(camera_position.xyz - fs_data.world_position);
+        vec3 V = normalize(camera_position.xyz - in_data.world_position);
 
         vec3 F0 = mix(vec3(0.04), fragment_color, metallic);
 
         vec3 Lo = vec3(0.0);
         for (uint i = uint(0); i < point_lights_count; ++i) {
-            vec3 L = normalize(point_lights[i].position.xyz - fs_data.world_position);
+            vec3 L = normalize(point_lights[i].position.xyz - in_data.world_position);
             vec3 H = normalize(V + L);
 
-            float distance = length(point_lights[i].position.xyz - fs_data.world_position);
+            float distance = length(point_lights[i].position.xyz - in_data.world_position);
             float attenuation = 1.0 / (point_lights[i].constant + point_lights[i].linear * distance + point_lights[i].quadratic * distance * distance);
             vec3 radiance = point_lights[i].color.xyz * attenuation;
 
@@ -44,14 +44,14 @@
 #else
     vec3 getShadedColor(vec3 fragment_color, vec3 normal, float specular, float shininess) {
         vec3 ambient = ambient_color.xyz * ambient_color.w * fragment_color;
-        vec3 view_dir = normalize(camera_position.xyz - fs_data.world_position);
+        vec3 view_dir = normalize(camera_position.xyz - in_data.world_position);
 
         vec3 light = vec3(0.0);
 
         // computing point lights
         for (uint i = uint(0); i < point_lights_count; ++i) {
             PointLight point_light = point_lights[i];
-            float distance = length(point_light.position.xyz - fs_data.world_position);
+            float distance = length(point_light.position.xyz - in_data.world_position);
 
             if (distance <= point_light.radius) {
                 light += computePointLight(point_light, normal, fragment_color, view_dir, specular, shininess);

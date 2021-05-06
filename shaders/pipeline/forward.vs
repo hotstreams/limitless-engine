@@ -1,11 +1,10 @@
-LimitlessEngine::GLSL_VERSION
-LimitlessEngine::Extensions
-LimitlessEngine::Settings
-LimitlessEngine::MaterialType
-LimitlessEngine::ModelType
+Limitless::GLSL_VERSION
+Limitless::Extensions
+Limitless::Settings
+Limitless::MaterialType
+Limitless::ModelType
 
 #include "glsl/scene.glsl"
-#include "glsl/output_data_vs.glsl"
 #include "glsl/material.glsl"
 
 layout(location = 0) in vec3 position;
@@ -22,18 +21,34 @@ layout(location = 3) in vec2 uv;
     layout (location = 5) in vec4 bone_weight;
 #endif
 
+out vertex_data {
+    #ifdef MATERIAL_LIT
+        vec3 world_position;
+
+        #ifdef MATERIAL_NORMAL
+            #ifdef NORMAL_MAPPING
+                mat3 TBN;
+            #else
+                vec3 normal;
+            #endif
+        #else
+            vec3 normal;
+        #endif
+    #endif
+
+    vec2 uv;
+} out_data;
+
 uniform mat4 model;
 
 void main()
 {
-    fs_data.uv = uv;
+    out_data.uv = uv;
 
     mat4 model_matrix = model;
     vec4 vertex_position = vec4(position, 1.0);
 
-    #ifdef CUSTOM_MATERIAL
-        LimitlessEngine::CustomMaterialVertexCode
-    #endif
+    Limitless::CustomMaterialVertexCode
 
     #ifdef SKELETAL_MODEL
         mat4 bone_transform = bones[bone_id[0]] * bone_weight[0];
@@ -47,7 +62,7 @@ void main()
     vec4 world_pos = model_matrix * vertex_position;
 
     #ifdef MATERIAL_LIT
-        fs_data.world_position = world_pos.xyz;
+        out_data.world_position = world_pos.xyz;
 
         #ifdef MATERIAL_NORMAL
             #ifdef NORMAL_MAPPING
@@ -57,14 +72,16 @@ void main()
                 T = normalize(T - dot(T, N) * N);
                 vec3 B = cross(N, T);
 
-                fs_data.TBN = mat3(T, B, N);
+                out_data.TBN = mat3(T, B, N);
             #else
-                fs_data.normal = transpose(inverse(mat3(model_matrix))) * normal;
+                out_data.normal = transpose(inverse(mat3(model_matrix))) * normal;
             #endif
         #else
-            fs_data.normal = transpose(inverse(mat3(model_matrix))) * normal;
+            out_data.normal = transpose(inverse(mat3(model_matrix))) * normal;
         #endif
     #endif
 
-	gl_Position = VP * world_pos;
+    #ifndef MATERIAL_TESSELATION_FACTOR
+	    gl_Position = VP * world_pos;
+	#endif
 }

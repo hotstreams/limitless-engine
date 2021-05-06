@@ -5,10 +5,10 @@
 #include <particle_system/effect_builder.hpp>
 #include <serialization/effect_serializer.hpp>
 #include <util/bytebuffer.hpp>
-#include <material_system/material_builder.hpp>
+#include <ms/material_builder.hpp>
 #include <limitless/assets.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 class FakeBackend {
 private:

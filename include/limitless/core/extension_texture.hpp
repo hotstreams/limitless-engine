@@ -4,7 +4,7 @@
 #include <limitless/core/texture_visitor.hpp>
 #include <glm/glm.hpp>
 
-namespace LimitlessEngine {
+namespace Limitless {
     class ExtensionTexture {
     public:
         ExtensionTexture() = default;

@@ -3,7 +3,7 @@
 #include <limitless/util/tangent_space.hpp>
 #include <limitless/models/mesh.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 Cube::Cube() {
     std::vector<VertexNormalTangent> vertices = {

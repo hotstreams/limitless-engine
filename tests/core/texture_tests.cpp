@@ -4,7 +4,7 @@
 
 #include <limitless/core/context.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 TEST_CASE("StateTexture id generation") {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};

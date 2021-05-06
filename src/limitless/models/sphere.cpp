@@ -1,6 +1,6 @@
 #include <limitless/models/sphere.hpp>
 
-using namespace LimitlessEngine;
+using namespace Limitless;
 
 #include <limitless/util/tangent_space.hpp>
 #include <limitless/util/math.hpp>

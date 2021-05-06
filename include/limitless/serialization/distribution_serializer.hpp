@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace LimitlessEngine {
+namespace Limitless {
     template<typename T> class Distribution;
     class ByteBuffer;
 
