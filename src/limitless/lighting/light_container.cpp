@@ -7,8 +7,8 @@
 using namespace Limitless;
 
 template<typename T>
-LightContainer<T>::LightContainer() : LightContainer{1} {
-
+LightContainer<T>::LightContainer()
+    : LightContainer {1} {
 }
 
 template<typename T>
@@ -53,6 +53,8 @@ void LightContainer<T>::update() {
         buffer->mapData(lights.data(), sizeof(T) * size());
         modified = false;
     }
+
+    buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, T::shader_storage_name));
 }
 
 namespace Limitless {

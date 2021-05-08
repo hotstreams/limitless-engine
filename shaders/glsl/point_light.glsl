@@ -18,13 +18,13 @@ vec3 computePointLight(PointLight light, vec3 normal, vec3 surface_color, vec3 v
     float diffuse_factor = max(dot(normal, light_dir), 0.0);
     vec3 diffuse_light = light.color.rgb * light.color.a * diffuse_factor * surface_color;
 
-    #ifdef PHONG_MODEL
+    #if defined(PHONG_MODEL)
         vec3 reflect_dir = reflect(-light_dir, normal);
         float specular_factor = pow(max(dot(view_dir, reflect_dir), 0.0), shininess) * specular;
         vec3 specular_light = light.color.xyz * specular_factor;
     #endif
 
-    #ifdef BLINN_PHONG_MODEL
+    #if defined(BLINN_PHONG_MODEL)
         vec3 halfway_dir = normalize(light_dir + view_dir);
         float specular_factor = pow(max(dot(normal, halfway_dir), 0.0), shininess) * specular;
         vec3 specular_light = light.color.xyz * specular_factor;

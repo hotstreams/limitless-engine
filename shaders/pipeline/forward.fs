@@ -5,15 +5,13 @@ Limitless::MaterialType
 Limitless::ModelType
 
 in vertex_data {
-    #ifdef MATERIAL_LIT
+    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
         vec3 world_position;
+    #endif
 
-        #ifdef MATERIAL_NORMAL
-            #ifdef NORMAL_MAPPING
-                mat3 TBN;
-            #else
-                vec3 normal;
-            #endif
+    #if defined(MATERIAL_LIT)
+        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
+            mat3 TBN;
         #else
             vec3 normal;
         #endif
@@ -25,7 +23,7 @@ in vertex_data {
 #include "glsl/scene.glsl"
 #include "glsl/material.glsl"
 
-#ifdef MATERIAL_LIT
+#if defined(MATERIAL_LIT)
     #include "glsl/scene_lighting.glsl"
     #include "glsl/light_computation.glsl"
 #endif

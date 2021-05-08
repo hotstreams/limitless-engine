@@ -37,7 +37,7 @@ void Lighting::updateLightBuffer() {
         static_cast<uint32_t>(point_lights.size()),
         directional_light.direction != glm::vec4(0.0f)
     };
-
+    //TODO update changed?
     buffer->mapData(&light_info, sizeof(SceneLighting));
 }
 

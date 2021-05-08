@@ -10,15 +10,13 @@ Limitless::ModelType
 layout (vertices = 3) out;
 
 in vertex_data {
-    #ifdef MATERIAL_LIT
+    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
         vec3 world_position;
+    #endif
 
-        #ifdef MATERIAL_NORMAL
-            #ifdef NORMAL_MAPPING
-                mat3 TBN;
-            #else
-                vec3 normal;
-            #endif
+    #if defined(MATERIAL_LIT)
+        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
+            mat3 TBN;
         #else
             vec3 normal;
         #endif
@@ -28,15 +26,13 @@ in vertex_data {
 } in_data[];
 
 out vertex_data {
-    #ifdef MATERIAL_LIT
+    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
         vec3 world_position;
+    #endif
 
-        #ifdef MATERIAL_NORMAL
-            #ifdef NORMAL_MAPPING
-                mat3 TBN;
-            #else
-                vec3 normal;
-            #endif
+    #if defined(MATERIAL_LIT)
+        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
+            mat3 TBN;
         #else
             vec3 normal;
         #endif
@@ -48,15 +44,13 @@ out vertex_data {
 void main() {
     out_data[gl_InvocationID].uv = in_data[gl_InvocationID].uv;
 
-    #ifdef MATERIAL_LIT
-        out_data[gl_InvocationID].world_position = in_data[gl_InvocationID].world_position;
+    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
+        out_data[gl_InvocationID].world_position =  in_data[gl_InvocationID].world_position;
+    #endif
 
-        #ifdef MATERIAL_NORMAL
-            #ifdef NORMAL_MAPPING
-                out_data[gl_InvocationID].TBN = in_data[gl_InvocationID].TBN;
-            #else
-                out_data[gl_InvocationID].normal = in_data[gl_InvocationID].normal;
-            #endif
+    #if defined(MATERIAL_LIT)
+        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
+            out_data[gl_InvocationID].TBN = in_data[gl_InvocationID].TBN;
         #else
             out_data[gl_InvocationID].normal = in_data[gl_InvocationID].normal;
         #endif

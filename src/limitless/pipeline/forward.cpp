@@ -14,10 +14,23 @@
 #include <limitless/scene.hpp>
 using namespace Limitless;
 
-Forward::Forward(ContextEventObserver& ctx, Scene& scene) {
+Forward::Forward(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings) {
+    create(ctx, scene, settings);
+}
+
+void Forward::update(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings) {
+    clear();
+    create(ctx, scene, settings);
+}
+
+void Forward::create(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings) {
     add<SceneUpdatePass>(ctx);
     auto& fx = add<EffectUpdatePass>(ctx);
-    add<DirectionalShadowPass>(ctx, scene);
+
+    if (settings.directional_csm) {
+        add<DirectionalShadowPass>(ctx, scene, settings, fx.getRenderer());
+    }
+
     add<FramebufferPass>(ctx);
     add<ColorPass>(ms::Blending::Opaque);
     add<ParticlePass>(fx.getRenderer(), ms::Blending::Opaque);

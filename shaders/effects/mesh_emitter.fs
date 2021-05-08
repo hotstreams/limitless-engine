@@ -28,7 +28,7 @@ void main()
     vec4 p_subUV = particles[particle_id].subUV;
     vec4 p_properties = particles[particle_id].properties;
 
-    #ifdef SubUV_MODULE
+    #if defined(SubUV_MODULE)
         uv = uv * p_subUV.xy + p_subUV.zw;
     #endif
 
@@ -38,34 +38,33 @@ void main()
 
      // computing final color
     vec4 fragment_color = vec4(1.0);
-    #ifdef InitialColor_MODULE
-          fragment_color *= p_color;
+    #if defined(InitialColor_MODULE)
+        fragment_color *= p_color;
     #endif
 
-    #ifdef MATERIAL_COLOR
+    #if defined(MATERIAL_COLOR)
         fragment_color *= mat_color;
     #endif
 
-    #ifdef MATERIAL_DIFFUSE
+    #ifd defined(MATERIAL_DIFFUSE)
         fragment_color *= mat_diffuse;
     #endif
 
-    #ifdef MATERIAL_BLENDMASK
-        if (mat_blend_mask == 0.0) discard;
+    #ifd defined(MATERIAL_BLENDMASK)
+        if (mat_blend_mask <= 0.5) discard;
         fragment_color.a *= mat_blend_mask;
     #endif
 
-    #ifdef MATERIAL_EMISSIVEMASK
-        if (mat_emissivemask != vec3(0.0))
-        {
+    #if defined(MATERIAL_EMISSIVEMASK)
+        if (mat_emissivemask != vec3(0.0)) {
             fragment_color.rgb *= mat_emissive_mask;
 
-            #ifdef MATERIAL_EMISSIVE_COLOR
+            #if defined(MATERIAL_EMISSIVE_COLOR)
                 fragment_color.rgb *= mat_emissive_color;
             #endif
         }
     #else
-        #ifdef MATERIAL_EMISSIVE_COLOR
+        #if defined(MATERIAL_EMISSIVE_COLOR)
             fragment_color.rgb *= mat_emissive_color;
         #endif
     #endif

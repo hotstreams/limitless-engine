@@ -10,12 +10,12 @@
 
 using namespace Limitless;
 
-void Assets::load(Context& context) {
+void Assets::load(Context& context, const RenderSettings& settings) {
     // engine-required assets
     shaders.initialize(context);
 
     // used in render as light radius material
-    ms::MaterialBuilder builder {context, *this};
+    ms::MaterialBuilder builder {context, *this, settings};
     builder.setName("default").add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).build();
     builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).build();
     builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).build();

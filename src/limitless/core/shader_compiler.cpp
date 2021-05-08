@@ -17,8 +17,7 @@ namespace {
 }
 
 ShaderCompiler::ShaderCompiler(Context& _context)
-    : context{_context} {
-
+    : context {_context} {
 }
 
 void ShaderCompiler::checkStatus(const GLuint program_id) {

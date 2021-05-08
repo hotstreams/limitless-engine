@@ -7,6 +7,7 @@ namespace Limitless {
     class ByteBuffer;
     class Assets;
     class Context;
+    class RenderSettings;
 }
 
 namespace Limitless::fx {
@@ -17,7 +18,7 @@ namespace Limitless::fx {
     class EmitterSerializer {
     public:
         ByteBuffer serialize(const AbstractEmitter& emitter);
-        void deserialize(Context& context, Assets& ctx, ByteBuffer& buffer, EffectBuilder& builder);
+        void deserialize(Context& context, Assets& ctx, const RenderSettings& settings, ByteBuffer& buffer, EffectBuilder& builder);
     };
 
     ByteBuffer& operator<<(ByteBuffer& buffer, const EmitterSpawn& spawn);

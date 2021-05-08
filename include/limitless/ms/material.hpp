@@ -46,6 +46,7 @@ namespace Limitless::ms {
 
         // contains ModelShader types for which this material is compiled
         ModelShaders model_shaders;
+        PassShaders pass_shaders;
 
         // opengl buffer that stores properties
         std::shared_ptr<Buffer> material_buffer;
@@ -64,6 +65,9 @@ namespace Limitless::ms {
 
         // global snippet
         std::string global_snippet;
+
+        // tessellation snippet
+        std::string tessellation_snippet;
 
         template<typename V>
         void map(std::vector<std::byte>& block, const Uniform& uniform) const;
@@ -96,7 +100,6 @@ namespace Limitless::ms {
         [[nodiscard]] const UniformSampler& getDiffuse() const;
         [[nodiscard]] const UniformSampler& getSpecular() const;
         [[nodiscard]] const UniformSampler& getNormal() const;
-        [[nodiscard]] const UniformSampler& getDisplacement() const;
         [[nodiscard]] const UniformSampler& getEmissiveMask() const;
         [[nodiscard]] const UniformSampler& getBlendMask() const;
 
@@ -111,11 +114,11 @@ namespace Limitless::ms {
         UniformSampler& getDiffuse();
         UniformSampler& getSpecular();
         UniformSampler& getNormal();
-        UniformSampler& getDisplacement();
         UniformSampler& getEmissiveMask();
         UniformSampler& getBlendMask();
 
         [[nodiscard]] const auto& getModelShaders() const noexcept { return model_shaders; }
+        [[nodiscard]] const auto& getPassShaders() const noexcept { return pass_shaders; }
         [[nodiscard]] auto getBlending() const noexcept { return blending; }
         [[nodiscard]] auto getShading() const noexcept { return shading; }
         [[nodiscard]] auto getTwoSided() const noexcept { return two_sided; }
@@ -124,6 +127,7 @@ namespace Limitless::ms {
         [[nodiscard]] const auto& getVertexSnippet() const noexcept { return vertex_snippet; }
         [[nodiscard]] const auto& getFragmentSnippet() const noexcept { return fragment_snippet; }
         [[nodiscard]] const auto& getGlobalSnippet() const noexcept { return global_snippet; }
+        [[nodiscard]] const auto& getTessellationSnippet() const noexcept { return tessellation_snippet; }
         [[nodiscard]] const auto& getMaterialBuffer() const noexcept { return material_buffer; }
         [[nodiscard]] const auto& getProperties() const noexcept { return properties; }
         [[nodiscard]] const auto& getUniforms() const noexcept { return uniforms; }

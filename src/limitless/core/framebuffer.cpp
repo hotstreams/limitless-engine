@@ -3,7 +3,8 @@
 
 using namespace Limitless;
 
-Framebuffer::Framebuffer(ContextEventObserver& _context) noexcept : Framebuffer() {
+Framebuffer::Framebuffer(ContextEventObserver& _context) noexcept
+    : Framebuffer() {
     context = &_context;
     context->registerObserver(this);
 }
@@ -27,7 +28,7 @@ Framebuffer::~Framebuffer() {
             if (state->framebuffer_id == id) {
                 state->framebuffer_id = 0;
             }
-            glDeleteBuffers(1, &id);
+            glDeleteFramebuffers(1, &id);
         }
     }
 

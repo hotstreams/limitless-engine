@@ -13,6 +13,10 @@
 using namespace Limitless;
 using namespace Limitless::ms;
 
+RendererHelper::RendererHelper(const RenderSettings& _settings)
+    : settings {_settings} {
+}
+
 void RendererHelper::renderLightsVolume(Context& context, const Scene& scene, const Assets& assets) {
     if (scene.lighting.point_lights.empty()) {
         return;
@@ -72,15 +76,15 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 }
 
 void RendererHelper::render(Context& context, const Assets& assets, const Scene& scene) {
-    if (RenderSettings::BOUNDING_BOX) {
+    if (settings.bounding_box) {
         renderBoundingBoxes(context, assets, scene);
     }
 
-    if (RenderSettings::COORDINATE_SYSTEM_AXES) {
+    if (settings.coordinate_system_axes) {
         renderCoordinateSystemAxes(context, assets);
     }
 
-    if (RenderSettings::LIGHT_RADIUS) {
+    if (settings.light_radius) {
         renderLightsVolume(context, scene, assets);
     }
 }

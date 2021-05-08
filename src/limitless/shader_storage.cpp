@@ -90,3 +90,11 @@ void ShaderStorage::initialize(Context& ctx) {
     add("text", compiler.compile(SHADER_DIR "pipeline/text"));
     add("text_selection", compiler.compile(SHADER_DIR "pipeline/text_selection"));
 }
+
+void ShaderStorage::clearMaterialShaders() {
+    material_shaders.clear();
+}
+
+void ShaderStorage::clearEffectShaders() {
+    emitters.clear();
+}

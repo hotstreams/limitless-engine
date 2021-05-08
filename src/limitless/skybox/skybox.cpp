@@ -14,11 +14,11 @@ Skybox::Skybox(const std::shared_ptr<Material>& material)
     : material {std::make_shared<Material>(*material)} {
 }
 
-Skybox::Skybox(Context& ctx, Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
+Skybox::Skybox(Context& ctx, Assets& assets, const RenderSettings& settings, const fs::path& path, const TextureLoaderFlags& flags) {
     TextureLoader texture_loader {assets};
     const auto& cube_map_texture = texture_loader.loadCubemap(path, flags);
 
-    MaterialBuilder material_builder {ctx, assets};
+    MaterialBuilder material_builder {ctx, assets, settings};
     material = material_builder
                     .setName(path.string())
                     .addUniform(std::make_unique<UniformSampler>("skybox", cube_map_texture))
@@ -27,7 +27,9 @@ Skybox::Skybox(Context& ctx, Assets& assets, const fs::path& path, const Texture
                     .setTwoSided(true)
                     .setShading(Shading::Unlit)
                     .setBlending(Blending::Opaque)
-                    .build({ModelShader::Model}, {ShaderPass::Skybox});
+                    .setModelShaders({ModelShader::Model})
+                    .addPassShader(ShaderPass::Skybox)
+                    .build();
 }
 
 void Skybox::draw(Context& context, const Assets& assets) {

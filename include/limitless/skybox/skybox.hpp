@@ -12,6 +12,7 @@ namespace Limitless::ms {
 namespace Limitless {
     class Context;
     class Assets;
+    class RenderSettings;
     enum class TextureLoaderFlag;
     using TextureLoaderFlags = std::set<TextureLoaderFlag>;
 
@@ -20,7 +21,7 @@ namespace Limitless {
         std::shared_ptr<ms::Material> material;
     public:
         explicit Skybox(const std::shared_ptr<ms::Material>& material);
-        Skybox(Context& ctx, Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
+        Skybox(Context& ctx, Assets& assets, const RenderSettings& settings, const fs::path& path, const TextureLoaderFlags& flags = {});
 
         ~Skybox() = default;
 

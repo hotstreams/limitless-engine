@@ -42,7 +42,7 @@ public:
         : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
         , scene {context}
         , camera {window_size}
-        , render {std::make_unique<Forward>(context, scene)} {
+        , render {std::make_unique<Forward>(context, scene, RenderSettings{}), RenderSettings{}} {
         camera.setPosition({7.0f, 0.0f, 3.0f});
 
         if (!Limitless::ContextEventObserver::checkMinimumRequirements()) {
@@ -58,10 +58,7 @@ public:
         context.registerObserver(static_cast<MouseMoveObserver*>(this));
         context.registerObserver(static_cast<FramebufferObserver*>(this));
 
-        assets.load(context);
-
-        TextureLoader tex_loader{assets};
-        tex_loader.load(TEXTURE_DIR "red-line.jpg");
+        assets.load(context, render.getSettings());
 
 //        addModels();
         addModelsT();
@@ -73,8 +70,8 @@ public:
 
         scene.lighting.directional_light = { glm::vec4{2.0f, -5.0f, 2.0f, 1.0f}, glm::vec4{0.1f, 0.7f, 1.3f, 1.0f} };
         scene.lighting.point_lights.emplace_back(glm::vec4{-1.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{2.3f, 1.1f, 1.2f, 2.0f}, 4.6f);
-        scene.lighting.point_lights.emplace_back(glm::vec4{3.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 0.3f, 2.7f, 2.0f}, 4.2f);
-        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.3f, 1.7f, 2.0f}, 4.5f);
+//        scene.lighting.point_lights.emplace_back(glm::vec4{3.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 0.3f, 2.7f, 2.0f}, 4.2f);
+//        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.3f, 1.7f, 2.0f}, 4.5f);
     }
 
     ~Game() override {
@@ -84,7 +81,7 @@ public:
     }
 
     void addModelsT() {
-        AssetManager manager {context, assets, context};
+        AssetManager manager {context, assets, render.getSettings()};
 
         manager.loadModel("bob", ASSETS_DIR "models/boblamp/boblampclean.md5mesh");
         manager.loadModel("backpack", ASSETS_DIR "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
@@ -101,7 +98,11 @@ public:
         }
         manager.delayed_job();
 
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, ASSETS_DIR "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context,
+                                                               assets,
+                                                               render.getSettings(),
+                                                               ASSETS_DIR "skyboxes/sky/sky.png",
+                                                               TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
@@ -115,13 +116,13 @@ public:
     }
 
     void addModels() {
-        ModelLoader model_loader {context, assets};
+        ModelLoader model_loader {context, assets, render.getSettings()};
 
         assets.models.add("bob", model_loader.loadModel(ASSETS_DIR "models/boblamp/boblampclean.md5mesh"));
         assets.models.add("backpack", model_loader.loadModel(ASSETS_DIR "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
         assets.models.add("nanosuit", model_loader.loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(ASSETS_DIR "models/cyborg/cyborg.obj"));
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, ASSETS_DIR "skyboxes/sky/sky.png"));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), ASSETS_DIR "skyboxes/sky/sky.png"));
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
@@ -135,7 +136,7 @@ public:
     }
 
     void addSpheres() {
-        ms::MaterialBuilder builder {context, assets};
+        ms::MaterialBuilder builder {context, assets, render.getSettings()};
         TextureLoader tex_loader {assets};
 
         context.setWindowIcon(tex_loader.loadGLFWImage(ASSETS_DIR "icons/demo.png"));
@@ -186,7 +187,7 @@ public:
     }
 
     void addEffects() {
-        fx::EffectBuilder builder {context, assets};
+        fx::EffectBuilder builder {context, assets, render.getSettings()};
 
         builder.create("effect1")
                 .createEmitter<fx::SpriteEmitter>("generate")
@@ -209,7 +210,7 @@ public:
 
 //        MaterialBuildermat_ builder;
 
-        fx::EffectBuilder beam_builder{context, assets};
+        fx::EffectBuilder beam_builder{context, assets, render.getSettings()};
         beam_builder.create("test_beam")
                      .createEmitter<fx::BeamEmitter>("test")
                      .setMaterial(assets.materials.at("EmissiveColor"))
@@ -232,6 +233,26 @@ public:
     void onKey(int key, [[maybe_unused]] int scancode, InputState state, [[maybe_unused]] Modifier modifier) override {
         if (key == GLFW_KEY_ESCAPE && state == InputState::Pressed) {
             done = true;
+        }
+
+        if (key == GLFW_KEY_1 && state == InputState::Pressed) {
+            render.getSettings().physically_based_render = !render.getSettings().physically_based_render;
+            render.update(context, assets, scene);
+        }
+
+        if (key == GLFW_KEY_2 && state == InputState::Pressed) {
+            render.getSettings().normal_mapping = !render.getSettings().normal_mapping;
+            render.update(context, assets, scene);
+        }
+
+        if (key == GLFW_KEY_3 && state == InputState::Pressed) {
+            render.getSettings().shading_model = render.getSettings().shading_model == ShadingModel::BlinnPhong ? ShadingModel::Phong : ShadingModel::BlinnPhong;
+            render.update(context, assets, scene);
+        }
+
+        if (key == GLFW_KEY_4 && state == InputState::Pressed) {
+            render.getSettings().directional_csm = !render.getSettings().directional_csm;
+            render.update(context, assets, scene);
         }
     }
 

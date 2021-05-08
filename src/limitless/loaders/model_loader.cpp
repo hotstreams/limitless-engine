@@ -13,9 +13,11 @@
 
 using namespace Limitless;
 
-ModelLoader::ModelLoader(Context& _context, Assets& _assets) noexcept
+ModelLoader::ModelLoader(Context& _context, Assets& _assets, const RenderSettings& _settings) noexcept
     : context{_context}
-    , assets {_assets} {}
+    , assets {_assets}
+    , settings {_settings} {
+}
 
 std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, const ModelLoaderFlags& flags) {
     const auto path = convertPathSeparators(_path);
@@ -160,7 +162,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
         return assets.materials.at(name);
     }
 
-    ms::MaterialBuilder builder {context, assets};
+    ms::MaterialBuilder builder {context, assets, settings};
     TextureLoader loader {assets};
 
     builder.setName(std::move(name))
@@ -253,7 +255,8 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
         }
     }
 
-    return builder.build(model_shaders);
+    builder.setModelShaders(model_shaders);
+    return builder.build();
 }
 
 std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {

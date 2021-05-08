@@ -1,7 +1,7 @@
 #include "glsl/point_light.glsl"
 #include "glsl/directional_light.glsl"
 
-#ifdef PBR
+#if defined(PBR)
     #include "glsl/pbr.glsl"
 
     vec3 getPBRShadedColor(vec3 N, vec3 fragment_color, float metallic, float roughness) {
@@ -59,7 +59,7 @@
         }
 
         if (dir_lights_count != uint(0)) {
-            #ifdef DIRECTIONAL_CSM
+            #if defined(DIRECTIONAL_CSM)
                 float shadow = computeDirectionalShadow(dir_light, normal);
                 light += (1.0 - shadow) * computeDirLight(dir_light, normal, fragment_color, view_dir, specular, shininess);
             #else

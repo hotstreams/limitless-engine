@@ -6,6 +6,7 @@ namespace Limitless {
     enum class ShaderPass;
     enum class ModelShader;
     class Assets;
+    class RenderSettings;
 }
 
 namespace Limitless::ms {
@@ -14,19 +15,20 @@ namespace Limitless::ms {
     class MaterialCompiler : public ShaderCompiler {
     protected:
         Assets& assets;
+        const RenderSettings& render_settings;
 
         static std::string getCustomMaterialScalarUniforms(const Material& material) noexcept;
         static std::string getCustomMaterialSamplerUniforms(const Material& material) noexcept;
-        static std::string getMaterialDefines(const Material& material) noexcept;
+        std::string getMaterialDefines(const Material& material) noexcept;
         static std::string getModelDefines(const ModelShader& type);
 
-        static void replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept;
-        static void replaceRenderSettings(Shader& src) noexcept;
+        void replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept;
+        void replaceRenderSettings(Shader& src) noexcept;
     public:
-        MaterialCompiler(Context& context, Assets& assets) noexcept;
+        MaterialCompiler(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
         ~MaterialCompiler() override = default;
 
         using ShaderCompiler::compile;
-        void compile(const Material& material, ShaderPass material_shader, ModelShader model_shader);
+        void compile(const Material& material, ShaderPass pass_shader, ModelShader model_shader);
     };
 }

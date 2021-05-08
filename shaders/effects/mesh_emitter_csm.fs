@@ -12,8 +12,7 @@ flat in int particle_id;
 
 #include "glsl/mesh_particle.glsl"
 
-void main()
-{
+void main() {
     vec2 uv = fs_uv;
 
     vec3 p_position = particles[particle_id].position;
@@ -26,7 +25,7 @@ void main()
     vec4 p_subUV = particles[particle_id].subUV;
     vec4 p_properties = particles[particle_id].properties;
 
-    #ifdef SubUV_MODULE
+    #if defined(SubUV_MODULE)
         uv = uv * p_subUV.xy + p_subUV.zw;
     #endif
 
@@ -34,7 +33,7 @@ void main()
 
     Limitless::CustomMaterialFragmentCode
 
-    #ifdef MATERIAL_BLENDMASK
-        if (mat_blend_mask == 0.0) discard;
+    #if defined(MATERIAL_BLENDMASK)
+        if (mat_blend_mask <= 0.5) discard;
     #endif
 }

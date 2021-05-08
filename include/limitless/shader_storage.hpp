@@ -33,8 +33,8 @@ namespace Limitless {
     class ShaderStorage final {
     private:
         std::unordered_map<std::string, std::shared_ptr<ShaderProgram>> shaders;
-        std::map<ShaderKey, std::shared_ptr<ShaderProgram>> material_shaders;
 
+        std::map<ShaderKey, std::shared_ptr<ShaderProgram>> material_shaders;
         std::map<fx::UniqueEmitterShaderKey, std::shared_ptr<ShaderProgram>> emitters;
 
         std::mutex mutex;
@@ -54,5 +54,8 @@ namespace Limitless {
 
         bool contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept;
         bool contains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept;
+
+        void clearMaterialShaders();
+        void clearEffectShaders();
     };
 }

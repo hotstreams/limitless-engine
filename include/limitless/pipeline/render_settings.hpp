@@ -1,29 +1,38 @@
 #pragma once
 
+#include <limitless/pipeline/shader_pass_types.hpp>
 #include <glm/vec2.hpp>
 
 namespace Limitless {
-    enum class ShadingModel { Phong, BlinnPhong };
+    enum class ShadingModel {
+        Phong,
+        BlinnPhong
+    };
 
-    struct RenderSettings {
+    class RenderSettings {
+    public:
+        // compile time for now
+        // forward / deferred / forward+
+        static constexpr auto renderer = ShaderPass::Forward;
+
         // material settings
-        static constexpr auto SHADING_MODEL {ShadingModel::BlinnPhong};
-        static constexpr auto PHYSICALLY_BASED_RENDER {true};
-        static constexpr auto NORMAL_MAPPING {true};
+        ShadingModel shading_model = ShadingModel::BlinnPhong;
+        bool physically_based_render = true;
+        bool normal_mapping = true;
 
         // lighting settings
-//        static constexpr auto MAX_POINT_LIGHTS_INFLUENCE {-1}; // -1 for unlimited
-//        static constexpr auto HIGH_DYNAMIC_RANGE {true};
+        // static constexpr auto MAX_POINT_LIGHTS_INFLUENCE {-1}; // -1 for unlimited
+        // static constexpr auto HIGH_DYNAMIC_RANGE {true};
 
         // shadows settings
-        static constexpr auto DIRECTIONAL_CSM {true};
-        static constexpr auto DIRECTIONAL_SHADOW_RESOLUTION = glm::uvec2{ 1024, 1024 };
-        static constexpr auto DIRECTIONAL_SPLIT_COUNT {3}; // four is max
-        static constexpr auto DIRECTIONAL_PFC {false};
+        bool directional_csm = true;
+        glm::uvec2 directional_shadow_resolution = { 1024, 1024 };
+        uint8_t directional_split_count = 3; // four is max
+        bool directional_pcf = false;
 
         // king of debug settings
-        static constexpr auto LIGHT_RADIUS {false};
-        static constexpr auto COORDINATE_SYSTEM_AXES {false};
-        static constexpr auto BOUNDING_BOX {false};
+        bool light_radius = false;
+        bool coordinate_system_axes = false;
+        bool bounding_box = false;
     };
 }

@@ -6,8 +6,11 @@
 #include <memory>
 
 namespace Limitless {
+    class RenderSettings;
+    class ContextEventObserver;
+
     class Pipeline {
-    private:
+    protected:
         std::vector<std::unique_ptr<RenderPass>> passes;
     public:
         Pipeline() = default;
@@ -21,6 +24,9 @@ namespace Limitless {
             return *pass;
         }
 
+        virtual void update(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings);
+
+        void clear();
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
     };
 }

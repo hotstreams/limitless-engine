@@ -3,6 +3,10 @@
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/pipeline/render_settings.hpp>
 
+namespace Limitless::fx {
+    class EffectRenderer;
+}
+
 namespace Limitless {
     struct DirectionalLight;
     class AbstractInstance;
@@ -26,13 +30,15 @@ namespace Limitless {
 
     class CascadeShadows final {
     private:
-        static constexpr glm::uvec2 SHADOW_RESOLUTION = RenderSettings::DIRECTIONAL_SHADOW_RESOLUTION;
-        static constexpr auto SPLIT_COUNT = RenderSettings::DIRECTIONAL_SPLIT_COUNT;
         static constexpr auto SPLIT_WEIGHT {0.75f};
 
-        Framebuffer fbo;
-        std::array<ShadowFrustum, SPLIT_COUNT> frustums;
-        std::array<float, SPLIT_COUNT> far_bounds {};
+        glm::uvec2 shadow_resolution;
+        uint8_t split_count;
+
+        std::unique_ptr<Framebuffer> framebuffer;
+
+        std::vector<ShadowFrustum> frustums;
+        std::vector<float> far_bounds {};
         std::shared_ptr<Buffer> light_buffer;
         std::vector<glm::mat4> light_space;
 
@@ -40,10 +46,17 @@ namespace Limitless {
         void updateFrustums(Context& ctx, const Camera& camera);
         void updateLightMatrices(const DirectionalLight& light);
     public:
-        explicit CascadeShadows(Context& context);
-        ~CascadeShadows() = default;
+        explicit CascadeShadows(Context& context, const RenderSettings& settings);
+        ~CascadeShadows();
 
-        void draw(Instances& instances, const DirectionalLight& light, Context& ctx, const Assets& assets, const Camera& camera);
+        void update(Context& ctx, const RenderSettings& settings);
+
+        void draw(Instances& instances,
+                  const DirectionalLight& light,
+                  Context& ctx, const
+                  Assets& assets,
+                  const Camera& camera,
+                  std::optional<std::reference_wrapper<fx::EffectRenderer>> renderer);
         void setUniform(ShaderProgram& sh) const;
         void mapData() const;
     };
