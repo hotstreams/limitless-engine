@@ -15,6 +15,7 @@ namespace Limitless {
     class Skybox;
     class FontAtlas;
     class Context;
+    class RenderSettings;
 
     class Assets {
     public:
@@ -30,6 +31,6 @@ namespace Limitless {
         Assets() = default;
         virtual ~Assets() = default;
 
-        virtual void load(Context& context);
+        virtual void load(Context& context, const RenderSettings& settings);
     };
 }

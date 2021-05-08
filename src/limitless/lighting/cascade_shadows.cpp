@@ -14,13 +14,19 @@
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
 
+#include <limitless/fx/effect_renderer.hpp>
+
 using namespace Limitless;
+
+namespace {
+    constexpr auto DIRECTIONAL_CSM_BUFFER_NAME = "directional_shadows";
+}
 
 void CascadeShadows::initBuffers(Context& context) {
     TextureBuilder builder;
     auto depth = builder.setTarget(Texture::Type::Tex2DArray)
                         .setInternalFormat(Texture::InternalFormat::Depth16)
-                        .setSize(glm::uvec3{SHADOW_RESOLUTION, SPLIT_COUNT})
+                        .setSize(glm::uvec3{shadow_resolution, split_count})
                         .setFormat(Texture::Format::DepthComponent)
                         .setDataType(Texture::DataType::Float)
                         .setParameters([] (Texture& texture) {
@@ -33,26 +39,31 @@ void CascadeShadows::initBuffers(Context& context) {
                         })
                         .build();
 
-    fbo.bind();
-    fbo << TextureAttachment{FramebufferAttachment::Depth, depth};
-    fbo.specifyLayer(FramebufferAttachment::Depth, 0);
-    fbo.drawBuffer(FramebufferAttachment::None);
-    fbo.readBuffer(FramebufferAttachment::None);
-    fbo.checkStatus();
-    fbo.unbind();
+    framebuffer = std::make_unique<Framebuffer>();
+    framebuffer->bind();
+    *framebuffer << TextureAttachment{FramebufferAttachment::Depth, depth};
+    framebuffer->specifyLayer(FramebufferAttachment::Depth, 0);
+    framebuffer->drawBuffer(FramebufferAttachment::None);
+    framebuffer->readBuffer(FramebufferAttachment::None);
+    framebuffer->checkStatus();
+    framebuffer->unbind();
 
 
     BufferBuilder buffer_builder;
     light_buffer = buffer_builder .setTarget(Buffer::Type::ShaderStorage)
                                   .setUsage(Buffer::Usage::DynamicDraw)
                                   .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                                  .setDataSize(sizeof(glm::mat4) * SPLIT_COUNT)
-                                  .build("directional_shadows", context);
+                                  .setDataSize(sizeof(glm::mat4) * split_count)
+                                  .build(DIRECTIONAL_CSM_BUFFER_NAME, context);
 }
 
-CascadeShadows::CascadeShadows(Context& context) {
+CascadeShadows::CascadeShadows(Context& context, const RenderSettings& settings)
+    : shadow_resolution {settings.directional_shadow_resolution}
+    , split_count {settings.directional_split_count} {
     initBuffers(context);
-    light_space.reserve(SPLIT_COUNT);
+    frustums.resize(split_count);
+    far_bounds.resize(split_count);
+    light_space.reserve(split_count);
 }
 
 void CascadeShadows::updateFrustums(Context& ctx, const Camera& camera) {
@@ -69,19 +80,19 @@ void CascadeShadows::updateFrustums(Context& ctx, const Camera& camera) {
 
         frustums[0].near_distance = near;
 
-        for (uint32_t i = 1; i < SPLIT_COUNT; ++i) {
-            const auto si = static_cast<float>(i) / static_cast<float>(SPLIT_COUNT);
+        for (uint32_t i = 1; i < split_count; ++i) {
+            const auto si = static_cast<float>(i) / static_cast<float>(split_count);
             frustums[i].near_distance = SPLIT_WEIGHT * (near * glm::pow(ratio, si)) + (1 - SPLIT_WEIGHT) * (near + (far - near) * si);
             frustums[i - 1].far_distance = frustums[i].near_distance * 1.005f;
         }
 
-        frustums[SPLIT_COUNT - 1].far_distance = far;
+        frustums[split_count - 1].far_distance = far;
     }
 
     // updates far distances for uniform
     {
         const auto projection = camera.getProjection();
-        for (uint32_t i = 0; i < SPLIT_COUNT; ++i) {
+        for (uint32_t i = 0; i < split_count; ++i) {
             far_bounds[i] = 0.5f * (-frustums[i].far_distance * projection[2][2] + projection[3][2]) / frustums[i].far_distance + 0.5f;
         }
     }
@@ -169,18 +180,23 @@ void CascadeShadows::updateLightMatrices(const DirectionalLight& light) {
     }
 }
 
-void CascadeShadows::draw(Instances& instances, const DirectionalLight& light, Context& ctx, const Assets& assets, const Camera& camera) {
+void CascadeShadows::draw(Instances& instances,
+                          const DirectionalLight& light,
+                          Context& ctx, const
+                          Assets& assets,
+                          const Camera& camera,
+                          std::optional<std::reference_wrapper<fx::EffectRenderer>> renderer) {
     updateFrustums(ctx, camera);
     updateLightMatrices(light);
 
-    fbo.bind();
+   framebuffer->bind();
 
-    ctx.setViewPort(SHADOW_RESOLUTION);
+    ctx.setViewPort(shadow_resolution);
     ctx.setDepthMask(DepthMask::True);
 
-    for (uint32_t i = 0; i < SPLIT_COUNT; ++i) {
-        fbo.specifyLayer(FramebufferAttachment::Depth, i);
-        fbo.clear();
+    for (uint32_t i = 0; i < split_count; ++i) {
+        framebuffer->specifyLayer(FramebufferAttachment::Depth, i);
+        framebuffer->clear();
 
         const auto uniform_set = [&] (ShaderProgram& shader) {
             shader << UniformValue{"light_space", frustums[i].crop};
@@ -192,18 +208,22 @@ void CascadeShadows::draw(Instances& instances, const DirectionalLight& light, C
             }
 
             instance.get().draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+
+            if (renderer) {
+                renderer->get().draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+            }
         }
     }
 
-    fbo.unbind();
+    framebuffer->unbind();
 }
 
 void CascadeShadows::setUniform(ShaderProgram& shader)  const {
-    shader << UniformSampler{"dir_shadows", fbo.get(FramebufferAttachment::Depth).texture};
+    shader << UniformSampler{"dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture};
 
     // TODO: ?
     glm::vec4 bounds {0.0f};
-    for (uint32_t i = 0; i < SPLIT_COUNT; ++i) {
+    for (uint32_t i = 0; i < split_count; ++i) {
         bounds[i] = far_bounds[i];
     }
 
@@ -212,4 +232,20 @@ void CascadeShadows::setUniform(ShaderProgram& shader)  const {
 
 void CascadeShadows::mapData() const {
     light_buffer->mapData(light_space.data(), light_space.size() * sizeof(glm::mat4));
+}
+
+void CascadeShadows::update(Context& ctx, const RenderSettings& settings) {
+    shadow_resolution = settings.directional_shadow_resolution;
+    split_count = settings.directional_split_count;
+
+    initBuffers(ctx);
+
+    frustums.resize(split_count);
+    far_bounds.resize(split_count);
+}
+
+CascadeShadows::~CascadeShadows() {
+    if (auto* ctx = ContextState::getState(glfwGetCurrentContext()); ctx) {
+        ctx->getIndexedBuffers().remove(DIRECTIONAL_CSM_BUFFER_NAME, light_buffer);
+    }
 }

@@ -5,6 +5,7 @@
 #include <limitless/ms/unique_material.hpp>
 #include <functional>
 #include <mutex>
+#include <limitless/pipeline/render_settings.hpp>
 
 namespace Limitless {
     class Assets;
@@ -30,15 +31,18 @@ namespace Limitless::ms {
 
         Context& context;
         Assets& assets;
+        const RenderSettings& settings;
 
         [[nodiscard]] UniqueMaterial getMaterialType() const noexcept;
         void compileShaders(const ModelShaders&, const PassShaders&);
         void initializeMaterialBuffer();
         void checkRequirements();
         void setMaterialIndex();
+        void setModelShaders();
+        void setPassShaders();
         void createMaterial();
     public:
-        MaterialBuilder(Context& context, Assets& _ctx);
+        MaterialBuilder(Context& context, Assets& assets, const RenderSettings& settings);
         virtual ~MaterialBuilder() = default;
 
         MaterialBuilder(const MaterialBuilder&) = delete;
@@ -65,12 +69,13 @@ namespace Limitless::ms {
         MaterialBuilder& addUniform(std::unique_ptr<Uniform> uniform);
         MaterialBuilder& removeUniform(const std::string& name);
 
+        MaterialBuilder& setModelShaders(const ModelShaders& shaders) noexcept;
+        MaterialBuilder& addPassShader(ShaderPass pass) noexcept;
+        MaterialBuilder& addModelShader(ModelShader model) noexcept;
+
         MaterialBuilder& set(decltype(material->properties)&& properties);
         MaterialBuilder& set(decltype(material->uniforms)&& uniforms);
 
-        std::shared_ptr<Material> build(
-            const ModelShaders& model_shaders = { ModelShader::Model },
-            const PassShaders& material_shaders = { ShaderPass::Forward, ShaderPass::DirectionalShadow }
-        );
+        std::shared_ptr<Material> build();
     };
 }

@@ -21,6 +21,7 @@ namespace Limitless {
     class AbstractMesh;
     class Assets;
     class Context;
+    class RenderSettings;
 
     struct VertexBoneWeight;
     struct Animation;
@@ -49,6 +50,7 @@ namespace Limitless {
 
         Context& context;
         Assets& assets;
+        const RenderSettings& settings;
 
         std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
         std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
@@ -58,7 +60,7 @@ namespace Limitless {
         template<typename T> std::vector<T> loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
         template<typename T> std::vector<T> loadIndices(aiMesh* mesh) const noexcept;
     public:
-        ModelLoader(Context& context, Assets& assets) noexcept;
+        ModelLoader(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
         virtual ~ModelLoader() = default;
 
         std::shared_ptr<AbstractModel> loadModel(const fs::path& path, const ModelLoaderFlags& flags = {});

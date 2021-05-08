@@ -19,6 +19,12 @@ SceneDataStorage::SceneDataStorage(Context& ctx) {
                     .build(SCENE_DATA_BUFFER_NAME, ctx);
 }
 
+SceneDataStorage::~SceneDataStorage() {
+    if (auto* ctx = ContextState::getState(glfwGetCurrentContext()); ctx) {
+        ctx->getIndexedBuffers().remove(SCENE_DATA_BUFFER_NAME, buffer);
+    }
+}
+
 void SceneDataStorage::update(Context& context, const Camera& camera) {
     scene_data.projection = camera.getProjection();
     scene_data.view = camera.getView();

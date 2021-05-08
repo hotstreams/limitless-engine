@@ -13,9 +13,10 @@ void MaterialBuilder::createMaterial() {
     material = std::shared_ptr<Material>(new Material());
 }
 
-MaterialBuilder::MaterialBuilder(Context& _context, Assets& _assets)
+MaterialBuilder::MaterialBuilder(Context& _context, Assets& _assets, const RenderSettings& _settings)
     : context{_context}
-    , assets {_assets} {
+    , assets {_assets}
+    , settings {_settings} {
     createMaterial();
 }
 
@@ -84,7 +85,6 @@ MaterialBuilder& MaterialBuilder::add(Property type, float value) {
         case Property::Color:
         case Property::EmissiveColor:
         case Property::Normal:
-        case Property::Displacement:
         case Property::Diffuse:
         case Property::Specular:
         case Property::EmissiveMask:
@@ -107,7 +107,6 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec4& value) {
         case Property::TessellationFactor:
         case Property::Shininess:
         case Property::Normal:
-        case Property::Displacement:
         case Property::Metallic:
         case Property::Roughness:
         case Property::Diffuse:
@@ -143,9 +142,6 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
         case Property::Normal:
             material->properties[type] = std::make_unique<UniformSampler>("material_normal", std::move(texture));
             break;
-        case Property::Displacement:
-            material->properties[type] = std::make_unique<UniformSampler>("material_displacement", std::move(texture));
-            break;
         case Property::EmissiveMask:
             material->properties[type] = std::make_unique<UniformSampler>("material_emissive_mask", std::move(texture));
             break;
@@ -175,7 +171,6 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec2& value) {
         case Property::Diffuse:
         case Property::Specular:
         case Property::Normal:
-        case Property::Displacement:
         case Property::EmissiveMask:
         case Property::BlendMask:
         case Property::MetallicTexture:
@@ -238,7 +233,7 @@ MaterialBuilder& MaterialBuilder::removeUniform(const std::string& name) {
 void MaterialBuilder::setMaterialIndex() {
     std::unique_lock lock(mutex);
 
-    if (!material->uniforms.empty() || !material->vertex_snippet.empty() || !material->fragment_snippet.empty() || !material->global_snippet.empty()) {
+    if (!material->uniforms.empty() || !material->vertex_snippet.empty() || !material->fragment_snippet.empty() || !material->tessellation_snippet.empty() || !material->global_snippet.empty()) {
         // it is custom material; makes index unique
         material->shader_index = next_shader_index++;
     } else {
@@ -256,11 +251,25 @@ void MaterialBuilder::setMaterialIndex() {
 
 void MaterialBuilder::checkRequirements() {
     if (material->properties.empty()) {
-        throw material_builder_error("Properties cannot be empty.");
+        throw material_builder_error("Properties cannot be empty");
     }
 
     if (material->name.empty()) {
-        throw material_builder_error("Name cannot be empty.");
+        throw material_builder_error("Name cannot be empty");
+    }
+
+    if ((material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
+        !(material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
+        throw material_builder_error("Metallic & Roughness should be set together");
+    }
+
+    if (!(material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
+        (material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
+        throw material_builder_error("Metallic & Roughness should be set together");
+    }
+
+    if (!material->tessellation_snippet.empty() && !material->contains(Property::TessellationFactor)) {
+        throw material_builder_error("Tessellation snippet require TessellationFactor to be set");
     }
 }
 
@@ -269,7 +278,7 @@ void MaterialBuilder::compileShaders(const ModelShaders& model_shaders, const Pa
     // except for ModelShader::Effect
     // because we do not know yet which EffectModules it will use
 
-    MaterialCompiler compiler {context, assets};
+    MaterialCompiler compiler {context, assets, settings};
     for (const auto& pass_shader : pass_shaders) {
         for (const auto& model_shader : model_shaders) {
             if (model_shader == ModelShader::Effect) {
@@ -283,14 +292,15 @@ void MaterialBuilder::compileShaders(const ModelShaders& model_shaders, const Pa
     }
 }
 
-std::shared_ptr<Material> MaterialBuilder::build(const ModelShaders& model_shaders, const PassShaders& pass_shaders) {
+std::shared_ptr<Material> MaterialBuilder::build() {
     checkRequirements();
 
-    material->model_shaders = model_shaders;
+    setPassShaders();
 
     setMaterialIndex();
+    setModelShaders();
 
-    compileShaders(model_shaders, pass_shaders);
+    compileShaders(material->model_shaders, material->pass_shaders);
 
     initializeMaterialBuffer();
 
@@ -310,4 +320,35 @@ UniqueMaterial MaterialBuilder::getMaterialType() const noexcept {
     });
 
     return { std::move(props), material->shading };
+}
+
+MaterialBuilder& MaterialBuilder::setModelShaders(const Limitless::ModelShaders& shaders) noexcept {
+    material->model_shaders = shaders;
+    return *this;
+}
+
+void MaterialBuilder::setPassShaders() {
+    if (material->pass_shaders.empty()) {
+        if (settings.directional_csm) {
+            material->pass_shaders.emplace(ShaderPass::DirectionalShadow);
+        }
+
+        material->pass_shaders.emplace(settings.renderer);
+    }
+}
+
+MaterialBuilder& MaterialBuilder::addPassShader(ShaderPass pass) noexcept {
+    material->pass_shaders.emplace(pass);
+    return *this;
+}
+
+MaterialBuilder& MaterialBuilder::addModelShader(ModelShader model) noexcept {
+    material->model_shaders.emplace(model);
+    return *this;
+}
+
+void MaterialBuilder::setModelShaders() {
+    if (material->model_shaders.empty()) {
+        material->model_shaders.emplace(ModelShader::Model);
+    }
 }

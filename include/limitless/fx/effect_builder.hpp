@@ -9,6 +9,7 @@ namespace Limitless {
     class AbstractMesh;
     class Context;
     class Assets;
+    class RenderSettings;
 
     namespace ms {
         class Material;
@@ -24,6 +25,7 @@ namespace Limitless::fx {
 
         Context& context;
         Assets& assets;
+        const RenderSettings& settings;
 
         template<typename Emitter>
         EffectBuilder& setModules(decltype(Emitter::modules)&& modules);
@@ -38,7 +40,7 @@ namespace Limitless::fx {
 
         friend class EmitterSerializer;
     public:
-        EffectBuilder(Context& context, Assets& assets) noexcept;
+        EffectBuilder(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
         ~EffectBuilder() = default;
 
         EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count);
@@ -87,6 +89,6 @@ namespace Limitless::fx {
                                                std::unique_ptr<Distribution<float>> p3,
                                                std::unique_ptr<Distribution<float>> p4);
 
-        std::shared_ptr<EffectInstance> build(const PassShaders& material_shaders = {ShaderPass::Forward, ShaderPass::DirectionalShadow});
+        std::shared_ptr<EffectInstance> build();
     };
 }

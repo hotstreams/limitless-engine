@@ -5,15 +5,13 @@ Limitless::MaterialType
 Limitless::ModelType
 
 in vertex_data {
-    #ifdef MATERIAL_LIT
+    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
         vec3 world_position;
+    #endif
 
-        #ifdef MATERIAL_NORMAL
-            #ifdef NORMAL_MAPPING
-                mat3 TBN;
-            #else
-                vec3 normal;
-            #endif
+    #if defined(MATERIAL_LIT)
+        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
+            mat3 TBN;
         #else
             vec3 normal;
         #endif
@@ -34,7 +32,7 @@ void main()
 
     Limitless::CustomMaterialFragmentCode
 
-    #ifdef MATERIAL_BLENDMASK
+    #if defined(MATERIAL_BLENDMASK)
         if (mat_blend_mask <= 0.5) discard;
         //fragment_color.a *= mat_blend_mask;
     #endif

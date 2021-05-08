@@ -21,7 +21,7 @@ namespace Limitless {
         std::shared_ptr<Buffer> buffer;
     public:
         explicit SceneDataStorage(Context& context);
-        ~SceneDataStorage() = default;
+        ~SceneDataStorage();
 
         SceneDataStorage(const SceneDataStorage&) = delete;
         SceneDataStorage(SceneDataStorage&&) = delete;

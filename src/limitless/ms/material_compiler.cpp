@@ -6,8 +6,11 @@
 
 using namespace Limitless::ms;
 
-MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets) noexcept
-    :  ShaderCompiler{context}, assets{_assets} {}
+MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets, const RenderSettings& _settings) noexcept
+    :  ShaderCompiler {context}
+    , assets {_assets}
+    , render_settings {_settings} {
+}
 
 std::string MaterialCompiler::getMaterialDefines(const Material& material) noexcept {
     std::string property_defines;
@@ -27,9 +30,6 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
                 break;
             case Property::Normal:
                 property_defines.append("#define MATERIAL_NORMAL\n");
-                break;
-            case Property::Displacement:
-                property_defines.append("#define MATERIAL_DISPLACEMENT\n");
                 break;
             case Property::EmissiveMask:
                 property_defines.append("#define MATERIAL_EMISSIVEMASK\n");
@@ -67,12 +67,9 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
             break;
     }
 
-    auto prop_exist = [&] (Property exist) {
-        return std::find_if(material.getProperties().begin(), material.getProperties().end(), [&] (const auto& property) { return property.first == exist; }) != material.getProperties().end();
-    };
-
-    if ((prop_exist(Property::MetallicTexture) || prop_exist(Property::RoughnessTexture) || prop_exist(Property::Metallic) || prop_exist(Property::Roughness)) &&
-        RenderSettings::PHYSICALLY_BASED_RENDER) {
+    if ((material.contains(Property::MetallicTexture) || material.contains(Property::RoughnessTexture) ||
+         material.contains(Property::Metallic) || material.contains(Property::Roughness)) &&
+        render_settings.physically_based_render) {
         property_defines.append("#define PBR\n");
     }
 
@@ -127,7 +124,7 @@ void MaterialCompiler::replaceRenderSettings(Shader& shader) noexcept {
     std::string settings;
 
     // sets shading model
-    switch (RenderSettings::SHADING_MODEL) {
+    switch (render_settings.shading_model) {
         case ShadingModel::Phong:
             settings.append("#define PHONG_MODEL\n");
             break;
@@ -137,16 +134,16 @@ void MaterialCompiler::replaceRenderSettings(Shader& shader) noexcept {
     }
 
     // sets normal mapping
-    if (RenderSettings::NORMAL_MAPPING) {
+    if (render_settings.normal_mapping) {
         settings.append("#define NORMAL_MAPPING\n");
     }
 
-    if (RenderSettings::DIRECTIONAL_CSM) {
+    if (render_settings.directional_csm) {
         settings.append("#define DIRECTIONAL_CSM\n");
 
-        settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(RenderSettings::DIRECTIONAL_SPLIT_COUNT) + '\n');
+        settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(render_settings.directional_split_count) + '\n');
 
-        if (RenderSettings::DIRECTIONAL_PFC) {
+        if (render_settings.directional_pcf) {
             settings.append("#define DIRECTIONAL_PFC\n");
         }
     }
@@ -161,20 +158,21 @@ void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& m
     shader.replaceKey("Limitless::CustomMaterialVertexCode", material.getVertexSnippet());
     shader.replaceKey("Limitless::CustomMaterialFragmentCode", material.getFragmentSnippet());
     shader.replaceKey("Limitless::CustomMaterialGlobalDefinitions", material.getGlobalSnippet());
+    shader.replaceKey("Limitless::CustomMaterialTessellationCode", material.getTessellationSnippet());
     shader.replaceKey("Limitless::CustomMaterialScalarUniforms", getCustomMaterialScalarUniforms(material));
     shader.replaceKey("Limitless::CustomMaterialSamplerUniforms", getCustomMaterialSamplerUniforms(material));
 }
 
-void MaterialCompiler::compile(const Material& material, ShaderPass material_shader, ModelShader model_shader) {
+void MaterialCompiler::compile(const Material& material, ShaderPass pass_shader, ModelShader model_shader) {
     const auto props = [&] (Shader& shader) {
         replaceMaterialSettings(shader, material, model_shader);
         replaceRenderSettings(shader);
     };
 
-    if (material.getProperties().count(Property::TessellationFactor) != 0) {
+    if (material.contains(Property::TessellationFactor)) {
         *this << Shader { SHADER_DIR "tesselation" PATH_SEPARATOR "tesselation.tcs", Shader::Type::TessControl, props }
               << Shader { SHADER_DIR "tesselation" PATH_SEPARATOR "tesselation.tes", Shader::Type::TessEval, props };
     }
 
-    assets.shaders.add(material_shader, model_shader, material.getShaderIndex(), compile(SHADER_DIR + SHADER_PASS_PATH.at(material_shader), props));
+    assets.shaders.add(pass_shader, model_shader, material.getShaderIndex(), compile(SHADER_DIR + SHADER_PASS_PATH.at(pass_shader), props));
 }

@@ -8,29 +8,27 @@ Limitless::ModelType
 #include "glsl/material.glsl"
 
 layout(location = 0) in vec3 position;
-#ifdef MATERIAL_LIT
+#if defined(MATERIAL_LIT)
     layout(location = 1) in vec3 normal;
-    #ifdef NORMAL_MAPPING
+    #if defined(NORMAL_MAPPING)
         layout(location = 2) in vec3 tangent;
     #endif
 #endif
 layout(location = 3) in vec2 uv;
-#ifdef SKELETAL_MODEL
+#if defined(SKELETAL_MODEL)
     #include "glsl/bones.glsl"
     layout (location = 4) in ivec4 bone_id;
     layout (location = 5) in vec4 bone_weight;
 #endif
 
 out vertex_data {
-    #ifdef MATERIAL_LIT
+    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
         vec3 world_position;
+    #endif
 
-        #ifdef MATERIAL_NORMAL
-            #ifdef NORMAL_MAPPING
-                mat3 TBN;
-            #else
-                vec3 normal;
-            #endif
+    #if defined(MATERIAL_LIT)
+        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
+            mat3 TBN;
         #else
             vec3 normal;
         #endif
@@ -41,8 +39,7 @@ out vertex_data {
 
 uniform mat4 model;
 
-void main()
-{
+void main() {
     out_data.uv = uv;
 
     mat4 model_matrix = model;
@@ -50,7 +47,7 @@ void main()
 
     Limitless::CustomMaterialVertexCode
 
-    #ifdef SKELETAL_MODEL
+    #if defined(SKELETAL_MODEL)
         mat4 bone_transform = bones[bone_id[0]] * bone_weight[0];
         bone_transform     += bones[bone_id[1]] * bone_weight[1];
         bone_transform     += bones[bone_id[2]] * bone_weight[2];
@@ -61,27 +58,25 @@ void main()
 
     vec4 world_pos = model_matrix * vertex_position;
 
-    #ifdef MATERIAL_LIT
-        out_data.world_position = world_pos.xyz;
+    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
+       out_data.world_position = world_pos.xyz;
+    #endif
 
-        #ifdef MATERIAL_NORMAL
-            #ifdef NORMAL_MAPPING
-                mat3 normal_matrix = transpose(inverse(mat3(model_matrix)));
-                vec3 T = normalize(normal_matrix * tangent);
-                vec3 N = normalize(normal_matrix * normal);
-                T = normalize(T - dot(T, N) * N);
-                vec3 B = cross(N, T);
+    #if defined(MATERIAL_LIT)
+        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
+            mat3 normal_matrix = transpose(inverse(mat3(model_matrix)));
+            vec3 T = normalize(normal_matrix * tangent);
+            vec3 N = normalize(normal_matrix * normal);
+            T = normalize(T - dot(T, N) * N);
+            vec3 B = cross(N, T);
 
-                out_data.TBN = mat3(T, B, N);
-            #else
-                out_data.normal = transpose(inverse(mat3(model_matrix))) * normal;
-            #endif
+            out_data.TBN = mat3(T, B, N);
         #else
             out_data.normal = transpose(inverse(mat3(model_matrix))) * normal;
         #endif
     #endif
 
-    #ifndef MATERIAL_TESSELATION_FACTOR
+    #if !defined(MATERIAL_TESSELATION_FACTOR)
 	    gl_Position = VP * world_pos;
 	#endif
 }

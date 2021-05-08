@@ -1,63 +1,63 @@
 layout(std140) uniform material_buffer {
-    #ifdef MATERIAL_COLOR
+    #if defined(MATERIAL_COLOR)
         vec4 material_color;
     #endif
 
-    #ifdef MATERIAL_EMISSIVE_COLOR
+    #if defined(MATERIAL_EMISSIVE_COLOR)
         vec4 material_emissive_color;
     #endif
 
-    #ifdef BINDLESS_TEXTURE
-        #ifdef MATERIAL_DIFFUSE
+    #if defined(BINDLESS_TEXTURE)
+        #if defined(MATERIAL_DIFFUSE)
             sampler2D material_diffuse;
         #endif
 
-        #ifdef MATERIAL_NORMAL
+        #if defined(MATERIAL_NORMAL)
             sampler2D material_normal;
         #endif
 
-        #ifdef MATERIAL_SPECULAR
+        #if defined(MATERIAL_SPECULAR)
             sampler2D material_specular;
         #endif
 
-        #ifdef MATERIAL_EMISSIVEMASK
+        #if defined(MATERIAL_EMISSIVEMASK)
             sampler2D material_emissive_mask;
         #endif
 
-        #ifdef MATERIAL_BLENDMASK
+        #if defined(MATERIAL_BLENDMASK)
             sampler2D material_blend_mask;
         #endif
 
-        #ifdef MATERIAL_METALLIC_TEXTURE
+        #if defined(MATERIAL_METALLIC_TEXTURE)
             sampler2D material_metallic_texture;
         #endif
 
-        #ifdef MATERIAL_ROUGHNESS_TEXTURE
+        #if defined(MATERIAL_ROUGHNESS_TEXTURE)
             sampler2D material_roughness_texture;
         #endif
 
-        #ifdef MATERIAL_DISPLACEMENT
+        #if defined(MATERIAL_DISPLACEMENT)
             sampler2D material_displacement;
         #endif
     #endif
 
-    #ifdef MATERIAL_TESSELLATION_FACTOR
+    #if defined(MATERIAL_TESSELLATION_FACTOR)
         vec2 material_tessellation_factor;
     #endif
 
-    #ifdef MATERIAL_SHININESS
+    #if defined(MATERIAL_SHININESS)
         float material_shininess;
     #endif
 
-    #ifdef MATERIAL_METALLIC
+    #if defined(MATERIAL_METALLIC)
         float material_metallic;
     #endif
 
-    #ifdef MATERIAL_ROUGHNESS
+    #if defined(MATERIAL_ROUGHNESS)
         float material_roughness;
     #endif
 
-    #ifdef BINDLESS_TEXTURE
+    #if defined(BINDLESS_TEXTURE)
         Limitless::CustomMaterialSamplerUniforms
     #endif
 
@@ -69,36 +69,36 @@ layout(std140) uniform material_buffer {
     bool empty;
 };
 
-#ifndef BINDLESS_TEXTURE
-    #ifdef MATERIAL_DIFFUSE
+#if !defined(BINDLESS_TEXTURE)
+    #if defined(MATERIAL_DIFFUSE)
         uniform sampler2D material_diffuse;
     #endif
 
-    #ifdef MATERIAL_SPECULAR
+    #if defined(MATERIAL_SPECULAR)
         uniform sampler2D material_specular;
     #endif
 
-    #ifdef MATERIAL_NORMAL
+    #if defined(MATERIAL_NORMAL)
         uniform sampler2D material_normal;
     #endif
 
-    #ifdef MATERIAL_DISPLACEMENT
+    #if defined(MATERIAL_DISPLACEMENT)
         uniform sampler2D material_displacement;
     #endif
 
-    #ifdef MATERIAL_EMISSIVEMASK
+    #if defined(MATERIAL_EMISSIVEMASK)
         uniform sampler2D material_emissive_mask;
     #endif
 
-    #ifdef MATERIAL_BLENDMASK
+    #if defined(MATERIAL_BLENDMASK)
         uniform sampler2D material_blend_mask;
     #endif
 
-    #ifdef MATERIAL_METALLIC_TEXTURE
+    #if defined(MATERIAL_METALLIC_TEXTURE)
         uniform sampler2D material_metallic_texture;
     #endif
 
-    #ifdef MATERIAL_ROUGHNESS_TEXTURE
+    #if defined(MATERIAL_ROUGHNESS_TEXTURE)
         uniform sampler2D material_roughness_texture;
     #endif
 

@@ -217,14 +217,6 @@ const UniformSampler& Material::getNormal() const {
     }
 }
 
-const UniformSampler& Material::getDisplacement() const {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Displacement));
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No displacement in material.");
-    }
-}
-
 const UniformSampler& Material::getEmissiveMask() const {
     try {
         return static_cast<UniformSampler&>(*properties.at(Property::EmissiveMask));
@@ -350,14 +342,6 @@ UniformSampler& Material::getNormal() {
         return static_cast<UniformSampler&>(*properties.at(Property::Normal));
     } catch (const std::out_of_range& e) {
         throw material_property_not_found("No normal in material.");
-    }
-}
-
-UniformSampler& Material::getDisplacement() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Displacement));
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No displacement in material.");
     }
 }
 

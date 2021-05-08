@@ -16,8 +16,6 @@ namespace Limitless::ms {
         MetallicTexture,
         RoughnessTexture,
 
-        // tesselation parameters
-        Displacement,
         TessellationFactor,
 
         // float

@@ -3,13 +3,19 @@
 #include <limitless/pipeline/render_pass.hpp>
 #include <limitless/lighting/cascade_shadows.hpp>
 
+namespace Limitless::fx {
+    class EffectRenderer;
+}
+
 namespace Limitless {
     class DirectionalShadowPass final : public RenderPass {
     private:
+        std::optional<std::reference_wrapper<fx::EffectRenderer>> effect_renderer;
         CascadeShadows shadows;
         std::reference_wrapper<DirectionalLight> light;
     public:
-        DirectionalShadowPass(RenderPass* prev, Context& ctx, Scene& scene);
+        DirectionalShadowPass(RenderPass* prev, Context& ctx, Scene& scene, const RenderSettings& settings);
+        DirectionalShadowPass(RenderPass* prev, Context& ctx, Scene& scene, const RenderSettings& settings, fx::EffectRenderer& renderer);
         ~DirectionalShadowPass() override = default;
 
         void addSetter(UniformSetter& setter) override;

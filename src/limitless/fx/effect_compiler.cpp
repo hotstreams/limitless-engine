@@ -20,6 +20,10 @@ inline const std::map<std::pair<ShaderPass, AbstractEmitter::Type>, std::string>
     {{ShaderPass::DirectionalShadow, AbstractEmitter::Type::Beam},   "effects/beam_emitter_csm" },
 };
 
+EffectCompiler::EffectCompiler(Context& context, Assets& assets, const RenderSettings& settings)
+    : MaterialCompiler(context, assets, settings) {
+}
+
 std::string EffectCompiler::getEmitterDefines(const AbstractEmitter& emitter) noexcept {
     std::string defines;
     for (const auto& type : emitter.getUniqueType().module_type) {
