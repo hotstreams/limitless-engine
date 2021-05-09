@@ -79,7 +79,10 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(c
 
     auto meshes = loadMeshes(scene, path, bones, bone_map, flags);
 
-    auto materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+    std::vector<std::shared_ptr<ms::Material>> materials;
+    if (!flags.count(ModelLoaderFlag::NoMaterials)) {
+        materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+    }
 
     auto animations = loadAnimations(scene, bones, bone_map, flags);
 
