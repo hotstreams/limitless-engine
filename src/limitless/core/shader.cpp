@@ -66,7 +66,7 @@ void Shader::checkStatus() const {
             file << "Shader source:" << source << std::endl;
         }
 
-        throw shader_compilation_error(log);
+        throw shader_compilation_error("failed to compile " + path.string() + ": " + log);
     }
 }
 

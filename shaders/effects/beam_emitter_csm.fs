@@ -4,8 +4,8 @@ Limitless::Settings
 Limitless::MaterialType
 Limitless::EmitterType
 
-#include "glsl/material.glsl"
-#include "glsl/scene.glsl"
+#include "../glsl/material.glsl"
+#include "../glsl/scene.glsl"
 
 in vec2 fs_uv;
 
@@ -38,7 +38,7 @@ void main() {
         uv = uv * p_subUV.xy + p_subUV.zw;
     #endif
 
-    #include "glsl/material_variables.glsl"
+    #include "../glsl/material_variables.glsl"
 
     Limitless::CustomMaterialFragmentCode
 
