@@ -11,7 +11,7 @@ AnimationNode::AnimationNode(decltype(positions) _positions, decltype(rotations)
 
 size_t AnimationNode::findPositionKeyframe(double anim_time) const {
     for (size_t i = 0; i < positions.size() - 1; ++i) {
-        if (anim_time < positions[i + 1].time) {
+        if (anim_time <= positions[i + 1].time) {
             return i;
         }
     }
@@ -20,7 +20,7 @@ size_t AnimationNode::findPositionKeyframe(double anim_time) const {
 
 size_t AnimationNode::findRotationKeyframe(double anim_time) const {
     for (size_t i = 0; i < rotations.size() - 1; ++i) {
-        if (anim_time < rotations[i + 1].time)
+        if (anim_time <= rotations[i + 1].time)
             return i;
     }
     throw std::out_of_range("no rotation keyframe for time " + std::to_string(anim_time));
@@ -28,7 +28,7 @@ size_t AnimationNode::findRotationKeyframe(double anim_time) const {
 
 size_t AnimationNode::findScalingKeyframe(double anim_time) const {
     for (size_t i = 0; i < scales.size() - 1; ++i) {
-        if (anim_time < scales[i + 1].time)
+        if (anim_time <= scales[i + 1].time)
             return i;
     }
     throw std::out_of_range("no scaling keyframe for time " + std::to_string(anim_time));

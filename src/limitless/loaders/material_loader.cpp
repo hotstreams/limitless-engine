@@ -14,6 +14,7 @@ using namespace Limitless::ms;
 std::shared_ptr<ms::Material> MaterialLoader::load(Context& context, Assets& assets, const RenderSettings& settings, const fs::path& _path) {
     auto path = convertPathSeparators(_path);
     std::ifstream stream(path, std::ios::binary | std::ios::ate);
+    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     auto filesize = stream.tellg();
     ByteBuffer buffer{static_cast<size_t>(filesize)};

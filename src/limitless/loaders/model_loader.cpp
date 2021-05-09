@@ -55,7 +55,10 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
 
     auto meshes = loadMeshes(scene, path, bones, bone_map, flags);
 
-    auto materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+    std::vector<std::shared_ptr<ms::Material>> materials;
+    if (!flags.count(ModelLoaderFlag::NoMaterials)) {
+        materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+    }
 
     auto animations = loadAnimations(scene, bones, bone_map, flags);
 
@@ -456,12 +459,6 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
     if (loaded.empty()) {
         throw model_loader_error{"Animations are empty!"};
     }
-
-    for (auto& a : loaded)
-        std::cout << a.name << std::endl;
-
-    loaded.at(0).tps = 20.0f;
-    loaded.at(0).duration = 20.0f;
 
     animations.insert(animations.end(), std::make_move_iterator(loaded.begin()), std::make_move_iterator(loaded.end()));
 

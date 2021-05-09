@@ -35,7 +35,8 @@ namespace Limitless {
         FlipUV,
         GenerateUniqueMeshNames,
         FlipYZ,
-        FlipWindingOrder
+        FlipWindingOrder,
+        NoMaterials
     };
     using ModelLoaderFlags = std::set<ModelLoaderFlag>;
 
