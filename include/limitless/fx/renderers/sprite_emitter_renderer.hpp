@@ -15,7 +15,7 @@ namespace Limitless::fx {
         Mesh<SpriteParticle> mesh;
 
         const ms::Material& material;
-        const UniqueEmitter& unique_type;
+        const UniqueEmitter unique_type;
     public:
         explicit EmitterRenderer(const SpriteEmitter& emitter)
             : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT,
