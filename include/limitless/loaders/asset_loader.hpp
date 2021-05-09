@@ -7,7 +7,7 @@
 #include <limitless/loaders/model_loader.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 
-#define ASSETS_DIR "../assets/"
+#define ASSETS_DIR ENGINE_ASSETS_DIR
 
 #define MATERIAL_DIR ASSETS_DIR"materials/"
 #define TEXTURE_DIR ASSETS_DIR"textures/"
