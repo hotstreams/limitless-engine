@@ -47,3 +47,7 @@ Instances Scene::getWrappers() noexcept {
 
     return wrappers;
 }
+
+void Scene::clear() {
+	instances.clear();
+}
