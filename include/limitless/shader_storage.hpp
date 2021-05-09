@@ -55,6 +55,12 @@ namespace Limitless {
         bool contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept;
         bool contains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept;
 
+        const auto& getCommonShaders() const noexcept { return shaders; }
+        const auto& getMaterialShaders() const noexcept { return material_shaders; }
+        const auto& getEmitterShaders() const noexcept { return emitters; }
+
+        void merge(const ShaderStorage& other);
+
         void clearMaterialShaders();
         void clearEffectShaders();
     };

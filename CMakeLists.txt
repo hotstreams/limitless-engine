@@ -221,3 +221,5 @@ add_executable(limitless_engine_tests
         "tests/catch_amalgamated.cpp"
 
         "tests/core/texture_tests.cpp")
+
+add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
