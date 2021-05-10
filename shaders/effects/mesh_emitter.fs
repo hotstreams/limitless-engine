@@ -46,11 +46,11 @@ void main()
         fragment_color *= mat_color;
     #endif
 
-    #ifd defined(MATERIAL_DIFFUSE)
+    #if defined(MATERIAL_DIFFUSE)
         fragment_color *= mat_diffuse;
     #endif
 
-    #ifd defined(MATERIAL_BLENDMASK)
+    #if defined(MATERIAL_BLENDMASK)
         if (mat_blend_mask <= 0.5) discard;
         fragment_color.a *= mat_blend_mask;
     #endif
