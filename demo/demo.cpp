@@ -207,6 +207,24 @@ public:
 
         effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, -5.f});
 
+        builder.create("effect2")
+                .createEmitter<fx::MeshEmitter>("generate")
+                .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{-5.0f, 0.0f, -5.0f}, glm::vec3{5.0f}))
+                .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{0.0f}, glm::vec3{0.0f, 5.0f, 0.0f}))
+                .addLifetime(std::make_unique<RangeDistribution<float>>(0.2f, 0.5f))
+                .addInitialSize(std::make_unique<ConstDistribution<float>>(1.0f))
+                .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{0.0f}, glm::vec4{2.0f}))
+                .setMaterial(assets.materials.at("EmissiveColor"))
+                .setMesh(assets.meshes.at("sphere_mesh"))
+                .setSpawnMode(fx::EmitterSpawn::Mode::Burst)
+                .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(100))
+                .setMaxCount(100)
+                .setSpawnRate(1.0f)
+                .setLocalSpace(true)
+                .build();
+
+        effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
+
 
 //        MaterialBuildermat_ builder;
 
