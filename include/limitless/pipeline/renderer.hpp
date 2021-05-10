@@ -23,6 +23,8 @@ namespace Limitless {
         explicit Renderer(std::unique_ptr<Pipeline> pipeline, const RenderSettings& settings);
         ~Renderer() = default;
 
+        auto& getPipeline() noexcept { return pipeline; }
+
         auto& getSettings() noexcept { return settings; }
         [[nodiscard]] const auto& getSettings() const noexcept { return settings; }
 
