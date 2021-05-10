@@ -2,6 +2,7 @@
 #include <limitless/core/context_initializer.hpp>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -150,11 +151,13 @@ void Shader::replaceIncludes(const fs::path& base_dir) {
 
         std::string file_name = source.substr(beg, name_length);
 
+        std::cerr << "replacing include in " + path.string() + " of " << base_dir / file_name << '\n';
+
         try {
             const auto& include_src = getSource(base_dir / file_name);
             source.replace(found, include.length() + 3 + name_length, include_src);
         } catch (const shader_file_not_found& not_found) {
-            throw shader_include_not_found(not_found.what());
+            throw shader_include_not_found("failed to resolve include for " + path.string() + ": " + not_found.what());
         }
     }
 }

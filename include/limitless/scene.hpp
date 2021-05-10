@@ -68,8 +68,6 @@ namespace Limitless {
 
         auto size() const noexcept { return instances.size(); }
 
-        void clear();
-
         #ifdef NDEBUG
                 template<typename T>
                 T& get(uint64_t id) {
