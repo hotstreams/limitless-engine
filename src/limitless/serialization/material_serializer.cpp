@@ -18,6 +18,7 @@ void MaterialSerializer::deserialize(ByteBuffer& buffer, Context& context, Asset
     std::string vertex_code;
     std::string fragment_code;
     std::string global_code;
+    std::string tes_code;
 
     buffer >> name
            >> shading
@@ -26,7 +27,8 @@ void MaterialSerializer::deserialize(ByteBuffer& buffer, Context& context, Asset
            >> AssetDeserializer<decltype(uniforms)>{context, assets, settings, uniforms}
            >> vertex_code
            >> fragment_code
-           >> global_code;
+           >> global_code
+           >> tes_code;
 
     builder .setName(name)
             .setShading(shading)
@@ -35,7 +37,8 @@ void MaterialSerializer::deserialize(ByteBuffer& buffer, Context& context, Asset
             .set(std::move(uniforms))
             .setVertexSnippet(vertex_code)
             .setFragmentSnippet(fragment_code)
-            .setGlobalSnippet(global_code);
+            .setGlobalSnippet(global_code)
+            .setTessellationSnippet(tes_code);
 }
 
 ByteBuffer MaterialSerializer::serialize(const Material& material) {
@@ -49,6 +52,7 @@ ByteBuffer MaterialSerializer::serialize(const Material& material) {
            << material.getVertexSnippet()
            << material.getFragmentSnippet()
            << material.getGlobalSnippet()
+           << material.getTessellationSnippet()
            << material.getModelShaders();
 
     return buffer;
