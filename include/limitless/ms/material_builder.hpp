@@ -64,6 +64,7 @@ namespace Limitless::ms {
 
         MaterialBuilder& setFragmentSnippet(std::string fs_code) noexcept;
         MaterialBuilder& setVertexSnippet(std::string vs_code) noexcept;
+        MaterialBuilder& setTessellationSnippet(std::string tes_code) noexcept;
         MaterialBuilder& setGlobalSnippet(std::string global_code) noexcept;
 
         MaterialBuilder& addUniform(std::unique_ptr<Uniform> uniform);
