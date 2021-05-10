@@ -12,8 +12,8 @@ namespace Limitless::fx {
         uint64_t current_particle_count {};
 
         const std::shared_ptr<AbstractMesh>& mesh;
-        const ms::Material& material;
-        const UniqueEmitter& unique_type;
+        const ms::Material material;
+        const UniqueEmitter unique_type;
 
         void checkStorageSize(uint64_t count) {
             if (count > max_particle_count) {

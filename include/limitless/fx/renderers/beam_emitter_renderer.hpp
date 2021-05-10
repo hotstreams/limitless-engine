@@ -9,8 +9,8 @@ namespace Limitless::fx {
     private:
         Mesh<BeamParticleMapping> mesh;
 
-        const ms::Material& material;
-        const UniqueEmitter& unique_type;
+        const ms::Material material;
+        const UniqueEmitter unique_type;
     public:
         EmitterRenderer(const BeamEmitter& emitter)
                 : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT,
