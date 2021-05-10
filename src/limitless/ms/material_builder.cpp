@@ -352,3 +352,8 @@ void MaterialBuilder::setModelShaders() {
         material->model_shaders.emplace(ModelShader::Model);
     }
 }
+
+MaterialBuilder& MaterialBuilder::setTessellationSnippet(std::string tes_code) noexcept {
+    material->tessellation_snippet = std::move(tes_code);
+    return *this;
+}
