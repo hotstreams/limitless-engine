@@ -76,6 +76,8 @@ namespace Limitless {
         virtual void bindAs(Type target) const noexcept = 0;
         virtual void bind() const noexcept = 0;
 
+        virtual void resize(size_t bytes) noexcept = 0;
+
         virtual void fence() noexcept = 0;
         virtual void waitFence() noexcept = 0;
 

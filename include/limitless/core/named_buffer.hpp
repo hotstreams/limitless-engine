@@ -21,6 +21,8 @@ namespace Limitless {
         void clearData(GLenum internalformat, GLenum format, GLenum type, const void* data) const noexcept override;
         void bufferSubData(GLintptr offset, size_t sub_size, const void* data) const noexcept override;
 
+        void resize(size_t size) noexcept override;
+
         [[nodiscard]] void* mapBufferRange(GLintptr offset, GLsizeiptr size) const override;
         void unmapBuffer() const noexcept override;
     };

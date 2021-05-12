@@ -20,6 +20,7 @@
 #include <limitless/loaders/asset_loader.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/pipeline/forward.hpp>
+#include <limitless/instances/instanced.hpp>
 
 using namespace Limitless;
 

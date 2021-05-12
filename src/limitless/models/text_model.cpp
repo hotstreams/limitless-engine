@@ -20,7 +20,7 @@ void TextModel::initialize(size_t count) {
                      .setData(vertices.empty() ? nullptr : vertices.data())
                      .setDataSize(count * sizeof(TextVertex))
                      .setUsage(Buffer::Usage::DynamicDraw)
-                    . setAccess(Buffer::MutableAccess::WriteOrphaning)
+                     .setAccess(Buffer::MutableAccess::WriteOrphaning)
                      .build();
 
     vertex_array << std::pair<TextVertex, Buffer&>(TextVertex{}, *buffer);
@@ -30,11 +30,10 @@ void TextModel::update(std::vector<TextVertex>&& _vertices) {
     vertices = std::move(_vertices);
 
     if (vertices.size() * sizeof(TextVertex) > buffer->getSize()) {
-        initialize(vertices.size());
-        //TODO:: buffer resize function ??? wtf???
-    } else {
-        buffer->mapData(vertices.data(), vertices.size() * sizeof(TextVertex));
+        buffer->resize(vertices.size() * sizeof(TextVertex));
     }
+
+    buffer->mapData(vertices.data(), vertices.size() * sizeof(TextVertex));
 }
 
 void TextModel::draw() const {
