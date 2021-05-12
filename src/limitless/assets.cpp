@@ -10,8 +10,8 @@
 
 using namespace Limitless;
 
-Assets::Assets(fs::path _base_dir)
-	: base_dir {std::move(_base_dir)}
+Assets::Assets(const fs::path& _base_dir)
+	: base_dir {_base_dir}
 {
 }
 
