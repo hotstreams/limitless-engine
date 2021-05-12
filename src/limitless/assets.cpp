@@ -42,13 +42,13 @@ void Assets::load(Context& context, const RenderSettings& settings) {
     meshes.add("plane_mesh", models.at("plane")->getMeshes().at(0));
 }
 
-void Assets::merge(const Assets& other) {
-    shaders.merge(other.shaders);
-    models.merge(other.models);
-    meshes.merge(other.meshes);
-    textures.merge(other.textures);
-    materials.merge(other.materials);
-    skyboxes.merge(other.skyboxes);
-    effects.merge(other.effects);
-    fonts.merge(other.fonts);
+void Assets::add(const Assets& other) {
+    shaders.add(other.shaders);
+    models.add(other.models);
+    meshes.add(other.meshes);
+    textures.add(other.textures);
+    materials.add(other.materials);
+    skyboxes.add(other.skyboxes);
+    effects.add(other.effects);
+    fonts.add(other.fonts);
 }
