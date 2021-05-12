@@ -26,6 +26,10 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 link_directories(${FREETYPE_LIBRARIES})
 
 if (WIN32)
+    find_package(stb_image REQUIRED)
+    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
+    include_directories(${STB_IMAGE_INCLUDE_DIRS})
+
     find_package(glm REQUIRED)
     message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
     include_directories(${GLM_INCLUDE_DIRS})
@@ -221,3 +225,5 @@ add_executable(limitless_engine_tests
         "tests/catch_amalgamated.cpp"
 
         "tests/core/texture_tests.cpp")
+
+add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")

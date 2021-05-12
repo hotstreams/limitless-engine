@@ -10,9 +10,14 @@
 
 using namespace Limitless;
 
+Assets::Assets(const fs::path& _base_dir)
+	: base_dir {_base_dir}
+{
+}
+
 void Assets::load(Context& context, const RenderSettings& settings) {
     // engine-required assets
-    shaders.initialize(context);
+    shaders.initialize(context, getShaderDir());
 
     // used in render as light radius material
     ms::MaterialBuilder builder {context, *this, settings};
@@ -35,4 +40,15 @@ void Assets::load(Context& context, const RenderSettings& settings) {
 
     models.add("plane", std::make_shared<Plane>());
     meshes.add("plane_mesh", models.at("plane")->getMeshes().at(0));
+}
+
+void Assets::add(const Assets& other) {
+    shaders.add(other.shaders);
+    models.add(other.models);
+    meshes.add(other.meshes);
+    textures.add(other.textures);
+    materials.add(other.materials);
+    skyboxes.add(other.skyboxes);
+    effects.add(other.effects);
+    fonts.add(other.fonts);
 }

@@ -4,8 +4,16 @@
 using namespace Limitless;
 
 Camera::Camera(glm::uvec2 window_size) noexcept
-    : position{0.0f}, front{1.0f, 0.0f, 0.0f}, up{0.0f, 1.0f, 0.0f}, right{0.0f, 0.0f, 1.0f}, world_up{0.0f, 1.0f, 0.0f},
-    projection{1.0f}, view{1.0f}, pitch{-60.0f}, yaw{90.0f} {
+    : position{0.0f}
+    , front {1.0f, 0.0f, 0.0f}
+    , up {0.0f, 1.0f, 0.0f}
+    , right {0.0f, 0.0f, 1.0f}
+    , world_up {0.0f, 1.0f, 0.0f}
+    , projection {1.0f}
+    , view {1.0f}
+    , pitch {-60.0f}
+    , yaw {270.0f}
+{
 
     updateView();
     updateProjection(window_size);
@@ -44,10 +52,10 @@ void Camera::movement(CameraMovement move, float delta) noexcept {
         case CameraMode::Free:
             switch (move) {
                 case CameraMovement::Forward:
-                    position += front * velocity;
+                    position -= front * velocity;
                     break;
                 case CameraMovement::Backward:
-                    position -= front * velocity;
+                    position += front * velocity;
                     break;
                 case CameraMovement::Left:
                     position -= right * velocity;
@@ -66,16 +74,16 @@ void Camera::movement(CameraMovement move, float delta) noexcept {
         case CameraMode::Panning:
             switch (move) {
                 case CameraMovement::Forward:
-                    position.z += velocity;
-                    break;
-                case CameraMovement::Backward:
                     position.z -= velocity;
                     break;
+                case CameraMovement::Backward:
+                    position.z += velocity;
+                    break;
                 case CameraMovement::Left:
-                    position.x += velocity;
+                    position.x -= velocity;
                     break;
                 case CameraMovement::Right:
-                    position.x -= velocity;
+                    position.x += velocity;
                     break;
                 case CameraMovement::Up:
                     position.y += velocity;

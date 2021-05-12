@@ -20,7 +20,7 @@ out vertex_data {
     vec2 uv;
 } out_data;
 
-#include "glsl/material.glsl"
+#include "../glsl/material.glsl"
 
 layout(location = 0) in vec3 position;
 #if defined(MATERIAL_LIT)
@@ -31,12 +31,12 @@ layout(location = 0) in vec3 position;
 #endif
 layout(location = 3) in vec2 uv;
 #if defined(SKELETAL_MODEL)
-    #include "glsl/bones.glsl"
+    #include "../glsl/bones.glsl"
     layout (location = 4) in ivec4 bone_id;
     layout (location = 5) in vec4 bone_weight;
 #endif
 
-#include "glsl/scene.glsl"
+#include "../glsl/scene.glsl"
 
 uniform mat4 model;
 uniform mat4 light_space;

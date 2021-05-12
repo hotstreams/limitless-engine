@@ -42,7 +42,7 @@ namespace Limitless {
         ShaderStorage() = default;
         ~ShaderStorage() = default;
 
-        void initialize(Context& ctx);
+        void initialize(Context& ctx, const fs::path& shader_dir);
 
         ShaderProgram& get(const std::string& name) const;
         ShaderProgram& get(ShaderPass material_type, ModelShader model_type, uint64_t material_index) const;
@@ -54,6 +54,12 @@ namespace Limitless {
 
         bool contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept;
         bool contains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept;
+
+        const auto& getCommonShaders() const noexcept { return shaders; }
+        const auto& getMaterialShaders() const noexcept { return material_shaders; }
+        const auto& getEmitterShaders() const noexcept { return emitters; }
+
+        void add(const ShaderStorage& other);
 
         void clearMaterialShaders();
         void clearEffectShaders();

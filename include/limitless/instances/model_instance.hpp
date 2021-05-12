@@ -25,7 +25,8 @@ namespace Limitless {
 
         MeshInstance& operator[](const std::string& mesh);
 
-        auto& getMeshes() { return meshes; }
+        const auto& getMeshes() const noexcept { return meshes; }
+        auto& getMeshes() noexcept { return meshes; }
 
         using AbstractInstance::draw;
         void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;

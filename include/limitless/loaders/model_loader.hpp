@@ -38,6 +38,7 @@ namespace Limitless {
         FlipWindingOrder,
         NoMaterials
     };
+
     using ModelLoaderFlags = std::set<ModelLoaderFlag>;
 
     class ModelLoader {

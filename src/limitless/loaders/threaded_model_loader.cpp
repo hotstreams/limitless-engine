@@ -104,7 +104,8 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(c
 }
 
 std::function<std::vector<std::shared_ptr<AbstractMesh>>()> ThreadedModelLoader::loadMeshes(
-        const aiScene* scene, const fs::path& path,
+        const aiScene* scene,
+        const fs::path& path,
         std::vector<Bone>& bones,
         std::unordered_map<std::string, uint32_t>& bone_map,
         const ModelLoaderFlags& flags)

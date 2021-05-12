@@ -1,7 +1,7 @@
 Limitless::GLSL_VERSION
 Limitless::Extensions
 
-#include "glsl/scene.glsl"
+#include "../glsl/scene.glsl"
 
 layout (location = 0) in vec3 position;
 

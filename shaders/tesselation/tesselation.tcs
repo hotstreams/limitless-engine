@@ -5,7 +5,7 @@ Limitless::Settings
 Limitless::MaterialType
 Limitless::ModelType
 
-#include "glsl/material.glsl"
+#include "../glsl/material.glsl"
 
 layout (vertices = 3) out;
 

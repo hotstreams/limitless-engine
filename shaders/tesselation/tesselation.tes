@@ -7,8 +7,8 @@ Limitless::ModelType
 
 layout(triangles, equal_spacing, ccw) in;
 
-#include "glsl/scene.glsl"
-#include "glsl/material.glsl"
+#include "../glsl/scene.glsl"
+#include "../glsl/material.glsl"
 
 in vertex_data {
     #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)

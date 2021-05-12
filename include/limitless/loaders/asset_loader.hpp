@@ -7,12 +7,12 @@
 #include <limitless/loaders/model_loader.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 
-#define ASSETS_DIR "../assets/"
+constexpr auto ASSETS_DIR = ENGINE_ASSETS_DIR;
 
-#define MATERIAL_DIR ASSETS_DIR"materials/"
-#define TEXTURE_DIR ASSETS_DIR"textures/"
-#define EFFECT_DIR ASSETS_DIR"effects/"
-#define MODEL_DIR ASSETS_DIR"models/"
+constexpr auto MATERIAL_DIR = ENGINE_ASSETS_DIR "materials/";
+constexpr auto TEXTURE_DIR = ENGINE_ASSETS_DIR "textures/";
+constexpr auto EFFECT_DIR = ENGINE_ASSETS_DIR "effects/";
+constexpr auto MODEL_DIR = ENGINE_ASSETS_DIR "models/";
 
 namespace Limitless {
     class Assets;
