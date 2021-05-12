@@ -31,7 +31,7 @@ namespace Limitless {
         ResourceContainer<EffectInstance> effects;
         ResourceContainer<FontAtlas> fonts;
 
-        Assets(fs::path _base_dir = ENGINE_ASSETS_DIR);
+        Assets(const fs::path& _base_dir);
         virtual ~Assets() = default;
 
         virtual void load(Context& context, const RenderSettings& settings);

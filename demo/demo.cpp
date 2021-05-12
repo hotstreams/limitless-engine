@@ -42,7 +42,9 @@ public:
         : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
         , scene {context}
         , camera {window_size}
-        , render {std::make_unique<Forward>(context, scene, RenderSettings{}), RenderSettings{}} {
+        , render {std::make_unique<Forward>(context, scene, RenderSettings{}), RenderSettings{}}
+        , assets {ENGINE_ASSETS_DIR}
+{
         camera.setPosition({7.0f, 0.0f, 3.0f});
 
         if (!Limitless::ContextEventObserver::checkMinimumRequirements()) {
