@@ -29,7 +29,7 @@ uniform float line_bias;
 
 uniform bool fxaa;
 
-#include "glsl/fxaa.glsl"
+#include "../glsl/fxaa.glsl"
 
 void main()
 {

@@ -33,6 +33,7 @@ namespace Limitless {
         uint32_t font_size;
 
         static constexpr auto TAB_WIDTH_IN_SPACES = 4;
+
         bool isSynthetizedGlyph(uint32_t utf32_codepoint) const noexcept;
     public:
         FontAtlas(const fs::path& path, uint32_t size);

@@ -264,6 +264,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
 
 std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
     std::vector<VertexBoneWeight> bone_weights;
+
     if (mesh->HasBones()) {
         bone_weights.resize(mesh->mNumVertices);
 

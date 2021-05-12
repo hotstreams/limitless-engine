@@ -2,6 +2,8 @@
 
 #include <limitless/lighting/lighting.hpp>
 #include <stdexcept>
+#include <unordered_map>
+#include <memory>
 
 namespace Limitless {
     class AbstractInstance;
@@ -44,6 +46,8 @@ namespace Limitless {
 
         void remove(uint64_t id);
 
+        void clear();
+
         AbstractInstance& operator[](uint64_t id) noexcept;
         AbstractInstance& at(uint64_t id);
 
@@ -63,8 +67,6 @@ namespace Limitless {
         Instances getWrappers() noexcept;
 
         auto size() const noexcept { return instances.size(); }
-
-        void clear();
 
         #ifdef NDEBUG
                 template<typename T>

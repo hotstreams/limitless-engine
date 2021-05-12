@@ -4,8 +4,8 @@ Limitless::Settings
 Limitless::MaterialType
 Limitless::EmitterType
 
-#include "glsl/material.glsl"
-#include "glsl/scene.glsl"
+#include "../glsl/material.glsl"
+#include "../glsl/scene.glsl"
 
 layout(location = 0) in vec4 position;
 layout (location = 1) in vec2 uv;

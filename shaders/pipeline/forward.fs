@@ -20,12 +20,12 @@ in vertex_data {
     vec2 uv;
 } in_data;
 
-#include "glsl/scene.glsl"
-#include "glsl/material.glsl"
+#include "../glsl/scene.glsl"
+#include "../glsl/material.glsl"
 
 #if defined(MATERIAL_LIT)
-    #include "glsl/scene_lighting.glsl"
-    #include "glsl/light_computation.glsl"
+    #include "../glsl/scene_lighting.glsl"
+    #include "../glsl/light_computation.glsl"
 #endif
 
 out vec4 color;
@@ -33,13 +33,13 @@ out vec4 color;
 void main()
 {
     vec2 uv = in_data.uv;
-    #include "glsl/material_variables.glsl"
+    #include "../glsl/material_variables.glsl"
 
     Limitless::CustomMaterialFragmentCode
 
     // computing final color
     vec4 fragment_color = vec4(1.0);
-    #include "glsl/material_computation.glsl"
+    #include "../glsl/material_computation.glsl"
 
 	color = fragment_color;
 }

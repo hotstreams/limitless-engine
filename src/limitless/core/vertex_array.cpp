@@ -121,6 +121,5 @@ void Limitless::swap(VertexArray& lhs, VertexArray& rhs) {
 VertexArray& VertexArray::operator<<(const std::pair<TextVertex, Buffer&>& attribute) noexcept {
     setAttribute(0, VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, position), attribute.second });
     setAttribute(1, VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, uv), attribute.second });
-
-    return *this;
+	return *this;
 }
