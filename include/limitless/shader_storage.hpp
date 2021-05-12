@@ -59,7 +59,7 @@ namespace Limitless {
         const auto& getMaterialShaders() const noexcept { return material_shaders; }
         const auto& getEmitterShaders() const noexcept { return emitters; }
 
-        void merge(const ShaderStorage& other);
+        void add(const ShaderStorage& other);
 
         void clearMaterialShaders();
         void clearEffectShaders();

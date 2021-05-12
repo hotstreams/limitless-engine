@@ -99,16 +99,16 @@ void ShaderStorage::clearEffectShaders() {
     emitters.clear();
 }
 
-void ShaderStorage::merge(const ShaderStorage& other) {
-    for (const auto& [key, value] : other.shaders) {
+void ShaderStorage::add(const ShaderStorage& other) {
+    for (auto&& [key, value] : other.shaders) {
         shaders.emplace(key, value);
     }
 
-    for (const auto& [key, value] : other.material_shaders) {
+    for (auto&& [key, value] : other.material_shaders) {
         material_shaders.emplace(key, value);
     }
 
-    for (const auto& [key, value] : other.emitters) {
+    for (auto&& [key, value] : other.emitters) {
         emitters.emplace(key, value);
     }
 }
