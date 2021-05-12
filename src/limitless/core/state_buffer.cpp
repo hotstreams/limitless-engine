@@ -271,3 +271,15 @@ void StateBuffer::clearSubData(GLenum internalformat, GLintptr offset, GLsizeipt
     bind();
     glClearBufferSubData(static_cast<GLenum>(target), internalformat, offset, sub_size, format, type, data);
 }
+
+void StateBuffer::resize(size_t new_size) noexcept{
+    size = new_size;
+
+    if (std::holds_alternative<Storage>(usage_flags)) {
+        StateBuffer new_buffer{target, size, nullptr, std::get<Storage>(usage_flags), std::get<ImmutableAccess>(access)};
+        swap(*this, new_buffer);
+    } else {
+        bind();
+        StateBuffer::bufferData(nullptr);
+    }
+}

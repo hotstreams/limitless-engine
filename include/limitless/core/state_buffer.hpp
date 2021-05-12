@@ -44,6 +44,8 @@ namespace Limitless {
         void bindAs(Type target) const noexcept override;
         void bind() const noexcept override;
 
+        void resize(size_t size) noexcept override;
+
         void fence() noexcept override;
         void waitFence() noexcept override;
 

@@ -75,3 +75,14 @@ void* NamedBuffer::mapBufferRange(GLintptr offset, GLsizeiptr map_size) const {
 void NamedBuffer::unmapBuffer() const noexcept {
     glUnmapNamedBuffer(id);
 }
+
+void NamedBuffer::resize(size_t new_size) noexcept {
+    size = new_size;
+
+    if (std::holds_alternative<Storage>(usage_flags)) {
+        NamedBuffer new_buffer{target, size, nullptr, std::get<Storage>(usage_flags), std::get<ImmutableAccess>(access)};
+        swap(*this, new_buffer);
+    } else {
+        NamedBuffer::bufferData(nullptr);
+    }
+}
