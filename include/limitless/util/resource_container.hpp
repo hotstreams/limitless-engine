@@ -62,10 +62,10 @@ namespace Limitless {
             return resource.find(name) != resource.end();
         }
 
-        void merge(const ResourceContainer& other) {
+        void add(const ResourceContainer& other) {
             std::scoped_lock lock {mutex, other.mutex};
 
-            for (const auto& [key, value] : other) {
+            for (auto&& [key, value] : other) {
                 resource.emplace(key, value);
             }
         }

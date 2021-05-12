@@ -82,11 +82,12 @@ public:
 
     void addModelsT() {
         AssetManager manager {context, assets, render.getSettings()};
+        const fs::path assets_dir {ASSETS_DIR};
 
-        manager.loadModel("bob", ASSETS_DIR "models/boblamp/boblampclean.md5mesh");
-        manager.loadModel("backpack", ASSETS_DIR "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
-        manager.loadModel("nanosuit", ASSETS_DIR "models/nanosuit/nanosuit.obj");
-        manager.loadModel("cyborg", ASSETS_DIR "models/cyborg/cyborg.obj");
+        manager.loadModel("bob", assets_dir / "models/boblamp/boblampclean.md5mesh");
+        manager.loadModel("backpack", assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
+        manager.loadModel("nanosuit", assets_dir / "models/nanosuit/nanosuit.obj");
+        manager.loadModel("cyborg", assets_dir / "models/cyborg/cyborg.obj");
 
 //        manager.wait();
         while (!manager) {
@@ -101,9 +102,9 @@ public:
         assets.skyboxes.add("skybox", std::make_shared<Skybox>(context,
                                                                assets,
                                                                render.getSettings(),
-                                                               ASSETS_DIR "skyboxes/sky/sky.png",
+                                                               assets_dir / "skyboxes/sky/sky.png",
                                                                TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
-        assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
+        assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
         scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f}, glm::vec3{0.4f});
@@ -117,13 +118,14 @@ public:
 
     void addModels() {
         ModelLoader model_loader {context, assets, render.getSettings()};
+        const fs::path assets_dir {ASSETS_DIR};
 
-        assets.models.add("bob", model_loader.loadModel(ASSETS_DIR "models/boblamp/boblampclean.md5mesh"));
-        assets.models.add("backpack", model_loader.loadModel(ASSETS_DIR "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
-        assets.models.add("nanosuit", model_loader.loadModel(ASSETS_DIR "models/nanosuit/nanosuit.obj"));
-        assets.models.add("cyborg", model_loader.loadModel(ASSETS_DIR "models/cyborg/cyborg.obj"));
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), ASSETS_DIR "skyboxes/sky/sky.png"));
-        assets.fonts.add("nunito", std::make_shared<FontAtlas>(ASSETS_DIR "fonts/nunito.ttf", 48));
+        assets.models.add("bob", model_loader.loadModel(assets_dir / "models/boblamp/boblampclean.md5mesh"));
+        assets.models.add("backpack", model_loader.loadModel(assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
+        assets.models.add("nanosuit", model_loader.loadModel(assets_dir / "models/nanosuit/nanosuit.obj"));
+        assets.models.add("cyborg", model_loader.loadModel(assets_dir / "models/cyborg/cyborg.obj"));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png"));
+        assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
         scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f}, glm::vec3{0.4f});
@@ -139,7 +141,9 @@ public:
         ms::MaterialBuilder builder {context, assets, render.getSettings()};
         TextureLoader tex_loader {assets};
 
-        context.setWindowIcon(tex_loader.loadGLFWImage(ASSETS_DIR "icons/demo.png"));
+        const fs::path assets_dir {ASSETS_DIR};
+
+        context.setWindowIcon(tex_loader.loadGLFWImage(assets_dir / "icons/demo.png"));
 
         builder.setName("Color")
                 .add(ms::Property::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
@@ -148,7 +152,7 @@ public:
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{0.0f, 0.0f, 0.0f});
 
         builder.setName("Diffuse")
-                .add(ms::Property::Diffuse, tex_loader.load(ASSETS_DIR "textures/triangle.jpg"))
+                .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/triangle.jpg"))
                 .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{ 2.0f, 0.0f, 0.0f });
@@ -160,7 +164,7 @@ public:
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{ 4.0f, 0.0f, 0.0f });
 
         builder.setName("BlendMask")
-                .add(ms::Property::BlendMask, tex_loader.load(ASSETS_DIR "textures/bricks.jpg"))
+                .add(ms::Property::BlendMask, tex_loader.load(assets_dir / "textures/bricks.jpg"))
                 .add(ms::Property::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
@@ -168,17 +172,17 @@ public:
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{ 6.0f, 0.0f, 0.0f });
 
         builder.setName("PBR")
-                .add(ms::Property::MetallicTexture, tex_loader.load(ASSETS_DIR "textures/rustediron2_metallic.png"))
-                .add(ms::Property::RoughnessTexture, tex_loader.load(ASSETS_DIR "textures/rustediron2_roughness.png"))
-                .add(ms::Property::Diffuse, tex_loader.load(ASSETS_DIR "textures/rustediron2_basecolor.png"))
-                .add(ms::Property::Normal, tex_loader.load(ASSETS_DIR "textures/rustediron2_normal.png"))
+                .add(ms::Property::MetallicTexture, tex_loader.load(assets_dir / "textures/rustediron2_metallic.png"))
+                .add(ms::Property::RoughnessTexture, tex_loader.load(assets_dir / "textures/rustediron2_roughness.png"))
+                .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/rustediron2_basecolor.png"))
+                .add(ms::Property::Normal, tex_loader.load(assets_dir / "textures/rustediron2_normal.png"))
                 .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{ 8.0f, 0.0f, 0.0f });
 
         builder.setName("floor")
                 .setShading(ms::Shading::Lit)
-                .add(ms::Property::Diffuse, tex_loader.load(ASSETS_DIR "textures/wood.jpg"))
+                .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/wood.jpg"))
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();

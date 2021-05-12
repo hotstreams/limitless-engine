@@ -50,6 +50,10 @@ if (WIN32)
     include_directories(${ASSIMP_INCLUDE_DIRS})
     link_directories(${ASSIMP_LIBRARIES})
 
+    find_package(stb_image REQUIRED)
+    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
+    include_directories(${STB_IMAGE_INCLUDE_DIRS})
+
     link_libraries(opengl32 glew32 glfw3 assimp freetype)
 endif()
 

@@ -36,10 +36,8 @@ namespace Limitless {
 
         virtual void load(Context& context, const RenderSettings& settings);
         [[nodiscard]] const auto& getBaseDir() const noexcept { return base_dir; }
-        [[nodiscard]] auto getShaderDir() const noexcept {
-            return base_dir / "../shaders";
-        }
+        [[nodiscard]] auto getShaderDir() const noexcept { return base_dir / "../shaders"; }
 
-        void merge(const Assets& other);
+        void add(const Assets& other);
     };
 }
