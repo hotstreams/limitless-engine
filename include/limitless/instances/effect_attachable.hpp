@@ -16,8 +16,8 @@ namespace Limitless {
             std::unique_ptr<EffectInstance> instance;
             glm::vec3 offset;
 
-            Attachment(const glm::vec3& offset, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;
-            Attachment(const glm::vec3& offset, Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;
+            Attachment(const glm::vec3& offset, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept;
+            Attachment(const glm::vec3& offset, Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept;
 
             Attachment(const Attachment&);
             Attachment(Attachment&&) noexcept = default;

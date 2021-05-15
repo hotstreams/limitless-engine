@@ -7,45 +7,46 @@ Limitless::EmitterType
 #include "../glsl/material.glsl"
 #include "../glsl/scene.glsl"
 
-#if defined(InitialColor_MODULE)
-    in vec4 fs_color;
-#endif
-#if defined(InitialRotation_MODULE)
-    in vec3 fs_rotation;
-#endif
-#if defined(InitialVelocity_MODULE)
-    in vec3 fs_velocity;
-#endif
-#if defined(Lifetime_MODULE)
-    in float fs_lifetime;
-#endif
-#if defined(InitialSize_MODULE)
-    in vec3 fs_size;
-#endif
-#if defined(SubUV_MODULE)
-    in vec4 fs_subUV;
-#endif
-#if defined(CustomMaterial_MODULE)
-    in vec4 fs_properties;
-#endif
+in vertex_data {
+    #if defined(InitialColor_MODULE)
+        vec4 color;
+    #endif
+    #if defined(InitialRotation_MODULE)
+        vec3 rotation;
+    #endif
+    #if defined(InitialVelocity_MODULE)
+        vec3 velocity;
+    #endif
+    #if defined(Lifetime_MODULE)
+        float lifetime;
+    #endif
+    #if defined(InitialSize_MODULE)
+        vec3 size;
+    #endif
+    #if defined(SubUV_MODULE)
+        vec4 subUV;
+    #endif
+    #if defined(CustomMaterial_MODULE)
+        vec4 properties;
+    #endif
+} in_data;
 
 out vec4 color;
 
-void main()
-{
+void main() {
     vec2 uv = gl_PointCoord;
 
     #if defined(InitialRotation_MODULE)
         vec2 center = vec2(0.5, 0.5);
         vec2 translated = uv - center;
-        mat2 rotation = mat2(cos(fs_rotation.x), sin(fs_rotation.x), -sin(fs_rotation.x), cos(fs_rotation.x));
+        mat2 rotation = mat2(cos(in_data.rotation.x), sin(in_data.rotation.x), -sin(in_data.rotation.x), cos(in_data.rotation.x));
         translated = rotation * translated;
         translated = translated + center;
         uv = clamp(translated, 0.0, 1.0);
     #endif
 
     #if defined(SubUV_MODULE)
-        uv = uv * p_subUV.xy + p_subUV.zw;
+        uv = uv * in_data.subUV.xy + in_data.subUV.zw;
     #endif
 
     #include "../glsl/material_variables.glsl"
@@ -55,7 +56,7 @@ void main()
     // computing final color
     vec4 fragment_color = vec4(1.0);
     #if defined(InitialColor_MODULE)
-        fragment_color *= fs_color;
+        fragment_color *= in_data.color;
     #endif
 
     #if defined(MATERIAL_COLOR)

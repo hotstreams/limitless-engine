@@ -12,9 +12,16 @@ namespace Limitless {
         std::shared_ptr<AbstractModel> model;
 
         void calculateBoundingBox() noexcept override;
+        ModelInstance(ModelShader shader, decltype(model) model, const glm::vec3& position);
+        ModelInstance(ModelShader shader, Lighting* lighting, decltype(model) model, const glm::vec3& position);
     public:
-        ModelInstance(decltype(model) model, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
-        ModelInstance(Lighting* lighting, decltype(model) model, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.0f}, const glm::vec3& scale = glm::vec3{1.0f});
+        // model constructor
+        ModelInstance(decltype(model) model, const glm::vec3& position);
+        ModelInstance(Lighting* lighting, decltype(model) model, const glm::vec3& position);
+
+        // elementary model constructor
+        ModelInstance(decltype(model) model, std::shared_ptr<ms::Material> material, const glm::vec3& position);
+        ModelInstance(Lighting* lighting, decltype(model) model, std::shared_ptr<ms::Material> material, const glm::vec3& position);
 
         ~ModelInstance() override = default;
 

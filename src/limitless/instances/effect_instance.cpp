@@ -1,6 +1,5 @@
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/fx/emitters/mesh_emitter.hpp>
-#include <limitless/pipeline/shader_pass_types.hpp>
 #include <limitless/pipeline/postprocessing.hpp>
 
 using namespace Limitless;
@@ -77,8 +76,8 @@ EffectInstance* EffectInstance::clone() noexcept {
     return new EffectInstance(*this);
 }
 
-EffectInstance::EffectInstance(Lighting *lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
-    : AbstractInstance{lighting, ModelShader::Effect, position, rotation, glm::vec3{0.0f}} {
+EffectInstance::EffectInstance(Lighting *lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
+    : AbstractInstance(lighting, ModelShader::Effect, position) {
     emitters.reserve(effect->emitters.size());
     for (const auto& [name, emitter] : effect->emitters) {
         emitters.emplace(name, emitter->clone());
@@ -88,14 +87,14 @@ EffectInstance::EffectInstance(Lighting *lighting, const std::shared_ptr<EffectI
 	EffectInstance::setRotation(rotation);
 }
 
-EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
-    : EffectInstance{nullptr, effect, position, rotation}  {
+EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
+    : EffectInstance(nullptr, effect, position) {
 	EffectInstance::setPosition(position);
 	EffectInstance::setRotation(rotation);
 }
 
 EffectInstance::EffectInstance() noexcept
-    : AbstractInstance{ModelShader::Effect, glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f}} {
+    : AbstractInstance(ModelShader::Effect, glm::vec3{0.f}) {
 }
 
 void EffectInstance::calculateBoundingBox() noexcept {

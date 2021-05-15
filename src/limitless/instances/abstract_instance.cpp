@@ -1,6 +1,5 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/core/uniform_setter.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <limitless/pipeline/postprocessing.hpp>
 
 using namespace Limitless;
@@ -71,21 +70,21 @@ void AbstractInstance::update(Context& context, Camera& camera) {
     calculateBoundingBox();
 }
 
-AbstractInstance::AbstractInstance(Lighting* _lighting, ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept
-    : EffectAttachable{}
-    , LightAttachable{_lighting}
-    , id{next_id++}
-    , shader_type{_shader_type}
-    , position{_position}
-    , rotation{_rotation}
-    , scale{_scale} {
+AbstractInstance::AbstractInstance(Lighting* _lighting, ModelShader _shader_type, const glm::vec3& _position) noexcept
+    : EffectAttachable()
+    , LightAttachable(_lighting)
+    , id {next_id++}
+    , shader_type {_shader_type}
+    , position {_position}
+    , rotation {1.0f, 0.0f, 0.0f, 0.0f}
+    , scale {1.0f} {
 }
 
-AbstractInstance::AbstractInstance(ModelShader _shader_type, const glm::vec3& _position, const glm::vec3& _rotation, const glm::vec3& _scale) noexcept
-    : EffectAttachable{}
-    , id{next_id++}
-    , shader_type{_shader_type}
-    , position{_position}
-    , rotation{_rotation}
-    , scale{_scale} {
+AbstractInstance::AbstractInstance(ModelShader _shader_type, const glm::vec3& _position) noexcept
+    : EffectAttachable()
+    , id {next_id++}
+    , shader_type {_shader_type}
+    , position {_position}
+    , rotation {1.0f, 0.0f, 0.0f, 0.0f}
+    , scale {1.0f} {
 }

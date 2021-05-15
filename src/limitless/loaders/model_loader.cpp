@@ -416,13 +416,13 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene
 
         std::shared_ptr<AbstractMesh> loaded_mesh;
         // specifies template arguments based on INDICES_COUNT & TANGENTS & format
-        if (auto indices_count = mesh->mNumFaces * 3; indices_count < std::numeric_limits<GLubyte>::max()) {
-            loaded_mesh = loadMesh<VertexNormalTangent, GLubyte>(mesh, path, bones, bone_map, flags);
-        } else if (indices_count < std::numeric_limits<GLushort>::max()) {
-            loaded_mesh = loadMesh<VertexNormalTangent, GLushort>(mesh, path, bones, bone_map, flags);
-        } else {
+//        if (auto indices_count = mesh->mNumFaces * 3; indices_count < std::numeric_limits<GLubyte>::max()) {
+//            loaded_mesh = loadMesh<VertexNormalTangent, GLubyte>(mesh, path, bones, bone_map, flags);
+//        } else if (indices_count < std::numeric_limits<GLushort>::max()) {
+//            loaded_mesh = loadMesh<VertexNormalTangent, GLushort>(mesh, path, bones, bone_map, flags);
+//        } else {
             loaded_mesh = loadMesh<VertexNormalTangent, GLuint>(mesh, path, bones, bone_map, flags);
-        }
+//        }
 
         meshes.emplace_back(loaded_mesh);
     }

@@ -29,8 +29,8 @@ namespace Limitless {
         friend class fx::EffectSerializer;
         EffectInstance() noexcept;
     public:
-        EffectInstance(Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;
-        EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation = glm::vec3{0.f}) noexcept;
+        EffectInstance(Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept;
+        EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept;
         ~EffectInstance() override = default;
 
         EffectInstance(const EffectInstance&) noexcept;

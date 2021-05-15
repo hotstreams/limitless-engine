@@ -4,7 +4,7 @@
 #include <limitless/models/skeletal_model.hpp>
 
 namespace Limitless {
-    class SkeletalInstance : public ModelInstance {
+    class SkeletalInstance final : public ModelInstance {
     private:
         std::vector<glm::mat4> bone_transform;
         std::shared_ptr<Buffer> bone_buffer;
@@ -37,8 +37,33 @@ namespace Limitless {
         SkeletalInstance& resume() noexcept;
         SkeletalInstance& stop() noexcept;
 
+        SkeletalModel& getModel() const {
+            return dynamic_cast<SkeletalModel&>(*model);
+        }
+
+        const auto& getBoneTransform() { return bone_transform; }
+
+//        ModelInstance* attachment;
+//        SkeletalInstance& attach(ModelInstance* instance) {
+//            attachment = instance;
+//            return *this;
+//        }
+
+//        void attachUpdate() {
+////            constexpr auto bone_name = "head_end";
+//            constexpr auto bone_name = "weapon_r";
+//            auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+//            const auto& map = skeletal.getBoneMap();
+//            for (const auto& item : map) {
+//                std::cout << item.first << std::endl;
+//            }
+//
+//            const auto index = map.at(bone_name);
+//
+//            attachment->getModelMatrix() = model_matrix * bone_transform.at(index) * glm::inverse(skeletal.getBones().at(index).offset_matrix);
+//        }
+
         using AbstractInstance::draw;
         void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }
-

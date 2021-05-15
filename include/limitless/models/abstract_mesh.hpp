@@ -27,7 +27,7 @@ namespace Limitless {
         AbstractMesh() = default;
         virtual ~AbstractMesh() = default;
 
-        virtual void draw_instanced(size_t count) const noexcept = 0;
+        virtual void draw_instanced(DrawMode mode, size_t count) const noexcept = 0;
         virtual void draw() const noexcept = 0;
         virtual void draw(DrawMode mode) const noexcept = 0;
 

@@ -4,7 +4,6 @@
 #include <limitless/core/shader_program.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/core/uniform_setter.hpp>
 #include <limitless/ms/material.hpp>
 
 using namespace Limitless;
@@ -22,8 +21,7 @@ void SkeletalInstance::initializeBuffer() {
 }
 
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : ModelInstance{std::move(m), position} {
-    shader_type = ModelShader::Skeletal;
+    : ModelInstance(ModelShader::Skeletal, std::move(m), position) {
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
     bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
@@ -31,8 +29,7 @@ SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::
 }
 
 SkeletalInstance::SkeletalInstance(Lighting *lighting, std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : ModelInstance {lighting, std::move(m), position} {
-    shader_type = ModelShader::Skeletal;
+    : ModelInstance(ModelShader::Skeletal, lighting, std::move(m), position) {
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
     bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
@@ -115,7 +112,7 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
 void SkeletalInstance::update(Context& context, Camera& camera) {
     AbstractInstance::update(context, camera);
 
-    if (animation == nullptr || paused) {
+    if (!animation || paused) {
         return;
     }
 
@@ -149,8 +146,8 @@ void SkeletalInstance::update(Context& context, Camera& camera) {
         auto transform = parent_mat * local_transform;
 	    bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform * bones[*node].offset_matrix;
 
-	    for (size_t i = 0; i < node.size(); ++i) {
-            node_traversal(node[i], transform);
+	    for (const auto& n : node) {
+            node_traversal(n, transform);
         }
     };
 
@@ -170,5 +167,4 @@ SkeletalInstance* SkeletalInstance::clone() noexcept {
 
 void SkeletalInstance::calculateBoundingBox() noexcept {
     ModelInstance::calculateBoundingBox();
-//    bounding_box = {};
 }

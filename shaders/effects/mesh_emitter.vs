@@ -10,14 +10,15 @@ Limitless::EmitterType
 layout (location = 0) in vec3 position;
 layout (location = 3) in vec2 uv;
 
-out vec2 fs_uv;
-flat out int particle_id;
+out vertex_data {
+    vec2 uv;
+    flat int particle_id;
+} out_data;
 
 #include "../glsl/mesh_particle.glsl"
 
-void main()
-{
-    fs_uv = uv;
+void main() {
+    out_data.uv = uv;
 
     mat4 model = particles[gl_InstanceID].model;
     vec4 vertex_position = vec4(position, 1.0);
@@ -26,7 +27,7 @@ void main()
 
 	gl_Position = VP * model * vertex_position;
 
-	particle_id = gl_InstanceID;
+	out_data.particle_id = gl_InstanceID;
 }
 
 

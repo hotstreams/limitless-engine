@@ -52,11 +52,6 @@ namespace Limitless {
         IndexedMesh(std::vector<T>&& vertices, std::vector<T1>&& indices, std::string name, MeshDataType data_type, DrawMode draw_mode)
             : Mesh<T>{std::move(vertices), std::move(name), data_type, draw_mode}, indices{std::move(indices)} {
             initialize();
-//            std::cout << "indices =  " << std::endl;
-//            for (auto& i : this->indices) {
-//                std::cout << i;
-//            }
-//            std::cout << std::endl;
         }
 
         ~IndexedMesh() override = default;
@@ -85,10 +80,10 @@ namespace Limitless {
             indices_buffer->fence();
         }
 
-        void draw_instanced(size_t count) const noexcept override {
+        void draw_instanced(DrawMode mode, size_t count) const noexcept override {
             this->vertex_array.bind();
 
-            glDrawElementsInstanced(static_cast<GLenum>(this->draw_mode), indices.size(), getIndicesType(), nullptr, count);
+            glDrawElementsInstanced(static_cast<GLenum>(mode), indices.size(), getIndicesType(), nullptr, count);
 
             this->vertex_buffer->fence();
             indices_buffer->fence();

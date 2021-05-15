@@ -24,7 +24,7 @@ void Assets::load(Context& context, const RenderSettings& settings) {
     builder.setName("default").add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).build();
     builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).build();
     builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).build();
-    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).build();
+    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders({ModelShader::Model, ModelShader::Skeletal}).build();
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(100, 100));

@@ -56,10 +56,13 @@ namespace Limitless {
 
         ~SkinnedMesh() override = default;
 
-        SkinnedMesh(const SkinnedMesh&) noexcept = delete;
-        SkinnedMesh& operator=(const SkinnedMesh&) noexcept = delete;
+        SkinnedMesh(const SkinnedMesh&) = delete;
+        SkinnedMesh& operator=(const SkinnedMesh&) = delete;
 
         SkinnedMesh(SkinnedMesh&&) noexcept = default;
         SkinnedMesh& operator=(SkinnedMesh&&) noexcept = default;
+
+        auto& getBoneWeights() noexcept { return bone_weights; }
+        const auto& getBoneWeights() const noexcept { return bone_weights; }
     };
 }
