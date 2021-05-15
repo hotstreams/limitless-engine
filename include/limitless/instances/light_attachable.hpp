@@ -24,7 +24,6 @@ namespace Limitless {
         };
 
         std::vector<LightAttachment<PointLight>> point_lights;
-        std::vector<LightAttachment<SpotLight>> spot_lights;
     protected:
         void setPosition(const glm::vec3& position) noexcept;
         void setRotation(const glm::quat& rotation) noexcept;
@@ -47,8 +46,6 @@ namespace Limitless {
 
             if constexpr (std::is_same_v<T, PointLight>)
                 point_lights.emplace_back(id, offset);
-            else if constexpr (std::is_same_v<T, SpotLight>)
-                spot_lights.emplace_back(id, offset);
             else
                 static_assert(!std::is_same_v<T, T>, "No such Light Type");
 
@@ -65,8 +62,6 @@ namespace Limitless {
 
             if constexpr (std::is_same_v<T, PointLight>)
                 point_lights.emplace_back(id, offset);
-            else if constexpr (std::is_same_v<T, SpotLight>)
-                spot_lights.emplace_back(id, offset);
             else
                 static_assert(!std::is_same_v<T, T>, "No such Light Type");
 
@@ -87,8 +82,6 @@ namespace Limitless {
 
             if constexpr (std::is_same_v<T, PointLight>)
                 remove_light_attachment(point_lights);
-            else if constexpr (std::is_same_v<T, SpotLight>)
-                remove_light_attachment(spot_lights);
             else
                 static_assert(!std::is_same_v<T, T>, "No such Light Type");
         }

@@ -4,7 +4,6 @@
 #include <limitless/scene.hpp>
 #include <limitless/pipeline/renderer.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
-#include <limitless/instances/elementary_instance.hpp>
 #include <limitless/fx/effect_builder.hpp>
 #include <limitless/util/math.hpp>
 #include <limitless/serialization/effect_serializer.hpp>
@@ -20,7 +19,7 @@
 #include <limitless/loaders/asset_loader.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/pipeline/forward.hpp>
-#include <limitless/instances/instanced.hpp>
+#include <limitless/instances/instanced_instance.hpp>
 
 using namespace Limitless;
 
@@ -63,8 +62,8 @@ public:
 
         assets.load(context, render.getSettings());
 
-//        addModels();
-        addModelsT();
+        addModels();
+//        addModelsT();
         addSpheres();
         addEffects();
 
@@ -73,8 +72,8 @@ public:
 
         scene.lighting.directional_light = { glm::vec4{2.0f, -5.0f, 2.0f, 1.0f}, glm::vec4{0.1f, 0.7f, 1.3f, 1.0f} };
         scene.lighting.point_lights.emplace_back(glm::vec4{-1.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{2.3f, 1.1f, 1.2f, 2.0f}, 4.6f);
-//        scene.lighting.point_lights.emplace_back(glm::vec4{3.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 0.3f, 2.7f, 2.0f}, 4.2f);
-//        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.3f, 1.7f, 2.0f}, 4.5f);
+        scene.lighting.point_lights.emplace_back(glm::vec4{3.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 0.3f, 2.7f, 2.0f}, 4.2f);
+        scene.lighting.point_lights.emplace_back(glm::vec4{8.0f, 1.3f, 2.0f, 1.0f}, glm::vec4{1.3f, 2.3f, 1.7f, 2.0f}, 4.5f);
     }
 
     ~Game() override {
@@ -102,42 +101,70 @@ public:
         }
         manager.delayed_job();
 
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context,
-                                                               assets,
-                                                               render.getSettings(),
-                                                               assets_dir / "skyboxes/sky/sky.png",
-                                                               TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
-        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f}, glm::vec3{0.4f});
-        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.1f});
-        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.35f});
+        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
+            .setRotation(glm::vec3{0.0f, pi, 0.0f})
+            .setScale(glm::vec3{0.4f});
+
+        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f})
+            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
+            .setScale(glm::vec3{0.1f});
+
+        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f})
+            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
+            .setScale(glm::vec3{0.35f});
+
         scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
-                .setScale(glm::vec3{0.02f})
-                .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
-                .play("");
+            .setScale(glm::vec3{0.02f})
+            .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
+            .play("");
     }
 
     void addModels() {
-        ModelLoader model_loader {context, assets, render.getSettings()};
-        const fs::path assets_dir {ASSETS_DIR};
+        ModelLoader model_loader{context, assets, render.getSettings()};
+        const fs::path assets_dir{ASSETS_DIR};
 
         assets.models.add("bob", model_loader.loadModel(assets_dir / "models/boblamp/boblampclean.md5mesh"));
         assets.models.add("backpack", model_loader.loadModel(assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
         assets.models.add("nanosuit", model_loader.loadModel(assets_dir / "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(assets_dir / "models/cyborg/cyborg.obj"));
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png"));
+
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
-        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f}, glm::vec3{0.4f});
-        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.1f});
-        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f}, glm::vec3{ 0.0f, pi, 0.0f }, glm::vec3{0.35f});
-        scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
+        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
+                .setRotation(glm::vec3{0.0f, pi, 0.0f})
+                .setScale(glm::vec3{0.4f});
+
+        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f})
+                .setRotation(glm::vec3{0.0f, pi, 0.0f})
+                .setScale(glm::vec3{0.1f});
+
+        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f})
+                .setRotation(glm::vec3{0.0f, pi, 0.0f})
+                .setScale(glm::vec3{0.35f});
+
+        scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{6.0f, 0.0f, 5.0f})
                 .setScale(glm::vec3{0.02f})
-                .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
+                .setRotation(glm::vec3{0.0f, 0.0f, pi})
                 .play("");
+
+        ms::MaterialBuilder builder{context, assets, render.getSettings()};
+
+        builder.setName("test")
+                .add(ms::Property::Color, glm::vec4(2.0f, 1.0f, 1.0f, 1.0f))
+                .setModelShaders({ModelShader::Instanced})
+                .build();
+
+        auto& instanced = scene.add<InstancedInstance<ModelInstance>>(glm::vec3(0.0f));
+        for (uint32_t i = 0; i < 10; ++i) {
+            instanced.addInstance(std::make_unique<ModelInstance>(assets.models.at("sphere"), assets.materials.at("test"), glm::vec3{i + 10.0f, i + 10.0f, 1.0f}));
+        }
     }
 
     void addSpheres() {
@@ -152,19 +179,19 @@ public:
                 .add(ms::Property::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{0.0f, 0.0f, 0.0f});
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{5.0f, 5.0f, 0.0f});
 
         builder.setName("Diffuse")
                 .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/triangle.jpg"))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{ 2.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{ 2.0f, 0.0f, 0.0f });
 
         builder.setName("EmissiveColor")
                 .add(ms::Property::EmissiveColor, glm::vec4(3.0f, 0.1f, 3.0f, 1.0f))
                 .setShading(ms::Shading::Unlit)
                 .build();
-        scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{ 4.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{ 4.0f, 0.0f, 0.0f });
 
         builder.setName("BlendMask")
                 .add(ms::Property::BlendMask, tex_loader.load(assets_dir / "textures/bricks.jpg"))
@@ -172,7 +199,7 @@ public:
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
-        scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{ 6.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{ 6.0f, 0.0f, 0.0f });
 
         builder.setName("PBR")
                 .add(ms::Property::MetallicTexture, tex_loader.load(assets_dir / "textures/rustediron2_metallic.png"))
@@ -181,7 +208,7 @@ public:
                 .add(ms::Property::Normal, tex_loader.load(assets_dir / "textures/rustediron2_normal.png"))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ElementaryInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{ 8.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{ 8.0f, 0.0f, 0.0f });
 
         builder.setName("floor")
                 .setShading(ms::Shading::Lit)
@@ -189,7 +216,7 @@ public:
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
-        scene.add<ElementaryInstance>(assets.models.at("plane"), assets.materials.at("floor"), glm::vec3{3.0f, -1.0f, 0.0f})
+        scene.add<ModelInstance>(assets.models.at("plane"), assets.materials.at("floor"), glm::vec3{3.0f, -1.0f, 0.0f})
                 .setScale(glm::vec3{20.0f, 1.0f, 20.0f});
     }
 
@@ -231,9 +258,6 @@ public:
                 .build();
 
         effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
-
-
-//        MaterialBuildermat_ builder;
 
         fx::EffectBuilder beam_builder{context, assets, render.getSettings()};
         beam_builder.create("test_beam")

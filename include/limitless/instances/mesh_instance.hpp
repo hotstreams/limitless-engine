@@ -36,5 +36,14 @@ namespace Limitless {
                   const glm::mat4& model_matrix,
                   ms::Blending blending,
                   const UniformSetter& uniform_setter);
+
+        void draw_instanced(Context& ctx,
+                            const Assets& assets,
+                            ShaderPass pass,
+                            ModelShader model,
+                            const glm::mat4& model_matrix,
+                            ms::Blending blending,
+                            const UniformSetter& uniform_setter,
+                            uint32_t count);
     };
 }

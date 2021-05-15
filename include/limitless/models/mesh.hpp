@@ -51,20 +51,20 @@ namespace Limitless {
         }
     public:
         Mesh(std::vector<T>&& _vertices, std::string _name, MeshDataType _data_type, DrawMode _draw_mode)
-            : vertices{std::move(_vertices)}
-            , data_type{_data_type}
-            , draw_mode{_draw_mode}
-            , name{std::move(_name)} {
+            : vertices {std::move(_vertices)}
+            , data_type {_data_type}
+            , draw_mode {_draw_mode}
+            , name {std::move(_name)} {
 
             initialize(vertices.size());
             calculateBoundingBox();
         }
 
         Mesh(size_t count, std::string _name, MeshDataType _data_type, DrawMode _draw_mode)
-            : vertices{}
-            , data_type{_data_type}
-            , draw_mode{_draw_mode}
-            , name{std::move(_name)} {
+            : vertices {}
+            , data_type {_data_type}
+            , draw_mode {_draw_mode}
+            , name {std::move(_name)} {
 
             initialize(count);
             calculateBoundingBox();
@@ -102,14 +102,14 @@ namespace Limitless {
             vertex_buffer->fence();
         }
 
-        void draw_instanced(size_t count) const noexcept override {
+        void draw_instanced(DrawMode mode, size_t count) const noexcept override {
             if (vertices.empty() || !count) {
                 return;
             }
 
             vertex_array.bind();
 
-            glDrawArraysInstanced(static_cast<GLenum>(draw_mode), 0, vertices.size(), count);
+            glDrawArraysInstanced(static_cast<GLenum>(mode), 0, vertices.size(), count);
 
             vertex_buffer->fence();
         }
@@ -119,8 +119,7 @@ namespace Limitless {
             vertices = std::forward<Vertices>(new_vertices);
 
             if (vertices.size() * sizeof(T) > vertex_buffer->getSize()) {
-                initialize(vertices.size());
-                //todo resize
+                vertex_buffer->resize(vertices.size() * sizeof(T));
             }
 
             vertex_buffer->mapData(vertices.data(), sizeof(T) * vertices.size());

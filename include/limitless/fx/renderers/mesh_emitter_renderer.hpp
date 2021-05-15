@@ -66,7 +66,7 @@ namespace Limitless::fx {
 
             shader.use();
 
-            mesh->draw_instanced(current_particle_count);
+            mesh->draw_instanced(mesh->getDrawMode(), current_particle_count);
         }
     };
 }

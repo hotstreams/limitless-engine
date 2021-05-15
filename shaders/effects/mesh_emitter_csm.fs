@@ -7,13 +7,16 @@ Limitless::EmitterType
 #include "../glsl/material.glsl"
 #include "../glsl/scene.glsl"
 
-in vec2 fs_uv;
-flat in int particle_id;
+in vertex_data {
+    vec2 uv;
+    flat int particle_id;
+} in_data;
 
 #include "../glsl/mesh_particle.glsl"
 
 void main() {
-    vec2 uv = fs_uv;
+    vec2 uv = in_data.uv;
+    int particle_id = in_data.particle_id;
 
     vec3 p_position = particles[particle_id].position;
     vec4 p_color = particles[particle_id].color;

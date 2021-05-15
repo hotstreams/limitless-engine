@@ -2,6 +2,7 @@
 
 #include <limitless/instances/effect_attachable.hpp>
 #include <limitless/instances/light_attachable.hpp>
+#include <limitless/instances/model_attachable.hpp>
 #include <limitless/util/bounding_box.hpp>
 #include <glm/gtx/quaternion.hpp>
 
@@ -29,17 +30,17 @@ namespace Limitless {
         bool shadow_cast {true};
 
         glm::vec3 position;
-        glm::quat rotation {1.0f, 0.0f, 0.0f, 0.0f};
+        glm::quat rotation;
         glm::vec3 scale;
-        glm::mat4 model_matrix {1.0f};
+        glm::mat4 model_matrix;
 
         BoundingBox bounding_box {};
 
         virtual void calculateBoundingBox() noexcept = 0;
         void calculateModelMatrix() noexcept;
 
-        AbstractInstance(Lighting* lighting, ModelShader shader_type, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept;
-        AbstractInstance(ModelShader shader_type, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept;
+        AbstractInstance(Lighting* lighting, ModelShader shader_type, const glm::vec3& position) noexcept;
+        AbstractInstance(ModelShader shader_type, const glm::vec3& position) noexcept;
     public:
         ~AbstractInstance() override = default;
 
@@ -55,6 +56,7 @@ namespace Limitless {
         [[nodiscard]] const auto& getRotation() const noexcept { return rotation; }
         [[nodiscard]] const auto& getScale() const noexcept { return scale; }
         [[nodiscard]] const auto& getModelMatrix() const noexcept { return model_matrix; }
+        [[nodiscard]] auto& getModelMatrix() noexcept { return model_matrix; }
         [[nodiscard]] const auto& getBoundingBox() noexcept { calculateBoundingBox(); return bounding_box; }
 
         void reveal() noexcept;

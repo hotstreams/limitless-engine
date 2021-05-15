@@ -4,14 +4,14 @@
 
 using namespace Limitless;
 
-EffectAttachable::Attachment::Attachment(const glm::vec3& _offset, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
-    : instance {std::make_unique<EffectInstance>(effect, position, rotation)}
+EffectAttachable::Attachment::Attachment(const glm::vec3& _offset, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
+    : instance {std::make_unique<EffectInstance>(effect, position)}
     , offset {_offset} {
     instance->setPosition(position + offset);
 }
 
-EffectAttachable::Attachment::Attachment(const glm::vec3& _offset, Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position, const glm::vec3& rotation) noexcept
-    : instance{std::make_unique<EffectInstance>(lighting, effect, position, rotation)}
+EffectAttachable::Attachment::Attachment(const glm::vec3& _offset, Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
+    : instance{std::make_unique<EffectInstance>(lighting, effect, position)}
     , offset{_offset} {
     instance->setPosition(position + offset);
 }

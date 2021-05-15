@@ -99,11 +99,11 @@ set(ENGINE_INSTANCES
     src/limitless/instances/abstract_instance.cpp
     src/limitless/instances/effect_attachable.cpp
     src/limitless/instances/light_attachable.cpp
-    src/limitless/instances/elementary_instance.cpp
     src/limitless/instances/skeletal_instance.cpp
     src/limitless/instances/mesh_instance.cpp
     src/limitless/instances/model_instance.cpp
     src/limitless/instances/effect_instance.cpp
+    src/limitless/instances/model_attachable.cpp
 )
 
 set(ENGINE_LIGHTING
