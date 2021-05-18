@@ -69,7 +69,7 @@ std::unique_ptr<Distribution<T>> DistributionSerializer::deserialize(ByteBuffer&
 template<typename T>
 ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const Distribution<T>& distr) {
     DistributionSerializer serializer;
-    buffer << serializer.serialize<T>(distr);
+    buffer << static_cast<const ByteBuffer&>(serializer.serialize<T>(distr));
     return buffer;
 }
 

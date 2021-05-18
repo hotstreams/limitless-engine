@@ -59,6 +59,8 @@ namespace Limitless::ms {
         MaterialBuilder& setName(std::string name) noexcept;
         [[nodiscard]] const auto& getName() const noexcept { return material->name; }
 
+        [[nodiscard]] const auto& getName() const noexcept { return material->name; }
+
         MaterialBuilder& setFragmentSnippet(std::string fs_code) noexcept;
         MaterialBuilder& setVertexSnippet(std::string vs_code) noexcept;
         MaterialBuilder& setTessellationSnippet(std::string tes_code) noexcept;
