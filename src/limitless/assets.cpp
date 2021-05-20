@@ -7,12 +7,18 @@
 #include <limitless/models/quad.hpp>
 #include <limitless/models/cube.hpp>
 #include <limitless/models/plane.hpp>
+#include <utility>
 
 using namespace Limitless;
 
-Assets::Assets(const fs::path& _base_dir)
+Assets::Assets(const fs::path& _base_dir) noexcept
 	: base_dir {_base_dir}
-{
+	, shader_dir {_base_dir / "../shaders"} {
+}
+
+Assets::Assets(fs::path _base_dir, fs::path _shader_dir) noexcept
+    : base_dir {std::move(_base_dir)}
+    , shader_dir {std::move(_shader_dir)} {
 }
 
 void Assets::load(Context& context, const RenderSettings& settings) {

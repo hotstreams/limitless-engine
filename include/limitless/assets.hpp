@@ -19,8 +19,9 @@ namespace Limitless {
     class RenderSettings;
 
     class Assets {
-    private:
+    protected:
         fs::path base_dir;
+        fs::path shader_dir;
     public:
         ShaderStorage shaders;
         ResourceContainer<AbstractModel> models;
@@ -31,12 +32,14 @@ namespace Limitless {
         ResourceContainer<EffectInstance> effects;
         ResourceContainer<FontAtlas> fonts;
 
-        Assets(const fs::path& _base_dir);
+        explicit Assets(const fs::path& base_dir) noexcept;
+        Assets(fs::path base_dir, fs::path shader_dir) noexcept;
+
         virtual ~Assets() = default;
 
         virtual void load(Context& context, const RenderSettings& settings);
         [[nodiscard]] const auto& getBaseDir() const noexcept { return base_dir; }
-        [[nodiscard]] auto getShaderDir() const noexcept { return base_dir / "../shaders"; }
+        [[nodiscard]] const auto& getShaderDir() const noexcept { return shader_dir; }
 
         void add(const Assets& other);
     };
