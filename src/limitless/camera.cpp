@@ -52,10 +52,10 @@ void Camera::movement(CameraMovement move, float delta) noexcept {
         case CameraMode::Free:
             switch (move) {
                 case CameraMovement::Forward:
-                    position -= front * velocity;
+                    position += front * velocity;
                     break;
                 case CameraMovement::Backward:
-                    position += front * velocity;
+                    position -= front * velocity;
                     break;
                 case CameraMovement::Left:
                     position -= right * velocity;
