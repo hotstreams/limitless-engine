@@ -2,6 +2,10 @@
 
 #include <limitless/fx/emitters/emitter.hpp>
 
+namespace Limitless {
+    class EmitterSerializer;
+}
+
 namespace Limitless::ms {
     class Material;
 }
@@ -14,7 +18,7 @@ namespace Limitless::fx {
         SpriteEmitter() noexcept;
 
         friend class EffectBuilder;
-        friend class EmitterSerializer;
+        friend class Limitless::EmitterSerializer;
     public:
         ~SpriteEmitter() override = default;
 

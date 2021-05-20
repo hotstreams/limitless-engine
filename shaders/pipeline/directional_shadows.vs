@@ -38,13 +38,23 @@ layout(location = 3) in vec2 uv;
 
 #include "../glsl/scene.glsl"
 
-uniform mat4 model;
+#if defined(INSTANCED_MODEL)
+    #include "../glsl/instanced_buffer.glsl"
+#else
+    uniform mat4 model;
+#endif
+
 uniform mat4 light_space;
 
 void main() {
     out_data.uv = uv;
 
-    mat4 model_matrix = model;
+    #if defined(INSTANCED_MODEL) || defined(SKELETAL_INSTANCED_MODEL)
+        mat4 model_matrix = models[gl_InstanceID];
+    #else
+        mat4 model_matrix = model;
+    #endif
+
     vec4 vertex_position = vec4(position, 1.0);
 
     Limitless::CustomMaterialVertexCode

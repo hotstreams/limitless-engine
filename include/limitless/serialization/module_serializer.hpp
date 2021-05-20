@@ -26,54 +26,54 @@
 
 #include <limitless/util/bytebuffer.hpp>
 
-namespace Limitless::fx {
+namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
     public:
-        ByteBuffer serialize(fx::Module<Particle>& module) {
+        ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
 
             buffer << module.getType();
 
             switch (module.getType()) {
-                case ModuleType::InitialLocation:
-                    buffer << static_cast<InitialLocation<Particle>&>(module).getDistribution();
+                case fx::ModuleType::InitialLocation:
+                    buffer << static_cast<const fx::InitialLocation<Particle>&>(module).getDistribution();
                     break;
-                case ModuleType::InitialRotation:
-                    buffer << static_cast<InitialRotation<Particle>&>(module).getDistribution();
+                case fx::ModuleType::InitialRotation:
+                    buffer << static_cast<const fx::InitialRotation<Particle>&>(module).getDistribution();
                     break;
-                case ModuleType::InitialVelocity:
-                    buffer << static_cast<InitialVelocity<Particle>&>(module).getDistribution();
+                case fx::ModuleType::InitialVelocity:
+                    buffer << static_cast<const fx::InitialVelocity<Particle>&>(module).getDistribution();
                     break;
-                case ModuleType::InitialColor:
-                    buffer << static_cast<InitialColor<Particle>&>(module).getDistribution();
+                case fx::ModuleType::InitialColor:
+                    buffer << static_cast<const fx::InitialColor<Particle>&>(module).getDistribution();
                     break;
-                case ModuleType::InitialSize:
-                    buffer << static_cast<InitialSize<Particle>&>(module).getDistribution();
+                case fx::ModuleType::InitialSize:
+                    buffer << static_cast<const fx::InitialSize<Particle>&>(module).getDistribution();
                     break;
-                case ModuleType::InitialAcceleration:
-                    buffer << static_cast<InitialAcceleration<Particle>&>(module).getDistribution();
+                case fx::ModuleType::InitialAcceleration:
+                    buffer << static_cast<const fx::InitialAcceleration<Particle>&>(module).getDistribution();
                     break;
 //                case ModuleType::MeshLocation:
 //                    buffer << static_cast<MeshLocation<Particle>&>(module).getMesh()->getName();
 //                    break;
-                case ModuleType::SubUV:
-                    buffer << static_cast<SubUV<Particle>&>(module).getTextureSize()
-                           << static_cast<SubUV<Particle>&>(module).getFPS()
-                           << static_cast<SubUV<Particle>&>(module).getFrameCount();
+                case fx::ModuleType::SubUV:
+                    buffer << static_cast<const fx::SubUV<Particle>&>(module).getTextureSize()
+                           << static_cast<const fx::SubUV<Particle>&>(module).getFPS()
+                           << static_cast<const fx::SubUV<Particle>&>(module).getFrameCount();
                     break;
-                case ModuleType::ColorByLife:
-                    buffer << static_cast<ColorByLife<Particle>&>(module).getDistribution();
+                case fx::ModuleType::ColorByLife:
+                    buffer << static_cast<const fx::ColorByLife<Particle>&>(module).getDistribution();
                     break;
-                case ModuleType::RotationRate:
-                    buffer << static_cast<RotationRate<Particle>&>(module).getDistribution();
+                case fx::ModuleType::RotationRate:
+                    buffer << static_cast<const fx::RotationRate<Particle>&>(module).getDistribution();
                     break;
-                case ModuleType::SizeByLife:
-                    buffer << static_cast<SizeByLife<Particle>&>(module).getDistribution()
-                           << static_cast<SizeByLife<Particle>&>(module).getFactor();
+                case fx::ModuleType::SizeByLife:
+                    buffer << static_cast<const fx::SizeByLife<Particle>&>(module).getDistribution()
+                           << static_cast<const fx::SizeByLife<Particle>&>(module).getFactor();
                     break;
-                case ModuleType::CustomMaterial: {
-                    auto& props = static_cast<CustomMaterial<Particle>&>(module).getProperties();
+                case fx::ModuleType::CustomMaterial: {
+                    auto& props = static_cast<const fx::CustomMaterial<Particle>&>(module).getProperties();
                     size_t count = std::count_if(props.begin(), props.end(), [] (const auto& distr) { return distr != nullptr; });
                     buffer << count;
                     for (uint32_t i = 0; i < props.size(); ++i) {
@@ -83,8 +83,8 @@ namespace Limitless::fx {
                     }
                     break;
                 }
-                case ModuleType::CustomMaterialByLife: {
-                    auto& props = static_cast<CustomMaterialByLife<Particle>&>(module).getProperties();
+                case fx::ModuleType::CustomMaterialByLife: {
+                    auto& props = static_cast<const fx::CustomMaterialByLife<Particle>&>(module).getProperties();
                     size_t count = std::count_if(props.begin(), props.end(), [] (const auto& distr) { return distr != nullptr; });
                     buffer << count;
                     for (uint32_t i = 0; i < props.size(); ++i) {
@@ -94,39 +94,39 @@ namespace Limitless::fx {
                     }
                     break;
                 }
-                case ModuleType::Lifetime: {
-                    buffer << static_cast<Lifetime<Particle>&>(module).getDistribution();
+                case fx::ModuleType::Lifetime: {
+                    buffer << static_cast<const fx::Lifetime<Particle>&>(module).getDistribution();
                     break;
                 }
-                case ModuleType::VelocityByLife: {
-                    buffer << static_cast<VelocityByLife<Particle>&>(module).getDistribution();
+                case fx::ModuleType::VelocityByLife: {
+                    buffer << static_cast<const fx::VelocityByLife<Particle>&>(module).getDistribution();
                     break;
                 }
-                case ModuleType::Beam_InitialDisplacement: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
-                        buffer << static_cast<BeamDisplacement<Particle>&>(module).getDistribution();
+                case fx::ModuleType::Beam_InitialDisplacement: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
+                        buffer << static_cast<const fx::BeamDisplacement<Particle>&>(module).getDistribution();
                     }
                     break;
                 }
-                case ModuleType::Beam_InitialOffset: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
-                        buffer << static_cast<BeamOffset<Particle>&>(module).getDistribution();
+                case fx::ModuleType::Beam_InitialOffset: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
+                        buffer << static_cast<const fx::BeamOffset<Particle>&>(module).getDistribution();
                     }
                     break;
                 }
-                case ModuleType::Beam_InitialRebuild: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
-                        buffer << static_cast<BeamRebuild<Particle>&>(module).getDistribution();
+                case fx::ModuleType::Beam_InitialRebuild: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
+                        buffer << static_cast<const fx::BeamRebuild<Particle>&>(module).getDistribution();
                     }
                     break;
                 }
-                case ModuleType::Beam_InitialTarget: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
-                        buffer << static_cast<BeamTarget<Particle>&>(module).getDistribution();
+                case fx::ModuleType::Beam_InitialTarget: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
+                        buffer << static_cast<const fx::BeamTarget<Particle>&>(module).getDistribution();
                     }
                     break;
                 }
-                case ModuleType::BeamBuilder: {
+                case fx::ModuleType::BeamBuilder: {
                     break;
                 }
             }
@@ -135,45 +135,45 @@ namespace Limitless::fx {
         }
 
         std::unique_ptr<fx::Module<Particle>> deserialize(ByteBuffer& buffer, [[maybe_unused]] Assets& assets) {
-            ModuleType type{};
+            fx::ModuleType type{};
             buffer >> type;
 
-            std::unique_ptr<Module<Particle>> module;
+            std::unique_ptr<fx::Module<Particle>> module;
             switch (type) {
-                case ModuleType::InitialLocation: {
+                case fx::ModuleType::InitialLocation: {
                     std::unique_ptr<Distribution<glm::vec3>> distr;
                     buffer >> distr;
-                    module = std::make_unique<InitialLocation<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::InitialLocation<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::InitialRotation: {
+                case fx::ModuleType::InitialRotation: {
                     std::unique_ptr<Distribution<glm::vec3>> distr;
                     buffer >> distr;
-                    module = std::make_unique<InitialRotation<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::InitialRotation<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::InitialVelocity: {
+                case fx::ModuleType::InitialVelocity: {
                     std::unique_ptr<Distribution<glm::vec3>> distr;
                     buffer >> distr;
-                    module = std::make_unique<InitialVelocity<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::InitialVelocity<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::InitialColor: {
+                case fx::ModuleType::InitialColor: {
                     std::unique_ptr<Distribution<glm::vec4>> distr;
                     buffer >> distr;
-                    module = std::make_unique<InitialColor<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::InitialColor<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::InitialSize: {
+                case fx::ModuleType::InitialSize: {
                     std::unique_ptr<Distribution<float>> distr;
                     buffer >> distr;
-                    module = std::make_unique<InitialSize<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::InitialSize<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::InitialAcceleration: {
+                case fx::ModuleType::InitialAcceleration: {
                     std::unique_ptr<Distribution<glm::vec3>> distr;
                     buffer >> distr;
-                    module = std::make_unique<InitialAcceleration<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::InitialAcceleration<Particle>>(std::move(distr));
                     break;
                 }
 //                case ModuleType::MeshLocation: {
@@ -182,34 +182,34 @@ namespace Limitless::fx {
 //                    module = std::make_unique<MeshLocation>(assets.meshes.at(mesh_name));
 //                    break;
 //                }
-                case ModuleType::SubUV: {
+                case fx::ModuleType::SubUV: {
                     glm::vec2 texture_size;
                     glm::vec2 frame_count;
                     float fps;
                     buffer >> texture_size >> fps >> frame_count;
-                    module = std::make_unique<SubUV<Particle>>(texture_size, fps, frame_count);
+                    module = std::make_unique<fx::SubUV<Particle>>(texture_size, fps, frame_count);
                     break;
                 }
-                case ModuleType::ColorByLife: {
+                case fx::ModuleType::ColorByLife: {
                     std::unique_ptr<Distribution<glm::vec4>> distr;
                     buffer >> distr;
-                    module = std::make_unique<ColorByLife<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::ColorByLife<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::RotationRate: {
+                case fx::ModuleType::RotationRate: {
                     std::unique_ptr<Distribution<glm::vec3>> distr;
                     buffer >> distr;
-                    module = std::make_unique<RotationRate<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::RotationRate<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::SizeByLife: {
+                case fx::ModuleType::SizeByLife: {
                     std::unique_ptr<Distribution<float>> distr;
                     float factor;
                     buffer >> distr >> factor;
-                    module = std::make_unique<SizeByLife<Particle>>(std::move(distr), factor);
+                    module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr), factor);
                     break;
                 }
-                case ModuleType::CustomMaterial: {
+                case fx::ModuleType::CustomMaterial: {
                     std::array<std::unique_ptr<Distribution<float>>, 4> properties {};
                     size_t count {};
                     buffer >> count;
@@ -219,10 +219,10 @@ namespace Limitless::fx {
                         buffer >> properties[index];
                     }
 
-                    module = std::make_unique<CustomMaterial<Particle>>(std::move(properties[0]), std::move(properties[1]), std::move(properties[2]), std::move(properties[3]));
+                    module = std::make_unique<fx::CustomMaterial<Particle>>(std::move(properties[0]), std::move(properties[1]), std::move(properties[2]), std::move(properties[3]));
                     break;
                 }
-                case ModuleType::CustomMaterialByLife: {
+                case fx::ModuleType::CustomMaterialByLife: {
                     std::array<std::unique_ptr<Distribution<float>>, 4> properties {};
                     size_t count {};
                     buffer >> count;
@@ -232,56 +232,56 @@ namespace Limitless::fx {
                         buffer >> properties[index];
                     }
 
-                    module = std::make_unique<CustomMaterialByLife<Particle>>(std::move(properties[0]), std::move(properties[1]), std::move(properties[2]), std::move(properties[3]));
+                    module = std::make_unique<fx::CustomMaterialByLife<Particle>>(std::move(properties[0]), std::move(properties[1]), std::move(properties[2]), std::move(properties[3]));
                     break;
                 }
-                case ModuleType::Lifetime: {
+                case fx::ModuleType::Lifetime: {
                     std::unique_ptr<Distribution<float>> distr;
                     buffer >> distr;
-                    module = std::make_unique<Lifetime<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::Lifetime<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::VelocityByLife: {
+                case fx::ModuleType::VelocityByLife: {
                     std::unique_ptr<Distribution<glm::vec3>> distr;
                     buffer >> distr;
-                    module = std::make_unique<VelocityByLife<Particle>>(std::move(distr));
+                    module = std::make_unique<fx::VelocityByLife<Particle>>(std::move(distr));
                     break;
                 }
-                case ModuleType::Beam_InitialDisplacement: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
+                case fx::ModuleType::Beam_InitialDisplacement: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
                         std::unique_ptr<Distribution<float>> distr;
                         buffer >> distr;
-                        module = std::make_unique<BeamDisplacement<Particle>>(std::move(distr));
+                        module = std::make_unique<fx::BeamDisplacement<Particle>>(std::move(distr));
                     }
                     break;
                 }
-                case ModuleType::Beam_InitialOffset: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
+                case fx::ModuleType::Beam_InitialOffset: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
                         std::unique_ptr<Distribution<float>> distr;
                         buffer >> distr;
-                        module = std::make_unique<BeamOffset<Particle>>(std::move(distr));
+                        module = std::make_unique<fx::BeamOffset<Particle>>(std::move(distr));
                     }
                     break;
                 }
-                case ModuleType::Beam_InitialRebuild: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
+                case fx::ModuleType::Beam_InitialRebuild: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
                         std::unique_ptr<Distribution<float>> distr;
                         buffer >> distr;
-                        module = std::make_unique<BeamRebuild<Particle>>(std::move(distr));
+                        module = std::make_unique<fx::BeamRebuild<Particle>>(std::move(distr));
                     }
                     break;
                 }
-                case ModuleType::Beam_InitialTarget: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
+                case fx::ModuleType::Beam_InitialTarget: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
                         std::unique_ptr<Distribution<glm::vec3>> distr;
                         buffer >> distr;
-                        module = std::make_unique<BeamTarget<Particle>>(std::move(distr));
+                        module = std::make_unique<fx::BeamTarget<Particle>>(std::move(distr));
                     }
                     break;
                 }
-                case ModuleType::BeamBuilder: {
-                    if constexpr (std::is_same_v<Particle, BeamParticle>) {
-                        module = std::make_unique<BeamBuilder<Particle>>();
+                case fx::ModuleType::BeamBuilder: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
+                        module = std::make_unique<fx::BeamBuilder<Particle>>();
                     }
                     break;
                 }
@@ -292,7 +292,7 @@ namespace Limitless::fx {
     };
 
     template<typename Particle>
-    ByteBuffer& operator<<(ByteBuffer& buffer, fx::Module<Particle>& module) {
+    ByteBuffer& operator<<(ByteBuffer& buffer, const fx::Module<Particle>& module) {
         ModuleSerializer<Particle> serializer;
         buffer << serializer.serialize(module);
         return buffer;

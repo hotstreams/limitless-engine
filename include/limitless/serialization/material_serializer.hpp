@@ -12,7 +12,9 @@ namespace Limitless {
 namespace Limitless::ms {
     class Material;
     class MaterialBuilder;
+}
 
+namespace Limitless {
     class MaterialSerializer {
     private:
         void deserialize(ByteBuffer& buffer, Context& context, Assets& assets, const RenderSettings& settings, ms::MaterialBuilder& builder);

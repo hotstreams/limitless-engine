@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 #include <set>
+#include <unordered_map>
+#include <map>
 
 namespace Limitless {
     class Assets;
@@ -81,12 +83,6 @@ namespace Limitless {
             return reinterpret_cast<T&>(value);
         }
 
-        template<typename T, std::enable_if_t<std::is_trivially_copyable_v<std::remove_reference_t<T>>, bool> = true>
-        ByteBuffer& operator<<(T&& value) {
-            write(std::forward<T>(value));
-            return *this;
-        }
-
         template<typename T>
         ByteBuffer& operator>>(T& value) {
             read(value);
@@ -158,16 +154,42 @@ namespace Limitless {
             return *this;
         }
 
-        // TODO: constraints
-        template<typename K, typename V, template<typename...> class M>
-        ByteBuffer& operator<<(const M<K, V>& m) {
+        template<typename K, typename Comp>
+        ByteBuffer& operator<<(const std::set<K, Comp>& s) {
+            *this << s.size();
+            std::for_each(s.begin(), s.end(), [this](const auto& k) { *this << k; });
+            return *this;
+        }
+
+        template<typename K, typename V>
+        ByteBuffer& operator<<(const std::unordered_map<K, V>& m) {
             *this << m.size();
             std::for_each(m.begin(), m.end(), [this](const auto& p) { *this << p; });
             return *this;
         }
 
-        template<typename K, typename V, template<typename...> class M>
-        ByteBuffer& operator>>(M<K, V>& m) {
+        template<typename K, typename V>
+        ByteBuffer& operator<<(const std::map<K, V>& m) {
+            *this << m.size();
+            std::for_each(m.begin(), m.end(), [this](const auto& p) { *this << p; });
+            return *this;
+        }
+
+        template<typename K, typename V>
+        ByteBuffer& operator>>(std::unordered_map<K, V>& m) {
+            size_t size{};
+            *this >> size;
+            for (size_t i = 0; i < size; ++i) {
+                K key{};
+                V value{};
+                *this >> key >> value;
+                m.emplace(std::move(key), std::move(value));
+            }
+            return *this;
+        }
+
+        template<typename K, typename V>
+        ByteBuffer& operator>>(std::map<K, V>& m) {
             size_t size{};
             *this >> size;
             for (size_t i = 0; i < size; ++i) {
@@ -191,11 +213,29 @@ namespace Limitless {
             return *this;
         }
 
+        template<typename K, typename Comp>
+        ByteBuffer& operator>>(std::set<K, Comp>& s) {
+            size_t size {};
+            *this >> size;
+            for (size_t i = 0; i < size; ++i) {
+                K key {};
+                *this >> key;
+                s.emplace(std::move(key));
+            }
+            return *this;
+        }
+
         [[nodiscard]] auto begin() const { return buffer.cbegin(); }
         [[nodiscard]] auto end() const { return buffer.cend(); }
 
         ByteBuffer& operator<<(const ByteBuffer& b) {
             buffer.insert(buffer.end(), b.begin(), b.end());
+            return *this;
+        }
+
+        template<typename T, std::enable_if_t<std::is_trivially_copyable_v<std::remove_reference_t<T>>, bool> = true>
+        ByteBuffer& operator<<(T&& value) {
+            write(std::forward<T>(value));
             return *this;
         }
     };

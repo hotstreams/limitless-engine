@@ -39,7 +39,7 @@ void MaterialBuilder::initializeMaterialBuffer() {
             const auto size = getUniformSize(*uniform);
             const auto alignment = getUniformAlignment(*uniform);
 
-            offset += offset % alignment;
+            offset += offset % alignment ? alignment - offset % alignment : 0;
 
             material->uniform_offsets.emplace(uniform->getName(), offset);
             offset += size;

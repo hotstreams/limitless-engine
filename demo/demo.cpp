@@ -239,6 +239,9 @@ public:
                 .setLocalSpace(true)
                 .build();
 
+//        EffectLoader::save(assets.getBaseDir() / "effects/test", assets.effects.at("effect1"));
+//        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test");
+
         effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, -5.f});
 
         builder.create("effect2")
@@ -257,6 +260,9 @@ public:
                 .setLocalSpace(true)
                 .build();
 
+//        EffectLoader::save(assets.getBaseDir() / "effects/test2", assets.effects.at("effect2"));
+//        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test2");
+
         effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
 
         fx::EffectBuilder beam_builder{context, assets, render.getSettings()};
@@ -266,6 +272,9 @@ public:
                      .addLifetime(std::make_unique<ConstDistribution<float>>(1.0f))
                      .setMaxCount(1)
                      .build();
+
+//        EffectLoader::save(assets.getBaseDir() / "effects/test3", assets.effects.at("test_beam"));
+//        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test3");
 
         scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{1.0f, 2.0f, 1.0f});
     }

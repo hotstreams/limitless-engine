@@ -4,6 +4,7 @@
 
 namespace Limitless {
     class AbstractMesh;
+    class EmitterSerializer;
 
     namespace ms {
         class Material;
@@ -21,7 +22,7 @@ namespace Limitless::fx {
         MeshEmitter() noexcept;
 
         friend class EffectBuilder;
-        friend class EmitterSerializer;
+        friend class Limitless::EmitterSerializer;
     public:
         ~MeshEmitter() override = default;
 
