@@ -81,6 +81,11 @@ ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, std::unique_ptr<Distributi
 }
 
 namespace Limitless {
+    template ByteBuffer DistributionSerializer::serialize(const Distribution<glm::vec3>& distr);
+    template ByteBuffer DistributionSerializer::serialize(const Distribution<glm::vec4>& distr);
+    template ByteBuffer DistributionSerializer::serialize(const Distribution<float>& distr);
+    template ByteBuffer DistributionSerializer::serialize(const Distribution<uint32_t>& distr);
+
     template ByteBuffer& operator<<(ByteBuffer& buffer, const Distribution<float>& distr);
     template ByteBuffer& operator<<(ByteBuffer& buffer, const Distribution<uint32_t>& distr);
     template ByteBuffer& operator<<(ByteBuffer& buffer, const Distribution<glm::vec3>& distr);
