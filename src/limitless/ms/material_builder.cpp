@@ -60,7 +60,6 @@ void MaterialBuilder::initializeMaterialBuffer() {
 }
 
 MaterialBuilder& MaterialBuilder::set(decltype(material->properties)&& properties) {
-    //todo check correctness
     material->properties = std::move(properties);
     return *this;
 }
@@ -233,20 +232,21 @@ MaterialBuilder& MaterialBuilder::removeUniform(const std::string& name) {
 void MaterialBuilder::setMaterialIndex() {
     std::unique_lock lock(mutex);
 
-    if (!material->uniforms.empty() || !material->vertex_snippet.empty() || !material->fragment_snippet.empty() || !material->tessellation_snippet.empty() || !material->global_snippet.empty()) {
-        // it is custom material; makes index unique
-        material->shader_index = next_shader_index++;
-    } else {
-        const auto material_type = getMaterialType();
-        if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
-            // already exist
-            material->shader_index = found->second;
-        } else {
-            // new one
-            material->shader_index = next_shader_index++;
-            unique_materials.emplace(material_type, material->shader_index);
-        }
-    }
+    material->shader_index = next_shader_index++;
+//    if (!material->uniforms.empty() || !material->vertex_snippet.empty() || !material->fragment_snippet.empty() || !material->tessellation_snippet.empty() || !material->global_snippet.empty()) {
+//        // it is custom material; makes index unique
+//        material->shader_index = next_shader_index++;
+//    } else {
+//        const auto material_type = getMaterialType();
+//        if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
+//            // already exist
+//            material->shader_index = found->second;
+//        } else {
+//            // new one
+//            material->shader_index = next_shader_index++;
+//            unique_materials.emplace(material_type, material->shader_index);
+//        }
+//    }
 }
 
 void MaterialBuilder::checkRequirements() {
