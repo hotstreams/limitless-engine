@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limitless/pipeline/shader_pass_types.hpp>
 #include <memory>
 #include <map>
 #include <vector>
@@ -39,7 +40,7 @@ namespace Limitless {
         void remove(uint64_t id);
 
         // sets context state for %id layer
-        void setMaterialState(Context& ctx, uint64_t id);
+        void setMaterialState(Context& ctx, uint64_t id, ShaderPass pass);
 
         // gets material layer
         ms::Material& operator[](uint64_t id) { return *materials.at(id); }
