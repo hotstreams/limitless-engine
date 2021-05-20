@@ -38,7 +38,7 @@ void MeshInstance::draw(Context& ctx,
         }
 
         // sets state for material
-        material.setMaterialState(ctx, index);
+        material.setMaterialState(ctx, index, pass);
 
         // gets required shader from storage
         auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());
@@ -77,7 +77,7 @@ void MeshInstance::draw_instanced(Context& ctx,
         }
 
         // sets state for material
-        material.setMaterialState(ctx, index);
+        material.setMaterialState(ctx, index, pass);
 
         // gets required shader from storage
         auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());

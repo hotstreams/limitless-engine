@@ -47,7 +47,7 @@ void MaterialInstance::remove(uint64_t id) {
     materials.erase(id);
 }
 
-void MaterialInstance::setMaterialState(Context& ctx, uint64_t id) {
+void MaterialInstance::setMaterialState(Context& ctx, uint64_t id, ShaderPass pass) {
     const auto& material = materials.at(id);
 
     // checks for multiple opaque materials
@@ -71,5 +71,12 @@ void MaterialInstance::setMaterialState(Context& ctx, uint64_t id) {
         ctx.disable(Capabilities::CullFace);
     } else {
         ctx.enable(Capabilities::CullFace);
+
+        // front cullfacing for shadows helps prevent peter panning
+        if (pass == ShaderPass::DirectionalShadow) {
+            ctx.setCullFace(CullFace::Front);
+        } else {
+            ctx.setCullFace(CullFace::Back);
+        }
     }
 }
