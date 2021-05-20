@@ -68,8 +68,7 @@ void main() {
     #endif
 
     #if defined(MATERIAL_BLENDMASK)
-        if (mat_blend_mask <= 0.5) discard;
-        //fragment_color.a *= mat_blend_mask;
+        if (mat_blend_mask == 0.5) discard;
     #endif
 
     #if defined(MATERIAL_EMISSIVEMASK)
