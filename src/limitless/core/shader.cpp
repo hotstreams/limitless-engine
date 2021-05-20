@@ -37,6 +37,10 @@ Shader::Shader(fs::path _path, Type _type, const ShaderAction& action)
         action(*this);
     }
 
+    // includes can appear in other includes that were added by ShaderActions
+    // so replace one more time
+    replaceIncludes(path.parent_path());
+
     id = glCreateShader(static_cast<GLenum>(type));
 }
 
