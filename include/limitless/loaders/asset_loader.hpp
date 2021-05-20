@@ -33,9 +33,8 @@ namespace Limitless {
 
         Context& context;
         Assets& assets;
-        const RenderSettings& settings;
     public:
-        AssetManager(Context& context, Assets& assets, const RenderSettings& settings, uint32_t pool_size = std::thread::hardware_concurrency());
+        AssetManager(Context& context, Assets& assets, uint32_t pool_size = std::thread::hardware_concurrency());
         ~AssetManager();
 
         void loadModel(std::string asset_name, fs::path path, ModelLoaderFlags flags = {});

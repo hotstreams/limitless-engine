@@ -50,7 +50,7 @@ ByteBuffer EmitterSerializer::serialize(const AbstractEmitter& emitter) {
     return buffer;
 }
 
-void EmitterSerializer::deserialize(Context& context, Assets& assets, const RenderSettings& settings, ByteBuffer& buffer, EffectBuilder& builder) {
+void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer& buffer, EffectBuilder& builder) {
     std::string name;
     AbstractEmitter::Type type;
     glm::vec3 local_position;
@@ -67,12 +67,12 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, const Rend
            >> local_space
            >> spawn
            >> duration
-           >> AssetDeserializer<std::shared_ptr<ms::Material>>{context, assets, settings, material};
+           >> AssetDeserializer<std::shared_ptr<ms::Material>>{context, assets, material};
 
     switch (type) {
         case AbstractEmitter::Type::Sprite: {
             decltype(SpriteEmitter::modules) modules;
-            buffer >> AssetDeserializer<decltype(modules)>{context, assets, settings, modules};
+            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
 
             builder.createEmitter<SpriteEmitter>(name)
                    .setModules<SpriteEmitter>(std::move(modules));
@@ -80,7 +80,7 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, const Rend
         }
         case AbstractEmitter::Type::Mesh: {
             decltype(MeshEmitter::modules) modules;
-            buffer >> AssetDeserializer<decltype(modules)>{context, assets, settings, modules};
+            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
 
             builder.createEmitter<MeshEmitter>(name)
                    .setModules<MeshEmitter>(std::move(modules));
@@ -93,7 +93,7 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, const Rend
         }
         case AbstractEmitter::Type::Beam: {
             decltype(BeamEmitter::modules) modules;
-            buffer >> AssetDeserializer<decltype(modules)>{context, assets, settings, modules};
+            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
 
             builder.createEmitter<BeamEmitter>(name)
                    .setModules<BeamEmitter>(std::move(modules));

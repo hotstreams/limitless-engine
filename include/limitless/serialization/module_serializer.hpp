@@ -301,7 +301,7 @@ namespace Limitless {
     template<typename Particle>
     ByteBuffer& operator>>(ByteBuffer& buffer, const AssetDeserializer<std::unique_ptr<fx::Module<Particle>>>& asset) {
         ModuleSerializer<Particle> serializer;
-        auto& [context, assets, settings, module] = asset;
+        auto& [context, assets, module] = asset;
         module = serializer.deserialize(buffer, assets);
         return buffer;
     }

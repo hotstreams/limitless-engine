@@ -14,7 +14,7 @@ namespace Limitless {
     class EffectSerializer {
     public:
         ByteBuffer serialize(const EffectInstance& instance);
-        std::shared_ptr<EffectInstance> deserialize(Context& context, Assets& assets, const RenderSettings& settings, ByteBuffer& buffer);
+        std::shared_ptr<EffectInstance> deserialize(Context& context, Assets& assets, ByteBuffer& buffer);
     };
 
     ByteBuffer& operator<<(ByteBuffer& buffer, const EffectInstance& effect);

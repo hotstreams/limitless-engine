@@ -13,10 +13,9 @@
 
 using namespace Limitless;
 
-ModelLoader::ModelLoader(Context& _context, Assets& _assets, const RenderSettings& _settings) noexcept
+ModelLoader::ModelLoader(Context& _context, Assets& _assets) noexcept
     : context{_context}
-    , assets {_assets}
-    , settings {_settings} {
+    , assets {_assets} {
 }
 
 std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, const ModelLoaderFlags& flags) {
@@ -165,7 +164,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
         return assets.materials.at(name);
     }
 
-    ms::MaterialBuilder builder {context, assets, settings};
+    ms::MaterialBuilder builder {context, assets};
     TextureLoader loader {assets};
 
     builder.setName(std::move(name))

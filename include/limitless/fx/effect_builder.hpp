@@ -9,7 +9,6 @@ namespace Limitless {
     class AbstractMesh;
     class Context;
     class Assets;
-    class RenderSettings;
     class EmitterSerializer;
 
     namespace ms {
@@ -26,7 +25,6 @@ namespace Limitless::fx {
 
         Context& context;
         Assets& assets;
-        const RenderSettings& settings;
 
         template<typename Emitter>
         EffectBuilder& setModules(decltype(Emitter::modules)&& modules);
@@ -41,7 +39,7 @@ namespace Limitless::fx {
 
         friend class Limitless::EmitterSerializer;
     public:
-        EffectBuilder(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
+        EffectBuilder(Context& context, Assets& assets) noexcept;
         ~EffectBuilder() = default;
 
         EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count);

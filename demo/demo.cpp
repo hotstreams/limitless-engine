@@ -60,12 +60,14 @@ public:
         context.registerObserver(static_cast<MouseMoveObserver*>(this));
         context.registerObserver(static_cast<FramebufferObserver*>(this));
 
-        assets.load(context, render.getSettings());
+        assets.load(context);
 
         addModels();
 //        addModelsT();
         addSpheres();
         addEffects();
+
+        assets.compileShaders(context, render.getSettings());
 
         text = std::make_unique<TextInstance>("Limitless-engine", glm::vec2{20.0f, window_size.y - 40.0f}, assets.fonts.at("nunito"));
         text->setColor({0.1f, 0.8f, 0.4f, 1.0f});
@@ -82,49 +84,51 @@ public:
         context.unregisterObserver(static_cast<FramebufferObserver*>(this));
     }
 
-    void addModelsT() {
-        AssetManager manager {context, assets, render.getSettings()};
-        const fs::path assets_dir {ASSETS_DIR};
-
-        manager.loadModel("bob", assets_dir / "models/boblamp/boblampclean.md5mesh");
-        manager.loadModel("backpack", assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
-        manager.loadModel("nanosuit", assets_dir / "models/nanosuit/nanosuit.obj");
-        manager.loadModel("cyborg", assets_dir / "models/cyborg/cyborg.obj");
-
-//        manager.wait();
-        while (!manager) {
-            context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
-
-            // loading screen ;)
-
-            context.swapBuffers();
-        }
-        manager.delayed_job();
-
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
-        assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
-
-        scene.setSkybox(assets.skyboxes.at("skybox"));
-        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
-            .setRotation(glm::vec3{0.0f, pi, 0.0f})
-            .setScale(glm::vec3{0.4f});
-
-        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f})
-            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
-            .setScale(glm::vec3{0.1f});
-
-        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f})
-            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
-            .setScale(glm::vec3{0.35f});
-
-        scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
-            .setScale(glm::vec3{0.02f})
-            .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
-            .play("");
-    }
+    // currently not working everywhere
+    // some hidden tricky-bugs of context sharing there
+//    void addModelsT() {
+//        AssetManager manager {context, assets};
+//        const fs::path assets_dir {ASSETS_DIR};
+//
+//        manager.loadModel("bob", assets_dir / "models/boblamp/boblampclean.md5mesh");
+//        manager.loadModel("backpack", assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
+//        manager.loadModel("nanosuit", assets_dir / "models/nanosuit/nanosuit.obj");
+//        manager.loadModel("cyborg", assets_dir / "models/cyborg/cyborg.obj");
+//
+////        manager.wait();
+//        while (!manager) {
+//            context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
+//
+//            // loading screen ;)
+//
+//            context.swapBuffers();
+//        }
+//        manager.delayed_job();
+//
+//        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+//        assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
+//
+//        scene.setSkybox(assets.skyboxes.at("skybox"));
+//        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
+//            .setRotation(glm::vec3{0.0f, pi, 0.0f})
+//            .setScale(glm::vec3{0.4f});
+//
+//        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f})
+//            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
+//            .setScale(glm::vec3{0.1f});
+//
+//        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f})
+//            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
+//            .setScale(glm::vec3{0.35f});
+//
+//        scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
+//            .setScale(glm::vec3{0.02f})
+//            .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
+//            .play("");
+//    }
 
     void addModels() {
-        ModelLoader model_loader{context, assets, render.getSettings()};
+        ModelLoader model_loader{context, assets};
         const fs::path assets_dir{ASSETS_DIR};
 
         assets.models.add("bob", model_loader.loadModel(assets_dir / "models/boblamp/boblampclean.md5mesh"));
@@ -132,11 +136,11 @@ public:
         assets.models.add("nanosuit", model_loader.loadModel(assets_dir / "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(assets_dir / "models/cyborg/cyborg.obj"));
 
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+//        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+//        scene.setSkybox(assets.skyboxes.at("skybox"));
 
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
-        scene.setSkybox(assets.skyboxes.at("skybox"));
         scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
                 .setRotation(glm::vec3{0.0f, pi, 0.0f})
                 .setScale(glm::vec3{0.4f});
@@ -154,7 +158,7 @@ public:
                 .setRotation(glm::vec3{0.0f, 0.0f, pi})
                 .play("");
 
-        ms::MaterialBuilder builder{context, assets, render.getSettings()};
+        ms::MaterialBuilder builder{context, assets};
 
         builder.setName("test")
                 .add(ms::Property::Color, glm::vec4(2.0f, 1.0f, 1.0f, 1.0f))
@@ -168,7 +172,7 @@ public:
     }
 
     void addSpheres() {
-        ms::MaterialBuilder builder {context, assets, render.getSettings()};
+        ms::MaterialBuilder builder {context, assets};
         TextureLoader tex_loader {assets};
 
         const fs::path assets_dir {ASSETS_DIR};
@@ -221,7 +225,7 @@ public:
     }
 
     void addEffects() {
-        fx::EffectBuilder builder {context, assets, render.getSettings()};
+        fx::EffectBuilder builder {context, assets};
 
         builder.create("effect1")
                 .createEmitter<fx::SpriteEmitter>("generate")
@@ -252,7 +256,7 @@ public:
                 .addInitialSize(std::make_unique<ConstDistribution<float>>(1.0f))
                 .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{0.0f}, glm::vec4{2.0f}))
                 .setMaterial(assets.materials.at("EmissiveColor"))
-                .setMesh(assets.meshes.at("sphere_mesh"))
+                .setMesh(assets.meshes.at("sphere"))
                 .setSpawnMode(fx::EmitterSpawn::Mode::Burst)
                 .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(100))
                 .setMaxCount(100)
@@ -265,7 +269,7 @@ public:
 
         effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
 
-        fx::EffectBuilder beam_builder{context, assets, render.getSettings()};
+        fx::EffectBuilder beam_builder{context, assets};
         beam_builder.create("test_beam")
                      .createEmitter<fx::BeamEmitter>("test")
                      .setMaterial(assets.materials.at("EmissiveColor"))

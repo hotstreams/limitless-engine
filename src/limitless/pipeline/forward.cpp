@@ -34,7 +34,7 @@ void Forward::create(ContextEventObserver& ctx, Scene& scene, const RenderSettin
     add<FramebufferPass>(ctx);
     add<ColorPass>(ms::Blending::Opaque);
     add<ParticlePass>(fx.getRenderer(), ms::Blending::Opaque);
-    add<SkyboxPass>(*scene.getSkybox());
+//    add<SkyboxPass>(*scene.getSkybox());
     add<ColorPass>(ms::Blending::Additive);
     add<ParticlePass>(fx.getRenderer(), ms::Blending::Additive);
     add<ColorPass>(ms::Blending::Modulate);
