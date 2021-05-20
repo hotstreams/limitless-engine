@@ -33,10 +33,9 @@
 
 using namespace Limitless::fx;
 
-EffectBuilder::EffectBuilder(Context& _context, Assets& _assets, const RenderSettings& _settings) noexcept
+EffectBuilder::EffectBuilder(Context& _context, Assets& _assets) noexcept
     : context{_context}
-    , assets {_assets}
-    , settings {_settings} {
+    , assets {_assets} {
 }
 
 EffectBuilder& EffectBuilder::setEmitterType(AbstractEmitter::Type type) {
@@ -268,14 +267,6 @@ EffectBuilder& EffectBuilder::addBeamInitialRebuild(std::unique_ptr<Distribution
 }
 
 std::shared_ptr<Limitless::EffectInstance> EffectBuilder::build() {
-    PassShaders pass_shaders;
-
-    if (settings.directional_csm) {
-        pass_shaders.emplace(ShaderPass::DirectionalShadow);
-    }
-
-    pass_shaders.emplace(settings.renderer);
-
     for (const auto& [name, emitter] : *effect) {
         switch (emitter->getType()) {
             case AbstractEmitter::Type::Sprite: {
@@ -294,11 +285,6 @@ std::shared_ptr<Limitless::EffectInstance> EffectBuilder::build() {
                 break;
             }
         }
-    }
-
-    EffectCompiler compiler {context, assets, settings};
-    for (const auto& mat_shader : pass_shaders) {
-        compiler.compile(*effect, mat_shader);
     }
 
     assets.effects.add(effect_name, effect);

@@ -18,7 +18,7 @@ void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Textur
 
     brightness_shader.use();
 
-    assets.meshes.at("quad_mesh")->draw();
+    assets.meshes.at("quad")->draw();
 }
 
 void Bloom::blurImage(const Assets& assets) {
@@ -36,7 +36,7 @@ void Bloom::blurImage(const Assets& assets) {
 
         blur_shader.use();
 
-        assets.meshes.at("quad_mesh")->draw();
+        assets.meshes.at("quad")->draw();
     }
 }
 
@@ -133,7 +133,7 @@ void PostProcessing::process(Context& ctx, const Assets& assets, const Framebuff
 
     postprocess_shader.use();
 
-    assets.meshes.at("quad_mesh")->draw();
+    assets.meshes.at("quad")->draw();
 
     target.unbind();
 }

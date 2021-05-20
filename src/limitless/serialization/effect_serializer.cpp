@@ -1,7 +1,6 @@
 #include <limitless/serialization/effect_serializer.hpp>
 
 #include <limitless/serialization/emitter_serializer.hpp>
-//#include <limitless/fx/effect_builder.hpp>
 #include <limitless/instances/effect_instance.hpp>
 
 using namespace Limitless;
@@ -16,8 +15,8 @@ ByteBuffer EffectSerializer::serialize(const EffectInstance& instance) {
     return buffer;
 }
 
-std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Context& context, Assets& assets, const RenderSettings& settings, ByteBuffer& buffer) {
-    fx::EffectBuilder builder {context, assets, settings};
+std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Context& context, Assets& assets, ByteBuffer& buffer) {
+    fx::EffectBuilder builder {context, assets};
     std::string name;
     size_t size;
 
@@ -27,7 +26,7 @@ std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Context& context, 
 
     for (size_t i = 0; i < size; ++i) {
         EmitterSerializer serializer;
-        serializer.deserialize(context, assets, settings, buffer, builder);
+        serializer.deserialize(context, assets, buffer, builder);
     }
 
     return builder.build();
@@ -41,7 +40,7 @@ ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const EffectInstance& effe
 
 ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<EffectInstance>>& asset) {
     EffectSerializer serializer;
-    auto& [context, assets, settings, effect] = asset;
-    effect = serializer.deserialize(context, assets, settings, buffer);
+    auto& [context, assets, effect] = asset;
+    effect = serializer.deserialize(context, assets, buffer);
     return buffer;
 }

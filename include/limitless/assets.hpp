@@ -37,10 +37,14 @@ namespace Limitless {
 
         virtual ~Assets() = default;
 
-        virtual void load(Context& context, const RenderSettings& settings);
-        [[nodiscard]] const auto& getBaseDir() const noexcept { return base_dir; }
-        [[nodiscard]] const auto& getShaderDir() const noexcept { return shader_dir; }
+        virtual void load(Context& context);
+
+        void compileShaders(Context& ctx, const RenderSettings& settings);
+        void recompileShaders(Context& ctx, const RenderSettings& settings);
 
         void add(const Assets& other);
+
+        [[nodiscard]] const auto& getBaseDir() const noexcept { return base_dir; }
+        [[nodiscard]] const auto& getShaderDir() const noexcept { return shader_dir; }
     };
 }

@@ -31,18 +31,15 @@ namespace Limitless::ms {
 
         Context& context;
         Assets& assets;
-        const RenderSettings& settings;
 
         [[nodiscard]] UniqueMaterial getMaterialType() const noexcept;
-        void compileShaders(const ModelShaders&, const PassShaders&);
         void initializeMaterialBuffer();
         void checkRequirements();
         void setMaterialIndex();
         void setModelShaders();
-        void setPassShaders();
         void createMaterial();
     public:
-        MaterialBuilder(Context& context, Assets& assets, const RenderSettings& settings);
+        MaterialBuilder(Context& context, Assets& assets);
         virtual ~MaterialBuilder() = default;
 
         MaterialBuilder(const MaterialBuilder&) = delete;
@@ -61,7 +58,7 @@ namespace Limitless::ms {
         MaterialBuilder& setShading(Shading shading) noexcept;
         MaterialBuilder& setTwoSided(bool two_sided) noexcept;
         MaterialBuilder& setName(std::string name) noexcept;
-        const auto& getName() const noexcept { return material->name; }
+        [[nodiscard]] const auto& getName() const noexcept { return material->name; }
 
         MaterialBuilder& setFragmentSnippet(std::string fs_code) noexcept;
         MaterialBuilder& setVertexSnippet(std::string vs_code) noexcept;
@@ -72,7 +69,6 @@ namespace Limitless::ms {
         MaterialBuilder& removeUniform(const std::string& name);
 
         MaterialBuilder& setModelShaders(const ModelShaders& shaders) noexcept;
-        MaterialBuilder& addPassShader(ShaderPass pass) noexcept;
         MaterialBuilder& addModelShader(ModelShader model) noexcept;
 
         MaterialBuilder& set(decltype(material->properties)&& properties);

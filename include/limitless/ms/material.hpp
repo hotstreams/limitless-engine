@@ -44,9 +44,8 @@ namespace Limitless::ms {
         // unique index describes which shader to use
         uint64_t shader_index {};
 
-        // contains ModelShader types for which this material is compiled
+        // contains ModelShader type for which this material is used
         ModelShaders model_shaders;
-        PassShaders pass_shaders;
 
         // opengl buffer that stores properties
         std::shared_ptr<Buffer> material_buffer;
@@ -118,7 +117,6 @@ namespace Limitless::ms {
         UniformSampler& getBlendMask();
 
         [[nodiscard]] const auto& getModelShaders() const noexcept { return model_shaders; }
-        [[nodiscard]] const auto& getPassShaders() const noexcept { return pass_shaders; }
         [[nodiscard]] auto getBlending() const noexcept { return blending; }
         [[nodiscard]] auto getShading() const noexcept { return shading; }
         [[nodiscard]] auto getTwoSided() const noexcept { return two_sided; }

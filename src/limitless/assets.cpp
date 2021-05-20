@@ -1,6 +1,8 @@
 #include <limitless/assets.hpp>
 
 #include <limitless/ms/material_builder.hpp>
+#include <limitless/ms/material_compiler.hpp>
+#include <limitless/fx/effect_compiler.hpp>
 #include <limitless/skybox/skybox.hpp>
 
 #include <limitless/models/sphere.hpp>
@@ -21,31 +23,32 @@ Assets::Assets(fs::path _base_dir, fs::path _shader_dir) noexcept
     , shader_dir {std::move(_shader_dir)} {
 }
 
-void Assets::load(Context& context, const RenderSettings& settings) {
+void Assets::load(Context& context) {
     // engine-required assets
     shaders.initialize(context, getShaderDir());
 
-    // used in render as light radius material
-    ms::MaterialBuilder builder {context, *this, settings};
-    builder.setName("default").add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).build();
-    builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).build();
-    builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).build();
-    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders({ModelShader::Model, ModelShader::Skeletal}).build();
+    // builds default materials for every model type
+    ms::MaterialBuilder builder {context, *this};
+    ModelShaders model_types = { ModelShader::Model, ModelShader::Skeletal, ModelShader::Effect, ModelShader::Instanced };
+    builder.setName("default").add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
+    builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
+    builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).build();
+    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(100, 100));
-    meshes.add("sphere_mesh", models.at("sphere")->getMeshes().at(0));
+    meshes.add("sphere", models.at("sphere")->getMeshes().at(0));
 
     // used in postprocessing
     models.add("quad", std::make_shared<Quad>());
-    meshes.add("quad_mesh", models.at("quad")->getMeshes().at(0));
+    meshes.add("quad", models.at("quad")->getMeshes().at(0));
 
     // used in skybox render
     models.add("cube", std::make_shared<Cube>());
-    meshes.add("cube_mesh", models.at("cube")->getMeshes().at(0));
+    meshes.add("cube", models.at("cube")->getMeshes().at(0));
 
     models.add("plane", std::make_shared<Plane>());
-    meshes.add("plane_mesh", models.at("plane")->getMeshes().at(0));
+    meshes.add("plane", models.at("plane")->getMeshes().at(0));
 }
 
 void Assets::add(const Assets& other) {
@@ -58,3 +61,79 @@ void Assets::add(const Assets& other) {
     effects.add(other.effects);
     fonts.add(other.fonts);
 }
+
+void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
+    // constructing pass shaders based on settings
+    PassShaders pass_shaders;
+    {
+        // adds current renderer
+        pass_shaders.emplace(settings.renderer);
+
+        // adds shadow pass
+        if (settings.directional_csm) {
+            pass_shaders.emplace(ShaderPass::DirectionalShadow);
+        }
+    }
+
+    // compiles shaders for materials
+    {
+        ms::MaterialCompiler compiler {ctx, *this, settings};
+
+        // iterating over every material
+        for (const auto& [name, material] : materials) {
+            // iterating over required model types
+            for (const auto& model_shader_type : material->getModelShaders()) {
+                // effect shaders compiled separately
+                if (model_shader_type == ModelShader::Effect) {
+                    continue;
+                }
+
+                // iterating over required render pass
+                for (const auto& pass_shader : pass_shaders) {
+                    if (!shaders.contains(pass_shader, model_shader_type, material->getShaderIndex())) {
+                        compiler.compile(*material, pass_shader, model_shader_type);
+                    }
+                }
+            }
+        }
+    }
+
+    // compiles effect shaders
+    {
+        fx::EffectCompiler compiler {ctx, *this, settings};
+
+        // iterating over every effect
+        for (const auto& [name, effect] : effects) {
+            // iterating over required render pass
+            for (const auto& pass_shader : pass_shaders) {
+                compiler.compile(*effect, pass_shader);
+            }
+        }
+    }
+
+    // compiles skybox shaders
+    {
+        ms::MaterialCompiler compiler {ctx, *this, settings};
+
+        for (const auto& [name, skybox] : skyboxes) {
+            if (!shaders.contains(ShaderPass::Skybox, ModelShader::Model, skybox->getMaterial().getShaderIndex())) {
+                compiler.compile(skybox->getMaterial(), ShaderPass::Skybox, ModelShader::Model);
+            }
+        }
+    }
+}
+
+void Assets::recompileShaders(Context& ctx, const RenderSettings& settings) {
+    shaders.clearEffectShaders();
+    shaders.clearMaterialShaders();
+
+    compileShaders(ctx, settings);
+}
+
+//void MaterialBuilder::compileShaders(const ModelShaders& model_shaders, const PassShaders& pass_shaders) {
+//    // compiles every required permutation
+//    // except for ModelShader::Effect
+//    // because we do not know yet which EffectModules it will use
+//
+
+//}

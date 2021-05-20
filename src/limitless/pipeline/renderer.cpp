@@ -22,26 +22,26 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
 }
 
 void Renderer::update(ContextEventObserver& ctx, Assets& assets, Scene& scene) {
-    assets.shaders.clearMaterialShaders();
-    ms::MaterialCompiler compiler {ctx, assets, settings};
-    for (const auto& [name, material] : assets.materials) {
-        for (const auto& model : material->getModelShaders()) {
-            for (const auto& pass : material->getPassShaders()) {
-                if (!assets.shaders.contains(pass, model, material->getShaderIndex())) {
-                    compiler.compile(*material, pass, model);
-                }
-            }
-        }
-    }
-
-    assets.shaders.clearEffectShaders();
-    fx::EffectCompiler fx_compiler {ctx, assets, settings};
-    for (const auto& [name, effect] : assets.effects) {
-        fx_compiler.compile(*effect, settings.renderer);
-        if (settings.directional_csm) {
-            fx_compiler.compile(*effect, ShaderPass::DirectionalShadow);
-        }
-    }
-
-    pipeline->update(ctx, scene, settings);
+//    assets.shaders.clearMaterialShaders();
+//    ms::MaterialCompiler compiler {ctx, assets, settings};
+//    for (const auto& [name, material] : assets.materials) {
+//        for (const auto& model : material->getModelShaders()) {
+//            for (const auto& pass : material->getPassShaders()) {
+//                if (!assets.shaders.contains(pass, model, material->getShaderIndex())) {
+//                    compiler.compile(*material, pass, model);
+//                }
+//            }
+//        }
+//    }
+//
+//    assets.shaders.clearEffectShaders();
+//    fx::EffectCompiler fx_compiler {ctx, assets, settings};
+//    for (const auto& [name, effect] : assets.effects) {
+//        fx_compiler.compile(*effect, settings.renderer);
+//        if (settings.directional_csm) {
+//            fx_compiler.compile(*effect, ShaderPass::DirectionalShadow);
+//        }
+//    }
+//
+//    pipeline->update(ctx, scene, settings);
 }

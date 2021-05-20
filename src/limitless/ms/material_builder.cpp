@@ -13,10 +13,9 @@ void MaterialBuilder::createMaterial() {
     material = std::shared_ptr<Material>(new Material());
 }
 
-MaterialBuilder::MaterialBuilder(Context& _context, Assets& _assets, const RenderSettings& _settings)
+MaterialBuilder::MaterialBuilder(Context& _context, Assets& _assets)
     : context{_context}
-    , assets {_assets}
-    , settings {_settings} {
+    , assets {_assets} {
     createMaterial();
 }
 
@@ -273,34 +272,11 @@ void MaterialBuilder::checkRequirements() {
     }
 }
 
-void MaterialBuilder::compileShaders(const ModelShaders& model_shaders, const PassShaders& pass_shaders) {
-    // compiles every required permutation
-    // except for ModelShader::Effect
-    // because we do not know yet which EffectModules it will use
-
-    MaterialCompiler compiler {context, assets, settings};
-    for (const auto& pass_shader : pass_shaders) {
-        for (const auto& model_shader : model_shaders) {
-            if (model_shader == ModelShader::Effect) {
-                continue;
-            }
-
-            if (!assets.shaders.contains(pass_shader, model_shader, material->shader_index)) {
-                compiler.compile(*material, pass_shader, model_shader);
-            }
-        }
-    }
-}
-
 std::shared_ptr<Material> MaterialBuilder::build() {
     checkRequirements();
 
-    setPassShaders();
-
     setMaterialIndex();
     setModelShaders();
-
-    compileShaders(material->model_shaders, material->pass_shaders);
 
     initializeMaterialBuffer();
 
@@ -324,21 +300,6 @@ UniqueMaterial MaterialBuilder::getMaterialType() const noexcept {
 
 MaterialBuilder& MaterialBuilder::setModelShaders(const Limitless::ModelShaders& shaders) noexcept {
     material->model_shaders = shaders;
-    return *this;
-}
-
-void MaterialBuilder::setPassShaders() {
-    if (material->pass_shaders.empty()) {
-        if (settings.directional_csm) {
-            material->pass_shaders.emplace(ShaderPass::DirectionalShadow);
-        }
-
-        material->pass_shaders.emplace(settings.renderer);
-    }
-}
-
-MaterialBuilder& MaterialBuilder::addPassShader(ShaderPass pass) noexcept {
-    material->pass_shaders.emplace(pass);
     return *this;
 }
 

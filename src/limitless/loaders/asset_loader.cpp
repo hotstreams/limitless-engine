@@ -8,11 +8,10 @@
 
 using namespace Limitless;
 
-AssetManager::AssetManager(Context& _context, Assets& _assets, const RenderSettings& _settings, uint32_t pool_size)
+AssetManager::AssetManager(Context& _context, Assets& _assets, uint32_t pool_size)
     : pool {_context, pool_size}
     , context {_context}
-    , assets {_assets}
-    , settings {_settings} {
+    , assets {_assets} {
 }
 
 AssetManager::~AssetManager() {
@@ -30,7 +29,7 @@ void AssetManager::loadTexture(std::string asset_name, fs::path path, TextureLoa
 
 void AssetManager::loadModel(std::string asset_name, fs::path path, ModelLoaderFlags flags) {
     auto load_model = [&, name = asset_name, path = std::move(path), fl = std::move(flags)] () {
-        ThreadedModelLoader loader {context, assets, settings};
+        ThreadedModelLoader loader {context, assets};
         return loader.loadModel(path, fl);
     };
 
@@ -91,7 +90,7 @@ void AssetManager::build(std::function<void()> f) {
 
 void AssetManager::loadMaterial(std::string asset_name, fs::path path) {
     auto load_material = [&, name = std::move(asset_name), path = std::move(path)] () {
-        assets.materials.add(name, MaterialLoader::load(context, assets, settings, path));
+        assets.materials.add(name, MaterialLoader::load(context, assets, path));
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_material)));
@@ -99,7 +98,7 @@ void AssetManager::loadMaterial(std::string asset_name, fs::path path) {
 
 void AssetManager::loadEffect(std::string asset_name, fs::path path) {
     auto load_effect = [&, name = std::move(asset_name), path = std::move(path)] () {
-        assets.effects.add(name, EffectLoader::load(context, assets, settings, path));
+        assets.effects.add(name, EffectLoader::load(context, assets, path));
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_effect)));

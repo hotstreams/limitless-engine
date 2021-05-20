@@ -10,7 +10,7 @@
 using namespace Limitless::ms;
 using namespace Limitless;
 
-void MaterialSerializer::deserialize(ByteBuffer& buffer, Context& context, Assets& assets, const RenderSettings& settings, MaterialBuilder& builder) {
+void MaterialSerializer::deserialize(ByteBuffer& buffer, Context& context, Assets& assets, MaterialBuilder& builder) {
     std::map<Property, std::unique_ptr<Uniform>> properties;
     std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
     Blending blending{};
@@ -24,8 +24,8 @@ void MaterialSerializer::deserialize(ByteBuffer& buffer, Context& context, Asset
     buffer >> name
            >> shading
            >> blending
-           >> AssetDeserializer<decltype(properties)>{context, assets, settings, properties}
-           >> AssetDeserializer<decltype(uniforms)>{context, assets, settings, uniforms}
+           >> AssetDeserializer<decltype(properties)>{context, assets, properties}
+           >> AssetDeserializer<decltype(uniforms)>{context, assets, uniforms}
            >> vertex_code
            >> fragment_code
            >> global_code
@@ -59,10 +59,10 @@ ByteBuffer MaterialSerializer::serialize(const Material& material) {
     return buffer;
 }
 
-std::shared_ptr<Material> MaterialSerializer::deserialize(Context& ctx, Assets& assets, const RenderSettings& settings, ByteBuffer& buffer) {
-    MaterialBuilder builder {ctx, assets, settings};
+std::shared_ptr<Material> MaterialSerializer::deserialize(Context& ctx, Assets& assets, ByteBuffer& buffer) {
+    MaterialBuilder builder {ctx, assets};
 
-    deserialize(buffer, ctx, assets, settings, builder);
+    deserialize(buffer, ctx, assets, builder);
 
     ModelShaders compile_models;
     buffer >> compile_models;
@@ -84,7 +84,7 @@ ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const Material& material) 
 
 ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<Material>>& asset) {
     MaterialSerializer serializer;
-    auto& [context, assets, settings, material] = asset;
-    material = serializer.deserialize(context, assets, settings, buffer);
+    auto& [context, assets, material] = asset;
+    material = serializer.deserialize(context, assets, buffer);
     return buffer;
 }
