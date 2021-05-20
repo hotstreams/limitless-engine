@@ -37,7 +37,7 @@ void main() {
     vec2 uv = fs_uv;
 
     #if defined(SubUV_MODULE)
-        uv = uv * p_subUV.xy + p_subUV.zw;
+        uv = uv * fs_subUV.xy + fs_subUV.zw;
     #endif
 
     #include "../glsl/material_variables.glsl"
@@ -59,7 +59,7 @@ void main() {
     #endif
 
     #if defined(MATERIAL_BLENDMASK)
-        if (mat_blend_mask <= 0.5) discard;
+        if (mat_blend_mask == 0.0) discard;
         //fragment_color.a *= mat_blend_mask;
     #endif
 
