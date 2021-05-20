@@ -72,6 +72,7 @@ namespace Limitless {
         virtual ~Distribution() = default;
 
         [[nodiscard]] virtual T get() = 0;
+        [[nodiscard]] virtual T get() const = 0;
         [[nodiscard]] virtual Distribution<T>* clone() = 0;
         [[nodiscard]] const auto& getType() const noexcept { return type; }
     };
@@ -85,6 +86,7 @@ namespace Limitless {
         ~ConstDistribution() override = default;
 
         T get() override { return value; }
+        T get() const override { return value; }
 
         [[nodiscard]] Distribution<T>* clone() override {
             return new ConstDistribution<T>(*this);
@@ -117,8 +119,8 @@ namespace Limitless {
     private:
         T min, max;
 
-        std::default_random_engine generator;
-        uniform_distribution<T> distribution;
+        mutable std::default_random_engine generator;
+        mutable uniform_distribution<T> distribution;
     public:
         RangeDistribution(const T& min, const T& max) noexcept
             : Distribution<T>(DistributionType::Range)
@@ -140,9 +142,8 @@ namespace Limitless {
             distribution.set(min, max);
         }
 
-        T get() override {
-            return distribution(generator);
-        }
+        T get() override { return distribution(generator); }
+        T get() const override { return distribution(generator); }
 
         [[nodiscard]] Distribution<T>* clone() override {
             return new RangeDistribution<T>(*this);

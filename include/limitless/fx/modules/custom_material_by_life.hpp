@@ -27,6 +27,7 @@ namespace Limitless::fx {
         }
 
         auto& getProperties() noexcept { return properties; }
+        const auto& getProperties() const noexcept { return properties; }
 
         void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
             for (auto& particle : particles) {

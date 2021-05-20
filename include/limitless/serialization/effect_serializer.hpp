@@ -10,7 +10,7 @@ namespace Limitless {
     class Context;
 }
 
-namespace Limitless::fx {
+namespace Limitless {
     class EffectSerializer {
     public:
         ByteBuffer serialize(const EffectInstance& instance);

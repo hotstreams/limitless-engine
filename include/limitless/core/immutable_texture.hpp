@@ -11,8 +11,6 @@ namespace Limitless {
         InternalFormat internal_format;
         texture_parameters params;
         DataType data_type;
-        //todo: ?
-        uint8_t samples {};
         GLsizei levels {};
         glm::uvec3 size;
         Format format;

@@ -25,7 +25,7 @@ std::shared_ptr<EffectInstance> EffectLoader::load(Context& context, Assets& ass
     stream.read(buffer.cdata(), buffer.size());
 
     std::shared_ptr<EffectInstance> effect;
-    fx::operator>>(buffer, AssetDeserializer<std::shared_ptr<EffectInstance>>{context, assets, settings, effect});
+    buffer >> AssetDeserializer<std::shared_ptr<EffectInstance>>{context, assets, settings, effect};
     return effect;
 }
 

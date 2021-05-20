@@ -10,6 +10,7 @@ namespace Limitless {
     class Context;
     class Assets;
     class RenderSettings;
+    class EmitterSerializer;
 
     namespace ms {
         class Material;
@@ -38,7 +39,7 @@ namespace Limitless::fx {
         template<typename Emitter>
         UniqueEmitter getUniqueEmitter(const Emitter& emitter) const noexcept;
 
-        friend class EmitterSerializer;
+        friend class Limitless::EmitterSerializer;
     public:
         EffectBuilder(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
         ~EffectBuilder() = default;

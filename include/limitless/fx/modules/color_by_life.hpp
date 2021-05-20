@@ -20,8 +20,9 @@ namespace Limitless::fx {
         void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
             for (auto& particle : particles) {
                 const auto tick = particle.lifetime / dt;
-                const auto tick_color = glm::abs(distribution->get() - particle.color) / tick;
+                const auto tick_color = (distribution->get() - particle.color) / tick;
                 particle.color += tick_color;
+                particle.color = glm::clamp(particle.color, glm::vec4(0.0f), glm::vec4(std::numeric_limits<float>::max()));
             }
         }
 
@@ -30,5 +31,6 @@ namespace Limitless::fx {
         }
 
         [[nodiscard]] auto& getDistribution() noexcept { return distribution; }
+        [[nodiscard]] const auto& getDistribution() const noexcept { return distribution; }
     };
 }

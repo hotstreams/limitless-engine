@@ -54,7 +54,7 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, const Rend
     std::string name;
     AbstractEmitter::Type type;
     glm::vec3 local_position;
-    glm::vec3 local_rotation;
+    glm::quat local_rotation;
     bool local_space;
     EmitterSpawn spawn;
     float duration;
@@ -109,7 +109,7 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, const Rend
             .setMaterial(material);
 }
 
-ByteBuffer& Limitless::fx::operator<<(ByteBuffer& buffer, const EmitterSpawn& spawn) {
+ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const EmitterSpawn& spawn) {
     buffer << spawn.mode
            << spawn.max_count
            << spawn.spawn_rate;
@@ -123,13 +123,13 @@ ByteBuffer& Limitless::fx::operator<<(ByteBuffer& buffer, const EmitterSpawn& sp
     return buffer;
 }
 
-ByteBuffer& Limitless::fx::operator>>(ByteBuffer& buffer, EmitterSpawn& spawn) {
+ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, EmitterSpawn& spawn) {
     buffer >> spawn.mode
            >> spawn.max_count
            >> spawn.spawn_rate;
 
     if (spawn.mode == EmitterSpawn::Mode::Burst) {
-        spawn.burst = {};
+        spawn.burst = EmitterSpawn::Burst{};
         buffer >> spawn.burst->burst_count
                >> spawn.burst->loops
                >> spawn.burst->loops_done;
@@ -138,7 +138,7 @@ ByteBuffer& Limitless::fx::operator>>(ByteBuffer& buffer, EmitterSpawn& spawn) {
     return buffer;
 }
 
-ByteBuffer& Limitless::fx::operator<<(ByteBuffer& buffer, const AbstractEmitter& emitter) {
+ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const AbstractEmitter& emitter) {
     EmitterSerializer serializer;
     buffer << serializer.serialize(emitter);
     return buffer;

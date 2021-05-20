@@ -1,8 +1,7 @@
 #include <limitless/serialization/effect_serializer.hpp>
 
-#include <limitless/util/bytebuffer.hpp>
-#include <limitless/fx/effect_builder.hpp>
 #include <limitless/serialization/emitter_serializer.hpp>
+//#include <limitless/fx/effect_builder.hpp>
 #include <limitless/instances/effect_instance.hpp>
 
 using namespace Limitless;
@@ -34,13 +33,13 @@ std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Context& context, 
     return builder.build();
 }
 
-ByteBuffer& Limitless::fx::operator<<(ByteBuffer& buffer, const EffectInstance& effect) {
+ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const EffectInstance& effect) {
     EffectSerializer serializer;
     buffer << serializer.serialize(effect);
     return buffer;
 }
 
-ByteBuffer& Limitless::fx::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<EffectInstance>>& asset) {
+ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<EffectInstance>>& asset) {
     EffectSerializer serializer;
     auto& [context, assets, settings, effect] = asset;
     effect = serializer.deserialize(context, assets, settings, buffer);

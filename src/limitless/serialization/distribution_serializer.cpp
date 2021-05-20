@@ -6,7 +6,7 @@
 using namespace Limitless;
 
 template<typename T>
-ByteBuffer DistributionSerializer::serialize(Distribution<T>& distr) {
+ByteBuffer DistributionSerializer::serialize(const Distribution<T>& distr) {
     ByteBuffer buffer;
 
     buffer << distr.getType();
@@ -16,8 +16,8 @@ ByteBuffer DistributionSerializer::serialize(Distribution<T>& distr) {
             buffer << distr.get();
             break;
         case DistributionType::Range:
-            buffer << static_cast<RangeDistribution<T>&>(distr).getMin()
-                   << static_cast<RangeDistribution<T>&>(distr).getMax();
+            buffer << static_cast<const RangeDistribution<T>&>(distr).getMin()
+                   << static_cast<const RangeDistribution<T>&>(distr).getMax();
             break;
         case DistributionType::Curve:
             assert("TODO");
@@ -56,7 +56,7 @@ std::unique_ptr<Distribution<T>> DistributionSerializer::deserialize(ByteBuffer&
 }
 
 template<typename T>
-ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, Distribution<T>& distr) {
+ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const Distribution<T>& distr) {
     DistributionSerializer serializer;
     buffer << serializer.serialize<T>(distr);
     return buffer;
@@ -70,10 +70,10 @@ ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, std::unique_ptr<Distributi
 }
 
 namespace Limitless {
-    template ByteBuffer& operator<<(ByteBuffer& buffer, Distribution<float>& distr);
-    template ByteBuffer& operator<<(ByteBuffer& buffer, Distribution<uint32_t>& distr);
-    template ByteBuffer& operator<<(ByteBuffer& buffer, Distribution<glm::vec3>& distr);
-    template ByteBuffer& operator<<(ByteBuffer& buffer, Distribution<glm::vec4>& distr);
+    template ByteBuffer& operator<<(ByteBuffer& buffer, const Distribution<float>& distr);
+    template ByteBuffer& operator<<(ByteBuffer& buffer, const Distribution<uint32_t>& distr);
+    template ByteBuffer& operator<<(ByteBuffer& buffer, const Distribution<glm::vec3>& distr);
+    template ByteBuffer& operator<<(ByteBuffer& buffer, const Distribution<glm::vec4>& distr);
 
     template ByteBuffer& operator>>(ByteBuffer& buffer, std::unique_ptr<Distribution<float>>& distr);
     template ByteBuffer& operator>>(ByteBuffer& buffer, std::unique_ptr<Distribution<uint32_t>>& distr);

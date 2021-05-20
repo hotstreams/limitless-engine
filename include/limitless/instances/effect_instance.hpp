@@ -12,7 +12,6 @@ namespace Limitless {
         class SpriteEmitter;
         class MeshEmitter;
         class EffectBuilder;
-        class EffectSerializer;
     }
 
     class EffectInstance : public AbstractInstance {
@@ -26,7 +25,7 @@ namespace Limitless {
         void calculateBoundingBox() noexcept override;
 
         friend class fx::EffectBuilder;
-        friend class fx::EffectSerializer;
+        friend class EffectSerializer;
         EffectInstance() noexcept;
     public:
         EffectInstance(Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept;

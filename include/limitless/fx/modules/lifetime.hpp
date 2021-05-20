@@ -33,5 +33,6 @@ namespace Limitless::fx {
         }
 
         [[nodiscard]] auto& getDistribution() noexcept { return distribution; }
+        [[nodiscard]] const auto& getDistribution() const noexcept { return distribution; }
     };
 }

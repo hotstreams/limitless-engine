@@ -61,6 +61,7 @@ namespace Limitless::ms {
         MaterialBuilder& setShading(Shading shading) noexcept;
         MaterialBuilder& setTwoSided(bool two_sided) noexcept;
         MaterialBuilder& setName(std::string name) noexcept;
+        const auto& getName() const noexcept { return material->name; }
 
         MaterialBuilder& setFragmentSnippet(std::string fs_code) noexcept;
         MaterialBuilder& setVertexSnippet(std::string vs_code) noexcept;

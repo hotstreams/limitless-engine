@@ -103,7 +103,6 @@ set(ENGINE_INSTANCES
     src/limitless/instances/mesh_instance.cpp
     src/limitless/instances/model_instance.cpp
     src/limitless/instances/effect_instance.cpp
-    src/limitless/instances/model_attachable.cpp
 )
 
 set(ENGINE_LIGHTING
