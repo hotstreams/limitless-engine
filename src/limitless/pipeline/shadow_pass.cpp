@@ -5,22 +5,22 @@
 
 using namespace Limitless;
 
-DirectionalShadowPass::DirectionalShadowPass(RenderPass* prev, Context& ctx, Scene& scene, const RenderSettings& settings)
+DirectionalShadowPass::DirectionalShadowPass(RenderPass* prev, Context& ctx, const RenderSettings& settings)
     : RenderPass(prev)
-    , shadows {ctx, settings}
-    , light {scene.lighting.directional_light} {
+    , shadows {ctx, settings} {
 }
 
-DirectionalShadowPass::DirectionalShadowPass(RenderPass *prev, Context& ctx, Scene& scene, const RenderSettings& settings, fx::EffectRenderer& renderer)
+DirectionalShadowPass::DirectionalShadowPass(RenderPass *prev, Context& ctx, const RenderSettings& settings, fx::EffectRenderer& renderer)
     : RenderPass(prev)
-    , effect_renderer {renderer}
     , shadows {ctx, settings}
-    , light {scene.lighting.directional_light} {
+    , effect_renderer {&renderer} {
 }
 
 void DirectionalShadowPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, [[maybe_unused]] const UniformSetter& setter) {
-    shadows.draw(instances, light, ctx, assets, camera, effect_renderer);
-    shadows.mapData();
+    if (light) {
+        shadows.draw(instances, *light, ctx, assets, camera, effect_renderer);
+        shadows.mapData();
+    }
 }
 
 void DirectionalShadowPass::addSetter(UniformSetter& setter) {
@@ -30,5 +30,5 @@ void DirectionalShadowPass::addSetter(UniformSetter& setter) {
 }
 
 void DirectionalShadowPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
-    light = scene.lighting.directional_light;
+    light = &scene.lighting.directional_light;
 }

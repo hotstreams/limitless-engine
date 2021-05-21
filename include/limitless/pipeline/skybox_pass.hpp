@@ -7,9 +7,9 @@ namespace Limitless {
 
     class SkyboxPass final : public RenderPass {
     private:
-        std::reference_wrapper<Skybox> skybox;
+        Skybox* skybox {};
     public:
-        explicit SkyboxPass(RenderPass* prev, Skybox& skybox);
+        explicit SkyboxPass(RenderPass* prev);
         ~SkyboxPass() override = default;
 
         void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;

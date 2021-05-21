@@ -10,12 +10,13 @@ namespace Limitless::fx {
 namespace Limitless {
     class DirectionalShadowPass final : public RenderPass {
     private:
-        std::optional<std::reference_wrapper<fx::EffectRenderer>> effect_renderer;
         CascadeShadows shadows;
-        std::reference_wrapper<DirectionalLight> light;
+        DirectionalLight* light {};
+
+        fx::EffectRenderer* effect_renderer {};
     public:
-        DirectionalShadowPass(RenderPass* prev, Context& ctx, Scene& scene, const RenderSettings& settings);
-        DirectionalShadowPass(RenderPass* prev, Context& ctx, Scene& scene, const RenderSettings& settings, fx::EffectRenderer& renderer);
+        DirectionalShadowPass(RenderPass* prev, Context& ctx, const RenderSettings& settings);
+        DirectionalShadowPass(RenderPass* prev, Context& ctx, const RenderSettings& settings, fx::EffectRenderer& renderer);
         ~DirectionalShadowPass() override = default;
 
         void addSetter(UniformSetter& setter) override;

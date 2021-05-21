@@ -8,9 +8,9 @@ namespace Limitless {
 
     class Forward final : public Pipeline {
     private:
-        void create(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings);
+        void create(ContextEventObserver& ctx, const RenderSettings& settings);
     public:
-        explicit Forward(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings);
+        explicit Forward(ContextEventObserver& ctx, const RenderSettings& settings);
         ~Forward() override = default;
 
         void update(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings) override;

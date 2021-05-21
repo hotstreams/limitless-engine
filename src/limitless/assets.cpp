@@ -129,11 +129,3 @@ void Assets::recompileShaders(Context& ctx, const RenderSettings& settings) {
 
     compileShaders(ctx, settings);
 }
-
-//void MaterialBuilder::compileShaders(const ModelShaders& model_shaders, const PassShaders& pass_shaders) {
-//    // compiles every required permutation
-//    // except for ModelShader::Effect
-//    // because we do not know yet which EffectModules it will use
-//
-
-//}

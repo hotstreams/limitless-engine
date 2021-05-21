@@ -56,7 +56,7 @@ namespace Limitless {
                   Context& ctx, const
                   Assets& assets,
                   const Camera& camera,
-                  std::optional<std::reference_wrapper<fx::EffectRenderer>> renderer);
+                  fx::EffectRenderer* renderer);
         void setUniform(ShaderProgram& sh) const;
         void mapData() const;
     };

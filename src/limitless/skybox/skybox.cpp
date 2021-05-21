@@ -27,7 +27,7 @@ Skybox::Skybox(Context& ctx, Assets& assets, const fs::path& path, const Texture
                     .setTwoSided(true)
                     .setShading(Shading::Unlit)
                     .setBlending(Blending::Opaque)
-                    .build();
+                    .buildSkybox();
 }
 
 void Skybox::draw(Context& context, const Assets& assets) {
