@@ -6,43 +6,61 @@ using namespace Limitless;
 #include <limitless/util/math.hpp>
 #include <limitless/models/indexed_mesh.hpp>
 
-Sphere::Sphere(uint32_t x_segments, uint32_t y_segments) {
+Sphere::Sphere(glm::uvec2 segment_count) {
     std::vector<VertexNormalTangent> vertices;
     std::vector<GLuint> indices;
 
-    for (uint32_t y = 0; y <= y_segments; ++y) {
-        for (uint32_t x = 0; x <= x_segments; ++x) {
-            auto x_seg = static_cast<float>(x) / static_cast<float>(x_segments);
-            auto y_seg = static_cast<float>(y) / static_cast<float>(y_segments);
+    constexpr auto RADIUS = 1.0f;
 
-            glm::vec3 pos = {
-                    std::sin(x_seg * 2.0f * pi) * std::sin(y_seg * pi),
-                    std::cos(y_seg * pi),
-                    std::cos(x_seg * 2.0f * pi) * std::sin(y_seg * pi)
-            };
+    for (uint32_t i = 0; i <= segment_count.y; ++i) {
+        glm::vec3 position {};
+        glm::vec3 normal {};
+        glm::vec2 uv {};
 
-            vertices.emplace_back(VertexNormalTangent{pos, pos, pos, glm::vec2{x_seg, y_seg}});
+        const auto stack_step = PI / static_cast<float>(segment_count.y);
+        const auto stack_angle = PI / 2.0f - static_cast<float>(i) * stack_step;
+        const auto xy = RADIUS * glm::cos(stack_angle);
+        position.y = RADIUS * glm::sin(stack_angle);
+
+        for (uint32_t j = 0; j <= segment_count.x; ++j) {
+            const auto sector_step = 2.0f * PI / static_cast<float>(segment_count.x);
+            const auto sector_angle = static_cast<float>(j) * sector_step;
+
+            position.x = xy * glm::cos(sector_angle);
+            position.z = xy * glm::sin(sector_angle);
+
+            normal = glm::normalize(position);
+
+            uv.x = static_cast<float>(j) / static_cast<float>(segment_count.x);
+            uv.y = static_cast<float>(i) / static_cast<float>(segment_count.y);
+
+            vertices.emplace_back(VertexNormalTangent{position, normal, normal, uv});
         }
     }
 
-    bool oddRow {};
-    for (uint32_t y = 0; y < y_segments; ++y) {
-        if (!oddRow) {
-            for (uint32_t x = 0; x <= x_segments; ++x) {
-                indices.push_back(y * (x_segments + 1) + x);
-                indices.push_back((y + 1) * (x_segments + 1) + x);
+    uint64_t k1 {};
+    uint64_t k2 {};
+    for (uint64_t i = 0; i < segment_count.y; ++i) {
+        k1 = i * (segment_count.x + 1);
+        k2 = k1 + segment_count.x + 1;
+
+        for (uint64_t j = 0; j < segment_count.x; ++j, ++k1, ++k2) {
+            if (i != 0) {
+                indices.emplace_back(k1 + 1);
+                indices.emplace_back(k2);
+                indices.emplace_back(k1);
             }
-        } else {
-            for (int x = x_segments; x >= 0; --x) {
-                indices.emplace_back((y + 1) * (x_segments + 1) + x);
-                indices.emplace_back(y * (x_segments + 1) + x);
+
+            if (i != (segment_count.y - 1)) {
+                indices.emplace_back(k2 + 1);
+                indices.emplace_back(k2);
+                indices.emplace_back(k1 + 1);
             }
         }
-        oddRow = !oddRow;
     }
 
-    calculateTangentSpaceTriangleStrip(vertices, indices);
+    calculateTangentSpaceTriangle(vertices, indices);
 
-    meshes.emplace_back(new IndexedMesh(std::move(vertices), std::move(indices), "sphere_mesh", MeshDataType::Static, DrawMode::TriangleStrip));
+    meshes.emplace_back(new IndexedMesh(std::move(vertices), std::move(indices), "sphere_mesh", MeshDataType::Static, DrawMode::Triangles));
     calculateBoundingBox();
 }

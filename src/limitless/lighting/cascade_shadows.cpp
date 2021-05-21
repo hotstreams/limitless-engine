@@ -175,7 +175,6 @@ void CascadeShadows::updateLightMatrices(const DirectionalLight& light) {
         crop = glm::transpose(crop);
 
         frustum.crop = crop * projection * view;
-        // save it for shader
         light_space.emplace_back(frustum.crop);
     }
 }
@@ -208,10 +207,10 @@ void CascadeShadows::draw(Instances& instances,
             }
 
             instance.get().draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+        }
 
-            if (renderer) {
-                renderer->draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
-            }
+        if (renderer) {
+            renderer->draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
         }
     }
 

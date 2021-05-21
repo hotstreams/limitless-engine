@@ -1,5 +1,6 @@
 #include <limitless/pipeline/color_pass.hpp>
 
+#include <limitless/core/context.hpp>
 #include <limitless/pipeline/shader_pass_types.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/util/sorter.hpp>
@@ -29,6 +30,10 @@ void ColorPass::draw(Instances& instances, Context& ctx, const Assets& assets, c
     }
 
     for (auto& instance : instances) {
+//        ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
+
         instance.get().draw(ctx, assets, ShaderPass::Forward, blending, setter);
+
+//        ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
     }
 }

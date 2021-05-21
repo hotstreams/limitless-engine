@@ -5,7 +5,7 @@
 namespace Limitless {
     class Sphere : public ElementaryModel {
     public:
-        Sphere(uint32_t x_segments, uint32_t y_segments);
+        Sphere(glm::uvec2 segment_count);
         ~Sphere() override = default;
 
         Sphere(const Sphere &) = delete;

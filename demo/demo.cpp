@@ -142,20 +142,20 @@ public:
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
         scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
-                .setRotation(glm::vec3{0.0f, pi, 0.0f})
+                .setRotation(glm::vec3{0.0f, PI, 0.0f})
                 .setScale(glm::vec3{0.4f});
 
         scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f})
-                .setRotation(glm::vec3{0.0f, pi, 0.0f})
+                .setRotation(glm::vec3{0.0f, PI, 0.0f})
                 .setScale(glm::vec3{0.1f});
 
         scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f})
-                .setRotation(glm::vec3{0.0f, pi, 0.0f})
+                .setRotation(glm::vec3{0.0f, PI, 0.0f})
                 .setScale(glm::vec3{0.35f});
 
         scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{6.0f, 0.0f, 5.0f})
                 .setScale(glm::vec3{0.02f})
-                .setRotation(glm::vec3{0.0f, 0.0f, pi})
+                .setRotation(glm::vec3{0.0f, 0.0f, PI})
                 .play("");
 
         ms::MaterialBuilder builder{context, assets};
@@ -342,7 +342,7 @@ public:
 
     void updateEffect(float delta) {
         if (effect) {
-            effect->rotateBy(glm::vec3{0.0f, pi * delta * 2.0f, 0.0f});
+            effect->rotateBy(glm::vec3{0.0f, PI * delta * 2.0f, 0.0f});
         }
     }
 
