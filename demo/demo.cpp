@@ -198,7 +198,10 @@ public:
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{ 4.0f, 0.0f, 0.0f });
 
         builder.setName("BlendMask")
-                .add(ms::Property::BlendMask, tex_loader.load(assets_dir / "textures/bricks.jpg"))
+                .add(ms::Property::BlendMask, tex_loader.load(assets_dir / "textures/bricks.jpg", {TextureLoaderFlag::BottomLeftOrigin,
+                                                                                                   TextureLoaderFlag::NearestFilter,
+                                                                                                   TextureLoaderFlag::MipMap,
+                                                                                                   TextureLoaderFlag::WrapRepeat}))
                 .add(ms::Property::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)

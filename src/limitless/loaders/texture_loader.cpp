@@ -19,11 +19,7 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const Textur
         return assets.textures[path.stem().string()];
     }
 
-    if (flags.count(TextureLoaderFlag::TopLeftOrigin)) {
-        stbi_set_flip_vertically_on_load(false);
-    } else {
-        stbi_set_flip_vertically_on_load(true);
-    }
+    stbi_set_flip_vertically_on_load(static_cast<bool>(flags.count(TextureLoaderFlag::BottomLeftOrigin)));
 
     int width = 0, height = 0, channels = 0;
     unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
@@ -54,6 +50,11 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const Textur
         }
 
         TextureBuilder builder;
+
+        builder.setMipMap(flags.count(TextureLoaderFlag::MipMap));
+
+        setTextureParameters(builder, flags);
+
         auto texture = builder .setTarget(Texture::Type::Tex2D)
                                .setLevels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
                                .setInternalFormat(internal)
@@ -61,12 +62,6 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const Textur
                                .setFormat(format)
                                .setDataType(Texture::DataType::UnsignedByte)
                                .setData(data)
-                               .setParameters([] (Texture& texture) {
-                                   texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                                           << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR}
-                                           << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_REPEAT}
-                                           << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_REPEAT};
-                               })
                                .setMipMap(true)
                                .build();
         texture->setPath(path);
@@ -80,14 +75,10 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const Textur
     }
 }
 
-std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, const TextureLoaderFlags& flags) {
+std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, const TextureLoaderFlags& flags) const {
     auto path = convertPathSeparators(_path);
 
-    if (flags.count(TextureLoaderFlag::TopLeftOrigin)) {
-        stbi_set_flip_vertically_on_load(false);
-    } else {
-        stbi_set_flip_vertically_on_load(true);
-    }
+    stbi_set_flip_vertically_on_load(static_cast<bool>(flags.count(TextureLoaderFlag::BottomLeftOrigin)));
 
     constexpr std::array ext = { "_right", "_left", "_top", "_bottom", "_front", "_back" };
 
@@ -149,14 +140,10 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, const
     return texture;
 }
 
-GLFWimage TextureLoader::loadGLFWImage(const fs::path& _path, const TextureLoaderFlags& flags) {
+GLFWimage TextureLoader::loadGLFWImage(const fs::path& _path, const TextureLoaderFlags& flags) const {
     auto path = convertPathSeparators(_path);
 
-    if (flags.count(TextureLoaderFlag::TopLeftOrigin)) {
-        stbi_set_flip_vertically_on_load(false);
-    } else {
-        stbi_set_flip_vertically_on_load(true);
-    }
+    stbi_set_flip_vertically_on_load(static_cast<bool>(flags.count(TextureLoaderFlag::BottomLeftOrigin)));
 
     int width = 0, height = 0, channels = 0;
     unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
@@ -166,4 +153,42 @@ GLFWimage TextureLoader::loadGLFWImage(const fs::path& _path, const TextureLoade
     } else {
         throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
     }
+}
+
+void TextureLoader::setTextureParameters(TextureBuilder& builder, const TextureLoaderFlags& flags) {
+    std::vector<TexParameter<GLint>> params;
+
+    if (flags.count(TextureLoaderFlag::LinearFilter)) {
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR});
+    }
+
+    if (flags.count(TextureLoaderFlag::NearestFilter)) {
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_NEAREST});
+    }
+
+    if (flags.count(TextureLoaderFlag::MipMap) && flags.count(TextureLoaderFlag::LinearFilter)) {
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR});
+    }
+
+    if (flags.count(TextureLoaderFlag::MipMap) && flags.count(TextureLoaderFlag::NearestFilter)) {
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST});
+    }
+
+    if (flags.count(TextureLoaderFlag::WrapClamp)) {
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP});
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP});
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_WRAP_R, GL_CLAMP});
+    }
+
+    if (flags.count(TextureLoaderFlag::WrapRepeat)) {
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_REPEAT});
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_REPEAT});
+        params.emplace_back(TexParameter<GLint>{GL_TEXTURE_WRAP_R, GL_REPEAT});
+    }
+
+    builder.setParameters([=] (Texture& texture) {
+        for (const auto& param : params) {
+            texture << param;
+        }
+    });
 }

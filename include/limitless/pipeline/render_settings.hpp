@@ -26,9 +26,9 @@ namespace Limitless {
 
         // shadows settings
         bool directional_csm = true;
-        glm::uvec2 directional_shadow_resolution = { 1024, 1024 };
+        glm::uvec2 directional_shadow_resolution = { 1024 * 4, 1024 * 4 };
         uint8_t directional_split_count = 3; // four is max
-        bool directional_pcf = false;
+        bool directional_pcf = true;
 
         // king of debug settings
         bool light_radius = false;
