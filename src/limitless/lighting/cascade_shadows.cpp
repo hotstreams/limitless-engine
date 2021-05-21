@@ -185,11 +185,11 @@ void CascadeShadows::draw(Instances& instances,
                           Context& ctx, const
                           Assets& assets,
                           const Camera& camera,
-                          std::optional<std::reference_wrapper<fx::EffectRenderer>> renderer) {
+                          fx::EffectRenderer* renderer) {
     updateFrustums(ctx, camera);
     updateLightMatrices(light);
 
-   framebuffer->bind();
+    framebuffer->bind();
 
     ctx.setViewPort(shadow_resolution);
     ctx.setDepthMask(DepthMask::True);
@@ -210,7 +210,7 @@ void CascadeShadows::draw(Instances& instances,
             instance.get().draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
 
             if (renderer) {
-                renderer->get().draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+                renderer->draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
             }
         }
     }

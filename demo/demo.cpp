@@ -42,7 +42,7 @@ public:
         : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
         , scene {context}
         , camera {window_size}
-        , render {std::make_unique<Forward>(context, scene, RenderSettings{}), RenderSettings{}}
+        , render {context}
         , assets {ENGINE_ASSETS_DIR}
 {
         camera.setPosition({7.0f, 0.0f, 3.0f});
@@ -136,8 +136,8 @@ public:
         assets.models.add("nanosuit", model_loader.loadModel(assets_dir / "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(assets_dir / "models/cyborg/cyborg.obj"));
 
-//        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
-//        scene.setSkybox(assets.skyboxes.at("skybox"));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        scene.setSkybox(assets.skyboxes.at("skybox"));
 
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 

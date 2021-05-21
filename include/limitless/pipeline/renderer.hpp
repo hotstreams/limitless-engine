@@ -17,19 +17,20 @@ namespace Limitless {
 
     class Renderer final {
     private:
-        std::unique_ptr<Pipeline> pipeline;
         RenderSettings settings;
+        std::unique_ptr<Pipeline> pipeline;
     public:
-        explicit Renderer(std::unique_ptr<Pipeline> pipeline, const RenderSettings& settings);
+        Renderer(std::unique_ptr<Pipeline> pipeline, const RenderSettings& settings);
+        explicit Renderer(ContextEventObserver& ctx);
+
         ~Renderer() = default;
 
-        auto& getPipeline() noexcept { return pipeline; }
+        auto& getPipeline() noexcept { return *pipeline; }
 
         auto& getSettings() noexcept { return settings; }
         [[nodiscard]] const auto& getSettings() const noexcept { return settings; }
 
         void update(ContextEventObserver& ctx, Assets& assets, Scene& scene);
-
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
     };
 }

@@ -318,3 +318,18 @@ MaterialBuilder& MaterialBuilder::setTessellationSnippet(std::string tes_code) n
     material->tessellation_snippet = std::move(tes_code);
     return *this;
 }
+
+std::shared_ptr<Material> MaterialBuilder::buildSkybox() {
+    checkRequirements();
+
+    setMaterialIndex();
+
+    initializeMaterialBuffer();
+
+    auto new_material = material;
+    assets.materials.add(material->name, material);
+
+    createMaterial();
+
+    return new_material;
+}
