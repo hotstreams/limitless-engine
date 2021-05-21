@@ -36,7 +36,7 @@ void Assets::load(Context& context) {
     builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
 
     // used in render as point light model
-    models.add("sphere", std::make_shared<Sphere>(100, 100));
+    models.add("sphere", std::make_shared<Sphere>(glm::uvec2{50}));
     meshes.add("sphere", models.at("sphere")->getMeshes().at(0));
 
     // used in postprocessing
