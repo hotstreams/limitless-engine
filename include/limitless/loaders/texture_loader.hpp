@@ -7,9 +7,16 @@
 namespace Limitless {
     class Assets;
     class Texture;
+    class TextureBuilder;
 
     enum class TextureLoaderFlag {
-        TopLeftOrigin
+        BottomLeftOrigin,
+        TopLeftOrigin,
+        LinearFilter,
+        NearestFilter,
+        WrapRepeat,
+        WrapClamp,
+        MipMap
     };
 
     using TextureLoaderFlags = std::set<TextureLoaderFlag>;
@@ -17,13 +24,22 @@ namespace Limitless {
     class TextureLoader final {
     private:
         Assets& assets;
+
+        static void setTextureParameters(TextureBuilder& builder, const TextureLoaderFlags& flags) ;
     public:
         explicit TextureLoader(Assets& _assets) noexcept;
         ~TextureLoader() = default;
 
-        std::shared_ptr<Texture> load(const fs::path& path, const TextureLoaderFlags& flags = {}) const;
-        std::shared_ptr<Texture> loadCubemap(const fs::path& path, const TextureLoaderFlags& flags = {});
+        static inline const auto DEFAULT_LOADING_FLAGS = TextureLoaderFlags {
+            TextureLoaderFlag::BottomLeftOrigin,
+            TextureLoaderFlag::LinearFilter,
+            TextureLoaderFlag::MipMap,
+            TextureLoaderFlag::WrapRepeat
+        };
 
-        GLFWimage loadGLFWImage(const fs::path& path, const TextureLoaderFlags& flags = {});
+        [[nodiscard]] std::shared_ptr<Texture> load(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
+        [[nodiscard]] std::shared_ptr<Texture> loadCubemap(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
+
+        [[nodiscard]] GLFWimage loadGLFWImage(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
     };
 }
