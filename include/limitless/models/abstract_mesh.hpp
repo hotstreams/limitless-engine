@@ -33,6 +33,7 @@ namespace Limitless {
 
         [[nodiscard]] virtual const BoundingBox& getBoundingBox() noexcept = 0;
         [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
+        [[nodiscard]] virtual std::string& getName() noexcept = 0;
         [[nodiscard]] virtual DrawMode getDrawMode() const noexcept = 0;
     };
 }

@@ -31,7 +31,6 @@ namespace Limitless {
         std::vector<future_asset> asset_futures;
         ContextThreadPool pool;
 
-        Context& context;
         Assets& assets;
     public:
         AssetManager(Context& context, Assets& assets, uint32_t pool_size = std::thread::hardware_concurrency());

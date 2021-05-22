@@ -10,7 +10,6 @@ using namespace Limitless;
 
 AssetManager::AssetManager(Context& _context, Assets& _assets, uint32_t pool_size)
     : pool {_context, pool_size}
-    , context {_context}
     , assets {_assets} {
 }
 
@@ -29,7 +28,7 @@ void AssetManager::loadTexture(std::string asset_name, fs::path path, TextureLoa
 
 void AssetManager::loadModel(std::string asset_name, fs::path path, ModelLoaderFlags flags) {
     auto load_model = [&, name = asset_name, path = std::move(path), fl = std::move(flags)] () {
-        ThreadedModelLoader loader {context, assets};
+        ThreadedModelLoader loader {assets};
         return loader.loadModel(path, fl);
     };
 

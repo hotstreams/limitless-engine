@@ -13,9 +13,8 @@
 
 using namespace Limitless;
 
-ModelLoader::ModelLoader(Context& _context, Assets& _assets) noexcept
-    : context{_context}
-    , assets {_assets} {
+ModelLoader::ModelLoader(Assets& _assets) noexcept
+    : assets {_assets} {
 }
 
 std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, const ModelLoaderFlags& flags) {
