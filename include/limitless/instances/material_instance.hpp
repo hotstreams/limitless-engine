@@ -25,6 +25,9 @@ namespace Limitless {
         MaterialInstance(MaterialInstance&&) = default;
 
         // changes base material
+        void changeBaseMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
+
+        // changes layer %0 material
         void changeMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
 
         // resets base material to first initialized
