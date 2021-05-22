@@ -19,7 +19,7 @@ namespace Limitless::fx {
         InitialSize,
         InitialAcceleration,
 
-//        MeshLocation,
+        MeshLocation,
         SubUV,
         VelocityByLife,
         ColorByLife,

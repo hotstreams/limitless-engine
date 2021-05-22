@@ -64,7 +64,7 @@ namespace Limitless {
         }
 
         explicit InstancedInstance(ModelShader shader, const glm::vec3& position, uint32_t count)
-                : AbstractInstance(nullptr, shader, position) {
+            : AbstractInstance(nullptr, shader, position) {
             initializeBuffer(count);
         }
     public:
@@ -80,8 +80,10 @@ namespace Limitless {
 
         ~InstancedInstance() override = default;
 
-        //TODO buffer?
-        InstancedInstance(const InstancedInstance&) = default;
+        InstancedInstance(const InstancedInstance& rhs)
+            : AbstractInstance(nullptr, rhs.shader_type, rhs.position) {
+            initializeBuffer(4);
+        }
         InstancedInstance(InstancedInstance&&) noexcept = default;
 
         InstancedInstance* clone() noexcept override {
