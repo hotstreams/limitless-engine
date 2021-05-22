@@ -44,7 +44,7 @@ namespace Limitless::fx {
         // optional rendering mesh
         std::optional<std::shared_ptr<AbstractMesh>> mesh {};
         // material itself with all prop and uniform values
-        const Limitless::ms::Material* material {};
+        std::shared_ptr<ms::Material> material;
     };
 
     bool operator<(const UniqueEmitterRenderer& lhs, const UniqueEmitterRenderer& rhs) noexcept;

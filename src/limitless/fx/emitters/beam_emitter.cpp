@@ -31,6 +31,6 @@ BeamEmitter::BeamEmitter(const BeamEmitter& emitter)
 }
 
 UniqueEmitterRenderer BeamEmitter::getUniqueRendererType() const noexcept {
-    return { type, std::nullopt, material.get() };
+    return { type, std::nullopt, material };
 }
 
