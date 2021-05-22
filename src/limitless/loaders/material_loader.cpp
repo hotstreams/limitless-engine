@@ -11,7 +11,7 @@
 using namespace Limitless;
 using namespace Limitless::ms;
 
-std::shared_ptr<ms::Material> MaterialLoader::load(Context& context, Assets& assets, const fs::path& _path) {
+std::shared_ptr<ms::Material> MaterialLoader::load(Assets& assets, const fs::path& _path) {
     auto path = convertPathSeparators(_path);
     std::ifstream stream(path, std::ios::binary | std::ios::ate);
     stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -23,7 +23,7 @@ std::shared_ptr<ms::Material> MaterialLoader::load(Context& context, Assets& ass
     stream.read(buffer.cdata(), buffer.size());
 
     std::shared_ptr<ms::Material> material;
-    buffer >> AssetDeserializer<std::shared_ptr<ms::Material>>{context, assets, material};
+    buffer >> AssetDeserializer<std::shared_ptr<ms::Material>>{assets, material};
     return material;
 }
 

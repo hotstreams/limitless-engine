@@ -2,12 +2,15 @@
 
 #include <limitless/fx/modules/distribution.hpp>
 #include <limitless/util/bytebuffer.hpp>
+#include <stdexcept>
 
 using namespace Limitless;
 
 template<typename T>
 ByteBuffer DistributionSerializer::serialize(const Distribution<T>& distr) {
     ByteBuffer buffer;
+
+    buffer << VERSION;
 
     buffer << distr.getType();
 
@@ -29,6 +32,14 @@ ByteBuffer DistributionSerializer::serialize(const Distribution<T>& distr) {
 
 template<typename T>
 std::unique_ptr<Distribution<T>> DistributionSerializer::deserialize(ByteBuffer& buffer) {
+    uint8_t version {};
+
+    buffer >> version;
+
+    if (version != VERSION) {
+        throw std::runtime_error("Wrong distribution serializer version! " + std::to_string(VERSION) + " vs " + std::to_string(version));
+    }
+
     DistributionType type{};
     buffer >> type;
 

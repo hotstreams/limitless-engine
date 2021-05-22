@@ -1,30 +1,52 @@
 #pragma once
 
 #include <limitless/fx/emitters/abstract_emitter.hpp>
+#include <limitless/models/abstract_mesh.hpp>
 #include <limitless/fx/modules/module.hpp>
 
+#include <memory>
 #include <set>
 #include <limitless/pipeline/shader_pass_types.hpp>
+#include <optional>
+
+namespace Limitless::ms {
+    class Material;
+}
 
 namespace Limitless::fx {
-    class UniqueEmitter {
+    // UniqueEmitterShader determines uniqueness for shader compiler
+    class UniqueEmitterShader {
     public:
         // emitter type
-        AbstractEmitter::Type emitter_type;
+        AbstractEmitter::Type emitter_type {};
         // set of modules
-        std::set<ModuleType> module_type;
+        std::set<ModuleType> module_type {};
         // material index
-        uint64_t material_type;
+        uint64_t material_type {};
     };
 
-    bool operator<(const UniqueEmitter& lhs, const UniqueEmitter& rhs) noexcept;
-    bool operator==(const UniqueEmitter& lhs, const UniqueEmitter& rhs) noexcept;
+    bool operator<(const UniqueEmitterShader& lhs, const UniqueEmitterShader& rhs) noexcept;
+    bool operator==(const UniqueEmitterShader& lhs, const UniqueEmitterShader& rhs) noexcept;
 
     struct UniqueEmitterShaderKey {
-        UniqueEmitter emitter_type;
+        UniqueEmitterShader emitter_type;
         ShaderPass shader;
     };
 
     bool operator<(const UniqueEmitterShaderKey& lhs, const UniqueEmitterShaderKey& rhs) noexcept;
     bool operator==(const UniqueEmitterShaderKey& lhs, const UniqueEmitterShaderKey& rhs) noexcept;
+
+    // UniqueEmitterRenderer determines uniqueness for emitter draw call
+    class UniqueEmitterRenderer {
+    public:
+        // emitter type
+        AbstractEmitter::Type emitter_type {};
+        // optional rendering mesh
+        std::optional<std::shared_ptr<AbstractMesh>> mesh {};
+        // material itself with all prop and uniform values
+        const Limitless::ms::Material* material {};
+    };
+
+    bool operator<(const UniqueEmitterRenderer& lhs, const UniqueEmitterRenderer& rhs) noexcept;
+    bool operator==(const UniqueEmitterRenderer& lhs, const UniqueEmitterRenderer& rhs) noexcept;
 }

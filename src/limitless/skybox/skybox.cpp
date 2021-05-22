@@ -14,11 +14,11 @@ Skybox::Skybox(const std::shared_ptr<Material>& material)
     : material {std::make_shared<Material>(*material)} {
 }
 
-Skybox::Skybox(Context& ctx, Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
+Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
     TextureLoader texture_loader {assets};
     const auto& cube_map_texture = texture_loader.loadCubemap(path, flags);
 
-    MaterialBuilder material_builder {ctx, assets};
+    MaterialBuilder material_builder {assets};
     material = material_builder
                     .setName(path.stem().string())
                     .addUniform(std::make_unique<UniformSampler>("skybox", cube_map_texture))

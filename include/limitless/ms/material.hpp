@@ -77,6 +77,10 @@ namespace Limitless::ms {
         Material() = default;
 
         friend class MaterialBuilder;
+
+        // compares material properties that can be used in same shader
+        friend bool operator==(const Material& lhs, const Material& rhs) noexcept;
+        friend bool operator<(const Material& lhs, const Material& rhs) noexcept;
     public:
         ~Material() = default;
 
@@ -156,4 +160,7 @@ namespace Limitless::ms {
     };
 
     void swap(Material& lhs, Material& rhs) noexcept;
+
+    bool operator==(const Material& lhs, const Material& rhs) noexcept;
+    bool operator<(const Material& lhs, const Material& rhs) noexcept;
 }

@@ -164,7 +164,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
         return assets.materials.at(name);
     }
 
-    ms::MaterialBuilder builder {context, assets};
+    ms::MaterialBuilder builder {assets};
     TextureLoader loader {assets};
 
     builder.setName(std::move(name))

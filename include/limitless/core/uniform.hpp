@@ -10,8 +10,22 @@ namespace Limitless {
     class Texture;
     class ShaderProgram;
 
-    enum class UniformType { Value, Sampler, Time };
-    enum class UniformValueType { Float, Int, Uint, Vec2, Vec3, Vec4, Mat3, Mat4 };
+    enum class UniformType {
+        Value,
+        Sampler,
+        Time
+    };
+
+    enum class UniformValueType {
+        Float,
+        Int,
+        Uint,
+        Vec2,
+        Vec3,
+        Vec4,
+        Mat3,
+        Mat4
+    };
 
     class Uniform {
     protected:
@@ -19,7 +33,12 @@ namespace Limitless {
         UniformType type;
         UniformValueType value_type;
         bool changed;
+
         friend class UniformSerializer;
+
+        // compares values equality
+        friend bool operator==(const Uniform& lhs, const Uniform& rhs) noexcept;
+        friend bool operator<(const Uniform& lhs, const Uniform& rhs) noexcept;
     public:
         Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;

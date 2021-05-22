@@ -33,9 +33,8 @@
 
 using namespace Limitless::fx;
 
-EffectBuilder::EffectBuilder(Context& _context, Assets& _assets) noexcept
-    : context{_context}
-    , assets {_assets} {
+EffectBuilder::EffectBuilder(Assets& _assets) noexcept
+    : assets {_assets} {
 }
 
 EffectBuilder& EffectBuilder::setEmitterType(AbstractEmitter::Type type) {
@@ -271,17 +270,20 @@ std::shared_ptr<Limitless::EffectInstance> EffectBuilder::build() {
         switch (emitter->getType()) {
             case AbstractEmitter::Type::Sprite: {
                 auto& sprite_emitter = effect->get<SpriteEmitter>(name);
-                sprite_emitter.unique_type = getUniqueEmitter(sprite_emitter);
+                sprite_emitter.unique_shader = getUniqueEmitterShader(sprite_emitter);
+                sprite_emitter.unique_renderer = getUniqueEmitterRenderer(sprite_emitter);
                 break;
             }
             case AbstractEmitter::Type::Mesh: {
                 auto& mesh_emitter = effect->get<MeshEmitter>(name);
-                mesh_emitter.unique_type = getUniqueEmitter(mesh_emitter);
+                mesh_emitter.unique_shader = getUniqueEmitterShader(mesh_emitter);
+                mesh_emitter.unique_renderer = getUniqueEmitterRenderer(mesh_emitter);
                 break;
             }
             case AbstractEmitter::Type::Beam: {
                 auto& beam_emitter = effect->get<BeamEmitter>(name);
-                beam_emitter.unique_type = getUniqueEmitter(beam_emitter);
+                beam_emitter.unique_shader = getUniqueEmitterShader(beam_emitter);
+                beam_emitter.unique_renderer = getUniqueEmitterRenderer(beam_emitter);
                 break;
             }
         }
@@ -343,12 +345,28 @@ EffectBuilder& EffectBuilder::createEmitter(const std::string& name) {
 }
 
 template<typename Emitter>
-UniqueEmitter EffectBuilder::getUniqueEmitter(const Emitter& emitter) const noexcept {
+UniqueEmitterShader EffectBuilder::getUniqueEmitterShader(const Emitter& emitter) const noexcept {
     std::set<ModuleType> module_type;
     for (const auto& module : emitter.modules) {
         module_type.emplace(module->getType());
     }
     return { emitter.getType(), module_type, emitter.getMaterial().getShaderIndex() };
+}
+
+template<typename Emitter>
+UniqueEmitterRenderer EffectBuilder::getUniqueEmitterRenderer(const Emitter& emitter) const noexcept {
+    std::set<ModuleType> module_type;
+    for (const auto& module : emitter.modules) {
+        module_type.emplace(module->getType());
+    }
+
+    std::optional<std::shared_ptr<AbstractMesh>> mesh {};
+
+    if constexpr (std::is_same_v<MeshEmitter, Emitter>) {
+        mesh = emitter.getMesh();
+    }
+
+    return { emitter.getType(), mesh, &emitter.getMaterial() };
 }
 
 namespace Limitless::fx {

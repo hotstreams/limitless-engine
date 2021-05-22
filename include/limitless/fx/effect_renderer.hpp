@@ -24,7 +24,7 @@ namespace Limitless::fx {
 
     class EffectRenderer final {
     private:
-        std::map<UniqueEmitter, std::unique_ptr<AbstractEmitterRenderer>> renderers;
+        std::map<UniqueEmitterRenderer, std::unique_ptr<AbstractEmitterRenderer>> renderers;
 
         void updateRenderers(const Instances& instances) noexcept;
         static void visitEmitters(const Instances& instances, EmitterVisitor& visitor) noexcept;

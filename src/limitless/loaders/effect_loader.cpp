@@ -13,7 +13,7 @@
 using namespace Limitless::fx;
 using namespace Limitless;
 
-std::shared_ptr<EffectInstance> EffectLoader::load(Context& context, Assets& assets, const fs::path& _path) {
+std::shared_ptr<EffectInstance> EffectLoader::load(Assets& assets, const fs::path& _path) {
     auto path = convertPathSeparators(_path);
     std::ifstream stream(path, std::ios::binary | std::ios::ate);
     stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -25,7 +25,7 @@ std::shared_ptr<EffectInstance> EffectLoader::load(Context& context, Assets& ass
     stream.read(buffer.cdata(), buffer.size());
 
     std::shared_ptr<EffectInstance> effect;
-    buffer >> AssetDeserializer<std::shared_ptr<EffectInstance>>{context, assets, effect};
+    buffer >> AssetDeserializer<std::shared_ptr<EffectInstance>>{assets, effect};
     return effect;
 }
 

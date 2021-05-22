@@ -9,23 +9,27 @@ namespace Limitless::fx {
     private:
         Mesh<BeamParticleMapping> mesh;
 
-        const ms::Material material;
-        const UniqueEmitter unique_type;
+        const UniqueEmitterShader unique_type;
     public:
         EmitterRenderer(const BeamEmitter& emitter)
                 : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT,
                         "beam_emitter",
                         MeshDataType::Dynamic,
                         DrawMode::Triangles}
-                , material {emitter.getMaterial()}
-                , unique_type {emitter.getUniqueType()} {
+                , unique_type {emitter.getUniqueShaderType()} {
         }
 
         void update(ParticleCollector<BeamParticleMapping>& collector) {
             mesh.updateVertices(collector.yield());
         }
 
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& setter) const {
+        void draw(Context& ctx,
+                  const Assets& assets,
+                  ShaderPass shader_type,
+                  const ms::Material& material,
+                  ms::Blending blending,
+                  const UniformSetter& setter) const {
+
             if (material.getBlending() != blending) {
                 return;
             }

@@ -90,7 +90,7 @@ void AssetManager::build(std::function<void()> f) {
 
 void AssetManager::loadMaterial(std::string asset_name, fs::path path) {
     auto load_material = [&, name = std::move(asset_name), path = std::move(path)] () {
-        assets.materials.add(name, MaterialLoader::load(context, assets, path));
+        assets.materials.add(name, MaterialLoader::load(assets, path));
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_material)));
@@ -98,7 +98,7 @@ void AssetManager::loadMaterial(std::string asset_name, fs::path path) {
 
 void AssetManager::loadEffect(std::string asset_name, fs::path path) {
     auto load_effect = [&, name = std::move(asset_name), path = std::move(path)] () {
-        assets.effects.add(name, EffectLoader::load(context, assets, path));
+        assets.effects.add(name, EffectLoader::load(assets, path));
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_effect)));

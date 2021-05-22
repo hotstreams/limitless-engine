@@ -29,9 +29,13 @@
 namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
+    private:
+        static constexpr uint8_t VERSION = 0x1;
     public:
         ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
+
+            buffer << VERSION;
 
             buffer << module.getType();
 
@@ -135,6 +139,14 @@ namespace Limitless {
         }
 
         std::unique_ptr<fx::Module<Particle>> deserialize(ByteBuffer& buffer, [[maybe_unused]] Assets& assets) {
+            uint8_t version {};
+
+            buffer >> version;
+
+            if (version != VERSION) {
+                throw std::runtime_error("Wrong module version! " + std::to_string(VERSION) + " vs " + std::to_string(version));
+            }
+
             fx::ModuleType type{};
             buffer >> type;
 
@@ -301,7 +313,7 @@ namespace Limitless {
     template<typename Particle>
     ByteBuffer& operator>>(ByteBuffer& buffer, const AssetDeserializer<std::unique_ptr<fx::Module<Particle>>>& asset) {
         ModuleSerializer<Particle> serializer;
-        auto& [context, assets, module] = asset;
+        auto& [assets, module] = asset;
         module = serializer.deserialize(buffer, assets);
         return buffer;
     }
