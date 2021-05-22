@@ -21,10 +21,12 @@
 #include <limitless/fx/modules/beam_rebuild.hpp>
 #include <limitless/fx/modules/beam_offset.hpp>
 #include <limitless/fx/modules/beam_displacement.hpp>
+#include <limitless/fx/modules/mesh_location.hpp>
 
 #include <limitless/serialization/distribution_serializer.hpp>
 
 #include <limitless/util/bytebuffer.hpp>
+#include <limitless/assets.hpp>
 
 namespace Limitless {
     template<typename Particle>
@@ -58,9 +60,9 @@ namespace Limitless {
                 case fx::ModuleType::InitialAcceleration:
                     buffer << static_cast<const fx::InitialAcceleration<Particle>&>(module).getDistribution();
                     break;
-//                case ModuleType::MeshLocation:
-//                    buffer << static_cast<MeshLocation<Particle>&>(module).getMesh()->getName();
-//                    break;
+                case fx::ModuleType::MeshLocation:
+                    buffer << static_cast<const fx::MeshLocation<Particle>&>(module).getMesh()->getName();
+                    break;
                 case fx::ModuleType::SubUV:
                     buffer << static_cast<const fx::SubUV<Particle>&>(module).getTextureSize()
                            << static_cast<const fx::SubUV<Particle>&>(module).getFPS()
@@ -188,12 +190,12 @@ namespace Limitless {
                     module = std::make_unique<fx::InitialAcceleration<Particle>>(std::move(distr));
                     break;
                 }
-//                case ModuleType::MeshLocation: {
-//                    std::string mesh_name;
-//                    buffer >> mesh_name;
-//                    module = std::make_unique<MeshLocation>(assets.meshes.at(mesh_name));
-//                    break;
-//                }
+                case fx::ModuleType::MeshLocation: {
+                    std::string mesh_name;
+                    buffer >> mesh_name;
+                    module = std::make_unique<fx::MeshLocation<Particle>>(assets.meshes.at(mesh_name));
+                    break;
+                }
                 case fx::ModuleType::SubUV: {
                     glm::vec2 texture_size;
                     glm::vec2 frame_count;
