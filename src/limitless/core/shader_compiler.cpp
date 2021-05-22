@@ -74,11 +74,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
     uint8_t shader_count {};
     for (const auto& [extension, type] : shader_file_extensions) {
         try {
-            Shader shader { path.string() + extension.data(), type };
-
-            if (action) {
-                action(shader);
-            }
+            Shader shader { path.string() + extension.data(), type, action };
 
             *this << std::move(shader);
 
