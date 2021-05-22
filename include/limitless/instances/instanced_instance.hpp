@@ -1,7 +1,8 @@
 #pragma once
 
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/model_instance.hpp>
 #include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/context_state.hpp>
 
 namespace Limitless {
     template<typename Instance, typename = void>
