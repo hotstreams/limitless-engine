@@ -50,7 +50,6 @@ namespace Limitless {
         uint32_t unnamed_material_index {};
         uint32_t unnamed_mesh_index {};
 
-        Context& context;
         Assets& assets;
 
         std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const;
@@ -61,7 +60,7 @@ namespace Limitless {
         template<typename T> std::vector<T> loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
         template<typename T> std::vector<T> loadIndices(aiMesh* mesh) const noexcept;
     public:
-        ModelLoader(Context& context, Assets& assets) noexcept;
+        ModelLoader(Assets& assets) noexcept;
         virtual ~ModelLoader() = default;
 
         std::shared_ptr<AbstractModel> loadModel(const fs::path& path, const ModelLoaderFlags& flags = {});

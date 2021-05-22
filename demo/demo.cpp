@@ -129,7 +129,7 @@ public:
 //    }
 
     void addModels() {
-        ModelLoader model_loader{context, assets};
+        ModelLoader model_loader{assets};
         const fs::path assets_dir{ASSETS_DIR};
 
         assets.models.add("bob", model_loader.loadModel(assets_dir / "models/boblamp/boblampclean.md5mesh"));

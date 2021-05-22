@@ -128,6 +128,7 @@ namespace Limitless {
 
         [[nodiscard]] const BoundingBox& getBoundingBox() noexcept override { return bounding_box; }
         [[nodiscard]] const std::string& getName() const noexcept override { return name; }
+        [[nodiscard]] std::string& getName() noexcept override { return name; }
         [[nodiscard]] const auto& getVertices() const noexcept { return vertices; }
         [[nodiscard]] DrawMode getDrawMode() const noexcept override { return draw_mode; }
     };
