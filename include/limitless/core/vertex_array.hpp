@@ -40,7 +40,8 @@ namespace Limitless {
         VertexArray& setAttribute(GLuint attr_id, const VertexAttribute& attribute) noexcept;
 
         VertexArray& operator<<(const Buffer& element_buffer) noexcept;
-        VertexArray& operator<<(const VertexAttribute& attribute) noexcept;
+        // forbidden for indefinite time
+//        VertexArray& operator<<(const VertexAttribute& attribute) noexcept;
         VertexArray& operator<<(const std::pair<Vertex, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<TextVertex, Buffer&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexNormal, Buffer&>& attribute) noexcept;

@@ -45,8 +45,8 @@ namespace Limitless {
                                  .setDataSize(bone_weights.size() * sizeof(VertexBoneWeight))
                                  .build();
 
-            this->vertex_array << VertexAttribute{VertexBoneWeight::BONE_COUNT, GL_INT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), *bone_buffer}
-                               << VertexAttribute{VertexBoneWeight::BONE_COUNT, GL_FLOAT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), *bone_buffer};
+            this->vertex_array.setAttribute(4, VertexAttribute{VertexBoneWeight::BONE_COUNT, GL_INT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), *bone_buffer});
+            this->vertex_array.setAttribute(5, VertexAttribute{VertexBoneWeight::BONE_COUNT, GL_FLOAT, GL_FALSE, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), *bone_buffer});
         };
     public:
         SkinnedMesh(std::vector<T>&& vertices, std::vector<T1>&& indices, std::vector<VertexBoneWeight>&& bones, std::string material, MeshDataType data_type, DrawMode draw_mode)
