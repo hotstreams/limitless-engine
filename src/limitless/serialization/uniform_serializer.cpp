@@ -121,6 +121,9 @@ Uniform* UniformSerializer::deserializeUniformValue(ByteBuffer& buffer, std::str
 
 ByteBuffer UniformSerializer::serialize(const Uniform& uniform) {
     ByteBuffer buffer;
+
+    buffer << VERSION;
+
     switch (uniform.type) {
         case UniformType::Value:
         case UniformType::Time:
@@ -134,6 +137,14 @@ ByteBuffer UniformSerializer::serialize(const Uniform& uniform) {
 }
 
 std::unique_ptr<Uniform> UniformSerializer::deserialize(ByteBuffer& buffer, Assets& assets) {
+    uint8_t version {};
+
+    buffer >> version;
+
+    if (version != VERSION) {
+        throw std::runtime_error("Wrong uniform serializer version! " + std::to_string(VERSION) + " vs " + std::to_string(version));
+    }
+
     std::string name{};
     UniformType type{};
     UniformValueType value_type{};

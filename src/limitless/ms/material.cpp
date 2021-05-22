@@ -26,6 +26,7 @@ void Limitless::ms::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.vertex_snippet, rhs.vertex_snippet);
     swap(lhs.fragment_snippet, rhs.fragment_snippet);
     swap(lhs.global_snippet, rhs.global_snippet);
+    swap(lhs.tessellation_snippet, rhs.tessellation_snippet);
 }
 
 Material& Material::operator=(Material material) {
@@ -38,21 +39,51 @@ bool Limitless::ms::operator==(const Material& lhs, const Material& rhs) noexcep
 }
 
 bool Limitless::ms::operator<(const Material& lhs, const Material& rhs) noexcept {
-    const auto properties_less = std::equal(lhs.properties.begin(), lhs.properties.end(),
-                                            rhs.properties.begin(), rhs.properties.end(),
-                                            [] (const auto& lhs, const auto& rhs) {
-                                                return std::tie(lhs.first, *lhs.second) < std::tie(rhs.first, *rhs.second);
-                                            });
+    {
+        if (lhs.properties.size() != rhs.properties.size()) {
+            return lhs.properties.size() < rhs.properties.size();
+        }
 
-    const auto uniforms_less = std::equal(lhs.uniforms.begin(), lhs.uniforms.end(),
-                                          rhs.uniforms.begin(), rhs.uniforms.end(),
-                                          [] (const auto& lhs, const auto& rhs) {
-                                            return std::tie(lhs.first, *lhs.second) < std::tie(rhs.first, *rhs.second);
-                                          });
+        auto lhs_it = lhs.properties.begin();
+        auto rhs_it = rhs.properties.begin();
 
-    const auto var_less = std::tie(lhs.blending, lhs.two_sided, lhs.shader_index) < std::tie(rhs.blending, rhs.two_sided, rhs.shader_index);
+        while (lhs_it != lhs.properties.end()) {
+            if (lhs_it->first != rhs_it->first) {
+                return lhs_it->first < rhs_it->first;
+            }
 
-    return properties_less && uniforms_less && var_less;
+            if (*lhs_it->second != *rhs_it->second) {
+                return *lhs_it->second < *rhs_it->second;
+            }
+
+            lhs_it++;
+            rhs_it++;
+        }
+    }
+
+    {
+        if (lhs.uniforms.size() != rhs.uniforms.size()) {
+            return lhs.uniforms.size() < rhs.uniforms.size();
+        }
+
+        auto lhs_it = lhs.uniforms.begin();
+        auto rhs_it = rhs.uniforms.begin();
+
+        while (lhs_it != lhs.uniforms.end()) {
+            if (lhs_it->first != rhs_it->first) {
+                return lhs_it->first < rhs_it->first;
+            }
+
+            if (*lhs_it->second != *rhs_it->second) {
+                return *lhs_it->second < *rhs_it->second;
+            }
+
+            lhs_it++;
+            rhs_it++;
+        }
+    }
+
+    return std::tie(lhs.blending, lhs.two_sided, lhs.shader_index) < std::tie(rhs.blending, rhs.two_sided, rhs.shader_index);
 }
 
 Material::Material(const Material& material)

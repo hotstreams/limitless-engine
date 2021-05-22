@@ -25,6 +25,8 @@ namespace Limitless::fx {
         BeamEmitter(const BeamEmitter&);
         BeamEmitter(BeamEmitter&&) noexcept = default;
 
+        [[nodiscard]] UniqueEmitterRenderer getUniqueRendererType() const noexcept override;
+
         [[nodiscard]] const std::vector<BeamParticleMapping>& getParticles() const noexcept;
 
         [[nodiscard]] ms::Material& getMaterial() noexcept { return *material; }

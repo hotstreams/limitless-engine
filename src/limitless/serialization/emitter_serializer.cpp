@@ -53,14 +53,6 @@ ByteBuffer EmitterSerializer::serialize(const AbstractEmitter& emitter) {
 }
 
 void EmitterSerializer::deserialize(Assets& assets, ByteBuffer& buffer, EffectBuilder& builder) {
-    uint8_t version {};
-
-    buffer >> version;
-
-    if (version != VERSION) {
-        throw std::runtime_error("Wrong emitter serializer version! " + std::to_string(VERSION) + " vs " + std::to_string(version));
-    }
-
     std::string name;
     AbstractEmitter::Type type;
     glm::vec3 local_position;
@@ -70,8 +62,17 @@ void EmitterSerializer::deserialize(Assets& assets, ByteBuffer& buffer, EffectBu
     float duration;
     std::shared_ptr<ms::Material> material;
 
-    buffer >> name
-           >> type
+    buffer >> name;
+
+    uint8_t version {};
+
+    buffer >> version;
+
+    if (version != VERSION) {
+        throw std::runtime_error("Wrong emitter serializer version! " + std::to_string(VERSION) + " vs " + std::to_string(version));
+    }
+
+    buffer >> type
            >> local_position
            >> local_rotation
            >> local_space

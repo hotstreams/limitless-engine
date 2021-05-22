@@ -29,6 +29,8 @@ namespace Limitless::fx {
         MeshEmitter(const MeshEmitter&);
         MeshEmitter(MeshEmitter&&) noexcept = default;
 
+        [[nodiscard]] UniqueEmitterRenderer getUniqueRendererType() const noexcept override;
+
         [[nodiscard]] const auto& getParticles() const noexcept { return particles; }
 
         [[nodiscard]] auto& getMaterial() noexcept { return *material; }

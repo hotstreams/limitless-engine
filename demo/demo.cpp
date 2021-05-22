@@ -21,6 +21,7 @@
 #include <limitless/pipeline/forward.hpp>
 #include <limitless/instances/instanced_instance.hpp>
 #include <limitless/ms/material.hpp>
+#include <limitless/loaders/material_loader.hpp>
 
 using namespace Limitless;
 
@@ -163,11 +164,12 @@ public:
         builder.setName("test")
                 .add(ms::Property::Color, glm::vec4(2.0f, 1.0f, 1.0f, 1.0f))
                 .setModelShaders({ModelShader::Instanced})
+                .setShading(ms::Shading::Unlit)
                 .build();
 
         auto& instanced = scene.add<InstancedInstance<ModelInstance>>(glm::vec3(0.0f));
         for (uint32_t i = 0; i < 10; ++i) {
-            instanced.addInstance(std::make_unique<ModelInstance>(assets.models.at("sphere"), assets.materials.at("test"), glm::vec3{i + 10.0f, i + 10.0f, 1.0f}));
+            instanced.addInstance(std::make_unique<ModelInstance>(assets.models.at("sphere"), assets.materials.at("test"), glm::vec3{-4.0, 0.0f, -8.0 + i * 1.9}));
         }
     }
 
@@ -183,19 +185,19 @@ public:
                 .add(ms::Property::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{5.0f, 5.0f, 0.0f});
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{10.0f, 0.5f, 0.0f});
 
         builder.setName("Diffuse")
                 .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/triangle.jpg"))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{ 2.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{10.0f, 0.5f, 2.0f });
 
         builder.setName("EmissiveColor")
                 .add(ms::Property::EmissiveColor, glm::vec4(3.0f, 0.1f, 3.0f, 1.0f))
                 .setShading(ms::Shading::Unlit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{ 4.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{10.0f, 0.5f, 4.0f });
 
         builder.setName("BlendMask")
                 .add(ms::Property::BlendMask, tex_loader.load(assets_dir / "textures/bricks.jpg", {TextureLoaderFlag::BottomLeftOrigin,
@@ -206,7 +208,7 @@ public:
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{ 6.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{10.0f, 0.5f, 6.0f });
 
         builder.setName("PBR")
                 .add(ms::Property::MetallicTexture, tex_loader.load(assets_dir / "textures/rustediron2_metallic.png"))
@@ -215,7 +217,7 @@ public:
                 .add(ms::Property::Normal, tex_loader.load(assets_dir / "textures/rustediron2_normal.png"))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{ 8.0f, 0.0f, 0.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{10.0f, 0.5f, 8.0f });
 
         builder.setName("floor")
                 .setShading(ms::Shading::Lit)
@@ -223,7 +225,8 @@ public:
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("plane"), assets.materials.at("floor"), glm::vec3{3.0f, -1.0f, 0.0f})
+
+        scene.add<ModelInstance>(assets.models.at("plane"), assets.materials.at("floor"), glm::vec3{3.0f, 0.f, 0.0f})
                 .setScale(glm::vec3{20.0f, 1.0f, 20.0f});
     }
 
@@ -246,10 +249,11 @@ public:
                 .setLocalSpace(true)
                 .build();
 
-//        EffectLoader::save(assets.getBaseDir() / "effects/test", assets.effects.at("effect1"));
-//        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test");
+        effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, 8.f});
+        auto& e = scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{4.f, 1.f, 8.f});
+        scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{6.f, 1.f, 8.f});
 
-        effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, -5.f});
+        e.get<fx::SpriteEmitter>("generate").getMaterial().getEmissiveColor().setValue(glm::vec4(2.0f));
 
         builder.create("effect2")
                 .createEmitter<fx::MeshEmitter>("generate")
@@ -270,7 +274,7 @@ public:
 //        EffectLoader::save(assets.getBaseDir() / "effects/test2", assets.effects.at("effect2"));
 //        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test2");
 
-        effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
+//        effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
 
         fx::EffectBuilder beam_builder{assets};
         beam_builder.create("test_beam")
@@ -283,7 +287,7 @@ public:
 //        EffectLoader::save(assets.getBaseDir() / "effects/test3", assets.effects.at("test_beam"));
 //        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test3");
 
-        scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{1.0f, 2.0f, 1.0f});
+        scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{8.0f, 2.0f, 8.0f});
     }
 
     void onMouseMove(glm::dvec2 pos) override {

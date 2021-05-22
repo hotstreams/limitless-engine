@@ -25,6 +25,8 @@ namespace Limitless::fx {
         SpriteEmitter(const SpriteEmitter&);
         SpriteEmitter(SpriteEmitter&&) noexcept = default;
 
+        [[nodiscard]] UniqueEmitterRenderer getUniqueRendererType() const noexcept override;
+
         [[nodiscard]] const auto& getParticles() const noexcept { return particles; }
 
         [[nodiscard]] ms::Material& getMaterial() noexcept { return *material; }

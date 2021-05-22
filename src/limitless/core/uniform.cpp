@@ -22,52 +22,48 @@ bool Limitless::operator<(const Uniform& lhs, const Uniform& rhs) noexcept {
         return lhs.value_type < rhs.value_type;
     }
 
-    if (lhs.type == UniformType::Sampler) {
-        return static_cast<const UniformSampler&>(lhs).getSampler() < static_cast<const UniformSampler&>(rhs).getSampler();
-    }
+    switch (lhs.type) {
+        case UniformType::Sampler:
+            return static_cast<const UniformSampler&>(lhs).getSampler() < static_cast<const UniformSampler&>(rhs).getSampler();
+        case UniformType::Value:
+        case UniformType::Time:
+            switch (lhs.value_type) {
+                case UniformValueType::Float:
+                    return static_cast<const UniformValue<float>&>(lhs).getValue() < static_cast<const UniformValue<float>&>(rhs).getValue();
+                case UniformValueType::Int:
+                    return static_cast<const UniformValue<int>&>(lhs).getValue() < static_cast<const UniformValue<int>&>(rhs).getValue();
+                case UniformValueType::Uint:
+                    return static_cast<const UniformValue<unsigned int>&>(lhs).getValue() < static_cast<const UniformValue<unsigned int>&>(rhs).getValue();
+                case UniformValueType::Vec2: {
+                    const auto& lhs_v = static_cast<const UniformValue<glm::vec2>&>(lhs).getValue();
+                    const auto& rhs_v = static_cast<const UniformValue<glm::vec2>&>(rhs).getValue();
+                    return std::tie(lhs_v.x, lhs_v.y) < std::tie(rhs_v.x, rhs_v.y);
+                }
+                case UniformValueType::Vec3: {
+                    const auto& lhs_v = static_cast<const UniformValue<glm::vec3>&>(lhs).getValue();
+                    const auto& rhs_v = static_cast<const UniformValue<glm::vec3>&>(rhs).getValue();
+                    return std::tie(lhs_v.x, lhs_v.y, lhs_v.z) < std::tie(rhs_v.x, rhs_v.y, rhs_v.z);
+                }
+                case UniformValueType::Vec4: {
+                    const auto& lhs_v = static_cast<const UniformValue<glm::vec4>&>(lhs).getValue();
+                    const auto& rhs_v = static_cast<const UniformValue<glm::vec4>&>(rhs).getValue();
+                    return std::tie(lhs_v.x, lhs_v.y, lhs_v.z, lhs_v.w) < std::tie(rhs_v.x, rhs_v.y, rhs_v.z, rhs_v.w);
+                }
+                case UniformValueType::Mat3:
+                case UniformValueType::Mat4:
+                    // TODO: for better times
+                    return false;
+            }
 
-    if (lhs.type == UniformType::Value || lhs.type == UniformType::Time) {
-        switch (lhs.value_type) {
-            case UniformValueType::Float:
-                return static_cast<const UniformValue<float>&>(lhs).getValue() < static_cast<const UniformValue<float>&>(rhs).getValue();
-            case UniformValueType::Int:
-                return static_cast<const UniformValue<int>&>(lhs).getValue() < static_cast<const UniformValue<int>&>(rhs).getValue();
-            case UniformValueType::Uint:
-                return static_cast<const UniformValue<unsigned int>&>(lhs).getValue() < static_cast<const UniformValue<unsigned int>&>(rhs).getValue();
-            case UniformValueType::Vec2: {
-                const auto less_values = glm::lessThan(static_cast<const UniformValue<glm::vec2>&>(lhs).getValue(), static_cast<const UniformValue<glm::vec2>&>(rhs).getValue());
-                return glm::all(less_values);
-            }
-            case UniformValueType::Vec3: {
-                const auto less_values = glm::lessThan(static_cast<const UniformValue<glm::vec3>&>(lhs).getValue(), static_cast<const UniformValue<glm::vec3>&>(rhs).getValue());
-                return glm::all(less_values);
-            }
-            case UniformValueType::Vec4: {
-                const auto less_values = glm::lessThan(static_cast<const UniformValue<glm::vec4>&>(lhs).getValue(), static_cast<const UniformValue<glm::vec4>&>(rhs).getValue());
-                return glm::all(less_values);
-            }
-            case UniformValueType::Mat3: {
-//                const auto less_values = glm::lessThan(static_cast<const UniformValue<glm::mat3>&>(lhs).getValue(), static_cast<const UniformValue<glm::mat3>&>(rhs).getValue());
-//                bool less {true};
-//                for (int i = 0; i < less_values.length(); ++i) {
-//                    less &= less_values[i];
-//                }
-                return true;
-            }
-            case UniformValueType::Mat4: {
-//                const auto less_values = glm::lessThan(static_cast<const UniformValue<glm::mat4>&>(lhs).getValue(), static_cast<const UniformValue<glm::mat4>&>(rhs).getValue());
-//                bool less {true};
-//                for (int i = 0; i < less_values.length(); ++i) {
-//                    less &= less_values[i];
-//                }
-                return true;
-            }
-        }
     }
 }
 
 bool Limitless::operator==(const Uniform& lhs, const Uniform& rhs) noexcept {
     return !(lhs < rhs) && !(rhs < lhs);
+}
+
+bool Limitless::operator!=(const Uniform& lhs, const Uniform& rhs) noexcept {
+    return !(lhs == rhs);
 }
 
 template<typename T>

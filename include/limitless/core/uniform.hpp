@@ -39,6 +39,7 @@ namespace Limitless {
         // compares values equality
         friend bool operator==(const Uniform& lhs, const Uniform& rhs) noexcept;
         friend bool operator<(const Uniform& lhs, const Uniform& rhs) noexcept;
+        friend bool operator!=(const Uniform& lhs, const Uniform& rhs) noexcept;
     public:
         Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;
@@ -107,4 +108,8 @@ namespace Limitless {
     std::string getUniformDeclaration(const Uniform& uniform) noexcept;
     size_t getUniformSize(const Uniform& uniform);
     size_t getUniformAlignment(const Uniform& uniform);
+
+    bool operator==(const Uniform& lhs, const Uniform& rhs) noexcept;
+    bool operator<(const Uniform& lhs, const Uniform& rhs) noexcept;
+    bool operator!=(const Uniform& lhs, const Uniform& rhs) noexcept;
 }

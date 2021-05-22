@@ -9,7 +9,9 @@ SceneUpdatePass::SceneUpdatePass(RenderPass* prev, Context& ctx)
     , scene_data {ctx} {
 }
 
-void SceneUpdatePass::update(Scene& scene, [[maybe_unused]] Instances& instances, Context& ctx, const Camera& camera) {
+void SceneUpdatePass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
     scene.update(ctx, const_cast<Camera&>(camera));
+    instances = scene.getWrappers();
+
     scene_data.update(ctx, camera);
 }
