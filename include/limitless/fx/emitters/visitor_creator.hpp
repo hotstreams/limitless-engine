@@ -19,19 +19,25 @@ namespace Limitless::fx {
 
         void visit(const SpriteEmitter& emitter) noexcept override {
             if (!renderers.count(emitter.getUniqueRendererType())) {
-                renderers.emplace(emitter.getUniqueRendererType(), new EmitterRenderer<SpriteParticle>(emitter));
+                auto type = emitter.getUniqueRendererType();
+                type.material = std::make_shared<ms::Material>(*type.material);
+                renderers.emplace(type, new EmitterRenderer<SpriteParticle>(emitter));
             }
         }
 
         void visit(const MeshEmitter& emitter) noexcept override {
             if (!renderers.count(emitter.getUniqueRendererType())) {
-                renderers.emplace(emitter.getUniqueRendererType(), new EmitterRenderer<MeshParticle>(emitter));
+                auto type = emitter.getUniqueRendererType();
+                type.material = std::make_shared<ms::Material>(*type.material);
+                renderers.emplace(type, new EmitterRenderer<MeshParticle>(emitter));
             }
         }
 
         void visit(const BeamEmitter& emitter) noexcept override {
             if (!renderers.count(emitter.getUniqueRendererType())) {
-                renderers.emplace(emitter.getUniqueRendererType(), new EmitterRenderer<BeamParticle>(emitter));
+                auto type = emitter.getUniqueRendererType();
+                type.material = std::make_shared<ms::Material>(*type.material);
+                renderers.emplace(type, new EmitterRenderer<BeamParticle>(emitter));
             }
         }
     };

@@ -23,5 +23,5 @@ void SpriteEmitter::accept(EmitterVisitor& visitor) noexcept {
 }
 
 UniqueEmitterRenderer SpriteEmitter::getUniqueRendererType() const noexcept {
-    return { type, std::nullopt, material.get() };
+    return { type, std::nullopt, material };
 }

@@ -46,5 +46,5 @@ void MeshEmitter::accept(EmitterVisitor& visitor) noexcept {
 }
 
 UniqueEmitterRenderer MeshEmitter::getUniqueRendererType() const noexcept {
-    return { type, mesh, material.get() };
+    return { type, mesh, material };
 }
