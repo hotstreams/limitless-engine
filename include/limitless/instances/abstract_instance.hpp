@@ -2,7 +2,6 @@
 
 #include <limitless/instances/effect_attachable.hpp>
 #include <limitless/instances/light_attachable.hpp>
-#include <limitless/instances/model_attachable.hpp>
 #include <limitless/util/bounding_box.hpp>
 #include <glm/gtx/quaternion.hpp>
 
