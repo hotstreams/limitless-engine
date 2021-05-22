@@ -37,9 +37,9 @@ namespace Limitless {
             TextureLoaderFlag::WrapRepeat
         };
 
-        [[nodiscard]] std::shared_ptr<Texture> load(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
-        [[nodiscard]] std::shared_ptr<Texture> loadCubemap(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
+        std::shared_ptr<Texture> load(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
+        std::shared_ptr<Texture> loadCubemap(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
 
-        [[nodiscard]] GLFWimage loadGLFWImage(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
+        GLFWimage loadGLFWImage(const fs::path& path, const TextureLoaderFlags& flags = DEFAULT_LOADING_FLAGS) const;
     };
 }
