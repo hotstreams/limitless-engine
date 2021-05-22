@@ -22,6 +22,11 @@ MaterialInstance::MaterialInstance(const MaterialInstance& instance)
     }
 }
 
+void MaterialInstance::changeBaseMaterial(const std::shared_ptr<ms::Material>& material) noexcept {
+    base = std::make_shared<Material>(*material);
+    changeMaterial(base);
+}
+
 void MaterialInstance::changeMaterial(const std::shared_ptr<Material>& material) noexcept {
     materials[0] = std::make_shared<Material>(*material);
 }
