@@ -11,6 +11,7 @@ namespace Limitless {
 
     class TextInstance {
     private:
+        bool hidden {false};
         TextModel text_model;
         std::string text;
         glm::vec2 position;
@@ -36,6 +37,9 @@ namespace Limitless {
         TextInstance& setPosition(const glm::vec2& position) noexcept;
         TextInstance& setSize(const glm::vec2& size) noexcept;
         TextInstance& setSelectionColor(const glm::vec4& color) noexcept;
+
+        void hide() { hidden = true; }
+        void reveal() { hidden = false; }
 
         TextInstance& setSelection(size_t begin, size_t end);
         TextInstance& removeSelection() noexcept;
