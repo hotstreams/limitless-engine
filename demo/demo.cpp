@@ -169,7 +169,7 @@ public:
 
         auto& instanced = scene.add<InstancedInstance<ModelInstance>>(glm::vec3(0.0f));
         for (uint32_t i = 0; i < 10; ++i) {
-            instanced.addInstance(std::make_unique<ModelInstance>(assets.models.at("sphere"), assets.materials.at("test"), glm::vec3{-4.0, 0.0f, -8.0 + i * 1.9}));
+            instanced.addInstance(std::make_unique<ModelInstance>(assets.models.at("sphere"), assets.materials.at("test"), glm::vec3{-4.0, 1.0f, -8.0 + i * 1.9}));
         }
     }
 
@@ -185,19 +185,19 @@ public:
                 .add(ms::Property::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{10.0f, 0.5f, 0.0f});
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{10.0f, 1.0f, 0.0f});
 
         builder.setName("Diffuse")
                 .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/triangle.jpg"))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{10.0f, 0.5f, 2.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{10.0f, 1.0f, 2.0f });
 
         builder.setName("EmissiveColor")
                 .add(ms::Property::EmissiveColor, glm::vec4(3.0f, 0.1f, 3.0f, 1.0f))
                 .setShading(ms::Shading::Unlit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{10.0f, 0.5f, 4.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{10.0f, 1.0f, 4.0f });
 
         builder.setName("BlendMask")
                 .add(ms::Property::BlendMask, tex_loader.load(assets_dir / "textures/bricks.jpg", {TextureLoaderFlag::BottomLeftOrigin,
@@ -208,7 +208,7 @@ public:
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{10.0f, 0.5f, 6.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{10.0f, 1.0f, 6.0f });
 
         builder.setName("PBR")
                 .add(ms::Property::MetallicTexture, tex_loader.load(assets_dir / "textures/rustediron2_metallic.png"))
@@ -217,7 +217,7 @@ public:
                 .add(ms::Property::Normal, tex_loader.load(assets_dir / "textures/rustediron2_normal.png"))
                 .setShading(ms::Shading::Lit)
                 .build();
-        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{10.0f, 0.5f, 8.0f });
+        scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{10.0f, 1.0f, 8.0f });
 
         builder.setName("floor")
                 .setShading(ms::Shading::Lit)

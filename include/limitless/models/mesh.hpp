@@ -120,6 +120,7 @@ namespace Limitless {
 
             if (vertices.size() * sizeof(T) > vertex_buffer->getSize()) {
                 vertex_buffer->resize(vertices.size() * sizeof(T));
+                vertex_array << std::pair<T, Buffer&>(T{}, *vertex_buffer);
             }
 
             vertex_buffer->mapData(vertices.data(), sizeof(T) * vertices.size());

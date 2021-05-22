@@ -59,40 +59,36 @@ VertexArray& VertexArray::setAttribute(GLuint attr_id, const VertexAttribute& at
     return *this;
 }
 
-VertexArray& VertexArray::operator<<(const VertexAttribute& attribute) noexcept {
-    return setAttribute(next_attribute_index, attribute);
-}
+//VertexArray& VertexArray::operator<<(const VertexAttribute& attribute) noexcept {
+//    return setAttribute(next_attribute_index, attribute);
+//}
 
 VertexArray& VertexArray::operator<<(const std::pair<Vertex, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position), attribute.second }
-          << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv), attribute.second };
-
+    setAttribute(0,  VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position), attribute.second });
+    setAttribute(1,  VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv), attribute.second });
     return *this;
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<VertexNormal, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(Vertex, position), attribute.second }
-          << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(VertexNormal, normal), attribute.second }
-          << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(VertexNormal, uv), attribute.second };
-
+    setAttribute(0,  VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(Vertex, position), attribute.second });
+    setAttribute(1,  VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(VertexNormal, normal), attribute.second });
+    setAttribute(2,  VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(VertexNormal), (GLvoid*)offsetof(VertexNormal, uv), attribute.second });
     return *this;
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<VertexNormalTangent, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(Vertex, position), attribute.second }
-          << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, normal), attribute.second }
-          << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, tangent), attribute.second }
-          << VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, uv), attribute.second };
-
+    setAttribute(0,  VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(Vertex, position), attribute.second });
+    setAttribute(1,  VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, normal), attribute.second });
+    setAttribute(2,  VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, tangent), attribute.second });
+    setAttribute(3,  VertexAttribute{ 2, GL_FLOAT, GL_FALSE, sizeof(VertexNormalTangent), (GLvoid*)offsetof(VertexNormalTangent, uv), attribute.second });
     return *this;
 }
 
 VertexArray& VertexArray::operator<<(const std::pair<VertexPackedNormalTangent, Buffer&>& attribute) noexcept {
-    *this << VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(Vertex, position), attribute.second }
-          << VertexAttribute{ 4, GL_INT_2_10_10_10_REV, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, normal), attribute.second }
-          << VertexAttribute{ 4, GL_INT_2_10_10_10_REV, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, tangent), attribute.second }
-          << VertexAttribute{ 2, GL_UNSIGNED_SHORT, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, uv), attribute.second };
-
+    setAttribute(0,  VertexAttribute{ 3, GL_FLOAT, GL_FALSE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(Vertex, position), attribute.second });
+    setAttribute(1,  VertexAttribute{ 4, GL_INT_2_10_10_10_REV, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, normal), attribute.second });
+    setAttribute(2,  VertexAttribute{ 4, GL_INT_2_10_10_10_REV, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, tangent), attribute.second });
+    setAttribute(3,  VertexAttribute{ 2, GL_UNSIGNED_SHORT, GL_TRUE, sizeof(VertexPackedNormalTangent), (GLvoid*)offsetof(VertexPackedNormalTangent, uv), attribute.second });
     return *this;
 }
 
