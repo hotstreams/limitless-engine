@@ -44,3 +44,7 @@ void MeshEmitter::update(Context& context, const Camera& camera) {
 void MeshEmitter::accept(EmitterVisitor& visitor) noexcept {
     visitor.visit(*this);
 }
+
+UniqueEmitterRenderer MeshEmitter::getUniqueRendererType() const noexcept {
+    return { type, mesh, material.get() };
+}

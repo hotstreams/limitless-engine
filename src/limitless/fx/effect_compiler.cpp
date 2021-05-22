@@ -108,7 +108,7 @@ void EffectCompiler::compile(ShaderPass shader_type, const T& emitter) {
 }
 
 void EffectCompiler::compile(const EffectInstance& instance, ShaderPass shader_type) {
-    for (const auto& [name, emitter] : instance) {
+    for (const auto& [name, emitter] : instance.getEmitters()) {
         switch (emitter->getType()) {
             case fx::AbstractEmitter::Type::Sprite:
                 compile(shader_type, instance.get<fx::SpriteEmitter>(name));

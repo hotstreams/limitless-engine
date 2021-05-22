@@ -35,7 +35,7 @@ namespace Limitless::fx {
 
         [[nodiscard]] auto getType() const noexcept { return type; }
         [[nodiscard]] virtual const UniqueEmitterShader& getUniqueShaderType() const noexcept = 0;
-        [[nodiscard]] virtual const UniqueEmitterRenderer& getUniqueRendererType() const noexcept = 0;
+        [[nodiscard]] virtual UniqueEmitterRenderer getUniqueRendererType() const noexcept = 0;
 
         [[nodiscard]] virtual const glm::vec3& getPosition() const noexcept = 0;
         [[nodiscard]] virtual const glm::quat& getRotation() const noexcept = 0;

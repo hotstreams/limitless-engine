@@ -8,14 +8,11 @@
 using namespace Limitless;
 
 void Pipeline::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
-    auto instances = scene.getWrappers();
+    Instances instances;
 
     for (const auto& pass : passes) {
         pass->update(scene, instances, context, camera);
     }
-
-//    context.setViewPort(context.getSize());
-//    default_framebuffer.clear();
 
     UniformSetter setter;
     for (const auto& pass : passes) {

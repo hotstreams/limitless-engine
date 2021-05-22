@@ -226,8 +226,7 @@ Emitter<P>::Emitter(const Emitter& emitter)
     , local_space {emitter.local_space}
     , spawn {emitter.spawn}
     , duration {emitter.duration}
-    , unique_shader {emitter.unique_shader}
-    , unique_renderer {emitter.unique_renderer} {
+    , unique_shader {emitter.unique_shader} {
     // deep modules copy
     for (const auto& module : emitter.modules) {
         modules.emplace(module->clone());

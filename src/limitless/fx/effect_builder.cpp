@@ -97,6 +97,10 @@ EffectBuilder& EffectBuilder::setMaterial(std::shared_ptr<ms::Material> material
         throw std::runtime_error{"Cannot set empty material for emitter!"};
     }
 
+    if (material->contains("time")) {
+        throw std::runtime_error{"Uniform Time cannot be used in emitter material. Use TimeModule instead!"};
+    }
+
     switch (effect->emitters.at(last_emitter)->getType()) {
         case AbstractEmitter::Type::Sprite:
             effect->get<SpriteEmitter>(last_emitter).material = std::move(material);
@@ -266,24 +270,21 @@ EffectBuilder& EffectBuilder::addBeamInitialRebuild(std::unique_ptr<Distribution
 }
 
 std::shared_ptr<Limitless::EffectInstance> EffectBuilder::build() {
-    for (const auto& [name, emitter] : *effect) {
+    for (const auto& [name, emitter] : effect->getEmitters()) {
         switch (emitter->getType()) {
             case AbstractEmitter::Type::Sprite: {
                 auto& sprite_emitter = effect->get<SpriteEmitter>(name);
                 sprite_emitter.unique_shader = getUniqueEmitterShader(sprite_emitter);
-                sprite_emitter.unique_renderer = getUniqueEmitterRenderer(sprite_emitter);
                 break;
             }
             case AbstractEmitter::Type::Mesh: {
                 auto& mesh_emitter = effect->get<MeshEmitter>(name);
                 mesh_emitter.unique_shader = getUniqueEmitterShader(mesh_emitter);
-                mesh_emitter.unique_renderer = getUniqueEmitterRenderer(mesh_emitter);
                 break;
             }
             case AbstractEmitter::Type::Beam: {
                 auto& beam_emitter = effect->get<BeamEmitter>(name);
                 beam_emitter.unique_shader = getUniqueEmitterShader(beam_emitter);
-                beam_emitter.unique_renderer = getUniqueEmitterRenderer(beam_emitter);
                 break;
             }
         }
@@ -351,22 +352,6 @@ UniqueEmitterShader EffectBuilder::getUniqueEmitterShader(const Emitter& emitter
         module_type.emplace(module->getType());
     }
     return { emitter.getType(), module_type, emitter.getMaterial().getShaderIndex() };
-}
-
-template<typename Emitter>
-UniqueEmitterRenderer EffectBuilder::getUniqueEmitterRenderer(const Emitter& emitter) const noexcept {
-    std::set<ModuleType> module_type;
-    for (const auto& module : emitter.modules) {
-        module_type.emplace(module->getType());
-    }
-
-    std::optional<std::shared_ptr<AbstractMesh>> mesh {};
-
-    if constexpr (std::is_same_v<MeshEmitter, Emitter>) {
-        mesh = emitter.getMesh();
-    }
-
-    return { emitter.getType(), mesh, &emitter.getMaterial() };
 }
 
 namespace Limitless::fx {

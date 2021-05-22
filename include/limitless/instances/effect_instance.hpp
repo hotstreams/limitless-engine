@@ -61,11 +61,8 @@ namespace Limitless {
 
         const auto& getName() const noexcept { return name; }
 
-        auto begin() noexcept { return emitters.begin(); }
-        auto end() noexcept { return emitters.end(); }
-
-        auto begin() const noexcept { return emitters.cbegin(); }
-        auto end() const noexcept { return emitters.cend(); }
+        const auto& getEmitters() const noexcept { return emitters; }
+        auto& getEmitters() noexcept { return emitters; }
 
         void update(Context& context, Camera& camera) override;
 

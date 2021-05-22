@@ -11,6 +11,8 @@ namespace Limitless {
 
     class UniformSerializer {
     private:
+        static constexpr uint8_t VERSION = 0x1;
+
         void serializeUniform(const Uniform& uniform, ByteBuffer& buffer);
         void serializeUniformValue(const Uniform& uniform, ByteBuffer& buffer);
         void serializeUniformSampler(const Uniform& uniform, ByteBuffer& buffer);

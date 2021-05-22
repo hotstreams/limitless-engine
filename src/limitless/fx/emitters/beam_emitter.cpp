@@ -29,3 +29,8 @@ BeamEmitter::BeamEmitter(const BeamEmitter& emitter)
     : Emitter<BeamParticle>(emitter)
     , material {std::make_shared<ms::Material>(*emitter.material)} {
 }
+
+UniqueEmitterRenderer BeamEmitter::getUniqueRendererType() const noexcept {
+    return { type, std::nullopt, material.get() };
+}
+

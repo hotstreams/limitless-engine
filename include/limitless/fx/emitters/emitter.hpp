@@ -49,7 +49,6 @@ namespace Limitless::fx {
         bool done {false};
 
         UniqueEmitterShader unique_shader;
-        UniqueEmitterRenderer unique_renderer;
 
         void emit(uint32_t count) noexcept;
         void spawnParticles() noexcept;
@@ -73,7 +72,7 @@ namespace Limitless::fx {
         void ressurect() noexcept override;
 
         [[nodiscard]] const UniqueEmitterShader& getUniqueShaderType() const noexcept override { return unique_shader; }
-        [[nodiscard]] const UniqueEmitterRenderer& getUniqueRendererType() const noexcept override { return unique_renderer; }
+        [[nodiscard]] UniqueEmitterRenderer getUniqueRendererType() const noexcept override { return { type, std::nullopt, nullptr }; }
 
         [[nodiscard]] Emitter* clone() const override;
         void update(Context& ctx, const Camera& camera) override;

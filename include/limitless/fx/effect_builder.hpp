@@ -36,9 +36,6 @@ namespace Limitless::fx {
         template<typename Emitter>
         UniqueEmitterShader getUniqueEmitterShader(const Emitter& emitter) const noexcept;
 
-        template<typename Emitter>
-        UniqueEmitterRenderer getUniqueEmitterRenderer(const Emitter& emitter) const noexcept;
-
         friend class Limitless::EmitterSerializer;
     public:
         explicit EffectBuilder(Assets& assets) noexcept;

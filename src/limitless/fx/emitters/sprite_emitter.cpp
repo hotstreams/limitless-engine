@@ -21,3 +21,7 @@ SpriteEmitter* SpriteEmitter::clone() const {
 void SpriteEmitter::accept(EmitterVisitor& visitor) noexcept {
     visitor.visit(*this);
 }
+
+UniqueEmitterRenderer SpriteEmitter::getUniqueRendererType() const noexcept {
+    return { type, std::nullopt, material.get() };
+}

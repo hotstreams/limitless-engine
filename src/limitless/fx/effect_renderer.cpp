@@ -12,7 +12,7 @@ using namespace Limitless::fx;
 
 void EffectRenderer::visitEmitters(const Instances& instances, EmitterVisitor& emitter_visitor) noexcept {
     auto effect_instance_visitor = [] (const EffectInstance& effect_instance, EmitterVisitor& visitor) {
-        for (const auto& [name, emitter] : effect_instance) {
+        for (const auto& [name, emitter] : effect_instance.getEmitters()) {
             emitter->accept(visitor);
         }
     };
