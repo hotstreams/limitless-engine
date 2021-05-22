@@ -2,7 +2,7 @@
 
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/core/buffer_builder.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 
 namespace Limitless {
     template<typename Instance, typename = void>
@@ -36,7 +36,7 @@ namespace Limitless {
         }
 
         void calculateBoundingBox() noexcept override {
-            //TODO
+            assert("RIP");
         }
 
         void updateBuffer(Context& context, Camera& camera) {
@@ -80,9 +80,12 @@ namespace Limitless {
 
         ~InstancedInstance() override = default;
 
+        //TODO buffer?
+        InstancedInstance(const InstancedInstance&) = default;
+        InstancedInstance(InstancedInstance&&) noexcept = default;
+
         InstancedInstance* clone() noexcept override {
-            //TODO
-            return nullptr;
+            return new InstancedInstance<ModelInstance>(*this);
         }
 
         void addInstance(std::unique_ptr<ModelInstance> instance) {
