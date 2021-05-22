@@ -26,7 +26,7 @@ EffectCompiler::EffectCompiler(Context& context, Assets& assets, const RenderSet
 
 std::string EffectCompiler::getEmitterDefines(const AbstractEmitter& emitter) noexcept {
     std::string defines;
-    for (const auto& type : emitter.getUniqueType().module_type) {
+    for (const auto& type : emitter.getUniqueShaderType().module_type) {
         switch (type) {
             case fx::ModuleType::InitialLocation:
                 defines.append("#define InitialLocation_MODULE\n");
@@ -95,7 +95,7 @@ std::string EffectCompiler::getEmitterDefines(const AbstractEmitter& emitter) no
 
 template<typename T>
 void EffectCompiler::compile(ShaderPass shader_type, const T& emitter) {
-    if (!assets.shaders.contains({emitter.getUniqueType(), shader_type})) {
+    if (!assets.shaders.contains({emitter.getUniqueShaderType(), shader_type})) {
         const auto props = [&] (Shader& shader) {
             replaceMaterialSettings(shader, emitter.getMaterial(), ModelShader::Effect);
             replaceRenderSettings(shader);
@@ -103,7 +103,7 @@ void EffectCompiler::compile(ShaderPass shader_type, const T& emitter) {
             shader.replaceKey("Limitless::EmitterType", getEmitterDefines(emitter));
         };
 
-        assets.shaders.add({emitter.getUniqueType(), shader_type}, compile(assets.getShaderDir() / emitter_shader_path.at({shader_type, emitter.getType()}), props));
+        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / emitter_shader_path.at({shader_type, emitter.getType()}), props));
     }
 }
 

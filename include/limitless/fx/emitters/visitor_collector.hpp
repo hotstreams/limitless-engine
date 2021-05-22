@@ -10,15 +10,15 @@ namespace Limitless::fx {
     class ParticleCollector : public EmitterVisitor {
     private:
         std::vector<Particle> particles;
-        const UniqueEmitter& emitter_type;
+        const UniqueEmitterRenderer& emitter_type;
     public:
-        explicit ParticleCollector(const UniqueEmitter& _emitter_type) noexcept
+        explicit ParticleCollector(const UniqueEmitterRenderer& _emitter_type) noexcept
             : emitter_type {_emitter_type} {}
         ~ParticleCollector() override = default;
 
         void visit(const SpriteEmitter& emitter) noexcept override {
             if constexpr (std::is_same_v<Particle, SpriteParticle>) {
-                if (emitter_type == emitter.getUniqueType()) {
+                if (emitter_type == emitter.getUniqueRendererType()) {
                     particles.insert(particles.end(), emitter.getParticles().begin(), emitter.getParticles().end());
                 }
             }
@@ -26,7 +26,7 @@ namespace Limitless::fx {
 
         void visit(const MeshEmitter& emitter) noexcept override {
             if constexpr (std::is_same_v<Particle, MeshParticle>) {
-                if (emitter_type == emitter.getUniqueType()) {
+                if (emitter_type == emitter.getUniqueRendererType()) {
                     particles.insert(particles.end(), emitter.getParticles().begin(), emitter.getParticles().end());
                 }
             }
@@ -34,7 +34,7 @@ namespace Limitless::fx {
 
         void visit(const BeamEmitter& emitter) noexcept override {
             if constexpr (std::is_same_v<Particle, BeamParticleMapping>) {
-                if (emitter_type == emitter.getUniqueType()) {
+                if (emitter_type == emitter.getUniqueRendererType()) {
                     particles.insert(particles.end(), emitter.getParticles().begin(), emitter.getParticles().end());
                 }
             }

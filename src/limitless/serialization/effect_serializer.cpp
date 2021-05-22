@@ -9,14 +9,24 @@ using namespace Limitless::fx;
 ByteBuffer EffectSerializer::serialize(const EffectInstance& instance) {
     ByteBuffer buffer;
 
+    buffer << VERSION;
+
     buffer << instance.name
            << instance.emitters;
 
     return buffer;
 }
 
-std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Context& context, Assets& assets, ByteBuffer& buffer) {
-    fx::EffectBuilder builder {context, assets};
+std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Assets& assets, ByteBuffer& buffer) {
+    uint8_t version {};
+
+    buffer >> version;
+
+    if (version != VERSION) {
+        throw std::runtime_error("Wrong effect serializer version! " + std::to_string(VERSION) + " vs " + std::to_string(version));
+    }
+
+    fx::EffectBuilder builder {assets};
     std::string name;
     size_t size;
 
@@ -26,7 +36,7 @@ std::shared_ptr<EffectInstance> EffectSerializer::deserialize(Context& context, 
 
     for (size_t i = 0; i < size; ++i) {
         EmitterSerializer serializer;
-        serializer.deserialize(context, assets, buffer, builder);
+        serializer.deserialize(assets, buffer, builder);
     }
 
     return builder.build();
@@ -40,7 +50,7 @@ ByteBuffer& Limitless::operator<<(ByteBuffer& buffer, const EffectInstance& effe
 
 ByteBuffer& Limitless::operator>>(ByteBuffer& buffer, const AssetDeserializer<std::shared_ptr<EffectInstance>>& asset) {
     EffectSerializer serializer;
-    auto& [context, assets, effect] = asset;
-    effect = serializer.deserialize(context, assets, buffer);
+    auto& [assets, effect] = asset;
+    effect = serializer.deserialize(assets, buffer);
     return buffer;
 }

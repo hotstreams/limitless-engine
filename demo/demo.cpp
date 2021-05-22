@@ -20,6 +20,7 @@
 #include <limitless/assets.hpp>
 #include <limitless/pipeline/forward.hpp>
 #include <limitless/instances/instanced_instance.hpp>
+#include <limitless/ms/material.hpp>
 
 using namespace Limitless;
 
@@ -63,7 +64,6 @@ public:
         assets.load(context);
 
         addModels();
-//        addModelsT();
         addSpheres();
         addEffects();
 
@@ -136,7 +136,7 @@ public:
         assets.models.add("nanosuit", model_loader.loadModel(assets_dir / "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", model_loader.loadModel(assets_dir / "models/cyborg/cyborg.obj"));
 
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
         scene.setSkybox(assets.skyboxes.at("skybox"));
 
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
@@ -158,7 +158,7 @@ public:
                 .setRotation(glm::vec3{0.0f, 0.0f, PI})
                 .play("");
 
-        ms::MaterialBuilder builder{context, assets};
+        ms::MaterialBuilder builder{assets};
 
         builder.setName("test")
                 .add(ms::Property::Color, glm::vec4(2.0f, 1.0f, 1.0f, 1.0f))
@@ -172,7 +172,7 @@ public:
     }
 
     void addSpheres() {
-        ms::MaterialBuilder builder {context, assets};
+        ms::MaterialBuilder builder {assets};
         TextureLoader tex_loader {assets};
 
         const fs::path assets_dir {ASSETS_DIR};
@@ -228,7 +228,7 @@ public:
     }
 
     void addEffects() {
-        fx::EffectBuilder builder {context, assets};
+        fx::EffectBuilder builder {assets};
 
         builder.create("effect1")
                 .createEmitter<fx::SpriteEmitter>("generate")
@@ -272,7 +272,7 @@ public:
 
         effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
 
-        fx::EffectBuilder beam_builder{context, assets};
+        fx::EffectBuilder beam_builder{assets};
         beam_builder.create("test_beam")
                      .createEmitter<fx::BeamEmitter>("test")
                      .setMaterial(assets.materials.at("EmissiveColor"))

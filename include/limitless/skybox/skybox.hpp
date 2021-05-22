@@ -21,7 +21,7 @@ namespace Limitless {
         std::shared_ptr<ms::Material> material;
     public:
         explicit Skybox(const std::shared_ptr<ms::Material>& material);
-        Skybox(Context& ctx, Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
+        Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
 
         ~Skybox() = default;
 

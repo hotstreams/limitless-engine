@@ -23,7 +23,6 @@ namespace Limitless::fx {
         std::string effect_name;
         std::string last_emitter;
 
-        Context& context;
         Assets& assets;
 
         template<typename Emitter>
@@ -35,11 +34,14 @@ namespace Limitless::fx {
         void addModule(Args&&... args);
 
         template<typename Emitter>
-        UniqueEmitter getUniqueEmitter(const Emitter& emitter) const noexcept;
+        UniqueEmitterShader getUniqueEmitterShader(const Emitter& emitter) const noexcept;
+
+        template<typename Emitter>
+        UniqueEmitterRenderer getUniqueEmitterRenderer(const Emitter& emitter) const noexcept;
 
         friend class Limitless::EmitterSerializer;
     public:
-        EffectBuilder(Context& context, Assets& assets) noexcept;
+        explicit EffectBuilder(Assets& assets) noexcept;
         ~EffectBuilder() = default;
 
         EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count);

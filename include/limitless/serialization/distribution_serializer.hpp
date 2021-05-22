@@ -7,6 +7,8 @@ namespace Limitless {
     class ByteBuffer;
 
     class DistributionSerializer {
+    private:
+        static constexpr uint8_t VERSION = 0x1;
     public:
         template<typename T>
         ByteBuffer serialize(const Distribution<T>& distr);

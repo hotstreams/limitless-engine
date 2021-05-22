@@ -11,9 +11,7 @@ namespace Limitless::fx {
 
         uint64_t current_particle_count {};
 
-        const std::shared_ptr<AbstractMesh> mesh;
-        const ms::Material material;
-        const UniqueEmitter unique_type;
+        const UniqueEmitterShader unique_type;
 
         void checkStorageSize(uint64_t count) {
             if (count > max_particle_count) {
@@ -31,9 +29,7 @@ namespace Limitless::fx {
     public:
         explicit EmitterRenderer(const MeshEmitter& emitter)
                 : max_particle_count {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT}
-                , mesh {emitter.getMesh()}
-                , material {emitter.getMaterial()}
-                , unique_type {emitter.getUniqueType()} {
+                , unique_type {emitter.getUniqueShaderType()} {
             BufferBuilder builder;
             buffer = builder .setTarget(Buffer::Type::ShaderStorage)
                     .setUsage(Buffer::Usage::DynamicDraw)
@@ -49,12 +45,18 @@ namespace Limitless::fx {
             buffer->mapData(particles.data(), sizeof(MeshParticle) * current_particle_count);
         }
 
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& setter) const {
+        void draw(Context& ctx,
+                  const Assets& assets,
+                  ShaderPass pass,
+                  const std::shared_ptr<AbstractMesh>& mesh,
+                  const ms::Material& material,
+                  ms::Blending blending,
+                  const UniformSetter& setter) const {
             if (current_particle_count == 0 || material.getBlending() != blending) {
                 return;
             }
 
-            auto& shader = assets.shaders.get({unique_type, shader_type});
+            auto& shader = assets.shaders.get({unique_type, pass});
 
             setBlendingMode(ctx, material.getBlending());
 

@@ -13,9 +13,8 @@ void MaterialBuilder::createMaterial() {
     material = std::shared_ptr<Material>(new Material());
 }
 
-MaterialBuilder::MaterialBuilder(Context& _context, Assets& _assets)
-    : context{_context}
-    , assets {_assets} {
+MaterialBuilder::MaterialBuilder(Assets& _assets)
+    : assets {_assets} {
     createMaterial();
 }
 

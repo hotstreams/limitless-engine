@@ -9,45 +9,45 @@
 #include <limitless/models/mesh.hpp>
 
 namespace Limitless::fx {
-    template<>
-    class EmitterRenderer<SpriteParticle> : public AbstractEmitterRenderer {
-    private:
-        Mesh<SpriteParticle> mesh;
-
-        const ms::Material material;
-        const UniqueEmitter unique_type;
-    public:
-        explicit EmitterRenderer(const SpriteEmitter& emitter)
-            : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT,
-                    "sprite_emitter",
-                    MeshDataType::Dynamic,
-                    DrawMode::Points}
-            , material {emitter.getMaterial()}
-            , unique_type {emitter.getUniqueType()} {
-        }
-
-        void update(ParticleCollector<SpriteParticle>& collector) {
-            mesh.updateVertices(collector.yield());
-        }
-
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& setter) {
-            if (material.getBlending() != blending) {
-                return;
-            }
-
-            auto& shader = assets.shaders.get({unique_type, shader_type});
-
-            setBlendingMode(ctx, material.getBlending());
-
-            shader << material;
-
-            setter(shader);
-
-            shader.use();
-
-            mesh.draw();
-        }
-    };
+//    template<>
+//    class EmitterRenderer<SpriteParticle> : public AbstractEmitterRenderer {
+//    private:
+//        Mesh<SpriteParticle> mesh;
+//
+//        ms::Material material;
+//        UniqueEmitterShader unique_type;
+//    public:
+//        explicit EmitterRenderer(const SpriteEmitter& emitter)
+//            : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT,
+//                    "sprite_emitter",
+//                    MeshDataType::Dynamic,
+//                    DrawMode::Points}
+//            , material {emitter.getMaterial()}
+//            , unique_type {emitter.getUniqueType()} {
+//        }
+//
+//        void update(ParticleCollector<SpriteParticle>& collector) {
+//            mesh.updateVertices(collector.yield());
+//        }
+//
+//        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& setter) {
+//            if (material.getBlending() != blending) {
+//                return;
+//            }
+//
+//            auto& shader = assets.shaders.get({unique_type, shader_type});
+//
+//            setBlendingMode(ctx, material.getBlending());
+//
+//            shader << material;
+//
+//            setter(shader);
+//
+//            shader.use();
+//
+//            mesh.draw();
+//        }
+//    };
 
     inline VertexArray& operator<<(VertexArray& vertex_array, const std::pair<SpriteParticle, Buffer&>& attribute) noexcept {
         vertex_array << VertexAttribute{3, GL_FLOAT, GL_FALSE, sizeof(SpriteParticle), (GLvoid*)offsetof(SpriteParticle, position), attribute.second }
@@ -60,4 +60,45 @@ namespace Limitless::fx {
                      << VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(SpriteParticle), (GLvoid*)offsetof(SpriteParticle, properties), attribute.second };
         return vertex_array;
     }
+
+    template<>
+    class EmitterRenderer<SpriteParticle> : public AbstractEmitterRenderer {
+    private:
+        Mesh<SpriteParticle> mesh;
+
+        const UniqueEmitterShader unique_shader;
+    public:
+        explicit EmitterRenderer(const SpriteEmitter& emitter)
+                : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT, "sprite_emitter", MeshDataType::Dynamic, DrawMode::Points}
+                , unique_shader {emitter.getUniqueShaderType()} {
+        }
+
+        void update(ParticleCollector<SpriteParticle>& collector) {
+            mesh.updateVertices(collector.yield());
+        }
+
+        void draw(Context& ctx,
+                  const Assets& assets,
+                  ShaderPass pass,
+                  const ms::Material& material,
+                  ms::Blending blending,
+                  const UniformSetter& setter) {
+
+            if (material.getBlending() != blending) {
+                return;
+            }
+
+            auto& shader = assets.shaders.get({unique_shader, pass});
+
+            setBlendingMode(ctx, material.getBlending());
+
+            shader << material;
+
+            setter(shader);
+
+            shader.use();
+
+            mesh.draw();
+        }
+    };
 }

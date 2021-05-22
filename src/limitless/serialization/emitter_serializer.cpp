@@ -18,6 +18,8 @@ using namespace Limitless::fx;
 ByteBuffer EmitterSerializer::serialize(const AbstractEmitter& emitter) {
     ByteBuffer buffer;
 
+    buffer << VERSION;
+
     buffer << emitter.getType()
            << emitter.getLocalPosition()
            << emitter.getLocalRotation()
@@ -50,7 +52,15 @@ ByteBuffer EmitterSerializer::serialize(const AbstractEmitter& emitter) {
     return buffer;
 }
 
-void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer& buffer, EffectBuilder& builder) {
+void EmitterSerializer::deserialize(Assets& assets, ByteBuffer& buffer, EffectBuilder& builder) {
+    uint8_t version {};
+
+    buffer >> version;
+
+    if (version != VERSION) {
+        throw std::runtime_error("Wrong emitter serializer version! " + std::to_string(VERSION) + " vs " + std::to_string(version));
+    }
+
     std::string name;
     AbstractEmitter::Type type;
     glm::vec3 local_position;
@@ -67,12 +77,12 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer
            >> local_space
            >> spawn
            >> duration
-           >> AssetDeserializer<std::shared_ptr<ms::Material>>{context, assets, material};
+           >> AssetDeserializer<std::shared_ptr<ms::Material>>{assets, material};
 
     switch (type) {
         case AbstractEmitter::Type::Sprite: {
             decltype(SpriteEmitter::modules) modules;
-            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
+            buffer >> AssetDeserializer<decltype(modules)>{assets, modules};
 
             builder.createEmitter<SpriteEmitter>(name)
                    .setModules<SpriteEmitter>(std::move(modules));
@@ -80,7 +90,7 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer
         }
         case AbstractEmitter::Type::Mesh: {
             decltype(MeshEmitter::modules) modules;
-            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
+            buffer >> AssetDeserializer<decltype(modules)>{assets, modules};
 
             builder.createEmitter<MeshEmitter>(name)
                    .setModules<MeshEmitter>(std::move(modules));
@@ -93,7 +103,7 @@ void EmitterSerializer::deserialize(Context& context, Assets& assets, ByteBuffer
         }
         case AbstractEmitter::Type::Beam: {
             decltype(BeamEmitter::modules) modules;
-            buffer >> AssetDeserializer<decltype(modules)>{context, assets, modules};
+            buffer >> AssetDeserializer<decltype(modules)>{assets, modules};
 
             builder.createEmitter<BeamEmitter>(name)
                    .setModules<BeamEmitter>(std::move(modules));

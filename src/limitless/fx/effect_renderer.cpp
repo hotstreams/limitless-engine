@@ -68,17 +68,17 @@ void EffectRenderer::draw(Context& ctx, const Assets& assets, ShaderPass shader,
         switch (type.emitter_type) {
             case AbstractEmitter::Type::Sprite: {
                 auto& sprite_renderer = static_cast<EmitterRenderer<SpriteParticle>&>(*renderer);
-                sprite_renderer.draw(ctx, assets, shader, blending, setter);
+                sprite_renderer.draw(ctx, assets, shader, *type.material, blending, setter);
                 break;
             }
             case AbstractEmitter::Type::Mesh: {
                 auto& mesh_renderer = static_cast<EmitterRenderer<MeshParticle>&>(*renderer);
-                mesh_renderer.draw(ctx, assets, shader, blending, setter);
+                mesh_renderer.draw(ctx, assets, shader, type.mesh.value(), *type.material, blending, setter);
                 break;
             }
             case AbstractEmitter::Type::Beam: {
                 auto& beam_renderer = static_cast<EmitterRenderer<BeamParticle>&>(*renderer);
-                beam_renderer.draw(ctx, assets, shader, blending, setter);
+                beam_renderer.draw(ctx, assets, shader, *type.material, blending, setter);
                 break;
             }
         }

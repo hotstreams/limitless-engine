@@ -17,10 +17,12 @@ namespace Limitless::ms {
 namespace Limitless {
     class MaterialSerializer {
     private:
-        void deserialize(ByteBuffer& buffer, Context& context, Assets& assets, ms::MaterialBuilder& builder);
+        static constexpr uint8_t VERSION = 0x1;
+
+        void deserialize(ByteBuffer& buffer, Assets& assets, ms::MaterialBuilder& builder);
     public:
         ByteBuffer serialize(const ms::Material& material);
-        std::shared_ptr<ms::Material> deserialize(Context& ctx, Assets& assets, ByteBuffer& buffer);
+        std::shared_ptr<ms::Material> deserialize(Assets& assets, ByteBuffer& buffer);
     };
 
     ByteBuffer& operator<<(ByteBuffer& buffer, const ms::Material& material);

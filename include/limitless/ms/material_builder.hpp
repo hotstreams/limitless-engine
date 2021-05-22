@@ -29,7 +29,6 @@ namespace Limitless::ms {
 
         std::shared_ptr<Material> material;
 
-        Context& context;
         Assets& assets;
 
         [[nodiscard]] UniqueMaterial getMaterialType() const noexcept;
@@ -39,7 +38,7 @@ namespace Limitless::ms {
         void setModelShaders();
         void createMaterial();
     public:
-        MaterialBuilder(Context& context, Assets& assets);
+        explicit MaterialBuilder(Assets& assets);
         virtual ~MaterialBuilder() = default;
 
         MaterialBuilder(const MaterialBuilder&) = delete;

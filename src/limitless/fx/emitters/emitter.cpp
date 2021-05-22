@@ -188,12 +188,6 @@ void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Ca
         return;
     }
 
-//    if (first_update) {
-//        last_time = steady_clock::now();
-//        start_time = last_time;
-//        first_update = false;
-//    }
-
     const auto current_time = steady_clock::now();
     const auto delta_time = duration_cast<std::chrono::duration<float>>(current_time - last_time);
     last_time = current_time;
@@ -232,7 +226,8 @@ Emitter<P>::Emitter(const Emitter& emitter)
     , local_space {emitter.local_space}
     , spawn {emitter.spawn}
     , duration {emitter.duration}
-    , unique_type {emitter.unique_type} {
+    , unique_shader {emitter.unique_shader}
+    , unique_renderer {emitter.unique_renderer} {
     // deep modules copy
     for (const auto& module : emitter.modules) {
         modules.emplace(module->clone());

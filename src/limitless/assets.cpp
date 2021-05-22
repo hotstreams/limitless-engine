@@ -28,7 +28,7 @@ void Assets::load(Context& context) {
     shaders.initialize(context, getShaderDir());
 
     // builds default materials for every model type
-    ms::MaterialBuilder builder {context, *this};
+    ms::MaterialBuilder builder {*this};
     ModelShaders model_types = { ModelShader::Model, ModelShader::Skeletal, ModelShader::Effect, ModelShader::Instanced };
     builder.setName("default").add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
     builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();

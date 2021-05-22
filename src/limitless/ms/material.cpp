@@ -33,6 +33,28 @@ Material& Material::operator=(Material material) {
     return *this;
 }
 
+bool Limitless::ms::operator==(const Material& lhs, const Material& rhs) noexcept {
+    return !(lhs < rhs) && !(rhs < lhs);
+}
+
+bool Limitless::ms::operator<(const Material& lhs, const Material& rhs) noexcept {
+    const auto properties_less = std::equal(lhs.properties.begin(), lhs.properties.end(),
+                                            rhs.properties.begin(), rhs.properties.end(),
+                                            [] (const auto& lhs, const auto& rhs) {
+                                                return std::tie(lhs.first, *lhs.second) < std::tie(rhs.first, *rhs.second);
+                                            });
+
+    const auto uniforms_less = std::equal(lhs.uniforms.begin(), lhs.uniforms.end(),
+                                          rhs.uniforms.begin(), rhs.uniforms.end(),
+                                          [] (const auto& lhs, const auto& rhs) {
+                                            return std::tie(lhs.first, *lhs.second) < std::tie(rhs.first, *rhs.second);
+                                          });
+
+    const auto var_less = std::tie(lhs.blending, lhs.two_sided, lhs.shader_index) < std::tie(rhs.blending, rhs.two_sided, rhs.shader_index);
+
+    return properties_less && uniforms_less && var_less;
+}
+
 Material::Material(const Material& material)
     : blending {material.blending}
     , shading {material.shading}
