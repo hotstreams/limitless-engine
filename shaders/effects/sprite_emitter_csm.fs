@@ -7,27 +7,29 @@ Limitless::EmitterType
 #include "../glsl/material.glsl"
 #include "../glsl/scene.glsl"
 
+in vertex_data {
 #if defined(InitialColor_MODULE)
-    in vec4 fs_color;
+        vec4 color;
 #endif
 #if defined(InitialRotation_MODULE)
-    in vec3 fs_rotation;
+        vec3 rotation;
 #endif
 #if defined(InitialVelocity_MODULE)
-    in vec3 fs_velocity;
+        vec3 velocity;
 #endif
 #if defined(Lifetime_MODULE)
-    in float fs_lifetime;
+        float lifetime;
 #endif
 #if defined(InitialSize_MODULE)
-    in vec3 fs_size;
+        vec3 size;
 #endif
 #if defined(SubUV_MODULE)
-    in vec4 fs_subUV;
+        vec4 subUV;
 #endif
 #if defined(CustomMaterial_MODULE)
-    in vec4 fs_properties;
+        vec4 properties;
 #endif
+} in_data;
 
 void main()
 {
@@ -35,15 +37,15 @@ void main()
 
     #if defined(InitialRotation_MODULE)
         vec2 center = vec2(0.5, 0.5);
-        vec2 translated = uv - center;
-        mat2 rotation = mat2(cos(fs_rotation.x), sin(fs_rotation.x), -sin(fs_rotation.x), cos(fs_rotation.x));
-        translated = rotation * translated;
-        translated = translated + center;
-        uv = clamp(translated, 0.0, 1.0);
+            vec2 translated = uv - center;
+            mat2 rotation = mat2(cos(in_data.rotation.x), sin(in_data.rotation.x), -sin(in_data.rotation.x), cos(in_data.rotation.x));
+            translated = rotation * translated;
+            translated = translated + center;
+            uv = clamp(translated, 0.0, 1.0);
     #endif
 
     #if defined(SubUV_MODULE)
-        uv = uv * fs_subUV.xy + fs_subUV.zw;
+        uv = uv * in_data.subUV.xy + in_data.subUV.zw;
     #endif
 
     #include "../glsl/material_variables.glsl"
