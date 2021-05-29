@@ -10,22 +10,25 @@
 using namespace Limitless::fx;
 using namespace Limitless;
 
-inline const std::map<std::pair<ShaderPass, AbstractEmitter::Type>, std::string> emitter_shader_path = {
-    {{ShaderPass::Forward,           AbstractEmitter::Type::Sprite}, "effects/sprite_emitter" },
-    {{ShaderPass::Forward,           AbstractEmitter::Type::Mesh},   "effects/mesh_emitter" },
-    {{ShaderPass::Forward,           AbstractEmitter::Type::Beam},   "effects/beam_emitter" },
-
-    {{ShaderPass::DirectionalShadow, AbstractEmitter::Type::Sprite}, "effects/sprite_emitter_csm" },
-    {{ShaderPass::DirectionalShadow, AbstractEmitter::Type::Mesh},   "effects/mesh_emitter_csm" },
-    {{ShaderPass::DirectionalShadow, AbstractEmitter::Type::Beam},   "effects/beam_emitter_csm" },
-};
-
 EffectCompiler::EffectCompiler(Context& context, Assets& assets, const RenderSettings& settings)
     : MaterialCompiler(context, assets, settings) {
 }
 
 std::string EffectCompiler::getEmitterDefines(const AbstractEmitter& emitter) noexcept {
     std::string defines;
+
+    switch (emitter.getType()) {
+        case AbstractEmitter::Type::Sprite:
+            defines.append("#define SpriteEmitter\n");
+            break;
+        case AbstractEmitter::Type::Mesh:
+            defines.append("#define MeshEmitter\n");
+            break;
+        case AbstractEmitter::Type::Beam:
+            defines.append("#define BeamEmitter\n");
+            break;
+    }
+
     for (const auto& type : emitter.getUniqueShaderType().module_type) {
         switch (type) {
             case fx::ModuleType::InitialLocation:
@@ -103,7 +106,7 @@ void EffectCompiler::compile(ShaderPass shader_type, const T& emitter) {
             shader.replaceKey("Limitless::EmitterType", getEmitterDefines(emitter));
         };
 
-        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / emitter_shader_path.at({shader_type, emitter.getType()}), props));
+        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / "effects/emitter", props));
     }
 }
 

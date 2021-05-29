@@ -209,9 +209,9 @@ void CascadeShadows::draw(Instances& instances,
             instance.get().draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
         }
 
-        if (renderer) {
-            renderer->draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
-        }
+//        if (renderer) {
+//            renderer->draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+//        }
     }
 
     framebuffer->unbind();

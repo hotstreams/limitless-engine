@@ -172,6 +172,7 @@ set(ENGINE_FX
     src/limitless/fx/effect_renderer.cpp
     src/limitless/fx/effect_builder.cpp
     src/limitless/fx/effect_compiler.cpp
+    src/limitless/fx/particle.cpp
 )
 
 set(ENGINE_PIPELINE

@@ -6,6 +6,9 @@ namespace Limitless {
     struct Vertex {
         glm::vec3 position;
         glm::vec2 uv;
+
+        auto& getPosition() noexcept { return position; }
+        const auto& getPosition() const noexcept { return position; }
     };
 
     struct TextVertex {
@@ -23,6 +26,9 @@ namespace Limitless {
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec2 uv;
+
+        auto& getPosition() noexcept { return position; }
+        const auto& getPosition() const noexcept { return position; }
     };
 
     struct VertexNormalTangent {
@@ -30,6 +36,9 @@ namespace Limitless {
         glm::vec3 normal;
         glm::vec3 tangent;
         glm::vec2 uv;
+
+        auto& getPosition() noexcept { return position; }
+        const auto& getPosition() const noexcept { return position; }
     };
 
     struct VertexPackedNormalTangent {

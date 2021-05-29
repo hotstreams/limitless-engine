@@ -21,7 +21,7 @@ namespace Limitless::fx {
         void update(AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
             const auto rot = emitter.getRotation() * emitter.getLocalRotation();
             for (auto& particle : particles) {
-                particle.rotation += (distribution->get() * rot) * dt;
+                particle.getRotation() += (distribution->get() * rot) * dt;
             }
         }
 

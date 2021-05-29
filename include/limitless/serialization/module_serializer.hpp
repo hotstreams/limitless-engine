@@ -32,7 +32,7 @@ namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
     private:
-        static constexpr uint8_t VERSION = 0x1;
+        static constexpr uint8_t VERSION = 0x2;
     public:
         ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
@@ -179,9 +179,15 @@ namespace Limitless {
                     break;
                 }
                 case fx::ModuleType::InitialSize: {
-                    std::unique_ptr<Distribution<float>> distr;
-                    buffer >> distr;
-                    module = std::make_unique<fx::InitialSize<Particle>>(std::move(distr));
+                    if constexpr (std::is_same_v<Particle, fx::MeshParticle>) {
+                        std::unique_ptr<Distribution<glm::vec3>> distr;
+                        buffer >> distr;
+                        module = std::make_unique<fx::InitialSize<Particle>>(std::move(distr));
+                    } else {
+                        std::unique_ptr<Distribution<float>> distr;
+                        buffer >> distr;
+                        module = std::make_unique<fx::InitialSize<Particle>>(std::move(distr));
+                    }
                     break;
                 }
                 case fx::ModuleType::InitialAcceleration: {
@@ -217,10 +223,17 @@ namespace Limitless {
                     break;
                 }
                 case fx::ModuleType::SizeByLife: {
-                    std::unique_ptr<Distribution<float>> distr;
-                    float factor;
-                    buffer >> distr >> factor;
-                    module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr), factor);
+                    if constexpr (std::is_same_v<Particle, fx::MeshParticle>) {
+                        std::unique_ptr<Distribution<glm::vec3>> distr;
+                        float factor;
+                        buffer >> distr >> factor;
+                        module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr), factor);
+                    } else {
+                        std::unique_ptr<Distribution<float>> distr;
+                        float factor;
+                        buffer >> distr >> factor;
+                        module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr), factor);
+                    }
                     break;
                 }
                 case fx::ModuleType::CustomMaterial: {

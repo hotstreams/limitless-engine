@@ -168,3 +168,7 @@ SkeletalInstance* SkeletalInstance::clone() noexcept {
 void SkeletalInstance::calculateBoundingBox() noexcept {
     ModelInstance::calculateBoundingBox();
 }
+
+void SkeletalInstance::doSkinningMesh(std::shared_ptr<AbstractMesh> mesh) {
+//    const auto& skeletal_mesh = static_cast<SkeletalMesh&>(*mesh);
+}

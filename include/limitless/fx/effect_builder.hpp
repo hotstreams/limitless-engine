@@ -64,13 +64,15 @@ namespace Limitless::fx {
         EffectBuilder& addInitialVelocity(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addInitialColor(std::unique_ptr<Distribution<glm::vec4>> distribution);
         EffectBuilder& addInitialSize(std::unique_ptr<Distribution<float>> distribution);
+        EffectBuilder& addInitialSize(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addInitialAcceleration(std::unique_ptr<Distribution<glm::vec3>> distribution);
-//        EffectBuilder& addMeshLocation(std::shared_ptr<AbstractMesh> mesh);
+        EffectBuilder& addMeshLocation(std::shared_ptr<AbstractMesh> mesh);
         EffectBuilder& addSubUV(const glm::vec2& size, float fps, const glm::vec2& frame_count);
         EffectBuilder& addVelocityByLife(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addColorByLife(std::unique_ptr<Distribution<glm::vec4>> distribution);
         EffectBuilder& addRotationRate(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addSizeByLife(std::unique_ptr<Distribution<float>> distribution, float factor);
+        EffectBuilder& addSizeByLife(std::unique_ptr<Distribution<glm::vec3>> distribution, float factor);
         EffectBuilder& addLifetime(std::unique_ptr<Distribution<float>> distribution);
         EffectBuilder& addBeamInitialTarget(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addBeamInitialDisplacement(std::unique_ptr<Distribution<float>> distribution);
