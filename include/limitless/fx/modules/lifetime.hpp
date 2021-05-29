@@ -19,12 +19,12 @@ namespace Limitless::fx {
             , distribution {module.distribution->clone()} {}
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle) noexcept override {
-            particle.lifetime = distribution->get();
+            particle.getLifetime() = distribution->get();
         }
 
         void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
             for (auto& particle : particles) {
-                particle.lifetime -= dt;
+                particle.getLifetime() -= dt;
             }
         }
 

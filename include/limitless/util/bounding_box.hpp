@@ -12,13 +12,11 @@ namespace Limitless {
 
     template<typename V>
     inline BoundingBox calculateBoundingBox(const std::vector<V>& vertices) {
-        static_assert(sizeof(V::position) != 0);
-
         auto min = glm::vec3{ std::numeric_limits<float>::max() };
         auto max = glm::vec3{ std::numeric_limits<float>::min() };
 
         for (const auto& v : vertices) {
-            const glm::vec3 position = v.position;
+            const glm::vec3 position = v.getPosition();
             min = glm::min(min, position);
             max = glm::max(max, position);
         }

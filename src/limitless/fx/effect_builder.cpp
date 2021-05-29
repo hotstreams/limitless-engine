@@ -165,7 +165,28 @@ EffectBuilder& EffectBuilder::addInitialColor(std::unique_ptr<Distribution<glm::
 }
 
 EffectBuilder& EffectBuilder::addInitialSize(std::unique_ptr<Distribution<float>> distribution) {
-    addModule<InitialSize>(std::move(distribution));
+    switch (effect->emitters.at(last_emitter)->getType()) {
+        case AbstractEmitter::Type::Sprite:
+            effect->get<SpriteEmitter>(last_emitter).modules.emplace(new InitialSize<SpriteParticle>(std::move(distribution)));
+            break;
+        case AbstractEmitter::Type::Beam:
+            effect->get<BeamEmitter>(last_emitter).modules.emplace(new InitialSize<BeamParticle>(std::move(distribution)));
+            break;
+        case AbstractEmitter::Type::Mesh:
+            throw std::runtime_error("Bad argument specified");
+    }
+    return *this;
+}
+
+EffectBuilder& EffectBuilder::addInitialSize(std::unique_ptr<Distribution<glm::vec3>> distribution) {
+    switch (effect->emitters.at(last_emitter)->getType()) {
+        case AbstractEmitter::Type::Sprite:
+        case AbstractEmitter::Type::Beam:
+            throw std::runtime_error("Bad argument specified");
+        case AbstractEmitter::Type::Mesh:
+            effect->get<MeshEmitter>(last_emitter).modules.emplace(new InitialSize<MeshParticle>(std::move(distribution)));
+            break;
+    }
     return *this;
 }
 
@@ -174,14 +195,14 @@ EffectBuilder& EffectBuilder::addInitialAcceleration(std::unique_ptr<Distributio
     return *this;
 }
 
-//EffectBuilder& EffectBuilder::addMeshLocation(std::shared_ptr<AbstractMesh> mesh) {
-//    if (!mesh) {
-//        throw std::runtime_error{"Empty mesh cannot be set"};
-//    }
-//
-////    addModule<MeshLocation>(std::move(mesh));
-//    return *this;
-//}
+EffectBuilder& EffectBuilder::addMeshLocation(std::shared_ptr<AbstractMesh> mesh) {
+    if (!mesh) {
+        throw std::runtime_error{"Empty mesh cannot be set"};
+    }
+
+    addModule<MeshLocation>(std::move(mesh));
+    return *this;
+}
 
 EffectBuilder& EffectBuilder::addSubUV(const glm::vec2& size, float fps, const glm::vec2& frame_count) {
     addModule<SubUV>(size, fps, frame_count);
@@ -204,7 +225,28 @@ EffectBuilder& EffectBuilder::addRotationRate(std::unique_ptr<Distribution<glm::
 }
 
 EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<float>> distribution, float factor) {
-    addModule<SizeByLife>(std::move(distribution), factor);
+    switch (effect->emitters.at(last_emitter)->getType()) {
+        case AbstractEmitter::Type::Sprite:
+            effect->get<SpriteEmitter>(last_emitter).modules.emplace(new SizeByLife<SpriteParticle>(std::move(distribution), factor));
+            break;
+        case AbstractEmitter::Type::Beam:
+            effect->get<BeamEmitter>(last_emitter).modules.emplace(new SizeByLife<BeamParticle>(std::move(distribution), factor));
+            break;
+        case AbstractEmitter::Type::Mesh:
+            throw std::runtime_error("Bad argument specified");
+    }
+    return *this;
+}
+
+EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<glm::vec3>> distribution, float factor) {
+    switch (effect->emitters.at(last_emitter)->getType()) {
+        case AbstractEmitter::Type::Sprite:
+        case AbstractEmitter::Type::Beam:
+            throw std::runtime_error("Bad argument specified");
+        case AbstractEmitter::Type::Mesh:
+            effect->get<MeshEmitter>(last_emitter).modules.emplace(new SizeByLife<MeshParticle>(std::move(distribution), factor));
+            break;
+    }
     return *this;
 }
 

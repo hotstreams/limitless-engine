@@ -47,7 +47,7 @@ namespace Limitless::fx {
         const auto& getMesh() const noexcept { return mesh; }
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle) noexcept override {
-            particle.position += getPositionOnMesh();
+            particle.getPosition() += getPositionOnMesh();
         }
 
         void update([[maybe_unused]] AbstractEmitter& emitter, [[maybe_unused]] std::vector<Particle>& particles, [[maybe_unused]] float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {

@@ -16,6 +16,8 @@ namespace Limitless {
         void initializeBuffer();
 
         const AnimationNode* findAnimationNode(const Bone& bone) const noexcept;
+
+        void doSkinningMesh(std::shared_ptr<AbstractMesh> mesh);
     public:
         SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position);
         SkeletalInstance(Lighting* lighting, std::shared_ptr<AbstractModel> m, const glm::vec3& position);

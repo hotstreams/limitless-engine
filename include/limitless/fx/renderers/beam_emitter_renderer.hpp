@@ -47,17 +47,4 @@ namespace Limitless::fx {
             mesh.draw();
         }
     };
-
-    inline VertexArray& operator<<(VertexArray& vertex_array, const std::pair<BeamParticleMapping, Buffer&>& attribute) noexcept {
-        vertex_array.setAttribute(0, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, position), attribute.second });
-        vertex_array.setAttribute(1, VertexAttribute{2, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, uv), attribute.second });
-        vertex_array.setAttribute(2, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, color), attribute.second });
-        vertex_array.setAttribute(3, VertexAttribute{3, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, rotation), attribute.second });
-        vertex_array.setAttribute(4, VertexAttribute{3, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, velocity), attribute.second });
-        vertex_array.setAttribute(5, VertexAttribute{1, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, lifetime), attribute.second });
-        vertex_array.setAttribute(6, VertexAttribute{1, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, size), attribute.second });
-        vertex_array.setAttribute(7, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, subUV), attribute.second });
-        vertex_array.setAttribute(8, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, properties), attribute.second });
-        return vertex_array;
-    }
 }

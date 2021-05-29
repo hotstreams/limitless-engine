@@ -20,7 +20,7 @@ namespace Limitless::fx {
             , distribution {module.distribution->clone()} {}
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle) noexcept override {
-            particle.position += distribution->get();
+            particle.getPosition() += distribution->get();
         }
 
         [[nodiscard]] InitialLocation* clone() const override {

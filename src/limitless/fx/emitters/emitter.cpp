@@ -17,8 +17,8 @@ void Emitter<P>::emit(uint32_t count) noexcept {
     for (uint32_t i = 0; i < count; ++i) {
         P particle {};
 
-        particle.position = local_position + position;
-        particle.rotation = glm::eulerAngles(rotation * local_rotation);
+        particle.getPosition() = local_position + position;
+        particle.getRotation() = glm::eulerAngles(rotation * local_rotation);
 
         for (auto& module : modules) {
             module->initialize(*this, particle);
@@ -110,7 +110,7 @@ void Emitter<P>::setPosition(const glm::vec3& new_position) noexcept {
         const auto diff = final_position - (position + local_position);
 
         for (auto& particle : particles) {
-            particle.position += diff;
+            particle.getPosition() += diff;
         }
     }
 
@@ -124,10 +124,10 @@ void Emitter<P>::setRotation(const glm::quat& new_rotation) noexcept {
         const auto diff = final_rotation * glm::inverse(rotation * local_rotation);
 
         for (auto& particle : particles) {
-            particle.rotation += glm::eulerAngles(diff);
+            particle.getRotation() += glm::eulerAngles(diff);
 
-            particle.velocity = diff * particle.velocity;
-            particle.acceleration = diff * particle.acceleration;
+            particle.getVelocity() = diff * particle.getVelocity();
+            particle.getAcceleration() = diff * particle.getAcceleration();
         }
     }
 
@@ -172,7 +172,7 @@ void Emitter<P>::spawnParticles() noexcept {
 template<typename P>
 void Emitter<P>::killParticles() noexcept {
     for (auto it = particles.begin(); it != particles.end();) {
-        if (it->lifetime <= 0.0f) {
+        if (it->getLifetime() <= 0.0f) {
             it = particles.erase(it);
         } else {
             ++it;
@@ -200,8 +200,8 @@ void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Ca
     }
 
     for (auto& particle : particles) {
-        particle.position += particle.velocity * delta_time.count();
-        particle.velocity += particle.acceleration * delta_time.count();
+        particle.getPosition() += particle.getVelocity() * delta_time.count();
+        particle.getVelocity() += particle.getAcceleration() * delta_time.count();
     }
 
     if (duration.count() != 0.0f) {

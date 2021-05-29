@@ -18,7 +18,33 @@ namespace Limitless::fx {
             , distribution {module.distribution->clone()} {}
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle) noexcept override {
-            particle.size = distribution->get();
+            particle.getSize() = distribution->get();
+        }
+
+        [[nodiscard]] InitialSize* clone() const override {
+            return new InitialSize(*this);
+        }
+
+        [[nodiscard]] auto& getDistribution() noexcept { return distribution; }
+        [[nodiscard]] const auto& getDistribution() const noexcept { return distribution; }
+    };
+
+    template<>
+    class InitialSize<MeshParticle> : public Module<MeshParticle> {
+    private:
+        std::unique_ptr<Distribution<glm::vec3>> distribution;
+    public:
+        explicit InitialSize(std::unique_ptr<Distribution<glm::vec3>> _distribution) noexcept
+        : Module<MeshParticle>(ModuleType::InitialSize)
+        , distribution{std::move(_distribution)} {}
+        ~InitialSize() override = default;
+
+        InitialSize(const InitialSize& module)
+                : Module<MeshParticle>(module.type)
+                , distribution {module.distribution->clone()} {}
+
+        void initialize([[maybe_unused]] AbstractEmitter& emitter, MeshParticle& particle) noexcept override {
+            particle.getSize() = distribution->get();
         }
 
         [[nodiscard]] InitialSize* clone() const override {
