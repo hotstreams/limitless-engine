@@ -22,8 +22,16 @@ void Scene::update(Context& context, Camera& camera) {
 
     removeDeadInstances();
 
-    for (auto& [id, instance] : instances) {
-        instance->update(context, camera);
+    for (auto& [_, instance] : instances) {
+        if (instance->getShaderType() != ModelShader::Effect) {
+            instance->update(context, camera);
+        }
+    }
+
+    for (auto& [_, instance] : instances) {
+        if (instance->getShaderType() == ModelShader::Effect) {
+            instance->update(context, camera);
+        }
     }
 }
 

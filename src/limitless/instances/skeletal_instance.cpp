@@ -169,6 +169,19 @@ void SkeletalInstance::calculateBoundingBox() noexcept {
     ModelInstance::calculateBoundingBox();
 }
 
-void SkeletalInstance::doSkinningMesh(std::shared_ptr<AbstractMesh> mesh) {
-//    const auto& skeletal_mesh = static_cast<SkeletalMesh&>(*mesh);
+glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const {
+    const auto& skinned_mesh = dynamic_cast<SkinnedMesh<VertexNormalTangent, GLuint>&>(*mesh);
+
+    const auto& bone_weight = skinned_mesh.getBoneWeights().at(vertex_index);
+    const auto& vertex = skinned_mesh.getVertices().at(vertex_index);
+
+    auto transform = bone_transform[bone_weight.bone_index[0]] * bone_weight.weight[0];
+    transform     += bone_transform[bone_weight.bone_index[1]] * bone_weight.weight[1];
+    transform     += bone_transform[bone_weight.bone_index[2]] * bone_weight.weight[2];
+    transform     += bone_transform[bone_weight.bone_index[3]] * bone_weight.weight[3];
+
+    auto matrix = model_matrix;
+    matrix *= transform;
+
+    return matrix * glm::vec4(vertex.position, 1.0);
 }

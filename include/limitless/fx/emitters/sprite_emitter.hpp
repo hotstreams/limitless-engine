@@ -29,8 +29,8 @@ namespace Limitless::fx {
 
         [[nodiscard]] const auto& getParticles() const noexcept { return particles; }
 
-        [[nodiscard]] ms::Material& getMaterial() noexcept { return *material; }
-        [[nodiscard]] const ms::Material& getMaterial() const noexcept { return *material; }
+        [[nodiscard]] auto& getMaterial() noexcept { return *material; }
+        [[nodiscard]] const auto& getMaterial() const noexcept { return *material; }
 
         [[nodiscard]] SpriteEmitter* clone() const override;
         void accept(EmitterVisitor& visitor) noexcept override;

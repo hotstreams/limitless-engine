@@ -60,7 +60,7 @@ namespace Limitless {
         template<typename T> std::vector<T> loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
         template<typename T> std::vector<T> loadIndices(aiMesh* mesh) const noexcept;
     public:
-        ModelLoader(Assets& assets) noexcept;
+        explicit ModelLoader(Assets& assets) noexcept;
         virtual ~ModelLoader() = default;
 
         std::shared_ptr<AbstractModel> loadModel(const fs::path& path, const ModelLoaderFlags& flags = {});

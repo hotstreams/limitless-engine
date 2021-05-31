@@ -6,6 +6,7 @@
 #include <limitless/util/filesystem.hpp>
 #include <glm/glm.hpp>
 #include <functional>
+#include <optional>
 
 namespace Limitless {
     template<typename T>

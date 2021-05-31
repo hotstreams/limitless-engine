@@ -71,8 +71,8 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
     importer.FreeScene();
 
     auto model = bone_map.empty() ?
-        std::shared_ptr<AbstractModel>(new Model(std::move(meshes), std::move(materials))) :
-        std::shared_ptr<AbstractModel>(new SkeletalModel(std::move(meshes), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix)));
+        std::shared_ptr<AbstractModel>(new Model(std::move(meshes), std::move(materials), path.stem().string())) :
+        std::shared_ptr<AbstractModel>(new SkeletalModel(std::move(meshes), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix), path.stem().string()));
 
     return model;
 }
@@ -134,7 +134,7 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh *m, const fs::path& p
         name += std::to_string(unnamed_mesh_index++);
     }
 
-    if (assets.meshes.exists(name)) {
+    if (assets.meshes.contains(name)) {
         return assets.meshes.at(name);
     }
 
@@ -159,7 +159,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
     auto mat_name = aname.length != 0 ? aname.C_Str() : std::to_string(unnamed_material_index++);
     auto name = path_str + PATH_SEPARATOR + mat_name;
 
-    if (assets.materials.exists(name)) {
+    if (assets.materials.contains(name)) {
         return assets.materials.at(name);
     }
 

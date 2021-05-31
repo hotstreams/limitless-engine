@@ -4,8 +4,9 @@
 
 using namespace Limitless;
 
-AbstractModel::AbstractModel(decltype(meshes)&& _meshes)
-    : meshes { std::move(_meshes) } {
+AbstractModel::AbstractModel(decltype(meshes)&& _meshes, std::string _name)
+    : name {std::move(_name)}
+    , meshes { std::move(_meshes) } {
     calculateBoundingBox();
 }
 

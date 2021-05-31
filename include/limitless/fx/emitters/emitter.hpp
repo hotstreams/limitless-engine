@@ -6,6 +6,7 @@
 
 #include <glm/gtx/quaternion.hpp>
 
+#include <stdexcept>
 #include <memory>
 #include <set>
 
@@ -19,11 +20,14 @@ namespace Limitless::fx {
         bool operator()(const std::unique_ptr<Module<Particle>>& lhs, const std::unique_ptr<Module<Particle>>& rhs) const;
     };
 
+    template <typename Particle>
+    using EmitterModules = std::set<std::unique_ptr<Module<Particle>>, ModuleCompare<Particle>>;
+
     template<typename Particle = SpriteParticle>
     class Emitter : public AbstractEmitter {
     protected:
         // emitter modules determine particles appearance and behavior
-        std::set<std::unique_ptr<Module<Particle>>, ModuleCompare<Particle>> modules;
+        EmitterModules<Particle> modules;
         std::vector<Particle> particles;
 
         // local position of emitter
@@ -84,11 +88,22 @@ namespace Limitless::fx {
         glm::quat& getLocalRotation() noexcept override;
         std::chrono::duration<float>& getDuration() noexcept override;
 
+        auto& getModule(ModuleType type) {
+            for (const auto& module : modules) {
+                if (module->getType() == type) {
+                    return module;
+                }
+            }
+
+            throw std::runtime_error("No such module");
+        }
+
         [[nodiscard]] bool isDone() const noexcept override;
         [[nodiscard]] bool getLocalSpace() const noexcept override;
         [[nodiscard]] const glm::vec3& getLocalPosition() const noexcept override;
         [[nodiscard]] const glm::quat& getLocalRotation() const noexcept override;
         [[nodiscard]] const EmitterSpawn& getSpawn() const noexcept override;
         [[nodiscard]] const std::chrono::duration<float>& getDuration() const noexcept override;
+        [[nodiscard]] const auto& getModules() const noexcept { return modules; }
     };
 }

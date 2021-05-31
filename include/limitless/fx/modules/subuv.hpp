@@ -52,7 +52,7 @@ namespace Limitless::fx {
             return new SubUV(*this);
         }
 
-        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle) noexcept override {
+        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
             particle.subUV.x = subUV_factor.x;
             particle.subUV.y = subUV_factor.y;
             particle.subUV.z = frames[0].x;

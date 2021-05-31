@@ -1,0 +1,23 @@
+#pragma once
+
+#include <limitless/fx/modules/beam_displacement.hpp>
+#include <limitless/fx/modules/beam_offset.hpp>
+#include <limitless/fx/modules/beam_rebuild.hpp>
+#include <limitless/fx/modules/beam_target.hpp>
+#include <limitless/fx/modules/color_by_life.hpp>
+#include <limitless/fx/modules/custom_material.hpp>
+#include <limitless/fx/modules/custom_material_by_life.hpp>
+#include <limitless/fx/modules/initial_acceleration.hpp>
+#include <limitless/fx/modules/initial_color.hpp>
+#include <limitless/fx/modules/initial_location.hpp>
+#include <limitless/fx/modules/initial_rotation.hpp>
+#include <limitless/fx/modules/initial_size.hpp>
+#include <limitless/fx/modules/initial_velocity.hpp>
+#include <limitless/fx/modules/lifetime.hpp>
+#include <limitless/fx/modules/mesh_location.hpp>
+#include <limitless/fx/modules/rotation_rate.hpp>
+#include <limitless/fx/modules/size_by_life.hpp>
+#include <limitless/fx/modules/subuv.hpp>
+#include <limitless/fx/modules/velocity_by_life.hpp>
+#include <limitless/fx/modules/beam_builder.hpp>
+#include <limitless/fx/modules/mesh_location_attachment.hpp>

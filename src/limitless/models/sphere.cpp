@@ -6,7 +6,7 @@ using namespace Limitless;
 #include <limitless/util/math.hpp>
 #include <limitless/models/indexed_mesh.hpp>
 
-Sphere::Sphere(glm::uvec2 segment_count) {
+Sphere::Sphere(glm::uvec2 segment_count) : ElementaryModel("sphere") {
     std::vector<VertexNormalTangent> vertices;
     std::vector<GLuint> indices;
 
@@ -61,6 +61,6 @@ Sphere::Sphere(glm::uvec2 segment_count) {
 
     calculateTangentSpaceTriangle(vertices, indices);
 
-    meshes.emplace_back(new IndexedMesh(std::move(vertices), std::move(indices), "sphere_mesh", MeshDataType::Static, DrawMode::Triangles));
+    meshes.emplace_back(new IndexedMesh(std::move(vertices), std::move(indices), "sphere", MeshDataType::Static, DrawMode::Triangles));
     calculateBoundingBox();
 }

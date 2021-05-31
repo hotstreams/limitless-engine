@@ -16,8 +16,6 @@ namespace Limitless {
         void initializeBuffer();
 
         const AnimationNode* findAnimationNode(const Bone& bone) const noexcept;
-
-        void doSkinningMesh(std::shared_ptr<AbstractMesh> mesh);
     public:
         SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position);
         SkeletalInstance(Lighting* lighting, std::shared_ptr<AbstractModel> m, const glm::vec3& position);
@@ -39,17 +37,8 @@ namespace Limitless {
         SkeletalInstance& resume() noexcept;
         SkeletalInstance& stop() noexcept;
 
-        SkeletalModel& getModel() const {
-            return dynamic_cast<SkeletalModel&>(*model);
-        }
-
-        const auto& getBoneTransform() { return bone_transform; }
-
-//        ModelInstance* attachment;
-//        SkeletalInstance& attach(ModelInstance* instance) {
-//            attachment = instance;
-//            return *this;
-//        }
+        // supports only IndexedMeshes for now
+        glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const;
 
 //        void attachUpdate() {
 ////            constexpr auto bone_name = "head_end";

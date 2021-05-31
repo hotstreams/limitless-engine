@@ -11,7 +11,7 @@ namespace Limitless {
     protected:
         std::vector<std::shared_ptr<ms::Material>> materials;
     public:
-        Model(decltype(meshes)&& mesh, decltype(materials)&& materials);
+        Model(decltype(meshes)&& mesh, decltype(materials)&& materials, std::string name);
         ~Model() override = default;
 
         Model(const Model&) = delete;

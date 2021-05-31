@@ -18,7 +18,7 @@ namespace Limitless::fx {
             : Module<Particle>(module.type)
             , distribution {module.distribution->clone()} {}
 
-        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle) noexcept override {
+        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
             particle.rebuild_delta = std::chrono::duration<float>(distribution->get());
         }
 

@@ -30,7 +30,7 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
     // class reference variable assets will be dead by the moment of lambda invocation
     // so we need to store the original reference to assets
     return [&asset_ptr = assets, vertices = std::move(vertices), indices = std::move(indices), name = std::move(name), weights = std::move(weights), skinned = !bone_map.empty()] () mutable {
-        if (asset_ptr.meshes.exists(name)) {
+        if (asset_ptr.meshes.contains(name)) {
             return asset_ptr.meshes[name];
         }
 
@@ -96,10 +96,10 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(c
 
     importer.FreeScene();
 
-    return [meshes = std::move(meshes), materials = std::move(materials), bones = std::move(bones), bone_map = std::move(bone_map), animations = std::move(animations), animation_tree = std::move(animation_tree), global_matrix] () mutable {
+    return [meshes = std::move(meshes), materials = std::move(materials), bones = std::move(bones), bone_map = std::move(bone_map), animations = std::move(animations), animation_tree = std::move(animation_tree), global_matrix, name = path.stem().string()] () mutable {
         return animations.empty() ?
-               std::shared_ptr<AbstractModel>(new Model(meshes(), std::move(materials))) :
-               std::shared_ptr<AbstractModel>(new SkeletalModel(meshes(), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix)));
+               std::shared_ptr<AbstractModel>(new Model(meshes(), std::move(materials), name)) :
+               std::shared_ptr<AbstractModel>(new SkeletalModel(meshes(), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix), name));
     };
 }
 

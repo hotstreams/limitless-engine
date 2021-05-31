@@ -35,7 +35,7 @@ namespace Limitless::fx {
 
         [[nodiscard]] auto& getMaterial() noexcept { return *material; }
         [[nodiscard]] const auto& getMesh() const noexcept { return mesh; }
-        [[nodiscard]] const auto& getMaterial() const noexcept { return* material; }
+        [[nodiscard]] const auto& getMaterial() const noexcept { return *material; }
 
         [[nodiscard]] MeshEmitter* clone() const override;
 

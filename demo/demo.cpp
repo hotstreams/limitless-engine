@@ -22,6 +22,8 @@
 #include <limitless/instances/instanced_instance.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/loaders/material_loader.hpp>
+#include <limitless/fx/modules/mesh_location.hpp>
+#include <limitless/fx/modules/mesh_location_attachment.hpp>
 
 using namespace Limitless;
 
@@ -39,6 +41,7 @@ private:
 
     std::unique_ptr<TextInstance> text;
     EffectInstance* effect {};
+    ModelInstance* bob;
 public:
     Game()
         : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
@@ -154,7 +157,7 @@ public:
                 .setRotation(glm::vec3{0.0f, PI, 0.0f})
                 .setScale(glm::vec3{0.35f});
 
-        scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{6.0f, 0.0f, 5.0f})
+        bob = &scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{6.0f, 0.0f, 5.0f})
                 .setScale(glm::vec3{0.02f})
                 .setRotation(glm::vec3{0.0f, 0.0f, PI})
                 .play("");
@@ -233,6 +236,19 @@ public:
     void addEffects() {
         fx::EffectBuilder builder {assets};
 
+        builder.create("mesh_test")
+               .createEmitter<fx::SpriteEmitter>("sparks")
+               .addLifetime(std::make_unique<RangeDistribution<float>>(1.0f, 2.0f))
+//               .addLifetime(std::make_unique<ConstDistribution<float>>(9999.0f))
+               .addInitialSize(std::make_unique<ConstDistribution<float>>(5.0f))
+               .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{0.0f}, glm::vec4{2.0f}))
+//               .addInitialMeshLocation(assets.models.at("bob"))
+               .addMeshLocationAttachment(assets.models.at("bob"))
+               .setMaterial(assets.materials.at("EmissiveColor"))
+               .setMaxCount(10000)
+               .setSpawnRate(5000)
+               .build();
+
         builder.create("effect1")
                 .createEmitter<fx::SpriteEmitter>("generate")
                 .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{-5.0f, 0.0f, -5.0f}, glm::vec3{5.0f}))
@@ -288,6 +304,71 @@ public:
 //        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test3");
 
         scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{8.0f, 2.0f, 8.0f});
+
+//        const auto& module = scene.add<EffectInstance>(assets.effects.at("mesh_test"), glm::vec3{0.0f, 0.0f, 0.0f})
+//            .get<fx::SpriteEmitter>("sparks")
+//            .getModule(fx::ModuleType::MeshLocationAttachment);
+//
+//        static_cast<fx::MeshLocationAttachment<fx::SpriteParticle>&>(*module)
+//        .attachModelInstance(bob);
+
+        Limitless::ms::MaterialBuilder materialBuilder {assets};
+        TextureLoader loader {assets};
+        const fs::path assets_dir {ASSETS_DIR};
+
+        materialBuilder .setName("fireball_material")
+                .setFragmentSnippet("uv.y -= 0.1;\n"
+                                    "vec2 panned = vec2(uv.x + 0.5 + in_data.properties.x, uv.y + 0.8 + in_data.properties.y);\n"
+                                    "uv += texture(noise, panned).g * 0.3;\n"
+                                    "\n"
+                                    "vec2 offset_panned1 = vec2(uv.x + 0.66, uv.y + 0.33);\n"
+                                    "float offset1 = texture(noise, offset_panned1).r;\n"
+                                    "\n"
+                                    "vec2 offset_panned2 = vec2(uv.x + 0.45, uv.y + 0.71);\n"
+                                    "float offset2 = texture(noise, offset_panned2).r;\n"
+                                    "\n"
+                                    "float r = offset1 * offset2;\n"
+                                    "\n"
+                                    "mat_diffuse = texture(material_diffuse, uv);\n"
+                                    "mat_diffuse.rgb *= clamp((mat_diffuse.a - in_data.properties.z) * r, 0, 1);")
+//			.addUniform(std::make_unique<UniformTime>("time"))
+                .addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir /  "textures/true_noise.tga")))
+        .add(Limitless::ms::Property::Diffuse, loader.load(assets_dir /  "textures/true_fire.tga"))
+        .add(Limitless::ms::Property::EmissiveColor, glm::vec4{10.0f, 3.0f, 1.0f, 1.0f})
+                .setShading(Limitless::ms::Shading::Unlit)
+                .setBlending(Limitless::ms::Blending::Additive)
+                .addModelShader(ModelShader::Effect)
+                .build();
+
+        Limitless::fx::EffectBuilder eb {assets};
+        eb.create("fireball")
+                .createEmitter<Limitless::fx::SpriteEmitter>("test")
+                .addMeshLocationAttachment(assets.models.at("bob"))
+                .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{6.28f, 0.0f, 0.0f}))
+                .addLifetime(std::make_unique<RangeDistribution<float>>(0.5f, 1.0f))
+                .addInitialSize(std::make_unique<ConstDistribution<float>>(64.0f))
+                .addSizeByLife(std::make_unique<RangeDistribution<float>>(256.0f, 512.0f), -1.0f)
+                .addCustomMaterial(std::make_unique<RangeDistribution<float>>(0.0f, 0.9f),
+                                   std::make_unique<RangeDistribution<float>>(0.0f, 0.9f),
+                                   std::make_unique<ConstDistribution<float>>(0.0f),
+                                   nullptr)
+                .addCustomMaterialByLife(nullptr,
+                                         nullptr,
+                                         std::make_unique<ConstDistribution<float>>(1.0f),
+                                         nullptr)
+                .setMaterial(assets.materials.at("fireball_material"))
+                .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Spray)
+                .setMaxCount(1000)
+                .setSpawnRate(500.0f)
+                .build();
+
+
+        const auto& module = scene.add<EffectInstance>(assets.effects.at("fireball"), glm::vec3{0.0f, 0.0f, 0.0f})
+                .get<fx::SpriteEmitter>("test")
+                .getModule(fx::ModuleType::MeshLocationAttachment);
+
+        static_cast<fx::MeshLocationAttachment<fx::SpriteParticle>&>(*module)
+                .attachModelInstance(bob);
     }
 
     void onMouseMove(glm::dvec2 pos) override {

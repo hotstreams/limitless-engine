@@ -10,26 +10,7 @@
 #include <limitless/fx/effect_compiler.hpp>
 #include <limitless/assets.hpp>
 
-#include <limitless/fx/modules/beam_displacement.hpp>
-#include <limitless/fx/modules/beam_offset.hpp>
-#include <limitless/fx/modules/beam_rebuild.hpp>
-#include <limitless/fx/modules/beam_target.hpp>
-#include <limitless/fx/modules/color_by_life.hpp>
-#include <limitless/fx/modules/custom_material.hpp>
-#include <limitless/fx/modules/custom_material_by_life.hpp>
-#include <limitless/fx/modules/initial_acceleration.hpp>
-#include <limitless/fx/modules/initial_color.hpp>
-#include <limitless/fx/modules/initial_location.hpp>
-#include <limitless/fx/modules/initial_rotation.hpp>
-#include <limitless/fx/modules/initial_size.hpp>
-#include <limitless/fx/modules/initial_velocity.hpp>
-#include <limitless/fx/modules/lifetime.hpp>
-#include <limitless/fx/modules/mesh_location.hpp>
-#include <limitless/fx/modules/rotation_rate.hpp>
-#include <limitless/fx/modules/size_by_life.hpp>
-#include <limitless/fx/modules/subuv.hpp>
-#include <limitless/fx/modules/velocity_by_life.hpp>
-#include <limitless/fx/modules/beam_builder.hpp>
+#include <limitless/fx/modules/modules.hpp>
 
 using namespace Limitless::fx;
 
@@ -195,14 +176,33 @@ EffectBuilder& EffectBuilder::addInitialAcceleration(std::unique_ptr<Distributio
     return *this;
 }
 
-EffectBuilder& EffectBuilder::addMeshLocation(std::shared_ptr<AbstractMesh> mesh) {
+EffectBuilder& EffectBuilder::addInitialMeshLocation(std::shared_ptr<AbstractMesh> mesh) {
     if (!mesh) {
         throw std::runtime_error{"Empty mesh cannot be set"};
     }
 
-    addModule<MeshLocation>(std::move(mesh));
+    addModule<InitialMeshLocation>(std::move(mesh));
     return *this;
 }
+
+EffectBuilder& EffectBuilder::addInitialMeshLocation(std::shared_ptr<AbstractModel> mesh) {
+    if (!mesh) {
+        throw std::runtime_error{"Empty mesh cannot be set"};
+    }
+
+    addModule<InitialMeshLocation>(std::move(mesh));
+    return *this;
+}
+
+EffectBuilder& EffectBuilder::addMeshLocationAttachment(std::shared_ptr<AbstractModel> mesh) {
+    if (!mesh) {
+        throw std::runtime_error{"Empty mesh cannot be set"};
+    }
+
+    addModule<MeshLocationAttachment>(std::move(mesh));
+    return *this;
+}
+
 
 EffectBuilder& EffectBuilder::addSubUV(const glm::vec2& size, float fps, const glm::vec2& frame_count) {
     addModule<SubUV>(size, fps, frame_count);

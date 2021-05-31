@@ -15,7 +15,7 @@ TextureLoader::TextureLoader(Assets& _assets) noexcept
 std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const TextureLoaderFlags& flags) const {
     auto path = convertPathSeparators(_path);
 
-    if (assets.textures.exists(path.stem().string())) {
+    if (assets.textures.contains(path.stem().string())) {
         return assets.textures[path.stem().string()];
     }
 

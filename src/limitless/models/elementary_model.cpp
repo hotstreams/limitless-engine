@@ -2,6 +2,6 @@
 
 using namespace Limitless;
 
-ElementaryModel::ElementaryModel()
-    : AbstractModel({}) {
+ElementaryModel::ElementaryModel(std::string name)
+    : AbstractModel({}, std::move(name)) {
 }
