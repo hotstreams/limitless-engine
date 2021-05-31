@@ -5,7 +5,7 @@
 namespace Limitless {
     class ElementaryModel : public AbstractModel {
     protected:
-        ElementaryModel();
+        ElementaryModel(std::string name);
     public:
         ~ElementaryModel() override = default;
 

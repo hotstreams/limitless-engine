@@ -20,12 +20,16 @@ namespace Limitless {
 
         std::optional<TextModel> selection_model {};
         glm::vec4 selection_color {};
+        bool hidden {};
 
         glm::mat4 model_matrix {1.0f};
         void calculateModelMatrix() noexcept;
     public:
         TextInstance(std::string text, const glm::vec2& position, std::shared_ptr<FontAtlas> font);
         TextInstance(size_t count, const glm::vec2& position, std::shared_ptr<FontAtlas> font);
+
+        void hide() noexcept { hidden = true; }
+        void reveal() noexcept { hidden = false; }
 
         TextInstance& setText(std::string text);
         TextInstance& setColor(const glm::vec4& color) noexcept;
@@ -37,6 +41,9 @@ namespace Limitless {
         TextInstance& removeSelection() noexcept;
 
         [[nodiscard]] const auto& getColor() const noexcept { return color; }
+        [[nodiscard]] const auto& getPosition() const noexcept { return position; }
+        [[nodiscard]] auto isHidden() const noexcept { return hidden; }
+        [[nodiscard]] auto isVisible() const noexcept { return !hidden; }
 
         void draw(Context& context, const Assets& assets);
     };

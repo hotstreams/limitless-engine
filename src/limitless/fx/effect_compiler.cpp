@@ -49,8 +49,11 @@ std::string EffectCompiler::getEmitterDefines(const AbstractEmitter& emitter) no
             case fx::ModuleType ::InitialAcceleration:
                 defines.append("#define InitialAcceleration_MODULE\n");
                 break;
-            case fx::ModuleType ::MeshLocation:
-                defines.append("#define MeshLocation_MODULE\n");
+            case fx::ModuleType ::InitialMeshLocation:
+                defines.append("#define InitialMeshLocation_MODULE\n");
+                break;
+            case fx::ModuleType ::MeshLocationAttachment:
+                defines.append("#define MeshLocationAttachment_MODULE\n");
                 break;
             case fx::ModuleType ::Lifetime:
                 defines.append("#define Lifetime_MODULE\n");

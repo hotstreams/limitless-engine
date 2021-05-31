@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <memory>
 #include <mutex>
+#include <algorithm>
 
 namespace Limitless {
     struct resource_container_error : public std::runtime_error {
@@ -48,7 +49,7 @@ namespace Limitless {
             std::unique_lock lock(mutex);
             const auto result = resource.emplace(name, std::move(res));
             if (!result.second) {
-                throw resource_container_error("Failed to add resource " + name + ", already exists.");
+                throw resource_container_error("Failed to add resource " + name + ", already contains.");
             }
         }
 
@@ -57,9 +58,21 @@ namespace Limitless {
             resource.erase(name);
         }
 
-        [[nodiscard]] bool exists(const std::string& name) {
+        [[nodiscard]] bool contains(const std::string& name) {
             std::unique_lock lock(mutex);
             return resource.find(name) != resource.end();
+        }
+
+        const auto& getName(const std::shared_ptr<T>& res) {
+            const auto found = std::find_if(resource.begin(), resource.end(), [&] (const auto& pair) {
+                return pair.second == res;
+            });
+
+            if (found != resource.end()) {
+                return found->first;
+            } else {
+                throw resource_container_error("Failed to find resource.");
+            }
         }
 
         void add(const ResourceContainer& other) {

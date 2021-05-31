@@ -21,7 +21,7 @@ void Emitter<P>::emit(uint32_t count) noexcept {
         particle.getRotation() = glm::eulerAngles(rotation * local_rotation);
 
         for (auto& module : modules) {
-            module->initialize(*this, particle);
+            module->initialize(*this, particle, particles.size());
         }
 
         particles.emplace_back(particle);
@@ -141,16 +141,19 @@ void Emitter<P>::spawnParticles() noexcept {
     }
 
     const auto current_time = std::chrono::steady_clock::now();
+    const auto delta = std::chrono::duration_cast<std::chrono::duration<float>>(current_time - spawn.last_spawn).count();
 
     switch (spawn.mode) {
-        case EmitterSpawn::Mode::Spray:
-            if ((current_time - spawn.last_spawn).count() >= (1.0f / spawn.spawn_rate)) {
-                if (particles.size() < spawn.max_count) {
-                    emit(1);
+        case EmitterSpawn::Mode::Spray: {
+            if (delta >= (1.0f / spawn.spawn_rate)) {
+                const int remaining = spawn.max_count - particles.size();
+                if (remaining > 0) {
+                    emit(glm::clamp(static_cast<int>(delta * spawn.spawn_rate), 1, remaining));
                 }
                 spawn.last_spawn = current_time;
             }
             break;
+        }
         case EmitterSpawn::Mode::Burst:
             if (spawn.burst->loops != spawn.burst->loops_done) {
                 if ((current_time - spawn.last_spawn).count() >= spawn.spawn_rate) {
@@ -171,12 +174,23 @@ void Emitter<P>::spawnParticles() noexcept {
 
 template<typename P>
 void Emitter<P>::killParticles() noexcept {
+    std::vector<size_t> indices;
+    for (size_t i = 0; i < particles.size(); ++i) {
+        if (particles[i].getLifetime() <= 0.0f) {
+            indices.emplace_back(i);
+        }
+    }
+
     for (auto it = particles.begin(); it != particles.end();) {
         if (it->getLifetime() <= 0.0f) {
             it = particles.erase(it);
         } else {
             ++it;
         }
+    }
+
+    for (auto& module : modules) {
+        module->deinitialize(indices);
     }
 }
 

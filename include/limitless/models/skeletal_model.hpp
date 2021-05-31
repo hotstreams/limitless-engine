@@ -56,7 +56,7 @@ namespace Limitless {
         glm::mat4 global_inverse;
         Tree<uint32_t> skeleton;
     public:
-        SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& bones, decltype(bone_map)&& bone_map, decltype(skeleton)&& skeleton, decltype(animations)&& a, const glm::mat4& global_matrix) noexcept;
+        SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& bones, decltype(bone_map)&& bone_map, decltype(skeleton)&& skeleton, decltype(animations)&& a, const glm::mat4& global_matrix, std::string name) noexcept;
         ~SkeletalModel() override = default;
 
         SkeletalModel(const SkeletalModel&) = delete;

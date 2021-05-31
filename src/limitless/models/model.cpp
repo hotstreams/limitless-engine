@@ -2,6 +2,7 @@
 
 using namespace Limitless;
 
-Model::Model(decltype(meshes)&& _meshes, decltype(materials)&& _materials)
-    : AbstractModel(std::move(_meshes)), materials(std::move(_materials)) {
+Model::Model(decltype(meshes)&& _meshes, decltype(materials)&& _materials, std::string name)
+    : AbstractModel(std::move(_meshes), std::move(name))
+    , materials(std::move(_materials)) {
 }

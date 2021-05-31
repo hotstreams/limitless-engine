@@ -89,7 +89,7 @@ namespace Limitless {
             indices_buffer->fence();
         }
 
-
-        auto& getIndices() { return indices; }
+        auto& getIndices() noexcept { return indices; }
+        const auto& getIndices() const noexcept { return indices; }
     };
 }

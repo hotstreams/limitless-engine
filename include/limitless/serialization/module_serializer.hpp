@@ -27,12 +27,13 @@
 
 #include <limitless/util/bytebuffer.hpp>
 #include <limitless/assets.hpp>
+#include <limitless/fx/modules/mesh_location_attachment.hpp>
 
 namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
     private:
-        static constexpr uint8_t VERSION = 0x2;
+        static constexpr uint8_t VERSION = 0x3;
     public:
         ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
@@ -60,9 +61,22 @@ namespace Limitless {
                 case fx::ModuleType::InitialAcceleration:
                     buffer << static_cast<const fx::InitialAcceleration<Particle>&>(module).getDistribution();
                     break;
-                case fx::ModuleType::MeshLocation:
-                    buffer << static_cast<const fx::MeshLocation<Particle>&>(module).getMesh()->getName();
+                case fx::ModuleType::MeshLocationAttachment: {
+                    if (std::holds_alternative<std::shared_ptr<AbstractModel>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())) {
+                        buffer << std::get<std::shared_ptr<AbstractModel>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())->getName();
+                    } else {
+                        buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())->getName();
+                    }
                     break;
+                }
+                case fx::ModuleType::InitialMeshLocation: {
+                    if (std::holds_alternative<std::shared_ptr<AbstractModel>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())) {
+                        buffer << std::get<std::shared_ptr<AbstractModel>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName();
+                    } else {
+                        buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName();
+                    }
+                    break;
+                }
                 case fx::ModuleType::SubUV:
                     buffer << static_cast<const fx::SubUV<Particle>&>(module).getTextureSize()
                            << static_cast<const fx::SubUV<Particle>&>(module).getFPS()
@@ -196,10 +210,24 @@ namespace Limitless {
                     module = std::make_unique<fx::InitialAcceleration<Particle>>(std::move(distr));
                     break;
                 }
-                case fx::ModuleType::MeshLocation: {
+                case fx::ModuleType::MeshLocationAttachment: {
                     std::string mesh_name;
                     buffer >> mesh_name;
-                    module = std::make_unique<fx::MeshLocation<Particle>>(assets.meshes.at(mesh_name));
+                    try {
+                        module = std::make_unique<fx::MeshLocationAttachment<Particle>>(assets.models.at(mesh_name));
+                    } catch (...) {
+                        module = std::make_unique<fx::MeshLocationAttachment<Particle>>(assets.meshes.at(mesh_name));
+                    }
+                    break;
+                }
+                case fx::ModuleType::InitialMeshLocation: {
+                    std::string mesh_name;
+                    buffer >> mesh_name;
+                    try {
+                        module = std::make_unique<fx::InitialMeshLocation<Particle>>(assets.models.at(mesh_name));
+                    } catch (...) {
+                        module = std::make_unique<fx::InitialMeshLocation<Particle>>(assets.meshes.at(mesh_name));
+                    }
                     break;
                 }
                 case fx::ModuleType::SubUV: {

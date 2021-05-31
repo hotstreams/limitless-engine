@@ -102,11 +102,11 @@ glm::vec3 AnimationNode::scalingLerp(double anim_time) const {
     return glm::mix(a.data, b.data, norm);
 }
 
-SkeletalModel::SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& _bones, decltype(bone_map)&& _bone_map, decltype(skeleton)&& _skeleton, decltype(animations)&& _animations, const glm::mat4& _global_matrix) noexcept
-    : Model{std::move(meshes), std::move(materials)}
-    , bone_map{std::move(_bone_map)}
-    , animations{std::move(_animations)}
-    , bones{std::move(_bones)}
-    , global_inverse{_global_matrix}
-    , skeleton{std::move(_skeleton)} {
+SkeletalModel::SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& _bones, decltype(bone_map)&& _bone_map, decltype(skeleton)&& _skeleton, decltype(animations)&& _animations, const glm::mat4& _global_matrix, std::string name) noexcept
+    : Model {std::move(meshes), std::move(materials), std::move(name)}
+    , bone_map {std::move(_bone_map)}
+    , animations {std::move(_animations)}
+    , bones {std::move(_bones)}
+    , global_inverse {_global_matrix}
+    , skeleton {std::move(_skeleton)} {
 }

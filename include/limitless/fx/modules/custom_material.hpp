@@ -29,7 +29,7 @@ namespace Limitless::fx {
         auto& getProperties() noexcept { return properties; }
         const auto& getProperties() const noexcept { return properties; }
 
-        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle) noexcept override {
+        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
             for (size_t i = 0; i < properties.size(); ++i) {
                 if (properties[i]) {
                     particle.properties[i] = properties[i]->get();

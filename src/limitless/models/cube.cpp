@@ -5,7 +5,7 @@
 
 using namespace Limitless;
 
-Cube::Cube() {
+Cube::Cube() : ElementaryModel("cube") {
     std::vector<VertexNormalTangent> vertices = {
             // back face
             {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left

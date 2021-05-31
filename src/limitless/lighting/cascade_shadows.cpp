@@ -184,7 +184,7 @@ void CascadeShadows::draw(Instances& instances,
                           Context& ctx, const
                           Assets& assets,
                           const Camera& camera,
-                          fx::EffectRenderer* renderer) {
+                          [[maybe_unused]] fx::EffectRenderer* renderer) {
     updateFrustums(ctx, camera);
     updateLightMatrices(light);
 

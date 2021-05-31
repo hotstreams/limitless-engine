@@ -19,7 +19,8 @@ namespace Limitless::fx {
         InitialSize,
         InitialAcceleration,
 
-        MeshLocation,
+        InitialMeshLocation,
+        MeshLocationAttachment,
         SubUV,
         VelocityByLife,
         ColorByLife,
@@ -53,8 +54,9 @@ namespace Limitless::fx {
 
         [[nodiscard]] const auto& getType() const noexcept { return type; }
 
-        virtual void initialize([[maybe_unused]] AbstractEmitter& e,
-                                [[maybe_unused]] Particle& p) noexcept {}
+        virtual void initialize([[maybe_unused]] AbstractEmitter& e, [[maybe_unused]] Particle& p, [[maybe_unused]] size_t index) noexcept {}
+
+        virtual void deinitialize([[maybe_unused]] const std::vector<size_t>& indices) {}
 
         virtual void update([[maybe_unused]] AbstractEmitter& emitter,
                             [[maybe_unused]] std::vector<Particle>& particles,

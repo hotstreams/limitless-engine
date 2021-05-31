@@ -10,7 +10,7 @@ namespace Limitless {
 
         Bone(std::string name, const glm::mat4& offset_matrix) noexcept : name{std::move(name)}, offset_matrix{offset_matrix} {}
 
-        [[nodiscard]] auto isFake() const noexcept { return name[0] == '<'; }
+        [[nodiscard]] auto isFake() const noexcept { return name.at(0) == '<'; }
     };
 
     struct VertexBoneWeight {
