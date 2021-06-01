@@ -28,6 +28,7 @@
 #include <limitless/util/bytebuffer.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/fx/modules/mesh_location_attachment.hpp>
+#include <limitless/fx/modules/time.hpp>
 
 namespace Limitless {
     template<typename Particle>
@@ -147,6 +148,9 @@ namespace Limitless {
                     break;
                 }
                 case fx::ModuleType::BeamBuilder: {
+                    break;
+                }
+                case fx::ModuleType::Time: {
                     break;
                 }
             }
@@ -338,6 +342,10 @@ namespace Limitless {
                     if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
                         module = std::make_unique<fx::BeamBuilder<Particle>>();
                     }
+                    break;
+                }
+                case fx::ModuleType::Time: {
+                    module = std::make_unique<fx::Time<Particle>>();
                     break;
                 }
             }

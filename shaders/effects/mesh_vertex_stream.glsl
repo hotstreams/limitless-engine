@@ -4,13 +4,13 @@ vec3 getMeshPosition() {
     return _position;
 }
 
+layout(location = 1) in vec3 _normal;
+
+vec3 getMeshNormal() {
+    return _normal;
+}
+
 #if defined(MATERIAL_LIT)
-    layout(location = 1) in vec3 _normal;
-
-    vec3 getMeshNormal() {
-        return _normal;
-    }
-
     #if defined(NORMAL_MAPPING)
         layout(location = 2) in vec3 _tangent;
 

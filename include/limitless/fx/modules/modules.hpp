@@ -21,3 +21,4 @@
 #include <limitless/fx/modules/velocity_by_life.hpp>
 #include <limitless/fx/modules/beam_builder.hpp>
 #include <limitless/fx/modules/mesh_location_attachment.hpp>
+#include <limitless/fx/modules/time.hpp>
