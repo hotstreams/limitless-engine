@@ -28,6 +28,7 @@ namespace Limitless::fx {
         SizeByLife,
         CustomMaterial,
         CustomMaterialByLife,
+        Time,
 
         Beam_InitialDisplacement,
         Beam_InitialOffset,

@@ -59,6 +59,11 @@ namespace Limitless::fx {
             auto& shader = assets.shaders.get({unique_type, pass});
 
             setBlendingMode(ctx, material.getBlending());
+            if (material.getTwoSided()) {
+                ctx.disable(Capabilities::CullFace);
+            } else {
+                ctx.enable(Capabilities::CullFace);
+            }
 
             shader << material;
 

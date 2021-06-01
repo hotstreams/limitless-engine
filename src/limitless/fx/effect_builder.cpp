@@ -154,7 +154,7 @@ EffectBuilder& EffectBuilder::addInitialSize(std::unique_ptr<Distribution<float>
             effect->get<BeamEmitter>(last_emitter).modules.emplace(new InitialSize<BeamParticle>(std::move(distribution)));
             break;
         case AbstractEmitter::Type::Mesh:
-            throw std::runtime_error("Bad argument specified");
+            throw std::runtime_error("Bad addInitialSize argument specified!");
     }
     return *this;
 }
@@ -163,7 +163,7 @@ EffectBuilder& EffectBuilder::addInitialSize(std::unique_ptr<Distribution<glm::v
     switch (effect->emitters.at(last_emitter)->getType()) {
         case AbstractEmitter::Type::Sprite:
         case AbstractEmitter::Type::Beam:
-            throw std::runtime_error("Bad argument specified");
+            throw std::runtime_error("Bad addInitialSize argument specified!");
         case AbstractEmitter::Type::Mesh:
             effect->get<MeshEmitter>(last_emitter).modules.emplace(new InitialSize<MeshParticle>(std::move(distribution)));
             break;
@@ -224,6 +224,12 @@ EffectBuilder& EffectBuilder::addRotationRate(std::unique_ptr<Distribution<glm::
     return *this;
 }
 
+EffectBuilder& EffectBuilder::addTime() {
+    addModule<Time>();
+    return *this;
+}
+
+
 EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<float>> distribution, float factor) {
     switch (effect->emitters.at(last_emitter)->getType()) {
         case AbstractEmitter::Type::Sprite:
@@ -233,7 +239,7 @@ EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<float>>
             effect->get<BeamEmitter>(last_emitter).modules.emplace(new SizeByLife<BeamParticle>(std::move(distribution), factor));
             break;
         case AbstractEmitter::Type::Mesh:
-            throw std::runtime_error("Bad argument specified");
+            throw std::runtime_error("Bad addSizeByLife argument specified!");
     }
     return *this;
 }
@@ -242,7 +248,7 @@ EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<glm::ve
     switch (effect->emitters.at(last_emitter)->getType()) {
         case AbstractEmitter::Type::Sprite:
         case AbstractEmitter::Type::Beam:
-            throw std::runtime_error("Bad argument specified");
+            throw std::runtime_error("Bad addSizeByLife argument specified!");
         case AbstractEmitter::Type::Mesh:
             effect->get<MeshEmitter>(last_emitter).modules.emplace(new SizeByLife<MeshParticle>(std::move(distribution), factor));
             break;

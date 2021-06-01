@@ -78,6 +78,7 @@ namespace Limitless::fx {
         EffectBuilder& addSizeByLife(std::unique_ptr<Distribution<float>> distribution, float factor);
         EffectBuilder& addSizeByLife(std::unique_ptr<Distribution<glm::vec3>> distribution, float factor);
         EffectBuilder& addLifetime(std::unique_ptr<Distribution<float>> distribution);
+        EffectBuilder& addTime();
         EffectBuilder& addBeamInitialTarget(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addBeamInitialDisplacement(std::unique_ptr<Distribution<float>> distribution);
         EffectBuilder& addBeamInitialOffset(std::unique_ptr<Distribution<float>> distribution);
