@@ -24,7 +24,7 @@ namespace Limitless::ms {
     };
 
     class Material final {
-    protected:
+    private:
         // contains set of properties
         // the set cant be changed at run-time, but values of props can
         std::map<Property, std::unique_ptr<Uniform>> properties;
@@ -54,7 +54,7 @@ namespace Limitless::ms {
         std::unordered_map<std::string, uint64_t> uniform_offsets;
 
         // contains additional custom properties
-        std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
+        std::map<std::string, std::unique_ptr<Uniform>> uniforms;
 
         // vertex snippet
         std::string vertex_snippet;

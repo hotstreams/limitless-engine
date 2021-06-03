@@ -5,7 +5,6 @@
 #include <limitless/core/bindless_texture.hpp>
 #include <limitless/core/texture_binder.hpp>
 #include <limitless/core/context.hpp>
-#include <iostream>
 
 using namespace Limitless;
 

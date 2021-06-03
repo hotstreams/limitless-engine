@@ -86,6 +86,7 @@ out vertex_data {
 
     #if defined(MeshEmitter)
         vec3 size;
+        vec3 normal;
     #endif
 
     #if defined(BeamEmitter) || defined(MeshEmitter)
@@ -99,7 +100,8 @@ void main() {
 
         Limitless::CustomMaterialVertexCode
 
-	    gl_Position = VP * vec4(vertex_position, 1.0);
+        out_data.position = vertex_position;
+	    gl_Position = VP * vec4(out_data.position, 1.0);
 	#endif
 
 	#if defined(BeamEmitter)
@@ -108,7 +110,9 @@ void main() {
 
         Limitless::CustomMaterialVertexCode
 
-        gl_Position = vertex_position;
+        // vertex pos already proj space!
+        // todo: fix
+        out_data.position = vec3(vertex_position);
         out_data.uv = uv;
     #endif
 
@@ -118,8 +122,11 @@ void main() {
 
         Limitless::CustomMaterialVertexCode
 
+        out_data.position = vec3(getParticleModel() * vec4(vertex_position, 1.0));
         gl_Position = VP * getParticleModel() * vec4(vertex_position, 1.0);
         out_data.uv = uv;
+
+        out_data.normal = transpose(inverse(mat3(getParticleModel()))) * getMeshNormal();
     #endif
 
     #if defined(SpriteEmitter)
@@ -160,8 +167,6 @@ void main() {
         out_data.acceleration = getParticleAcceleration();
         out_data.lifetime = getParticleLifetime();
     #endif
-
-    out_data.position = gl_Position.xyz;
 
     #if defined(SpriteEmitter)
         out_data.size = getParticleSize();

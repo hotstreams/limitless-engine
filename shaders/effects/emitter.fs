@@ -47,6 +47,7 @@ in vertex_data {
 
     #if defined(MeshEmitter)
         vec3 size;
+        vec3 normal;
     #endif
 
     #if defined(BeamEmitter) || defined(MeshEmitter)
@@ -142,6 +143,12 @@ vec3 getParticlePosition() {
         #endif
 
         return uv;
+    }
+#endif
+
+#if defined(MeshEmitter)
+    vec3 getMeshNormal() {
+        return in_data.normal;
     }
 #endif
 

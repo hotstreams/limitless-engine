@@ -66,7 +66,7 @@ namespace Limitless::fx {
         // xyz - velocity; w -
         glm::vec4 velocity {0.0f};
         // xyz - size; w -
-        glm::vec4 size;
+        glm::vec4 size {1.0f, 1.0f, 1.0f, 0.0f};
 
         auto& getColor() noexcept { return color; }
         auto& getSubUV() noexcept { return subUV; }

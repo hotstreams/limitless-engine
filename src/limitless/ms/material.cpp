@@ -5,7 +5,6 @@
 #include <limitless/core/buffer_builder.hpp>
 #include <limitless/core/texture.hpp>
 #include <cstring>
-#include <iostream>
 
 using namespace Limitless::ms;
 using namespace Limitless;

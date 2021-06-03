@@ -1,5 +1,4 @@
 #include <limitless/camera.hpp>
-#include <iostream>
 
 using namespace Limitless;
 
