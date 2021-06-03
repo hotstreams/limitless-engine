@@ -88,6 +88,9 @@ namespace Limitless {
         T get() override { return value; }
         T get() const override { return value; }
 
+        T& getValue() const noexcept { return value; }
+        T& getValue() noexcept { return value; }
+
         [[nodiscard]] Distribution<T>* clone() override {
             return new ConstDistribution<T>(*this);
         }
@@ -130,7 +133,9 @@ namespace Limitless {
         ~RangeDistribution() override = default;
 
         [[nodiscard]] const T& getMin() const noexcept { return min; }
+        [[nodiscard]] T& getMin() noexcept { return min; }
         [[nodiscard]] const T& getMax() const noexcept { return max; }
+        [[nodiscard]] T& getMax() noexcept { return max; }
 
         void setMin(const T& _min) noexcept {
             min = _min;
