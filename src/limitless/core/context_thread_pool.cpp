@@ -1,5 +1,4 @@
 #include <limitless/core/context_thread_pool.hpp>
-#include <iostream>
 
 using namespace Limitless;
 

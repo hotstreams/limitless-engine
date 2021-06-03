@@ -14,6 +14,7 @@
 #include <limitless/text/text_instance.hpp>
 #include <limitless/fx/emitters/beam_emitter.hpp>
 #include <limitless/fx/emitters/sprite_emitter.hpp>
+#include <limitless/fx/emitters/mesh_emitter.hpp>
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/ms/material_builder.hpp>
 #include <limitless/loaders/asset_loader.hpp>
@@ -477,7 +478,7 @@ public:
 //
 //        scene.add<EffectInstance>(assets.effects.at("conflagrate_finish"), glm::vec3(9.0f));
 //    }
-
+EffectInstance* inst;
     void addEffects() {
         fx::EffectBuilder builder {assets};
         TextureLoader loader {assets};
@@ -511,11 +512,11 @@ public:
                 .setLocalSpace(true)
                 .build();
 
-        effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, 8.f});
-        auto& e = scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{4.f, 1.f, 8.f});
-        scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{6.f, 1.f, 8.f});
-
-        e.get<fx::SpriteEmitter>("generate").getMaterial().getEmissiveColor().setValue(glm::vec4(2.0f));
+//        effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, 8.f});
+//        auto& e = scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{4.f, 1.f, 8.f});
+//        scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{6.f, 1.f, 8.f});
+//
+//        e.get<fx::SpriteEmitter>("generate").getMaterial().getEmissiveColor().setValue(glm::vec4(2.0f));
 
         builder.create("effect2")
                 .createEmitter<fx::MeshEmitter>("generate")
@@ -549,7 +550,7 @@ public:
 //        EffectLoader::save(assets.getBaseDir() / "effects/test3", assets.effects.at("test_beam"));
 //        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test3");
 
-        scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{8.0f, 2.0f, 8.0f});
+//        scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{8.0f, 2.0f, 8.0f});
 
 //        const auto& module = scene.add<EffectInstance>(assets.effects.at("mesh_test"), glm::vec3{0.0f, 0.0f, 0.0f})
 //            .get<fx::SpriteEmitter>("sparks")
@@ -586,7 +587,7 @@ public:
                 .setMaterial(assets.materials.at("beam_lightning"))
                 .build();
 
-        scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{5.0f});
+//        scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{5.0f});
 
         const fs::path assets_dir {ASSETS_DIR};
 
@@ -701,7 +702,59 @@ public:
 //                    .addInitialColor(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.54f * 6.0f, 0.0f, 1.0f * 6.0f, 1.0f)))
                 .build();
 
-        scene.add<EffectInstance>(assets.effects.at("blink"), glm::vec3{-3.0f, 3.0f, 3.0f});
+//        scene.add<EffectInstance>(assets.effects.at("blink"), glm::vec3{-3.0f, 3.0f, 3.0f});
+
+
+        materialBuilder.setName("shield")
+            .setShading(Limitless::ms::Shading::Unlit)
+            .setBlending(Limitless::ms::Blending::Additive)
+            .addModelShader(Limitless::ModelShader::Effect)
+//            .setTwoSided(true)
+            .add(Limitless::ms::Property::Color, glm::vec4(1.0f))
+            .addUniform(std::make_unique<UniformSampler>("maintexture", loader.load(assets_dir / "textures/shield_texture.jpg")))
+//            .addUniform(std::make_unique<UniformValue<glm::vec4>>("fresnel_color", glm::vec4(2.0f, 2.0f, 1.0f, 1.0f)))
+            .setFragmentSnippet(""
+                                "float fres = fresnel(getMeshNormal(), +camera_position.xyz - getParticlePosition(), 2.5);"
+                                "mat_color.rgb *= 1.0 - texture(maintexture, uv).r;"
+                                "mat_color.rgb *= fres * vec3(33.0 / 255.0 * 15.0f, 99.0 / 255.0 * 15.0f, 191.0 / 255.0 * 25.0f);")
+            .setGlobalSnippet("#include \"../functions/fresnel.glsl\"")
+        .build();
+
+        materialBuilder.setName("shield_hit")
+                .setShading(Limitless::ms::Shading::Unlit)
+                .setBlending(Limitless::ms::Blending::Translucent)
+                .addModelShader(Limitless::ModelShader::Effect)
+                .setTwoSided(true)
+                .add(Limitless::ms::Property::Color, glm::vec4(20.0, 20.0, 2.0, 1.0f))
+                .addUniform(std::make_unique<UniformSampler>("maintexture", loader.load(assets_dir / "textures/shield_texture.jpg")))
+                .addUniform(std::make_unique<UniformValue<glm::vec3>>("hit_pos", glm::vec3(0.9, 2.0, 0.0)))
+                .setFragmentSnippet(""
+                                    "float fres = sphere_mask(getParticlePosition(), hit_pos, 0.5, 0.9);"
+                                    "mat_color *= 1.0 - texture(maintexture, uv).r;"
+                                    "mat_color.a *= fres;")
+                .setGlobalSnippet("#include \"../functions/sphere_mask.glsl\"")
+                .build();
+
+        builder.create("shield")
+                .createEmitter<fx::MeshEmitter>("shield")
+                        .addInitialSize(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.5f)))
+                        .setMaterial(assets.materials.at("shield"))
+                        .setMesh(assets.meshes.at("sphere"))
+                        .setMaxCount(1)
+                .createEmitter<fx::MeshEmitter>("hit")
+                        .addInitialSize(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.5f)))
+                        .setMaterial(assets.materials.at("shield_hit"))
+                        .setMesh(assets.meshes.at("sphere"))
+                        .addLifetime(std::make_unique<ConstDistribution<float>>(1.0f))
+                        .addColorByLife(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.0f)))
+                        .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Burst)
+                        .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(1))
+                        .setLoops(1)
+                        .setMaxCount(100)
+                        .setSpawnRate(999.9f)
+                        .build();
+
+        inst = &scene.add<EffectInstance>(assets.effects.at("shield"), glm::vec3{0.0f, 2.0f, 0.0f});
     }
 
     void onMouseMove(glm::dvec2 pos) override {

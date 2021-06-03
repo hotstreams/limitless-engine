@@ -1,7 +1,6 @@
 #include <limitless/core/context_observer.hpp>
 
 #include <algorithm>
-#include <iostream>
 
 using namespace Limitless;
 

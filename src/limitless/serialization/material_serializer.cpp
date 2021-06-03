@@ -4,7 +4,6 @@
 #include <limitless/serialization/uniform_serializer.hpp>
 #include <limitless/serialization/asset_deserializer.hpp>
 #include <limitless/util/bytebuffer.hpp>
-#include <iostream>
 #include <limitless/assets.hpp>
 
 using namespace Limitless::ms;
@@ -12,7 +11,7 @@ using namespace Limitless;
 
 void MaterialSerializer::deserialize(ByteBuffer& buffer, Assets& assets, MaterialBuilder& builder) {
     std::map<Property, std::unique_ptr<Uniform>> properties;
-    std::unordered_map<std::string, std::unique_ptr<Uniform>> uniforms;
+    std::map<std::string, std::unique_ptr<Uniform>> uniforms;
     Blending blending{};
     Shading shading{};
     bool two_sided {};

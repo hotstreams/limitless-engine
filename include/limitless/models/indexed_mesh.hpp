@@ -1,7 +1,6 @@
 #pragma once
 
 #include <limitless/models/mesh.hpp>
-#include <iostream>
 
 namespace Limitless {
     template<typename T, typename T1>
