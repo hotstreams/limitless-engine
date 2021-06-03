@@ -52,6 +52,7 @@ namespace Limitless {
         void add(ShaderPass material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program);
         void add(const fx::UniqueEmitterShaderKey& emitter_type, std::shared_ptr<ShaderProgram> program);
 
+        bool contains(const std::string& name) noexcept;
         bool contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept;
         bool contains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept;
 

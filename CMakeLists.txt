@@ -9,7 +9,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-O3)
+    add_compile_options(-Ofast)
 endif()
 
 if (OPENGL_DEBUG)

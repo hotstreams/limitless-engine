@@ -112,3 +112,7 @@ void ShaderStorage::add(const ShaderStorage& other) {
         emitters.emplace(key, value);
     }
 }
+
+bool ShaderStorage::contains(const std::string& name) noexcept {
+    return shaders.find(name) != shaders.end();
+}
