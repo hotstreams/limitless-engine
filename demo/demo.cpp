@@ -70,7 +70,7 @@ public:
         addModels();
         addSpheres();
         addEffects();
-        addWarlocks();
+//        addWarlocks();
 
         assets.compileShaders(context, render.getSettings());
 
@@ -480,6 +480,7 @@ public:
 
     void addEffects() {
         fx::EffectBuilder builder {assets};
+        TextureLoader loader {assets};
 
         builder.create("mesh_test")
                .createEmitter<fx::SpriteEmitter>("sparks")
@@ -535,7 +536,7 @@ public:
 //        EffectLoader::save(assets.getBaseDir() / "effects/test2", assets.effects.at("effect2"));
 //        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test2");
 
-        effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
+//        effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
 
         fx::EffectBuilder beam_builder{assets};
         beam_builder.create("test_beam")
@@ -563,6 +564,144 @@ public:
 //
 //        static_cast<fx::MeshLocationAttachment<fx::SpriteParticle>&>(*module)
 //                .attachModelInstance(bob);
+
+
+        ms::MaterialBuilder materialBuilder {assets};
+        materialBuilder.setName("beam_lightning")
+                .add(ms::Property::EmissiveColor, glm::vec4(5.0f, 4.8f, 3.8f, 1.0f))
+                .setShading(ms::Shading::Unlit)
+                .setBlending(ms::Blending::Opaque)
+                .addModelShader(ModelShader::Effect)
+                .build();
+
+        builder.create("lightning")
+                .createEmitter<fx::BeamEmitter>("beam")
+                .setMaxCount(50)
+                .setSpawnRate(10.0f)
+                .addLifetime(std::make_unique<RangeDistribution<float>>(0.5f, 1.0f))
+                .addBeamInitialTarget(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.0f)))
+                .addBeamInitialDisplacement(std::make_unique<ConstDistribution<float>>(2.0f))
+                .addBeamInitialOffset(std::make_unique<ConstDistribution<float>>(2.0f))
+                .addBeamInitialRebuild(std::make_unique<ConstDistribution<float>>(0.5f))
+                .setMaterial(assets.materials.at("beam_lightning"))
+                .build();
+
+        scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{5.0f});
+
+        const fs::path assets_dir {ASSETS_DIR};
+
+        materialBuilder.setName("blink")
+            .add(Limitless::ms::Property::Color, glm::vec4(1.0f))
+            .add(Limitless::ms::Property::Diffuse, loader.load(assets_dir / "textures/fireball_mask.png"))
+            .add(Limitless::ms::Property::Normal, loader.load(assets_dir / "textures/blink.jpg"))
+            .setShading(Limitless::ms::Shading::Unlit)
+            .setBlending(Limitless::ms::Blending::Translucent)
+            .setTwoSided(true)
+            .setFragmentSnippet("float tile = getParticleProperties().z;\n"
+                                "float erode = getParticleProperties().y;\n"
+                                "float dist = getParticleProperties().x;\n"
+                                "\n"
+                                "float r = texture(material_diffuse, uv * tile).r;\n"
+                                "\n"
+                                "vec2 uv1 = vec2(0.0, dist) * r + uv;\n"
+                                "\n"
+                                "float m_a = texture(material_normal, uv1).r;\n"
+                                "\n"
+                                "mat_color.a = mix(0.0, m_a, pow(r, erode));"
+                                "mat_diffuse.rgb = vec3(1.0);")
+            .addModelShader(Limitless::ModelShader::Effect)
+            .build();
+
+        materialBuilder.setName("blink_particles")
+                .add(Limitless::ms::Property::Diffuse, loader.load(assets_dir / "textures/glow.tga"))
+                .setShading(Limitless::ms::Shading::Unlit)
+                .setBlending(Limitless::ms::Blending::Additive)
+                .addModelShader(Limitless::ModelShader::Effect)
+                .build();
+
+        builder.create("blink")
+//                .createEmitter<fx::MeshEmitter>("smoke_purple")
+                .createEmitter<fx::SpriteEmitter>("smoke_purple")
+                    .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Burst)
+                    .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(10))
+                    .setMaxCount(10)
+                    .setSpawnRate(10.0f)
+//                    .addInitialSize(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.1f), glm::vec3(0.25f)))
+                    .addInitialSize(std::make_unique<RangeDistribution<float>>(128.0f, 256.0f))
+//                    .addSizeByLife(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(1.0f)), 1.0f)
+                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(512.0f), 1.0f)
+                    .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(6.28f)))
+                    .addInitialLocation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(0.1f)))
+                    .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.05f, 0.01f, -0.05f), glm::vec3(0.05f)))
+                    .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.01f, 0.2f, -0.01f), glm::vec3(0.01f, 0.2f, 0.01f)))
+//                    .addRotationRate(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.5f)))
+                    .addLifetime(std::make_unique<ConstDistribution<float>>(2.0f))
+                    .setMaterial(assets.materials.at("blink"))
+//                    .setMesh(assets.meshes.at("sphere"))
+                    .addInitialColor(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.54f * 2.0f, 0.0f, 1.0f * 2.0f, 1.0f)))
+                    .addColorByLife(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.54f * 4.0f, 0.0f, 1.0f * 4.0f, 1.0f)))
+                    .addCustomMaterial(std::make_unique<RangeDistribution<float>>(0.0f, 0.3f),
+                                       std::make_unique<RangeDistribution<float>>(0.0f, 2.5f),
+                                       std::make_unique<RangeDistribution<float>>(0.0, 5.0f),
+                                       nullptr)
+                    .addCustomMaterialByLife(std::make_unique<ConstDistribution<float>>(1.0f),
+                                             std::make_unique<ConstDistribution<float>>(10.0f),
+                                             nullptr,
+                                             nullptr)
+//                .createEmitter<fx::MeshEmitter>("smoke_black")
+                .createEmitter<fx::SpriteEmitter>("smoke_black")
+                    .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Burst)
+                    .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(10))
+                    .setMaxCount(10)
+                    .setSpawnRate(10.0f)
+//                    .addInitialSize(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.1f), glm::vec3(0.15f)))
+                    .addInitialSize(std::make_unique<RangeDistribution<float>>(64.0f, 128.0f))
+//                    .addSizeByLife(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.5f)), 1.0f)
+                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(256.0f), 1.0f)
+                    .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(6.28f)))
+                    .addInitialLocation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(0.1f)))
+                    .addLifetime(std::make_unique<ConstDistribution<float>>(2.0f))
+                    .setMaterial(assets.materials.at("blink"))
+//                    .setMesh(assets.meshes.at("sphere"))
+                    .addInitialColor(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)))
+                    .addCustomMaterial(std::make_unique<RangeDistribution<float>>(0.0f, 0.3f),
+                                       std::make_unique<RangeDistribution<float>>(0.0f, 3.0f),
+                                       std::make_unique<RangeDistribution<float>>(0.0, 5.0f),
+                                       nullptr)
+                    .addCustomMaterialByLife(std::make_unique<ConstDistribution<float>>(1.0f),
+                                             std::make_unique<ConstDistribution<float>>(10.0f),
+                                             nullptr,
+                                             nullptr)
+//                .createEmitter<fx::SpriteEmitter>("particles_purple")
+//                    .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Burst)
+//                    .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(20))
+//                    .setMaxCount(20)
+//                    .setSpawnRate(20.0f)
+//                    .addInitialSize(std::make_unique<ConstDistribution<float>>(8.0f))
+//                    .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.1f, 0.0f, -0.1f), glm::vec3(0.1f)))
+//                    .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.1f, 0.1f, -0.1f), glm::vec3(0.1f)))
+//                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(0.0f), 1.0f)
+//                    .addInitialLocation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(0.1f)))
+//                    .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(6.28f)))
+//                    .addLifetime(std::make_unique<ConstDistribution<float>>(2.0f))
+//                    .setMaterial(assets.materials.at("blink_particles"))
+//                    .addInitialColor(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.84f * 5.0f, 2.0f, 1.0f * 5.0f, 1.0f)))
+//                .createEmitter<fx::SpriteEmitter>("particles_black")
+//                    .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Burst)
+//                    .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(20))
+//                    .setMaxCount(20)
+//                    .setSpawnRate(20.0f)
+//                    .addInitialSize(std::make_unique<ConstDistribution<float>>(32.0f))
+//                    .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.25f, 0.0f, -0.25f), glm::vec3(0.25f)))
+//                    .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.5f, 0.1f, -0.5f), glm::vec3(0.5f)))
+//                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(0.0f), 1.0f)
+//                    .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(6.28f)))
+//                    .addLifetime(std::make_unique<ConstDistribution<float>>(2.0f))
+//                    .setMaterial(assets.materials.at("blink_particles"))
+//                    .addInitialColor(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.54f * 6.0f, 0.0f, 1.0f * 6.0f, 1.0f)))
+                .build();
+
+        scene.add<EffectInstance>(assets.effects.at("blink"), glm::vec3{-3.0f, 3.0f, 3.0f});
     }
 
     void onMouseMove(glm::dvec2 pos) override {

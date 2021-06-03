@@ -9,8 +9,9 @@ FramebufferPass::FramebufferPass(RenderPass* prev, RenderTarget& _target)
     , target {_target} {
 }
 
-FramebufferPass::FramebufferPass(RenderPass* prev, Context& ctx)
+FramebufferPass::FramebufferPass(RenderPass* prev, ContextEventObserver& ctx)
     : RenderPass(prev)
+    , framebuffer {ctx}
     , target {framebuffer} {
     auto param_set = [] (Texture& texture) {
         texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}

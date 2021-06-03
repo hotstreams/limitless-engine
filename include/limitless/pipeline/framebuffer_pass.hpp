@@ -10,8 +10,8 @@ namespace Limitless {
         RenderTarget& target;
     public:
         FramebufferPass(RenderPass* prev, RenderTarget& _target);
-        FramebufferPass(RenderPass* prev, Context& ctx);
-        ~FramebufferPass() = default;
+        FramebufferPass(RenderPass* prev, ContextEventObserver& ctx);
+        ~FramebufferPass() override = default;
 
         RenderTarget& getTarget() noexcept override;
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, const UniformSetter& setter) override;
