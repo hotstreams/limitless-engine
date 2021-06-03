@@ -206,6 +206,10 @@ void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Ca
     const auto delta_time = duration_cast<std::chrono::duration<float>>(current_time - last_time);
     last_time = current_time;
 
+	if (start_time == time_point<steady_clock>()) {
+		start_time = current_time;
+	}
+
     spawnParticles();
     killParticles();
 
