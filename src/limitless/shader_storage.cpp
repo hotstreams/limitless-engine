@@ -39,9 +39,8 @@ void ShaderStorage::add(ShaderPass material_type, ModelShader model_type, uint64
     }
 }
 
-bool ShaderStorage::contains(const std::string& shader_name) const noexcept {
+bool ShaderStorage::contains(const std::string& shader_name) noexcept {
 	std::unique_lock lock(mutex);
-
 	return shaders.find(shader_name) != shaders.end();
 }
 
@@ -117,8 +116,4 @@ void ShaderStorage::add(const ShaderStorage& other) {
     for (auto&& [key, value] : other.emitters) {
         emitters.emplace(key, value);
     }
-}
-
-bool ShaderStorage::contains(const std::string& name) noexcept {
-    return shaders.find(name) != shaders.end();
 }
