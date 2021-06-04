@@ -186,7 +186,7 @@ void main() {
     Limitless::CustomMaterialFragmentCode
 
     #if defined(BeamSpeed_MODULE)
-        if (distance(in_data.position, getParticleEnd()) / distance(getParticleStart(), getParticleEnd()) >= getParticleLength()) {
+        if (distance(in_data.position, getParticleStart()) / distance(getParticleStart(), getParticleEnd()) >= getParticleLength()) {
             discard;
         }
     #endif
