@@ -136,22 +136,28 @@ void Emitter<P>::setRotation(const glm::quat& new_rotation) noexcept {
 
 template<typename P>
 void Emitter<P>::spawnParticles() noexcept {
+    using namespace std::chrono;
+
     if (spawn.spawn_rate <= 0.0f) {
         return;
     }
 
-    const auto current_time = std::chrono::steady_clock::now();
-    if (spawn.last_spawn == std::chrono::time_point<std::chrono::steady_clock>()) {
+    const auto isFirst = [&] () {
+        return spawn.last_spawn == time_point<steady_clock>();
+    };
+
+    const auto current_time = steady_clock::now();
+    if (isFirst()) {
         spawn.last_spawn = current_time;
     }
-    const auto delta = std::chrono::duration_cast<std::chrono::duration<float>>(current_time - spawn.last_spawn).count();
+    const auto delta = duration_cast<std::chrono::duration<float>>(current_time - spawn.last_spawn).count();
 
     switch (spawn.mode) {
         case EmitterSpawn::Mode::Spray: {
-            if (delta >= (1.0f / spawn.spawn_rate)) {
-                const int remaining = spawn.max_count - particles.size();
+            if (delta >= (1.0f / spawn.spawn_rate) || isFirst()) {
+                const auto remaining = spawn.max_count - particles.size();
                 if (remaining > 0) {
-                    emit(glm::clamp(static_cast<int>(delta * spawn.spawn_rate), 1, remaining));
+                    emit(glm::clamp(static_cast<size_t>(delta * spawn.spawn_rate), 1ULL, remaining));
                 }
                 spawn.last_spawn = current_time;
             }
@@ -159,7 +165,7 @@ void Emitter<P>::spawnParticles() noexcept {
         }
         case EmitterSpawn::Mode::Burst:
             if (spawn.burst->loops != spawn.burst->loops_done) {
-                if ((current_time - spawn.last_spawn).count() >= spawn.spawn_rate) {
+                if (delta >= (1.0f / spawn.spawn_rate) || isFirst()) {
                     auto emit_count = spawn.burst->burst_count->get();
                     emit_count = (particles.size() + emit_count > spawn.max_count) ? spawn.max_count - particles.size() : emit_count;
                     emit(emit_count);
