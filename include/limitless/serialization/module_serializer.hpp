@@ -29,12 +29,13 @@
 #include <limitless/assets.hpp>
 #include <limitless/fx/modules/mesh_location_attachment.hpp>
 #include <limitless/fx/modules/time.hpp>
+#include <limitless/fx/modules/beam_speed.hpp>
 
 namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
     private:
-        static constexpr uint8_t VERSION = 0x5;
+        static constexpr uint8_t VERSION = 0x4;
     public:
         ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
@@ -147,6 +148,12 @@ namespace Limitless {
                 case fx::ModuleType::Beam_InitialTarget: {
                     if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
                         buffer << static_cast<const fx::BeamTarget<Particle>&>(module).getDistribution();
+                    }
+                    break;
+                }
+                case fx::ModuleType::BeamSpeed: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
+                        buffer << static_cast<const fx::BeamSpeed<Particle>&>(module).getDistribution();
                     }
                     break;
                 }
@@ -344,6 +351,14 @@ namespace Limitless {
                 case fx::ModuleType::BeamBuilder: {
                     if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
                         module = std::make_unique<fx::BeamBuilder<Particle>>();
+                    }
+                    break;
+                }
+                case fx::ModuleType::BeamSpeed: {
+                    if constexpr (std::is_same_v<Particle, fx::BeamParticle>) {
+                        std::unique_ptr<Distribution<float>> distr;
+                        buffer >> distr;
+                        module = std::make_unique<fx::BeamSpeed<Particle>>(std::move(distr));
                     }
                     break;
                 }

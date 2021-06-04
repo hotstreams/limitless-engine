@@ -24,6 +24,8 @@ VertexArray& Limitless::fx::operator<<(VertexArray& vertex_array, const std::pai
     vertex_array.setAttribute(4, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, acceleration_lifetime), attribute.second });
     vertex_array.setAttribute(5, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, rotation_time), attribute.second });
     vertex_array.setAttribute(6, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, velocity_size), attribute.second });
-    vertex_array.setAttribute(7, VertexAttribute{2, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, uv), attribute.second });
+    vertex_array.setAttribute(7, VertexAttribute{4, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, uv_length), attribute.second });
+    vertex_array.setAttribute(8, VertexAttribute{3, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, start), attribute.second });
+    vertex_array.setAttribute(9, VertexAttribute{3, GL_FLOAT, GL_FALSE, sizeof(BeamParticleMapping), (GLvoid*)offsetof(BeamParticleMapping, end), attribute.second });
     return vertex_array;
 }

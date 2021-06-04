@@ -53,7 +53,27 @@ in vertex_data {
     #if defined(BeamEmitter) || defined(MeshEmitter)
         vec2 uv;
     #endif
+
+    #if defined(BeamEmitter) && defined(BeamSpeed_MODULE)
+        vec3 start;
+        vec3 end;
+        float length;
+    #endif
 } in_data;
+
+#if defined(BeamEmitter) && defined(BeamSpeed_MODULE)
+    float getParticleLength() {
+        return in_data.length;
+    }
+
+    vec3 getParticleStart() {
+        return in_data.start;
+    }
+
+    vec3 getParticleEnd() {
+        return in_data.end;
+    }
+#endif
 
 #if defined(InitialColor_MODULE)
     vec4 getParticleColor() {
@@ -164,6 +184,12 @@ void main() {
     #include "../glsl/material_variables.glsl"
 
     Limitless::CustomMaterialFragmentCode
+
+    #if defined(BeamSpeed_MODULE)
+        if (distance(in_data.position, getParticleEnd()) / distance(getParticleStart(), getParticleEnd()) >= getParticleLength()) {
+            discard;
+        }
+    #endif
 
     // computing final color
     vec4 fragment_color = vec4(1.0);

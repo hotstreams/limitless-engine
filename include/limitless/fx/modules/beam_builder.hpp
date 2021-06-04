@@ -67,6 +67,8 @@ namespace Limitless::fx {
                 pos.y *= pos.w;
                 pos.z *= pos.w;
 
+                pos = glm::inverse(camera.getProjection() * camera.getView()) * pos;
+
                 glm::vec2 uv;
                 switch (tri_i) {
                     case 0:
@@ -102,6 +104,9 @@ namespace Limitless::fx {
                 p.getTime() = particle.getTime();
                 p.getVelocity() = particle.getVelocity();
                 p.getUV() = uv;
+                p.getLength() = particle.getLength();
+                p.getStart() = particle.getPosition();
+                p.getEnd() = particle.getTarget();
 
                 beam_particles.emplace_back(std::move(p));
             }

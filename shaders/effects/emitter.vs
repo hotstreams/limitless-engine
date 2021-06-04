@@ -92,6 +92,12 @@ out vertex_data {
     #if defined(BeamEmitter) || defined(MeshEmitter)
         vec2 uv;
     #endif
+
+    #if defined(BeamEmitter) && defined(BeamSpeed_MODULE)
+        vec3 start;
+        vec3 end;
+        float length;
+    #endif
 } out_data;
 
 void main() {
@@ -110,10 +116,15 @@ void main() {
 
         Limitless::CustomMaterialVertexCode
 
-        // vertex pos already proj space!
-        // todo: fix
         out_data.position = vec3(vertex_position);
+        gl_Position = VP * vertex_position;
         out_data.uv = uv;
+
+        #if defined(BeamSpeed_MODULE)
+            out_data.start = getParticleStart();
+            out_data.end = getParticleEnd();
+            out_data.length = getParticleLength();
+        #endif
     #endif
 
     #if defined(MeshEmitter)

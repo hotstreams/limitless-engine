@@ -85,6 +85,7 @@ namespace Limitless::fx {
         EffectBuilder& addBeamInitialDisplacement(std::unique_ptr<Distribution<float>> distribution);
         EffectBuilder& addBeamInitialOffset(std::unique_ptr<Distribution<float>> distribution);
         EffectBuilder& addBeamInitialRebuild(std::unique_ptr<Distribution<float>> distribution);
+        EffectBuilder& addBeamSpeed(std::unique_ptr<Distribution<float>> distribution);
 
         EffectBuilder& addCustomMaterial(std::unique_ptr<Distribution<float>> p1,
                                          std::unique_ptr<Distribution<float>> p2,

@@ -34,6 +34,7 @@ namespace Limitless::fx {
         Beam_InitialOffset,
         Beam_InitialRebuild,
         Beam_InitialTarget,
+        BeamSpeed,
         BeamBuilder,
 
         // should be at last
