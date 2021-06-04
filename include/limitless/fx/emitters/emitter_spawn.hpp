@@ -22,7 +22,7 @@ namespace Limitless::fx {
         float spawn_rate {1.0f};
 
         // last time emitted
-        std::chrono::time_point<std::chrono::steady_clock> last_spawn;
+        std::chrono::time_point<std::chrono::steady_clock> last_spawn {};
 
         struct Burst {
             // particles count for 1 burst

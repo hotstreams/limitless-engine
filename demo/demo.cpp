@@ -865,7 +865,7 @@ EffectInstance* inst;
                     .addColorByLife(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(1.5, 0.5, 0.0, 1.0)))
                     .addInitialMeshLocation(assets.meshes.at("sphere"), glm::vec3(0.25f), glm::vec3(0.0f))
                     .setMaxCount(200)
-                    .setSpawnRate(1000.0f)
+                    .setSpawnRate(200.0f)
                 .createEmitter<fx::SpriteEmitter>("glow")
                     .addInitialSize(std::make_unique<ConstDistribution<float>>(128.0f))
                     .addSizeByLife(std::make_unique<ConstDistribution<float>>(256.0f))
@@ -877,6 +877,7 @@ EffectInstance* inst;
                 .build();
 
         fireball = &scene.add<EffectInstance>(assets.effects.at("fireball"), glm::vec3{3.0f, 3.0f, 3.0f});
+//        fireball->setRotation(glm::vec3(0.0f, PI / 4.0f, 0.0f));
     }
 
     void onMouseMove(glm::dvec2 pos) override {
