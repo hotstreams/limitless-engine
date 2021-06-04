@@ -56,11 +56,12 @@ EffectInstance::EffectInstance(const EffectInstance& effect) noexcept
 
 void EffectInstance::update(Context& context, Camera& camera) {
     AbstractInstance::update(context, camera);
-    done = isDone();
 
     for (auto& [name, emitter] : emitters) {
         emitter->update(context, camera);
     }
+
+    done = isDone();
 }
 
 void EffectInstance::draw([[maybe_unused]] Limitless::Context& ctx,
