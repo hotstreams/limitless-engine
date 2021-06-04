@@ -34,7 +34,7 @@ namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
     private:
-        static constexpr uint8_t VERSION = 0x4;
+        static constexpr uint8_t VERSION = 0x5;
     public:
         ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
@@ -72,9 +72,13 @@ namespace Limitless {
                 }
                 case fx::ModuleType::InitialMeshLocation: {
                     if (std::holds_alternative<std::shared_ptr<AbstractModel>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())) {
-                        buffer << std::get<std::shared_ptr<AbstractModel>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName();
+                        buffer << std::get<std::shared_ptr<AbstractModel>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName()
+                               << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getScale()
+                               << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getRotation();
                     } else {
-                        buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName();
+                        buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName()
+                               << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getScale()
+                               << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getRotation();
                     }
                     break;
                 }
@@ -225,11 +229,13 @@ namespace Limitless {
                 }
                 case fx::ModuleType::InitialMeshLocation: {
                     std::string mesh_name;
-                    buffer >> mesh_name;
+                    glm::vec3 scale;
+                    glm::vec3 rotation;
+                    buffer >> mesh_name >> scale >> rotation;
                     try {
-                        module = std::make_unique<fx::InitialMeshLocation<Particle>>(assets.models.at(mesh_name));
+                        module = std::make_unique<fx::InitialMeshLocation<Particle>>(assets.models.at(mesh_name), scale, rotation);
                     } catch (...) {
-                        module = std::make_unique<fx::InitialMeshLocation<Particle>>(assets.meshes.at(mesh_name));
+                        module = std::make_unique<fx::InitialMeshLocation<Particle>>(assets.meshes.at(mesh_name), scale, rotation);
                     }
                     break;
                 }

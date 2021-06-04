@@ -141,6 +141,9 @@ void Emitter<P>::spawnParticles() noexcept {
     }
 
     const auto current_time = std::chrono::steady_clock::now();
+    if (spawn.last_spawn == std::chrono::time_point<std::chrono::steady_clock>()) {
+        spawn.last_spawn = current_time;
+    }
     const auto delta = std::chrono::duration_cast<std::chrono::duration<float>>(current_time - spawn.last_spawn).count();
 
     switch (spawn.mode) {
