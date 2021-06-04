@@ -587,6 +587,7 @@ EffectInstance* inst;
                 .build();
 
         scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{5.0f});
+        scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{10.0f, 10.0f, -10.0f});
 
         const fs::path assets_dir {ASSETS_DIR};
 
@@ -895,7 +896,7 @@ EffectInstance* inst;
         }
 
         if (key == GLFW_KEY_SPACE && state == InputState::Pressed) {
-            scene.add<EffectInstance>(assets.effects.at("shield_hit"), glm::vec3{0.0f, 2.0f, 0.0f});
+            scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{10.0f, 10.0f, -10.0f});
         }
 
         if (key == GLFW_KEY_2 && state == InputState::Pressed) {
