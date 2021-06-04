@@ -486,15 +486,15 @@ EffectInstance* inst;
 
         builder.create("mesh_test")
                .createEmitter<fx::SpriteEmitter>("sparks")
-               .addLifetime(std::make_unique<RangeDistribution<float>>(1.0f, 2.0f))
+               .addLifetime(std::make_unique<ConstDistribution<float>>(1.0f))
 //               .addLifetime(std::make_unique<ConstDistribution<float>>(9999.0f))
                .addInitialSize(std::make_unique<ConstDistribution<float>>(5.0f))
                .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{0.0f}, glm::vec4{2.0f}))
 //               .addInitialMeshLocation(assets.models.at("bob"))
                .addMeshLocationAttachment(assets.models.at("bob"))
                .setMaterial(assets.materials.at("EmissiveColor"))
-               .setMaxCount(10000)
-               .setSpawnRate(5000)
+               .setMaxCount(1000)
+               .setSpawnRate(1000.0f)
                .build();
 
         builder.create("effect1")
@@ -513,11 +513,11 @@ EffectInstance* inst;
                 .setLocalSpace(true)
                 .build();
 
-//        effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, 8.f});
-//        auto& e = scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{4.f, 1.f, 8.f});
-//        scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{6.f, 1.f, 8.f});
-//
-//        e.get<fx::SpriteEmitter>("generate").getMaterial().getEmissiveColor().setValue(glm::vec4(2.0f));
+        effect = &scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{2.f, 1.f, 8.f});
+        auto& e = scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{4.f, 1.f, 8.f});
+        scene.add<EffectInstance>(assets.effects.at("effect1"), glm::vec3{6.f, 1.f, 8.f});
+
+        e.get<fx::SpriteEmitter>("generate").getMaterial().getEmissiveColor().setValue(glm::vec4(2.0f));
 
         builder.create("effect2")
                 .createEmitter<fx::MeshEmitter>("generate")
@@ -538,7 +538,7 @@ EffectInstance* inst;
 //        EffectLoader::save(assets.getBaseDir() / "effects/test2", assets.effects.at("effect2"));
 //        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test2");
 
-//        effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
+        effect = &scene.add<EffectInstance>(assets.effects.at("effect2"), glm::vec3{5.f, 1.f, -5.f});
 
         fx::EffectBuilder beam_builder{assets};
         beam_builder.create("test_beam")
@@ -546,27 +546,20 @@ EffectInstance* inst;
                      .setMaterial(assets.materials.at("EmissiveColor"))
                      .addLifetime(std::make_unique<ConstDistribution<float>>(1.0f))
                      .setMaxCount(1)
+                     .setSpawnRate(1.0f)
                      .build();
 
 //        EffectLoader::save(assets.getBaseDir() / "effects/test3", assets.effects.at("test_beam"));
 //        EffectLoader::load(context, assets, RenderSettings{}, assets.getBaseDir() / "effects/test3");
 
-//        scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{8.0f, 2.0f, 8.0f});
+        scene.add<EffectInstance>(assets.effects.at("test_beam"), glm::vec3{8.0f, 2.0f, 8.0f});
 
-//        const auto& module = scene.add<EffectInstance>(assets.effects.at("mesh_test"), glm::vec3{0.0f, 0.0f, 0.0f})
-//            .get<fx::SpriteEmitter>("sparks")
-//            .getModule(fx::ModuleType::MeshLocationAttachment);
+        const auto& module = scene.add<EffectInstance>(assets.effects.at("mesh_test"), glm::vec3{0.0f, 0.0f, 0.0f})
+            .get<fx::SpriteEmitter>("sparks")
+            .getModule(fx::ModuleType::MeshLocationAttachment);
 //
-//        static_cast<fx::MeshLocationAttachment<fx::SpriteParticle>&>(*module)
-//        .attachModelInstance(bob);
-
-//        const auto& module = scene.add<EffectInstance>(assets.effects.at("fireball"), glm::vec3{0.0f, 0.0f, 0.0f})
-//                .get<fx::SpriteEmitter>("test")
-//                .getModule(fx::ModuleType::MeshLocationAttachment);
-//
-//        static_cast<fx::MeshLocationAttachment<fx::SpriteParticle>&>(*module)
-//                .attachModelInstance(bob);
-
+        static_cast<fx::MeshLocationAttachment<fx::SpriteParticle>&>(*module)
+        .attachModelInstance(bob);
 
         ms::MaterialBuilder materialBuilder {assets};
         materialBuilder.setName("beam_lightning")
@@ -578,17 +571,22 @@ EffectInstance* inst;
 
         builder.create("lightning")
                 .createEmitter<fx::BeamEmitter>("beam")
-                .setMaxCount(50)
+                .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Burst)
+                .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(10))
+                .setMaxCount(10)
+                .addTime()
                 .setSpawnRate(10.0f)
-                .addLifetime(std::make_unique<RangeDistribution<float>>(0.5f, 1.0f))
+                .addLifetime(std::make_unique<ConstDistribution<float>>(5.0f))
+                .addInitialSize(std::make_unique<ConstDistribution<float>>(8.0f))
                 .addBeamInitialTarget(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.0f)))
-                .addBeamInitialDisplacement(std::make_unique<ConstDistribution<float>>(2.0f))
-                .addBeamInitialOffset(std::make_unique<ConstDistribution<float>>(2.0f))
-                .addBeamInitialRebuild(std::make_unique<ConstDistribution<float>>(0.5f))
+                .addBeamInitialDisplacement(std::make_unique<ConstDistribution<float>>(0.5f))
+                .addBeamInitialOffset(std::make_unique<ConstDistribution<float>>(0.1f))
+                .addBeamInitialRebuild(std::make_unique<ConstDistribution<float>>(2.0f))
                 .setMaterial(assets.materials.at("beam_lightning"))
+                .addBeamSpeed(std::make_unique<ConstDistribution<float>>(1.0f))
                 .build();
 
-//        scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{5.0f});
+        scene.add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{5.0f});
 
         const fs::path assets_dir {ASSETS_DIR};
 
@@ -701,8 +699,7 @@ EffectInstance* inst;
 //                    .addInitialColor(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.54f * 6.0f, 0.0f, 1.0f * 6.0f, 1.0f)))
                 .build();
 
-//        scene.add<EffectInstance>(assets.effects.at("blink"), glm::vec3{-3.0f, 3.0f, 3.0f});
-
+        scene.add<EffectInstance>(assets.effects.at("blink"), glm::vec3{-3.0f, 3.0f, 3.0f});
 
         materialBuilder.setName("shield")
             .setShading(Limitless::ms::Shading::Unlit)
@@ -766,7 +763,6 @@ EffectInstance* inst;
                         .build();
 
         inst = &scene.add<EffectInstance>(assets.effects.at("shield"), glm::vec3{0.0f, 2.0f, 0.0f});
-
 
         materialBuilder.setName("fireball_material")
                 .setFragmentSnippet("uv.y -= 0.1;\n"
@@ -877,7 +873,6 @@ EffectInstance* inst;
                 .build();
 
         fireball = &scene.add<EffectInstance>(assets.effects.at("fireball"), glm::vec3{3.0f, 3.0f, 3.0f});
-//        fireball->setRotation(glm::vec3(0.0f, PI / 4.0f, 0.0f));
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -924,6 +919,13 @@ EffectInstance* inst;
     }
 
     void handleInput(float delta) noexcept {
+        if (context.isPressed(GLFW_KEY_7)) {
+            bob->setPosition(bob->getPosition() + glm::vec3(0.1, 0.0, 0.0));
+        }
+        if (context.isPressed(GLFW_KEY_8)) {
+            bob->setPosition(bob->getPosition() - glm::vec3(0.1, 0.0, 0.0));
+        }
+
         if (context.isPressed(GLFW_KEY_W)) {
             camera.movement(CameraMovement::Forward, delta);
         }

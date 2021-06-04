@@ -60,12 +60,29 @@ vec4 getParticlePosition() {
     }
 
     float getParticleSize() {
-        return vertex_position_size.w;
+        return vertex_velocity_size.w;
     }
 #endif
 
-layout (location = 7) in vec2 vertex_uv;
+layout (location = 7) in vec4 vertex_uv_length;
 
 vec2 getParticleUV() {
-    return vertex_uv;
+    return vertex_uv_length.xy;
 }
+
+float getParticleLength() {
+    return vertex_uv_length.z;
+}
+
+#if defined(BeamSpeed_MODULE)
+    layout (location = 8) in vec3 vertex_start;
+    layout (location = 9) in vec3 vertex_end;
+
+    vec3 getParticleStart() {
+        return vertex_start;
+    }
+
+    vec3 getParticleEnd() {
+        return vertex_end;
+    }
+#endif

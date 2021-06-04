@@ -212,7 +212,7 @@ EffectBuilder& EffectBuilder::addInitialMeshLocation(std::shared_ptr<AbstractMod
     return *this;
 }
 
-EffectBuilder& EffectBuilder::addMeshLocationAttachment(std::shared_ptr<AbstractModel> mesh) {
+EffectBuilder& EffectBuilder::addMeshLocationAttachment(std::shared_ptr<AbstractMesh> mesh) {
     if (!mesh) {
         throw std::runtime_error{"Empty mesh cannot be set"};
     }
@@ -221,6 +221,14 @@ EffectBuilder& EffectBuilder::addMeshLocationAttachment(std::shared_ptr<Abstract
     return *this;
 }
 
+EffectBuilder& EffectBuilder::addMeshLocationAttachment(std::shared_ptr<AbstractModel> mesh) {
+    if (!mesh) {
+        throw std::runtime_error{"Empty mesh cannot be set"};
+    }
+
+    addModule<MeshLocationAttachment>(std::move(mesh));
+    return *this;
+}
 
 EffectBuilder& EffectBuilder::addSubUV(const glm::vec2& size, float fps, const glm::vec2& frame_count) {
     addModule<SubUV>(size, fps, frame_count);
@@ -247,6 +255,14 @@ EffectBuilder& EffectBuilder::addTime() {
     return *this;
 }
 
+EffectBuilder& EffectBuilder::addBeamSpeed(std::unique_ptr<Distribution<float>> distribution) {
+    if (effect->emitters.at(last_emitter)->getType() != AbstractEmitter::Type::Beam) {
+        throw std::runtime_error{"Cannot set to not BeamEmitter"};
+    }
+
+    effect->get<BeamEmitter>(last_emitter).modules.emplace(new BeamSpeed<BeamParticle>(std::move(distribution)));
+    return *this;
+}
 
 EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<float>> distribution) {
     switch (effect->emitters.at(last_emitter)->getType()) {

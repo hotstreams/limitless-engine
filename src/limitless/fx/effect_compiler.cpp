@@ -94,6 +94,9 @@ std::string EffectCompiler::getEmitterDefines(const AbstractEmitter& emitter) no
             case ModuleType::BeamBuilder:
                 defines.append("#define BeamBuilder_MODULE\n");
                 break;
+            case ModuleType::BeamSpeed:
+                defines.append("#define BeamSpeed_MODULE\n");
+                break;
             case ModuleType::Time:
                 defines.append("#define Time_MODULE\n");
                 break;
