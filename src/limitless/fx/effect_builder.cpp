@@ -230,13 +230,13 @@ EffectBuilder& EffectBuilder::addTime() {
 }
 
 
-EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<float>> distribution, float factor) {
+EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<float>> distribution) {
     switch (effect->emitters.at(last_emitter)->getType()) {
         case AbstractEmitter::Type::Sprite:
-            effect->get<SpriteEmitter>(last_emitter).modules.emplace(new SizeByLife<SpriteParticle>(std::move(distribution), factor));
+            effect->get<SpriteEmitter>(last_emitter).modules.emplace(new SizeByLife<SpriteParticle>(std::move(distribution)));
             break;
         case AbstractEmitter::Type::Beam:
-            effect->get<BeamEmitter>(last_emitter).modules.emplace(new SizeByLife<BeamParticle>(std::move(distribution), factor));
+            effect->get<BeamEmitter>(last_emitter).modules.emplace(new SizeByLife<BeamParticle>(std::move(distribution)));
             break;
         case AbstractEmitter::Type::Mesh:
             throw std::runtime_error("Bad addSizeByLife argument specified!");
@@ -244,13 +244,13 @@ EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<float>>
     return *this;
 }
 
-EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<glm::vec3>> distribution, float factor) {
+EffectBuilder& EffectBuilder::addSizeByLife(std::unique_ptr<Distribution<glm::vec3>> distribution) {
     switch (effect->emitters.at(last_emitter)->getType()) {
         case AbstractEmitter::Type::Sprite:
         case AbstractEmitter::Type::Beam:
             throw std::runtime_error("Bad addSizeByLife argument specified!");
         case AbstractEmitter::Type::Mesh:
-            effect->get<MeshEmitter>(last_emitter).modules.emplace(new SizeByLife<MeshParticle>(std::move(distribution), factor));
+            effect->get<MeshEmitter>(last_emitter).modules.emplace(new SizeByLife<MeshParticle>(std::move(distribution)));
             break;
     }
     return *this;

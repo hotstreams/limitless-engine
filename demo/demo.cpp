@@ -502,7 +502,7 @@ EffectInstance* inst;
                 .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{0.0f}, glm::vec3{0.0f, 5.0f, 0.0f}))
                 .addLifetime(std::make_unique<RangeDistribution<float>>(0.2f, 0.5f))
                 .addInitialSize(std::make_unique<RangeDistribution<float>>(1.0f, 25.0f))
-                .addSizeByLife(std::make_unique<ConstDistribution<float>>(0.0f), 1.0f)
+                .addSizeByLife(std::make_unique<ConstDistribution<float>>(0.0f))
                 .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{0.0f}, glm::vec4{2.0f}))
                 .setMaterial(assets.materials.at("EmissiveColor"))
                 .setSpawnMode(fx::EmitterSpawn::Mode::Burst)
@@ -627,10 +627,8 @@ EffectInstance* inst;
                     .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(10))
                     .setMaxCount(10)
                     .setSpawnRate(10.0f)
-//                    .addInitialSize(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.1f), glm::vec3(0.25f)))
                     .addInitialSize(std::make_unique<RangeDistribution<float>>(128.0f, 256.0f))
-//                    .addSizeByLife(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(1.0f)), 1.0f)
-                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(512.0f), 1.0f)
+                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(512.0f))
                     .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(6.28f)))
                     .addInitialLocation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(0.1f)))
                     .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.05f, 0.01f, -0.05f), glm::vec3(0.05f)))
@@ -658,7 +656,7 @@ EffectInstance* inst;
 //                    .addInitialSize(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.1f), glm::vec3(0.15f)))
                     .addInitialSize(std::make_unique<RangeDistribution<float>>(64.0f, 128.0f))
 //                    .addSizeByLife(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.5f)), 1.0f)
-                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(256.0f), 1.0f)
+                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(256.0f))
                     .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(6.28f)))
                     .addInitialLocation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(0.0f), glm::vec3(0.1f)))
                     .addLifetime(std::make_unique<ConstDistribution<float>>(2.0f))
@@ -709,14 +707,17 @@ EffectInstance* inst;
             .setShading(Limitless::ms::Shading::Unlit)
             .setBlending(Limitless::ms::Blending::Additive)
             .addModelShader(Limitless::ModelShader::Effect)
-//            .setTwoSided(true)
             .add(Limitless::ms::Property::Color, glm::vec4(1.0f))
             .addUniform(std::make_unique<UniformSampler>("maintexture", loader.load(assets_dir / "textures/shield_texture.jpg")))
-//            .addUniform(std::make_unique<UniformValue<glm::vec4>>("fresnel_color", glm::vec4(2.0f, 2.0f, 1.0f, 1.0f)))
+            .addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir / "textures/noise.png")))
+            .addUniform(std::make_unique<UniformValue<float>>("vertex_offset_freq", 2.0f))
+            .addUniform(std::make_unique<UniformValue<glm::vec3>>("vertex_offset_dir", glm::vec3(0.2)))
             .setFragmentSnippet(""
-                                "float fres = fresnel(getMeshNormal(), +camera_position.xyz - getParticlePosition(), 2.5);"
+                                "float fres = fresnel(getMeshNormal(), camera_position.xyz - getParticlePosition(), 3.5);"
                                 "mat_color.rgb *= 1.0 - texture(maintexture, uv).r;"
-                                "mat_color.rgb *= fres * vec3(33.0 / 255.0 * 15.0f, 99.0 / 255.0 * 15.0f, 191.0 / 255.0 * 25.0f);")
+                                "mat_color.rgb *= fres * vec3(33.0 / 255.0 * 15.0f, 99.0 / 255.0 * 15.0f, 1000.0 / 255.0 * 25.0f);")
+            .setVertexSnippet("vertex_position += sin(getParticleTime() * vertex_offset_freq) * getMeshNormal() * vertex_offset_dir *texture(noise, getParticleTime() + uv).r;")
+
             .setGlobalSnippet("#include \"../functions/fresnel.glsl\"")
         .build();
 
@@ -725,14 +726,18 @@ EffectInstance* inst;
                 .setBlending(Limitless::ms::Blending::Translucent)
                 .addModelShader(Limitless::ModelShader::Effect)
                 .setTwoSided(true)
-                .add(Limitless::ms::Property::Color, glm::vec4(20.0, 20.0, 2.0, 1.0f))
+                .add(Limitless::ms::Property::Color, glm::vec4(8.1f, 0.5f, 12.3f, 1.0f))
                 .addUniform(std::make_unique<UniformSampler>("maintexture", loader.load(assets_dir / "textures/shield_texture.jpg")))
+                .addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir / "textures/noise.png")))
+                .addUniform(std::make_unique<UniformValue<float>>("vertex_offset_freq", 2.0f))
+                .addUniform(std::make_unique<UniformValue<glm::vec3>>("vertex_offset_dir", glm::vec3(0.2)))
                 .addUniform(std::make_unique<UniformValue<glm::vec3>>("hit_pos", glm::vec3(0.9, 2.0, 0.0)))
                 .setFragmentSnippet(""
-                                    "float fres = sphere_mask(getParticlePosition(), hit_pos, 0.5, 0.9);"
+                                    "float fres = sphere_mask(getParticlePosition(), hit_pos, 0.4, getParticleProperties().x);"
                                     "mat_color *= 1.0 - texture(maintexture, uv).r;"
                                     "mat_color.a *= fres;")
-                .setGlobalSnippet("#include \"../functions/sphere_mask.glsl\"")
+                .setGlobalSnippet("#include \"../functions/sphere_mask.glsl\"\n")
+                .setVertexSnippet("vertex_position += sin(getParticleTime() * vertex_offset_freq) * getMeshNormal() * vertex_offset_dir * texture(noise, getParticleTime() + uv).r;")
                 .build();
 
         builder.create("shield")
@@ -740,21 +745,27 @@ EffectInstance* inst;
                         .addInitialSize(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.5f)))
                         .setMaterial(assets.materials.at("shield"))
                         .setMesh(assets.meshes.at("sphere"))
+                        .addTime()
                         .setMaxCount(1)
+                        .build();
+
+        builder.create("shield_hit")
                 .createEmitter<fx::MeshEmitter>("hit")
                         .addInitialSize(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.5f)))
                         .setMaterial(assets.materials.at("shield_hit"))
                         .setMesh(assets.meshes.at("sphere"))
+                        .addCustomMaterial(std::make_unique<ConstDistribution<float>>(1.0f), nullptr, nullptr, nullptr)
+                        .addCustomMaterialByLife(std::make_unique<ConstDistribution<float>>(0.3f), nullptr, nullptr, nullptr)
                         .addLifetime(std::make_unique<ConstDistribution<float>>(1.0f))
-                        .addColorByLife(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.0f)))
-                        .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Burst)
-                        .setBurstCount(std::make_unique<ConstDistribution<uint32_t>>(1))
-                        .setLoops(1)
-                        .setMaxCount(100)
-                        .setSpawnRate(999.9f)
+                        .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Spray)
+                        .setDuration(std::chrono::seconds(1))
+                        .addTime()
+                        .setMaxCount(1)
+                        .setSpawnRate(1.0f)
                         .build();
 
         inst = &scene.add<EffectInstance>(assets.effects.at("shield"), glm::vec3{0.0f, 2.0f, 0.0f});
+        scene.add<EffectInstance>(assets.effects.at("shield_hit"), glm::vec3{0.0f, 2.0f, 0.0f});
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -774,6 +785,10 @@ EffectInstance* inst;
         if (key == GLFW_KEY_1 && state == InputState::Pressed) {
             render.getSettings().physically_based_render = !render.getSettings().physically_based_render;
             render.update(context, assets, scene);
+        }
+
+        if (key == GLFW_KEY_SPACE && state == InputState::Pressed) {
+            scene.add<EffectInstance>(assets.effects.at("shield_hit"), glm::vec3{0.0f, 2.0f, 0.0f});
         }
 
         if (key == GLFW_KEY_2 && state == InputState::Pressed) {

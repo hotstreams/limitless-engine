@@ -34,7 +34,7 @@ namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
     private:
-        static constexpr uint8_t VERSION = 0x3;
+        static constexpr uint8_t VERSION = 0x4;
     public:
         ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
@@ -90,8 +90,7 @@ namespace Limitless {
                     buffer << static_cast<const fx::RotationRate<Particle>&>(module).getDistribution();
                     break;
                 case fx::ModuleType::SizeByLife:
-                    buffer << static_cast<const fx::SizeByLife<Particle>&>(module).getDistribution()
-                           << static_cast<const fx::SizeByLife<Particle>&>(module).getFactor();
+                    buffer << static_cast<const fx::SizeByLife<Particle>&>(module).getDistribution();
                     break;
                 case fx::ModuleType::CustomMaterial: {
                     auto& props = static_cast<const fx::CustomMaterial<Particle>&>(module).getProperties();
@@ -257,14 +256,12 @@ namespace Limitless {
                 case fx::ModuleType::SizeByLife: {
                     if constexpr (std::is_same_v<Particle, fx::MeshParticle>) {
                         std::unique_ptr<Distribution<glm::vec3>> distr;
-                        float factor;
-                        buffer >> distr >> factor;
-                        module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr), factor);
+                        buffer >> distr;
+                        module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr));
                     } else {
                         std::unique_ptr<Distribution<float>> distr;
-                        float factor;
-                        buffer >> distr >> factor;
-                        module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr), factor);
+                        buffer >> distr;
+                        module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr));
                     }
                     break;
                 }

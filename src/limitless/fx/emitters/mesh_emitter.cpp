@@ -22,10 +22,6 @@ MeshEmitter* MeshEmitter::clone() const {
 }
 
 void MeshEmitter::update(Context& context, const Camera& camera) {
-    if (done) {
-        return;
-    }
-
     Emitter::update(context, camera);
 
     for (auto& particle : particles) {

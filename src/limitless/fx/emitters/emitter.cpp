@@ -198,10 +198,6 @@ template<typename P>
 void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
     using namespace std::chrono;
 
-    if (done) {
-        return;
-    }
-
     const auto current_time = steady_clock::now();
     const auto delta_time = duration_cast<std::chrono::duration<float>>(current_time - last_time);
     last_time = current_time;
@@ -210,16 +206,21 @@ void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Ca
 		start_time = current_time;
 	}
 
-    spawnParticles();
     killParticles();
 
-    for (auto& module : modules) {
-        module->update(*this, particles, delta_time.count(), ctx, camera);
+    {
+        for (auto& module : modules) {
+            module->update(*this, particles, delta_time.count(), ctx, camera);
+        }
+
+        for (auto& particle : particles) {
+            particle.getPosition() += particle.getVelocity() * delta_time.count();
+            particle.getVelocity() += particle.getAcceleration() * delta_time.count();
+        }
     }
 
-    for (auto& particle : particles) {
-        particle.getPosition() += particle.getVelocity() * delta_time.count();
-        particle.getVelocity() += particle.getAcceleration() * delta_time.count();
+    if (!done) {
+        spawnParticles();
     }
 
     if (duration.count() != 0.0f) {
