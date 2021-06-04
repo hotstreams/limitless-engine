@@ -42,6 +42,7 @@ private:
 
     std::unique_ptr<TextInstance> text;
     EffectInstance* effect {};
+    EffectInstance* fireball {};
     ModelInstance* bob;
 public:
     Game()
@@ -765,7 +766,117 @@ EffectInstance* inst;
                         .build();
 
         inst = &scene.add<EffectInstance>(assets.effects.at("shield"), glm::vec3{0.0f, 2.0f, 0.0f});
-        scene.add<EffectInstance>(assets.effects.at("shield_hit"), glm::vec3{0.0f, 2.0f, 0.0f});
+
+
+        materialBuilder.setName("fireball_material")
+                .setFragmentSnippet("uv.y -= 0.1;\n"
+                                    "vec2 panned = vec2(uv.x + getParticleTime() * 0.5 + getParticleProperties().x, "
+                                    "uv.y + getParticleTime() * 0.8 + getParticleProperties().y);\n"
+                                    "uv += texture(noise, panned).g * 0.3;\n"
+                                    "\n"
+                                    "vec2 offset_panned1 = vec2(uv.x + getParticleTime() * 0.66, uv.y + getParticleTime() * 0.33);\n"
+                                    "float offset1 = texture(noise, offset_panned1).r;\n"
+                                    "\n"
+                                    "vec2 offset_panned2 = vec2(uv.x + getParticleTime() * 0.45, uv.y + getParticleTime() * 0.71);\n"
+                                    "float offset2 = texture(noise, offset_panned2).r;\n"
+                                    "\n"
+                                    "float r = offset1 * offset2;\n"
+                                    "\n"
+                                    "mat_diffuse = texture(material_diffuse, uv);\n"
+                                    "mat_diffuse.rgb *= clamp((mat_diffuse.a - getParticleProperties().z) * r, 0, 1);")
+                .addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir / "textures/true_noise.tga")))
+                .add(ms::Property::Diffuse, loader.load(assets_dir / "textures/true_fire.tga"))
+                .add(ms::Property::EmissiveColor, glm::vec4{10.0f, 3.0f, 1.0f, 1.0f})
+                .setShading(ms::Shading::Unlit)
+                .setBlending(ms::Blending::Additive)
+                .addModelShader(Limitless::ModelShader::Effect)
+                .build();
+
+        materialBuilder.setName("fireball_sparks")
+                .setFragmentSnippet("mat_emissive_color.rgb *= circle(uv, 0.7);")
+                .setGlobalSnippet("#include \"../functions/circle.glsl\"")
+                //.addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir / "textures/true_noise.tga")))
+                .add(ms::Property::EmissiveColor, glm::vec4{5.0f, 1.5f, 1.0f, 1.0f})
+                .setShading(ms::Shading::Unlit)
+                .setBlending(ms::Blending::Additive)
+                .addModelShader(Limitless::ModelShader::Effect)
+                .build();
+
+        materialBuilder.setName("fireball_ball")
+                .setVertexSnippet("vec2 uv_1 = vec2(uv.x + getParticleTime() * 0.05, uv.y + getParticleTime() * 0.0);\n"
+                                  "vec2 uv_2 = vec2(uv.x - getParticleTime() * 0.05, uv.y - getParticleTime() * 0.0);\n"
+                                  " \n"
+                                  "float s = texture(fire_mask, uv_1).r;\n"
+                                  "float t = texture(fire_mask, uv_2).r;\n"
+                                  "\n"
+                                  "vertex_position.xyz -= getMeshNormal() * texture(fire_mask, uv + vec2(s, t)).r * 0.6;")
+                .setFragmentSnippet("vec2 uv_1 = vec2(uv.x + getParticleTime() * 0.05, uv.y + getParticleTime() * 0.0);\n"
+                                    "vec2 uv_2 = vec2(uv.x - getParticleTime() * 0.05, uv.y - getParticleTime() * 0.0);\n"
+                                    " \n"
+                                    "float s = texture(fire_mask, uv_1).r;\n"
+                                    "float t = texture(fire_mask, uv_2).r;\n"
+                                    "\n"
+                                    "mat_diffuse.rgb = texture(material_diffuse, uv + vec2(s, t)).rgb;\n"
+                                    "\n"
+                                    "if (mat_diffuse.r <= 0.2) discard;")
+                .addUniform(std::make_unique<UniformSampler>("fire_mask", loader.load(assets_dir / "textures/fireball_mask.png")))
+                .add(ms::Property::Diffuse, loader.load(assets_dir / "textures/rock_lava.png"))
+                .add(ms::Property::Color, glm::vec4{15.0f, 5.0f, 0.0f, 1.0f})
+                .setShading(ms::Shading::Unlit)
+                .setBlending(ms::Blending::Opaque)
+                .addModelShader(Limitless::ModelShader::Effect)
+                .setTwoSided(true)
+                .build();
+
+        builder.create("fireball")
+                .createEmitter<Limitless::fx::SpriteEmitter>("fire")
+                    .addInitialRotation(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{6.28f, 0.0f, 0.0f}))
+                    .addLifetime(std::make_unique<RangeDistribution<float>>(0.5f, 0.7f))
+                    .addInitialSize(std::make_unique<ConstDistribution<float>>(256.0f))
+                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(512.0f))
+                    .addCustomMaterial(std::make_unique<RangeDistribution<float>>(0.0f, 0.9f),
+                                       std::make_unique<RangeDistribution<float>>(0.0f, 0.9f),
+                                       std::make_unique<ConstDistribution<float>>(0.0f),
+                                       nullptr)
+                    .addCustomMaterialByLife(nullptr,
+                                             nullptr,
+                                             std::make_unique<ConstDistribution<float>>(1.0f),
+                                             nullptr)
+                    .setMaterial(assets.materials.at("fireball_material"))
+                    .setSpawnMode(Limitless::fx::EmitterSpawn::Mode::Spray)
+                    .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(1.0, -1.0, -1.0), glm::vec3(2.0, 1.0, 1.0)))
+                    .setMaxCount(1000)
+                    .setSpawnRate(200.0f)
+                .createEmitter<fx::MeshEmitter>("ball")
+                    .setMesh(assets.meshes.at("sphere"))
+                    .setMaxCount(1)
+                    .setSpawnRate(200.0f)
+                    .setMaterial(assets.materials.at("fireball_ball"))
+                    .setLocalSpace(true)
+                    .addInitialSize(std::make_unique<ConstDistribution<glm::vec3>>(glm::vec3(0.2f)))
+                    .addTime()
+                .createEmitter<fx::SpriteEmitter>("sparks")
+                    .addLifetime(std::make_unique<RangeDistribution<float>>(0.5f, 0.7f))
+                    .addInitialSize(std::make_unique<ConstDistribution<float>>(25.0f))
+                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(0.0f))
+                    .setMaterial(assets.materials.at("fireball_sparks"))
+                    .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(1.0, -1.0, -1.0), glm::vec3(2.0, 1.0, 1.0)))
+                    .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4(1.5, 1.0, 1.0, 1.0), glm::vec4(2.5, 2.5, 2.5, 2.5)))
+                    .addColorByLife(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(1.5, 0.5, 0.0, 1.0)))
+                    .addInitialMeshLocation(assets.meshes.at("sphere"), glm::vec3(0.25f), glm::vec3(0.0f))
+                    .setMaxCount(200)
+                    .setSpawnRate(1000.0f)
+                .createEmitter<fx::SpriteEmitter>("glow")
+                    .addInitialSize(std::make_unique<ConstDistribution<float>>(128.0f))
+                    .addSizeByLife(std::make_unique<ConstDistribution<float>>(256.0f))
+                    .setMaterial(assets.materials.at("fireball_sparks"))
+                    .setLocalSpace(true)
+                    .setMaxCount(1)
+                    .addInitialColor(std::make_unique<ConstDistribution<glm::vec4>>(glm::vec4(0.3f)))
+                    .setSpawnRate(5.0f)
+                .build();
+
+        fireball = &scene.add<EffectInstance>(assets.effects.at("fireball"), glm::vec3{3.0f, 3.0f, 3.0f});
     }
 
     void onMouseMove(glm::dvec2 pos) override {
@@ -826,6 +937,14 @@ EffectInstance* inst;
 
         if (context.isPressed(GLFW_KEY_D)) {
             camera.movement(CameraMovement::Right, delta);
+        }
+
+        if (context.isPressed(GLFW_KEY_Y)) {
+            fireball->setPosition(fireball->getPosition() + glm::vec3(0.1, 0.0, 0.0));
+        }
+
+        if (context.isPressed(GLFW_KEY_U)) {
+            fireball->setPosition(fireball->getPosition() - glm::vec3(0.1, 0.0, 0.0));
         }
     }
 

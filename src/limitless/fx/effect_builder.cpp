@@ -176,6 +176,24 @@ EffectBuilder& EffectBuilder::addInitialAcceleration(std::unique_ptr<Distributio
     return *this;
 }
 
+EffectBuilder& EffectBuilder::addInitialMeshLocation(std::shared_ptr<AbstractMesh> mesh, const glm::vec3& scale, const glm::vec3& rotation) {
+    if (!mesh) {
+        throw std::runtime_error{"Empty mesh cannot be set"};
+    }
+
+    addModule<InitialMeshLocation>(std::move(mesh), scale, rotation);
+    return *this;
+}
+
+EffectBuilder& EffectBuilder::addInitialMeshLocation(std::shared_ptr<AbstractModel> mesh, const glm::vec3& scale, const glm::vec3& rotation) {
+    if (!mesh) {
+        throw std::runtime_error{"Empty mesh cannot be set"};
+    }
+
+    addModule<InitialMeshLocation>(std::move(mesh), scale, rotation);
+    return *this;
+}
+
 EffectBuilder& EffectBuilder::addInitialMeshLocation(std::shared_ptr<AbstractMesh> mesh) {
     if (!mesh) {
         throw std::runtime_error{"Empty mesh cannot be set"};

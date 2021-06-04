@@ -12,6 +12,16 @@ namespace Limitless::fx {
         std::default_random_engine generator;
 
         ModelInstance* instance {};
+        glm::vec3 scale {1.0f};
+        glm::vec3 rotation {0.0f};
+
+        glm::mat4 constructModelMatrix() {
+            auto rotation_matrix = glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1.0f, 0.f, 0.f));
+            rotation_matrix = glm::rotate(rotation_matrix, rotation.y, glm::vec3(0.0f, 1.f, 0.f));
+            rotation_matrix = glm::rotate(rotation_matrix, rotation.z, glm::vec3(0.0f, 0.f, 1.f));
+            const auto scale_matrix = glm::scale(glm::mat4(1.0f), scale);
+            return rotation_matrix * scale_matrix;
+        }
 
         glm::vec3 getPositionOnTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, float r1, float r2) noexcept {
             r1 = glm::sqrt(r1);
@@ -38,19 +48,19 @@ namespace Limitless::fx {
                     const auto pos2 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index2);
                     const auto pos3 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index3);
 
-                    return getPositionOnTriangle(pos1, pos2, pos3, r1, r2);
+                    return constructModelMatrix() * glm::vec4(getPositionOnTriangle(pos1, pos2, pos3, r1, r2), 1.0f);
                 }
 
-                return instance->getModelMatrix() * glm::vec4(getPositionOnTriangle(vertices[v_index1].position,
+                return constructModelMatrix() * instance->getModelMatrix() * glm::vec4(getPositionOnTriangle(vertices[v_index1].position,
                                                                                     vertices[v_index2].position,
                                                                                     vertices[v_index3].position,
                                                                                     r1, r2), 1.0f);
             }
 
-            return getPositionOnTriangle(vertices[v_index1].position,
+            return constructModelMatrix() * glm::vec4(getPositionOnTriangle(vertices[v_index1].position,
                                          vertices[v_index2].position,
                                          vertices[v_index3].position,
-                                         r1, r2);
+                                         r1, r2), 1.0f);
         }
 
         InitialMeshLocation(ModuleType type, std::shared_ptr<AbstractMesh> _mesh) noexcept
@@ -99,15 +109,31 @@ namespace Limitless::fx {
         }
     public:
         explicit InitialMeshLocation(std::shared_ptr<AbstractMesh> _mesh) noexcept
-            : Module<Particle>(ModuleType::InitialMeshLocation)
-            , mesh {std::move(_mesh)}
-            , generator {std::random_device()()} {
+                : Module<Particle>(ModuleType::InitialMeshLocation)
+                , mesh {std::move(_mesh)}
+                , generator {std::random_device()()} {
         }
 
         explicit InitialMeshLocation(std::shared_ptr<AbstractModel> _mesh) noexcept
+                : Module<Particle>(ModuleType::InitialMeshLocation)
+                , mesh {std::move(_mesh)}
+                , generator {std::random_device()()}{
+        }
+
+        explicit InitialMeshLocation(std::shared_ptr<AbstractMesh> _mesh, const glm::vec3& _scale, const glm::vec3& _rotation) noexcept
             : Module<Particle>(ModuleType::InitialMeshLocation)
             , mesh {std::move(_mesh)}
-            , generator {std::random_device()()} {
+            , generator {std::random_device()()}
+            , scale {_scale}
+            , rotation {_rotation} {
+        }
+
+        explicit InitialMeshLocation(std::shared_ptr<AbstractModel> _mesh, const glm::vec3& _scale, const glm::vec3& _rotation) noexcept
+            : Module<Particle>(ModuleType::InitialMeshLocation)
+            , mesh {std::move(_mesh)}
+            , generator {std::random_device()()}
+            , scale {_scale}
+            , rotation {_rotation} {
         }
 
         ~InitialMeshLocation() override = default;
@@ -121,6 +147,10 @@ namespace Limitless::fx {
 
         auto& getMesh() noexcept { return mesh; }
         const auto& getMesh() const noexcept { return mesh; }
+        auto& getScale() noexcept { return scale; }
+        const auto& getScale() const noexcept { return scale; }
+        auto& getRotation() noexcept { return rotation; }
+        const auto& getRotation() const noexcept { return rotation; }
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
             const auto selected_mesh = getSelectedMesh();
