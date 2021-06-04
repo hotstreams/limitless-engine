@@ -89,6 +89,8 @@ SkeletalInstance& SkeletalInstance::play(const std::string& name) {
         throw std::runtime_error("Animation not found " + name);
     } else {
         animation = &(*found);
+        animation_duration = std::chrono::seconds(0);
+        last_time = std::chrono::time_point<std::chrono::steady_clock>();
     }
 
     return *this;
@@ -122,7 +124,14 @@ void SkeletalInstance::update(Context& context, Camera& camera) {
 
     const Animation& anim = *animation;
 
-    double anim_time = fmod(glfwGetTime() * anim.tps, anim.duration);
+    const auto current_time = std::chrono::steady_clock::now();
+    if (last_time == std::chrono::time_point<std::chrono::steady_clock>()) {
+        last_time = current_time;
+    }
+    const auto delta_time = current_time - last_time;
+    animation_duration += delta_time;
+    last_time = current_time;
+    const auto animation_time = glm::mod(animation_duration.count() * anim.tps, anim.duration);
 
     std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
 
@@ -132,9 +141,9 @@ void SkeletalInstance::update(Context& context, Camera& camera) {
         auto local_transform = !bones[*node].isFake() ? bones[*node].node_transform : glm::mat4(1.f);
 
 	    if (anim_node) {
-            glm::vec3 scale = anim_node->scalingLerp(anim_time);
-            glm::vec3 position = anim_node->positionLerp(anim_time);
-            auto rotation = anim_node->rotationLerp(anim_time);
+            glm::vec3 scale = anim_node->scalingLerp(animation_time);
+            glm::vec3 position = anim_node->positionLerp(animation_time);
+            auto rotation = anim_node->rotationLerp(animation_time);
 
             auto translate = glm::translate(glm::mat4(1.f), position);
             auto rotate = glm::mat4_cast(rotation);

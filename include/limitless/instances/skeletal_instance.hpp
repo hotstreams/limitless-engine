@@ -2,6 +2,7 @@
 
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/skeletal_model.hpp>
+#include <chrono>
 
 namespace Limitless {
     class SkeletalInstance final : public ModelInstance {
@@ -11,6 +12,9 @@ namespace Limitless {
 
         const Animation* animation {};
         bool paused {};
+
+        std::chrono::time_point<std::chrono::steady_clock> last_time;
+        std::chrono::duration<double> animation_duration;
 
         void calculateBoundingBox() noexcept override;
         void initializeBuffer();
