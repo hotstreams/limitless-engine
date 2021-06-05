@@ -48,6 +48,14 @@ void MaterialBuilder::initializeMaterialBuffer() {
     offset_setter(material->uniforms, [] (const Uniform& uniform) { return uniform.getType() == UniformType::Sampler; });
     offset_setter(material->uniforms, [] (const Uniform& uniform) { return uniform.getType() != UniformType::Sampler; });
 
+    // fast fix for empty buffer
+    // in case if buffer is empty
+    // there is uint variable to create UBO
+    // so we should appropriately map the buffer size
+    if (offset == 0) {
+        offset = 4;
+    }
+
     BufferBuilder builder;
     material->material_buffer = builder
             .setTarget(Buffer::Type::Uniform)
