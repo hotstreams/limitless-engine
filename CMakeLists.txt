@@ -115,7 +115,7 @@ set(ENGINE_LOADERS
     src/limitless/loaders/material_loader.cpp
     src/limitless/loaders/effect_loader.cpp
     src/limitless/loaders/model_loader.cpp
-    src/limitless/loaders/asset_loader.cpp
+        src/limitless/loaders/asset_manager.cpp
     src/limitless/loaders/threaded_model_loader.cpp
     src/limitless/loaders/texture_loader.cpp
 )

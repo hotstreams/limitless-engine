@@ -4,7 +4,7 @@
 #include <limitless/loaders/material_loader.hpp>
 #include <ms/material_builder.hpp>
 #include <iostream>
-#include <limitless/loaders/asset_loader.hpp>
+#include <limitless/loaders/asset_manager.hpp>
 #include <particle_system/effect_builder.hpp>
 #include <limitless/loaders/effect_loader.hpp>
 

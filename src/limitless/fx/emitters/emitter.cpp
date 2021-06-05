@@ -157,7 +157,7 @@ void Emitter<P>::spawnParticles() noexcept {
             if (delta >= (1.0f / spawn.spawn_rate) || isFirst()) {
                 const auto remaining = spawn.max_count - particles.size();
                 if (remaining > 0) {
-                    emit(glm::clamp(static_cast<size_t>(delta * spawn.spawn_rate), 1ULL, remaining));
+                    emit(glm::clamp(static_cast<size_t>(delta * spawn.spawn_rate), static_cast<size_t>(1), remaining));
                 }
                 spawn.last_spawn = current_time;
             }

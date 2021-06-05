@@ -1,4 +1,4 @@
-#include <limitless/loaders/asset_loader.hpp>
+#include <limitless/loaders/asset_manager.hpp>
 
 #include <limitless/loaders/threaded_model_loader.hpp>
 #include <limitless/loaders/texture_loader.hpp>
@@ -17,19 +17,17 @@ AssetManager::~AssetManager() {
     wait();
 }
 
-void AssetManager::loadTexture(std::string asset_name, fs::path path, TextureLoaderFlags flags) {
-    auto load_texture = [&, name = std::move(asset_name), path = std::move(path), fl = std::move(flags)] () {
-        TextureLoader loader {assets};
-        assets.textures.add(name, loader.load(path, fl));
+void AssetManager::loadTexture(std::string asset_name, fs::path path, const TextureLoaderFlags& flags) {
+    auto load_texture = [&, name = std::move(asset_name), path = std::move(path), fl = flags] () {
+        assets.textures.add(name, TextureLoader::load(assets, path, fl));
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_texture)));
 }
 
-void AssetManager::loadModel(std::string asset_name, fs::path path, ModelLoaderFlags flags) {
-    auto load_model = [&, name = asset_name, path = std::move(path), fl = std::move(flags)] () {
-        ThreadedModelLoader loader {assets};
-        return loader.loadModel(path, fl);
+void AssetManager::loadModel(std::string asset_name, fs::path path, const ModelLoaderFlags& flags) {
+    auto load_model = [&, name = asset_name, path = std::move(path), fl = flags] () {
+        return ThreadedModelLoader::loadModel(assets, path, fl);
     };
 
     auto addition = [&, name = std::move(asset_name)] (future_model& future) {
@@ -69,7 +67,7 @@ void AssetManager::wait() {
     model_futures.clear();
 }
 
-void AssetManager::delayed_job() {
+void AssetManager::doDelayedJob() {
     using namespace std::chrono;
     for (auto it = model_futures.begin(); it != model_futures.end();) {
         auto& [future, addition] = *it;
@@ -101,4 +99,24 @@ void AssetManager::loadEffect(std::string asset_name, fs::path path) {
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_effect)));
+}
+
+void AssetManager::compileShaders(Context& ctx, const RenderSettings& settings) {
+    for (const auto& [_, material] : assets.materials) {
+        build([&, &ctx = ctx, &settings = settings, &material = material] () {
+            assets.compileMaterial(ctx, settings, material);
+        });
+    }
+
+    for (const auto& [_, effect] : assets.effects) {
+        build([&, &ctx = ctx, &settings = settings, &effect = effect] () {
+            assets.compileEffect(ctx, settings, effect);
+        });
+    }
+
+    for (const auto& [_, skybox] : assets.skyboxes) {
+        build([&, &ctx = ctx, &settings = settings, &skybox = skybox] () {
+            assets.compileSkybox(ctx, settings, skybox);
+        });
+    }
 }

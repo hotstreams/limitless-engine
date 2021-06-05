@@ -56,8 +56,7 @@ Uniform* UniformSerializer::deserializeUniformSampler(ByteBuffer& buffer, Assets
     try {
         texture = assets.textures.at(path.string());
     } catch (...) {
-        TextureLoader loader {assets};
-        texture = loader.load(path);
+        texture = TextureLoader::load(assets, path);
     }
 
     return new UniformSampler(name, std::move(texture));

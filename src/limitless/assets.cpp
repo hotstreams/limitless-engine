@@ -63,63 +63,16 @@ void Assets::add(const Assets& other) {
 }
 
 void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
-    // constructing pass shaders based on settings
-    PassShaders pass_shaders;
-    {
-        // adds current renderer
-        pass_shaders.emplace(settings.renderer);
-
-        // adds shadow pass
-        if (settings.directional_csm) {
-            pass_shaders.emplace(ShaderPass::DirectionalShadow);
-        }
+    for (const auto& [_, material] : materials) {
+        compileMaterial(ctx, settings, material);
     }
 
-    // compiles shaders for materials
-    {
-        ms::MaterialCompiler compiler {ctx, *this, settings};
-
-        // iterating over every material
-        for (const auto& [name, material] : materials) {
-            // iterating over required model types
-            for (const auto& model_shader_type : material->getModelShaders()) {
-                // effect shaders compiled separately
-                if (model_shader_type == ModelShader::Effect) {
-                    continue;
-                }
-
-                // iterating over required render pass
-                for (const auto& pass_shader : pass_shaders) {
-                    if (!shaders.contains(pass_shader, model_shader_type, material->getShaderIndex())) {
-                        compiler.compile(*material, pass_shader, model_shader_type);
-                    }
-                }
-            }
-        }
+    for (const auto& [_, effect] : effects) {
+        compileEffect(ctx, settings, effect);
     }
 
-    // compiles effect shaders
-    {
-        fx::EffectCompiler compiler {ctx, *this, settings};
-
-        // iterating over every effect
-        for (const auto& [name, effect] : effects) {
-            // iterating over required render pass
-            for (const auto& pass_shader : pass_shaders) {
-                compiler.compile(*effect, pass_shader);
-            }
-        }
-    }
-
-    // compiles skybox shaders
-    {
-        ms::MaterialCompiler compiler {ctx, *this, settings};
-
-        for (const auto& [name, skybox] : skyboxes) {
-            if (!shaders.contains(ShaderPass::Skybox, ModelShader::Model, skybox->getMaterial().getShaderIndex())) {
-                compiler.compile(skybox->getMaterial(), ShaderPass::Skybox, ModelShader::Model);
-            }
-        }
+    for (const auto& [_, skybox] : skyboxes) {
+        compileSkybox(ctx, settings, skybox);
     }
 }
 
@@ -128,4 +81,51 @@ void Assets::recompileShaders(Context& ctx, const RenderSettings& settings) {
     shaders.clearMaterialShaders();
 
     compileShaders(ctx, settings);
+}
+
+void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material) {
+    ms::MaterialCompiler compiler {ctx, *this, settings};
+
+    for (const auto& model_shader_type : material->getModelShaders()) {
+        // effect shaders compiled separately
+        if (model_shader_type == ModelShader::Effect) {
+            continue;
+        }
+
+        for (const auto& pass_shader : getRequiredPassShaders(settings)) {
+            if (!shaders.contains(pass_shader, model_shader_type, material->getShaderIndex())) {
+                compiler.compile(*material, pass_shader, model_shader_type);
+            }
+        }
+    }
+}
+
+PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
+    PassShaders pass_shaders;
+
+    // adds current renderer
+    pass_shaders.emplace(settings.renderer);
+
+    // adds shadow pass
+    if (settings.directional_csm) {
+        pass_shaders.emplace(ShaderPass::DirectionalShadow);
+    }
+
+    return pass_shaders;
+}
+
+void Assets::compileEffect(Context& ctx, const RenderSettings& settings, const std::shared_ptr<EffectInstance>& effect) {
+    fx::EffectCompiler compiler {ctx, *this, settings};
+
+    for (const auto& pass_shader : getRequiredPassShaders(settings)) {
+        compiler.compile(*effect, pass_shader);
+    }
+}
+
+void Assets::compileSkybox(Context& ctx, const RenderSettings& settings, const std::shared_ptr<Skybox>& skybox) {
+    ms::MaterialCompiler compiler {ctx, *this, settings};
+
+    if (!shaders.contains(ShaderPass::Skybox, ModelShader::Model, skybox->getMaterial().getShaderIndex())) {
+        compiler.compile(skybox->getMaterial(), ShaderPass::Skybox, ModelShader::Model);
+    }
 }

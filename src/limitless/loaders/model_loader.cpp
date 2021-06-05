@@ -13,11 +13,7 @@
 
 using namespace Limitless;
 
-ModelLoader::ModelLoader(Assets& _assets) noexcept
-    : assets {_assets} {
-}
-
-std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, const ModelLoaderFlags& flags) {
+std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::path& _path, const ModelLoaderFlags& flags) {
     const auto path = convertPathSeparators(_path);
 
     Assimp::Importer importer;
@@ -45,17 +41,14 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
         throw model_loader_error(importer.GetErrorString());
     }
 
-    unnamed_mesh_index = 0;
-    unnamed_material_index = 0;
-
     std::unordered_map<std::string, uint32_t> bone_map;
     std::vector<Bone> bones;
 
-    auto meshes = loadMeshes(scene, path, bones, bone_map, flags);
+    auto meshes = loadMeshes(assets, scene, path, bones, bone_map, flags);
 
     std::vector<std::shared_ptr<ms::Material>> materials;
     if (!flags.count(ModelLoaderFlag::NoMaterials)) {
-        materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+        materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
     }
 
     auto animations = loadAnimations(scene, bones, bone_map, flags);
@@ -78,7 +71,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(const fs::path& _path, con
 }
 
 template<typename T>
-std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept {
+std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) noexcept {
     std::vector<T> vertices;
     vertices.reserve(mesh->mNumVertices);
 
@@ -111,7 +104,7 @@ std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& f
 }
 
 template<typename T>
-std::vector<T> ModelLoader::loadIndices(aiMesh* mesh) const noexcept {
+std::vector<T> ModelLoader::loadIndices(aiMesh* mesh) noexcept {
     std::vector<T> indices;
     indices.reserve(mesh->mNumFaces * 3);
 
@@ -126,13 +119,20 @@ std::vector<T> ModelLoader::loadIndices(aiMesh* mesh) const noexcept {
 }
 
 template<typename T, typename T1>
-std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh *m, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
-    auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
+std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(
+        Assets& assets,
+        aiMesh *m,
+        const fs::path& path,
+        std::vector<Bone>& bones,
+        std::unordered_map<std::string, uint32_t>& bone_map,
+        const ModelLoaderFlags& flags) {
+    static auto i = 0;
+    auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(i++);
     std::string name = path.string() + PATH_SEPARATOR + mesh_name;
 
-    if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
-        name += std::to_string(unnamed_mesh_index++);
-    }
+//    if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
+//        name += std::to_string(unnamed_mesh_index++);
+//    }
 
     if (assets.meshes.contains(name)) {
         return assets.meshes.at(name);
@@ -151,12 +151,17 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(aiMesh *m, const fs::path& p
     return mesh;
 }
 
-std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders) {
+std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
+        Assets& assets,
+        aiMaterial* mat,
+        const fs::path& path,
+        const ModelShaders& model_shaders) {
     aiString aname;
     mat->Get(AI_MATKEY_NAME, aname);
 
     auto path_str = path.parent_path().string();
-    auto mat_name = aname.length != 0 ? aname.C_Str() : std::to_string(unnamed_material_index++);
+    static auto i = 0;
+    auto mat_name = aname.length != 0 ? aname.C_Str() : std::to_string(i++);
     auto name = path_str + PATH_SEPARATOR + mat_name;
 
     if (assets.materials.contains(name)) {
@@ -164,7 +169,6 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
     }
 
     ms::MaterialBuilder builder {assets};
-    TextureLoader loader {assets};
 
     builder.setName(std::move(name))
            .setShading(ms::Shading::Lit);
@@ -173,21 +177,21 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
         aiString texture_name;
         mat->GetTexture(aiTextureType_DIFFUSE, 0, &texture_name);
 
-        builder.add(ms::Property::Diffuse, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::Diffuse, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto normal_count = mat->GetTextureCount(aiTextureType_HEIGHT); normal_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_HEIGHT, 0, &texture_name);
 
-        builder.add(ms::Property::Normal, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::Normal, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto specular_count = mat->GetTextureCount(aiTextureType_SPECULAR); specular_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_SPECULAR, 0, &texture_name);
 
-        builder.add(ms::Property::Specular, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::Specular, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     float shininess = 16.0f;
@@ -198,14 +202,14 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
         aiString texture_name;
         mat->GetTexture(aiTextureType_OPACITY, 0, &texture_name);
 
-        builder.add(ms::Property::BlendMask, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::BlendMask, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto emissive_mask = mat->GetTextureCount(aiTextureType_EMISSIVE); emissive_mask != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_EMISSIVE, 0, &texture_name);
 
-        builder.add(ms::Property::EmissiveMask, loader.load(path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::EmissiveMask, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     {
@@ -222,13 +226,13 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
         }
     }
 
-//    {
-//        int twosided {};
-//
-//        mat->Get(AI_MATKEY_TWOSIDED, twosided);
-//
-//        builder.setTwoSided(twosided);
-//    }
+    {
+        int twosided {};
+
+        mat->Get(AI_MATKEY_TWOSIDED, twosided);
+
+        builder.setTwoSided(twosided);
+    }
 
     {
         aiColor3D color{0.0f};
@@ -260,7 +264,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(aiMaterial* mat, const f
     return builder.build();
 }
 
-std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
+std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
     std::vector<VertexBoneWeight> bone_weights;
 
     if (mesh->HasBones()) {
@@ -300,19 +304,19 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
     return bone_weights;
 }
 
-std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(const aiScene* scene, const fs::path& path, ModelShader model_shader) {
+std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, ModelShader model_shader) {
     std::vector<std::shared_ptr<ms::Material>> materials;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
         const auto* mesh = scene->mMeshes[i];
         auto* material = scene->mMaterials[mesh->mMaterialIndex];
-        materials.emplace_back(loadMaterial(material, path, {model_shader}));
+        materials.emplace_back(loadMaterial(assets, material, path, {model_shader}));
     }
 
     return materials;
 }
 
-std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
+std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
     std::vector<Animation> animations;
     for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
         const auto* anim = scene->mAnimations[i];
@@ -373,7 +377,7 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
     return animations;
 }
 
-Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) const {
+Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
     auto bone_finder = [&] (const std::string& str){
         if (auto bi = bone_map.find(str); bi != bone_map.end()) {
             return bi->second;
@@ -406,7 +410,13 @@ Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<
     return tree;
 }
 
-std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene *scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
+std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(
+        Assets& assets,
+        const aiScene *scene,
+        const fs::path& path,
+        std::vector<Bone>& bones,
+        std::unordered_map<std::string, uint32_t>& bone_map,
+        const ModelLoaderFlags& flags) {
     std::vector<std::shared_ptr<AbstractMesh>> meshes;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
@@ -419,7 +429,7 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(const aiScene
 //        } else if (indices_count < std::numeric_limits<GLushort>::max()) {
 //            loaded_mesh = loadMesh<VertexNormalTangent, GLushort>(mesh, path, bones, bone_map, flags);
 //        } else {
-            loaded_mesh = loadMesh<VertexNormalTangent, GLuint>(mesh, path, bones, bone_map, flags);
+            loaded_mesh = loadMesh<VertexNormalTangent, GLuint>(assets, mesh, path, bones, bone_map, flags);
 //        }
 
         meshes.emplace_back(loaded_mesh);
@@ -465,9 +475,9 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
 }
 
 namespace Limitless {
-    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags) const noexcept;
+    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags) noexcept;
 
-    template std::vector<GLubyte> ModelLoader::loadIndices<GLubyte>(aiMesh* mesh) const noexcept;
-    template std::vector<GLushort> ModelLoader::loadIndices<GLushort>(aiMesh* mesh) const noexcept;
-    template std::vector<GLuint> ModelLoader::loadIndices<GLuint>(aiMesh* mesh) const noexcept;
+    template std::vector<GLubyte> ModelLoader::loadIndices<GLubyte>(aiMesh* mesh) noexcept;
+    template std::vector<GLushort> ModelLoader::loadIndices<GLushort>(aiMesh* mesh) noexcept;
+    template std::vector<GLuint> ModelLoader::loadIndices<GLuint>(aiMesh* mesh) noexcept;
 }

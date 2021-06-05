@@ -15,8 +15,7 @@ Skybox::Skybox(const std::shared_ptr<Material>& material)
 }
 
 Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
-    TextureLoader texture_loader {assets};
-    const auto& cube_map_texture = texture_loader.loadCubemap(path, flags);
+    const auto& cube_map_texture = TextureLoader::loadCubemap(assets, path, flags);
 
     MaterialBuilder material_builder {assets};
     material = material_builder

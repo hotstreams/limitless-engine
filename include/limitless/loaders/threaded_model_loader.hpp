@@ -5,15 +5,16 @@
 namespace Limitless {
     class ThreadedModelLoader : protected ModelLoader {
     private:
-        std::function<std::vector<std::shared_ptr<AbstractMesh>>()>
-        loadMeshes(const aiScene* scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags);
+        static std::function<std::vector<std::shared_ptr<AbstractMesh>>()>
+        loadMeshes(Assets& assets, const aiScene* scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags);
 
         template<typename T, typename T1>
-        std::function<std::shared_ptr<AbstractMesh>()>
-        loadMesh(aiMesh* mesh, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags);
-    public:
-        ThreadedModelLoader(Assets& assets) noexcept : ModelLoader {assets} {}
+        static std::function<std::shared_ptr<AbstractMesh>()>
+        loadMesh(Assets& assets, aiMesh* mesh, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags);
 
-        std::function<std::shared_ptr<AbstractModel>()> loadModel(const fs::path& path, const ModelLoaderFlags& flags = {});
+        ThreadedModelLoader() = default;
+        ~ThreadedModelLoader() override = default;
+    public:
+        static std::function<std::shared_ptr<AbstractModel>()> loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags = {});
     };
 }
