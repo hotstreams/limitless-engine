@@ -11,16 +11,19 @@ using namespace Limitless;
 
 template<typename V, typename I>
 std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
-        aiMesh* m, const fs::path& path,
+        Assets& assets,
+        aiMesh* m,
+        const fs::path& path,
         std::vector<Bone>& bones,
         std::unordered_map<std::string, uint32_t>& bone_map,
         const ModelLoaderFlags& flags)
 {
-    auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(unnamed_mesh_index++);
+    static auto i = 0;
+    auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(i++);
     std::string name = path.string() + PATH_SEPARATOR + mesh_name;
 
     if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
-        name += std::to_string(unnamed_mesh_index++);
+        name += std::to_string(i++);
     }
 
     auto vertices = loadVertices<V>(m, ModelLoaderFlags{});
@@ -44,7 +47,7 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
     };
 }
 
-std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(const fs::path& _path, const ModelLoaderFlags& flags) {
+std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(Assets& assets, const fs::path& _path, const ModelLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
     Assimp::Importer importer;
     const aiScene* scene;
@@ -71,17 +74,14 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(c
         throw model_loader_error(importer.GetErrorString());
     }
 
-    unnamed_mesh_index = 0;
-    unnamed_material_index = 0;
-
     std::unordered_map<std::string, uint32_t> bone_map;
     std::vector<Bone> bones;
 
-    auto meshes = loadMeshes(scene, path, bones, bone_map, flags);
+    auto meshes = loadMeshes(assets, scene, path, bones, bone_map, flags);
 
     std::vector<std::shared_ptr<ms::Material>> materials;
     if (!flags.count(ModelLoaderFlag::NoMaterials)) {
-        materials = loadMaterials(scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+        materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
     }
 
     auto animations = loadAnimations(scene, bones, bone_map, flags);
@@ -104,6 +104,7 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(c
 }
 
 std::function<std::vector<std::shared_ptr<AbstractMesh>>()> ThreadedModelLoader::loadMeshes(
+        Assets& assets,
         const aiScene* scene,
         const fs::path& path,
         std::vector<Bone>& bones,
@@ -116,13 +117,13 @@ std::function<std::vector<std::shared_ptr<AbstractMesh>>()> ThreadedModelLoader:
         auto* mesh = scene->mMeshes[i];
 
         std::function<std::shared_ptr<AbstractMesh>()> future_mesh;
-        if (auto indices_count = mesh->mNumFaces * 3; indices_count < std::numeric_limits<GLubyte>::max()) {
-            future_mesh = loadMesh<VertexNormalTangent, GLubyte>(mesh, path, bones, bone_map, flags);
-        } else if (indices_count < std::numeric_limits<GLushort>::max()) {
-            future_mesh = loadMesh<VertexNormalTangent, GLushort>(mesh, path, bones, bone_map, flags);
-        } else {
-            future_mesh = loadMesh<VertexNormalTangent, GLuint>(mesh, path, bones, bone_map, flags);
-        }
+//        if (auto indices_count = mesh->mNumFaces * 3; indices_count < std::numeric_limits<GLubyte>::max()) {
+//            future_mesh = loadMesh<VertexNormalTangent, GLubyte>(mesh, path, bones, bone_map, flags);
+//        } else if (indices_count < std::numeric_limits<GLushort>::max()) {
+//            future_mesh = loadMesh<VertexNormalTangent, GLushort>(mesh, path, bones, bone_map, flags);
+//        } else {
+            future_mesh = loadMesh<VertexNormalTangent, GLuint>(assets, mesh, path, bones, bone_map, flags);
+//        }
 
         future_meshes.emplace_back(future_mesh);
     }

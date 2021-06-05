@@ -50,12 +50,17 @@ bool Limitless::operator<(const Uniform& lhs, const Uniform& rhs) noexcept {
                     return std::tie(lhs_v.x, lhs_v.y, lhs_v.z, lhs_v.w) < std::tie(rhs_v.x, rhs_v.y, rhs_v.z, rhs_v.w);
                 }
                 case UniformValueType::Mat3:
+                    [[fallthrough]];
                 case UniformValueType::Mat4:
                     // TODO: for better times
                     return false;
             }
 
     }
+
+    // unreal case because all switch cases are handled
+    // just for warning
+    return false;
 }
 
 bool Limitless::operator==(const Uniform& lhs, const Uniform& rhs) noexcept {
@@ -301,12 +306,15 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
                 case UniformValueType::Mat4:
                     return sizeof(glm::mat4);
             }
-            break;
         case UniformType::Sampler:
             return ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ? sizeof(uint64_t) : 0;
         case UniformType::Time:
             return sizeof(float);
     }
+
+    // unreal case because all switch cases are handled
+    // just for warning
+    return false;
 }
 
 size_t Limitless::getUniformAlignment(const Uniform& uniform) {
@@ -330,10 +338,13 @@ size_t Limitless::getUniformAlignment(const Uniform& uniform) {
                 case UniformValueType::Mat4:
                     return sizeof(glm::vec4); // red zone
             }
-            break;
         case UniformType::Sampler:
             return ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ? sizeof(uint64_t) : 0;
         case UniformType::Time:
             return sizeof(float);
     }
+
+    // unreal case because all switch cases are handled
+    // just for warning
+    return false;
 }

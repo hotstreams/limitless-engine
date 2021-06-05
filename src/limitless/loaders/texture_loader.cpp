@@ -8,11 +8,7 @@
 
 using namespace Limitless;
 
-TextureLoader::TextureLoader(Assets& _assets) noexcept
-    : assets {_assets} {
-}
-
-std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const TextureLoaderFlags& flags) const {
+std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
     if (assets.textures.contains(path.stem().string())) {
@@ -75,7 +71,7 @@ std::shared_ptr<Texture> TextureLoader::load(const fs::path& _path, const Textur
     }
 }
 
-std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, const TextureLoaderFlags& flags) const {
+std::shared_ptr<Texture> TextureLoader::loadCubemap(Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
     stbi_set_flip_vertically_on_load(static_cast<bool>(flags.count(TextureLoaderFlag::BottomLeftOrigin)));
@@ -140,7 +136,7 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(const fs::path& _path, const
     return texture;
 }
 
-GLFWimage TextureLoader::loadGLFWImage(const fs::path& _path, const TextureLoaderFlags& flags) const {
+GLFWimage TextureLoader::loadGLFWImage(Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
     stbi_set_flip_vertically_on_load(static_cast<bool>(flags.count(TextureLoaderFlag::BottomLeftOrigin)));

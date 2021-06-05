@@ -17,7 +17,7 @@
 #include <limitless/fx/emitters/mesh_emitter.hpp>
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/ms/material_builder.hpp>
-#include <limitless/loaders/asset_loader.hpp>
+#include <limitless/loaders/asset_manager.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/pipeline/forward.hpp>
 #include <limitless/instances/instanced_instance.hpp>
@@ -44,6 +44,8 @@ private:
     EffectInstance* effect {};
     EffectInstance* fireball {};
     ModelInstance* bob;
+
+    AssetManager manager {context, assets};
 public:
     Game()
         : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
@@ -69,12 +71,15 @@ public:
 
         assets.load(context);
 
-        addModels();
+//        addModels();
+        addModelsT();
         addSpheres();
         addEffects();
 //        addWarlocks();
 
-        assets.compileShaders(context, render.getSettings());
+//        assets.compileShaders(context, render.getSettings());
+        manager.compileShaders(context, render.getSettings());
+        manager.wait();
 
         text = std::make_unique<TextInstance>("Limitless-engine", glm::vec2{20.0f, window_size.y - 40.0f}, assets.fonts.at("nunito"));
         text->setColor({0.1f, 0.8f, 0.4f, 1.0f});
@@ -91,57 +96,67 @@ public:
         context.unregisterObserver(static_cast<FramebufferObserver*>(this));
     }
 
-    // currently not working everywhere
-    // some hidden tricky-bugs of context sharing there
-//    void addModelsT() {
-//        AssetManager manager {context, assets};
-//        const fs::path assets_dir {ASSETS_DIR};
-//
-//        manager.loadModel("bob", assets_dir / "models/boblamp/boblampclean.md5mesh");
-//        manager.loadModel("backpack", assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
-//        manager.loadModel("nanosuit", assets_dir / "models/nanosuit/nanosuit.obj");
-//        manager.loadModel("cyborg", assets_dir / "models/cyborg/cyborg.obj");
-//
-////        manager.wait();
-//        while (!manager) {
-//            context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
-//
-//            // loading screen ;)
-//
-//            context.swapBuffers();
-//        }
-//        manager.delayed_job();
-//
-//        assets.skyboxes.add("skybox", std::make_shared<Skybox>(context, assets, render.getSettings(), assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
-//        assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
-//
-//        scene.setSkybox(assets.skyboxes.at("skybox"));
-//        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
-//            .setRotation(glm::vec3{0.0f, pi, 0.0f})
-//            .setScale(glm::vec3{0.4f});
-//
-//        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f})
-//            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
-//            .setScale(glm::vec3{0.1f});
-//
-//        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f})
-//            .setRotation(glm::vec3{ 0.0f, pi, 0.0f })
-//            .setScale(glm::vec3{0.35f});
-//
-//        scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{ 6.0f, 0.0f, 5.0f })
-//            .setScale(glm::vec3{0.02f})
-//            .setRotation(glm::vec3{ 0.0f, 0.0f, pi })
-//            .play("");
-//    }
+    void addModelsT() {
+
+        const fs::path assets_dir {ASSETS_DIR};
+
+        manager.loadModel("bob", assets_dir / "models/boblamp/boblampclean.md5mesh");
+        manager.loadModel("backpack", assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV});
+        manager.loadModel("nanosuit", assets_dir / "models/nanosuit/nanosuit.obj");
+        manager.loadModel("cyborg", assets_dir / "models/cyborg/cyborg.obj");
+
+        while (!manager) {
+            context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
+
+            // loading screen ;)
+
+            context.swapBuffers();
+        }
+        manager.doDelayedJob();
+
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
+
+        scene.setSkybox(assets.skyboxes.at("skybox"));
+        scene.add<ModelInstance>(assets.models.at("backpack"), glm::vec3{2.5f, 0.5f, 5.0f})
+                .setRotation(glm::vec3{0.0f, PI, 0.0f})
+                .setScale(glm::vec3{0.4f});
+
+        scene.add<ModelInstance>(assets.models.at("nanosuit"), glm::vec3{4.0f, 0.0f, 5.0f})
+                .setRotation(glm::vec3{0.0f, PI, 0.0f})
+                .setScale(glm::vec3{0.1f});
+
+        scene.add<ModelInstance>(assets.models.at("cyborg"), glm::vec3{5.0f, 0.0f, 5.0f})
+                .setRotation(glm::vec3{0.0f, PI, 0.0f})
+                .setScale(glm::vec3{0.35f});
+
+        bob = &scene.add<SkeletalInstance>(assets.models.at("bob"), glm::vec3{6.0f, 0.0f, 5.0f})
+                .setScale(glm::vec3{0.02f})
+                .setRotation(glm::vec3{0.0f, 0.0f, PI})
+                .play("");
+
+
+
+        ms::MaterialBuilder builder{assets};
+
+        builder.setName("test")
+                .add(ms::Property::Color, glm::vec4(2.0f, 1.0f, 1.0f, 1.0f))
+                .setModelShaders({ModelShader::Instanced})
+                .setShading(ms::Shading::Unlit)
+                .build();
+        auto& instanced = scene.add<InstancedInstance<ModelInstance>>(glm::vec3(0.0f));
+        for (uint32_t i = 0; i < 10; ++i) {
+            instanced.addInstance(std::make_unique<ModelInstance>(assets.models.at("sphere"), assets.materials.at("test"), glm::vec3{-4.0, 1.0f, -8.0 + i * 1.9}));
+        }
+    }
 
     void addModels() {
-        ModelLoader model_loader{assets};
         const fs::path assets_dir{ASSETS_DIR};
 
-        assets.models.add("bob", model_loader.loadModel(assets_dir / "models/boblamp/boblampclean.md5mesh"));
-        assets.models.add("backpack", model_loader.loadModel(assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
-        assets.models.add("nanosuit", model_loader.loadModel(assets_dir / "models/nanosuit/nanosuit.obj"));
-        assets.models.add("cyborg", model_loader.loadModel(assets_dir / "models/cyborg/cyborg.obj"));
+        assets.models.add("bob", ModelLoader::loadModel(assets, assets_dir / "models/boblamp/boblampclean.md5mesh"));
+        assets.models.add("backpack", ModelLoader::loadModel(assets, assets_dir / "models/backpack/backpack.obj", {ModelLoaderFlag::FlipUV}));
+        assets.models.add("nanosuit", ModelLoader::loadModel(assets, assets_dir / "models/nanosuit/nanosuit.obj"));
+        assets.models.add("cyborg", ModelLoader::loadModel(assets, assets_dir / "models/cyborg/cyborg.obj"));
 
         assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
         scene.setSkybox(assets.skyboxes.at("skybox"));
@@ -181,11 +196,9 @@ public:
 
     void addSpheres() {
         ms::MaterialBuilder builder {assets};
-        TextureLoader tex_loader {assets};
-
         const fs::path assets_dir {ASSETS_DIR};
 
-        context.setWindowIcon(tex_loader.loadGLFWImage(assets_dir / "icons/demo.png"));
+        context.setWindowIcon(TextureLoader::loadGLFWImage(assets, assets_dir / "icons/demo.png"));
 
         builder.setName("Color")
                 .add(ms::Property::Color, glm::vec4(0.7f, 0.3, 0.5f, 1.0f))
@@ -194,7 +207,7 @@ public:
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{10.0f, 1.0f, 0.0f});
 
         builder.setName("Diffuse")
-                .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/triangle.jpg"))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/triangle.jpg"))
                 .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{10.0f, 1.0f, 2.0f });
@@ -206,7 +219,7 @@ public:
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{10.0f, 1.0f, 4.0f });
 
         builder.setName("BlendMask")
-                .add(ms::Property::BlendMask, tex_loader.load(assets_dir / "textures/bricks.jpg", {TextureLoaderFlag::BottomLeftOrigin,
+                .add(ms::Property::BlendMask, TextureLoader::load(assets, assets_dir / "textures/bricks.jpg", {TextureLoaderFlag::BottomLeftOrigin,
                                                                                                    TextureLoaderFlag::NearestFilter,
                                                                                                    TextureLoaderFlag::MipMap,
                                                                                                    TextureLoaderFlag::WrapRepeat}))
@@ -217,17 +230,17 @@ public:
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("BlendMask"), glm::vec3{10.0f, 1.0f, 6.0f });
 
         builder.setName("PBR")
-                .add(ms::Property::MetallicTexture, tex_loader.load(assets_dir / "textures/rustediron2_metallic.png"))
-                .add(ms::Property::RoughnessTexture, tex_loader.load(assets_dir / "textures/rustediron2_roughness.png"))
-                .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/rustediron2_basecolor.png"))
-                .add(ms::Property::Normal, tex_loader.load(assets_dir / "textures/rustediron2_normal.png"))
+                .add(ms::Property::MetallicTexture, TextureLoader::load(assets, assets_dir / "textures/rustediron2_metallic.png"))
+                .add(ms::Property::RoughnessTexture, TextureLoader::load(assets, assets_dir / "textures/rustediron2_roughness.png"))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/rustediron2_basecolor.png"))
+                .add(ms::Property::Normal, TextureLoader::load(assets, assets_dir / "textures/rustediron2_normal.png"))
                 .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("PBR"), glm::vec3{10.0f, 1.0f, 8.0f });
 
         builder.setName("floor")
                 .setShading(ms::Shading::Lit)
-                .add(ms::Property::Diffuse, tex_loader.load(assets_dir / "textures/wood.jpg"))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/wood.jpg"))
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
@@ -482,7 +495,6 @@ public:
 EffectInstance* inst;
     void addEffects() {
         fx::EffectBuilder builder {assets};
-        TextureLoader loader {assets};
 
         builder.create("mesh_test")
                .createEmitter<fx::SpriteEmitter>("sparks")
@@ -593,8 +605,8 @@ EffectInstance* inst;
 
         materialBuilder.setName("blink")
             .add(Limitless::ms::Property::Color, glm::vec4(1.0f))
-            .add(Limitless::ms::Property::Diffuse, loader.load(assets_dir / "textures/fireball_mask.png"))
-            .add(Limitless::ms::Property::Normal, loader.load(assets_dir / "textures/blink.jpg"))
+            .add(Limitless::ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/fireball_mask.png"))
+            .add(Limitless::ms::Property::Normal, TextureLoader::load(assets, assets_dir / "textures/blink.jpg"))
             .setShading(Limitless::ms::Shading::Unlit)
             .setBlending(Limitless::ms::Blending::Translucent)
             .setTwoSided(true)
@@ -614,7 +626,7 @@ EffectInstance* inst;
             .build();
 
         materialBuilder.setName("blink_particles")
-                .add(Limitless::ms::Property::Diffuse, loader.load(assets_dir / "textures/glow.tga"))
+                .add(Limitless::ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/glow.tga"))
                 .setShading(Limitless::ms::Shading::Unlit)
                 .setBlending(Limitless::ms::Blending::Additive)
                 .addModelShader(Limitless::ModelShader::Effect)
@@ -707,8 +719,8 @@ EffectInstance* inst;
             .setBlending(Limitless::ms::Blending::Additive)
             .addModelShader(Limitless::ModelShader::Effect)
             .add(Limitless::ms::Property::Color, glm::vec4(1.0f))
-            .addUniform(std::make_unique<UniformSampler>("maintexture", loader.load(assets_dir / "textures/shield_texture.jpg")))
-            .addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir / "textures/noise.png")))
+            .addUniform(std::make_unique<UniformSampler>("maintexture", TextureLoader::load(assets, assets_dir / "textures/shield_texture.jpg")))
+            .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(assets, assets_dir / "textures/noise.png")))
             .addUniform(std::make_unique<UniformValue<float>>("vertex_offset_freq", 2.0f))
             .addUniform(std::make_unique<UniformValue<glm::vec3>>("vertex_offset_dir", glm::vec3(0.2)))
             .setFragmentSnippet(""
@@ -726,8 +738,8 @@ EffectInstance* inst;
                 .addModelShader(Limitless::ModelShader::Effect)
                 .setTwoSided(true)
                 .add(Limitless::ms::Property::Color, glm::vec4(8.1f, 0.5f, 12.3f, 1.0f))
-                .addUniform(std::make_unique<UniformSampler>("maintexture", loader.load(assets_dir / "textures/shield_texture.jpg")))
-                .addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir / "textures/noise.png")))
+                .addUniform(std::make_unique<UniformSampler>("maintexture", TextureLoader::load(assets, assets_dir / "textures/shield_texture.jpg")))
+                .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(assets, assets_dir / "textures/noise.png")))
                 .addUniform(std::make_unique<UniformValue<float>>("vertex_offset_freq", 2.0f))
                 .addUniform(std::make_unique<UniformValue<glm::vec3>>("vertex_offset_dir", glm::vec3(0.2)))
                 .addUniform(std::make_unique<UniformValue<glm::vec3>>("hit_pos", glm::vec3(0.9, 2.0, 0.0)))
@@ -781,8 +793,8 @@ EffectInstance* inst;
                                     "\n"
                                     "mat_diffuse = texture(material_diffuse, uv);\n"
                                     "mat_diffuse.rgb *= clamp((mat_diffuse.a - getParticleProperties().z) * r, 0, 1);")
-                .addUniform(std::make_unique<UniformSampler>("noise", loader.load(assets_dir / "textures/true_noise.tga")))
-                .add(ms::Property::Diffuse, loader.load(assets_dir / "textures/true_fire.tga"))
+                .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(assets, assets_dir / "textures/true_noise.tga")))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/true_fire.tga"))
                 .add(ms::Property::EmissiveColor, glm::vec4{10.0f, 3.0f, 1.0f, 1.0f})
                 .setShading(ms::Shading::Unlit)
                 .setBlending(ms::Blending::Additive)
@@ -816,8 +828,8 @@ EffectInstance* inst;
                                     "mat_diffuse.rgb = texture(material_diffuse, uv + vec2(s, t)).rgb;\n"
                                     "\n"
                                     "if (mat_diffuse.r <= 0.2) discard;")
-                .addUniform(std::make_unique<UniformSampler>("fire_mask", loader.load(assets_dir / "textures/fireball_mask.png")))
-                .add(ms::Property::Diffuse, loader.load(assets_dir / "textures/rock_lava.png"))
+                .addUniform(std::make_unique<UniformSampler>("fire_mask", TextureLoader::load(assets, assets_dir / "textures/fireball_mask.png")))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/rock_lava.png"))
                 .add(ms::Property::Color, glm::vec4{15.0f, 5.0f, 0.0f, 1.0f})
                 .setShading(ms::Shading::Unlit)
                 .setBlending(ms::Blending::Opaque)

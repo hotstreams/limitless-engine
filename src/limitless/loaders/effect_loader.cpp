@@ -6,7 +6,7 @@
 #include <limitless/serialization/effect_serializer.hpp>
 
 #include <limitless/assets.hpp>
-#include <limitless/loaders/asset_loader.hpp>
+#include <limitless/loaders/asset_manager.hpp>
 #include <limitless/util/bytebuffer.hpp>
 #include <limitless/instances/effect_instance.hpp>
 
