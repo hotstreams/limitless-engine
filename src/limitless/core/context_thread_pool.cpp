@@ -4,7 +4,6 @@ using namespace Limitless;
 
 ContextThreadPool::ContextThreadPool(Context& shared, uint32_t pool_size)
     : ThreadPool() {
-    //context_workers.reserve(pool_size);
     for (uint32_t i = 0; i < pool_size; ++i) {
         context_workers.emplace_back("thread_worker", glm::uvec2{1, 1}, shared, WindowHints{{WindowHint::Visible, false}});
 
@@ -28,6 +27,15 @@ ContextThreadPool::ContextThreadPool(Context& shared, uint32_t pool_size)
                 }
 
                 task();
+
+                // explicitly share state between contexts
+                {
+                    // make sure that all commands in a queue
+                    glFlush();
+
+                    // make sure that all commands are finished
+                    glFinish();
+                }
             }
         };
 
