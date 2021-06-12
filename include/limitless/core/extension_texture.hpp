@@ -2,11 +2,19 @@
 
 #include <limitless/core/context_debug.hpp>
 #include <limitless/core/texture_visitor.hpp>
+#include <limitless/core/texture.hpp>
 #include <glm/glm.hpp>
 
 namespace Limitless {
     class ExtensionTexture {
     public:
+        enum class Type {
+            Mutable,
+            Immutable,
+            Bindless
+        };
+        Type type;
+
         ExtensionTexture() = default;
         virtual ~ExtensionTexture() = default;
 
@@ -22,12 +30,10 @@ namespace Limitless {
         // immutable storage allocation interface
         virtual void texStorage2D(GLenum target, GLsizei levels, GLenum internal_format, glm::uvec2 size) noexcept = 0;
         virtual void texStorage3D(GLenum target, GLsizei levels, GLenum internal_format, glm::uvec3 size) noexcept = 0;
-        virtual void texStorage2DMultisample(GLenum target, uint8_t samples, GLenum internal_format, glm::uvec2 size) noexcept = 0;
 
         // mutable storage allocation&loading interface
-        virtual void texImage2D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, const void* data) noexcept = 0;
-        virtual void texImage3D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, const void *data) noexcept = 0;
-        virtual void texImage2DMultiSample(GLenum target, uint8_t samples, GLenum internal_format, glm::uvec3 size) noexcept = 0;
+        virtual void texImage2D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, bool border, const void* data) noexcept = 0;
+        virtual void texImage3D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, bool border, const void *data) noexcept = 0;
 
         // common loading interface
         virtual void texSubImage2D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) noexcept = 0;
@@ -39,11 +45,13 @@ namespace Limitless {
         // binds texture to specified index
         virtual void bind(GLenum target, GLuint index) const = 0;
 
-        // sets various of parameters
-        virtual void texParameter(GLenum target, GLenum name, GLint param) noexcept = 0;
-        virtual void texParameter(GLenum target, GLenum name, GLfloat param) noexcept = 0;
-        virtual void texParameter(GLenum target, GLenum name, GLint* params) noexcept = 0;
-        virtual void texParameter(GLenum target, GLenum name, GLfloat* params) noexcept = 0;
+        virtual ExtensionTexture& setMinFilter(GLenum target, GLenum filter) = 0;
+        virtual ExtensionTexture& setMagFilter(GLenum target, GLenum filter) = 0;
+        virtual ExtensionTexture& setAnisotropicFilter(GLenum target, GLfloat value) = 0;
+        virtual ExtensionTexture& setBorderColor(GLenum target, float* color) = 0;
+        virtual ExtensionTexture& setWrapS(GLenum target, GLenum wrap) = 0;
+        virtual ExtensionTexture& setWrapT(GLenum target, GLenum wrap) = 0;
+        virtual ExtensionTexture& setWrapR(GLenum target, GLenum wrap) = 0;
 
         virtual void accept(TextureVisitor& visitor) noexcept = 0;
 

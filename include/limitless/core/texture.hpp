@@ -1,7 +1,5 @@
 #pragma once
 
-#include <limitless/core/texture_visitor.hpp>
-#include <limitless/core/extension_texture.hpp>
 #include <limitless/core/context_debug.hpp>
 #include <limitless/util/filesystem.hpp>
 #include <glm/glm.hpp>
@@ -9,15 +7,10 @@
 #include <optional>
 
 namespace Limitless {
-    template<typename T>
-    struct TexParameter {
-        GLenum name;
-        T param;
-    };
+    class TextureVisitor;
+    class ExtensionTexture;
 
     class Texture {
-    private:
-        std::optional<fs::path> path {};
     public:
         enum class Type {
             Tex2D = GL_TEXTURE_2D,
@@ -43,7 +36,19 @@ namespace Limitless {
             RGB8 = GL_RGB8,
             RGBA8 = GL_RGBA8,
             RGB16F = GL_RGB16F,
-            RGBA16F = GL_RGBA16F
+            RGBA16F = GL_RGBA16F,
+
+            // GL_EXT_texture_compression_s3tc
+            RGB_DXT1 = GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
+            RGBA_DXT1 = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+            RGBA_DXT5 = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+
+            // GL_ARB_texture_compression_bptc
+            RGBA_BC7 = GL_COMPRESSED_RGBA_BPTC_UNORM_ARB,
+
+            // GL_ARB_texture_compression_rgtc
+            R_RGTC = GL_COMPRESSED_RED_RGTC1,
+            RG_RGTC = GL_COMPRESSED_RG_RGTC2
         };
 
         enum class Format {
@@ -73,6 +78,24 @@ namespace Limitless {
             Float = GL_FLOAT
         };
 
+        enum class Filter {
+            Linear = GL_LINEAR,
+            Nearest = GL_NEAREST,
+            LinearMipmapLinear = GL_LINEAR_MIPMAP_LINEAR,
+            NearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST,
+            LinearMipMapNearest = GL_LINEAR_MIPMAP_NEAREST,
+            NearestMipMapLinear = GL_NEAREST_MIPMAP_LINEAR
+        };
+
+        enum class Wrap {
+            Repeat = GL_REPEAT,
+            MirroredRepeat = GL_MIRRORED_REPEAT,
+            ClampToEdge = GL_CLAMP_TO_EDGE,
+            ClampToBorder = GL_CLAMP_TO_BORDER
+        };
+    private:
+        std::optional<fs::path> path;
+    public:
         Texture() = default;
         virtual ~Texture() = default;
 
@@ -95,19 +118,20 @@ namespace Limitless {
 
         virtual void generateMipMap() noexcept = 0;
 
-        virtual Texture& operator<<(const TexParameter<GLint>& param) noexcept = 0;
-        virtual Texture& operator<<(const TexParameter<GLfloat>& param) noexcept = 0;
-        virtual Texture& operator<<(const TexParameter<GLint*>& param) noexcept = 0;
-        virtual Texture& operator<<(const TexParameter<GLfloat*>& param) noexcept = 0;
+        virtual Texture& setMinFilter(Filter filter) = 0;
+        virtual Texture& setMagFilter(Filter filter) = 0;
+        virtual Texture& setAnisotropicFilter(float value) = 0;
+        virtual Texture& setAnisotropicFilterMax() = 0;
+        virtual Texture& setBorderColor(const glm::vec4& color) = 0;
+        virtual Texture& setWrapS(Wrap wrap) = 0;
+        virtual Texture& setWrapT(Wrap wrap) = 0;
+        virtual Texture& setWrapR(Wrap wrap) = 0;
 
         [[nodiscard]] virtual GLuint getId() const noexcept = 0;
         [[nodiscard]] virtual Type getType() const noexcept = 0;
         [[nodiscard]] virtual glm::uvec3 getSize() const noexcept = 0;
         [[nodiscard]] virtual ExtensionTexture& getExtensionTexture() noexcept = 0;
 
-        // texture visitors
         virtual void accept(TextureVisitor& visitor) noexcept = 0;
     };
-
-    using texture_parameters = std::function<void(Texture&)>;
 }

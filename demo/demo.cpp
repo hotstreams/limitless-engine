@@ -25,6 +25,7 @@
 #include <limitless/loaders/material_loader.hpp>
 #include <limitless/fx/modules/mesh_location.hpp>
 #include <limitless/fx/modules/mesh_location_attachment.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -71,15 +72,15 @@ public:
 
         assets.load(context);
 
-//        addModels();
-        addModelsT();
+        addModels();
+//        addModelsT();
         addSpheres();
         addEffects();
 //        addWarlocks();
 
-//        assets.compileShaders(context, render.getSettings());
-        manager.compileShaders(context, render.getSettings());
-        manager.wait();
+        assets.compileShaders(context, render.getSettings());
+//        manager.compileShaders(context, render.getSettings());
+//        manager.wait();
 
         text = std::make_unique<TextInstance>("Limitless-engine", glm::vec2{20.0f, window_size.y - 40.0f}, assets.fonts.at("nunito"));
         text->setColor({0.1f, 0.8f, 0.4f, 1.0f});
@@ -105,6 +106,8 @@ public:
         manager.loadModel("nanosuit", assets_dir / "models/nanosuit/nanosuit.obj");
         manager.loadModel("cyborg", assets_dir / "models/cyborg/cyborg.obj");
 
+        manager.loadMaterial("test1123", assets_dir / "materials/test");
+
         while (!manager) {
             context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
 
@@ -114,7 +117,7 @@ public:
         }
         manager.doDelayedJob();
 
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlags::Origin::TopLeft}));
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
@@ -134,8 +137,6 @@ public:
                 .setScale(glm::vec3{0.02f})
                 .setRotation(glm::vec3{0.0f, 0.0f, PI})
                 .play("");
-
-
 
         ms::MaterialBuilder builder{assets};
 
@@ -158,7 +159,7 @@ public:
         assets.models.add("nanosuit", ModelLoader::loadModel(assets, assets_dir / "models/nanosuit/nanosuit.obj"));
         assets.models.add("cyborg", ModelLoader::loadModel(assets, assets_dir / "models/cyborg/cyborg.obj"));
 
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlag::TopLeftOrigin}));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlags::Origin::TopLeft}));
         scene.setSkybox(assets.skyboxes.at("skybox"));
 
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
@@ -219,10 +220,7 @@ public:
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{10.0f, 1.0f, 4.0f });
 
         builder.setName("BlendMask")
-                .add(ms::Property::BlendMask, TextureLoader::load(assets, assets_dir / "textures/bricks.jpg", {TextureLoaderFlag::BottomLeftOrigin,
-                                                                                                   TextureLoaderFlag::NearestFilter,
-                                                                                                   TextureLoaderFlag::MipMap,
-                                                                                                   TextureLoaderFlag::WrapRepeat}))
+                .add(ms::Property::BlendMask, TextureLoader::load(assets, assets_dir / "textures/bricks.jpg", {TextureLoaderFlags::Origin::BottomLeft, TextureLoaderFlags::Filter::Nearest}))
                 .add(ms::Property::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)

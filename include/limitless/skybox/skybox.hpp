@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limitless/loaders/texture_loader.hpp>
 #include <limitless/util/filesystem.hpp>
 
 #include <memory>
@@ -12,9 +13,6 @@ namespace Limitless::ms {
 namespace Limitless {
     class Context;
     class Assets;
-    class RenderSettings;
-    enum class TextureLoaderFlag;
-    using TextureLoaderFlags = std::set<TextureLoaderFlag>;
 
     class Skybox final {
     private:

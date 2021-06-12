@@ -29,14 +29,13 @@ void CascadeShadows::initBuffers(Context& context) {
                         .setSize(glm::uvec3{shadow_resolution, split_count})
                         .setFormat(Texture::Format::DepthComponent)
                         .setDataType(Texture::DataType::Float)
-                        .setParameters([] (Texture& texture) {
-                            float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-                            texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                                    << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-                                    << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER}
-                                    << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER}
-                                    << TexParameter<float*>{GL_TEXTURE_BORDER_COLOR, borderColor};
-                        })
+                        .setMipMap(false)
+                        .setBorder(true)
+                        .setBorderColor({ 1.0f, 1.0f, 1.0f, 1.0f })
+                        .setMinFilter(Texture::Filter::Linear)
+                        .setMagFilter(Texture::Filter::Linear)
+                        .setWrapS(Texture::Wrap::ClampToBorder)
+                        .setWrapT(Texture::Wrap::ClampToBorder)
                         .build();
 
     framebuffer = std::make_unique<Framebuffer>();

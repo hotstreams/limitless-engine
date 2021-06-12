@@ -32,22 +32,6 @@ void NamedTexture::texStorage3D([[maybe_unused]] GLenum _target, GLsizei levels,
     glTextureStorage3D(id, levels, internal_format, size.x, size.y, size.z);
 }
 
-void NamedTexture::texStorage2DMultisample([[maybe_unused]] GLenum _target, uint8_t samples, GLenum internal_format, glm::uvec2 size) noexcept {
-    glTextureStorage2DMultisample(id, samples, internal_format, size.x, size.y, GL_FALSE);
-}
-
-void NamedTexture::texImage2D(GLenum _target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, const void* data) noexcept {
-    StateTexture::texImage2D(_target, levels, internal_format, format, type, size, data);
-}
-
-void NamedTexture::texImage3D(GLenum _target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, const void *data) noexcept {
-    StateTexture::texImage3D(_target, levels, internal_format, format, type, size, data);
-}
-
-void NamedTexture::texImage2DMultiSample(GLenum _target, uint8_t samples, GLenum internal_format, glm::uvec3 size) noexcept {
-    StateTexture::texImage2DMultiSample(_target, samples, internal_format, size);
-}
-
 void NamedTexture::texSubImage2D([[maybe_unused]] GLenum _target, GLint level, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) noexcept {
     glTextureSubImage2D(id, level, xoffset, yoffset, size.x, size.y, format, type, data);
 }
@@ -73,22 +57,6 @@ void NamedTexture::generateMipMap([[maybe_unused]] GLenum _target) noexcept {
     glGenerateTextureMipmap(id);
 }
 
-void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLint param) noexcept {
-    glTextureParameteri(id, name, param);
-}
-
-void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLfloat param) noexcept {
-    glTextureParameterf(id, name, param);
-}
-
-void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLint* params) noexcept {
-    glTextureParameteriv(id, name, params);
-}
-
-void NamedTexture::texParameter([[maybe_unused]] GLenum _target, GLenum name, GLfloat* params) noexcept {
-    glTextureParameterfv(id, name, params);
-}
-
 NamedTexture* NamedTexture::clone() const {
     return new NamedTexture(target);
 }
@@ -105,5 +73,40 @@ NamedTexture::NamedTexture(NamedTexture&& rhs) noexcept {
 NamedTexture& NamedTexture::operator=(NamedTexture&& rhs) noexcept {
     std::swap(id, rhs.id);
     std::swap(target, rhs.target);
+    return *this;
+}
+
+NamedTexture& NamedTexture::setMinFilter([[maybe_unused]] GLenum _target, GLenum filter) {
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, filter);
+    return *this;
+}
+
+NamedTexture& NamedTexture::setMagFilter([[maybe_unused]] GLenum _target, GLenum filter) {
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, filter);
+    return *this;
+}
+
+NamedTexture& NamedTexture::setAnisotropicFilter([[maybe_unused]] GLenum _target, GLfloat value) {
+    glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, value);
+    return *this;
+}
+
+NamedTexture& NamedTexture::setBorderColor([[maybe_unused]] GLenum _target, float* color) {
+    glTextureParameterfv(id, GL_TEXTURE_BORDER_COLOR, color);
+    return *this;
+}
+
+NamedTexture& NamedTexture::setWrapS([[maybe_unused]] GLenum _target, GLenum wrap) {
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, wrap);
+    return *this;
+}
+
+NamedTexture& NamedTexture::setWrapT([[maybe_unused]] GLenum _target, GLenum wrap) {
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, wrap);
+    return *this;
+}
+
+NamedTexture& NamedTexture::setWrapR([[maybe_unused]] GLenum _target, GLenum wrap) {
+    glTextureParameteri(id, GL_TEXTURE_WRAP_R, wrap);
     return *this;
 }

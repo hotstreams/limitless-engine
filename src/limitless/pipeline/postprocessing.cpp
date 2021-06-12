@@ -51,12 +51,10 @@ Bloom::Bloom(ContextEventObserver& ctx)
                               .setSize(ctx.getSize())
                               .setFormat(Texture::Format::RGB)
                               .setDataType(Texture::DataType::Float)
-                              .setParameters([](Texture& texture) {
-                                    texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                                            << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
-                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
-                              })
+                              .setMinFilter(Texture::Filter::Linear)
+                              .setMagFilter(Texture::Filter::Linear)
+                              .setWrapS(Texture::Wrap::ClampToEdge)
+                              .setWrapT(Texture::Wrap::ClampToEdge)
                               .build();
 
         brightness << TextureAttachment{FramebufferAttachment::Color0, texture};
@@ -71,12 +69,10 @@ Bloom::Bloom(ContextEventObserver& ctx)
                               .setSize(ctx.getSize())
                               .setFormat(Texture::Format::RGB)
                               .setDataType(Texture::DataType::Float)
-                              .setParameters([] (Texture& texture) {
-                                    texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                                            << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
-                                            << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
-                              })
+                              .setMinFilter(Texture::Filter::Linear)
+                              .setMagFilter(Texture::Filter::Linear)
+                              .setWrapS(Texture::Wrap::ClampToEdge)
+                              .setWrapT(Texture::Wrap::ClampToEdge)
                               .build();
         fbo << TextureAttachment{FramebufferAttachment::Color0, texture};
         fbo.drawBuffer(FramebufferAttachment::Color0);

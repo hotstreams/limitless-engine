@@ -48,11 +48,6 @@ TextureBuilder& TextureBuilder::setData(const std::array<void *, 6>& _data) {
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setParameters(const texture_parameters& _params) {
-    params = _params;
-    return *this;
-}
-
 TextureBuilder& TextureBuilder::setSize(glm::uvec2 _size) {
     size = _size;
     return *this;
@@ -73,6 +68,41 @@ TextureBuilder& TextureBuilder::setMipMap(bool _mipmap) {
     return *this;
 }
 
+TextureBuilder& TextureBuilder::setMinFilter(Texture::Filter filter) {
+    min = filter;
+    return *this;
+}
+
+TextureBuilder& TextureBuilder::setMagFilter(Texture::Filter filter) {
+    mag = filter;
+    return *this;
+}
+
+TextureBuilder& TextureBuilder::setWrapS(Texture::Wrap wrap) {
+    wrap_s = wrap;
+    return *this;
+}
+
+TextureBuilder& TextureBuilder::setWrapT(Texture::Wrap wrap) {
+    wrap_t = wrap;
+    return *this;
+}
+
+TextureBuilder& TextureBuilder::setWrapR(Texture::Wrap wrap) {
+    wrap_r = wrap;
+    return *this;
+}
+
+TextureBuilder& TextureBuilder::setBorder(bool _border) {
+    border = _border;
+    return *this;
+}
+
+TextureBuilder& TextureBuilder::setBorderColor(const glm::vec4& color) {
+    border_color = color;
+    return *this;
+}
+
 std::shared_ptr<Texture> TextureBuilder::buildMutable() {
     std::shared_ptr<Texture> texture;
 
@@ -84,8 +114,15 @@ std::shared_ptr<Texture> TextureBuilder::buildMutable() {
                                                    std::get<glm::uvec2>(size),
                                                    format,
                                                    data_type,
+                                                   border,
+                                                   mipmap,
+                                                   border_color,
                                                    std::get<std::array<void*, 6>>(data),
-                                                   params);
+                                                   min,
+                                                   mag,
+                                                   wrap_s,
+                                                   wrap_t,
+                                                   wrap_r);
     } else {
         // else building 2d texture
         if (std::holds_alternative<glm::uvec2>(size)) {
@@ -95,8 +132,15 @@ std::shared_ptr<Texture> TextureBuilder::buildMutable() {
                                                        std::get<glm::uvec2>(size),
                                                        format,
                                                        data_type,
+                                                       border,
+                                                       mipmap,
+                                                       border_color,
                                                        std::get<const void*>(data),
-                                                       params);
+                                                       min,
+                                                       mag,
+                                                       wrap_s,
+                                                       wrap_t,
+                                                       wrap_r);
         // else building 2d texture array / 3d texture
         } else {
             texture = std::make_shared<MutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
@@ -105,13 +149,16 @@ std::shared_ptr<Texture> TextureBuilder::buildMutable() {
                                                        std::get<glm::uvec3>(size),
                                                        format,
                                                        data_type,
+                                                       border,
+                                                       mipmap,
+                                                       border_color,
                                                        std::get<const void*>(data),
-                                                       params);
+                                                       min,
+                                                       mag,
+                                                       wrap_s,
+                                                       wrap_t,
+                                                       wrap_r);
         }
-    }
-
-    if (mipmap) {
-        texture->generateMipMap();
     }
 
     return texture;
@@ -129,8 +176,15 @@ std::shared_ptr<Texture> TextureBuilder::build() {
                                                        std::get<glm::uvec2>(size),
                                                        format,
                                                        data_type,
+                                                       border,
+                                                       mipmap,
+                                                       border_color,
                                                        std::get<std::array<void*, 6>>(data),
-                                                       params);
+                                                       min,
+                                                       mag,
+                                                       wrap_s,
+                                                       wrap_t,
+                                                       wrap_r);
         } else {
             // else building 2d texture
             if (std::holds_alternative<glm::uvec2>(size)) {
@@ -141,8 +195,15 @@ std::shared_ptr<Texture> TextureBuilder::build() {
                                                            std::get<glm::uvec2>(size),
                                                            format,
                                                            data_type,
+                                                           border,
+                                                           mipmap,
+                                                           border_color,
                                                            std::get<const void*>(data),
-                                                           params);
+                                                           min,
+                                                           mag,
+                                                           wrap_s,
+                                                           wrap_t,
+                                                           wrap_r);
                 // else building 2d texture array / 3d texture
             } else {
                 texture = std::make_shared<ImmutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
@@ -152,13 +213,16 @@ std::shared_ptr<Texture> TextureBuilder::build() {
                                                            std::get<glm::uvec3>(size),
                                                            format,
                                                            data_type,
+                                                           border,
+                                                           mipmap,
+                                                           border_color,
                                                            std::get<const void*>(data),
-                                                           params);
+                                                           min,
+                                                           mag,
+                                                           wrap_s,
+                                                           wrap_t,
+                                                           wrap_r);
             }
-        }
-
-        if (mipmap) {
-            texture->generateMipMap();
         }
 
         return texture;
