@@ -31,7 +31,7 @@ namespace Limitless {
         ~AssetManager();
 
         void loadModel(std::string asset_name, fs::path path, const ModelLoaderFlags& flags = {});
-        void loadTexture(std::string asset_name, fs::path path, const TextureLoaderFlags& flags = TextureLoader::DEFAULT_LOADING_FLAGS);
+        void loadTexture(std::string asset_name, fs::path path, const TextureLoaderFlags& flags = TextureLoaderFlags{});
 
         void loadMaterial(std::string asset_name, fs::path path);
         void loadEffect(std::string asset_name, fs::path path);

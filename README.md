@@ -101,4 +101,5 @@ The project uses C++17 and CMake's find_package for dependencies.
 - glm
 - assimp
 - stb_image
+- stb_image_resize
 - freetype

@@ -75,6 +75,10 @@ void ContextInitializer::getLimits() noexcept {
     glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &limits.uniform_buffer_max_count);
     glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &limits.shader_storage_max_count);
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &limits.max_texture_units);
+
+    if (isExtensionSupported("GL_EXT_texture_filter_anisotropic")) {
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &limits.anisotropic_max);
+    }
 }
 
 void ContextInitializer::printExtensions() noexcept {

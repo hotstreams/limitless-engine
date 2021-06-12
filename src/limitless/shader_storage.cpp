@@ -27,7 +27,7 @@ void ShaderStorage::add(std::string name, std::shared_ptr<ShaderProgram> program
     std::unique_lock lock(mutex);
     const auto result = shaders.emplace(std::move(name), std::move(program));
     if (!result.second) {
-        throw shader_storage_error{"Shader already contains"};
+        throw shader_storage_error{"Shader already contains" + name};
     }
 }
 
@@ -61,7 +61,7 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
     std::unique_lock lock(mutex);
     const auto result = emitters.emplace(emitter_type, std::move(program));
     if (!result.second) {
-        throw shader_storage_error{"Shader already contains"};
+        throw shader_storage_error{"Shader already contains emitter"};
     }
 }
 //

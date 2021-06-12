@@ -89,12 +89,11 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
                      .setFormat(Texture::Format::Red)
                      .setDataType(Texture::DataType::UnsignedByte)
                      .setData(data.data())
-                     .setParameters([] (Texture& tex) {
-                         tex << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
-                             << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}
-                             << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-                             << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR};
-                     })
+                     .setWrapS(Texture::Wrap::ClampToEdge)
+                     .setWrapT(Texture::Wrap::ClampToEdge)
+                     .setMinFilter(Texture::Filter::Linear)
+                     .setMagFilter(Texture::Filter::Linear)
+                     .setMipMap(false)
                      .buildMutable();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }

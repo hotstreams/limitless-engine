@@ -13,12 +13,6 @@ FramebufferPass::FramebufferPass(RenderPass* prev, ContextEventObserver& ctx)
     : RenderPass(prev)
     , framebuffer {ctx}
     , target {framebuffer} {
-    auto param_set = [] (Texture& texture) {
-        texture << TexParameter<GLint>{GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-                << TexParameter<GLint>{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
-                << TexParameter<GLint>{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE};
-    };
 
     TextureBuilder builder;
     auto color = builder.setTarget(Texture::Type::Tex2D)
@@ -26,7 +20,10 @@ FramebufferPass::FramebufferPass(RenderPass* prev, ContextEventObserver& ctx)
             .setSize(ctx.getSize())
             .setFormat(Texture::Format::RGBA)
             .setDataType(Texture::DataType::Float)
-            .setParameters(param_set)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
             .build();
 
     auto depth = builder.setTarget(Texture::Type::Tex2D)
@@ -34,7 +31,10 @@ FramebufferPass::FramebufferPass(RenderPass* prev, ContextEventObserver& ctx)
             .setSize(ctx.getSize())
             .setFormat(Texture::Format::DepthComponent)
             .setDataType(Texture::DataType::Float)
-            .setParameters(param_set)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();

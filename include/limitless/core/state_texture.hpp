@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limitless/core/texture.hpp>
 #include <limitless/core/extension_texture.hpp>
 #include <limitless/core/texture_visitor.hpp>
 
@@ -21,11 +22,9 @@ namespace Limitless {
 
         void texStorage2D(GLenum target, GLsizei levels, GLenum internal_format, glm::uvec2 size) noexcept override;
         void texStorage3D(GLenum target, GLsizei levels, GLenum internal_format, glm::uvec3 size) noexcept override;
-        void texStorage2DMultisample(GLenum target, uint8_t samples, GLenum internal_format, glm::uvec2 size) noexcept override;
 
-        void texImage2D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, const void* data) noexcept override;
-        void texImage3D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, const void *data) noexcept override;
-        void texImage2DMultiSample(GLenum target, uint8_t samples, GLenum internal_format, glm::uvec3 size) noexcept override;
+        void texImage2D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec2 size, bool border, const void* data) noexcept override;
+        void texImage3D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, bool border, const void *data) noexcept override;
 
         void texSubImage2D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) noexcept override;
         void texSubImage3D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 size, GLenum format, GLenum type, const void* data) noexcept override;
@@ -35,10 +34,13 @@ namespace Limitless {
         static void activate(GLuint index);
         void bind(GLenum target, GLuint index) const override;
 
-        void texParameter(GLenum target, GLenum name, GLint param) noexcept override;
-        void texParameter(GLenum target, GLenum name, GLfloat param) noexcept override;
-        void texParameter(GLenum target, GLenum name, GLint* params) noexcept override;
-        void texParameter(GLenum target, GLenum name, GLfloat* params) noexcept override;
+        StateTexture& setMinFilter(GLenum target, GLenum filter) override;
+        StateTexture& setMagFilter(GLenum target, GLenum filter) override;
+        StateTexture& setAnisotropicFilter(GLenum target, GLfloat value) override;
+        StateTexture& setBorderColor(GLenum target, float* color) override;
+        StateTexture& setWrapS(GLenum target, GLenum wrap) override;
+        StateTexture& setWrapT(GLenum target, GLenum wrap) override;
+        StateTexture& setWrapR(GLenum target, GLenum wrap) override;
 
         void accept(TextureVisitor& visitor) noexcept override;
 
