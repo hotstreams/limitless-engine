@@ -27,8 +27,8 @@ void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags&
             switch (channels) {
                 case 1: internal = Texture::InternalFormat::R8; break;
                 case 2: internal = Texture::InternalFormat::RG8; break;
-                case 3: internal = Texture::InternalFormat::RGB8; break;
-                case 4: internal = Texture::InternalFormat::RGBA8; break;
+                case 3: internal = (flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGB8 : Texture::InternalFormat::RGB8; break;
+                case 4: internal = (flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGBA8 : Texture::InternalFormat::RGBA8; break;
                 default: throw texture_loader_exception("Bad channels count!");
             }
             break;
@@ -43,8 +43,8 @@ void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags&
             }
 
             switch (channels) {
-                case 3: internal = Texture::InternalFormat::RGB_DXT1; break;
-                case 4: internal = Texture::InternalFormat::RGBA_DXT1; break;
+                case 3: internal = (flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGB_DXT1 : Texture::InternalFormat::RGB_DXT1; break;
+                case 4: internal = (flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGBA_DXT1 : Texture::InternalFormat::RGBA_DXT1; break;
             }
             break;
         case TextureLoaderFlags::Compression::DXT5:
@@ -56,7 +56,8 @@ void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags&
             if (!ContextInitializer::isExtensionSupported(S3TC_EXTENSION)) {
                 throw texture_loader_exception("Compression S3TC is not supported!");
             }
-            internal = Texture::InternalFormat::RGBA_DXT5;
+
+            internal = (flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGBA_DXT5 : Texture::InternalFormat::RGBA_DXT5;
             break;
         case TextureLoaderFlags::Compression::BC7:
         bc7:
@@ -68,7 +69,7 @@ void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags&
                 throw texture_loader_exception("Compression BPTC is not supported!");
             }
 
-            internal = Texture::InternalFormat::RGBA_BC7;
+            internal = (flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGBA_BC7 : Texture::InternalFormat::RGBA_BC7;
             break;
         case TextureLoaderFlags::Compression::RGTC:
         rgtc:
@@ -235,16 +236,16 @@ void TextureLoader::setDownScale(int& width, int& height, int channels, unsigned
         case TextureLoaderFlags::DownScale::None:
             return;
         case TextureLoaderFlags::DownScale::x2:
-            scaled_width = width / 2;
-            scaled_height = height / 2;
+            scaled_width = width / 2.0f;
+            scaled_height = height / 2.0f;
             break;
         case TextureLoaderFlags::DownScale::x4:
-            scaled_width = width / 4;
-            scaled_height = height / 4;
+            scaled_width = width / 4.0f;
+            scaled_height = height / 4.0f;
             break;
         case TextureLoaderFlags::DownScale::x8:
-            scaled_width = width / 8;
-            scaled_height = height / 8;
+            scaled_width = width / 8.0f;
+            scaled_height = height / 8.0f;
             break;
     }
 

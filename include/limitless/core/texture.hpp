@@ -38,13 +38,21 @@ namespace Limitless {
             RGB16F = GL_RGB16F,
             RGBA16F = GL_RGBA16F,
 
+            sRGB8 = GL_SRGB8,
+            sRGBA8 = GL_SRGB8_ALPHA8,
+
             // GL_EXT_texture_compression_s3tc
             RGB_DXT1 = GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
             RGBA_DXT1 = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
             RGBA_DXT5 = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
 
+            sRGB_DXT1 = GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
+            sRGBA_DXT1 = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+            sRGBA_DXT5 = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
+
             // GL_ARB_texture_compression_bptc
             RGBA_BC7 = GL_COMPRESSED_RGBA_BPTC_UNORM_ARB,
+            sRGBA_BC7 = GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB,
 
             // GL_ARB_texture_compression_rgtc
             R_RGTC = GL_COMPRESSED_RED_RGTC1,

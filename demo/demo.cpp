@@ -72,8 +72,8 @@ public:
 
         assets.load(context);
 
-        addModels();
-//        addModelsT();
+//        addModels();
+        addModelsT();
         addSpheres();
         addEffects();
 //        addWarlocks();
@@ -106,7 +106,7 @@ public:
         manager.loadModel("nanosuit", assets_dir / "models/nanosuit/nanosuit.obj");
         manager.loadModel("cyborg", assets_dir / "models/cyborg/cyborg.obj");
 
-        manager.loadMaterial("test1123", assets_dir / "materials/test");
+//        manager.loadMaterial("test1123", assets_dir / "materials/test");
 
         while (!manager) {
             context.clearColor({0.3f, 0.3f, 0.3f, 1.0f});
@@ -117,7 +117,7 @@ public:
         }
         manager.doDelayedJob();
 
-        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlags::Origin::TopLeft}));
+        assets.skyboxes.add("skybox", std::make_shared<Skybox>(assets, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags{TextureLoaderFlags::Origin::TopLeft, TextureLoaderFlags::Space::sRGB}));
         assets.fonts.add("nunito", std::make_shared<FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
 
         scene.setSkybox(assets.skyboxes.at("skybox"));
@@ -208,7 +208,7 @@ public:
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Color"), glm::vec3{10.0f, 1.0f, 0.0f});
 
         builder.setName("Diffuse")
-                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/triangle.jpg"))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/triangle.jpg", {TextureLoaderFlags::Space::sRGB}))
                 .setShading(ms::Shading::Lit)
                 .build();
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("Diffuse"), glm::vec3{10.0f, 1.0f, 2.0f });
@@ -220,7 +220,7 @@ public:
         scene.add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("EmissiveColor"), glm::vec3{10.0f, 1.0f, 4.0f });
 
         builder.setName("BlendMask")
-                .add(ms::Property::BlendMask, TextureLoader::load(assets, assets_dir / "textures/bricks.jpg", {TextureLoaderFlags::Origin::BottomLeft, TextureLoaderFlags::Filter::Nearest}))
+                .add(ms::Property::BlendMask, TextureLoader::load(assets, assets_dir / "textures/bricks.jpg", {TextureLoaderFlags::Filter::Nearest}))
                 .add(ms::Property::Color, glm::vec4(0.3f, 0.1f, 0.7f, 1.0f))
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
@@ -230,7 +230,7 @@ public:
         builder.setName("PBR")
                 .add(ms::Property::MetallicTexture, TextureLoader::load(assets, assets_dir / "textures/rustediron2_metallic.png"))
                 .add(ms::Property::RoughnessTexture, TextureLoader::load(assets, assets_dir / "textures/rustediron2_roughness.png"))
-                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/rustediron2_basecolor.png"))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/rustediron2_basecolor.png", {TextureLoaderFlags::Space::sRGB}))
                 .add(ms::Property::Normal, TextureLoader::load(assets, assets_dir / "textures/rustediron2_normal.png"))
                 .setShading(ms::Shading::Lit)
                 .build();
@@ -238,7 +238,7 @@ public:
 
         builder.setName("floor")
                 .setShading(ms::Shading::Lit)
-                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/wood.jpg"))
+                .add(ms::Property::Diffuse, TextureLoader::load(assets, assets_dir / "textures/wood.jpg", {TextureLoaderFlags::Space::sRGB}))
                 .setShading(ms::Shading::Lit)
                 .setTwoSided(true)
                 .build();
