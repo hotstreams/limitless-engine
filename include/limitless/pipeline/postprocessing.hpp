@@ -26,10 +26,10 @@ namespace Limitless {
     public:
         bool bloom {true};
 
-        bool tone_mapping {true};
+        bool tone_mapping {false};
         float exposure {1.0f};
 
-        bool gamma_correction {};
+        bool gamma_correction {true};
         float gamma {2.2f};
 
         bool vignette {};

@@ -177,7 +177,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         aiString texture_name;
         mat->GetTexture(aiTextureType_DIFFUSE, 0, &texture_name);
 
-        builder.add(ms::Property::Diffuse, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::Diffuse, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str(), {TextureLoaderFlags::Space::sRGB}));
     }
 
     if (auto normal_count = mat->GetTextureCount(aiTextureType_HEIGHT); normal_count != 0) {
@@ -209,7 +209,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         aiString texture_name;
         mat->GetTexture(aiTextureType_EMISSIVE, 0, &texture_name);
 
-        builder.add(ms::Property::EmissiveMask, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.add(ms::Property::EmissiveMask, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str(), {TextureLoaderFlags::Space::sRGB}));
     }
 
     {

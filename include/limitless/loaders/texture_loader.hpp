@@ -15,6 +15,7 @@ namespace Limitless {
         enum class Filter { Linear, Nearest };
         enum class Compression { None, Default, DXT1, DXT5, BC7, RGTC };
         enum class DownScale { None, x2, x4, x8 };
+        enum class Space { sRGB, Linear };
 
         Origin origin { Origin::BottomLeft };
         Filter filter { Filter::Linear };
@@ -22,12 +23,21 @@ namespace Limitless {
         DownScale downscale { DownScale::None };
         Texture::Wrap wrapping { Texture::Wrap::Repeat };
 
+        // only for 3 or 4 channels now
+        Space space { Space::Linear };
+
         bool mipmap {true};
         bool anisotropic_filter {true};
         float anisotropic_value {0.0f}; // 0.0f for max supported
 
         bool border {false};
         glm::vec4 border_color {0.0f};
+
+        TextureLoaderFlags() = default;
+        TextureLoaderFlags(Origin _origin) noexcept : origin { _origin } {}
+        TextureLoaderFlags(Origin _origin, Space _space) noexcept : origin { _origin }, space {_space} {}
+        TextureLoaderFlags(Filter _filter) noexcept : filter { _filter } {}
+        TextureLoaderFlags(Space _space) noexcept : space { _space } {}
     };
 
     class texture_loader_exception : std::runtime_error {
