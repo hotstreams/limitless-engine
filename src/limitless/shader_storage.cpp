@@ -1,5 +1,6 @@
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader_compiler.hpp>
+#include <limitless/pipeline/render_settings.hpp>
 
 using namespace Limitless;
 
@@ -17,7 +18,7 @@ ShaderProgram& ShaderStorage::get(const std::string& name) const {
 
 ShaderProgram& ShaderStorage::get(ShaderPass material_type, ModelShader model_type, uint64_t material_index) const {
     try {
-        return *material_shaders.at({material_type, model_type, material_index});
+        return *materials.at({material_type, model_type, material_index});
     } catch (const std::out_of_range& e) {
         throw shader_storage_error("No such material shader");
     }
@@ -25,28 +26,58 @@ ShaderProgram& ShaderStorage::get(ShaderPass material_type, ModelShader model_ty
 
 void ShaderStorage::add(std::string name, std::shared_ptr<ShaderProgram> program) {
     std::unique_lock lock(mutex);
+
     const auto result = shaders.emplace(std::move(name), std::move(program));
     if (!result.second) {
-        throw shader_storage_error{"Shader already contains" + name};
+        throw shader_storage_error{"Shader already exists"};
     }
 }
 
 void ShaderStorage::add(ShaderPass material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) {
     std::unique_lock lock(mutex);
-    const auto result = material_shaders.emplace(ShaderKey{material_type, model_type, material_index}, std::move(program));
+    const auto key = ShaderKey{material_type, model_type, material_index};
+
+    const auto result = materials.emplace(key, program);
     if (!result.second) {
-        throw shader_storage_error{"Shader already contains"};
+        if (!materials[key]) {
+            materials[key] = std::move(program);
+            return;
+        }
+
+        throw shader_storage_error{"Shader already exists"};
     }
 }
 
 bool ShaderStorage::contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept {
     std::unique_lock lock(mutex);
-    return material_shaders.find({material_type, model_type, material_index}) != material_shaders.end();
+    return materials.find({material_type, model_type, material_index}) != materials.end();
 }
 
 bool ShaderStorage::contains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept {
     std::unique_lock lock(mutex);
     return emitters.find(emitter_type) != emitters.end();
+}
+
+bool ShaderStorage::reserveIfNotContains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept {
+    std::unique_lock lock(mutex);
+    bool contains = materials.find({material_type, model_type, material_index}) != materials.end();
+
+    if (!contains) {
+        materials.emplace(ShaderKey{material_type, model_type, material_index}, nullptr);
+    }
+
+    return contains;
+}
+
+bool ShaderStorage::reserveIfNotContains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept {
+    std::unique_lock lock(mutex);
+    bool contains = emitters.find(emitter_type) != emitters.end();
+
+    if (!contains) {
+        emitters.emplace(emitter_type, nullptr);
+    }
+
+    return contains;
 }
 
 ShaderProgram& ShaderStorage::get(const fx::UniqueEmitterShaderKey& emitter_type) const {
@@ -59,44 +90,48 @@ ShaderProgram& ShaderStorage::get(const fx::UniqueEmitterShaderKey& emitter_type
 
 void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::shared_ptr<ShaderProgram> program) {
     std::unique_lock lock(mutex);
-    const auto result = emitters.emplace(emitter_type, std::move(program));
+    const auto result = emitters.emplace(emitter_type, program);
     if (!result.second) {
+        if (!emitters[emitter_type]) {
+            emitters[emitter_type] = std::move(program);
+            return;
+        }
+
         throw shader_storage_error{"Shader already contains emitter"};
     }
 }
-//
-//void ShaderStorage::add(MaterialShader material_type, const fx::UniqueMeshEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) {
-//    std::unique_lock lock(mutex);
-//    const auto result = mesh_emitter_shaders.emplace(MeshEmitterKey{material_type, emitter_type}, std::move(program));
-//    if (!result.second) {
-//        throw shader_storage_error{"Shader already exists"};
-//    }
-//}
-//
-//void ShaderStorage::add(MaterialShader material_type, const fx::UniqueBeamEmitter& emitter_type, std::shared_ptr<ShaderProgram> program) {
-//    std::unique_lock lock(mutex);
-//    const auto result = beam_emitter_shaders.emplace(BeamEmitterKey{material_type, emitter_type}, std::move(program));
-//    if (!result.second) {
-//        throw shader_storage_error{"Shader already exists"};
-//    }
-//}
 
-void ShaderStorage::initialize(Context& ctx, const fs::path& shader_dir) {
-    ShaderCompiler compiler {ctx};
+void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, const fs::path& shader_dir) {
+    ShaderCompiler compiler {ctx, settings};
 
-    add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
-    add("brightness", compiler.compile(shader_dir / "postprocessing/brightness"));
-    add("postprocess", compiler.compile(shader_dir / "postprocessing/postprocess"));
-    add("text", compiler.compile(shader_dir / "pipeline/text"));
-    add("text_selection", compiler.compile(shader_dir / "pipeline/text_selection"));
+    if (settings.pipeline == RenderPipeline::Forward) {
+        add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
+        add("brightness", compiler.compile(shader_dir / "postprocessing/brightness"));
+        add("postprocess", compiler.compile(shader_dir / "postprocessing/postprocess"));
+    }
+
+    if (settings.pipeline == RenderPipeline::Deferred) {
+        add("deferred", compiler.compile(shader_dir / "pipeline/deferred/deferred"));
+        add("composite", compiler.compile(shader_dir / "pipeline/deferred/composite"));
+        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao"));
+        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao_blur"));
+        add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
+    }
+
+    if (settings.fast_approximate_antialiasing) {
+        add("fxaa", compiler.compile(shader_dir / "postprocessing/fxaa"));
+    }
+
+    add("quad", compiler.compile(shader_dir / "pipeline/quad"));
+
+    add("text", compiler.compile(shader_dir / "text/text"));
+    add("text_selection", compiler.compile(shader_dir / "text/text_selection"));
 }
 
-void ShaderStorage::clearMaterialShaders() {
-    material_shaders.clear();
-}
-
-void ShaderStorage::clearEffectShaders() {
+void ShaderStorage::clear() {
+    materials.clear();
     emitters.clear();
+    shaders.clear();
 }
 
 void ShaderStorage::add(const ShaderStorage& other) {
@@ -104,8 +139,8 @@ void ShaderStorage::add(const ShaderStorage& other) {
         shaders.emplace(key, value);
     }
 
-    for (auto&& [key, value] : other.material_shaders) {
-        material_shaders.emplace(key, value);
+    for (auto&& [key, value] : other.materials) {
+        materials.emplace(key, value);
     }
 
     for (auto&& [key, value] : other.emitters) {

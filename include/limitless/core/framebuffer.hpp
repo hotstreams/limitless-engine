@@ -49,6 +49,7 @@ namespace Limitless {
     private:
         std::unordered_map<FramebufferAttachment, TextureAttachment> attachments;
         ContextEventObserver* context {};
+        std::vector<FramebufferAttachment> draw_state;
     public:
         explicit Framebuffer(ContextEventObserver& context) noexcept;
         Framebuffer() noexcept;

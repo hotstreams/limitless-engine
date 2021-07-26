@@ -17,9 +17,9 @@ AssetManager::~AssetManager() {
     wait();
 }
 
-void AssetManager::loadTexture(std::string asset_name, fs::path path, const TextureLoaderFlags& flags) {
-    auto load_texture = [&, name = std::move(asset_name), path = std::move(path), fl = flags] () {
-        assets.textures.add(name, TextureLoader::load(assets, path, fl));
+void AssetManager::loadTexture(fs::path path, const TextureLoaderFlags& flags) {
+    auto load_texture = [&, path = std::move(path), fl = flags] () {
+        TextureLoader::load(assets, path, fl);
     };
 
     asset_futures.emplace_back(pool.add(std::move(load_texture)));
@@ -41,7 +41,7 @@ bool AssetManager::isDone() {
     using namespace std::chrono;
 
     for (auto it = asset_futures.begin(); it != asset_futures.end();) {
-        if (it->wait_for(0ms) == std::future_status::ready) {
+        if (it->wait_for(0ns) == std::future_status::ready) {
             it->get();
             it = asset_futures.erase(it);
         } else {
@@ -49,7 +49,9 @@ bool AssetManager::isDone() {
         }
     }
 
-    return std::all_of(model_futures.begin(), model_futures.end(), [] (auto& post) { return post.future.wait_for(0ms) == std::future_status::ready; });
+    return std::all_of(model_futures.begin(), model_futures.end(), [] (auto& post) {
+        return post.future.wait_for(0ns) == std::future_status::ready;
+    });
 }
 
 void AssetManager::wait() {
@@ -102,6 +104,8 @@ void AssetManager::loadEffect(std::string asset_name, fs::path path) {
 }
 
 void AssetManager::compileShaders(Context& ctx, const RenderSettings& settings) {
+    assets.shaders.initialize(ctx, settings, assets.getShaderDir());
+
     for (const auto& [_, material] : assets.materials) {
         build([&, &ctx = ctx, &settings = settings, &material = material] () {
             assets.compileMaterial(ctx, settings, material);

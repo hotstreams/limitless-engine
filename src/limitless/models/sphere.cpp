@@ -4,7 +4,8 @@ using namespace Limitless;
 
 #include <limitless/util/tangent_space.hpp>
 #include <limitless/util/math.hpp>
-#include <limitless/models/indexed_mesh.hpp>
+#include <limitless/core/indexed_stream.hpp>
+#include <limitless/models/mesh.hpp>
 
 Sphere::Sphere(glm::uvec2 segment_count) : ElementaryModel("sphere") {
     std::vector<VertexNormalTangent> vertices;
@@ -61,6 +62,11 @@ Sphere::Sphere(glm::uvec2 segment_count) : ElementaryModel("sphere") {
 
     calculateTangentSpaceTriangle(vertices, indices);
 
-    meshes.emplace_back(new IndexedMesh(std::move(vertices), std::move(indices), "sphere", MeshDataType::Static, DrawMode::Triangles));
+    meshes.emplace_back(
+            std::make_unique<Mesh>(
+                    std::make_unique<IndexedVertexStream<VertexNormalTangent>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles),
+            "sphere_mesh")
+    );
+
     calculateBoundingBox();
 }

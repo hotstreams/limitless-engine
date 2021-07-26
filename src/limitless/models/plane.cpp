@@ -3,7 +3,8 @@
 using namespace Limitless;
 
 #include <limitless/util/tangent_space.hpp>
-#include <limitless/models/indexed_mesh.hpp>
+#include <limitless/models/mesh.hpp>
+#include <limitless/core/indexed_stream.hpp>
 
 Plane::Plane() : ElementaryModel("plane") {
     /* Plane size (1, 0, 1) centered at (0, 0, 0) */
@@ -21,6 +22,11 @@ Plane::Plane() : ElementaryModel("plane") {
 
     calculateTangentSpaceTriangle(vertices, indices);
 
-    meshes.emplace_back(new IndexedMesh(std::move(vertices), std::move(indices), "plane", MeshDataType::Static, DrawMode::Triangles));
+    meshes.emplace_back(
+        std::make_unique<Mesh>(
+            std::make_unique<IndexedVertexStream<VertexNormalTangent>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles),
+            "plane_mesh")
+    );
+
     calculateBoundingBox();
 }

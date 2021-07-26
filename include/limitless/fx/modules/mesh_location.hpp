@@ -1,10 +1,14 @@
 #pragma once
 
 #include <limitless/fx/modules/module.hpp>
-#include <limitless/models/indexed_mesh.hpp>
+#include <limitless/core/indexed_stream.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
+#include <variant>
+#include <limitless/models/mesh.hpp>
 
 namespace Limitless::fx {
+    //TODO: move generation interface to utils
+    // check generation based on VertexStreamDraw type
     template<typename Particle>
     class InitialMeshLocation : public Module<Particle> {
     protected:
@@ -33,7 +37,7 @@ namespace Limitless::fx {
         }
 
         glm::vec3 getPositionOnMesh(const std::shared_ptr<AbstractMesh>& _mesh, size_t vertex_index, float r1, float r2) {
-            const auto& indexed_mesh = dynamic_cast<IndexedMesh<VertexNormalTangent, GLuint>&>(*_mesh);
+            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*_mesh).getVertexStream());
             const auto& vertices = indexed_mesh.getVertices();
             const auto& indices = indexed_mesh.getIndices();
 
@@ -94,7 +98,7 @@ namespace Limitless::fx {
         }
 
         auto getVertexIndex(const std::shared_ptr<AbstractMesh>& selected_mesh) {
-            const auto& indexed_mesh = dynamic_cast<IndexedMesh<VertexNormalTangent, GLuint>&>(*selected_mesh);
+            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*selected_mesh).getVertexStream());
             const auto& indices = indexed_mesh.getIndices();
             using vector_size_type = typename std::remove_reference_t<decltype(indices)>::size_type;
             auto int_distribution = std::uniform_int_distribution(static_cast<vector_size_type>(0), indices.size() - 4);

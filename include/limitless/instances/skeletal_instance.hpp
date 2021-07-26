@@ -34,7 +34,7 @@ namespace Limitless {
 
         SkeletalInstance* clone() noexcept override;
 
-        void update(Context& context, Camera& camera) override;
+        void update(Context& context, const Camera& camera) override;
 
         SkeletalInstance& play(const std::string& name);
         SkeletalInstance& pause() noexcept;

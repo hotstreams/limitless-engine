@@ -4,12 +4,12 @@
 
 using namespace Limitless;
 
-ParticlePass::ParticlePass(RenderPass* prev, fx::EffectRenderer& _renderer, ms::Blending _blending)
-    : RenderPass(prev)
+ParticlePass::ParticlePass(Pipeline& pipeline, fx::EffectRenderer& _renderer, ms::Blending _blending)
+    : RenderPass(pipeline)
     , renderer {_renderer}
     , blending {_blending} {
 }
 
-void ParticlePass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, const UniformSetter& setter) {
+void ParticlePass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, UniformSetter& setter) {
     renderer.get().draw(ctx, assets, ShaderPass::Forward, blending, setter);
 }

@@ -283,3 +283,12 @@ void StateBuffer::resize(size_t new_size) noexcept{
         StateBuffer::bufferData(nullptr);
     }
 }
+
+StateBuffer* StateBuffer::clone() {
+    //TODO: a che po normalnomy private copy ctor ?
+    if (std::holds_alternative<Storage>(usage_flags)) {
+        return new StateBuffer{target, size, nullptr, std::get<Storage>(usage_flags), std::get<ImmutableAccess>(access)};
+    } else {
+        return new StateBuffer{target, size, nullptr, std::get<Usage>(usage_flags), std::get<MutableAccess>(access)};
+    }
+}

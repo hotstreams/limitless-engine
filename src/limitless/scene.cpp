@@ -17,7 +17,7 @@ void Scene::setSkybox(std::shared_ptr<Skybox> _skybox) {
     skybox = std::move(_skybox);
 }
 
-void Scene::update(Context& context, Camera& camera) {
+void Scene::update(Context& context, const Camera& camera) {
     lighting.update();
 
     removeDeadInstances();

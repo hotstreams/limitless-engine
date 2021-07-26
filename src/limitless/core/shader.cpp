@@ -54,9 +54,13 @@ void Shader::checkStatus() const {
     GLint success;
     glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 
-    if (!success) {
+//    if (!success) {
         GLint log_size = 0;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &log_size);
+
+        if (log_size == 0) {
+            return;
+        }
 
         std::string log;
         log.resize(log_size);
@@ -71,7 +75,7 @@ void Shader::checkStatus() const {
         }
 
         throw shader_compilation_error("failed to compile " + path.string() + ": " + log);
-    }
+//    }
 }
 
 void Shader::replaceVersion() noexcept {
@@ -137,30 +141,59 @@ std::string Shader::getSource(const fs::path& filepath) {
     }
 }
 
-void Shader::replaceIncludes(const fs::path& base_dir) {
+void Shader::resolveIncludes(const fs::path& base_dir, std::string& src) {
     static constexpr std::string_view include = "#include";
 
-    size_t found = 0;
+    std::size_t found {};
     for (;;) {
-        found = source.find(include, found);
+        found = src.find(include, found);
 
         if (found == std::string::npos) {
-            break;
+            return;
         }
 
         size_t beg = found + include.length() + 2;
-        size_t end = source.find('"', beg);
+        size_t end = src.find('"', beg);
         size_t name_length = end - beg;
 
-        std::string file_name = source.substr(beg, name_length);
+        fs::path file_name = src.substr(beg, name_length);
 
-        try {
-            const auto& include_src = getSource(base_dir / file_name);
-            source.replace(found, include.length() + 3 + name_length, include_src);
-        } catch (const shader_file_not_found& not_found) {
-            throw shader_include_not_found("Failed to resolve include for " + path.string() + ": " + not_found.what());
-        }
+        auto include_src = getSource(base_dir / file_name);
+
+        resolveIncludes(base_dir / file_name.parent_path(), include_src);
+
+        src.replace(found, include.length() + 3 + name_length, include_src);
     }
+}
+
+void Shader::replaceIncludes(const fs::path& base_dir) {
+    try {
+        resolveIncludes(base_dir, source);
+    } catch (const shader_file_not_found& not_found) {
+        throw shader_include_not_found("Failed to resolve include for " + path.string() + ": " + not_found.what());
+    }
+
+//    size_t found = 0;
+//    for (;;) {
+//        found = source.find(include, found);
+//
+//        if (found == std::string::npos) {
+//            break;
+//        }
+//
+//        size_t beg = found + include.length() + 2;
+//        size_t end = source.find('"', beg);
+//        size_t name_length = end - beg;
+//
+//        std::string file_name = source.substr(beg, name_length);
+//
+//        try {
+//            const auto& include_src = getSource(base_dir / file_name);
+//            source.replace(found, include.length() + 3 + name_length, include_src);
+//        } catch (const shader_file_not_found& not_found) {
+//            throw shader_include_not_found("Failed to resolve include for " + path.string() + ": " + not_found.what());
+//        }
+//    }
 }
 
 void Shader::compile() const {

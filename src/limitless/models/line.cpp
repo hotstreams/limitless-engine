@@ -10,6 +10,11 @@ Line::Line(const glm::vec3 &a, const glm::vec3 &b) : ElementaryModel("line") {
             { b,  glm::vec2(0.0f) }
     };
 
-    meshes.emplace_back(new Mesh(std::move(vertices), "line", MeshDataType::Static, DrawMode::Lines));
+    meshes.emplace_back(
+        std::make_unique<Mesh>(
+            std::make_unique<VertexStream<Vertex>>(std::move(vertices), VertexStreamUsage::Static, VertexStreamDraw::Lines),
+            "line_mesh")
+    );
+
     calculateBoundingBox();
 }

@@ -36,7 +36,10 @@ namespace Limitless {
         GenerateUniqueMeshNames,
         FlipYZ,
         FlipWindingOrder,
-        NoMaterials
+        NoMaterials,
+
+        // batches meshes based on material equality (not material type)
+        NaiveBatch
     };
 
     using ModelLoaderFlags = std::set<ModelLoaderFlag>;

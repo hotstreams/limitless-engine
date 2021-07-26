@@ -9,7 +9,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-Ofast -march=native)
+    add_compile_options(-O3)
 endif()
 
 if (OPENGL_DEBUG)
@@ -68,6 +68,8 @@ set(ENGINE_CORE
     src/limitless/core/context.cpp
     src/limitless/core/context_observer.cpp
     src/limitless/core/state_query.cpp
+    src/limitless/core/profiler.cpp
+    src/limitless/core/time_query.cpp
 
     src/limitless/core/mutable_texture.cpp
     src/limitless/core/immutable_texture.cpp
@@ -115,7 +117,7 @@ set(ENGINE_LOADERS
     src/limitless/loaders/material_loader.cpp
     src/limitless/loaders/effect_loader.cpp
     src/limitless/loaders/model_loader.cpp
-        src/limitless/loaders/asset_manager.cpp
+    src/limitless/loaders/asset_manager.cpp
     src/limitless/loaders/threaded_model_loader.cpp
     src/limitless/loaders/texture_loader.cpp
 )
@@ -145,6 +147,7 @@ set(ENGINE_UTIL
     src/limitless/util/thread_pool.cpp
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
+    src/limitless/util/blue_noise.cpp
 )
 
 set(ENGINE_MS
@@ -190,6 +193,18 @@ set(ENGINE_PIPELINE
     src/limitless/pipeline/renderer.cpp
     src/limitless/pipeline/scene_data.cpp
     src/limitless/pipeline/effectupdate_pass.cpp
+    src/limitless/pipeline/deferred_framebuffer_pass.cpp
+    src/limitless/pipeline/gbuffer_pass.cpp
+    src/limitless/pipeline/deferred_lighting_pass.cpp
+    src/limitless/pipeline/deferred.cpp
+    src/limitless/pipeline/depth_pass.cpp
+    src/limitless/pipeline/translucent_pass.cpp
+    src/limitless/pipeline/blur_pass.cpp
+    src/limitless/pipeline/composite_pass.cpp
+    src/limitless/pipeline/ssao_pass.cpp
+    src/limitless/pipeline/fxaa_pass.cpp
+    src/limitless/pipeline/quad_pass.cpp
+    src/limitless/pipeline/render_debug_pass.cpp
 )
 
 set(ENGINE_SRC
@@ -218,6 +233,12 @@ add_library(limitless_engine SHARED ${ENGINE_SRC})
 add_executable(limitless_demo
         $<TARGET_OBJECTS:limitless_engine_objects>
         demo/demo.cpp
+        demo/materials_demoscene.cpp
+        demo/lighting_demoscene.cpp
+        demo/effects_demoscene.cpp
+        demo/models_demoscene.cpp
+        demo/sponza_demoscene.cpp
+        demo/assets.cpp
         )
 
 add_executable(limitless_engine_tests

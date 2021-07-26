@@ -172,7 +172,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
     }
 }
 
-std::shared_ptr<Texture> TextureLoader::loadCubemap(Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
+std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
     stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
@@ -213,7 +213,7 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(Assets& assets, const fs::pa
     return texture;
 }
 
-GLFWimage TextureLoader::loadGLFWImage(Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
+GLFWimage TextureLoader::loadGLFWImage([[maybe_unused]] Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
     stbi_set_flip_vertically_on_load(static_cast<bool>(flags.origin));

@@ -21,7 +21,7 @@ Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& f
     material = material_builder
                     .setName(path.stem().string())
                     .addUniform(std::make_unique<UniformSampler>("skybox", cube_map_texture))
-                    .setFragmentSnippet("mat_color *= texture(skybox, uv);\n")
+                    .setFragmentSnippet("albedo.rgb = texture(skybox, uv).rgb;\n")
                     .add(Property::Color, glm::vec4(1.0f))
                     .setTwoSided(true)
                     .setShading(Shading::Unlit)

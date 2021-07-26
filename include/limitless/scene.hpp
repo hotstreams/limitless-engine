@@ -55,7 +55,7 @@ namespace Limitless {
         const auto& getSkybox() const noexcept { return skybox; }
         void setSkybox(std::shared_ptr<Skybox> skybox);
 
-        void update(Context& context, Camera& camera);
+        virtual void update(Context& context, const Camera& camera);
 
         auto begin() noexcept { return instances.begin(); }
         auto begin() const noexcept { return instances.begin(); }

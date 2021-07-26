@@ -1,7 +1,6 @@
 #pragma once
 
 namespace Limitless::ms {
-    // the order should be the same as material.glsl
     enum class Property {
         // vec4
         Color,
@@ -10,17 +9,19 @@ namespace Limitless::ms {
         // texture
         Diffuse,
         Normal,
-        Specular,
         EmissiveMask,
         BlendMask,
         MetallicTexture,
         RoughnessTexture,
+        AmbientOcclusionTexture,
 
+        // vec2
         TessellationFactor,
 
         // float
         Shininess,
         Metallic,
         Roughness,
+        Refraction
     };
 }

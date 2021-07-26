@@ -9,11 +9,11 @@ namespace Limitless {
     private:
         Skybox* skybox {};
     public:
-        explicit SkyboxPass(RenderPass* prev);
+        explicit SkyboxPass(Pipeline& pipeline);
         ~SkyboxPass() override = default;
 
         void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;
 
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, const UniformSetter& setter) override;
+        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };
 }

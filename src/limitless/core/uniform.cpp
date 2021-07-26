@@ -14,6 +14,7 @@ Uniform::Uniform(std::string name, UniformType type, UniformValueType value_type
     , changed{true} {}
 
 bool Limitless::operator<(const Uniform& lhs, const Uniform& rhs) noexcept {
+    //TODO: move to util/glm
     if (lhs.type != rhs.type) {
         return lhs.type < rhs.type;
     }
@@ -49,11 +50,30 @@ bool Limitless::operator<(const Uniform& lhs, const Uniform& rhs) noexcept {
                     const auto& rhs_v = static_cast<const UniformValue<glm::vec4>&>(rhs).getValue();
                     return std::tie(lhs_v.x, lhs_v.y, lhs_v.z, lhs_v.w) < std::tie(rhs_v.x, rhs_v.y, rhs_v.z, rhs_v.w);
                 }
-                case UniformValueType::Mat3:
-                    [[fallthrough]];
-                case UniformValueType::Mat4:
-                    // TODO: for better times
-                    return false;
+                case UniformValueType::Mat3: {
+                    const auto& lhs_v = static_cast<const UniformValue<glm::mat3>&>(lhs).getValue();
+                    const auto& rhs_v = static_cast<const UniformValue<glm::mat3>&>(rhs).getValue();
+                    return std::tie(lhs_v[0][0], lhs_v[0][1], lhs_v[0][2],
+                                    lhs_v[1][0], lhs_v[1][1], lhs_v[1][2],
+                                    lhs_v[2][1], lhs_v[2][1], lhs_v[2][2])
+                                    <
+                                    std::tie(rhs_v[0][0], rhs_v[0][1], rhs_v[0][2],
+                                             rhs_v[1][0], rhs_v[1][1], rhs_v[1][2],
+                                             rhs_v[2][1], rhs_v[2][1], rhs_v[2][2]);
+                }
+                case UniformValueType::Mat4: {
+                    const auto& lhs_v = static_cast<const UniformValue<glm::mat3>&>(lhs).getValue();
+                    const auto& rhs_v = static_cast<const UniformValue<glm::mat3>&>(rhs).getValue();
+                    return std::tie(lhs_v[0][0], lhs_v[0][1], lhs_v[0][2], lhs_v[0][3],
+                                    lhs_v[1][0], lhs_v[1][1], lhs_v[1][2], lhs_v[1][3],
+                                    lhs_v[2][0], lhs_v[2][1], lhs_v[2][2], lhs_v[2][3],
+                                    lhs_v[3][0], lhs_v[3][1], lhs_v[3][2], lhs_v[3][3])
+                            <
+                            std::tie(rhs_v[0][0], rhs_v[0][1], rhs_v[0][2], rhs_v[0][3],
+                                     rhs_v[1][0], rhs_v[1][1], rhs_v[1][2], rhs_v[1][3],
+                                     rhs_v[2][0], rhs_v[2][1], rhs_v[2][2], rhs_v[2][3],
+                                     rhs_v[3][0], rhs_v[3][1], rhs_v[3][2], rhs_v[3][3]);
+                }
             }
 
     }

@@ -8,8 +8,7 @@ namespace Limitless {
     private:
         fx::EffectRenderer renderer;
     public:
-        EffectUpdatePass(RenderPass* prev, Context& ctx);
-
+        EffectUpdatePass(Pipeline& pipeline, Context& ctx);
         ~EffectUpdatePass() override = default;
 
         auto& getRenderer() { return renderer; }

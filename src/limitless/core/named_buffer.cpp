@@ -86,3 +86,11 @@ void NamedBuffer::resize(size_t new_size) noexcept {
         NamedBuffer::bufferData(nullptr);
     }
 }
+
+NamedBuffer* NamedBuffer::clone() {
+    if (std::holds_alternative<Storage>(usage_flags)) {
+        return new NamedBuffer {target, size, nullptr, std::get<Storage>(usage_flags), std::get<ImmutableAccess>(access)};
+    } else {
+        return new NamedBuffer {target, size, nullptr, std::get<Usage>(usage_flags), std::get<MutableAccess>(access)};
+    }
+}

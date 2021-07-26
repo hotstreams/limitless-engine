@@ -3,8 +3,20 @@
 #include <glm/glm.hpp>
 
 namespace Limitless {
-    struct PointLight {
-        static constexpr auto shader_storage_name = "point_light_buffer";
+    struct DirectionalLight final {
+        glm::vec4 direction {};
+        glm::vec4 color {};
+
+        DirectionalLight() = default;
+        ~DirectionalLight() = default;
+
+        DirectionalLight(const glm::vec4& _direction, const glm::vec4& _color) noexcept
+            : direction {_direction}
+            , color {_color} {}
+    };
+
+    struct PointLight final {
+        static constexpr auto SHADER_STORAGE_NAME = "POINT_LIGHTS_BUFFER";
 
         glm::vec4 position {};
         glm::vec4 color {};
@@ -14,22 +26,29 @@ namespace Limitless {
         float radius {1.0f};
 
         PointLight() = default;
-        PointLight(const glm::vec3& _position, const glm::vec4& _color, float _radius) noexcept : position{_position, 1.0f}, color{_color}, radius{_radius} {}
+        ~PointLight() = default;
+
+        PointLight(const glm::vec3& _position, const glm::vec4& _color, float _radius) noexcept
+            : position {_position, 1.0f}
+            , color {_color}
+            , radius {_radius} {}
     };
 
-    struct DirectionalLight {
-        static constexpr auto shader_storage_name = "directional_light_buffer";
+    struct SpotLight final {
+        static constexpr auto SHADER_STORAGE_NAME = "SPOT_LIGHTS_BUFFER";
 
+        glm::vec4 position {};
         glm::vec4 direction {};
         glm::vec4 color {};
+        float cutoff {};
 
-        DirectionalLight() = default;
-        DirectionalLight(const glm::vec4& _direction, const glm::vec4& _color) noexcept : direction{_direction}, color{_color} {}
-    };
+        SpotLight() = default;
+        ~SpotLight() = default;
 
-    struct SpotLight {
-        static constexpr auto shader_storage_name = "spot_light_buffer";
-
-        static_assert(true, "TODO");
+        SpotLight(const glm::vec3& _position, const glm::vec3& _direction, const glm::vec4& _color, float _cutoff) noexcept
+            : position {_position, 1.0f}
+            , direction {_direction, 1.0f}
+            , color {_color}
+            , cutoff {_cutoff} {}
     };
 }

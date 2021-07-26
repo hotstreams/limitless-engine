@@ -23,10 +23,7 @@ Assets::Assets(fs::path _base_dir, fs::path _shader_dir) noexcept
     , shader_dir {std::move(_shader_dir)} {
 }
 
-void Assets::load(Context& context) {
-    // engine-required assets
-    shaders.initialize(context, getShaderDir());
-
+void Assets::load([[maybe_unused]] Context& context) {
     // builds default materials for every model type
     ms::MaterialBuilder builder {*this};
     ModelShaders model_types = { ModelShader::Model, ModelShader::Skeletal, ModelShader::Effect, ModelShader::Instanced };
@@ -63,6 +60,8 @@ void Assets::add(const Assets& other) {
 }
 
 void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
+    shaders.initialize(ctx, settings, getShaderDir());
+
     for (const auto& [_, material] : materials) {
         compileMaterial(ctx, settings, material);
     }
@@ -77,9 +76,7 @@ void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
 }
 
 void Assets::recompileShaders(Context& ctx, const RenderSettings& settings) {
-    shaders.clearEffectShaders();
-    shaders.clearMaterialShaders();
-
+    shaders.clear();
     compileShaders(ctx, settings);
 }
 
@@ -93,7 +90,7 @@ void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const
         }
 
         for (const auto& pass_shader : getRequiredPassShaders(settings)) {
-            if (!shaders.contains(pass_shader, model_shader_type, material->getShaderIndex())) {
+            if (!shaders.reserveIfNotContains(pass_shader, model_shader_type, material->getShaderIndex())) {
                 compiler.compile(*material, pass_shader, model_shader_type);
             }
         }
@@ -103,13 +100,23 @@ void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const
 PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
     PassShaders pass_shaders;
 
-    // adds current renderer
-    pass_shaders.emplace(settings.renderer);
+    if (settings.pipeline == RenderPipeline::Forward) {
+        pass_shaders.emplace(ShaderPass::Forward);
+    }
 
-    // adds shadow pass
-    if (settings.directional_csm) {
+    if (settings.pipeline == RenderPipeline::Deferred) {
+        pass_shaders.emplace(ShaderPass::Depth);
+        pass_shaders.emplace(ShaderPass::GBuffer);
+        pass_shaders.emplace(ShaderPass::Transparent);
+    }
+
+    if (settings.directional_cascade_shadow_mapping) {
         pass_shaders.emplace(ShaderPass::DirectionalShadow);
     }
+
+    #ifdef LIMITLESS_DEBUG
+        pass_shaders.emplace(ShaderPass::Forward);
+    #endif
 
     return pass_shaders;
 }

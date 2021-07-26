@@ -25,7 +25,7 @@ namespace Limitless {
         };
         std::vector<Attachment> attachments;
     protected:
-        virtual void update(Context& context, Camera& camera);
+        virtual void update(Context& context, const Camera& camera);
 
         void setPosition(const glm::vec3& position) noexcept;
         void setRotation(const glm::quat& rotation) noexcept;

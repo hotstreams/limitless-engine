@@ -1,10 +1,9 @@
 #pragma once
 
 #include <limitless/models/model.hpp>
-#include <limitless/models/skinned_mesh.hpp>
 #include <limitless/util/tree.hpp>
+#include <limitless/models/bones.hpp>
 #include <glm/gtx/quaternion.hpp>
-
 #include <unordered_map>
 
 namespace Limitless {

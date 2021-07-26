@@ -10,9 +10,15 @@ namespace Limitless {
 
     struct SceneData {
         glm::mat4 projection {1.0f};
+        glm::mat4 projection_inverse {1.0f};
         glm::mat4 view {1.0f};
+        glm::mat4 view_inverse {1.0f};
         glm::mat4 VP {1.0f};
+        glm::mat4 VP_inverse {1.0f};
         glm::vec4 camera_position {};
+        glm::vec2 resolution {};
+        float far_plane;
+        float near_plane;
     };
 
     class SceneDataStorage final {

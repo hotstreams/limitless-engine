@@ -5,7 +5,7 @@
 
 using namespace Limitless;
 
-void SkyboxPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] const UniformSetter& setter) {
+void SkyboxPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     if (skybox) {
         skybox->draw(ctx, assets);
     }
@@ -15,6 +15,6 @@ void SkyboxPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[m
     skybox = scene.getSkybox().get();
 }
 
-SkyboxPass::SkyboxPass(RenderPass* prev)
-    : RenderPass(prev) {
+SkyboxPass::SkyboxPass(Pipeline& pipeline)
+    : RenderPass(pipeline) {
 }

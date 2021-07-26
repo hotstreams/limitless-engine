@@ -28,8 +28,8 @@ namespace Limitless::fx {
         static constexpr auto SHADER_MESH_BUFFER_NAME = "mesh_emitter_particles";
     public:
         explicit EmitterRenderer(const MeshEmitter& emitter)
-                : max_particle_count {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT}
-                , unique_type {emitter.getUniqueShaderType()} {
+            : max_particle_count {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT}
+            , unique_type {emitter.getUniqueShaderType()} {
             BufferBuilder builder;
             buffer = builder .setTarget(Buffer::Type::ShaderStorage)
                     .setUsage(Buffer::Usage::DynamicDraw)
@@ -73,7 +73,7 @@ namespace Limitless::fx {
 
             shader.use();
 
-            mesh->draw_instanced(mesh->getDrawMode(), current_particle_count);
+            mesh->draw_instanced(current_particle_count);
         }
     };
 }

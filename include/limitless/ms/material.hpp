@@ -101,7 +101,6 @@ namespace Limitless::ms {
         [[nodiscard]] const UniformSampler& getMetallicTexture() const;
         [[nodiscard]] const UniformSampler& getRoughnessTexture() const;
         [[nodiscard]] const UniformSampler& getDiffuse() const;
-        [[nodiscard]] const UniformSampler& getSpecular() const;
         [[nodiscard]] const UniformSampler& getNormal() const;
         [[nodiscard]] const UniformSampler& getEmissiveMask() const;
         [[nodiscard]] const UniformSampler& getBlendMask() const;
@@ -115,7 +114,6 @@ namespace Limitless::ms {
         UniformSampler& getMetallicTexture();
         UniformSampler& getRoughnessTexture();
         UniformSampler& getDiffuse();
-        UniformSampler& getSpecular();
         UniformSampler& getNormal();
         UniformSampler& getEmissiveMask();
         UniformSampler& getBlendMask();

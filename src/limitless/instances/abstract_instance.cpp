@@ -63,7 +63,7 @@ void AbstractInstance::draw(Context& ctx, const Assets& assets, ShaderPass mater
     draw(ctx, assets, material_shader_type,blending, UniformSetter{});
 }
 
-void AbstractInstance::update(Context& context, Camera& camera) {
+void AbstractInstance::update(Context& context, const Camera& camera) {
     EffectAttachable::update(context, camera);
 
     calculateModelMatrix();

@@ -8,7 +8,7 @@ namespace Limitless {
     private:
         SceneDataStorage scene_data;
     public:
-        SceneUpdatePass(RenderPass* prev, Context& ctx);
+        SceneUpdatePass(Pipeline& pipeline, Context& ctx);
         ~SceneUpdatePass() override = default;
 
         void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;

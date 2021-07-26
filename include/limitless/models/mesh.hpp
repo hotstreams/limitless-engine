@@ -1,72 +1,35 @@
 #pragma once
 
 #include <limitless/models/abstract_mesh.hpp>
-#include <limitless/core/vertex_array.hpp>
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/vertex_stream.hpp>
+#include <limitless/core/abstract_vertex_stream.hpp>
 
 namespace Limitless {
-    template<typename T>
     class Mesh : public AbstractMesh {
-    protected:
-        std::unique_ptr<Buffer> vertex_buffer;
-        VertexArray vertex_array;
-        std::vector<T> vertices;
-
-        MeshDataType data_type;
-        DrawMode draw_mode;
-        std::string name;
-
-        BoundingBox bounding_box {};
     private:
-        void initialize(size_t count) {
-            BufferBuilder builder;
-            builder .setTarget(Buffer::Type::Array)
-                    .setData(vertices.empty() ? nullptr : vertices.data())
-                    .setDataSize(count * sizeof(T));
-
-            switch (data_type) {
-                case MeshDataType::Static:
-                    vertex_buffer = builder .setUsage(Buffer::Storage::Static)
-                                            .setAccess(Buffer::ImmutableAccess::None)
-                                            .build();
-                    break;
-                case MeshDataType::Dynamic:
-                    vertex_buffer = builder .setUsage(Buffer::Usage::DynamicDraw)
-                                            .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                                            .build();
-                    break;
-                case MeshDataType::Stream:
-//                    vertex_buffer = builder .setUsage(Buffer::Storage::DynamicCoherentWrite)
-//                                            .setAccess(Buffer::ImmutableAccess::WriteCoherent)
-//                                            .buildTriple();
-//TODO:
-                    break;
-            }
-
-            vertex_array << std::pair<T, Buffer&>(T{}, *vertex_buffer);
-        }
+        std::unique_ptr<AbstractVertexStream> stream;
+        std::string name;
+        BoundingBox bounding_box {};
 
         void calculateBoundingBox() {
-            bounding_box = Limitless::calculateBoundingBox(vertices);
+//            bounding_box = Limitless::calculateBoundingBox(stream.getVertices());
         }
     public:
-        Mesh(std::vector<T>&& _vertices, std::string _name, MeshDataType _data_type, DrawMode _draw_mode)
-            : vertices {std::move(_vertices)}
-            , data_type {_data_type}
-            , draw_mode {_draw_mode}
+//        Mesh(std::vector<Vertex>&& vertices, VertexStreamUsage usage, VertexStreamDraw draw, std::string _name)
+//            : stream {std::move(vertices), usage, draw}
+//            , name {std::move(_name)} {
+//            calculateBoundingBox();
+//        }
+
+//        Mesh(size_t count, VertexStreamUsage usage, VertexStreamDraw draw, std::string _name)
+//            : stream {count, usage, draw}
+//            , name {std::move(_name)} {
+//            calculateBoundingBox();
+//        }
+
+        explicit Mesh(std::unique_ptr<AbstractVertexStream> _stream, std::string _name)
+            : stream {std::move(_stream)}
             , name {std::move(_name)} {
-
-            initialize(vertices.size());
-            calculateBoundingBox();
-        }
-
-        Mesh(size_t count, std::string _name, MeshDataType _data_type, DrawMode _draw_mode)
-            : vertices {}
-            , data_type {_data_type}
-            , draw_mode {_draw_mode}
-            , name {std::move(_name)} {
-
-            initialize(count);
             calculateBoundingBox();
         }
 
@@ -78,58 +41,27 @@ namespace Limitless {
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(Mesh&&) noexcept = default;
 
-        void draw() const noexcept override {
-            if (vertices.empty()) {
-                return;
-            }
-
-            vertex_array.bind();
-
-            glDrawArrays(static_cast<GLenum>(draw_mode), 0, vertices.size());
-
-            vertex_buffer->fence();
-        }
-
-        void draw(DrawMode mode) const noexcept override {
-            if (vertices.empty()) {
-                return;
-            }
-
-            vertex_array.bind();
-
-            glDrawArrays(static_cast<GLenum>(mode), 0, vertices.size());
-
-            vertex_buffer->fence();
-        }
-
-        void draw_instanced(DrawMode mode, size_t count) const noexcept override {
-            if (vertices.empty() || !count) {
-                return;
-            }
-
-            vertex_array.bind();
-
-            glDrawArraysInstanced(static_cast<GLenum>(mode), 0, vertices.size(), count);
-
-            vertex_buffer->fence();
-        }
-
-        template<typename Vertices>
-        void updateVertices(Vertices&& new_vertices) {
-            vertices = std::forward<Vertices>(new_vertices);
-
-            if (vertices.size() * sizeof(T) > vertex_buffer->getSize()) {
-                vertex_buffer->resize(vertices.size() * sizeof(T));
-                vertex_array << std::pair<T, Buffer&>(T{}, *vertex_buffer);
-            }
-
-            vertex_buffer->mapData(vertices.data(), sizeof(T) * vertices.size());
-        }
-
         [[nodiscard]] const BoundingBox& getBoundingBox() noexcept override { return bounding_box; }
         [[nodiscard]] const std::string& getName() const noexcept override { return name; }
         [[nodiscard]] std::string& getName() noexcept override { return name; }
-        [[nodiscard]] const auto& getVertices() const noexcept { return vertices; }
-        [[nodiscard]] DrawMode getDrawMode() const noexcept override { return draw_mode; }
+
+        auto& getVertexStream() noexcept { return *stream; }
+        [[nodiscard]] const auto& getVertexStream() const noexcept { return *stream; }
+
+        void draw() noexcept override {
+            stream->draw();
+        }
+
+        void draw(VertexStreamDraw draw) noexcept override {
+            stream->draw(draw);
+        }
+
+        void draw_instanced(std::size_t count) noexcept override {
+            stream->draw_instanced(count);
+        }
+
+        void draw_instanced(VertexStreamDraw draw, std::size_t count) noexcept override {
+            stream->draw_instanced(draw, count);
+        }
     };
 }

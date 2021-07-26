@@ -3,21 +3,22 @@
 #include <set>
 
 namespace Limitless {
+    // shader passes depend on material type
     enum class ShaderPass {
         Forward,
+
+        Depth,
+        GBuffer,
+        Transparent,
+
+        Skybox,
         DirectionalShadow,
-        Skybox
-//        Deferred,
-//        ForwardPlus,
-//        PointShadow,
-//        ColorPicker
     };
 
     enum class ModelShader {
         Model,
         Skeletal,
         Instanced,
-        SkeletalInstanced,
         Effect
     };
 

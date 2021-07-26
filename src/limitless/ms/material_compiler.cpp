@@ -6,10 +6,9 @@
 
 using namespace Limitless::ms;
 
-MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets, const RenderSettings& _settings) noexcept
-    :  ShaderCompiler {context}
-    , assets {_assets}
-    , render_settings {_settings} {
+MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets, const RenderSettings& settings) noexcept
+    : ShaderCompiler {context, settings}
+    , assets {_assets} {
 }
 
 std::string MaterialCompiler::getMaterialDefines(const Material& material) noexcept {
@@ -24,9 +23,6 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
                 break;
             case Property::Diffuse:
                 property_defines.append("#define MATERIAL_DIFFUSE\n");
-                break;
-            case Property::Specular:
-                property_defines.append("#define MATERIAL_SPECULAR\n");
                 break;
             case Property::Normal:
                 property_defines.append("#define MATERIAL_NORMAL\n");
@@ -55,6 +51,12 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
             case Property::TessellationFactor:
                 property_defines.append("#define MATERIAL_TESSELLATION_FACTOR\n");
                 break;
+            case Property::Refraction:
+                property_defines.append("#define MATERIAL_REFRACTION\n");
+                break;
+            case Property::AmbientOcclusionTexture:
+                property_defines.append("#define MATERIAL_AMBIENT_OCCLUSION_TEXTURE\n");
+                break;
         }
     }
 
@@ -65,12 +67,6 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
         case Shading::Unlit:
             property_defines.append("#define MATERIAL_UNLIT\n");
             break;
-    }
-
-    if ((material.contains(Property::MetallicTexture) || material.contains(Property::RoughnessTexture) ||
-         material.contains(Property::Metallic) || material.contains(Property::Roughness)) &&
-        render_settings.physically_based_render) {
-        property_defines.append("#define PBR\n");
     }
 
     return property_defines;
@@ -87,9 +83,6 @@ std::string MaterialCompiler::getModelDefines(const ModelShader& type) {
             break;
         case ModelShader::Instanced:
             defines.append("#define INSTANCED_MODEL\n");
-            break;
-        case ModelShader::SkeletalInstanced:
-            defines.append("#define SKELETAL_INSTANCED_MODEL\n");
             break;
         case ModelShader::Effect:
             defines.append("#define EFFECT_MODEL\n");
@@ -120,47 +113,17 @@ std::string MaterialCompiler::getCustomMaterialSamplerUniforms(const Material& m
     return uniforms;
 }
 
-void MaterialCompiler::replaceRenderSettings(Shader& shader) noexcept {
-    std::string settings;
-
-    // sets shading model
-    switch (render_settings.shading_model) {
-        case ShadingModel::Phong:
-            settings.append("#define PHONG_MODEL\n");
-            break;
-        case ShadingModel::BlinnPhong:
-            settings.append("#define BLINN_PHONG_MODEL\n");
-            break;
-    }
-
-    // sets normal mapping
-    if (render_settings.normal_mapping) {
-        settings.append("#define NORMAL_MAPPING\n");
-    }
-
-    if (render_settings.directional_csm) {
-        settings.append("#define DIRECTIONAL_CSM\n");
-
-        settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(render_settings.directional_split_count) + '\n');
-
-        if (render_settings.directional_pcf) {
-            settings.append("#define DIRECTIONAL_PFC\n");
-        }
-    }
-
-    shader.replaceKey("Limitless::Settings", settings);
-}
-
 void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept {
     shader.replaceKey("Limitless::MaterialType", getMaterialDefines(material));
     shader.replaceKey("Limitless::ModelType", getModelDefines(model_shader));
+    shader.replaceKey("Limitless::EmitterType", "");
 
-    shader.replaceKey("Limitless::CustomMaterialVertexCode", material.getVertexSnippet());
-    shader.replaceKey("Limitless::CustomMaterialFragmentCode", material.getFragmentSnippet());
-    shader.replaceKey("Limitless::CustomMaterialGlobalDefinitions", material.getGlobalSnippet());
-    shader.replaceKey("Limitless::CustomMaterialTessellationCode", material.getTessellationSnippet());
-    shader.replaceKey("Limitless::CustomMaterialScalarUniforms", getCustomMaterialScalarUniforms(material));
-    shader.replaceKey("Limitless::CustomMaterialSamplerUniforms", getCustomMaterialSamplerUniforms(material));
+    shader.replaceKey("_MATERIAL_VERTEX_SNIPPET", material.getVertexSnippet());
+    shader.replaceKey("_MATERIAL_FRAGMENT_SNIPPET", material.getFragmentSnippet());
+    shader.replaceKey("_MATERIAL_GLOBAL_DEFINITIONS", material.getGlobalSnippet());
+    shader.replaceKey("_MATERIAL_TESSELLATION_SNIPPET", material.getTessellationSnippet());
+    shader.replaceKey("_MATERIAL_SCALAR_UNIFORMS", getCustomMaterialScalarUniforms(material));
+    shader.replaceKey("_MATERIAL_SAMPLER_UNIFORMS", getCustomMaterialSamplerUniforms(material));
 }
 
 void MaterialCompiler::compile(const Material& material, ShaderPass pass_shader, ModelShader model_shader) {

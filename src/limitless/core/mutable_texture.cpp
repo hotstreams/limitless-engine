@@ -262,4 +262,13 @@ void MutableTexture::setParameters() {
     setWrapS(wrap_s);
     setWrapT(wrap_t);
     setWrapR(wrap_r);
+
+    if (border) {
+        setBorderColor(border_color);
+    }
+
+    //TODO: check
+//    if (anisotropic != 0.0) {
+//
+//    }
 }

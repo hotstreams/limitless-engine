@@ -39,7 +39,7 @@ EffectAttachable::~EffectAttachable() = default;
 EffectAttachable::EffectAttachable(const EffectAttachable&) = default;
 EffectAttachable::EffectAttachable(EffectAttachable&&) noexcept = default;
 
-void EffectAttachable::update(Context& context, Camera& camera) {
+void EffectAttachable::update(Context& context, const Camera& camera) {
     for (auto& [instance, offset] : attachments) {
         instance->update(context, camera);
     }

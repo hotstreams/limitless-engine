@@ -3,6 +3,7 @@
 #include <limitless/fx/modules/mesh_location.hpp>
 
 namespace Limitless::fx {
+    //TODO: restore with new interface
     template<typename Particle>
     class MeshLocationAttachment final : public InitialMeshLocation<Particle> {
     private:

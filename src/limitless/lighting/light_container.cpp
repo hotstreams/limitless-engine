@@ -23,14 +23,14 @@ void LightContainer<T>::reserve(size_t n) {
 
     auto& buffers = ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers();
 
-    buffers.remove(T::shader_storage_name, buffer);
+    buffers.remove(T::SHADER_STORAGE_NAME, buffer);
 
     BufferBuilder builder;
     buffer = builder.setTarget(Buffer::Type::ShaderStorage)
                     .setUsage(Buffer::Usage::DynamicDraw)
                     .setAccess(Buffer::MutableAccess::WriteOrphaning)
                     .setDataSize(sizeof(T) * n)
-                    .build(T::shader_storage_name, *ContextState::getState(glfwGetCurrentContext()));
+                    .build(T::SHADER_STORAGE_NAME, *ContextState::getState(glfwGetCurrentContext()));
 
     modified = true;
 }
@@ -54,11 +54,10 @@ void LightContainer<T>::update() {
         modified = false;
     }
 
-    buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, T::shader_storage_name));
+    buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, T::SHADER_STORAGE_NAME));
 }
 
 namespace Limitless {
     template class LightContainer<PointLight>;
-    template class LightContainer<DirectionalLight>;
     template class LightContainer<SpotLight>;
 }

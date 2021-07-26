@@ -4,14 +4,14 @@
 
 using namespace Limitless;
 
-SceneUpdatePass::SceneUpdatePass(RenderPass* prev, Context& ctx)
-    : RenderPass(prev)
+SceneUpdatePass::SceneUpdatePass(Pipeline& pipeline, Context& ctx)
+    : RenderPass(pipeline)
     , scene_data {ctx} {
 }
 
 void SceneUpdatePass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
-    scene.update(ctx, const_cast<Camera&>(camera));
-    instances = scene.getWrappers();
-
+    scene.update(ctx, camera);
     scene_data.update(ctx, camera);
+
+    instances = scene.getWrappers();
 }

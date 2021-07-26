@@ -147,7 +147,8 @@ namespace Limitless {
         static bool hasState(GLFWwindow* window) noexcept;
         static ContextState* getState(GLFWwindow* window) noexcept;
 
-        void setViewPort(glm::uvec2 viewport_size) noexcept;
+        void setViewPort(glm::uvec2 size) noexcept;
+        void setViewPort(glm::uvec2 position, glm::uvec2 size) noexcept;
         void clearColor(const glm::vec4& color) noexcept;
         void setDepthFunc(DepthFunc func) noexcept;
         void setDepthMask(DepthMask mask) noexcept;

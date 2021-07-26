@@ -69,7 +69,7 @@ namespace Limitless {
         void castShadow() noexcept { shadow_cast = true; }
         void removeShadow() noexcept { shadow_cast = false; }
 
-        void update(Context& context, Camera& camera) override;
+        void update(Context& context, const Camera& camera) override;
 
         virtual AbstractInstance& setPosition(const glm::vec3& position) noexcept;
         virtual AbstractInstance& setRotation(const glm::quat& rotation) noexcept;

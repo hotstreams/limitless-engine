@@ -5,6 +5,18 @@
 #include <limitless/assets.hpp>
 
 namespace Limitless {
+    class Blur {
+    private:
+        std::array<Framebuffer, 2> blur;
+    public:
+        explicit Blur(ContextEventObserver& ctx);
+        ~Blur() = default;
+
+        void process(const Assets& ctx, const std::shared_ptr<Texture>& image);
+
+        [[nodiscard]] const std::shared_ptr<Texture>& getResult() const noexcept;
+    };
+
     class Bloom {
     private:
         static constexpr uint8_t blur_iterations = 8;

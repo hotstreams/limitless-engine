@@ -105,9 +105,9 @@ void Camera::updateView() noexcept {
 //    front = glm::normalize(pitch_quat * front * heading_quat);
 
     // euler angles
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.x = glm::cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = glm::sin(glm::radians(pitch));
+    front.z = glm::sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     front = glm::normalize(front);
 
     right = glm::normalize(glm::cross(front, world_up));

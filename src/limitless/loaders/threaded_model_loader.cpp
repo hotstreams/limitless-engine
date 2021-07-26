@@ -1,11 +1,13 @@
 #include <limitless/loaders/threaded_model_loader.hpp>
 
 #include <limitless/models/skeletal_model.hpp>
+#include <limitless/core/skeletal_stream.hpp>
 #include <limitless/assets.hpp>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 #include <limitless/util/glm.hpp>
+#include <limitless/models/mesh.hpp>
 
 using namespace Limitless;
 
@@ -37,9 +39,16 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
             return asset_ptr.meshes[name];
         }
 
-        auto mesh = !skinned ?
-                    std::shared_ptr<AbstractMesh>(new IndexedMesh<V, I>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
-                    std::shared_ptr<AbstractMesh>(new SkinnedMesh<V, I>(std::move(vertices), std::move(indices), std::move(weights), std::move(name), MeshDataType::Static, DrawMode::Triangles));
+
+        auto stream = !skinned ?
+            std::make_unique<IndexedVertexStream<V>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles) :
+            std::make_unique<SkinnedVertexStream<V>>(std::move(vertices), std::move(indices), std::move(weights), VertexStreamUsage::Static, VertexStreamDraw::Triangles);
+
+        std::shared_ptr<AbstractMesh> mesh = std::make_shared<Mesh>(std::move(stream), std::move(name));
+
+//        auto mesh = !skinned ?
+//                    std::shared_ptr<AbstractMesh>(new IndexedMesh<V, I>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
+//                    std::shared_ptr<AbstractMesh>(new SkinnedMesh<V, I>(std::move(vertices), std::move(indices), std::move(weights), std::move(name), MeshDataType::Static, DrawMode::Triangles));
 
         asset_ptr.meshes.add(mesh->getName(), mesh);
 

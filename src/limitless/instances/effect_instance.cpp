@@ -54,7 +54,7 @@ EffectInstance::EffectInstance(const EffectInstance& effect) noexcept
     }
 }
 
-void EffectInstance::update(Context& context, Camera& camera) {
+void EffectInstance::update(Context& context, const Camera& camera) {
     AbstractInstance::update(context, camera);
 
     for (auto& [name, emitter] : emitters) {

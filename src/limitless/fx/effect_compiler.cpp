@@ -107,15 +107,15 @@ std::string EffectCompiler::getEmitterDefines(const AbstractEmitter& emitter) no
 
 template<typename T>
 void EffectCompiler::compile(ShaderPass shader_type, const T& emitter) {
-    if (!assets.shaders.contains({emitter.getUniqueShaderType(), shader_type})) {
+    if (!assets.shaders.reserveIfNotContains({emitter.getUniqueShaderType(), shader_type})) {
         const auto props = [&] (Shader& shader) {
+            shader.replaceKey("Limitless::EmitterType", getEmitterDefines(emitter));
+
             replaceMaterialSettings(shader, emitter.getMaterial(), ModelShader::Effect);
             replaceRenderSettings(shader);
-
-            shader.replaceKey("Limitless::EmitterType", getEmitterDefines(emitter));
         };
 
-        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / "effects/emitter", props));
+        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / SHADER_PASS_PATH.at(shader_type), props));
     }
 }
 

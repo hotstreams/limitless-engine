@@ -23,7 +23,7 @@ void TextModel::initialize(size_t count) {
                      .setAccess(Buffer::MutableAccess::WriteOrphaning)
                      .build();
 
-    vertex_array << std::pair<TextVertex, Buffer&>(TextVertex{}, *buffer);
+    vertex_array << std::pair<TextVertex, const std::shared_ptr<Buffer>&>(TextVertex{}, buffer);
 }
 
 void TextModel::update(std::vector<TextVertex>&& _vertices) {

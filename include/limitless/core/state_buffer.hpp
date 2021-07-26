@@ -44,6 +44,8 @@ namespace Limitless {
         void bindAs(Type target) const noexcept override;
         void bind() const noexcept override;
 
+        StateBuffer* clone() override;
+
         void resize(size_t size) noexcept override;
 
         void fence() noexcept override;

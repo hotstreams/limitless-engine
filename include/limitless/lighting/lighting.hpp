@@ -15,13 +15,16 @@ namespace Limitless {
         void updateLightBuffer();
     public:
         // ambient lighting
-        glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 0.5f};
+        glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 1.0f};
 
         // global lighting
         DirectionalLight directional_light;
 
         // point lighting
         LightContainer<PointLight> point_lights;
+
+        // spot lighting
+        LightContainer<SpotLight> spot_lights;
 
         explicit Lighting(Context& ctx);
         ~Lighting() = default;
