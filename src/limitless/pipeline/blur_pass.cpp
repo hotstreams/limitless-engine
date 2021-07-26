@@ -10,5 +10,6 @@ BlurPass::BlurPass(Pipeline& pipeline, ContextEventObserver& ctx)
 }
 
 void BlurPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+    ctx.disable(Capabilities::Blending);
     blur.process(assets, pipeline.get<DeferredFramebufferPass>().getEmissive());
 }

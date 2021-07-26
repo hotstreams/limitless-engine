@@ -23,7 +23,8 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("emissive_color"), glm::vec3{29.0f, 1.0f, 7.0f });
     open = &add<ModelInstance>(assets.models.at("plane"), assets.materials.at("emissive_mask"), glm::vec3{29.0f, 1.0f, 10.0f});
     open->setRotation(glm::vec3(M_PI_2, M_PI_2 * 3, 0.0f));
-    add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("blend_mask"), glm::vec3{29.0f, 1.0f, 13.0f });
+    add<ModelInstance>(assets.models.at("plane"), assets.materials.at("blend_mask"), glm::vec3{29.0f, 1.0f, 13.0f })
+    .setRotation(glm::vec3(M_PI_2, M_PI_2 * 3, 0.0f));
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("refraction"), glm::vec3{29.0f, 1.0f, 16.0f });
 
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("basic1"), glm::vec3{24.0f, 1.0f, 1.0f });
@@ -66,6 +67,7 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
 
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("bump_mapping"), glm::vec3{14.0f, 1.0f, 13.0f });
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("fresnel"), glm::vec3{14.0f, 1.0f, 17.0f });
+
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("hue_shift"), glm::vec3{14.0f, 1.0f, 20.0f });
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("fireball"), glm::vec3{14.0f, 1.0f, 23.0f });
 }

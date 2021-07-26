@@ -157,7 +157,7 @@ void DemoAssets::loadMaterialsScene() {
 
     builder .setName("refraction")
             .setBlending(Blending::Translucent)
-            .add(Property::Refraction, 0.0)
+            .add(Property::Refraction, 1.03)
             .addUniform(std::make_unique<UniformTime>("time"))
             .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga")))
             .setFragmentSnippet("refraction = texture(noise, vec2(getVertexUV().x, getVertexUV().y + time * 0.1)).r;")
