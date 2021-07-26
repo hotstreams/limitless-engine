@@ -1,6 +1,98 @@
-![me](content/logo1.jpg)
+![me](content/logo.jpg)
 
 ## The project is 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL & C++17.
+
+### Lighting
+
+![me](content/lighting.gif)
+
+- Forward/Deferred shading
+- Dynamic directional light
+- Dynamic point lights
+- Dynamic spot lights
+- Directional Cascade Shadow maps
+- Percentage-Closer Filtering
+- Skybox
+---
+
+### Material System
+
+![me](content/color.png) 
+![me](content/albedo.png)
+![me](content/emissive.png)
+![me](content/open.gif)
+![me](content/masked.png)
+![me](content/refraction.png)
+
+![me](content/basic1.png)
+![me](content/basic2.png)
+![me](content/basic3.png)
+![me](content/basic4.png)
+![me](content/basic5.png)
+![me](content/basic6.png)
+![me](content/basic7.png)
+
+![me](content/translucent.png)
+![me](content/additive_modulate.png)
+
+![me](content/custom_materials.gif)
+![me](content/layering.gif)
+
+![me](content/fireball_hue_shift.gif)
+
+Material Properties: 
+- Сolor          
+- Albedo texture   
+- Normal map
+- Emissive color
+- Emissive mask
+- Blend mask
+- Refraction
+- Transparency: Translucent, Additive, Modulate
+- Shading: Lit, Unlit
+- Metallic & roughness workflow
+- Material layering
+- Custom materials via GLSL snippets that allow you to create whatever material you want
+- All properties are run-time changeable
+---
+
+### Effect System
+
+![me](content/smoke.gif)
+![me](content/shield.gif)
+![me](content/fire.gif)
+![me](content/explosion.gif)
+![me](content/ball.gif)
+![me](content/lightning_effect.gif)
+![me](content/attachment.gif)
+![me](content/skeleton_spawn_effect.gif)
+![me](content/aura_effect.gif)
+
+- Sprite / Mesh / Beam emitters
+- 'initial' & 'by life' modules, const & range value distributions
+- Interoperation with material custom properties
+- Color, location, velocity, acceleration, size, lifetime, mesh location, mesh attachment, rotation, rotation rate, custom material, beam targets & speed & offset & rebuild & displacement
+  
+---
+
+### Model Loading
+
+![me](content/thanos.png)
+![me](content/daenerys.png)
+![me](content/taskmaster.png)
+![me](content/k2.png)
+![me](content/skeleton.png)
+![me](content/skeletal_model.gif)
+![me](content/backpack.png)
+![me](content/cyborg.png)
+![me](content/drone.png)
+![me](content/elemental.png)
+
+- Model loading using Assimp
+- Skeletal models with animations
+- Instancing support
+
+---
 
 ### Core Features
 - OpenGL state caching for reducing driver overhead 
@@ -17,77 +109,31 @@
 
 ---
 
-### Material System
-  - Ambient color
-  - Diffuse texture
-  - Specular map and intensity
-  - Normal map
-  - Emissive color
-  - Emissive mask
-  - Blend mask
-  - Blending: Opaque, Translucent, Additive, Modulate
-  - Shading: Lit, Unlit
-  - Shading models: Phong, Blinn-Phong
-  - Custom materials via GLSL snippets that allow you to create whatever material you want
-  
-  Physically based rendering:
-  
-  - Roughness value and map
-  - Metalness value and map
-
----
-
-### Effect System
-  - Sprite & Mesh emitters
-  - Lots of modules for configure
-    
----
-
-### Model Loading & Skeletal animations using Assimp
-
----
-
-### Lighting 
-  - Dynamic Directional light
-  - Dynamic Point lights
-  - Skybox
-
----
-
-### Shadows
-  - Directional Cascade Shadow Maps
-  - Percentage-Closer Filtering
-
----
-
 ### PostProcessing
-  - HDR
   - Tone mapping
   - Gamma correction
   - Bloom
   - Vignette
   - Tone shading
   - FXAA
-
+  - SSAO
 ---
 
 ### Text rendering using FreeType
 
 ---
 
-### Screenshots
+### Content
   
-![me](content/materials.png)
+![me](content/materials_scene.png)
 
-![me](content/effect.png)
+![me](content/effects_scene.png)
 
-![me](content/full.png)
-
-![me](content/model_loader.gif)
-
-![me](content/tone_shading.png)
+![me](content/models_scene.png)
 
 ![me](content/sponza.png)
+
+![me](content/tone_shading.png)
 
 ![me](content/warlocks.png)
 
