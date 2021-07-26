@@ -123,7 +123,6 @@ Material Properties:
 ---
 
 ### Text rendering using FreeType
-
 ---
 
 ### Content
