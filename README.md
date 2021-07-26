@@ -26,6 +26,7 @@ Material Properties:
 - Emissive mask
 - Blend mask
 - Refraction
+- Ambient occlusion
 - Transparency: Translucent, Additive, Modulate
 - Shading: Lit, Unlit
 - Metallic & roughness workflow

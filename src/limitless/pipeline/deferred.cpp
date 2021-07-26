@@ -6,14 +6,10 @@
 #include <limitless/pipeline/sceneupdate_pass.hpp>
 #include <limitless/pipeline/effectupdate_pass.hpp>
 #include <limitless/pipeline/shadow_pass.hpp>
-#include <limitless/pipeline/framebuffer_pass.hpp>
-#include <limitless/pipeline/color_pass.hpp>
-#include <limitless/pipeline/particle_pass.hpp>
 #include <limitless/pipeline/skybox_pass.hpp>
 #include <limitless/pipeline/postprocessing_pass.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
 #include <limitless/pipeline/deferred_lighting_pass.hpp>
-#include <limitless/pipeline/screen_space_reflection_pass.hpp>
 #include <limitless/pipeline/translucent_pass.hpp>
 #include <limitless/pipeline/gbuffer_pass.hpp>
 #include <limitless/pipeline/depth_pass.hpp>
@@ -23,7 +19,6 @@
 #include <limitless/pipeline/ssao_pass.hpp>
 #include <limitless/pipeline/fxaa_pass.hpp>
 #include <limitless/pipeline/quad_pass.hpp>
-#include <limitless/pipeline/render_debug_pass.hpp>
 
 using namespace Limitless;
 
