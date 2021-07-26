@@ -5,6 +5,10 @@
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/ms/material.hpp>
+#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/vertex.hpp>
+#include <limitless/models/mesh.hpp>
+#include <limitless/core/skeletal_stream.hpp>
 
 using namespace Limitless;
 
@@ -111,7 +115,7 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
-void SkeletalInstance::update(Context& context, Camera& camera) {
+void SkeletalInstance::update(Context& context, const Camera& camera) {
     AbstractInstance::update(context, camera);
 
     if (!animation || paused) {
@@ -179,7 +183,7 @@ void SkeletalInstance::calculateBoundingBox() noexcept {
 }
 
 glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const {
-    const auto& skinned_mesh = dynamic_cast<SkinnedMesh<VertexNormalTangent, GLuint>&>(*mesh);
+    const auto& skinned_mesh = dynamic_cast<SkinnedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*mesh).getVertexStream());
 
     const auto& bone_weight = skinned_mesh.getBoneWeights().at(vertex_index);
     const auto& vertex = skinned_mesh.getVertices().at(vertex_index);

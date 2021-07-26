@@ -17,8 +17,8 @@ RendererHelper::RendererHelper(const RenderSettings& _settings)
     : settings {_settings} {
 }
 
-void RendererHelper::renderLightsVolume(Context& context, const Scene& scene, const Assets& assets) {
-    if (scene.lighting.point_lights.empty()) {
+void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera) {
+    if (lighting.point_lights.empty()) {
         return;
     }
 
@@ -30,9 +30,10 @@ void RendererHelper::renderLightsVolume(Context& context, const Scene& scene, co
     auto sphere_instance = ModelInstance(assets.models.at("sphere"), assets.materials.at("default"), glm::vec3(0.0f));
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& light : scene.lighting.point_lights) {
+    for (const auto& light : lighting.point_lights) {
         sphere_instance.setPosition(light.position);
         sphere_instance.setScale(glm::vec3(light.radius));
+        sphere_instance.update(context, camera);
         sphere_instance.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
@@ -59,25 +60,24 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
     z_i.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
 }
 
-void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Scene& scene) {
+void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, Instances& instances) {
     auto box = ModelInstance{assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
 
     context.setLineWidth(2.5f);
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& [id, instance] : scene) {
-        auto& bounding_box = instance->getBoundingBox();
+    for (const auto& instance : instances) {
+        auto& bounding_box = instance.get().getBoundingBox();
 
-        box.setPosition(bounding_box.center)
-                .setScale(bounding_box.size);
+        box.setPosition(bounding_box.center).setScale(bounding_box.size);
 
         box.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
-void RendererHelper::render(Context& context, const Assets& assets, const Scene& scene) {
+void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Instances& instances) {
     if (settings.bounding_box) {
-        renderBoundingBoxes(context, assets, scene);
+        renderBoundingBoxes(context, assets, instances);
     }
 
     if (settings.coordinate_system_axes) {
@@ -85,6 +85,6 @@ void RendererHelper::render(Context& context, const Assets& assets, const Scene&
     }
 
     if (settings.light_radius) {
-        renderLightsVolume(context, scene, assets);
+        renderLightsVolume(context, lighting, assets, camera);
     }
 }

@@ -4,13 +4,13 @@
 
 using namespace Limitless;
 
-FramebufferPass::FramebufferPass(RenderPass* prev, RenderTarget& _target)
-    : RenderPass(prev)
+FramebufferPass::FramebufferPass(Pipeline& pipeline, RenderTarget& _target)
+    : RenderPass(pipeline)
     , target {_target} {
 }
 
-FramebufferPass::FramebufferPass(RenderPass* prev, ContextEventObserver& ctx)
-    : RenderPass(prev)
+FramebufferPass::FramebufferPass(Pipeline& pipeline, ContextEventObserver& ctx)
+    : RenderPass(pipeline)
     , framebuffer {ctx}
     , target {framebuffer} {
 
@@ -46,9 +46,7 @@ FramebufferPass::FramebufferPass(RenderPass* prev, ContextEventObserver& ctx)
     framebuffer.unbind();
 }
 
-RenderTarget& FramebufferPass::getTarget() noexcept { return target; }
-
-void FramebufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] const UniformSetter& setter) {
+void FramebufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     ctx.setViewPort(ctx.getSize());
     target.clear();
 }

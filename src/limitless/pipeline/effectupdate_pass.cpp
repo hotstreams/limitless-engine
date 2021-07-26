@@ -2,8 +2,8 @@
 
 using namespace Limitless;
 
-EffectUpdatePass::EffectUpdatePass(RenderPass* prev, Context& ctx)
-    : RenderPass(prev)
+EffectUpdatePass::EffectUpdatePass(Pipeline& pipeline, Context& ctx)
+    : RenderPass(pipeline)
     , renderer {ctx} {
 }
 

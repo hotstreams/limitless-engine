@@ -3,6 +3,7 @@
 #include <limitless/ms/material_builder.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 #include <limitless/models/skeletal_model.hpp>
+#include <limitless/core/skeletal_stream.hpp>
 #include <limitless/assets.hpp>
 
 #include <assimp/postprocess.h>
@@ -10,6 +11,7 @@
 
 #include <glm/gtx/quaternion.hpp>
 #include <limitless/util/glm.hpp>
+#include <limitless/models/mesh.hpp>
 
 using namespace Limitless;
 
@@ -142,9 +144,11 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(
     auto indices = loadIndices<T1>(m);
     auto weights = loadBoneWeights(m, bones, bone_map, flags);
 
-    auto mesh = bone_map.empty() ?
-        std::shared_ptr<AbstractMesh>(new IndexedMesh<T, T1>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
-        std::shared_ptr<AbstractMesh>(new SkinnedMesh<T, T1>(std::move(vertices), std::move(indices), std::move(weights), std::move(name), MeshDataType::Static, DrawMode::Triangles));
+    auto stream = bone_map.empty() ?
+        std::make_unique<IndexedVertexStream<T>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles) :
+        std::make_unique<SkinnedVertexStream<T>>(std::move(vertices), std::move(indices), std::move(weights), VertexStreamUsage::Static, VertexStreamDraw::Triangles);
+
+    auto mesh = std::make_shared<Mesh>(std::move(stream), std::move(name));
 
     assets.meshes.add(mesh->getName(), mesh);
 
@@ -187,12 +191,12 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         builder.add(ms::Property::Normal, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
-    if (auto specular_count = mat->GetTextureCount(aiTextureType_SPECULAR); specular_count != 0) {
-        aiString texture_name;
-        mat->GetTexture(aiTextureType_SPECULAR, 0, &texture_name);
-
-        builder.add(ms::Property::Specular, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
-    }
+//    if (auto specular_count = mat->GetTextureCount(aiTextureType_SPECULAR); specular_count != 0) {
+//        aiString texture_name;
+//        mat->GetTexture(aiTextureType_SPECULAR, 0, &texture_name);
+//
+//        builder.add(ms::Property::Specular, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
+//    }
 
     float shininess = 16.0f;
     mat->Get(AI_MATKEY_SHININESS, shininess);
@@ -423,14 +427,7 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(
         auto* mesh = scene->mMeshes[i];
 
         std::shared_ptr<AbstractMesh> loaded_mesh;
-        // specifies template arguments based on INDICES_COUNT & TANGENTS & format
-//        if (auto indices_count = mesh->mNumFaces * 3; indices_count < std::numeric_limits<GLubyte>::max()) {
-//            loaded_mesh = loadMesh<VertexNormalTangent, GLubyte>(mesh, path, bones, bone_map, flags);
-//        } else if (indices_count < std::numeric_limits<GLushort>::max()) {
-//            loaded_mesh = loadMesh<VertexNormalTangent, GLushort>(mesh, path, bones, bone_map, flags);
-//        } else {
-            loaded_mesh = loadMesh<VertexNormalTangent, GLuint>(assets, mesh, path, bones, bone_map, flags);
-//        }
+        loaded_mesh = loadMesh<VertexNormalTangent, GLuint>(assets, mesh, path, bones, bone_map, flags);
 
         meshes.emplace_back(loaded_mesh);
     }

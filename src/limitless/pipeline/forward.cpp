@@ -28,7 +28,7 @@ void Forward::create(ContextEventObserver& ctx, const RenderSettings& settings) 
     add<SceneUpdatePass>(ctx);
     auto& fx = add<EffectUpdatePass>(ctx);
 
-    if (settings.directional_csm) {
+    if (settings.directional_cascade_shadow_mapping) {
         add<DirectionalShadowPass>(ctx, settings, fx.getRenderer());
     }
 

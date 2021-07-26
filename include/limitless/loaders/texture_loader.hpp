@@ -19,7 +19,7 @@ namespace Limitless {
 
         Origin origin { Origin::BottomLeft };
         Filter filter { Filter::Linear };
-        Compression compression { Compression::Default };
+        Compression compression { Compression::None };
         DownScale downscale { DownScale::None };
         Texture::Wrap wrapping { Texture::Wrap::Repeat };
 
@@ -35,9 +35,11 @@ namespace Limitless {
 
         TextureLoaderFlags() = default;
         TextureLoaderFlags(Origin _origin) noexcept : origin { _origin } {}
+        TextureLoaderFlags(Origin _origin, Filter _filter) noexcept : origin { _origin }, filter { _filter } {}
         TextureLoaderFlags(Origin _origin, Space _space) noexcept : origin { _origin }, space {_space} {}
         TextureLoaderFlags(Filter _filter) noexcept : filter { _filter } {}
         TextureLoaderFlags(Space _space) noexcept : space { _space } {}
+        TextureLoaderFlags(Texture::Wrap _wrapping) noexcept : wrapping { _wrapping } {}
     };
 
     class texture_loader_exception : std::runtime_error {

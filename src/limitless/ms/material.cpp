@@ -107,14 +107,7 @@ Material::Material(const Material& material)
         uniforms.emplace(name, uniform->clone());
     }
 
-    // TODO: empty copy function
-    // copy of opengl buffer
-    BufferBuilder builder;
-    material_buffer = builder.setTarget(Buffer::Type::Uniform)
-                             .setUsage(Buffer::Usage::DynamicDraw)
-                             .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                             .setDataSize(material.material_buffer->getSize())
-                             .build();
+    material_buffer = std::shared_ptr<Buffer>(material.material_buffer->clone());
 }
 
 template<typename V>
@@ -183,6 +176,8 @@ void Material::map() {
         map(block, *uniform);
     }
 
+    std::memcpy(block.data() + block.size() - 4, &shading, 4);
+
     material_buffer->mapData(block.data(), block.size());
 }
 
@@ -250,14 +245,6 @@ const UniformSampler& Material::getDiffuse() const {
         return static_cast<UniformSampler&>(*properties.at(Property::Diffuse));
     } catch (const std::out_of_range& e) {
         throw material_property_not_found("No diffuse in material.");
-    }
-}
-
-const UniformSampler& Material::getSpecular() const {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Specular));
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No specular in material.");
     }
 }
 
@@ -378,14 +365,6 @@ UniformSampler& Material::getDiffuse() {
         return static_cast<UniformSampler&>(*properties.at(Property::Diffuse));
     } catch (const std::out_of_range& e) {
         throw material_property_not_found("No diffuse in material.");
-    }
-}
-
-UniformSampler& Material::getSpecular() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Specular));
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No specular in material.");
     }
 }
 

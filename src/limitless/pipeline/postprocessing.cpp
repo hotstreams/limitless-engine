@@ -9,6 +9,51 @@
 
 using namespace Limitless;
 
+Blur::Blur(ContextEventObserver& ctx)
+    : blur { Framebuffer(ctx), Framebuffer(ctx) } {
+    for (auto& fbo : blur) {
+        TextureBuilder builder;
+        auto texture = builder.setTarget(Texture::Type::Tex2D)
+                .setInternalFormat(Texture::InternalFormat::RGB16F)
+                .setSize(ctx.getSize())
+                .setFormat(Texture::Format::RGB)
+                .setDataType(Texture::DataType::Float)
+                .setMinFilter(Texture::Filter::Linear)
+                .setMagFilter(Texture::Filter::Linear)
+                .setWrapS(Texture::Wrap::ClampToEdge)
+                .setWrapT(Texture::Wrap::ClampToEdge)
+                .build();
+        fbo << TextureAttachment{FramebufferAttachment::Color0, texture};
+        fbo.drawBuffer(FramebufferAttachment::Color0);
+        fbo.checkStatus();
+
+        fbo.unbind();
+    }
+}
+
+void Blur::process(const Assets& assets, const std::shared_ptr<Texture>& t) {
+    auto& blur_shader = assets.shaders.get("blur");
+
+    for (uint8_t i = 0; i < 8; ++i) {
+        auto index = i % 2;
+        auto direction = index ? glm::vec2{1.0f, 0.0f} : glm::vec2{0.0f, 1.0f};
+        auto image = (i == 0) ? t : blur[!index].get(FramebufferAttachment::Color0).texture;
+
+        blur[index].bind();
+
+        blur_shader << UniformValue<glm::vec2>{"direction", direction}
+                    << UniformSampler("image", image);
+
+        blur_shader.use();
+
+        assets.meshes.at("quad")->draw();
+    }
+}
+
+const std::shared_ptr<Texture>& Blur::getResult() const noexcept {
+    return blur[(8 - 1) % 2].get(FramebufferAttachment::Color0).texture;
+}
+
 void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Texture>& image) {
     auto& brightness_shader = assets.shaders.get("brightness");
 

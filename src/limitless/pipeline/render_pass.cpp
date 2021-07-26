@@ -4,12 +4,8 @@
 
 using namespace Limitless;
 
-RenderPass::RenderPass(RenderPass *pass) noexcept
-    : prev_pass {pass} {
-}
-
-RenderTarget& RenderPass::getTarget() {
-    return prev_pass ? prev_pass->getTarget() : throw std::logic_error("Forgot to add FramebufferPass!");
+RenderPass::RenderPass(Pipeline& _pipeline) noexcept
+    : pipeline {_pipeline} {
 }
 
 void RenderPass::addSetter([[maybe_unused]] UniformSetter& setter) {
@@ -20,6 +16,6 @@ void RenderPass::update([[maybe_unused]] Scene& scene, [[maybe_unused]] Instance
 
 }
 
-void RenderPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] const UniformSetter& setter) {
+void RenderPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
 
 }

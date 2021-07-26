@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/pipeline/render_settings.hpp>
+#include <limitless/pipeline/pipeline.hpp>
 #include <memory>
 
 namespace Limitless::ms {
@@ -8,7 +9,6 @@ namespace Limitless::ms {
 }
 
 namespace Limitless {
-    class Pipeline;
     class ContextEventObserver;
     class Scene;
     class Context;

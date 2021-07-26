@@ -45,7 +45,8 @@ namespace Limitless {
         void checkStatus() const;
 
         Shader() = default;
-        static std::string getSource(const fs::path &filepath);
+        static std::string getSource(const fs::path& filepath);
+        static void resolveIncludes(const fs::path& base_dir, std::string& src);
         friend void swap(Shader& lhs, Shader&rhs) noexcept;
     public:
         using ShaderAction = std::function<void(Shader&)>;

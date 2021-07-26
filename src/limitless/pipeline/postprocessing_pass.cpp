@@ -2,17 +2,18 @@
 
 using namespace Limitless;
 
-PostEffectsPass::PostEffectsPass(RenderPass* prev, ContextEventObserver& context)
-    : RenderPass(prev)
+PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context)
+    : RenderPass(pipeline)
     , postprocess {context} {
 }
 
-void PostEffectsPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] const UniformSetter& setter) {
-    postprocess.process(ctx, assets, dynamic_cast<const Framebuffer&>(prev_pass->getTarget()));
+void PostEffectsPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+    //TODO:
+    //    postprocess.process(ctx, assets, dynamic_cast<const Framebuffer&>(prev_pass->getTarget()));
 }
 
-PostEffectsPass::PostEffectsPass(RenderPass* prev, ContextEventObserver& context, RenderTarget& target)
-	: RenderPass(prev)
+PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context, RenderTarget& target)
+	: RenderPass(pipeline)
 	, postprocess {context, target} {
 
 }

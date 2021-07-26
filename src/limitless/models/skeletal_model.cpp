@@ -1,4 +1,5 @@
 #include <limitless/models/skeletal_model.hpp>
+#include <stdexcept>
 
 using namespace Limitless;
 

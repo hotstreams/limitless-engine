@@ -4,12 +4,12 @@
 
 using namespace Limitless::ms;
 
-void Limitless::ms::setBlendingMode(ContextState& context, Blending blending, uint32_t opaque_count) noexcept {
+void Limitless::ms::setBlendingMode(ContextState& context, Blending blending, [[maybe_unused]] uint32_t opaque_count) noexcept {
     switch (blending) {
         case Blending::Opaque:
-            context.enable(Capabilities::DepthTest);
-            context.setDepthFunc(DepthFunc::Less);
-            context.setDepthMask(DepthMask::True);
+//            context.enable(Capabilities::DepthTest);
+//            context.setDepthFunc(DepthFunc::Less);
+//            context.setDepthMask(DepthMask::True);
             context.disable(Capabilities::Blending);
             break;
         case Blending::Additive:
@@ -38,8 +38,12 @@ void Limitless::ms::setBlendingMode(ContextState& context, Blending blending, ui
             context.setDepthFunc(DepthFunc::Lequal);
             context.setDepthMask(DepthMask::True);
             context.enable(Capabilities::Blending);
-            context.setBlendColor(glm::vec4(glm::vec3(1.0f / static_cast<float>(opaque_count)), 1.0f));
-            context.setBlendFunc(BlendFactor::BlendColor, BlendFactor::One);
+            //TODO: refactor; does not work quite well w/ RTO normals write? only unlit?
+            // shading models for layering unreal? multi-pass rendering material then for lit?
+            // additive for now
+//            context.setBlendColor(glm::vec4(glm::vec3(1.0f / static_cast<float>(opaque_count)), 1.0f));
+//            context.setBlendFunc(BlendFactor::BlendColor, BlendFactor::One);
+            context.setBlendFunc(BlendFactor::One, BlendFactor::One);
             break;
         case Blending::Text:
             context.disable(Capabilities::DepthTest);

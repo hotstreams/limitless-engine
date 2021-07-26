@@ -103,6 +103,13 @@ void ContextState::setViewPort(glm::uvec2 viewport_size) noexcept {
     }
 }
 
+void ContextState::setViewPort(glm::uvec2 position, glm::uvec2 size) noexcept {
+//    if (viewport != size) {
+//        viewport = size;
+        glViewport(position.x, position.y, size.x, size.y);
+//    }
+}
+
 void ContextState::setDepthFunc(DepthFunc func) noexcept {
     if (depth_func != func) {
         glDepthFunc(static_cast<GLenum>(func));

@@ -13,6 +13,11 @@ Quad::Quad() : ElementaryModel("quad") {
             { {1.0f, -1.0f, 0.0f},  {1.0f, 0.0f} }
     };
 
-    meshes.emplace_back(new Mesh(std::move(vertices), "quad", MeshDataType::Static, DrawMode::TriangleStrip));
+    meshes.emplace_back(
+        std::make_unique<Mesh>(
+            std::make_unique<VertexStream<Vertex>>(std::move(vertices), VertexStreamUsage::Static, VertexStreamDraw::TriangleStrip),
+            "quad_mesh")
+    );
+
     calculateBoundingBox();
 }

@@ -8,6 +8,9 @@
 #include <limitless/ms/material.hpp>
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/pipeline/forward.hpp>
+#include <limitless/pipeline/deferred.hpp>
+
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -18,11 +21,13 @@ Renderer::Renderer(std::unique_ptr<Pipeline> _pipeline, const RenderSettings& _s
 
 Renderer::Renderer(ContextEventObserver& ctx)
     : settings {}
-    , pipeline {std::make_unique<Forward>(ctx, settings)} {
+    , pipeline {std::make_unique<Deferred>(ctx, settings)} {
 }
 
 void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
     pipeline->draw(context, assets, scene, camera);
+
+    profiler.draw(context, assets);
 }
 
 void Renderer::update(ContextEventObserver& ctx, Assets& assets, Scene& scene) {

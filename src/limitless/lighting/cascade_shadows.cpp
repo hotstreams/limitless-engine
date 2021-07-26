@@ -32,10 +32,11 @@ void CascadeShadows::initBuffers(Context& context) {
                         .setMipMap(false)
                         .setBorder(true)
                         .setBorderColor({ 1.0f, 1.0f, 1.0f, 1.0f })
-                        .setMinFilter(Texture::Filter::Linear)
-                        .setMagFilter(Texture::Filter::Linear)
+                        .setMinFilter(Texture::Filter::Nearest)
+                        .setMagFilter(Texture::Filter::Nearest)
                         .setWrapS(Texture::Wrap::ClampToBorder)
                         .setWrapT(Texture::Wrap::ClampToBorder)
+                        .setWrapR(Texture::Wrap::ClampToBorder)
                         .build();
 
     framebuffer = std::make_unique<Framebuffer>();
@@ -191,6 +192,8 @@ void CascadeShadows::draw(Instances& instances,
 
     ctx.setViewPort(shadow_resolution);
     ctx.setDepthMask(DepthMask::True);
+    ctx.setDepthFunc(DepthFunc::Less);
+    ctx.enable(Capabilities::DepthTest);
 
     for (uint32_t i = 0; i < split_count; ++i) {
         framebuffer->specifyLayer(FramebufferAttachment::Depth, i);
@@ -217,7 +220,7 @@ void CascadeShadows::draw(Instances& instances,
 }
 
 void CascadeShadows::setUniform(ShaderProgram& shader)  const {
-    shader << UniformSampler{"dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture};
+    shader << UniformSampler{"_dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture};
 
     // TODO: ?
     glm::vec4 bounds {0.0f};
@@ -225,7 +228,7 @@ void CascadeShadows::setUniform(ShaderProgram& shader)  const {
         bounds[i] = far_bounds[i];
     }
 
-    shader << UniformValue{"far_bounds", bounds};
+    shader << UniformValue{"_far_bounds", bounds};
 }
 
 void CascadeShadows::mapData() const {

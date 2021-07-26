@@ -11,9 +11,9 @@ namespace Limitless {
     private:
         ms::Blending blending;
     public:
-        explicit ColorPass(RenderPass* prev, ms::Blending blending);
+        explicit ColorPass(Pipeline& pipeline, ms::Blending blending);
         ~ColorPass() override = default;
 
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, const UniformSetter& setter) override;
+        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };
 }

@@ -7,20 +7,17 @@ namespace Limitless::fx {
     template<>
     class EmitterRenderer<BeamParticle> : public AbstractEmitterRenderer {
     private:
-        Mesh<BeamParticleMapping> mesh;
+        VertexStream<BeamParticleMapping> stream;
 
         const UniqueEmitterShader unique_type;
     public:
         EmitterRenderer(const BeamEmitter& emitter)
-                : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT,
-                        "beam_emitter",
-                        MeshDataType::Dynamic,
-                        DrawMode::Triangles}
-                , unique_type {emitter.getUniqueShaderType()} {
+            : stream {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT, VertexStreamUsage::Dynamic, VertexStreamDraw::Triangles}
+            , unique_type {emitter.getUniqueShaderType()} {
         }
 
         void update(ParticleCollector<BeamParticleMapping>& collector) {
-            mesh.updateVertices(collector.yield());
+            stream.update(collector.yield());
         }
 
         void draw(Context& ctx,
@@ -28,7 +25,7 @@ namespace Limitless::fx {
                   ShaderPass shader_type,
                   const ms::Material& material,
                   ms::Blending blending,
-                  const UniformSetter& setter) const {
+                  const UniformSetter& setter) {
 
             if (material.getBlending() != blending) {
                 return;
@@ -36,6 +33,7 @@ namespace Limitless::fx {
 
             auto& shader = assets.shaders.get({unique_type, shader_type});
 
+            //TODO: move
             setBlendingMode(ctx, material.getBlending());
             if (material.getTwoSided()) {
                 ctx.disable(Capabilities::CullFace);
@@ -49,7 +47,7 @@ namespace Limitless::fx {
 
             shader.use();
 
-            mesh.draw();
+            stream.draw();
         }
     };
 }

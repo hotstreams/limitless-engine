@@ -44,7 +44,7 @@ void MeshInstance::draw(Context& ctx,
         auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());
 
         // updates model/material uniforms
-        shader << UniformValue {"model", model_matrix}
+        shader << UniformValue {"_model_transform", model_matrix}
                << *mat;
 
         // sets custom pass-dependent uniforms
@@ -52,9 +52,10 @@ void MeshInstance::draw(Context& ctx,
 
         shader.use();
 
-        const auto draw_mode = mat->contains(ms::Property::TessellationFactor) ? DrawMode::Patches : mesh->getDrawMode();
+//        const auto draw_mode = mat->contains(ms::Property::TessellationFactor) ? DrawMode::Patches : mesh->getDrawMode();
+//        mesh->draw(draw_mode);
 
-        mesh->draw(draw_mode);
+        mesh->draw();
     }
 }
 
@@ -83,7 +84,7 @@ void MeshInstance::draw_instanced(Context& ctx,
         auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());
 
         // updates model/material uniforms
-        shader << UniformValue {"model", model_matrix}
+        shader << UniformValue {"_model_transform", model_matrix}
                << *mat;
 
         // sets custom pass-dependent uniforms
@@ -91,8 +92,9 @@ void MeshInstance::draw_instanced(Context& ctx,
 
         shader.use();
 
-        const auto draw_mode = mat->contains(ms::Property::TessellationFactor) ? DrawMode::Patches : mesh->getDrawMode();
+//        const auto draw_mode = mat->contains(ms::Property::TessellationFactor) ? DrawMode::Patches : mesh->getDrawMode();
+//        mesh->draw_instanced(draw_mode, count);
 
-        mesh->draw_instanced(draw_mode, count);
+        mesh->draw_instanced(count);
     }
 }

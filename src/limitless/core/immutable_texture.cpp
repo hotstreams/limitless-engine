@@ -111,7 +111,7 @@ ImmutableTexture::ImmutableTexture(std::unique_ptr<ExtensionTexture> _texture,
                                    bool _border,
                                    bool _mipmap,
                                    const glm::vec4& _border_color,
-                                   const std::array<void*, 6>& data,
+                                   [[maybe_unused]] const std::array<void*, 6>& data,
                                    Filter _min,
                                    Filter _mag,
                                    Wrap _wrap_s,
@@ -137,6 +137,7 @@ ImmutableTexture::ImmutableTexture(std::unique_ptr<ExtensionTexture> _texture,
 
     texStorage2D(GL_TEXTURE_CUBE_MAP, levels, internal_format, size);
 
+    //TODO: test cubemaparray constructor
 //    for (auto* ptr : data) {
 //        if (ptr) {
 ////            ImmutableTexture::texSubImage2D({0, 0}, size, ptr);
@@ -276,4 +277,8 @@ void ImmutableTexture::setParameters() {
     setWrapS(wrap_s);
     setWrapT(wrap_t);
     setWrapR(wrap_r);
+
+    if (border) {
+        setBorderColor(border_color);
+    }
 }

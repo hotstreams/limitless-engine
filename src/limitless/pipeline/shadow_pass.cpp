@@ -5,18 +5,18 @@
 
 using namespace Limitless;
 
-DirectionalShadowPass::DirectionalShadowPass(RenderPass* prev, Context& ctx, const RenderSettings& settings)
-    : RenderPass(prev)
+DirectionalShadowPass::DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings)
+    : RenderPass(pipeline)
     , shadows {ctx, settings} {
 }
 
-DirectionalShadowPass::DirectionalShadowPass(RenderPass *prev, Context& ctx, const RenderSettings& settings, fx::EffectRenderer& renderer)
-    : RenderPass(prev)
+DirectionalShadowPass::DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings, fx::EffectRenderer& renderer)
+    : RenderPass(pipeline)
     , shadows {ctx, settings}
     , effect_renderer {&renderer} {
 }
 
-void DirectionalShadowPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, [[maybe_unused]] const UniformSetter& setter) {
+void DirectionalShadowPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     if (light) {
         shadows.draw(instances, *light, ctx, assets, camera, effect_renderer);
         shadows.mapData();

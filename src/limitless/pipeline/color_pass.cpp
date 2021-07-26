@@ -9,12 +9,12 @@
 
 using namespace Limitless;
 
-ColorPass::ColorPass(RenderPass* prev, ms::Blending _blending)
-        : RenderPass(prev)
+ColorPass::ColorPass(Pipeline& pipeline, ms::Blending _blending)
+        : RenderPass(pipeline)
         , blending {_blending} {
 }
 
-void ColorPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, const UniformSetter& setter) {
+void ColorPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) {
     switch (blending) {
         case ms::Blending::Opaque:
             std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});

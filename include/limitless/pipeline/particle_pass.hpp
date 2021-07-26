@@ -16,9 +16,9 @@ namespace Limitless {
         std::reference_wrapper<fx::EffectRenderer> renderer;
         ms::Blending blending;
     public:
-        ParticlePass(RenderPass* prev, fx::EffectRenderer& renderer, ms::Blending blending);
+        ParticlePass(Pipeline& pipeline, fx::EffectRenderer& renderer, ms::Blending blending);
         ~ParticlePass() override = default;
 
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, const UniformSetter& setter) override;
+        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };
 }

@@ -14,7 +14,7 @@ namespace Limitless {
         TextModel text_model;
         std::string text;
         glm::vec2 position;
-        glm::vec4 color {};
+        glm::vec4 color {1.0f};
         glm::vec2 size {1.0f};
         std::shared_ptr<FontAtlas> font;
 

@@ -48,13 +48,8 @@ void MaterialBuilder::initializeMaterialBuffer() {
     offset_setter(material->uniforms, [] (const Uniform& uniform) { return uniform.getType() == UniformType::Sampler; });
     offset_setter(material->uniforms, [] (const Uniform& uniform) { return uniform.getType() != UniformType::Sampler; });
 
-    // fast fix for empty buffer
-    // in case if buffer is empty
-    // there is uint variable to create UBO
-    // so we should appropriately map the buffer size
-    if (offset == 0) {
-        offset = 4;
-    }
+    // ShadingModel uint
+    offset += 4;
 
     BufferBuilder builder;
     material->material_buffer = builder
@@ -86,16 +81,19 @@ MaterialBuilder& MaterialBuilder::add(Property type, float value) {
         case Property::Roughness:
             material->properties[type] = std::make_unique<UniformValue<float>>("material_roughness", value);
             break;
+        case Property::Refraction:
+            material->properties[type] = std::make_unique<UniformValue<float>>("material_refraction", value);
+            break;
         case Property::TessellationFactor:
         case Property::Color:
         case Property::EmissiveColor:
         case Property::Normal:
         case Property::Diffuse:
-        case Property::Specular:
         case Property::EmissiveMask:
         case Property::MetallicTexture:
         case Property::RoughnessTexture:
         case Property::BlendMask:
+        case Property::AmbientOcclusionTexture:
             throw material_builder_error{"Wrong data for material property."};
     }
     return *this;
@@ -115,11 +113,12 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec4& value) {
         case Property::Metallic:
         case Property::Roughness:
         case Property::Diffuse:
-        case Property::Specular:
         case Property::EmissiveMask:
         case Property::MetallicTexture:
         case Property::RoughnessTexture:
         case Property::BlendMask:
+        case Property::Refraction:
+        case Property::AmbientOcclusionTexture:
             throw material_builder_error{"Wrong data for material property."};
     }
     return *this;
@@ -137,12 +136,10 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
         case Property::Metallic:
         case Property::Roughness:
         case Property::EmissiveColor:
+        case Property::Refraction:
             throw material_builder_error{"Wrong data for material property."};
         case Property::Diffuse:
             material->properties[type] = std::make_unique<UniformSampler>("material_diffuse", std::move(texture));
-            break;
-        case Property::Specular:
-            material->properties[type] = std::make_unique<UniformSampler>("material_specular", std::move(texture));
             break;
         case Property::Normal:
             material->properties[type] = std::make_unique<UniformSampler>("material_normal", std::move(texture));
@@ -159,6 +156,9 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
         case Property::RoughnessTexture:
             material->properties[type] = std::make_unique<UniformSampler>("material_roughness_texture", std::move(texture));
             break;
+        case Property::AmbientOcclusionTexture:
+            material->properties[type] = std::make_unique<UniformSampler>("material_ambient_occlusion", std::move(texture));
+            break;
     }
     return *this;
 }
@@ -174,12 +174,13 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec2& value) {
         case Property::Roughness:
         case Property::EmissiveColor:
         case Property::Diffuse:
-        case Property::Specular:
         case Property::Normal:
         case Property::EmissiveMask:
         case Property::BlendMask:
         case Property::MetallicTexture:
         case Property::RoughnessTexture:
+        case Property::Refraction:
+        case Property::AmbientOcclusionTexture:
             throw material_builder_error{"Wrong data for material property."};
     }
     return *this;
@@ -239,20 +240,21 @@ void MaterialBuilder::setMaterialIndex() {
     std::unique_lock lock(mutex);
 
     material->shader_index = next_shader_index++;
-//    if (!material->uniforms.empty() || !material->vertex_snippet.empty() || !material->fragment_snippet.empty() || !material->tessellation_snippet.empty() || !material->global_snippet.empty()) {
-//        // it is custom material; makes index unique
-//        material->shader_index = next_shader_index++;
-//    } else {
-//        const auto material_type = getMaterialType();
-//        if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
-//            // already exist
-//            material->shader_index = found->second;
-//        } else {
-//            // new one
-//            material->shader_index = next_shader_index++;
-//            unique_materials.emplace(material_type, material->shader_index);
-//        }
-//    }
+
+    if (!material->uniforms.empty() || !material->vertex_snippet.empty() || !material->fragment_snippet.empty() || !material->tessellation_snippet.empty() || !material->global_snippet.empty()) {
+        // it is custom material; makes index unique
+        material->shader_index = next_shader_index++;
+    } else {
+        const auto material_type = getMaterialType();
+        if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
+            // already exist
+            material->shader_index = found->second;
+        } else {
+            // new one
+            material->shader_index = next_shader_index++;
+            unique_materials.emplace(material_type, material->shader_index);
+        }
+    }
 }
 
 void MaterialBuilder::checkRequirements() {

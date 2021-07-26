@@ -69,7 +69,7 @@ void main() {
         #endif
     #endif
 
-    Limitless::CustomMaterialTessellationCode
+    _MATERIAL_TESSELLATION_SNIPPET
 
     gl_Position = VP * vec4(out_data.world_position, 1.0);
 }

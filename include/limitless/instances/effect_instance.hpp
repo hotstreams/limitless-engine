@@ -64,7 +64,7 @@ namespace Limitless {
         const auto& getEmitters() const noexcept { return emitters; }
         auto& getEmitters() noexcept { return emitters; }
 
-        void update(Context& context, Camera& camera) override;
+        void update(Context& context, const Camera& camera) override;
 
         void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
     };

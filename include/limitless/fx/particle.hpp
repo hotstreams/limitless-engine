@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <chrono>
 #include <vector>
+#include <memory>
 
 namespace Limitless {
     class VertexArray;
@@ -204,7 +205,7 @@ namespace Limitless::fx {
         const auto& getEnd() const noexcept { return end; }
     };
 
-    VertexArray& operator<<(VertexArray& vertex_array, const std::pair<SpriteParticle, Buffer&>& attribute) noexcept;
-    VertexArray& operator<<(VertexArray& vertex_array, const std::pair<BeamParticleMapping, Buffer&>& attribute) noexcept;
+    VertexArray& operator<<(VertexArray& vertex_array, const std::pair<SpriteParticle, const std::shared_ptr<Buffer>&>& attribute) noexcept;
+    VertexArray& operator<<(VertexArray& vertex_array, const std::pair<BeamParticleMapping, const std::shared_ptr<Buffer>&>& attribute) noexcept;
 }
 

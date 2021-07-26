@@ -39,13 +39,12 @@ namespace Limitless {
 
         virtual void load(Context& context);
 
-
-        PassShaders getRequiredPassShaders(const RenderSettings& settings);
+        static PassShaders getRequiredPassShaders(const RenderSettings& settings);
         void compileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material);
         void compileEffect(Context& ctx, const RenderSettings& settings, const std::shared_ptr<EffectInstance>& effect);
         void compileSkybox(Context& ctx, const RenderSettings& settings, const std::shared_ptr<Skybox>& skybox);
 
-        void compileShaders(Context& ctx, const RenderSettings& settings);
+        virtual void compileShaders(Context& ctx, const RenderSettings& settings);
         void recompileShaders(Context& ctx, const RenderSettings& settings);
 
         void add(const Assets& other);

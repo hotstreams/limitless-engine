@@ -6,6 +6,7 @@
 using namespace Limitless;
 
 Cube::Cube() : ElementaryModel("cube") {
+    //TODO: fix face order
     std::vector<VertexNormalTangent> vertices = {
             // back face
             {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
@@ -53,6 +54,11 @@ Cube::Cube() : ElementaryModel("cube") {
 
     calculateTangentSpaceTriangle(vertices);
 
-    meshes.emplace_back(new Mesh(std::move(vertices), "cube_mesh", MeshDataType::Static, DrawMode::Triangles));
+    meshes.emplace_back(
+        std::make_unique<Mesh>(
+                std::make_unique<VertexStream<VertexNormalTangent>>(std::move(vertices), VertexStreamUsage::Static, VertexStreamDraw::Triangles),
+                "cube_mesh")
+        );
+
     calculateBoundingBox();
 }

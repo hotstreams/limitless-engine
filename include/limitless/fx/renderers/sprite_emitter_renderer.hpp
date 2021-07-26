@@ -12,17 +12,17 @@ namespace Limitless::fx {
     template<>
     class EmitterRenderer<SpriteParticle> : public AbstractEmitterRenderer {
     private:
-        Mesh<SpriteParticle> mesh;
+        VertexStream<SpriteParticle> stream;
 
         const UniqueEmitterShader unique_shader;
     public:
         explicit EmitterRenderer(const SpriteEmitter& emitter)
-                : mesh {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT, "sprite_emitter", MeshDataType::Dynamic, DrawMode::Points}
-                , unique_shader {emitter.getUniqueShaderType()} {
+            : stream {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT, VertexStreamUsage::Dynamic, VertexStreamDraw::Points}
+            , unique_shader {emitter.getUniqueShaderType()} {
         }
 
         void update(ParticleCollector<SpriteParticle>& collector) {
-            mesh.updateVertices(collector.yield());
+            stream.update(collector.yield());
         }
 
         void draw(Context& ctx,
@@ -38,6 +38,7 @@ namespace Limitless::fx {
 
             auto& shader = assets.shaders.get({unique_shader, pass});
 
+            //TODO: remove from here to somewhere
             setBlendingMode(ctx, material.getBlending());
             if (material.getTwoSided()) {
                 ctx.disable(Capabilities::CullFace);
@@ -51,7 +52,7 @@ namespace Limitless::fx {
 
             shader.use();
 
-            mesh.draw();
+            stream.draw();
         }
     };
 }

@@ -12,16 +12,17 @@ namespace Limitless {
     class Assets;
     class Scene;
 
+    class Pipeline;
+
     class RenderPass {
     protected:
-        RenderPass* prev_pass;
+        Pipeline& pipeline;
     public:
-        explicit RenderPass(RenderPass *pass) noexcept;
+        explicit RenderPass(Pipeline& pass) noexcept;
         virtual ~RenderPass() = default;
 
-        virtual RenderTarget& getTarget();
         virtual void addSetter(UniformSetter& setter);
         virtual void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera);
-        virtual void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, const UniformSetter& setter);
+        virtual void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter);
     };
 }

@@ -4,34 +4,26 @@
 #include <glm/vec2.hpp>
 
 namespace Limitless {
-    enum class ShadingModel {
-        Phong,
-        BlinnPhong
+    enum class RenderPipeline {
+        Forward,
+        Deferred
     };
 
     class RenderSettings {
     public:
-        // compile time for now
-        // forward / deferred / forward+
-        static constexpr auto renderer = ShaderPass::Forward;
+        RenderPipeline pipeline = RenderPipeline::Deferred;
 
-        // material settings
-        ShadingModel shading_model = ShadingModel::BlinnPhong;
-        bool physically_based_render = true;
         bool normal_mapping = true;
+        bool screen_space_ambient_occlusion = true;
+        bool fast_approximate_antialiasing = true;
 
-        // lighting settings
-        // static constexpr auto MAX_POINT_LIGHTS_INFLUENCE {-1}; // -1 for unlimited
-        // static constexpr auto HIGH_DYNAMIC_RANGE {true};
-
-        // shadows settings
-        bool directional_csm = true;
+        bool directional_cascade_shadow_mapping = true;
         glm::uvec2 directional_shadow_resolution = { 1024 * 4, 1024 * 4 };
-        uint8_t directional_split_count = 3; // four is max
+        uint8_t directional_split_count = 3; // [1; 4]
         bool directional_pcf = true;
 
-        // king of debug settings
-        bool light_radius = false;
+        // debug
+        bool light_radius = true;
         bool coordinate_system_axes = false;
         bool bounding_box = false;
     };

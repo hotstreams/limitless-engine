@@ -1,4 +1,4 @@
-# Limitless Engine
+![me](content/logo1.jpg)
 
 ## The project is 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL & C++17.
 
@@ -77,19 +77,19 @@
 
 ### Screenshots
   
-![me](screenshots/materials.png)
+![me](content/materials.png)
 
-![me](screenshots/effect.png)
+![me](content/effect.png)
 
-![me](screenshots/full.png)
+![me](content/full.png)
 
-![me](screenshots/model_loader.gif)
+![me](content/model_loader.gif)
 
-![me](screenshots/tone_shading.png)
+![me](content/tone_shading.png)
 
-![me](screenshots/sponza.png)
+![me](content/sponza.png)
 
-![me](screenshots/warlocks.png)
+![me](content/warlocks.png)
 
 # Build
 The project uses C++17 and CMake's find_package for dependencies.
