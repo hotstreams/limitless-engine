@@ -4,8 +4,6 @@
 
 ### Lighting
 
-![me](content/lighting.gif)
-
 - Forward/Deferred shading
 - Dynamic directional light
 - Dynamic point lights
@@ -13,9 +11,27 @@
 - Directional Cascade Shadow maps
 - Percentage-Closer Filtering
 - Skybox
+
+![me](content/lighting.gif)
+
 ---
 
 ### Material System
+
+Material Properties:
+- Сolor
+- Albedo texture
+- Normal map
+- Emissive color
+- Emissive mask
+- Blend mask
+- Refraction
+- Transparency: Translucent, Additive, Modulate
+- Shading: Lit, Unlit
+- Metallic & roughness workflow
+- Material layering
+- Custom materials via GLSL snippets that allow you to create whatever material you want
+- All properties are run-time changeable
 
 ![me](content/color.png) 
 ![me](content/albedo.png)
@@ -40,23 +56,14 @@
 
 ![me](content/fireball_hue_shift.gif)
 
-Material Properties: 
-- Сolor          
-- Albedo texture   
-- Normal map
-- Emissive color
-- Emissive mask
-- Blend mask
-- Refraction
-- Transparency: Translucent, Additive, Modulate
-- Shading: Lit, Unlit
-- Metallic & roughness workflow
-- Material layering
-- Custom materials via GLSL snippets that allow you to create whatever material you want
-- All properties are run-time changeable
 ---
 
 ### Effect System
+
+- Sprite / Mesh / Beam emitters
+- 'initial' & 'by life' modules, const & range value distributions
+- Interoperation with material custom properties
+- Color, location, velocity, acceleration, size, lifetime, mesh location, mesh attachment, rotation, rotation rate, custom material, beam targets & speed & offset & rebuild & displacement
 
 ![me](content/smoke.gif)
 ![me](content/shield.gif)
@@ -67,15 +74,14 @@ Material Properties:
 ![me](content/attachment.gif)
 ![me](content/skeleton_spawn_effect.gif)
 ![me](content/aura_effect.gif)
-
-- Sprite / Mesh / Beam emitters
-- 'initial' & 'by life' modules, const & range value distributions
-- Interoperation with material custom properties
-- Color, location, velocity, acceleration, size, lifetime, mesh location, mesh attachment, rotation, rotation rate, custom material, beam targets & speed & offset & rebuild & displacement
   
 ---
 
 ### Model Loading
+
+- Model loading using Assimp
+- Skeletal models with animations
+- Instancing support
 
 ![me](content/thanos.png)
 ![me](content/daenerys.png)
@@ -87,10 +93,6 @@ Material Properties:
 ![me](content/cyborg.png)
 ![me](content/drone.png)
 ![me](content/elemental.png)
-
-- Model loading using Assimp
-- Skeletal models with animations
-- Instancing support
 
 ---
 
@@ -132,8 +134,6 @@ Material Properties:
 ![me](content/models_scene.png)
 
 ![me](content/sponza.png)
-
-![me](content/tone_shading.png)
 
 ![me](content/warlocks.png)
 
