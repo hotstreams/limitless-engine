@@ -103,6 +103,7 @@ Material Properties:
 - ShaderCompiler & ShaderProgram introspection
 - Indexed buffers automatic binding to location
 - Textures automatic binding to texture units
+- Texture Compression formats support
 - Buffer data streaming: Orphaning, Unsynchonized, Persistent, Coherent, TrippleBuffering, Explicit synchronization
 - Supports GL_ARB_buffer_storage for immutable buffers
 - Supports GL_ARB_texture_storage for immutable textures
