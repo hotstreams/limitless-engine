@@ -8,7 +8,7 @@
 using namespace Limitless;
 
 namespace {
-    inline constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {
+    constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {
         { ".vs",  Shader::Type::Vertex },
         { ".tcs", Shader::Type::TessControl },
         { ".tes", Shader::Type::TessEval },
@@ -18,9 +18,13 @@ namespace {
     };
 }
 
+ShaderCompiler::ShaderCompiler(Context& _context)
+    : context {_context} {
+}
+
 ShaderCompiler::ShaderCompiler(Context& _context, const RenderSettings& _settings)
-    : settings {_settings}
-    , context {_context} {
+    : context {_context}
+    , render_settings {_settings} {
 }
 
 void ShaderCompiler::checkStatus(const GLuint program_id) {
@@ -74,24 +78,27 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
 }
 
 void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
-    std::string render_settings;
+    if (render_settings) {
+        std::string settings;
 
-    // sets normal mapping
-    if (settings.normal_mapping) {
-        render_settings.append("#define NORMAL_MAPPING\n");
-    }
-
-    if (settings.directional_cascade_shadow_mapping) {
-        render_settings.append("#define DIRECTIONAL_CSM\n");
-
-        render_settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(settings.directional_split_count) + '\n');
-
-        if (settings.directional_pcf) {
-            render_settings.append("#define DIRECTIONAL_PFC\n");
+        if (render_settings->normal_mapping) {
+            settings.append("#define NORMAL_MAPPING\n");
         }
-    }
 
-    shader.replaceKey("Limitless::Settings", render_settings);
+        if (render_settings->directional_cascade_shadow_mapping) {
+            settings.append("#define DIRECTIONAL_CSM\n");
+
+            settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(render_settings->directional_split_count) + '\n');
+
+            if (render_settings->directional_pcf) {
+                settings.append("#define DIRECTIONAL_PFC\n");
+            }
+        }
+
+        shader.replaceKey("Limitless::Settings", settings);
+    } else {
+        shader.replaceKey("Limitless::Settings", "");
+    }
 }
 
 std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, const ShaderAction& action) {

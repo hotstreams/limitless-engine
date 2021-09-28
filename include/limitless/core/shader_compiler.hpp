@@ -4,6 +4,7 @@
 #include <functional>
 
 #include <limitless/core/shader.hpp>
+#include <limitless/pipeline/render_settings.hpp>
 
 namespace Limitless {
     class ShaderProgram;
@@ -19,12 +20,15 @@ namespace Limitless {
     protected:
         std::vector<Shader> shaders;
         static void checkStatus(GLuint program_id);
-        const RenderSettings& settings;
         Context& context;
+
+        // optional RenderSettings to replace Limitless::Settings
+        std::optional<RenderSettings> render_settings;
 
         void replaceRenderSettings(Shader& shader) const;
     public:
-        explicit ShaderCompiler(Context& ctx, const RenderSettings& settings);
+        ShaderCompiler(Context& ctx, const RenderSettings& settings);
+        explicit ShaderCompiler(Context& ctx);
         virtual ~ShaderCompiler() = default;
 
         ShaderCompiler(const ShaderCompiler&) noexcept = delete;
