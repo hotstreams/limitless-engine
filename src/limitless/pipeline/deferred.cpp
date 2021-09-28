@@ -19,6 +19,7 @@
 #include <limitless/pipeline/ssao_pass.hpp>
 #include <limitless/pipeline/fxaa_pass.hpp>
 #include <limitless/pipeline/quad_pass.hpp>
+#include <limitless/pipeline/render_debug_pass.hpp>
 
 using namespace Limitless;
 
