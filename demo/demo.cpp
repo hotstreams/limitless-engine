@@ -3,6 +3,7 @@
 
 #include <limitless/core/context_observer.hpp>
 #include <limitless/text/text_instance.hpp>
+#include <limitless/loaders/dds_loader.hpp>
 
 using namespace Limitless;
 

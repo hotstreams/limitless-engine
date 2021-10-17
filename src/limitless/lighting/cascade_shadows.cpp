@@ -31,6 +31,7 @@ void CascadeShadows::initBuffers(Context& context) {
                         .setDataType(Texture::DataType::Float)
                         .setMipMap(false)
                         .setBorder(true)
+                        .setLevels(1)
                         .setBorderColor({ 1.0f, 1.0f, 1.0f, 1.0f })
                         .setMinFilter(Texture::Filter::Nearest)
                         .setMagFilter(Texture::Filter::Nearest)

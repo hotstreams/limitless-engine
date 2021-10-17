@@ -84,7 +84,7 @@ namespace Limitless {
 
             std::transform(cp.begin(), cp.end(), cp.begin(), std::bind2nd(std::plus(), this->stream.size()));
 
-            indices.insert(cp.begin(), cp.end());
+            indices.insert(indices.begin(), cp.begin(), cp.end());
 
             map();
 

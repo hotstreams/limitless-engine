@@ -111,9 +111,29 @@ namespace Limitless {
             ClampToBorder = GL_CLAMP_TO_BORDER
         };
     private:
-        std::optional<fs::path> path;
-    public:
+        std::unique_ptr<ExtensionTexture> texture;
+        std::optional<fs::path> path {};
+        glm::vec4 border_color {};
+        glm::uvec3 size {};
+        InternalFormat internal_format {InternalFormat::RGB8};
+        DataType data_type {DataType::UnsignedByte};
+        Format format {Format::RGB};
+        Type target {Type::Tex2D};
+        Filter min {Filter::Linear};
+        Filter mag {Filter::Linear};
+        Wrap wrap_r {Wrap::ClampToEdge};
+        Wrap wrap_s {Wrap::ClampToEdge};
+        Wrap wrap_t {Wrap::ClampToEdge};
+        uint32_t levels {1};
+        float anisotropic {0.0f};
+        bool mipmap {false};
+        bool border {false};
+        bool compressed {false};
+        bool immutable {false};
+    protected:
         Texture() = default;
+        friend class TextureBuilder;
+    public:
         virtual ~Texture() = default;
 
         Texture(const Texture&) = delete;
@@ -123,32 +143,74 @@ namespace Limitless {
         Texture& operator=(Texture&&) noexcept = default;
 
         [[nodiscard]] const auto& getPath() const noexcept { return path; }
-        void setPath(fs::path _path) noexcept { path = std::move(_path); }
-        
-        virtual void bind(GLuint index) const noexcept = 0;
+        [[nodiscard]] const auto& getBorderColor() const noexcept { return border_color; }
+        [[nodiscard]] auto getDataType() const noexcept { return data_type; }
+        [[nodiscard]] auto getFormat() const noexcept { return format; }
+        [[nodiscard]] auto getType() const noexcept { return target; }
+        [[nodiscard]] auto getSize() const noexcept { return size; }
+        [[nodiscard]] auto getMin() const noexcept { return min; }
+        [[nodiscard]] auto getMag() const noexcept { return mag; }
+        [[nodiscard]] auto getWrapR() const noexcept { return wrap_r; }
+        [[nodiscard]] auto getWrapS() const noexcept { return wrap_s; }
+        [[nodiscard]] auto getWrapT() const noexcept { return wrap_t; }
+        [[nodiscard]] auto getLevels() const noexcept { return levels; }
+        [[nodiscard]] auto getAnisotropic() const noexcept { return anisotropic; }
+        [[nodiscard]] auto hasMipmap() const noexcept { return mipmap; }
+        [[nodiscard]] auto hasBorder() const noexcept { return border; }
+        [[nodiscard]] auto isCompressed() const noexcept { return compressed; }
+        [[nodiscard]] bool isMutable() const noexcept;
+        [[nodiscard]] bool isImmutable() const noexcept;
+        [[nodiscard]] auto is2D() const noexcept { return target == Type::Tex2D; }
+        [[nodiscard]] auto is3D() const noexcept { return target == Type::Tex3D || target == Type::Tex2DArray; }
+        [[nodiscard]] auto isCubemapArray() const noexcept { return target == Type::TexCubeMapArray; }
+        [[nodiscard]] uint32_t getId() const noexcept;
+        [[nodiscard]] auto& getExtensionTexture() noexcept { return *texture; }
+
+        Texture& setMinFilter(Filter filter);
+        Texture& setMagFilter(Filter filter);
+        Texture& setAnisotropicFilter(float value);
+        Texture& setAnisotropicFilterMax();
+        Texture& setBorderColor(const glm::vec4& color);
+        Texture& setWrapS(Wrap wrap);
+        Texture& setWrapT(Wrap wrap);
+        Texture& setWrapR(Wrap wrap);
+        void setParameters();
+
+        /* ALLOCATION FUNCTIONS */
+
+        // allocates mutable storage
+        void image(const void* data = nullptr);
+        void image(const std::array<void*, 6>& data);
+        void image(uint32_t level, glm::uvec2 size, const void* data = nullptr);
+        void image(uint32_t level, glm::uvec3 size, const void* data = nullptr);
+
+        // allocates immutable storage
+        void storage(const void* data = nullptr);
+        void storage(const std::array<void*, 6>& data);
+
+        // allocates mutable storage for compressed data
+        void compressedImage(const void* data, std::size_t byte_count);
+        void compressedImage(uint32_t level, glm::uvec2 size, const void* data, std::size_t byte_count);
+        void compressedImage(uint32_t level, glm::uvec3 size, const void* data, std::size_t byte_count);
+
+
+        /* UPLOADING FUNCTIONS */
+
+        // uploads data
+        void subImage(uint32_t level, glm::uvec2 offset, glm::uvec2 size, const void* data);
+        void subImage(uint32_t level, glm::uvec3 offset, glm::uvec3 size, const void* data);
+
+        // uploads compressed data
+        void compressedSubImage(uint32_t level, glm::uvec2 offset, glm::uvec2 size, const void* data, std::size_t byte_count);
+        void compressedSubImage(uint32_t level, glm::uvec3 offset, glm::uvec3 size, const void* data, std::size_t byte_count);
+
+        void generateMipMap();
+
+        void bind(GLuint index) const;
 
         // resizes texture; content becomes empty
-        virtual void resize(glm::uvec3 size) = 0;
+        void resize(glm::uvec3 size);
 
-        virtual void texSubImage2D(glm::uvec2 offset, glm::uvec2 size, const void *data) const noexcept = 0;
-        virtual void texSubImage3D(glm::uvec3 offset, glm::uvec3 size, const void *data) const noexcept = 0;
-
-        virtual void generateMipMap() noexcept = 0;
-
-        virtual Texture& setMinFilter(Filter filter) = 0;
-        virtual Texture& setMagFilter(Filter filter) = 0;
-        virtual Texture& setAnisotropicFilter(float value) = 0;
-        virtual Texture& setAnisotropicFilterMax() = 0;
-        virtual Texture& setBorderColor(const glm::vec4& color) = 0;
-        virtual Texture& setWrapS(Wrap wrap) = 0;
-        virtual Texture& setWrapT(Wrap wrap) = 0;
-        virtual Texture& setWrapR(Wrap wrap) = 0;
-
-        [[nodiscard]] virtual GLuint getId() const noexcept = 0;
-        [[nodiscard]] virtual Type getType() const noexcept = 0;
-        [[nodiscard]] virtual glm::uvec3 getSize() const noexcept = 0;
-        [[nodiscard]] virtual ExtensionTexture& getExtensionTexture() noexcept = 0;
-
-        virtual void accept(TextureVisitor& visitor) noexcept = 0;
+        void accept(TextureVisitor& visitor);
     };
 }

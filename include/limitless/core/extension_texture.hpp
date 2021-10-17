@@ -8,13 +8,6 @@
 namespace Limitless {
     class ExtensionTexture {
     public:
-        enum class Type {
-            Mutable,
-            Immutable,
-            Bindless
-        };
-        Type type;
-
         ExtensionTexture() = default;
         virtual ~ExtensionTexture() = default;
 
@@ -38,6 +31,13 @@ namespace Limitless {
         // common loading interface
         virtual void texSubImage2D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) noexcept = 0;
         virtual void texSubImage3D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 size, GLenum format, GLenum type, const void* data) noexcept = 0;
+
+        // compressed texture interface
+        virtual void compressedTexImage2D(GLenum target, GLint level, GLenum internal_format, glm::uvec2 size, bool border, const void* data, std::size_t bytes) noexcept = 0;
+        virtual void compressedTexImage3D(GLenum target, GLint level, GLenum internal_format, glm::uvec3 size, bool border, const void* data, std::size_t bytes) noexcept = 0;
+
+        virtual void compressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum internal_format, glm::uvec2 size, const void* data, std::size_t bytes) noexcept = 0;
+        virtual void compressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLenum internal_format, glm::uvec3 size, const void* data, std::size_t bytes) noexcept = 0;
 
         // mipmap generation
         virtual void generateMipMap(GLenum target) noexcept = 0;

@@ -150,13 +150,13 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
                .setLevels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
                .setSize({ width, height })
                .setDataType(Texture::DataType::UnsignedByte)
-               .setData(data);
+               .setData(data)
+               .setPath(path);
 
         setFormat(builder, flags, channels);
         setTextureParameters(builder, flags);
 
         auto texture = builder.build();
-        texture->setPath(path);
         setAnisotropicFilter(texture, flags);
 
         if (flags.downscale != TextureLoaderFlags::DownScale::None) {
@@ -204,8 +204,8 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& ass
            .setWrapT(Texture::Wrap::ClampToEdge)
            .setWrapR(Texture::Wrap::ClampToEdge);
 
+    builder.setPath(path);
     auto texture = builder.buildMutable();
-    texture->setPath(path);
     setAnisotropicFilter(texture, flags);
 
     std::for_each(data.begin(), data.end(), [] (auto* ptr) { stbi_image_free(ptr); });

@@ -152,3 +152,27 @@ StateTexture& StateTexture::setWrapR(GLenum target, GLenum wrap) {
     glTexParameteri(target, GL_TEXTURE_WRAP_R, wrap);
     return *this;
 }
+
+void StateTexture::compressedTexImage2D(GLenum target, GLint level, GLenum internal_format, glm::uvec2 size, bool border, const void *data, std::size_t bytes) noexcept {
+    bind(target, 0);
+
+    glCompressedTexImage2D(target, level, internal_format, size.x, size.y, border, bytes, data);
+}
+
+void StateTexture::compressedTexImage3D(GLenum target, GLint level, GLenum internal_format, glm::uvec3 size, bool border, const void *data, std::size_t bytes) noexcept {
+    bind(target, 0);
+
+    glCompressedTexImage3D(target, level, internal_format, size.x, size.y, size.z, border, bytes, data);
+}
+
+void StateTexture::compressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum internal_format, glm::uvec2 size, const void *data, std::size_t bytes) noexcept {
+    bind(target, 0);
+
+    glCompressedTexSubImage2D(target, level, xoffset, yoffset, size.x, size.y, internal_format, bytes, data);
+}
+
+void StateTexture::compressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLenum internal_format, glm::uvec3 size, const void *data, std::size_t bytes) noexcept {
+    bind(target, 0);
+
+    glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, size.x, size.y, size.z, internal_format, bytes, data);
+}

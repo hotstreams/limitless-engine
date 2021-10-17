@@ -1,0 +1,18 @@
+[submodule "thirdparty/assimp"]
+	path = thirdparty/assimp
+	url = https://github.com/assimp/assimp
+[submodule "thirdparty/stbimage"]
+	path = thirdparty/stbimage
+	url = https://github.com/nothings/stb
+[submodule "thirdparty/glm"]
+	path = thirdparty/glm
+	url = https://github.com/g-truc/glm
+[submodule "thirdparty/glfw"]
+	path = thirdparty/glfw
+	url = https://github.com/glfw/glfw
+[submodule "thirdparty/glew"]
+	path = thirdparty/glew
+	url = https://github.com/nigels-com/glew
+[submodule "thirdparty/freetype"]
+	path = thirdparty/freetype
+	url = https://github.com/freetype/freetype

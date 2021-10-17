@@ -42,6 +42,13 @@ namespace Limitless {
         void texSubImage2D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) noexcept override;
         void texSubImage3D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, GLint zoffset, glm::uvec3 size, GLenum format, GLenum type, const void* data) noexcept override;
 
+        // compressed texture interface
+        void compressedTexImage2D(GLenum target, GLint level, GLenum internal_format, glm::uvec2 size, bool border, const void* data, std::size_t bytes) noexcept override;
+        void compressedTexImage3D(GLenum target, GLint level, GLenum internal_format, glm::uvec3 size, bool border, const void* data, std::size_t bytes) noexcept override;
+
+        void compressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum internal_format, glm::uvec2 size, const void* data, std::size_t bytes) noexcept override;
+        void compressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLenum internal_format, glm::uvec3 size, const void* data, std::size_t bytes) noexcept override;
+
         // mipmap generation
         void generateMipMap(GLenum target) noexcept override;
 
