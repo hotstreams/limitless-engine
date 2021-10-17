@@ -6,6 +6,8 @@
 #include <limitless/ms/material.hpp>
 #include <random>
 #include <iostream>
+#include <limitless/loaders/dds_loader.hpp>
+#include <limitless/ms/material_builder.hpp>
 
 using namespace LimitlessDemo;
 
@@ -62,6 +64,10 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
 
     add<ModelInstance>(assets.models.at("cyborg"), glm::vec3(25.0f, 1.0f, 21.0f))
             .setScale(glm::vec3(0.5f))
+            .setRotation(glm::vec3{0.0f, -M_PI_2, 0.0f});
+
+    add<ModelInstance>(assets.models.at("cube"), assets.materials.at("compressed"), glm::vec3(25.0f, 5.0f, 25.0f))
+            .setScale(glm::vec3(5.5f))
             .setRotation(glm::vec3{0.0f, -M_PI_2, 0.0f});
 
     {

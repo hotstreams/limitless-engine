@@ -3,38 +3,60 @@
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/named_texture.hpp>
 #include <limitless/core/bindless_texture.hpp>
-#include <limitless/core/mutable_texture.hpp>
-#include <limitless/core/immutable_texture.hpp>
 
 using namespace Limitless;
 
-ExtensionTexture* TextureBuilder::getSupportedTexture(Texture::Type target) {
-    ExtensionTexture* extension_texture = ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access") ?
-                                          new NamedTexture(static_cast<GLenum>(target)) :
-                                          new StateTexture();
-
-    return ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ?
-           new BindlessTexture(extension_texture) :
-           extension_texture;
+void TextureBuilder::create() {
+    // uses protected destructor
+    texture = std::unique_ptr<Texture>(new Texture());
+    data = {};
+    cube_data = {};
+    byte_count = {};
 }
 
-TextureBuilder& TextureBuilder::setInternalFormat(Texture::InternalFormat _internal) {
-    internal = _internal;
+bool TextureBuilder::isCompressed() const {
+    return byte_count != 0;
+}
+
+bool TextureBuilder::isCubeMap() const {
+    return cube_data != std::array<void*, 6>{};
+}
+
+bool TextureBuilder::isImmutable() {
+    return ContextInitializer::isExtensionSupported("GL_ARB_texture_storage");
+}
+
+TextureBuilder::TextureBuilder() {
+    create();
+}
+
+void TextureBuilder::createExtensionTexture() {
+    ExtensionTexture* extension = ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access") ?
+        new NamedTexture(static_cast<GLenum>(texture->target)) : new StateTexture();
+
+    auto* ext = ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ?
+        new BindlessTexture(extension) : extension;
+
+    texture->texture = std::unique_ptr<ExtensionTexture>(ext);
+}
+
+TextureBuilder& TextureBuilder::setInternalFormat(Texture::InternalFormat internal) {
+    texture->internal_format = internal;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setFormat(Texture::Format _format) {
-    format = _format;
+TextureBuilder& TextureBuilder::setFormat(Texture::Format format) {
+    texture->format = format;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setTarget(Texture::Type _target) {
-    target = _target;
+TextureBuilder& TextureBuilder::setTarget(Texture::Type target) {
+    texture->target = target;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setDataType(Texture::DataType _data_type) {
-    data_type = _data_type;
+TextureBuilder& TextureBuilder::setDataType(Texture::DataType type) {
+    texture->data_type = type;
     return *this;
 }
 
@@ -44,189 +66,121 @@ TextureBuilder& TextureBuilder::setData(const void* _data) {
 }
 
 TextureBuilder& TextureBuilder::setData(const std::array<void *, 6>& _data) {
-    data = _data;
+    cube_data = _data;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setSize(glm::uvec2 _size) {
-    size = _size;
+TextureBuilder& TextureBuilder::setSize(glm::uvec2 size) {
+    texture->size = { size, 0 };
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setSize(glm::uvec3 _size) {
-    size = _size;
+TextureBuilder& TextureBuilder::setSize(glm::uvec3 size) {
+    texture->size = size;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setLevels(GLsizei _levels) {
-    levels = _levels;
+TextureBuilder& TextureBuilder::setLevels(uint32_t levels) {
+    texture->levels = levels;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setMipMap(bool _mipmap) {
-    mipmap = _mipmap;
+TextureBuilder& TextureBuilder::setPath(const fs::path& path) {
+    texture->path = path;
+    return *this;
+}
+
+
+TextureBuilder& TextureBuilder::setMipMap(bool mipmap) {
+    texture->mipmap = mipmap;
     return *this;
 }
 
 TextureBuilder& TextureBuilder::setMinFilter(Texture::Filter filter) {
-    min = filter;
+    texture->min = filter;
     return *this;
 }
 
 TextureBuilder& TextureBuilder::setMagFilter(Texture::Filter filter) {
-    mag = filter;
+    texture->mag = filter;
     return *this;
 }
 
 TextureBuilder& TextureBuilder::setWrapS(Texture::Wrap wrap) {
-    wrap_s = wrap;
+    texture->wrap_s = wrap;
     return *this;
 }
 
 TextureBuilder& TextureBuilder::setWrapT(Texture::Wrap wrap) {
-    wrap_t = wrap;
+    texture->wrap_t = wrap;
     return *this;
 }
 
 TextureBuilder& TextureBuilder::setWrapR(Texture::Wrap wrap) {
-    wrap_r = wrap;
+    texture->wrap_r = wrap;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setBorder(bool _border) {
-    border = _border;
+TextureBuilder& TextureBuilder::setBorder(bool border) {
+    texture->border = border;
     return *this;
 }
 
 TextureBuilder& TextureBuilder::setBorderColor(const glm::vec4& color) {
-    border_color = color;
+    texture->border_color = color;
     return *this;
 }
 
 std::shared_ptr<Texture> TextureBuilder::buildMutable() {
-    std::shared_ptr<Texture> texture;
+    createExtensionTexture();
 
-    // if data contains std::array building a cubemap
-    if (std::holds_alternative<std::array<void*, 6>>(data)) {
-        texture = std::make_shared<MutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
-                                                   target,
-                                                   internal,
-                                                   std::get<glm::uvec2>(size),
-                                                   format,
-                                                   data_type,
-                                                   border,
-                                                   mipmap,
-                                                   border_color,
-                                                   std::get<std::array<void*, 6>>(data),
-                                                   min,
-                                                   mag,
-                                                   wrap_s,
-                                                   wrap_t,
-                                                   wrap_r);
+    if (isCompressed()) {
+        texture->compressedImage(data, byte_count);
     } else {
-        // else building 2d texture
-        if (std::holds_alternative<glm::uvec2>(size)) {
-            texture = std::make_shared<MutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
-                                                       target,
-                                                       internal,
-                                                       std::get<glm::uvec2>(size),
-                                                       format,
-                                                       data_type,
-                                                       border,
-                                                       mipmap,
-                                                       border_color,
-                                                       std::get<const void*>(data),
-                                                       min,
-                                                       mag,
-                                                       wrap_s,
-                                                       wrap_t,
-                                                       wrap_r);
-        // else building 2d texture array / 3d texture
+        if (isCubeMap()) {
+            texture->image(cube_data);
         } else {
-            texture = std::make_shared<MutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
-                                                       target,
-                                                       internal,
-                                                       std::get<glm::uvec3>(size),
-                                                       format,
-                                                       data_type,
-                                                       border,
-                                                       mipmap,
-                                                       border_color,
-                                                       std::get<const void*>(data),
-                                                       min,
-                                                       mag,
-                                                       wrap_s,
-                                                       wrap_t,
-                                                       wrap_r);
+            texture->image(data);
         }
     }
 
-    return texture;
+    auto tex = std::move(texture);
+    create();
+    return tex;
+}
+
+std::shared_ptr<Texture> TextureBuilder::buildImmutable() {
+    createExtensionTexture();
+
+    texture->immutable = true;
+
+    if (!isImmutable()) {
+        throw std::runtime_error("Immutable textures not supported!");
+    }
+
+    if (isCompressed()) {
+        throw std::runtime_error("Compressed immutable textures not yet supported!");
+    } else {
+        if (isCubeMap()) {
+            texture->storage(cube_data);
+        } else {
+            texture->storage(data);
+        }
+    }
+
+    auto tex = std::move(texture);
+    create();
+    return tex;
 }
 
 std::shared_ptr<Texture> TextureBuilder::build() {
-    if (ContextInitializer::isExtensionSupported("GL_ARB_texture_storage")) {
-        std::shared_ptr<Texture> texture;
-        // if data contains std::array building a cubemap
-        if (std::holds_alternative<std::array<void*, 6>>(data)) {
-            texture = std::make_shared<ImmutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
-                                                       target,
-                                                       levels,
-                                                       internal,
-                                                       std::get<glm::uvec2>(size),
-                                                       format,
-                                                       data_type,
-                                                       border,
-                                                       mipmap,
-                                                       border_color,
-                                                       std::get<std::array<void*, 6>>(data),
-                                                       min,
-                                                       mag,
-                                                       wrap_s,
-                                                       wrap_t,
-                                                       wrap_r);
-        } else {
-            // else building 2d texture
-            if (std::holds_alternative<glm::uvec2>(size)) {
-                texture = std::make_shared<ImmutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
-                                                           target,
-                                                           levels,
-                                                           internal,
-                                                           std::get<glm::uvec2>(size),
-                                                           format,
-                                                           data_type,
-                                                           border,
-                                                           mipmap,
-                                                           border_color,
-                                                           std::get<const void*>(data),
-                                                           min,
-                                                           mag,
-                                                           wrap_s,
-                                                           wrap_t,
-                                                           wrap_r);
-                // else building 2d texture array / 3d texture
-            } else {
-                texture = std::make_shared<ImmutableTexture>(std::unique_ptr<ExtensionTexture>(getSupportedTexture(target)),
-                                                           target,
-                                                           levels,
-                                                           internal,
-                                                           std::get<glm::uvec3>(size),
-                                                           format,
-                                                           data_type,
-                                                           border,
-                                                           mipmap,
-                                                           border_color,
-                                                           std::get<const void*>(data),
-                                                           min,
-                                                           mag,
-                                                           wrap_s,
-                                                           wrap_t,
-                                                           wrap_r);
-            }
-        }
-
-        return texture;
-    } else {
-        return buildMutable();
-    }
+    return isImmutable() ? buildImmutable() : buildMutable();
 }
+
+TextureBuilder& TextureBuilder::setCompressedData(const void* _data, std::size_t count) {
+    data = _data;
+    byte_count = count;
+    return *this;
+}
+
+

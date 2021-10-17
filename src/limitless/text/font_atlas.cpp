@@ -28,8 +28,8 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
             throw font_error{"Failed to load glyph"};
         }
 
-        max_width = std::max(max_width, face->glyph->bitmap.width);
-        max_height = std::max(max_height, face->glyph->bitmap.rows);
+        max_width = std::max(max_width, (uint32_t)face->glyph->bitmap.width);
+        max_height = std::max(max_height, (uint32_t)face->glyph->bitmap.rows);
 
         total_area += face->glyph->bitmap.rows * face->glyph->bitmap.width;
     }

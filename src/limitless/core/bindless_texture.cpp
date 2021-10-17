@@ -3,8 +3,8 @@
 
 using namespace Limitless;
 
-BindlessTexture::BindlessTexture(ExtensionTexture* texture)
-    : texture(texture) {
+BindlessTexture::BindlessTexture(ExtensionTexture* _texture)
+    : texture {_texture} {
 }
 
 void BindlessTexture::makeBindless() noexcept {
@@ -141,4 +141,24 @@ BindlessTexture& BindlessTexture::setWrapR(GLenum target, GLenum wrap) {
     makeNonResident();
     texture->setWrapR(target, wrap);
     return *this;
+}
+
+void BindlessTexture::compressedTexImage2D(GLenum target, GLint level, GLenum internal_format, glm::uvec2 size, bool border, const void *data, std::size_t bytes) noexcept {
+    makeNonResident();
+    texture->compressedTexImage2D(target, level, internal_format, size, border, data, bytes);
+}
+
+void BindlessTexture::compressedTexImage3D(GLenum target, GLint level, GLenum internal_format, glm::uvec3 size, bool border, const void *data, std::size_t bytes) noexcept {
+    makeNonResident();
+    texture->compressedTexImage3D(target, level, internal_format, size, border, data, bytes);
+}
+
+void BindlessTexture::compressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum internal_format, glm::uvec2 size, const void *data, std::size_t bytes) noexcept {
+    makeNonResident();
+    texture->compressedTexSubImage2D(target, level, xoffset, yoffset, internal_format, size, data, bytes);
+}
+
+void BindlessTexture::compressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLenum internal_format, glm::uvec3 size, const void *data, std::size_t bytes) noexcept {
+    makeNonResident();
+    texture->compressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, internal_format, size, data, bytes);
 }

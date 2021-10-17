@@ -25,40 +25,46 @@ message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
 include_directories(${FREETYPE_INCLUDE_DIRS})
 link_directories(${FREETYPE_LIBRARIES})
 
+option(USE_SUBMODULES "Uses git submodule for thirdparties" ON)
+
 if (WIN32)
-    find_package(stb_image REQUIRED)
-    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
-    include_directories(${STB_IMAGE_INCLUDE_DIRS})
-
-    find_package(glm REQUIRED)
-    message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
-    include_directories(${GLM_INCLUDE_DIRS})
-    link_directories(${GLM_LIBRARIES})
-
-    find_package(glfw3 REQUIRED)
-    message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIRS}")
-    include_directories(${GLFW3_INCLUDE_DIRS})
-    link_directories(${GLFW3_LIBRARIES})
-
     find_package(glew REQUIRED)
     message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIRS}")
     include_directories(${GLEW_INCLUDE_DIRS})
     link_directories(${GLEW_LIBRARIES})
 
-    find_package(assimp REQUIRED)
-    message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIRS}")
-    include_directories(${ASSIMP_INCLUDE_DIRS})
-    link_directories(${ASSIMP_LIBRARIES})
+    if (!USE_SUBMODULES)
+        find_package(glm REQUIRED)
+        message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
+        include_directories(${GLM_INCLUDE_DIRS})
+        link_directories(${GLM_LIBRARIES})
 
-    find_package(stb_image REQUIRED)
-    message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
-    include_directories(${STB_IMAGE_INCLUDE_DIRS})
+        find_package(glfw3 REQUIRED)
+        message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIRS}")
+        include_directories(${GLFW3_INCLUDE_DIRS})
+        link_directories(${GLFW3_LIBRARIES})
 
-    link_libraries(opengl32 glew32 glfw3 assimp freetype)
+        find_package(assimp REQUIRED)
+        message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIRS}")
+        include_directories(${ASSIMP_INCLUDE_DIRS})
+        link_directories(${ASSIMP_LIBRARIES})
+
+        find_package(stb_image REQUIRED)
+        message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
+        include_directories(${STB_IMAGE_INCLUDE_DIRS})
+
+        link_libraries(opengl32 glew32 glfw3 assimp freetype)
+    else()
+        link_libraries(opengl32 glew32)
+    endif()
 endif()
 
 if (UNIX)
-    link_libraries(GLEW glfw GL assimp freetype pthread)
+    if (!USE_SUBMODULES)
+        link_libraries(GLEW glfw GL assimp freetype pthread)
+    else()
+        link_libraries(GLEW GL pthread)
+    endif()
 endif()
 
 set(ENGINE_CORE
@@ -71,8 +77,7 @@ set(ENGINE_CORE
     src/limitless/core/profiler.cpp
     src/limitless/core/time_query.cpp
 
-    src/limitless/core/mutable_texture.cpp
-    src/limitless/core/immutable_texture.cpp
+    src/limitless/core/texture.cpp
     src/limitless/core/state_texture.cpp
     src/limitless/core/named_texture.cpp
     src/limitless/core/bindless_texture.cpp
@@ -120,6 +125,7 @@ set(ENGINE_LOADERS
     src/limitless/loaders/asset_manager.cpp
     src/limitless/loaders/threaded_model_loader.cpp
     src/limitless/loaders/texture_loader.cpp
+    src/limitless/loaders/dds_loader.cpp
 )
 
 set(ENGINE_MODELS
@@ -229,6 +235,35 @@ set(ENGINE_SRC
 add_library(limitless_engine_objects OBJECT ${ENGINE_SRC})
 add_library(limitless_engine SHARED ${ENGINE_SRC})
 
+if (USE_SUBMODULES)
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
+
+    set(BUILD_SHARED_LIBS FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_NO_EXPORT TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_TESTS FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_INSTALL_PDB FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_ZLIB TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_COLLADA_IMPORTER FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_OBJ_IMPORTER TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_FBX_IMPORTER TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_MD5_IMPORTER TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_BLEND_IMPORTER FALSE CACHE BOOL "x" FORCE)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp")
+
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw/include")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stbimage")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
+
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
+endif()
+
 add_executable(limitless_demo
         $<TARGET_OBJECTS:limitless_engine_objects>
         demo/demo.cpp
@@ -240,10 +275,13 @@ add_executable(limitless_demo
         demo/assets.cpp
         )
 
-add_executable(limitless_engine_tests
-        $<TARGET_OBJECTS:limitless_engine_objects>
-        "tests/catch_amalgamated.cpp"
-
-        "tests/core/texture_tests.cpp")
+if (USE_SUBMODULES)
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
+    target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
+    target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
+    target_link_libraries(limitless_demo freetype)
+endif()
 
 add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
