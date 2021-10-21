@@ -12,6 +12,12 @@ namespace Limitless {
 namespace Limitless::ms {
     class Material;
 
+	class material_compilation_error : public std::runtime_error {
+	public:
+		material_compilation_error(const char* error) : std::runtime_error(error) {}
+		material_compilation_error(std::string error) : std::runtime_error(std::move(error)) {}
+	};
+
     class MaterialCompiler : public ShaderCompiler {
     protected:
         Assets& assets;

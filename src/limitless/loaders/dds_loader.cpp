@@ -38,6 +38,7 @@ namespace {
 
     constexpr auto DDS_CODE = "DDS ";
     constexpr auto DXT1_CODE = 0x31545844;
+    constexpr auto DXT3_CODE = 0x33545844;
     constexpr auto DXT5_CODE = 0x35545844;
     constexpr auto DXT1_BLOCK_SIZE = 8;
     constexpr auto DXT5_BLOCK_SIZE = 16;
@@ -65,7 +66,15 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
         return assets.textures[path.stem().string()];
     }
 
-    std::ifstream fs {path, std::ios::binary};
+    std::ifstream fs;
+	fs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+	try {
+		fs.open(path, std::ios::binary);
+	} catch (std::exception& e) {
+		throw dds_loader_exception("Cant open " + path.string());
+	}
+
     std::array<char, 4> code {0};
     fs.read(code.data(), code.size());
     if (std::string(code.data(), code.size()) != DDS_CODE) {
@@ -85,6 +94,10 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
             builder.setInternalFormat(Texture::InternalFormat::RGB_DXT1);
             channels = 3;
             break;
+	    case DXT3_CODE:
+		    builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT3);
+		    channels = 4;
+		    break;
         case DXT5_CODE:
             builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT5);
             channels = 4;

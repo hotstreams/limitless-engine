@@ -8,7 +8,7 @@
     vec4 getMaterialColor();
     vec3 getMaterialEmissive();
 
-    vec3 getMaterialDiffuse(vec2 uv);
+    vec4 getMaterialDiffuse(vec2 uv);
     vec3 getMaterialNormal(vec2 uv);
     vec3 getMaterialDisplacement(vec2 uv);
 
@@ -193,8 +193,8 @@ float getMaterialRoughness() {
 #endif
 
 #if defined (MATERIAL_DIFFUSE)
-    vec3 getMaterialDiffuse(vec2 uv) {
-        return texture(_material_diffuse, uv).rgb;
+    vec4 getMaterialDiffuse(vec2 uv) {
+        return texture(_material_diffuse, uv);
     }
 #endif
 

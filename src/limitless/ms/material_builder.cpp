@@ -266,15 +266,15 @@ void MaterialBuilder::checkRequirements() {
         throw material_builder_error("Name cannot be empty");
     }
 
-    if ((material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
-        !(material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
-        throw material_builder_error("Metallic & Roughness should be set together");
-    }
-
-    if (!(material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
-        (material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
-        throw material_builder_error("Metallic & Roughness should be set together");
-    }
+//    if ((material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
+//        !(material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
+//        throw material_builder_error("Metallic & Roughness should be set together");
+//    }
+//
+//    if (!(material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
+//        (material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
+//        throw material_builder_error("Metallic & Roughness should be set together");
+//    }
 
     if (!material->tessellation_snippet.empty() && !material->contains(Property::TessellationFactor)) {
         throw material_builder_error("Tessellation snippet require TessellationFactor to be set");

@@ -7,6 +7,7 @@ namespace Limitless {
     class dds_loader_exception : std::runtime_error {
     public:
         explicit dds_loader_exception(const char* msg) : std::runtime_error(msg) {}
+        explicit dds_loader_exception(const std::string& str) : std::runtime_error(str) {}
     };
 
     class DDSLoader {

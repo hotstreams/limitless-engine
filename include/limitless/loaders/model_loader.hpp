@@ -55,7 +55,7 @@ namespace Limitless {
         static Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags);
         static std::shared_ptr<ms::Material> loadMaterial(Assets& assets, aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
         static std::vector<std::shared_ptr<ms::Material>> loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, ModelShader model_shader);
-        template<typename T> static std::vector<T> loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) noexcept;
+        template<typename T> static std::vector<T> loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags);
         template<typename T> static std::vector<T> loadIndices(aiMesh* mesh) noexcept;
 
         ModelLoader() = default;

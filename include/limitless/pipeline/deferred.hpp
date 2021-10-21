@@ -10,7 +10,7 @@ namespace Limitless {
     private:
         void create(ContextEventObserver& ctx, const RenderSettings& settings);
     public:
-        explicit Deferred(ContextEventObserver& ctx, const RenderSettings& settings);
+        Deferred(ContextEventObserver& ctx, const RenderSettings& settings);
         ~Deferred() override = default;
 
         void update(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings) override;
