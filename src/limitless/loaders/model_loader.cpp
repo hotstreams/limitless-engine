@@ -73,7 +73,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
 }
 
 template<typename T>
-std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) noexcept {
+std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) {
     std::vector<T> vertices;
     vertices.reserve(mesh->mNumVertices);
 
@@ -81,7 +81,13 @@ std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& f
         auto vertex = convert3f(mesh->mVertices[j]);
         auto normal = convert3f(mesh->mNormals[j]);
         auto tangent = convert3f(mesh->mTangents[j]);
-        auto uv = convert2f(mesh->mTextureCoords[0][j]);
+
+        glm::vec2 uv;
+        if (mesh->mTextureCoords[0]) {
+	        uv = convert2f(mesh->mTextureCoords[0][j]);
+        } else {
+        	throw model_loader_error("Mesh have no UV coordinates!");
+        }
 
         if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
             vertex = flipYZ(vertex);
@@ -132,9 +138,9 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(i++);
     std::string name = path.string() + PATH_SEPARATOR + mesh_name;
 
-//    if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
-//        name += std::to_string(unnamed_mesh_index++);
-//    }
+    if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
+        name += std::to_string(i++);
+    }
 
     if (assets.meshes.contains(name)) {
         return assets.meshes.at(name);
@@ -472,7 +478,7 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
 }
 
 namespace Limitless {
-    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags) noexcept;
+    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags);
 
     template std::vector<GLubyte> ModelLoader::loadIndices<GLubyte>(aiMesh* mesh) noexcept;
     template std::vector<GLushort> ModelLoader::loadIndices<GLushort>(aiMesh* mesh) noexcept;

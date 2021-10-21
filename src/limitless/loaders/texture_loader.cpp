@@ -8,6 +8,7 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb_image_resize.h>
 #include <limitless/assets.hpp>
+#include <limitless/loaders/dds_loader.hpp>
 
 using namespace Limitless;
 
@@ -134,6 +135,10 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
 
     if (assets.textures.contains(path.stem().string())) {
         return assets.textures[path.stem().string()];
+    }
+
+    if (path.extension().string() == ".dds") {
+    	return DDSLoader::load(assets, path, flags);
     }
 
     stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));

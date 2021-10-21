@@ -132,10 +132,16 @@ void MaterialCompiler::compile(const Material& material, ShaderPass pass_shader,
         replaceRenderSettings(shader);
     };
 
-    if (material.contains(Property::TessellationFactor)) {
-        *this << Shader { assets.getShaderDir() / "tesselation" / "tesselation.tcs", Shader::Type::TessControl, props }
-              << Shader { assets.getShaderDir() / "tesselation" / "tesselation.tes", Shader::Type::TessEval, props };
-    }
+    //TODO: restore
+//    if (material.contains(Property::TessellationFactor)) {
+//        *this << Shader { assets.getShaderDir() / "tesselation" / "tesselation.tcs", Shader::Type::TessControl, props }
+//              << Shader { assets.getShaderDir() / "tesselation" / "tesselation.tes", Shader::Type::TessEval, props };
+//    }
 
-    assets.shaders.add(pass_shader, model_shader, material.getShaderIndex(), compile(assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props));
+	try {
+		auto shader = compile(assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props);
+		assets.shaders.add(pass_shader, model_shader, material.getShaderIndex(), shader);
+	} catch (const std::exception& e) {
+		throw material_compilation_error{material.getName() + e.what()};
+	}
 }

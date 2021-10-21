@@ -120,17 +120,21 @@ void EffectCompiler::compile(ShaderPass shader_type, const T& emitter) {
 }
 
 void EffectCompiler::compile(const EffectInstance& instance, ShaderPass shader_type) {
-    for (const auto& [name, emitter] : instance.getEmitters()) {
-        switch (emitter->getType()) {
-            case fx::AbstractEmitter::Type::Sprite:
-                compile(shader_type, instance.get<fx::SpriteEmitter>(name));
-                break;
-            case fx::AbstractEmitter::Type::Mesh:
-                compile(shader_type, instance.get<fx::MeshEmitter>(name));
-                break;
-            case fx::AbstractEmitter::Type::Beam:
-                compile(shader_type, instance.get<fx::BeamEmitter>(name));
-                break;
-        }
-    }
+	try {
+		for (const auto& [name, emitter] : instance.getEmitters()) {
+			switch (emitter->getType()) {
+				case fx::AbstractEmitter::Type::Sprite:
+					compile(shader_type, instance.get<fx::SpriteEmitter>(name));
+					break;
+				case fx::AbstractEmitter::Type::Mesh:
+					compile(shader_type, instance.get<fx::MeshEmitter>(name));
+					break;
+				case fx::AbstractEmitter::Type::Beam:
+					compile(shader_type, instance.get<fx::BeamEmitter>(name));
+					break;
+			}
+		}
+	} catch (const std::exception& e) {
+		throw std::runtime_error{instance.getName() + e.what()};
+	}
 }
