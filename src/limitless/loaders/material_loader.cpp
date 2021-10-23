@@ -13,8 +13,13 @@ using namespace Limitless::ms;
 
 std::shared_ptr<ms::Material> MaterialLoader::load(Assets& assets, const fs::path& _path) {
     auto path = convertPathSeparators(_path);
-    std::ifstream stream(path, std::ios::binary | std::ios::ate);
+    std::ifstream stream;
     stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try {
+	    stream.open(path, std::ios::binary | std::ios::ate);
+    } catch (const std::exception& e) {
+    	throw std::runtime_error("Failed to open " + path.string());
+    }
 
     auto filesize = stream.tellg();
     ByteBuffer buffer{static_cast<size_t>(filesize)};

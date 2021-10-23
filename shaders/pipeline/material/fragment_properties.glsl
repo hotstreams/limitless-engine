@@ -18,7 +18,7 @@ vec4 getFragmentAlbedo() {
     #endif
 
     #if defined (MATERIAL_DIFFUSE)
-        albedo.rgb *= getMaterialDiffuse(getVertexUV()).rgb;
+        albedo *= getMaterialDiffuse(getVertexUV());
     #endif
 
     #if defined (MATERIAL_BLENDMASK)
@@ -45,7 +45,8 @@ vec3 getFragmentNormal() {
         return getCameraPosition() - getVertexPosition();
     #else
         #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
-            vec3 normal = getMaterialNormal(getVertexUV()) * 2.0 - 1.0;
+            vec3 normal = getMaterialNormal(getVertexUV());
+            normal = normalize(normal * 2.0 - 1.0);
             normal = normalize(getVertexTBN() * normal);
         #else
             vec3 normal = normalize(getVertexNormal());
@@ -80,15 +81,19 @@ float getFragmentRoughness() {
 }
 
 vec3 getFragmentEmissive() {
-    vec3 emissive = vec3(0.0);
+    #if !defined (MATERIAL_EMISSIVE_COLOR) && !defined (MATERIAL_EMISSIVEMASK)
+        return vec3(0.0);
+    #else
+        vec3 emissive = vec3(1.0);
 
-    #if defined (MATERIAL_EMISSIVE_COLOR)
-        emissive = getMaterialEmissive();
+        #if defined (MATERIAL_EMISSIVE_COLOR)
+            emissive *= getMaterialEmissive();
+        #endif
+
+        #if defined (MATERIAL_EMISSIVEMASK)
+            emissive *= getMaterialEmissiveMask(getVertexUV());
+        #endif
+
+        return emissive;
     #endif
-
-    #if defined (MATERIAL_EMISSIVEMASK)
-        emissive *= getMaterialEmissiveMask(getVertexUV());
-    #endif
-
-    return emissive;
 }

@@ -14,7 +14,7 @@
 
     vec2 getMaterialTesselationFactor();
 
-    float getMaterialEmissiveMask(vec2 uv);
+    vec3 getMaterialEmissiveMask(vec2 uv);
     float getMaterialBlendMask(vec2 uv);
     float getMaterialMetallic(vec2 uv);
     float getMaterialRoughness(vec2 uv);
@@ -200,7 +200,7 @@ float getMaterialRoughness() {
 
 #if defined (MATERIAL_NORMAL)
     vec3 getMaterialNormal(vec2 uv) {
-        return texture(_material_normal, uv).rgb;
+        return texture(_material_normal, uv).xyz;
     }
 #endif
 
@@ -211,8 +211,8 @@ float getMaterialRoughness() {
 #endif
 
 #if defined (MATERIAL_EMISSIVEMASK)
-    float getMaterialEmissiveMask(vec2 uv) {
-        return texture(_material_emissive_mask, uv).r;
+    vec3 getMaterialEmissiveMask(vec2 uv) {
+        return texture(_material_emissive_mask, uv).rgb;
     }
 #endif
 

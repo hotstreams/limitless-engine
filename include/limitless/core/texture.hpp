@@ -59,6 +59,7 @@ namespace Limitless {
 
             sRGB_DXT1 = GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
             sRGBA_DXT1 = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+	        sRGBA_DXT3 = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
             sRGBA_DXT5 = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
 
             // GL_ARB_texture_compression_bptc
@@ -68,6 +69,8 @@ namespace Limitless {
             // GL_ARB_texture_compression_rgtc
             R_RGTC = GL_COMPRESSED_RED_RGTC1,
             RG_RGTC = GL_COMPRESSED_RG_RGTC2
+
+
         };
 
         enum class Format {
