@@ -2,9 +2,6 @@ Limitless::GLSL_VERSION
 Limitless::Extensions
 Limitless::Settings
 
-#define DIRECTIONAL_CSM
-#define DIRECTIONAL_SPLIT_COUNT 3
-
 #include "../scene.glsl"
 #include "../lighting/lighting.glsl"
 #include "../../functions/reconstruct_position.glsl"

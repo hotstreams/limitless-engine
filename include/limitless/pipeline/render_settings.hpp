@@ -13,9 +13,11 @@ namespace Limitless {
     public:
         RenderPipeline pipeline = RenderPipeline::Deferred;
 
+        // actually this is not toogleable
         bool normal_mapping = true;
+
         bool screen_space_ambient_occlusion = true;
-        bool fast_approximate_antialiasing = false;
+        bool fast_approximate_antialiasing = true;
 
         bool directional_cascade_shadow_mapping = true;
         glm::uvec2 directional_shadow_resolution = { 1024 * 4, 1024 * 4 };

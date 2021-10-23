@@ -220,7 +220,11 @@ void CascadeShadows::draw(Instances& instances,
     framebuffer->unbind();
 }
 
-void CascadeShadows::setUniform(ShaderProgram& shader)  const {
+void CascadeShadows::setUniform(ShaderProgram& shader) const {
+	if (auto* ctx = ContextState::getState(glfwGetCurrentContext()); ctx) {
+		light_buffer->bindBase(ctx->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, DIRECTIONAL_CSM_BUFFER_NAME));
+	}
+
     shader << UniformSampler{"_dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture};
 
     // TODO: ?

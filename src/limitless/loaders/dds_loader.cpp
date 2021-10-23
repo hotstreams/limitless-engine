@@ -40,6 +40,7 @@ namespace {
     constexpr auto DXT1_CODE = 0x31545844;
     constexpr auto DXT3_CODE = 0x33545844;
     constexpr auto DXT5_CODE = 0x35545844;
+    constexpr auto BC5u_CODE = 808540228;
     constexpr auto DXT1_BLOCK_SIZE = 8;
     constexpr auto DXT5_BLOCK_SIZE = 16;
 }
@@ -71,14 +72,14 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
 
 	try {
 		fs.open(path, std::ios::binary);
-	} catch (std::exception& e) {
-		throw dds_loader_exception("Cant open " + path.string());
+	} catch (const std::exception& e) {
+		throw dds_loader_exception{"Cant open " + path.string()};
 	}
 
     std::array<char, 4> code {0};
     fs.read(code.data(), code.size());
     if (std::string(code.data(), code.size()) != DDS_CODE) {
-        throw dds_loader_exception("It is not a DDS file!");
+        throw dds_loader_exception{"It is not a DDS file!"};
     }
 
     DDSHEADER header {};
@@ -91,19 +92,23 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
     uint32_t channels {};
     switch (header.ddspf.dwFourCC) {
         case DXT1_CODE:
-            builder.setInternalFormat(Texture::InternalFormat::RGB_DXT1);
+	        flags.space == TextureLoaderFlags::Space::Linear ? builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT1) : builder.setInternalFormat(Texture::InternalFormat::sRGBA_DXT1);
             channels = 3;
             break;
 	    case DXT3_CODE:
-		    builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT3);
+		    flags.space == TextureLoaderFlags::Space::Linear ? builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT3) : builder.setInternalFormat(Texture::InternalFormat::sRGBA_DXT3);
 		    channels = 4;
 		    break;
         case DXT5_CODE:
-            builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT5);
+		    flags.space == TextureLoaderFlags::Space::Linear ? builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT5) : builder.setInternalFormat(Texture::InternalFormat::sRGBA_DXT5);
             channels = 4;
             break;
+    	case BC5u_CODE:
+		    builder.setInternalFormat(Texture::InternalFormat::RG_RGTC);
+		    channels = 4;
+    		break;
         default:
-            throw dds_loader_exception("Unsupported compression code. Contact the admin!");
+            throw dds_loader_exception{"Unsupported compression code. Contact the admin!" + std::to_string(header.ddspf.dwFourCC)};
     }
 
     const auto byte_count = getDXTByteCount({header.dwWidth, header.dwHeight}, channels == 3 ? DXT1_BLOCK_SIZE : DXT5_BLOCK_SIZE);

@@ -19,7 +19,8 @@ DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, ContextEven
                             .build();
 
     auto normal = builder   .setTarget(Texture::Type::Tex2D)
-                            .setInternalFormat(Texture::InternalFormat::RGBA16_SNORM)
+//                            .setInternalFormat(Texture::InternalFormat::RGBA16_SNORM)
+                            .setInternalFormat(Texture::InternalFormat::RGBA16F)
                             .setSize(ctx.getSize())
                             .setMinFilter(Texture::Filter::Nearest)
                             .setMagFilter(Texture::Filter::Nearest)
