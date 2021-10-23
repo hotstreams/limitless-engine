@@ -55,6 +55,8 @@ namespace Limitless {
                 setAttribute(index, 1, GL_FLOAT, normalized, stride, pointer, buffer);
             } else if constexpr (std::is_same_v<Attribute, int>) {
                 setAttribute(index, 1, GL_INT, normalized, stride, pointer, buffer);
+            } else if constexpr (std::is_same_v<Attribute, glm::ivec4>) {
+	            setAttribute(index, 4, GL_INT, normalized, stride, pointer, buffer);
             } else if constexpr (std::is_same_v<Attribute, glm::vec4>) {
                 setAttribute(index, 4, GL_FLOAT, normalized, stride, pointer, buffer);
             } else if constexpr (std::is_same_v<Attribute, glm::vec3>) {
