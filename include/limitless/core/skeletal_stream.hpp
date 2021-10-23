@@ -18,8 +18,8 @@ namespace Limitless {
                     .setDataSize(bone_weights.size() * sizeof(VertexBoneWeight))
                     .build();
 
-            this->vertex_array.template setAttribute<int>(4, false, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), bone_buffer);
-            this->vertex_array.template setAttribute<int>(5, false, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), bone_buffer);
+            this->vertex_array.template setAttribute<glm::ivec4>(4, false, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, bone_index), bone_buffer);
+            this->vertex_array.template setAttribute<glm::vec4>(5, false, sizeof(VertexBoneWeight), (GLvoid*)offsetof(VertexBoneWeight, weight), bone_buffer);
         };
     public:
         SkinnedVertexStream(std::vector<Vertex>&& vertices, std::vector<typename IndexedVertexStream<Vertex>::index_type>&& indices, std::vector<VertexBoneWeight>&& bones, VertexStreamUsage usage, VertexStreamDraw draw)
