@@ -10,6 +10,10 @@
 #include <limitless/assets.hpp>
 #include <limitless/loaders/dds_loader.hpp>
 
+#if GL_DEBUG
+	#include <iostream>
+#endif
+
 using namespace Limitless;
 
 namespace {
@@ -146,6 +150,12 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
     int width = 0, height = 0, channels = 0;
     unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
 
+	#if GL_DEBUG
+        if (!isPowerOfTwo(width, height)) {
+        	std::cerr << path.string() << " has not 2^n size, its not recommended to have it!" << std::endl;
+        }
+	#endif
+
     setDownScale(width, height, channels, data, flags);
 
     if (data) {
@@ -234,25 +244,19 @@ GLFWimage TextureLoader::loadGLFWImage([[maybe_unused]] Assets& assets, const fs
 }
 
 void TextureLoader::setDownScale(int& width, int& height, int channels, unsigned char*& data, const TextureLoaderFlags& flags) {
-    int scaled_width, scaled_height;
+	if (flags.downscale == TextureLoaderFlags::DownScale::None) {
+		return;
+	}
+
+	if (!isPowerOfTwo(width, height)) {
+		throw texture_loader_exception("stbimage cannot resize not power of two texture!");
+	}
+
+	int scaled_width, scaled_height;
     unsigned char* resized_data;
 
-    switch (flags.downscale) {
-        case TextureLoaderFlags::DownScale::None:
-            return;
-        case TextureLoaderFlags::DownScale::x2:
-            scaled_width = width / 2.0f;
-            scaled_height = height / 2.0f;
-            break;
-        case TextureLoaderFlags::DownScale::x4:
-            scaled_width = width / 4.0f;
-            scaled_height = height / 4.0f;
-            break;
-        case TextureLoaderFlags::DownScale::x8:
-            scaled_width = width / 8.0f;
-            scaled_height = height / 8.0f;
-            break;
-    }
+    scaled_width = width >> static_cast<uint32_t>(flags.downscale);
+	scaled_height = height >> static_cast<uint32_t>(flags.downscale);
 
     resized_data = new unsigned char[channels * scaled_height * scaled_width];
     stbir_resize_uint8(data, width, height, 0, resized_data, scaled_width, scaled_height, 0, channels);
@@ -286,4 +290,8 @@ void TextureLoader::setTextureParameters(TextureBuilder& builder, const TextureL
             }
             break;
     }
+}
+
+bool TextureLoader::isPowerOfTwo(int width, int height) {
+	return ((width != 0) && !(width & (width - 1))) && ((height != 0) && !(height & (height - 1)));
 }

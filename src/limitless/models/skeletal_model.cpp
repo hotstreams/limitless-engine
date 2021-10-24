@@ -16,6 +16,7 @@ size_t AnimationNode::findPositionKeyframe(double anim_time) const {
             return i;
         }
     }
+    return 0;
     throw std::out_of_range("no position keyframe for time " + std::to_string(anim_time));
 }
 
@@ -24,6 +25,7 @@ size_t AnimationNode::findRotationKeyframe(double anim_time) const {
         if (anim_time <= rotations[i + 1].time)
             return i;
     }
+	return 0;
     throw std::out_of_range("no rotation keyframe for time " + std::to_string(anim_time));
 }
 
@@ -32,6 +34,7 @@ size_t AnimationNode::findScalingKeyframe(double anim_time) const {
         if (anim_time <= scales[i + 1].time)
             return i;
     }
+    return 0;
     throw std::out_of_range("no scaling keyframe for time " + std::to_string(anim_time));
 }
 
@@ -51,11 +54,12 @@ glm::vec3 AnimationNode::positionLerp(double anim_time) const {
     double dt = b.time - a.time;
     double norm = (anim_time - a.time) / dt;
 
-    if (!(norm >= 0.f && norm <= 1.f)) {
-        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
-    }
+//    if (!(norm >= 0.f && norm <= 1.f)) {
+//        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
+//    }
 
-    return glm::mix(a.data, b.data, norm);
+//    return glm::mix(a.data, b.data, norm);
+    return a.data * (float)(1.0 - norm) + b.data * (float)norm;
 }
 
 glm::fquat AnimationNode::rotationLerp(double anim_time) const {
@@ -73,9 +77,9 @@ glm::fquat AnimationNode::rotationLerp(double anim_time) const {
     double dt = b.time - a.time;
     double norm = (anim_time - a.time) / dt;
 
-    if (!(norm >= 0.f && norm <= 1.f)) {
-        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
-    }
+//    if (!(norm >= 0.f && norm <= 1.f)) {
+//        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
+//    }
 
     return glm::normalize(glm::slerp(a.data, b.data, static_cast<float>(norm)));
 }
@@ -96,9 +100,9 @@ glm::vec3 AnimationNode::scalingLerp(double anim_time) const {
     double dt = b.time - a.time;
     double norm = (anim_time - a.time) / dt;
 
-    if (!(norm >= 0.f && norm <= 1.f)) {
-        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
-    }
+//    if (!(norm >= 0.f && norm <= 1.f)) {
+//        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
+//    }
 
     return glm::mix(a.data, b.data, norm);
 }

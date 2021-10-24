@@ -48,6 +48,10 @@ void Assets::load([[maybe_unused]] Context& context) {
     meshes.add("plane", models.at("plane")->getMeshes().at(0));
 }
 
+void Assets::initialize(Context& ctx, const RenderSettings& settings) {
+	shaders.initialize(ctx, settings, shader_dir);
+}
+
 void Assets::add(const Assets& other) {
     shaders.add(other.shaders);
     models.add(other.models);
@@ -60,7 +64,7 @@ void Assets::add(const Assets& other) {
 }
 
 void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
-    shaders.initialize(ctx, settings, getShaderDir());
+	initialize(ctx, settings);
 
     for (const auto& [_, material] : materials) {
         compileMaterial(ctx, settings, material);
@@ -135,4 +139,15 @@ void Assets::compileSkybox(Context& ctx, const RenderSettings& settings, const s
     if (!shaders.contains(ShaderPass::Skybox, ModelShader::Model, skybox->getMaterial().getShaderIndex())) {
         compiler.compile(skybox->getMaterial(), ShaderPass::Skybox, ModelShader::Model);
     }
+}
+
+void Assets::reloadTextures(const TextureLoaderFlags& settings) {
+	for (auto it = textures.begin(); it != textures.end();) {
+		const auto [name, texture] = *it;
+		const auto path = texture->getPath().value();
+
+		it = textures.remove(it);
+
+		TextureLoader::load(*this, path, settings);
+	}
 }

@@ -8,7 +8,7 @@ namespace Limitless {
     struct Bone {
         std::string name;
         glm::mat4 node_transform {1.0f};
-        glm::mat4 offset_matrix;
+        glm::mat4 offset_matrix {1.0f};
 
         Bone(std::string name, const glm::mat4& offset_matrix) noexcept : name{std::move(name)}, offset_matrix{offset_matrix} {}
 

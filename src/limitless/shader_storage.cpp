@@ -123,7 +123,6 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
     }
 
     add("quad", compiler.compile(shader_dir / "pipeline/quad"));
-
     add("text", compiler.compile(shader_dir / "text/text"));
     add("text_selection", compiler.compile(shader_dir / "text/text_selection"));
 }

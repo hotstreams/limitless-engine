@@ -95,6 +95,10 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
             }
         }
 
+        if (render_settings->screen_space_ambient_occlusion) {
+	        settings.append("#define SCREEN_SPACE_AMBIENT_OCCLUSION\n");
+        }
+
         shader.replaceKey("Limitless::Settings", settings);
     } else {
         shader.replaceKey("Limitless::Settings", "");

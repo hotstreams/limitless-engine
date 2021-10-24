@@ -41,7 +41,7 @@ namespace Limitless {
             throw pipeline_pass_not_found(typeid(Pass).name());
         }
 
-        virtual void update(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings);
+        virtual void update(ContextEventObserver& ctx, const RenderSettings& settings);
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
 
         void clear();

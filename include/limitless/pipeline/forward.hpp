@@ -13,6 +13,6 @@ namespace Limitless {
         explicit Forward(ContextEventObserver& ctx, const RenderSettings& settings);
         ~Forward() override = default;
 
-        void update(ContextEventObserver& ctx, Scene& scene, const RenderSettings& settings) override;
+        void update(ContextEventObserver& ctx, const RenderSettings& settings) override;
     };
 }

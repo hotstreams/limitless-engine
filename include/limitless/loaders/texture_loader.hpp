@@ -11,24 +11,28 @@ namespace Limitless {
 
     class TextureLoaderFlags {
     public:
+    	// does not work for DDS formats
         enum class Origin { TopLeft, BottomLeft };
         enum class Filter { Linear, Nearest };
         enum class Compression { None, Default, DXT1, DXT5, BC7, RGTC };
-        enum class DownScale { None = 0, x2, x4, x8 };
+        // works for dds with precomputed mipmaps only
+        enum class DownScale { None = 0, x2, x4, x8, x16 };
         enum class Space { sRGB, Linear };
 
         Origin origin { Origin::BottomLeft };
         Filter filter { Filter::Linear };
         Compression compression { Compression::None };
-        // TODO: fix 2^n
-        DownScale downscale { DownScale::None };
+
+        DownScale downscale { DownScale::x4 };
         Texture::Wrap wrapping { Texture::Wrap::Repeat };
 
         // only for 3 or 4 channels now
         Space space { Space::Linear };
 
+        // for dds it loads mipmaps in a file
         bool mipmap {true};
-        bool anisotropic_filter {true};
+
+        bool anisotropic_filter {false};
         float anisotropic_value {0.0f}; // 0.0f for max supported
 
         bool border {false};
@@ -44,7 +48,7 @@ namespace Limitless {
         TextureLoaderFlags(Texture::Wrap _wrapping) noexcept : wrapping { _wrapping } {}
     };
 
-    class texture_loader_exception : std::runtime_error {
+    class texture_loader_exception : public std::runtime_error {
     public:
         explicit texture_loader_exception(const char* msg) : std::runtime_error(msg) {}
     };
@@ -54,6 +58,7 @@ namespace Limitless {
         static void setFormat(TextureBuilder& builder, const TextureLoaderFlags& flags, int channels);
         static void setAnisotropicFilter(const std::shared_ptr<Texture>& texture, const TextureLoaderFlags& flags);
         static void setDownScale(int& width, int& height, int channels, unsigned char*& data, const TextureLoaderFlags& flags);
+        static bool isPowerOfTwo(int width, int height);
     public:
         TextureLoader() = delete;
         ~TextureLoader() = delete;
