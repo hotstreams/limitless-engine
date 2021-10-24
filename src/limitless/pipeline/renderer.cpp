@@ -19,6 +19,11 @@ Renderer::Renderer(std::unique_ptr<Pipeline> _pipeline, const RenderSettings& _s
     , pipeline {std::move(_pipeline)} {
 }
 
+Renderer::Renderer(ContextEventObserver& ctx, const RenderSettings& _settings)
+	: settings {_settings}
+	, pipeline {std::make_unique<Deferred>(ctx, settings)} {
+}
+
 Renderer::Renderer(ContextEventObserver& ctx)
     : settings {}
     , pipeline {std::make_unique<Deferred>(ctx, settings)} {
@@ -30,8 +35,11 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
     profiler.draw(context, assets);
 }
 
-void Renderer::update(ContextEventObserver& ctx, Assets& assets, Scene& scene) {
-    assets.recompileShaders(ctx, settings);
+void Renderer::updatePipeline(ContextEventObserver& ctx) {
+	pipeline->update(ctx, settings);
+}
 
-    pipeline->update(ctx, scene, settings);
+void Renderer::update(ContextEventObserver& ctx, Assets& assets) {
+    assets.recompileShaders(ctx, settings);
+	updatePipeline(ctx);
 }

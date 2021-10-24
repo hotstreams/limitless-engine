@@ -19,7 +19,7 @@ Forward::Forward(ContextEventObserver& ctx, const RenderSettings& settings) {
     create(ctx, settings);
 }
 
-void Forward::update(ContextEventObserver& ctx, [[maybe_unused]] Scene& scene, const RenderSettings& settings) {
+void Forward::update(ContextEventObserver& ctx, const RenderSettings& settings) {
     clear();
     create(ctx, settings);
 }

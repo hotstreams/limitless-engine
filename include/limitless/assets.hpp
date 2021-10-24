@@ -3,6 +3,7 @@
 #include <limitless/util/resource_container.hpp>
 #include <limitless/shader_storage.hpp>
 #include <limitless/util/filesystem.hpp>
+#include <limitless/loaders/texture_loader.hpp>
 
 namespace Limitless::ms {
     class Material;
@@ -38,6 +39,10 @@ namespace Limitless {
         virtual ~Assets() = default;
 
         virtual void load(Context& context);
+        // initializes default shaders for assets
+        virtual void initialize(Context& ctx, const RenderSettings& settings);
+
+        void reloadTextures(const TextureLoaderFlags& settings);
 
         static PassShaders getRequiredPassShaders(const RenderSettings& settings);
         void compileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material);

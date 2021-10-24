@@ -4,7 +4,7 @@
 
 float getSSAO(vec2 uv) {
     #if defined (SCREEN_SPACE_AMBIENT_OCCLUSION)
-        return texture(ssao_texture).r;
+        return texture(ssao_texture, uv).r;
     #else
         return 1.0;
     #endif

@@ -55,8 +55,13 @@ namespace Limitless {
 
         void remove(const std::string& name) {
             std::unique_lock lock(mutex);
-            resource.erase(name);
+            return resource.erase(name);
         }
+
+	    auto remove(typename decltype(resource)::iterator it) {
+		    std::unique_lock lock(mutex);
+		    return resource.erase(it);
+	    }
 
         [[nodiscard]] bool contains(const std::string& name) {
             std::unique_lock lock(mutex);

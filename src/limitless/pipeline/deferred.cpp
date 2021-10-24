@@ -27,7 +27,7 @@ Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings) {
     create(ctx, settings);
 }
 
-void Deferred::update(ContextEventObserver& ctx, [[maybe_unused]] Scene& scene, const RenderSettings& settings) {
+void Deferred::update(ContextEventObserver& ctx, const RenderSettings& settings) {
     clear();
     create(ctx, settings);
 }

@@ -9,6 +9,7 @@
 #include <limitless/core/vertex.hpp>
 #include <limitless/models/mesh.hpp>
 #include <limitless/core/skeletal_stream.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -151,9 +152,9 @@ void SkeletalInstance::update(Context& context, const Camera& camera) {
 
             auto translate = glm::translate(glm::mat4(1.f), position);
             auto rotate = glm::mat4_cast(rotation);
-            auto scale_mat = glm::scale(glm::mat4(1.f), scale);
+		    auto scale_mat = glm::scale(glm::mat4(1.f), scale);
 
-            local_transform = translate * rotate * scale_mat;
+            local_transform =  translate * rotate * scale_mat;
         }
 
         auto transform = parent_mat * local_transform;

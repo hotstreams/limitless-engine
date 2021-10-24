@@ -21,7 +21,7 @@ void Pipeline::draw(Context& context, const Assets& assets, Scene& scene, Camera
     }
 }
 
-void Pipeline::update([[maybe_unused]] ContextEventObserver& ctx, [[maybe_unused]] Scene& scene, [[maybe_unused]] const RenderSettings& settings) {
+void Pipeline::update([[maybe_unused]] ContextEventObserver& ctx, [[maybe_unused]] const RenderSettings& settings) {
 
 }
 

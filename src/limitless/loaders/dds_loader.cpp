@@ -55,7 +55,7 @@ void DDSLoader::loadLevel(std::shared_ptr<Texture>& texture, std::ifstream& fs, 
     const auto byte_count = getDXTByteCount(s, channels == 3 ? DXT1_BLOCK_SIZE : DXT5_BLOCK_SIZE);
 
     auto* data = new uint8_t[byte_count];
-    fs.read(reinterpret_cast<char *>(data), byte_count);
+    fs.read(reinterpret_cast<char*>(data), byte_count);
     texture->compressedImage(level, static_cast<glm::uvec2>(s), data, byte_count);
     delete[] data;
 }
@@ -86,8 +86,7 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
     fs.read(reinterpret_cast<char*>(&header), sizeof(DDSHEADER));
 
     TextureBuilder builder;
-    builder .setTarget(Texture::Type::Tex2D)
-            .setSize({header.dwWidth, header.dwHeight});
+    builder .setTarget(Texture::Type::Tex2D);
 
     uint32_t channels {};
     switch (header.ddspf.dwFourCC) {
@@ -108,20 +107,37 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
 		    channels = 4;
     		break;
         default:
-            throw dds_loader_exception{"Unsupported compression code. Contact the admin!" + std::to_string(header.ddspf.dwFourCC)};
+            throw dds_loader_exception{"Unsupported compression code. Contact the admin! " + std::to_string(header.ddspf.dwFourCC)};
     }
 
-    const auto byte_count = getDXTByteCount({header.dwWidth, header.dwHeight}, channels == 3 ? DXT1_BLOCK_SIZE : DXT5_BLOCK_SIZE);
-    auto* data = new uint8_t[byte_count];
-    fs.read(reinterpret_cast<char*>(data), byte_count);
-    builder.setCompressedData(data, byte_count);
-    TextureLoader::setTextureParameters(builder, flags);
-    builder.setPath(path);
-    auto texture = builder.buildMutable();
-    delete[] data;
+	glm::uvec2 size = { header.dwWidth, header.dwHeight };
+	const auto downscale_level = static_cast<uint32_t>(flags.downscale);
+	const auto level = (downscale_level > header.dwMipMapCount - 1) ? header.dwMipMapCount - 1 : downscale_level;
+
+	if (flags.downscale != TextureLoaderFlags::DownScale::None) {
+		if (header.dwMipMapCount == 0) {
+			throw dds_loader_exception("Cant do dds texture downscaling w/o mipmaps in the file! " + path.string());
+		}
+
+		uint32_t byte_count = 0;
+		for (uint32_t i = 0; i < level; ++i) {
+			byte_count += getDXTByteCount(size, channels == 3 ? DXT1_BLOCK_SIZE : DXT5_BLOCK_SIZE);
+			size = size >> 1u;
+		}
+		fs.seekg(byte_count, std::ios_base::cur);
+	}
+	builder.setSize(size);
+	const auto byte_count = getDXTByteCount(size, channels == 3 ? DXT1_BLOCK_SIZE : DXT5_BLOCK_SIZE);
+	auto* data = new uint8_t[byte_count];
+	fs.read(reinterpret_cast<char*>(data), byte_count);
+	builder.setCompressedData(data, byte_count);
+	TextureLoader::setTextureParameters(builder, flags);
+	builder.setPath(path);
+	auto texture = builder.buildMutable();
+	delete[] data;
 
     if (flags.mipmap) {
-        auto mipmap_count = header.dwMipMapCount != 0 ? header.dwMipMapCount - 1 : header.dwMipMapCount;
+        const auto mipmap_count = (level == header.dwMipMapCount - 1) ? 0 : (header.dwMipMapCount - 1) - level;
         for (uint32_t i = 0; i < mipmap_count; ++i) {
             loadLevel(texture, fs, i + 1, channels);
         }

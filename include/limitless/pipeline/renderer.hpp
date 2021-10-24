@@ -21,6 +21,7 @@ namespace Limitless {
         std::unique_ptr<Pipeline> pipeline;
     public:
         Renderer(std::unique_ptr<Pipeline> pipeline, const RenderSettings& settings);
+        Renderer(ContextEventObserver& ctx, const RenderSettings& settings);
         explicit Renderer(ContextEventObserver& ctx);
 
         ~Renderer() = default;
@@ -30,7 +31,8 @@ namespace Limitless {
         auto& getSettings() noexcept { return settings; }
         [[nodiscard]] const auto& getSettings() const noexcept { return settings; }
 
-        void update(ContextEventObserver& ctx, Assets& assets, Scene& scene);
+        void update(ContextEventObserver& ctx, Assets& assets);
+        void updatePipeline(ContextEventObserver& ctx);
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
     };
 }

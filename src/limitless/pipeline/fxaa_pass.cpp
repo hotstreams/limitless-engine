@@ -10,15 +10,22 @@
 using namespace Limitless;
 
 FXAAPass::FXAAPass(Pipeline& pipeline)
-    : RenderPass(pipeline) {
+    : RenderPass(pipeline)
+    , target {default_framebuffer} {
 }
+
+FXAAPass::FXAAPass(Pipeline& pipeline, RenderTarget& _target)
+	: RenderPass(pipeline)
+	, target {_target} {
+}
+
 
 void FXAAPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 
     {
-        default_framebuffer.clear();
+        target.clear();
         auto& shader = assets.shaders.get("fxaa");
 
         shader << UniformSampler{"scene", pipeline.get<CompositePass>().getResult()};
