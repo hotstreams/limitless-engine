@@ -21,7 +21,7 @@ namespace Limitless {
 
         bool directional_cascade_shadow_mapping = true;
         glm::uvec2 directional_shadow_resolution = { 1024 * 4, 1024 * 4 };
-        uint8_t directional_split_count = 3; // [1; 4]
+        uint8_t directional_split_count = 3; // [2; 4]
         bool directional_pcf = true;
 
         // debug
