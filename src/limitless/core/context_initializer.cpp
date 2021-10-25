@@ -65,7 +65,7 @@ void ContextInitializer::getExtensions() noexcept {
         const auto name = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
         extensions.emplace_back(name);
     }
-
+#define OPENGL_TOSTER
 	#ifdef OPENGL_TOSTER
 		extensions.clear();
         extensions.emplace_back("GL_ARB_shader_storage_buffer_object");
