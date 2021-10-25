@@ -37,35 +37,35 @@ layout (std140) uniform material_buffer {
 
     #if defined (BINDLESS_TEXTURE)
         #if defined (MATERIAL_DIFFUSE)
-            sampler2D _material_diffuse;
+            sampler2D material_diffuse;
         #endif
 
         #if defined (MATERIAL_NORMAL)
-            sampler2D _material_normal;
+            sampler2D material_normal;
         #endif
 
         #if defined (MATERIAL_EMISSIVEMASK)
-            sampler2D _material_emissive_mask;
+            sampler2D material_emissive_mask;
         #endif
 
         #if defined (MATERIAL_BLENDMASK)
-            sampler2D _material_blend_mask;
+            sampler2D material_blend_mask;
         #endif
 
         #if defined (MATERIAL_METALLIC_TEXTURE)
-            sampler2D _material_metallic_texture;
+            sampler2D material_metallic_texture;
         #endif
 
         #if defined (MATERIAL_ROUGHNESS_TEXTURE)
-            sampler2D _material_roughness_texture;
+            sampler2D material_roughness_texture;
         #endif
 
         #if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
-            sampler2D _material_ambient_occlusion_texture;
+            sampler2D material_ambient_occlusion_texture;
         #endif
 
         #if defined (MATERIAL_DISPLACEMENT)
-            sampler2D _material_displacement;
+            sampler2D material_displacement;
         #endif
     #endif
 
@@ -100,35 +100,35 @@ layout (std140) uniform material_buffer {
 
 #if !defined (BINDLESS_TEXTURE)
     #if defined (MATERIAL_DIFFUSE)
-        uniform sampler2D _material_diffuse;
+        uniform sampler2D material_diffuse;
     #endif
 
     #if defined (MATERIAL_NORMAL)
-        uniform sampler2D _material_normal;
+        uniform sampler2D material_normal;
     #endif
 
     #if defined (MATERIAL_DISPLACEMENT)
-        uniform sampler2D _material_displacement;
+        uniform sampler2D material_displacement;
     #endif
 
     #if defined (MATERIAL_EMISSIVEMASK)
-        uniform sampler2D _material_emissive_mask;
+        uniform sampler2D material_emissive_mask;
     #endif
 
     #if defined (MATERIAL_BLENDMASK)
-        uniform sampler2D _material_blend_mask;
+        uniform sampler2D material_blend_mask;
     #endif
 
     #if defined (MATERIAL_METALLIC_TEXTURE)
-        uniform sampler2D _material_metallic_texture;
+        uniform sampler2D material_metallic_texture;
     #endif
 
     #if defined (MATERIAL_ROUGHNESS_TEXTURE)
-        uniform sampler2D _material_roughness_texture;
+        uniform sampler2D material_roughness_texture;
     #endif
 
     #if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
-        uniform sampler2D _material_ambient_occlusion_texture;
+        uniform sampler2D material_ambient_occlusion_texture;
     #endif
 
     _MATERIAL_SAMPLER_UNIFORMS
@@ -182,7 +182,7 @@ float getMaterialRoughness() {
 
 #if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
     float getMaterialAmbientOcclusionTexture(vec2 uv) {
-        return texture(_material_ambient_occlusion_texture, uv).r;
+        return texture(material_ambient_occlusion_texture, uv).r;
     }
 #endif
 
@@ -194,42 +194,42 @@ float getMaterialRoughness() {
 
 #if defined (MATERIAL_DIFFUSE)
     vec4 getMaterialDiffuse(vec2 uv) {
-        return texture(_material_diffuse, uv);
+        return texture(material_diffuse, uv);
     }
 #endif
 
 #if defined (MATERIAL_NORMAL)
     vec3 getMaterialNormal(vec2 uv) {
-        return texture(_material_normal, uv).xyz;
+        return texture(material_normal, uv).xyz;
     }
 #endif
 
 #if defined (MATERIAL_DISPLACEMENT)
     vec3 getMaterialDisplacement(vec2 uv) {
-        return texture(_material_displacement, uv).rgb;
+        return texture(material_displacement, uv).rgb;
     }
 #endif
 
 #if defined (MATERIAL_EMISSIVEMASK)
     vec3 getMaterialEmissiveMask(vec2 uv) {
-        return texture(_material_emissive_mask, uv).rgb;
+        return texture(material_emissive_mask, uv).rgb;
     }
 #endif
 
 #if defined (MATERIAL_BLENDMASK)
     float getMaterialBlendMask(vec2 uv) {
-        return texture(_material_blend_mask, uv).r;
+        return texture(material_blend_mask, uv).r;
     }
 #endif
 
 #if defined (MATERIAL_METALLIC_TEXTURE)
     float getMaterialMetallic(vec2 uv) {
-        return texture(_material_metallic_texture, uv).r;
+        return texture(material_metallic_texture, uv).r;
     }
 #endif
 
 #if defined (MATERIAL_ROUGHNESS_TEXTURE)
     float getMaterialRoughness(vec2 uv) {
-        return texture(_material_roughness_texture, uv).r;
+        return texture(material_roughness_texture, uv).r;
     }
 #endif

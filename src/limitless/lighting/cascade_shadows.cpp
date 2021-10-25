@@ -30,14 +30,17 @@ void CascadeShadows::initBuffers(Context& context) {
                         .setFormat(Texture::Format::DepthComponent)
                         .setDataType(Texture::DataType::Float)
                         .setMipMap(false)
-                        .setBorder(true)
+//                        .setBorder(true)
                         .setLevels(1)
-                        .setBorderColor({ 1.0f, 1.0f, 1.0f, 1.0f })
+//                        .setBorderColor({ 1.0f, 1.0f, 1.0f, 1.0f })
                         .setMinFilter(Texture::Filter::Nearest)
                         .setMagFilter(Texture::Filter::Nearest)
-                        .setWrapS(Texture::Wrap::ClampToBorder)
-                        .setWrapT(Texture::Wrap::ClampToBorder)
-                        .setWrapR(Texture::Wrap::ClampToBorder)
+//                        .setWrapS(Texture::Wrap::ClampToBorder)
+//                        .setWrapT(Texture::Wrap::ClampToBorder)
+//                        .setWrapR(Texture::Wrap::ClampToBorder)
+                        .setWrapS(Texture::Wrap::ClampToEdge)
+                        .setWrapT(Texture::Wrap::ClampToEdge)
+                        .setWrapR(Texture::Wrap::ClampToEdge)
                         .build();
 
     framebuffer = std::make_unique<Framebuffer>();

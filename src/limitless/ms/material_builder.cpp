@@ -157,7 +157,7 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
             material->properties[type] = std::make_unique<UniformSampler>("material_roughness_texture", std::move(texture));
             break;
         case Property::AmbientOcclusionTexture:
-            material->properties[type] = std::make_unique<UniformSampler>("material_ambient_occlusion", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("material_ambient_occlusion_texture", std::move(texture));
             break;
     }
     return *this;
