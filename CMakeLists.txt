@@ -16,6 +16,8 @@ if (OPENGL_DEBUG)
     add_compile_definitions(GL_DEBUG)
 endif()
 
+OPTION(OPENGL_TOSTER "Imitates worst computer ever" OFF)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 include_directories(include)
