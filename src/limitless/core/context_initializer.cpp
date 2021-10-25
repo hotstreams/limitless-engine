@@ -65,6 +65,13 @@ void ContextInitializer::getExtensions() noexcept {
         const auto name = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
         extensions.emplace_back(name);
     }
+
+	#ifdef OPENGL_TOSTER
+		extensions.clear();
+        extensions.emplace_back("GL_ARB_shader_storage_buffer_object");
+        extensions.emplace_back("GL_ARB_shading_language_420pack");
+        extensions.emplace_back("GL_ARB_explicit_uniform_location");
+	#endif
 }
 
 bool ContextInitializer::isExtensionSupported(std::string_view name) noexcept {
