@@ -55,7 +55,7 @@ namespace Limitless {
 
         void remove(const std::string& name) {
             std::unique_lock lock(mutex);
-            return resource.erase(name);
+            resource.erase(name);
         }
 
 	    auto remove(typename decltype(resource)::iterator it) {
