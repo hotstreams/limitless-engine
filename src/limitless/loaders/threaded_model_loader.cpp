@@ -24,7 +24,7 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(i++);
     std::string name = path.string() + PATH_SEPARATOR + mesh_name;
 
-    if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
+    if (flags.isPresent(ModelLoaderOption::GenerateUniqueMeshNames)) {
         name += std::to_string(i++);
     }
 
@@ -69,11 +69,11 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
 
-    if (flags.find(ModelLoaderFlag::FlipUV) != flags.end()) {
+    if (flags.isPresent(ModelLoaderOption::FlipUV)) {
         scene_flags |= aiProcess_FlipUVs;
     }
 
-    if (flags.find(ModelLoaderFlag::FlipWindingOrder) != flags.end()) {
+    if (flags.isPresent(ModelLoaderOption::FlipWindingOrder)) {
         scene_flags |= aiProcess_FlipWindingOrder;
     }
 
@@ -89,19 +89,13 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
     auto meshes = loadMeshes(assets, scene, path, bones, bone_map, flags);
 
     std::vector<std::shared_ptr<ms::Material>> materials;
-    if (!flags.count(ModelLoaderFlag::NoMaterials)) {
+    if (!flags.isPresent(ModelLoaderOption::NoMaterials)) {
         materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
     }
 
     auto animations = loadAnimations(scene, bones, bone_map, flags);
-
     auto animation_tree = loadAnimationTree(scene, bones, bone_map, flags);
-
     auto global_matrix = convert(scene->mRootNode->mTransformation);
-
-    if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-        global_matrix = flipYZ(global_matrix);
-    }
 
     importer.FreeScene();
 

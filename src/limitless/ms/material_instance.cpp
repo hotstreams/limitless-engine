@@ -86,3 +86,15 @@ void MaterialInstance::setMaterialState(Context& ctx, uint64_t id, ShaderPass pa
         }
     }
 }
+
+void MaterialInstance::makeLayered() noexcept {
+	layered = true;
+}
+
+void MaterialInstance::makeNonLayered() noexcept {
+	layered = false;
+}
+
+bool MaterialInstance::isLayered() const noexcept {
+	return layered;
+}

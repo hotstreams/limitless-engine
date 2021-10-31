@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <limitless/instances/abstract_instance.hpp>
 #include <unordered_map>
+#include <stdexcept>
 
 namespace Limitless {
     namespace fx {
@@ -22,13 +23,13 @@ namespace Limitless {
         friend void swap(EffectInstance&, EffectInstance&) noexcept;
         bool isDone() const noexcept;
 
-        void calculateBoundingBox() noexcept override;
+        void updateBoundingBox() noexcept override;
+        void updateEmitters(Context& context, const Camera& camera) const noexcept;
 
         friend class fx::EffectBuilder;
         friend class EffectSerializer;
         EffectInstance() noexcept;
     public:
-        EffectInstance(Lighting* lighting, const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept;
         EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept;
         ~EffectInstance() override = default;
 
@@ -36,10 +37,6 @@ namespace Limitless {
         EffectInstance(EffectInstance&&) noexcept = default;
 
         EffectInstance* clone() noexcept override;
-
-        EffectInstance& setPosition(const glm::vec3& position) noexcept override;
-        EffectInstance& setRotation(const glm::quat& rotation) noexcept override;
-        EffectInstance& rotateBy(const glm::quat& rotation) noexcept override;
 
         template<typename T>
         const T& get(const std::string& name) const {

@@ -65,7 +65,7 @@ Sphere::Sphere(glm::uvec2 segment_count) : ElementaryModel("sphere") {
     meshes.emplace_back(
             std::make_unique<Mesh>(
                     std::make_unique<IndexedVertexStream<VertexNormalTangent>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles),
-            "sphere_mesh")
+            "sphere")
     );
 
     calculateBoundingBox();

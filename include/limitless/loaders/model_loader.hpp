@@ -31,18 +31,21 @@ namespace Limitless {
         explicit model_loader_error(const char* error) noexcept : runtime_error(error) {}
     };
 
-    enum class ModelLoaderFlag {
+    enum class ModelLoaderOption {
         FlipUV,
         GenerateUniqueMeshNames,
-        FlipYZ,
         FlipWindingOrder,
         NoMaterials,
-
-        // batches meshes based on material equality (not material type)
-        NaiveBatch
+		GlobalScale
     };
 
-    using ModelLoaderFlags = std::set<ModelLoaderFlag>;
+    class ModelLoaderFlags {
+    public:
+	    std::set<ModelLoaderOption> options;
+	    float scale_factor {1.0f};
+
+	    auto isPresent(ModelLoaderOption option) const { return options.count(option) != 0; }
+    };
 
     class ModelLoader {
     private:
@@ -62,6 +65,6 @@ namespace Limitless {
         virtual ~ModelLoader() = default;
     public:
         static std::shared_ptr<AbstractModel> loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags = {});
-        static void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal);
+        static void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
     };
 }

@@ -29,7 +29,7 @@ namespace Limitless {
         SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx);
         ~SSAOPass() override = default;
 
-        auto& getResult() { return framebuffer.get(FramebufferAttachment::Color1).texture; }
+        std::shared_ptr<Texture> getResult() override { return framebuffer.get(FramebufferAttachment::Color1).texture; }
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };

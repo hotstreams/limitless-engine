@@ -41,6 +41,16 @@ namespace Limitless {
             throw pipeline_pass_not_found(typeid(Pass).name());
         }
 
+        auto& getPrevious(RenderPass* curr) {
+	        for (uint32_t i = 1; i < passes.size(); ++i) {
+		        if (passes[i].get() == curr) {
+		        	return passes[i - 1];
+		        }
+	        }
+
+	        throw std::logic_error {"There is no previous pass!"};
+        }
+
         virtual void update(ContextEventObserver& ctx, const RenderSettings& settings);
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
 

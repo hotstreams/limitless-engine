@@ -27,10 +27,17 @@ void Assets::load([[maybe_unused]] Context& context) {
     // builds default materials for every model type
     ms::MaterialBuilder builder {*this};
     ModelShaders model_types = { ModelShader::Model, ModelShader::Skeletal, ModelShader::Effect, ModelShader::Instanced };
-    builder.setName("default").setShading(ms::Shading::Unlit).add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
-    builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
-    builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).build();
-    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).build();
+    builder.setName("default").setShading(ms::Shading::Unlit).add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
+    builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
+    builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
+    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
+
+    builder.setName("outline")
+    .add(ms::Property::Color, {100.0f, 0.0f, 0.0f, 1.0f})
+    .setModelShaders(model_types)
+    .setShading(ms::Shading::Unlit)
+    .setTwoSided(true)
+    .build();
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(glm::uvec2{50}));
@@ -118,9 +125,9 @@ PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
         pass_shaders.emplace(ShaderPass::DirectionalShadow);
     }
 
-    #ifdef LIMITLESS_DEBUG
-        pass_shaders.emplace(ShaderPass::Forward);
-    #endif
+//    #ifdef LIMITLESS_DEBUG
+//        pass_shaders.emplace(ShaderPass::Forward);
+//    #endif
 
     return pass_shaders;
 }

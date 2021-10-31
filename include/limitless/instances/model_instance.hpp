@@ -11,17 +11,14 @@ namespace Limitless {
         std::unordered_map<std::string, MeshInstance> meshes;
         std::shared_ptr<AbstractModel> model;
 
-        void calculateBoundingBox() noexcept override;
+        void updateBoundingBox() noexcept override;
         ModelInstance(ModelShader shader, decltype(model) model, const glm::vec3& position);
-        ModelInstance(ModelShader shader, Lighting* lighting, decltype(model) model, const glm::vec3& position);
     public:
         // model constructor
-        ModelInstance(decltype(model) model, const glm::vec3& position);
-        ModelInstance(Lighting* lighting, decltype(model) model, const glm::vec3& position);
+        ModelInstance(decltype(model) model, const glm::vec3& position = glm::vec3{0.0f});
 
         // elementary model constructor
-        ModelInstance(decltype(model) model, std::shared_ptr<ms::Material> material, const glm::vec3& position);
-        ModelInstance(Lighting* lighting, decltype(model) model, std::shared_ptr<ms::Material> material, const glm::vec3& position);
+        ModelInstance(decltype(model) model, std::shared_ptr<ms::Material> material, const glm::vec3& position = glm::vec3{0.0f});
 
         ~ModelInstance() override = default;
 
@@ -29,6 +26,8 @@ namespace Limitless {
         ModelInstance(ModelInstance&&) noexcept = default;
 
         ModelInstance* clone() noexcept override;
+
+        const auto& getAbstractModel() const noexcept { return *model; }
 
         MeshInstance& operator[](const std::string& mesh);
 

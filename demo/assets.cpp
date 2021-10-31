@@ -868,7 +868,7 @@ void DemoAssets::loadModelsScene() {
         const fs::path assets_dir{ENGINE_ASSETS_DIR};
 
         models.add("skeleton", ModelLoader::loadModel(*this, assets_dir / "models/skeleton/skeleton.fbx", {
-                ModelLoaderFlag::NoMaterials
+		        ModelLoaderOption::NoMaterials
         }));
 
         auto& materials = dynamic_cast<SkeletalModel&>(*models.at("skeleton")).getMaterials();
@@ -955,7 +955,7 @@ void DemoAssets::loadModelsScene() {
 
         models.add("bob", ModelLoader::loadModel(*this, assets_dir / "models/boblamp/boblampclean.md5mesh"));
         models.add("backpack", ModelLoader::loadModel(*this, assets_dir / "models/backpack/backpack.obj", {
-                ::ModelLoaderFlag::FlipUV
+                ::ModelLoaderOption::FlipUV
         }));
         models.add("cyborg", ModelLoader::loadModel(*this, assets_dir / "models/cyborg/cyborg.obj"));
         models.add("drone", ModelLoader::loadModel(*this, assets_dir / "models/drone/model/BusterDrone.fbx"));

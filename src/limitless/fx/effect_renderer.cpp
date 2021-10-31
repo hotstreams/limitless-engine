@@ -17,16 +17,18 @@ void EffectRenderer::visitEmitters(const Instances& instances, EmitterVisitor& e
         }
     };
 
-    // iterates through effect instance attachments
-    for (const auto& instance : instances)
-        for (const auto& effect_attachment : instance.get().getAttachedEffects())
-            effect_instance_visitor(*effect_attachment.instance, emitter_visitor);
-
-    // iterates through effect instances itself
-    for (const auto& instance : instances) {
-        if (instance.get().getShaderType() == ModelShader::Effect) {
-            effect_instance_visitor(static_cast<const EffectInstance&>(instance.get()), emitter_visitor);
+    std::function<void(const AbstractInstance& instance)> visitor = [&] (const AbstractInstance& instance) {
+        for (const auto& [_, attachment] : instance.getAttachments()) {
+            visitor(*attachment);
         }
+
+        if (instance.getShaderType() == ModelShader::Effect) {
+            effect_instance_visitor(static_cast<const EffectInstance&>(instance), emitter_visitor);
+        }
+    };
+
+    for (const auto& instance : instances) {
+        visitor(instance);
     }
 }
 

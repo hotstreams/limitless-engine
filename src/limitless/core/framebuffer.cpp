@@ -76,6 +76,30 @@ void Framebuffer::clear() noexcept {
     glClear(bits);
 }
 
+void Framebuffer::clear(FramebufferAttachment attachment) {
+	bind();
+
+	GLenum bits = 0;
+
+	if (attachment == FramebufferAttachment::Color0) {
+		bits |= GL_COLOR_BUFFER_BIT;
+	}
+
+	if (attachment == FramebufferAttachment::Depth) {
+		bits |= GL_DEPTH_BUFFER_BIT;
+	}
+
+	if (attachment == FramebufferAttachment::Stencil) {
+		bits |= GL_STENCIL_BUFFER_BIT;
+	}
+
+	if (attachment == FramebufferAttachment::DepthStencil) {
+		bits |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+	}
+
+	glClear(bits);
+}
+
 bool Framebuffer::hasAttachment(FramebufferAttachment a) const noexcept {
     return attachments.find(a) != attachments.end();
 }
@@ -181,4 +205,28 @@ void DefaultFramebuffer::clear() {
     bind();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void DefaultFramebuffer::clear(FramebufferAttachment attachment) {
+	bind();
+
+	GLenum bits = 0;
+
+	if (attachment == FramebufferAttachment::Color0) {
+		bits |= GL_COLOR_BUFFER_BIT;
+	}
+
+	if (attachment == FramebufferAttachment::Depth) {
+		bits |= GL_DEPTH_BUFFER_BIT;
+	}
+
+	if (attachment == FramebufferAttachment::Stencil) {
+		bits |= GL_STENCIL_BUFFER_BIT;
+	}
+
+	if (attachment == FramebufferAttachment::DepthStencil) {
+		bits |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+	}
+
+	glClear(bits);
 }

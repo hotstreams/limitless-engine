@@ -10,7 +10,10 @@ namespace Limitless {
         glm::mat4 node_transform {1.0f};
         glm::mat4 offset_matrix {1.0f};
 
-        Bone(std::string name, const glm::mat4& offset_matrix) noexcept : name{std::move(name)}, offset_matrix{offset_matrix} {}
+        Bone(std::string name, const glm::mat4& _offset_matrix) noexcept
+            : name{std::move(name)}
+            , offset_matrix {_offset_matrix} {
+        }
 
         [[nodiscard]] auto isFake() const noexcept { return name.at(0) == '<'; }
     };

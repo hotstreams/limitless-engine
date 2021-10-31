@@ -49,9 +49,17 @@ Instances Scene::getWrappers() noexcept {
     Instances wrappers;
     wrappers.reserve(instances.size());
 
-    for (const auto& [id, instance] : instances) {
-        wrappers.emplace_back(std::ref(*instance));
-    }
+    const std::function<void(AbstractInstance&)> visitor = [&] (AbstractInstance& instance) {
+	    wrappers.emplace_back(std::ref(instance));
+
+	    for (auto& [_, attachment] : instance.getAttachments()) {
+	    	visitor(*attachment);
+	    }
+    };
+
+	for (const auto& [_, instance] : instances) {
+		visitor(*instance);
+	}
 
     return wrappers;
 }

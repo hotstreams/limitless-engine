@@ -1,6 +1,8 @@
 #pragma once
 
 #include <functional>
+#include <memory>
+#include <stdexcept>
 
 namespace Limitless {
     class AbstractInstance;
@@ -8,6 +10,7 @@ namespace Limitless {
     class RenderTarget;
     class UniformSetter;
     class Context;
+    class Texture;
     class Camera;
     class Assets;
     class Scene;
@@ -20,6 +23,9 @@ namespace Limitless {
     public:
         explicit RenderPass(Pipeline& pass) noexcept;
         virtual ~RenderPass() = default;
+
+        std::shared_ptr<Texture> getPreviousResult();
+        virtual std::shared_ptr<Texture> getResult() { throw std::logic_error{"This RenderPass does not provide result method!"}; }
 
         virtual void addSetter(UniformSetter& setter);
         virtual void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera);

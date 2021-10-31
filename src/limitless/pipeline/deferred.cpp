@@ -20,10 +20,14 @@
 #include <limitless/pipeline/fxaa_pass.hpp>
 #include <limitless/pipeline/quad_pass.hpp>
 #include <limitless/pipeline/render_debug_pass.hpp>
+#include <limitless/core/texture_builder.hpp>
+#include <limitless/pipeline/dof_pass.hpp>
+#include <limitless/pipeline/outline_pass.hpp>
 
 using namespace Limitless;
 
-Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings) {
+Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings)
+	: target {default_framebuffer} {
     create(ctx, settings);
 }
 
@@ -58,13 +62,24 @@ void Deferred::create(ContextEventObserver& ctx, const RenderSettings& settings)
 
     add<CompositePass>(ctx);
 
+//    add<OutlinePass>();
+
     if (settings.fast_approximate_antialiasing) {
-        add<FXAAPass>();
-    } else {
-        add<QuadPass>();
+        add<FXAAPass>(ctx);
     }
+
+    if (settings.depth_of_field) {
+    	add<DoFPass>(ctx);
+    }
+
+	add<QuadPass>(target);
 
     #ifdef LIMITLESS_DEBUG
         add<RenderDebugPass>(settings);
     #endif
+}
+
+Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& _target)
+	: target {_target} {
+	create(ctx, settings);
 }

@@ -89,6 +89,31 @@ void ContextState::enable(Capabilities func) noexcept {
     }
 }
 
+void ContextState::setStencilFunc(StencilFunc func, int32_t ref, int32_t mask) noexcept {
+    if (stencil_func != func || stencil_func_ref != ref || stencil_func_mask != mask) {
+        stencil_func = func;
+        stencil_func_ref = ref;
+        stencil_func_mask = mask;
+        glStencilFunc(static_cast<GLenum>(stencil_func), stencil_func_ref, stencil_func_mask);
+    }
+}
+
+void ContextState::setStencilOp(StencilOp sfail, StencilOp dpfail, StencilOp dppass) noexcept {
+    if (stencil_op[0] != sfail || stencil_op[1] != dpfail || stencil_op[1] != dppass) {
+        stencil_op[0] = sfail;
+        stencil_op[1] = dpfail;
+        stencil_op[2] = dppass;
+        glStencilOp(static_cast<GLenum>(sfail), static_cast<GLenum>(dpfail), static_cast<GLenum>(dppass));
+    }
+}
+
+void ContextState::setStencilMask(int32_t mask) noexcept {
+    if (stencil_mask != mask) {
+        stencil_mask = mask;
+        glStencilMask(mask);
+    }
+}
+
 void ContextState::disable(Capabilities func) noexcept {
     if (capability_map[func]) {
         glDisable(static_cast<GLenum>(func));

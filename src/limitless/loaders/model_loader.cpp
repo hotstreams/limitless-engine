@@ -29,11 +29,16 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
 
-    if (flags.find(ModelLoaderFlag::FlipUV) != flags.end()) {
+	if (flags.isPresent(ModelLoaderOption::GlobalScale)) {
+		scene_flags |= aiProcess_GlobalScale;
+	    importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, flags.scale_factor);
+	}
+
+    if (flags.isPresent(ModelLoaderOption::FlipUV)) {
         scene_flags |= aiProcess_FlipUVs;
     }
 
-    if (flags.find(ModelLoaderFlag::FlipWindingOrder) != flags.end()) {
+    if (flags.isPresent(ModelLoaderOption::FlipWindingOrder)) {
         scene_flags |= aiProcess_FlipWindingOrder;
     }
 
@@ -49,7 +54,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
     auto meshes = loadMeshes(assets, scene, path, bones, bone_map, flags);
 
     std::vector<std::shared_ptr<ms::Material>> materials;
-    if (!flags.count(ModelLoaderFlag::NoMaterials)) {
+    if (!flags.isPresent(ModelLoaderOption::NoMaterials)) {
         materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
     }
 
@@ -58,10 +63,6 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
     auto animation_tree = loadAnimationTree(scene, bones, bone_map, flags);
 
     auto global_matrix = convert(scene->mRootNode->mTransformation);
-
-    if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-        global_matrix = flipYZ(global_matrix);
-    }
 
     importer.FreeScene();
 
@@ -87,12 +88,6 @@ std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& f
 	        uv = convert2f(mesh->mTextureCoords[0][j]);
         } else {
         	throw model_loader_error("Mesh have no UV coordinates!");
-        }
-
-        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-            vertex = flipYZ(vertex);
-            normal = flipYZ(normal);
-            tangent = flipYZ(tangent);
         }
 
         if constexpr (std::is_same<T, VertexNormalTangent>::value) {
@@ -136,11 +131,13 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(
         const ModelLoaderFlags& flags) {
     static auto i = 0;
     auto mesh_name = m->mName.length != 0 ? m->mName.C_Str() : std::to_string(i++);
-    std::string name = path.string() + PATH_SEPARATOR + mesh_name;
+	std::string name = path.string() + '.' + mesh_name;
 
-    if (flags.find(ModelLoaderFlag::GenerateUniqueMeshNames) != flags.end()) {
+    if (flags.isPresent(ModelLoaderOption::GenerateUniqueMeshNames)) {
         name += std::to_string(i++);
     }
+
+	std::replace(name.begin(), name.end(), PATH_SEPARATOR_CHAR, '.');
 
     if (assets.meshes.contains(name)) {
         return assets.meshes.at(name);
@@ -282,15 +279,8 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
 
         for (uint32_t j = 0; j < mesh->mNumBones; ++j) {
             std::string bone_name = mesh->mBones[j]->mName.C_Str();
-
             auto bi = bone_map.find(bone_name);
             auto offset_mat = convert(mesh->mBones[j]->mOffsetMatrix);
-
-            if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-                offset_mat = flipYZ(offset_mat);
-//                offset_mat = flipYZTransformationMatrix(offset_mat);
-            }
-
             uint32_t bone_index;
             if (bi == bone_map.end()) {
                 bones.emplace_back(bone_name, offset_mat);
@@ -350,31 +340,16 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
 
             for (uint32_t k = 0; k < channel->mNumPositionKeys; ++k) {
                 auto vec = convert3f(channel->mPositionKeys[k].mValue);
-
-                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-                    vec = flipYZ(vec);
-                }
-
                 pos_frames.emplace_back(vec, channel->mPositionKeys[k].mTime);
             }
 
             for (uint32_t k = 0; k < channel->mNumRotationKeys; ++k) {
                 auto quat = convertQuat(channel->mRotationKeys[k].mValue);
-
-                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-                    quat = flipYZ(quat);
-                }
-
                 rot_frames.emplace_back(quat, channel->mRotationKeys[k].mTime);
             }
 
             for (uint32_t k = 0; k < channel->mNumScalingKeys; ++k) {
                 auto vec = convert3f(channel->mScalingKeys[k].mValue);
-
-                if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-                    vec = flipYZ(vec);
-                }
-
                 scale_frames.emplace_back(vec, channel->mScalingKeys[k].mTime);
             }
 
@@ -403,11 +378,6 @@ Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<
     std::function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
     dfs = [&] (Tree<uint32_t>& tree, const aiNode* node, int depth) {
         bones[*tree].node_transform = convert(node->mTransformation);
-
-        if (flags.find(ModelLoaderFlag::FlipYZ) != flags.end()) {
-            bones[*tree].node_transform = flipYZTransformationMatrix(bones[*tree].node_transform);
-            bones[*tree].node_transform = flipYZ(bones[*tree].node_transform);
-        }
 
         for (uint32_t i = 0; i < node->mNumChildren; ++i) {
             auto& child = tree.add(bone_finder(node->mChildren[i]->mName.C_Str()));
@@ -441,20 +411,33 @@ std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(
     return meshes;
 }
 
-void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<AbstractModel>& skeletal) {
+void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags) {
     auto& model = dynamic_cast<SkeletalModel&>(*skeletal);
 
     auto path = convertPathSeparators(_path);
     Assimp::Importer importer;
     const aiScene* scene;
 
-    auto scene_flags = aiProcess_ValidateDataStructure |
+	auto scene_flags = aiProcess_ValidateDataStructure |
                        aiProcess_Triangulate |
                        aiProcess_GenUVCoords |
                        aiProcess_GenNormals |
                        aiProcess_GenSmoothNormals |
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
+
+	if (flags.isPresent(ModelLoaderOption::GlobalScale)) {
+		scene_flags |= aiProcess_GlobalScale;
+		importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, flags.scale_factor);
+	}
+
+	if (flags.isPresent(ModelLoaderOption::FlipUV)) {
+		scene_flags |= aiProcess_FlipUVs;
+	}
+
+	if (flags.isPresent(ModelLoaderOption::FlipWindingOrder)) {
+		scene_flags |= aiProcess_FlipWindingOrder;
+	}
 
     scene = importer.ReadFile(path.string().c_str(), scene_flags);
 

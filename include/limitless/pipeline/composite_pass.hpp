@@ -5,13 +5,11 @@
 
 namespace Limitless {
     class CompositePass final : public RenderPass {
-    private:
-        Framebuffer framebuffer;
     public:
         explicit CompositePass(Pipeline& pipeline, ContextEventObserver& ctx);
         ~CompositePass() override = default;
 
-        auto& getResult() { return framebuffer.get(FramebufferAttachment::Color0).texture; }
+        std::shared_ptr<Texture> getResult() override;
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };
