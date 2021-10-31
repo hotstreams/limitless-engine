@@ -26,7 +26,7 @@ namespace Limitless {
             Depth24 = GL_DEPTH_COMPONENT24,
             Depth32 = GL_DEPTH_COMPONENT32,
             Depth32F = GL_DEPTH_COMPONENT32F,
-            DepthStencil = GL_DEPTH_STENCIL,
+            Depth24Stencil8 = GL_DEPTH24_STENCIL8,
             R = GL_RED,
             RG = GL_RG,
             RGB = GL_RGB,
@@ -97,7 +97,8 @@ namespace Limitless {
             Short = GL_SHORT,
             UnsignedInt = GL_UNSIGNED_INT,
             Int = GL_INT,
-            Float = GL_FLOAT
+            Float = GL_FLOAT,
+            Uint24_8 = GL_UNSIGNED_INT_24_8
         };
 
         enum class Filter {

@@ -79,6 +79,27 @@ namespace Limitless {
         Fill = GL_FILL,
     };
 
+    enum class StencilOp {
+    	Keep = GL_KEEP,
+    	Zero = GL_ZERO,
+    	Replace = GL_REPLACE,
+    	Incr = GL_INCR,
+    	IncrWrap = GL_INCR_WRAP,
+    	Decr = GL_DECR,
+    	DecrWrap = GL_DECR_WRAP,
+    	Invert = GL_INVERT
+    };
+
+    enum class StencilFunc {
+    	Never = GL_NEVER,
+    	Less = GL_LESS,
+    	Lequal = GL_LEQUAL,
+    	Greater = GL_GREATER,
+    	Gequal = GL_GEQUAL,
+    	Nequal = GL_NOTEQUAL,
+    	Always = GL_ALWAYS
+    };
+
     class Context;
 
     class ContextState {
@@ -86,6 +107,12 @@ namespace Limitless {
         std::unordered_map<Capabilities, bool> capability_map;
         glm::uvec2 viewport {};
         glm::vec4 clear_color {};
+
+        std::array<StencilOp, 3> stencil_op {StencilOp::Keep};
+        int32_t stencil_mask {0xFF};
+        StencilFunc stencil_func {StencilFunc::Always};
+        int32_t stencil_func_ref {0};
+        int32_t stencil_func_mask {0xFF};
 
         DepthFunc depth_func {DepthFunc::Less};
         DepthMask depth_mask {DepthMask::True};
@@ -162,6 +189,9 @@ namespace Limitless {
         void setLineWidth(float width) noexcept;
         void disable(Capabilities func) noexcept;
         void enable(Capabilities func) noexcept;
+        void setStencilFunc(StencilFunc func, int32_t ref, int32_t mask) noexcept;
+        void setStencilOp(StencilOp sfail, StencilOp dpfail, StencilOp dppass) noexcept;
+        void setStencilMask(int32_t mask) noexcept;
 
         auto& getIndexedBuffers() noexcept { return indexed_buffers; }
 

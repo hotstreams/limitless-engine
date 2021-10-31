@@ -106,12 +106,11 @@ set(ENGINE_CORE
 
 set(ENGINE_INSTANCES
     src/limitless/instances/abstract_instance.cpp
-    src/limitless/instances/effect_attachable.cpp
-    src/limitless/instances/light_attachable.cpp
     src/limitless/instances/skeletal_instance.cpp
     src/limitless/instances/mesh_instance.cpp
     src/limitless/instances/model_instance.cpp
     src/limitless/instances/effect_instance.cpp
+    src/limitless/instances/instance_attachment.cpp
 )
 
 set(ENGINE_LIGHTING
@@ -212,6 +211,8 @@ set(ENGINE_PIPELINE
     src/limitless/pipeline/fxaa_pass.cpp
     src/limitless/pipeline/quad_pass.cpp
     src/limitless/pipeline/render_debug_pass.cpp
+    src/limitless/pipeline/dof_pass.cpp
+    src/limitless/pipeline/outline_pass.cpp
 )
 
 set(ENGINE_SRC

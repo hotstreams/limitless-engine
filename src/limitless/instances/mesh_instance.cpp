@@ -30,6 +30,33 @@ void MeshInstance::draw(Context& ctx,
     if (hidden) {
         return;
     }
+    //TODO: refactor this shitty unreadable nonhuman orc code
+    if (!material.isLayered()) {
+        const auto& mat = material[0];
+
+        if (mat.getBlending() != blending) {
+            return;
+        }
+
+        // sets state for material
+        material.setMaterialState(ctx, 0, pass);
+
+        // gets required shader from storage
+        auto& shader = assets.shaders.get(pass, model, mat.getShaderIndex());
+
+        // updates model/material uniforms
+        shader << UniformValue {"_model_transform", model_matrix}
+               << mat;
+
+        // sets custom pass-dependent uniforms
+        uniform_setter(shader);
+
+        shader.use();
+
+        mesh->draw();
+
+        return;
+    }
 
     // iterates over material layers
     for (const auto& [index, mat] : material) {

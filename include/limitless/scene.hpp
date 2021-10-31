@@ -39,7 +39,7 @@ namespace Limitless {
         T& add(Args&&... args) {
             static_assert(std::is_base_of_v<AbstractInstance, T>, "Typename type must be base of AbstractInstance");
 
-            T* instance = new T(&lighting, std::forward<Args>(args)...);
+            T* instance = new T(std::forward<Args>(args)...);
             instances.emplace(instance->getId(), instance);
             return *instance;
         }
@@ -69,19 +69,19 @@ namespace Limitless {
         auto size() const noexcept { return instances.size(); }
 
         #ifdef NDEBUG
-                template<typename T>
-                T& get(uint64_t id) {
-                    try {
-                        return dynamic_cast<T&>(*instances[id]);
-                    } catch (...) {
-                        throw std::runtime_error("Scene wrong instance cast");
-                    }
+            template<typename T>
+            T& get(uint64_t id) {
+                try {
+                    return dynamic_cast<T&>(*instances[id]);
+                } catch (...) {
+                    throw std::runtime_error("Scene wrong instance cast");
                 }
+            }
         #else
-                template<typename T>
-                T& get(uint64_t id) noexcept {
-                    return static_cast<T&>(*instances[id]);
-                }
-        #endif
+            template<typename T>
+            T& get(uint64_t id) noexcept {
+                return static_cast<T&>(*instances[id]);
+            }
+		#endif
     };
 }

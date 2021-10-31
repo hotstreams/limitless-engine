@@ -32,13 +32,14 @@ out float color;
 
 void main() {
     float depth = texture(depth_texture, uv).r;
-    if (depth == 1.0) {
-        discard;
+    if (abs(depth - 1.0f) < 0.00001) {
+    	color = 1.0f;
+        return;
     }
 
     const vec2 noise_scale = getResolution() / NOISE_SIZE;
 
-    vec3 P = reconstructPosition(uv, texture(depth_texture, uv).r);
+    vec3 P = reconstructPosition(uv, depth);
     vec3 N = texture(normal_texture, uv).xyz;
 
     vec3 random = normalize(texture(noise, uv * noise_scale).xyz);
@@ -60,7 +61,7 @@ void main() {
         offset.xyz = offset.xyz * 0.5 + 0.5;
 
         float sample_d = texture(depth_texture, offset.xy).r;
-        if (sample_d == 1.0) {
+        if (abs(sample_d - 1.0f) < 0.00001) {
             continue;
         }
 

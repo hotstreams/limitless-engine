@@ -35,7 +35,7 @@ namespace Limitless {
             }
         }
 
-        void calculateBoundingBox() noexcept override {
+        void updateBoundingBox() noexcept override {
             assert("RIP");
         }
 
@@ -58,30 +58,20 @@ namespace Limitless {
             buffer->mapData(data.data(), data.size() * sizeof(glm::mat4));
         }
 
-        InstancedInstance(Lighting* lighting, ModelShader shader, const glm::vec3& position, uint32_t count)
-                : AbstractInstance(lighting, shader, position) {
-            initializeBuffer(count);
-        }
-
         explicit InstancedInstance(ModelShader shader, const glm::vec3& position, uint32_t count)
-            : AbstractInstance(nullptr, shader, position) {
+            : AbstractInstance(shader, position) {
             initializeBuffer(count);
         }
     public:
-        InstancedInstance(Lighting* lighting, const glm::vec3& position, uint32_t count = 4)
-            : AbstractInstance(lighting, ModelShader::Instanced, position) {
-            initializeBuffer(count);
-        }
-
         explicit InstancedInstance(const glm::vec3& position, uint32_t count = 4)
-            : AbstractInstance(nullptr, ModelShader::Instanced, position) {
+            : AbstractInstance(ModelShader::Instanced, position) {
             initializeBuffer(count);
         }
 
         ~InstancedInstance() override = default;
 
         InstancedInstance(const InstancedInstance& rhs)
-            : AbstractInstance(nullptr, rhs.shader_type, rhs.position) {
+            : AbstractInstance(rhs.shader_type, rhs.position) {
             initializeBuffer(4);
         }
         InstancedInstance(InstancedInstance&&) noexcept = default;

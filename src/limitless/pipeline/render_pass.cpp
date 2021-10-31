@@ -1,4 +1,5 @@
 #include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline.hpp>
 
 #include <stdexcept>
 
@@ -18,4 +19,8 @@ void RenderPass::update([[maybe_unused]] Scene& scene, [[maybe_unused]] Instance
 
 void RenderPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
 
+}
+
+std::shared_ptr<Texture> RenderPass::getPreviousResult() {
+	return pipeline.getPrevious(this)->getResult();
 }

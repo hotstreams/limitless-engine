@@ -19,7 +19,6 @@ QuadPass::QuadPass(Pipeline& pipeline, RenderTarget& _target)
 	, target {_target} {
 }
 
-
 void QuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
@@ -28,7 +27,7 @@ void QuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
 	    target.clear();
         auto& shader = assets.shaders.get("quad");
 
-        shader << UniformSampler{"screen_texture", pipeline.get<CompositePass>().getResult()};
+        shader << UniformSampler{"screen_texture", getPreviousResult()};
 
         shader.use();
 

@@ -17,6 +17,7 @@ namespace Limitless {
         uint64_t next_id {};
         std::shared_ptr<ms::Material> base;
         std::map<uint64_t, std::shared_ptr<ms::Material>> materials;
+        bool layered {true};
     public:
         explicit MaterialInstance(const std::shared_ptr<ms::Material>& material);
         ~MaterialInstance() = default;
@@ -44,6 +45,10 @@ namespace Limitless {
 
         // sets context state for %id layer
         void setMaterialState(Context& ctx, uint64_t id, ShaderPass pass);
+
+        void makeLayered() noexcept;
+        void makeNonLayered() noexcept;
+        bool isLayered() const noexcept;
 
         // gets material layer
         ms::Material& operator[](uint64_t id) { return *materials.at(id); }

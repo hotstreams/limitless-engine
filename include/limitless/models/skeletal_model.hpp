@@ -70,6 +70,7 @@ namespace Limitless {
         auto& getSkeletonTree() noexcept { return skeleton; }
         auto& getAnimations() noexcept { return animations; }
         auto& getBoneMap() noexcept { return bone_map; }
+        const auto& getBoneMap() const noexcept { return bone_map; }
         auto& getBones() noexcept { return bones; }
     };
 }

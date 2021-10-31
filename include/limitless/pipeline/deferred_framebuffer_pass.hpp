@@ -18,6 +18,7 @@ namespace Limitless {
         auto& getEmissive() noexcept { return framebuffer.get(FramebufferAttachment::Color3).texture; }
         auto& getDepth() noexcept { return framebuffer.get(FramebufferAttachment::Depth).texture; }
         auto& getShaded() noexcept { return framebuffer.get(FramebufferAttachment::Color4).texture; }
+        auto& getComposite() noexcept { return framebuffer.get(FramebufferAttachment::Color5).texture; }
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };
