@@ -74,9 +74,9 @@ void Deferred::create(ContextEventObserver& ctx, const RenderSettings& settings)
 
 	add<QuadPass>(target);
 
-    #ifdef LIMITLESS_DEBUG
-        add<RenderDebugPass>(settings);
-    #endif
+//    #ifdef LIMITLESS_DEBUG
+//        add<RenderDebugPass>(settings);
+//    #endif
 }
 
 Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& _target)
