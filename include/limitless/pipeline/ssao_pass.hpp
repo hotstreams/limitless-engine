@@ -8,12 +8,12 @@ namespace Limitless {
     class SSAOPass final : public RenderPass {
     private:
         struct SSAOData {
-            static constexpr auto KERNEL_COUNT = 64u;
+            static constexpr auto KERNEL_COUNT = 128u;
 
             uint32_t NOISE_SIZE = 4u;
             uint32_t KERNEL_SAMPLES_COUNT = KERNEL_COUNT;
 
-            float radius = 2.0f;
+            float radius = 5.0f;
             float bias = 2e-3;
 
             std::array<glm::vec4, KERNEL_COUNT> kernel;

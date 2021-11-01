@@ -150,6 +150,10 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
     int width = 0, height = 0, channels = 0;
     unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
 
+    if (!data) {
+	    throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
+    }
+
 	#if GL_DEBUG
         if (!isPowerOfTwo(width, height)) {
         	std::cerr << path.string() << " has not 2^n size, its not recommended to have it!" << std::endl;
@@ -158,33 +162,29 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
 
     setDownScale(width, height, channels, data, flags);
 
-    if (data) {
-        TextureBuilder builder;
+    TextureBuilder builder;
 
-        builder.setTarget(Texture::Type::Tex2D)
-               .setLevels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
-               .setSize({ width, height })
-               .setDataType(Texture::DataType::UnsignedByte)
-               .setData(data)
-               .setPath(path);
+    builder.setTarget(Texture::Type::Tex2D)
+           .setLevels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
+           .setSize({ width, height })
+           .setDataType(Texture::DataType::UnsignedByte)
+           .setData(data)
+           .setPath(path);
 
-        setFormat(builder, flags, channels);
-        setTextureParameters(builder, flags);
+    setFormat(builder, flags, channels);
+    setTextureParameters(builder, flags);
 
-        auto texture = builder.build();
-        setAnisotropicFilter(texture, flags);
+    auto texture = builder.build();
+    setAnisotropicFilter(texture, flags);
 
-        if (flags.downscale != TextureLoaderFlags::DownScale::None) {
-            delete data;
-        } else {
-            stbi_image_free(data);
-        }
-
-        assets.textures.add(path.stem().string(), texture);
-        return texture;
+    if (flags.downscale != TextureLoaderFlags::DownScale::None) {
+        delete data;
     } else {
-        throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
+        stbi_image_free(data);
     }
+
+    assets.textures.add(path.stem().string(), texture);
+    return texture;
 }
 
 std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {

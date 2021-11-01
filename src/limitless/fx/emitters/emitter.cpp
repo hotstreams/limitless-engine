@@ -75,7 +75,7 @@ std::chrono::duration<float>& Emitter<P>::getDuration() noexcept {
 
 template<typename P>
 bool Emitter<P>::isDone() const noexcept {
-    return false;
+    return done;
 }
 
 template<typename P>
