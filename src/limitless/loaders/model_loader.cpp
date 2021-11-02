@@ -460,6 +460,12 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
     importer.FreeScene();
 }
 
+void ModelLoader::addAnimations(const std::vector<fs::path>& paths, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags) {
+	for (const auto& path : paths) {
+		addAnimations(path, skeletal, flags);
+	}
+}
+
 namespace Limitless {
     template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags);
 

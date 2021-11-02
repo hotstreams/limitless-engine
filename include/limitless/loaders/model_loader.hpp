@@ -66,5 +66,6 @@ namespace Limitless {
     public:
         static std::shared_ptr<AbstractModel> loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags = {});
         static void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
+        static void addAnimations(const std::vector<fs::path>& paths, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
     };
 }
