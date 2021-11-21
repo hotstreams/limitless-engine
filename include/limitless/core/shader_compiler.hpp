@@ -2,6 +2,7 @@
 
 #include <limitless/util/filesystem.hpp>
 #include <functional>
+#include <optional>
 
 #include <limitless/core/shader.hpp>
 #include <limitless/pipeline/render_settings.hpp>

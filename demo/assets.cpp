@@ -209,7 +209,7 @@ void DemoAssets::loadMaterialsScene() {
             .setFragmentSnippet(
                     "vec2 panned = vec2(getVertexUV().x + time * 0.1, getVertexUV().y + time * 0.05);"
                     "vec2 uv = getVertexUV() + texture(noise, panned).r;"
-                    "albedo.rgb = getMaterialDiffuse(uv);"
+                    "albedo.rgb = getMaterialDiffuse(uv).rgb;"
                     "emissive *= texture(noise, panned).g;"
             )
             .setShading(Shading::Unlit)
@@ -240,7 +240,7 @@ void DemoAssets::loadMaterialsScene() {
             .setFragmentSnippet(
                     "vec2 panned = vec2(getVertexUV().x + time * 0.05, getVertexUV().y);"
                     "vec2 uv = vec2(getVertexUV().x, getVertexUV().y  + texture(noise, panned).g);"
-                    "albedo.rgb = getMaterialDiffuse(uv);"
+                    "albedo.rgb = getMaterialDiffuse(uv).rgb;"
                     "emissive *= getMaterialDiffuse(uv).g;"
             )
             .setShading(Shading::Unlit)
@@ -261,7 +261,7 @@ void DemoAssets::loadMaterialsScene() {
                                 "float s = texture(fire_mask, uv_1).r;\n"
                                 "float t = texture(fire_mask, uv_2).r;\n"
                                 "\n"
-                                "emissive = getMaterialDiffuse(uv + vec2(s, t));\n"
+                                "emissive = getMaterialDiffuse(uv + vec2(s, t)).rgb;\n"
                                 "\n"
                                 "if (emissive.r <= 0.2) discard;")
             .addUniform(std::make_unique<UniformTime>("time"))
@@ -436,7 +436,7 @@ void DemoAssets::loadEffectsScene() {
                                     "\n"
                                     "float r = offset1 * offset2;\n"
                                     "\n"
-                                    "albedo.rgb = getMaterialDiffuse(uv);\n"
+                                    "albedo.rgb = getMaterialDiffuse(uv).rgb;\n"
                                     "albedo.rgb *= clamp((1.0 - getParticleProperties().z) * r, 0, 1);"
                                     "albedo.rgb = toneMapping(albedo.rgb, 1.0);"
                 )
@@ -867,9 +867,9 @@ void DemoAssets::loadModelsScene() {
     {
         const fs::path assets_dir{ENGINE_ASSETS_DIR};
 
-        models.add("skeleton", ModelLoader::loadModel(*this, assets_dir / "models/skeleton/skeleton.fbx", {
-		        ModelLoaderOption::NoMaterials
-        }));
+        models.add("skeleton", ModelLoader::loadModel(*this, assets_dir / "models/skeleton/skeleton.fbx", {{
+           ModelLoaderOption::NoMaterials
+       }}));
 
         auto& materials = dynamic_cast<SkeletalModel&>(*models.at("skeleton")).getMaterials();
         materials.resize(1);
@@ -954,9 +954,9 @@ void DemoAssets::loadModelsScene() {
         const fs::path assets_dir {ASSETS_DIR};
 
         models.add("bob", ModelLoader::loadModel(*this, assets_dir / "models/boblamp/boblampclean.md5mesh"));
-        models.add("backpack", ModelLoader::loadModel(*this, assets_dir / "models/backpack/backpack.obj", {
-                ::ModelLoaderOption::FlipUV
-        }));
+        models.add("backpack", ModelLoader::loadModel(*this, assets_dir / "models/backpack/backpack.obj", {{
+               ::ModelLoaderOption::FlipUV
+       }}));
         models.add("cyborg", ModelLoader::loadModel(*this, assets_dir / "models/cyborg/cyborg.obj"));
         models.add("drone", ModelLoader::loadModel(*this, assets_dir / "models/drone/model/BusterDrone.fbx"));
     }
