@@ -66,10 +66,6 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
             .setScale(glm::vec3(0.5f))
             .setRotation(glm::vec3{0.0f, -M_PI_2, 0.0f});
 
-    add<ModelInstance>(assets.models.at("cube"), assets.materials.at("compressed"), glm::vec3(25.0f, 5.0f, 25.0f))
-            .setScale(glm::vec3(5.5f))
-            .setRotation(glm::vec3{0.0f, -M_PI_2, 0.0f});
-
     {
         auto& drone = add<ModelInstance>(assets.models.at("drone"), glm::vec3(25.0f, 2.0f, 24.0f))
                 .setScale(glm::vec3(0.01f))

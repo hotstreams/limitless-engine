@@ -63,7 +63,7 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("ice"), glm::vec3{14.0f, 1.0f, 4.0f });
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("poison"), glm::vec3{14.0f, 1.0f, 7.0f });
     auto& m = add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("ice"), glm::vec3{14.0f, 1.0f, 10.0f });
-    m["sphere_mesh"].getMaterial().apply(assets.materials.at("poison"));
+    m["sphere"].getMaterial().apply(assets.materials.at("poison"));
 
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("bump_mapping"), glm::vec3{14.0f, 1.0f, 13.0f });
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("fresnel"), glm::vec3{14.0f, 1.0f, 17.0f });

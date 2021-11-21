@@ -23,7 +23,7 @@ namespace Limitless {
         Filter filter { Filter::Linear };
         Compression compression { Compression::None };
 
-        DownScale downscale { DownScale::x2 };
+        DownScale downscale { DownScale::None };
         Texture::Wrap wrapping { Texture::Wrap::Repeat };
 
         // only for 3 or 4 channels now
