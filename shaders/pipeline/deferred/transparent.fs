@@ -5,6 +5,10 @@ Limitless::MaterialType
 Limitless::ModelType
 Limitless::EmitterType
 
+// we should remove SSAO for transparency pass
+// because SSAO was built based on scene without transparent objects in screenspace
+#undef SCREEN_SPACE_AMBIENT_OCCLUSION
+
 #include "../interface_block/fragment.glsl"
 #include "../scene.glsl"
 #include "../material/material.glsl"

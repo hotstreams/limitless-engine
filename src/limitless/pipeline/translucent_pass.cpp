@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
+#include <limitless/pipeline/ssao_pass.hpp>
 
 using namespace Limitless;
 
