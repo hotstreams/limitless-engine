@@ -196,7 +196,7 @@ glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<Abstr
     transform     += bone_transform[bone_weight.bone_index[2]] * bone_weight.weight[2];
     transform     += bone_transform[bone_weight.bone_index[3]] * bone_weight.weight[3];
 
-    auto matrix = model_matrix;
+    auto matrix = final_matrix;
     matrix *= transform;
 
     return matrix * glm::vec4(vertex.position, 1.0);
