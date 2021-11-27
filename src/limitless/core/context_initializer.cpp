@@ -86,6 +86,10 @@ void ContextInitializer::getLimits() noexcept {
     if (isExtensionSupported("GL_EXT_texture_filter_anisotropic")) {
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &limits.anisotropic_max);
     }
+
+    if (isExtensionSupported("GL_ARB_tessellation_shader")) {
+        glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &limits.max_tess_level);
+    }
 }
 
 void ContextInitializer::printExtensions() noexcept {
