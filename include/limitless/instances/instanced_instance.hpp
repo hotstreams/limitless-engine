@@ -46,9 +46,10 @@ namespace Limitless {
             data.reserve(instances.size());
 
             for (const auto& instance : instances) {
-                if (instance->isHidden()) {
-                    continue;
-                }
+                //TODO
+//                if (instance->isHidden()) {
+//                    continue;
+//                }
 
                 instance->update(context, camera);
 
@@ -114,10 +115,15 @@ namespace Limitless {
 
             buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
 
+
+            ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
+
             // iterates over all meshes
             for (auto& [name, mesh] : instances[0]->getMeshes()) {
                 mesh.draw_instanced(ctx, assets, pass, shader_type, model_matrix, blending, uniform_set, instances.size());
             }
+
+            ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
         }
     };
 }

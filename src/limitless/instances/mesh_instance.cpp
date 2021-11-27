@@ -53,7 +53,11 @@ void MeshInstance::draw(Context& ctx,
 
         shader.use();
 
-        mesh->draw();
+        if (mat.contains(ms::Property::TessellationFactor)) {
+            mesh->draw(VertexStreamDraw::Patches);
+        } else {
+            mesh->draw();
+        }
 
         return;
     }
@@ -79,10 +83,11 @@ void MeshInstance::draw(Context& ctx,
 
         shader.use();
 
-//        const auto draw_mode = mat->contains(ms::Property::TessellationFactor) ? DrawMode::Patches : mesh->getDrawMode();
-//        mesh->draw(draw_mode);
-
-        mesh->draw();
+        if (mat->contains(ms::Property::TessellationFactor)) {
+            mesh->draw(VertexStreamDraw::Patches);
+        } else {
+            mesh->draw();
+        }
     }
 }
 
@@ -119,9 +124,10 @@ void MeshInstance::draw_instanced(Context& ctx,
 
         shader.use();
 
-//        const auto draw_mode = mat->contains(ms::Property::TessellationFactor) ? DrawMode::Patches : mesh->getDrawMode();
-//        mesh->draw_instanced(draw_mode, count);
-
-        mesh->draw_instanced(count);
+        if (mat->contains(ms::Property::TessellationFactor)) {
+            mesh->draw_instanced(VertexStreamDraw::Patches, count);
+        } else {
+            mesh->draw_instanced(count);
+        }
     }
 }

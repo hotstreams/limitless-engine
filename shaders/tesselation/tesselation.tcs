@@ -1,63 +1,26 @@
 Limitless::GLSL_VERSION
+
 #extension GL_ARB_tessellation_shader : enable
 Limitless::Extensions
+
 Limitless::Settings
 Limitless::MaterialType
 Limitless::ModelType
+Limitless::EmitterType
 
-#include "../glsl/material.glsl"
+#include "../pipeline/material/material.glsl"
 
 layout (vertices = 3) out;
 
-in vertex_data {
-    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
-        vec3 world_position;
-    #endif
-
-    #if defined(MATERIAL_LIT)
-        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
-            mat3 TBN;
-        #else
-            vec3 normal;
-        #endif
-    #endif
-
-    vec2 uv;
-} in_data[];
-
-out vertex_data {
-    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
-        vec3 world_position;
-    #endif
-
-    #if defined(MATERIAL_LIT)
-        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
-            mat3 TBN;
-        #else
-            vec3 normal;
-        #endif
-    #endif
-
-    vec2 uv;
-} out_data[];
+#include "../pipeline/interface_block/tess_control_input.glsl"
+#include "../pipeline/interface_block/tess_control_output.glsl"
+#include "../pipeline/interface_block/tess_control_pass.glsl"
 
 void main() {
-    out_data[gl_InvocationID].uv = in_data[gl_InvocationID].uv;
+    InterfaceBlockPassThrough();
 
-    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
-        out_data[gl_InvocationID].world_position =  in_data[gl_InvocationID].world_position;
-    #endif
-
-    #if defined(MATERIAL_LIT)
-        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
-            out_data[gl_InvocationID].TBN = in_data[gl_InvocationID].TBN;
-        #else
-            out_data[gl_InvocationID].normal = in_data[gl_InvocationID].normal;
-        #endif
-    #endif
-
-    gl_TessLevelOuter[0] = material_tessellation_factor.x;
-    gl_TessLevelOuter[1] = material_tessellation_factor.x;
-    gl_TessLevelOuter[2] = material_tessellation_factor.x;
-    gl_TessLevelInner[0] = material_tessellation_factor.y;
+    gl_TessLevelOuter[0] = getMaterialTesselationFactor().x;
+    gl_TessLevelOuter[1] = getMaterialTesselationFactor().x;
+    gl_TessLevelOuter[2] = getMaterialTesselationFactor().x;
+    gl_TessLevelInner[0] = getMaterialTesselationFactor().y;
 }
