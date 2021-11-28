@@ -73,7 +73,10 @@ namespace Limitless {
 
         InstancedInstance(const InstancedInstance& rhs)
             : AbstractInstance(rhs.shader_type, rhs.position) {
-            initializeBuffer(4);
+            initializeBuffer(rhs.instances.size());
+            for (const auto& instance : rhs.instances) {
+                instances.emplace_back(instance->clone());
+            }
         }
         InstancedInstance(InstancedInstance&&) noexcept = default;
 
@@ -115,15 +118,10 @@ namespace Limitless {
 
             buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
 
-
-            ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-
             // iterates over all meshes
             for (auto& [name, mesh] : instances[0]->getMeshes()) {
                 mesh.draw_instanced(ctx, assets, pass, shader_type, model_matrix, blending, uniform_set, instances.size());
             }
-
-            ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
         }
     };
 }
