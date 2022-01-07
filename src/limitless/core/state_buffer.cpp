@@ -34,10 +34,21 @@ StateBuffer::~StateBuffer() {
                 if (s_id == id) s_id = 0;
             });
 
+            bool bound {};
             std::for_each(point_map.begin(), point_map.end(), [&] (auto& state_point) {
                 auto& [s_point, s_id] = state_point;
-                if (s_id == id) s_id = 0;
+                if (s_id == id) {
+                    s_id = 0;
+                    bound = true;
+                }
             });
+
+            // some strange behavior on old cpu
+            // if buffer's bound to any binding point
+            // we have to reset its target binding
+            if (bound) {
+                target_map[target] = 0;
+            }
 
             glDeleteBuffers(1, &id);
         }

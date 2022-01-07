@@ -35,8 +35,10 @@ void TextInstance::calculateModelMatrix() noexcept {
 }
 
 TextInstance& TextInstance::setText(std::string _text) {
-    text = std::move(_text);
-    text_model.update(font->generate(text));
+    if (text != _text) {
+        text = std::move(_text);
+        text_model.update(font->generate(text));
+    }
     return *this;
 }
 

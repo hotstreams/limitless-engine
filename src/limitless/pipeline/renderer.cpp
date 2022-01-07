@@ -32,7 +32,7 @@ Renderer::Renderer(ContextEventObserver& ctx)
 void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
     pipeline->draw(context, assets, scene, camera);
 
-    profiler.draw(context, assets);
+    //profiler.draw(context, assets);
 }
 
 void Renderer::updatePipeline(ContextEventObserver& ctx) {

@@ -21,7 +21,7 @@ private:
     bool hidden_text {};
 public:
     Game()
-        : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, true }}}
+        : context {"Limitless-demo", window_size, {{ WindowHint::Resizable, false }}}
         , camera {window_size}
         , render {context}
         , assets {context, render, ENGINE_ASSETS_DIR}
