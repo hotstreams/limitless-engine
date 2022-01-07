@@ -111,6 +111,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/model_instance.cpp
     src/limitless/instances/effect_instance.cpp
     src/limitless/instances/instance_attachment.cpp
+    src/limitless/instances/terrain_instance.cpp
 )
 
 set(ENGINE_LIGHTING

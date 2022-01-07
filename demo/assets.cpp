@@ -960,6 +960,19 @@ void DemoAssets::loadModelsScene() {
         models.add("cyborg", ModelLoader::loadModel(*this, assets_dir / "models/cyborg/cyborg.obj"));
         models.add("drone", ModelLoader::loadModel(*this, assets_dir / "models/drone/model/BusterDrone.fbx"));
     }
+
+    {
+        MaterialBuilder builder{*this};
+        builder .setName("tesselation_sample")
+                .add(::Property::Color, glm::vec4(1.0f, 0.5f, 0.23f, 1.0f))
+                .add(::Property::TessellationFactor, glm::vec2(5.0f))
+                .add(::Property::Roughness, 0.75f)
+                .add(::Property::Metallic, 0.1f)
+                .setTwoSided(true)
+                .addModelShader(Limitless::ModelShader::Instanced)
+                .addModelShader(Limitless::ModelShader::Model)
+                .build();
+    }
 }
 
 void DemoAssets::loadSponzaScene() {
