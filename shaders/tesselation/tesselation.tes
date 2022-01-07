@@ -4,43 +4,19 @@ Limitless::Extensions
 Limitless::Settings
 Limitless::MaterialType
 Limitless::ModelType
+Limitless::EmitterType
 
 layout(triangles, equal_spacing, ccw) in;
 
-#include "../glsl/scene.glsl"
-#include "../glsl/material.glsl"
+#include "../pipeline/scene.glsl"
+#include "../pipeline/material/material.glsl"
 
-in vertex_data {
-    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
-        vec3 world_position;
-    #endif
+#include "../pipeline/interface_block/tess_control_input.glsl"
+#include "../pipeline/interface_block/vertex.glsl"
 
-    #if defined(MATERIAL_LIT)
-        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
-            mat3 TBN;
-        #else
-            vec3 normal;
-        #endif
-    #endif
-
-    vec2 uv;
-} in_data[];
-
-out vertex_data {
-    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
-        vec3 world_position;
-    #endif
-
-    #if defined(MATERIAL_LIT)
-        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
-            mat3 TBN;
-        #else
-            vec3 normal;
-        #endif
-    #endif
-
-    vec2 uv;
-} out_data;
+float interpolate1D(float v0, float v1, float v2) {
+    return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
+}
 
 vec2 interpolate2D(vec2 v0, vec2 v1, vec2 v2) {
     return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
@@ -55,21 +31,77 @@ mat3 interpolateMat3(mat3 v0, mat3 v1, mat3 v2) {
 }
 
 void main() {
-    out_data.uv = interpolate2D(in_data[0].uv, in_data[1].uv, in_data[2].uv);
+    #if defined (EFFECT_MODEL)
+            _out_data.world_position = interpolate3D(getVertexPosition(0), getVertexPosition(1), getVertexPosition(2));
 
-    #if defined(MATERIAL_LIT) || defined(MATERIAL_TESSELLATION_FACTOR)
-        out_data.world_position = interpolate3D(in_data[0].world_position, in_data[1].world_position, in_data[2].world_position);
-    #endif
-
-    #if defined(MATERIAL_LIT)
-        #if defined(MATERIAL_NORMAL) && defined(NORMAL_MAPPING)
-            out_data.TBN = interpolateMat3(in_data[0].TBN, in_data[1].TBN, in_data[2].TBN);
-        #else
-            out_data.normal = normalize(interpolate3D(in_data[0].normal, in_data[1].normal, in_data[2].normal));
+        #if !defined (SpriteEmitter)
+            _out_data.uv = interpolate2D(getVertexUV(0), getVertexUV(1), getVertexUV(2));
         #endif
+
+        #if defined (BeamEmitter) && defined (BeamSpeed_MODULE)
+            _out_data.start = interpolate3D(getParticleStart(0), getParticleStart(1), getParticleStart(2));
+            _out_data.end = interpolate3D(getParticleEnd(0), getParticleEnd(1), getParticleEnd(2));
+            _out_data.length = interpolate1D(getParticleLength(0), getParticleLength(1), getParticleLength(2));
+        #endif
+
+        #if defined (MeshEmitter)
+            #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+                _out_data.TBN = interpolateMat3(getVertexTBN(0), getVertexTBN(1), getVertexTBN(2));
+            #else
+                _out_data.normal = interpolate3D(getVertexNormal(0), getVertexNormal(1), getVertexNormal(2));
+            #endif
+        #endif
+
+        #if defined (InitialColor_MODULE)
+            _out_data.color = interpolate4D(getParticleColor(0), getParticleColor(1), getParticleColor(2));
+        #endif
+
+        #if defined (SubUV_MODULE)
+            _out_data.subUV = interpolate4D(getParticleSubUV(0), getParticleSubUV(1), getParticleSubUV(2));
+        #endif
+
+        #if defined (CustomMaterial_MODULE)
+            _out_data.properties = interpolate4D(getParticleProperties(0), getParticleProperties(1), getParticleProperties(2));
+        #endif
+
+        #if defined (InitialRotation_MODULE) || defined (Time_MODULE)
+            _out_data.rotation = interpolate3D(getParticleRotation(0), getParticleRotation(1), getParticleRotation(2));
+            _out_data.time = interpolate1D(getParticleTime(0), getParticleTime(1), getParticleTime(2));
+        #endif
+
+        #if defined (SpriteEmitter) && defined (InitialVelocity_MODULE)
+            _out_data.velocity = interpolate3D(getParticleVelocity(0), getParticleVelocity(1), getParticleVelocity(2));
+        #endif
+
+        #if defined (BeamEmitter) && (defined (InitialVelocity_MODULE) || defined (InitialSize_Module))
+            _out_data.velocity = interpolate3D(getParticleVelocity(0), getParticleVelocity(1), getParticleVelocity(2));
+            _out_data.size = interpolate1D(getParticleSize(0), getParticleSize(1), getParticleSize(2));
+        #endif
+
+        #if defined (Lifetime_MODULE) || defined (Acceleration_MODULE)
+            _out_data.acceleration = interpolate3D(getParticleAcceleration(0), getParticleAcceleration(1), getParticleAcceleration(2));
+            _out_data.lifetime = interpolate1D(getParticleLifetime(0), getParticleLifetime(1), getParticleLifetime(2));
+        #endif
+
+        #if defined (SpriteEmitter)
+            _out_data.size = interpolate1D(getParticleSize(0), getParticleSize(1), getParticleSize(2));
+        #endif
+    #else
+        #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+            _out_data.TBN = interpolateMat3(getVertexTBN(0), getVertexTBN(1), getVertexTBN(2));
+        #else
+            _out_data.normal = interpolate3D(getVertexNormal(0), getVertexNormal(1), getVertexNormal(2));
+        #endif
+
+        _out_data.world_position = interpolate3D(getVertexPosition(0), getVertexPosition(1), getVertexPosition(2));
+        _out_data.uv = interpolate2D(getVertexUV(0), getVertexUV(1), getVertexUV(2));
     #endif
 
-    _MATERIAL_TESSELLATION_SNIPPET
+    {
+        vec3 world_position = _out_data.world_position;
 
-    gl_Position = VP * vec4(out_data.world_position, 1.0);
+        _MATERIAL_TESSELLATION_SNIPPET
+
+        gl_Position = getViewProjection() * vec4(world_position, 1.0);
+    }
 }

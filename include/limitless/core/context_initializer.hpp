@@ -11,6 +11,7 @@ namespace Limitless {
         GLint uniform_buffer_max_count;
         GLint shader_storage_max_count;
         GLint max_texture_units;
+        GLint max_tess_level;
 
         GLfloat anisotropic_max {0.0f};
     };

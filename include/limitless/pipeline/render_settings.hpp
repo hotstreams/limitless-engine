@@ -16,7 +16,7 @@ namespace Limitless {
         // actually this is not toogleable
         bool normal_mapping = true;
 
-        bool screen_space_ambient_occlusion = true;
+        bool screen_space_ambient_occlusion = false;
         bool fast_approximate_antialiasing = true;
         bool depth_of_field = false;
 

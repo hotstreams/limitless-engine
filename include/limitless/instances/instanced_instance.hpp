@@ -46,9 +46,10 @@ namespace Limitless {
             data.reserve(instances.size());
 
             for (const auto& instance : instances) {
-                if (instance->isHidden()) {
-                    continue;
-                }
+                //TODO
+//                if (instance->isHidden()) {
+//                    continue;
+//                }
 
                 instance->update(context, camera);
 
@@ -72,7 +73,10 @@ namespace Limitless {
 
         InstancedInstance(const InstancedInstance& rhs)
             : AbstractInstance(rhs.shader_type, rhs.position) {
-            initializeBuffer(4);
+            initializeBuffer(rhs.instances.size());
+            for (const auto& instance : rhs.instances) {
+                instances.emplace_back(instance->clone());
+            }
         }
         InstancedInstance(InstancedInstance&&) noexcept = default;
 

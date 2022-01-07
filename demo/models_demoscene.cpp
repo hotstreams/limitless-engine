@@ -3,6 +3,7 @@
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/instances/instanced_instance.hpp>
+#include <limitless/instances/terrain_instance.hpp>
 #include <limitless/ms/material.hpp>
 #include <random>
 #include <iostream>
@@ -65,6 +66,10 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
     add<ModelInstance>(assets.models.at("cyborg"), glm::vec3(25.0f, 1.0f, 21.0f))
             .setScale(glm::vec3(0.5f))
             .setRotation(glm::vec3{0.0f, -M_PI_2, 0.0f});
+
+    add<ModelInstance>(assets.models.at("cube"), assets.materials.at("tesselation_sample"), glm::vec3(25.0f, 2.0f, 30.0f));
+
+    auto& terrain = add<TerrainInstance>(assets.models.at("plane"), assets.materials.at("tesselation_sample"), glm::vec3(0.0f, 10.0f, 0.0f), 32);
 
     {
         auto& drone = add<ModelInstance>(assets.models.at("drone"), glm::vec3(25.0f, 2.0f, 24.0f))
