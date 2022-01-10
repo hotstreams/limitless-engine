@@ -108,7 +108,7 @@ void Context::setFullscreen(bool value) noexcept {
     }
 }
 
-void Context::pollEvents() const noexcept {
+void Context::pollEvents() const {
     glfwPollEvents();
 }
 

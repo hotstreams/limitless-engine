@@ -47,7 +47,7 @@ namespace Limitless {
 
         void makeCurrent() const noexcept;
         void swapBuffers() const noexcept;
-        void pollEvents() const noexcept;
+        void pollEvents() const;
 
         void setSwapInterval(GLuint interval) const noexcept;
         void setWindowShouldClose(bool value) const noexcept;
