@@ -104,7 +104,7 @@ void AssetManager::loadEffect(std::string asset_name, fs::path path) {
 }
 
 void AssetManager::compileShaders(Context& ctx, const RenderSettings& settings) {
-	assets.initialize(ctx, settings);
+	//assets.initialize(ctx, settings);
 
     for (const auto& [_, material] : assets.materials) {
         build([&, &ctx = ctx, &settings = settings, &material = material] () {
