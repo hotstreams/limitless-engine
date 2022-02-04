@@ -57,7 +57,8 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
 }
 
 std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(Assets& assets, const fs::path& _path, const ModelLoaderFlags& flags) {
-    auto path = convertPathSeparators(_path);
+    const auto path = convertPathSeparators(_path);
+
     Assimp::Importer importer;
     const aiScene* scene;
 
@@ -68,6 +69,11 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
                        aiProcess_GenSmoothNormals |
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
+
+    if (flags.isPresent(ModelLoaderOption::GlobalScale)) {
+        scene_flags |= aiProcess_GlobalScale;
+        importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, flags.scale_factor);
+    }
 
     if (flags.isPresent(ModelLoaderOption::FlipUV)) {
         scene_flags |= aiProcess_FlipUVs;
@@ -100,7 +106,7 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
     importer.FreeScene();
 
     return [meshes = std::move(meshes), materials = std::move(materials), bones = std::move(bones), bone_map = std::move(bone_map), animations = std::move(animations), animation_tree = std::move(animation_tree), global_matrix, name = path.stem().string()] () mutable {
-        return animations.empty() ?
+        return bone_map.empty() ?
                std::shared_ptr<AbstractModel>(new Model(meshes(), std::move(materials), name)) :
                std::shared_ptr<AbstractModel>(new SkeletalModel(meshes(), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix), name));
     };
