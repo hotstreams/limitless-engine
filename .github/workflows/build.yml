@@ -46,6 +46,7 @@ jobs:
       - name: Init git modules
         run: |
           git submodule init
+          git submodule update
       - name: Run build-wrapper
         run: |
           mkdir build
