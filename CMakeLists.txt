@@ -269,7 +269,7 @@ if (USE_SUBMODULES)
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
-    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include/GL")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
     message(STATUS "HERE>>>>>>>>>>>>>>>>> " "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
 endif()
 
