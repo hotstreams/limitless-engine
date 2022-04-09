@@ -276,7 +276,7 @@ if (USE_SUBMODULES)
 #            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew"
 #            )
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/build/cmake")
-    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/auto/include")
 endif()
 
 add_executable(limitless_demo
