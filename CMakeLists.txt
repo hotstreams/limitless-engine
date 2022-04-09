@@ -29,6 +29,7 @@ include_directories(include)
 #include_directories(${FREETYPE_INCLUDE_DIRS})
 #link_directories(${FREETYPE_LIBRARIES})
 
+# currently for windows is not supported due to glew cmake problems
 option(USE_SUBMODULES "Uses git submodule for thirdparties" ON)
 
 if (WIN32)
