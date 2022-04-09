@@ -45,6 +45,7 @@ jobs:
           echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
       - name: Init git modules
         run: |
+          sudo apt-get install xorg-dev libglu1-mesa-dev
           git submodule init
           git submodule update
       - name: Run build-wrapper
