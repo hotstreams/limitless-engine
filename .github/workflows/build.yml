@@ -51,6 +51,8 @@ jobs:
           cd thirdparty/glew
           make extensions
           ls include/GL
+          pwd
+          ls -r
       - name: Run build-wrapper
         run: |
           mkdir build
