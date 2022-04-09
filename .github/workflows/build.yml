@@ -45,7 +45,7 @@ jobs:
           echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
       - name: Init git modules
         run: |
-          git submodules init
+          git submodule init
       - name: Run build-wrapper
         run: |
           mkdir build
