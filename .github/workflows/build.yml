@@ -50,9 +50,9 @@ jobs:
           git submodule update
           cd thirdparty/glew
           make extensions
-          ls
-          ls auto
-          ls build
+          ls include
+          ls auto/include
+          ls build/include
       - name: Run build-wrapper
         run: |
           mkdir build
