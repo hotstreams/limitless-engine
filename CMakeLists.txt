@@ -276,6 +276,7 @@ if (USE_SUBMODULES)
 #            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew"
 #            )
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/build/cmake")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
 endif()
 
 add_executable(limitless_demo
@@ -296,6 +297,7 @@ if (USE_SUBMODULES)
     target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
     target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
     target_link_libraries(limitless_demo freetype)
+    target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
 endif()
 
 add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
