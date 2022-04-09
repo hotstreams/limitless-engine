@@ -52,7 +52,7 @@ jobs:
           make extensions
           ls include/GL
           pwd
-          ls -r
+          ls -R
       - name: Run build-wrapper
         run: |
           mkdir build
