@@ -48,6 +48,8 @@ jobs:
           sudo apt-get install xorg-dev libglu1-mesa-dev
           git submodule init
           git submodule update
+          cd thirdparty/glew
+          make
       - name: Run build-wrapper
         run: |
           mkdir build
