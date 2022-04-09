@@ -1,6 +1,7 @@
 #pragma once
 
-#include <GL/glew.h>
+//#include <GL/glew.h>
+#include <limitless/../../thirdparty/glew/include/GL/glew.h>
 #include <GLFW/glfw3.h>
 
 namespace Limitless {
