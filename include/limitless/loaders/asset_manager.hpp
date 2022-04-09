@@ -6,7 +6,7 @@
 #include <limitless/loaders/model_loader.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 
-//constexpr auto ASSETS_DIR = ENGINE_ASSETS_DIR;
+constexpr auto ASSETS_DIR = ENGINE_ASSETS_DIR;
 
 namespace Limitless {
     class Assets;
