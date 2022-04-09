@@ -24,20 +24,20 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 include_directories(include)
 
-find_package(freetype REQUIRED)
-message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
-include_directories(${FREETYPE_INCLUDE_DIRS})
-link_directories(${FREETYPE_LIBRARIES})
+#find_package(freetype REQUIRED)
+#message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
+#include_directories(${FREETYPE_INCLUDE_DIRS})
+#link_directories(${FREETYPE_LIBRARIES})
 
 option(USE_SUBMODULES "Uses git submodule for thirdparties" ON)
 
 if (WIN32)
-    find_package(glew REQUIRED)
-    message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIRS}")
-    include_directories(${GLEW_INCLUDE_DIRS})
-    link_directories(${GLEW_LIBRARIES})
-
     if (NOT USE_SUBMODULES)
+        find_package(glew REQUIRED)
+        message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIRS}")
+        include_directories(${GLEW_INCLUDE_DIRS})
+        link_directories(${GLEW_LIBRARIES})
+
         find_package(glm REQUIRED)
         message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
         include_directories(${GLM_INCLUDE_DIRS})
@@ -268,6 +268,14 @@ if (USE_SUBMODULES)
 
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
+
+    set(BUILD_UTILS OFF)
+
+#    add_custom_command(OUTPUT GLEW_OUTPUT
+#            COMMAND make run
+#            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew"
+#            )
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/build/cmake")
 endif()
 
 add_executable(limitless_demo
@@ -292,31 +300,31 @@ endif()
 
 add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
 
-if (BUILD_TESTS)
-    include(FetchContent)
-    FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-    )
-    # For Windows: Prevent overriding the parent project's compiler/linker settings
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
-endif()
+#if (BUILD_TESTS)
+#    include(FetchContent)
+#    FetchContent_Declare(
+#        googletest
+#        URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+#    )
+#    # For Windows: Prevent overriding the parent project's compiler/linker settings
+#    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+#    FetchContent_MakeAvailable(googletest)
+#endif()
 
-if (BUILD_TESTS)
-    enable_testing()
-
-    add_executable(
-        tests
-        tests/core/buffer_test.cpp
-
-        $<TARGET_OBJECTS:limitless_engine_objects>
-    )
-    target_link_libraries(
-        tests
-        gtest_main
-    )
-
-    include(GoogleTest)
-    gtest_discover_tests(tests)
-endif()
+#if (BUILD_TESTS)
+#    enable_testing()
+#
+#    add_executable(
+#        tests
+#        tests/core/buffer_test.cpp
+#
+#        $<TARGET_OBJECTS:limitless_engine_objects>
+#    )
+#    target_link_libraries(
+#        tests
+#        gtest_main
+#    )
+#
+#    include(GoogleTest)
+#    gtest_discover_tests(tests)
+#endif()
