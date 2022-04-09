@@ -206,6 +206,7 @@ namespace Limitless {
         const auto& getBlendColor() const noexcept { return blending_color; }
         auto getScissorTest() const noexcept { return std::pair{scissor_origin, scissor_size}; }
         const auto& getCapabilities() const noexcept { return capability_map; }
+        const auto& getBufferTargets() const noexcept { return buffer_target; }
 
         auto getActiveTexture() const noexcept { return active_texture; }
         const auto& getTextureBound() const noexcept { return texture_bound; }

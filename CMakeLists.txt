@@ -17,6 +17,8 @@ if (OPENGL_DEBUG)
 endif()
 
 OPTION(OPENGL_TOSTER "Imitate worst computer ever" OFF)
+OPTION(BUILD_TESTS "build tests" ON)
+set(BUILD_TESTS "true")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -27,7 +29,7 @@ message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
 include_directories(${FREETYPE_INCLUDE_DIRS})
 link_directories(${FREETYPE_LIBRARIES})
 
-option(USE_SUBMODULES "Uses git submodule for thirdparties" OFF)
+option(USE_SUBMODULES "Uses git submodule for thirdparties" ON)
 
 if (WIN32)
     find_package(glew REQUIRED)
@@ -35,7 +37,7 @@ if (WIN32)
     include_directories(${GLEW_INCLUDE_DIRS})
     link_directories(${GLEW_LIBRARIES})
 
-#    if (NOT USE_SUBMODULES)
+    if (NOT USE_SUBMODULES)
         find_package(glm REQUIRED)
         message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
         include_directories(${GLM_INCLUDE_DIRS})
@@ -56,9 +58,9 @@ if (WIN32)
         include_directories(${STB_IMAGE_INCLUDE_DIRS})
 
         link_libraries(opengl32 glew32 glfw3 assimp freetype)
-#    else()
-#        link_libraries(opengl32 glew32)
-#    endif()
+    else()
+        link_libraries(opengl32 glew32)
+    endif()
 endif()
 
 if (UNIX)
@@ -239,34 +241,34 @@ set(ENGINE_SRC
 add_library(limitless_engine_objects OBJECT ${ENGINE_SRC})
 add_library(limitless_engine SHARED ${ENGINE_SRC})
 
-#if (USE_SUBMODULES)
-#    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-#    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-#    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
-#
-#    set(BUILD_SHARED_LIBS FALSE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_NO_EXPORT TRUE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_TESTS FALSE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_INSTALL_PDB FALSE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_ZLIB TRUE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_ASSIMP_TOOLS FALSE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_COLLADA_IMPORTER FALSE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_OBJ_IMPORTER TRUE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_FBX_IMPORTER TRUE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_MD5_IMPORTER TRUE CACHE BOOL "x" FORCE)
-#    set(ASSIMP_BUILD_BLEND_IMPORTER FALSE CACHE BOOL "x" FORCE)
-#    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp")
-#
-#    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw/include")
-#    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-#    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stbimage")
-#    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
-#
-#    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
-#    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
-#endif()
+if (USE_SUBMODULES)
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
+
+    set(BUILD_SHARED_LIBS FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_NO_EXPORT TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_TESTS FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_INSTALL_PDB FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_ZLIB TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_COLLADA_IMPORTER FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_OBJ_IMPORTER TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_FBX_IMPORTER TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_MD5_IMPORTER TRUE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_BLEND_IMPORTER FALSE CACHE BOOL "x" FORCE)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp")
+
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw/include")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stbimage")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
+
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
+    target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
+endif()
 
 add_executable(limitless_demo
         $<TARGET_OBJECTS:limitless_engine_objects>
@@ -279,13 +281,42 @@ add_executable(limitless_demo
         demo/assets.cpp
         )
 
-#if (USE_SUBMODULES)
-#    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-#    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
-#    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
-#    target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
-#    target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
-#    target_link_libraries(limitless_demo freetype)
-#endif()
+if (USE_SUBMODULES)
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
+    target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
+    target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
+    target_link_libraries(limitless_demo freetype)
+endif()
 
 add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+
+if (BUILD_TESTS)
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+    )
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
+
+if (BUILD_TESTS)
+    enable_testing()
+
+    add_executable(
+        tests
+        tests/core/buffer_test.cpp
+
+        $<TARGET_OBJECTS:limitless_engine_objects>
+    )
+    target_link_libraries(
+        tests
+        gtest_main
+    )
+
+    include(GoogleTest)
+    gtest_discover_tests(tests)
+endif()
