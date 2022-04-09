@@ -260,23 +260,16 @@ if (USE_SUBMODULES)
     set(ASSIMP_BUILD_MD5_IMPORTER TRUE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_BLEND_IMPORTER FALSE CACHE BOOL "x" FORCE)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp")
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/build/cmake")
 
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw/include")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stbimage")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
-
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
-
-    set(BUILD_UTILS OFF)
-
-#    add_custom_command(OUTPUT GLEW_OUTPUT
-#            COMMAND make run
-#            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew"
-#            )
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/build/cmake")
     target_include_directories(limitless_engine_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
+    message(STATUS "HERE>>>>>>>>>>>>>>>>> " "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
 endif()
 
 add_executable(limitless_demo
@@ -295,6 +288,7 @@ if (USE_SUBMODULES)
     target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
     target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
     target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
+
     target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
     target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
     target_link_libraries(limitless_demo freetype)
