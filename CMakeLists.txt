@@ -3,9 +3,28 @@ project(limitless_engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# CONFIGURABLE OPTIONS
+
+option(DEBUG_OPENGL "Enables debug mode for OpenGL" FALSE)
+option(OPENGL_TOSTER "Disables all extensions" FALSE)
+option(BUILD_TESTS "Builds tests" FALSE)
+
+
+option(DEPENDENCIES_AS_SUBMODULE "Builds dependencies from sources" ON)
+
+#######################
+
+if (DEPENDENCIES_AS_SUBMODULES)
+    message("Dependencies will be used from submodules")
+elseif()
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+    message("Dependencies will be used from packages at ${CMAKE_MODULE_PATH}")
+endif()
+
+# SETTINGS COMPILE FLAGS AND DEFINITIONS
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused -Wno-attributes)
-    add_compile_definitions(NDEBUG GL_DEBUG DEBUG LIMITLESS_DEBUG)
+    add_compile_definitions(GL_DEBUG LIMITLESS_DEBUG)
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -15,12 +34,8 @@ endif()
 if (OPENGL_DEBUG)
     add_compile_definitions(GL_DEBUG)
 endif()
+#######################
 
-OPTION(OPENGL_TOSTER "Imitate worst computer ever" OFF)
-OPTION(BUILD_TESTS "build tests" ON)
-set(BUILD_TESTS "true")
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 include_directories(include)
 
@@ -29,10 +44,8 @@ include_directories(include)
 #include_directories(${FREETYPE_INCLUDE_DIRS})
 #link_directories(${FREETYPE_LIBRARIES})
 
-option(USE_SUBMODULES "Uses git submodule for thirdparties" ON)
-
 if (WIN32)
-    if (NOT USE_SUBMODULES)
+    if (NOT DEPENDENCIES_AS_SUBMODULES)
         find_package(glew REQUIRED)
         message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIRS}")
         include_directories(${GLEW_INCLUDE_DIRS})
@@ -56,15 +69,15 @@ if (WIN32)
         find_package(stb_image REQUIRED)
         message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
         include_directories(${STB_IMAGE_INCLUDE_DIRS})
-
-        link_libraries(opengl32 glew32 glfw3 assimp freetype)
-    else()
-        link_libraries(opengl32 glew32)
     endif()
 endif()
 
+if (WIN32)
+    #link_libraries(opengl32 glew32 glfw3 assimp freetype)
+endif()
+
 if (UNIX)
-    if (NOT USE_SUBMODULES)
+    if (NOT DEPENDENCIES_AS_SUBMODULES)
         link_libraries(GLEW glfw GL assimp freetype pthread)
     else()
         link_libraries(GL pthread)
@@ -241,7 +254,7 @@ set(ENGINE_SRC
 add_library(limitless_engine_objects OBJECT ${ENGINE_SRC})
 add_library(limitless_engine SHARED ${ENGINE_SRC})
 
-if (USE_SUBMODULES)
+if (DEPENDENCIES_AS_SUBMODULES)
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -281,9 +294,9 @@ add_executable(limitless_demo
         demo/models_demoscene.cpp
         demo/sponza_demoscene.cpp
         demo/assets.cpp
-        )
+)
 
-if (USE_SUBMODULES)
+if (DEPENDENCIES_AS_SUBMODULES)
     target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
     target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
     target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
