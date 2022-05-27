@@ -10,9 +10,6 @@
 [submodule "thirdparty/glfw"]
 	path = thirdparty/glfw
 	url = https://github.com/glfw/glfw
-[submodule "thirdparty/glew"]
-	path = thirdparty/glew
-	url = https://github.com/nigels-com/glew
 [submodule "thirdparty/freetype"]
 	path = thirdparty/freetype
 	url = https://github.com/freetype/freetype
