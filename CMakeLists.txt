@@ -39,11 +39,6 @@ endif()
 
 include_directories(include)
 
-#find_package(freetype REQUIRED)
-#message(STATUS "Found FREETYPE in ${FREETYPE_INCLUDE_DIRS}")
-#include_directories(${FREETYPE_INCLUDE_DIRS})
-#link_directories(${FREETYPE_LIBRARIES})
-
 if (WIN32)
     if (NOT DEPENDENCIES_AS_SUBMODULES)
         find_package(glew REQUIRED)
@@ -276,13 +271,13 @@ if (DEPENDENCIES_AS_SUBMODULES)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/build/cmake")
 
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw/include")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stbimage")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
 endif()
 
 add_executable(limitless_demo
@@ -297,10 +292,10 @@ add_executable(limitless_demo
 )
 
 if (DEPENDENCIES_AS_SUBMODULES)
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm")
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include")
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
 
     target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
     target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
