@@ -5,21 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 # CONFIGURABLE OPTIONS
 
-option(DEBUG_OPENGL "Enables debug mode for OpenGL" FALSE)
-option(OPENGL_TOSTER "Disables all extensions" FALSE)
-option(BUILD_TESTS "Builds tests" FALSE)
-
-
-option(DEPENDENCIES_AS_SUBMODULE "Builds dependencies from sources" ON)
+OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" OFF)
+OPTION(OPENGL_TOSTER "Disables all extensions" OFF)
+OPTION(BUILD_TESTS "Builds tests" OFF)
 
 #######################
-
-if (DEPENDENCIES_AS_SUBMODULES)
-    message("Dependencies will be used from submodules")
-elseif()
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-    message("Dependencies will be used from packages at ${CMAKE_MODULE_PATH}")
-endif()
 
 # SETTINGS COMPILE FLAGS AND DEFINITIONS
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -29,6 +19,7 @@ endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(-O3)
+    add_compile_definitions(NDEBUG)
 endif()
 
 if (OPENGL_DEBUG)
@@ -36,36 +27,7 @@ if (OPENGL_DEBUG)
 endif()
 #######################
 
-
 include_directories(include)
-
-if (WIN32)
-    if (NOT DEPENDENCIES_AS_SUBMODULES)
-        find_package(glew REQUIRED)
-        message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIRS}")
-        include_directories(${GLEW_INCLUDE_DIRS})
-        link_directories(${GLEW_LIBRARIES})
-
-        find_package(glm REQUIRED)
-        message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
-        include_directories(${GLM_INCLUDE_DIRS})
-        link_directories(${GLM_LIBRARIES})
-
-        find_package(glfw3 REQUIRED)
-        message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIRS}")
-        include_directories(${GLFW3_INCLUDE_DIRS})
-        link_directories(${GLFW3_LIBRARIES})
-
-        find_package(assimp REQUIRED)
-        message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIRS}")
-        include_directories(${ASSIMP_INCLUDE_DIRS})
-        link_directories(${ASSIMP_LIBRARIES})
-
-        find_package(stb_image REQUIRED)
-        message(STATUS "Found stb_image in ${STB_IMAGE_INCLUDE_DIRS}")
-        include_directories(${STB_IMAGE_INCLUDE_DIRS})
-    endif()
-endif()
 
 if (WIN32)
     #link_libraries(opengl32 glew32 glfw3 assimp freetype)
@@ -246,15 +208,16 @@ set(ENGINE_SRC
     src/limitless/skybox/skybox.cpp
 )
 
-add_library(limitless_engine_objects OBJECT ${ENGINE_SRC})
-add_library(limitless_engine SHARED ${ENGINE_SRC})
-
-if (DEPENDENCIES_AS_SUBMODULES)
+##### CONFIGURE SUBMODULES
+    # GLFW
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
 
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
+    #####
+
+    # ASSIMP
     set(BUILD_SHARED_LIBS FALSE CACHE BOOL "x" FORCE)
     set(ASSIMP_NO_EXPORT TRUE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_TESTS FALSE CACHE BOOL "x" FORCE)
@@ -267,40 +230,65 @@ if (DEPENDENCIES_AS_SUBMODULES)
     set(ASSIMP_BUILD_FBX_IMPORTER TRUE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_MD5_IMPORTER TRUE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_BLEND_IMPORTER FALSE CACHE BOOL "x" FORCE)
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp")
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype")
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/build/cmake")
 
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-endif()
+    add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp")
+    #####
+
+    # FREETYPE
+    add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype")
+    #####
+
+    # GLEW
+    add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/build/cmake")
+    #####
+##########################################
+
+
+
+################# STATIC
+
+add_library(limitless_engine_static STATIC ${ENGINE_SRC})
+
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+
+target_link_libraries(limitless_engine_static PUBLIC glfw ${GLFW_LIBRARIES})
+target_link_libraries(limitless_engine_static PUBLIC assimp ${ASSIMP_LIBRARIES})
+target_link_libraries(limitless_engine_static PUBLIC freetype)
+target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
+
+##############################################
+
+#                DEMO
 
 add_executable(limitless_demo
-        $<TARGET_OBJECTS:limitless_engine_objects>
-        demo/demo.cpp
-        demo/materials_demoscene.cpp
-        demo/lighting_demoscene.cpp
-        demo/effects_demoscene.cpp
-        demo/models_demoscene.cpp
-        demo/sponza_demoscene.cpp
-        demo/assets.cpp
+    $<TARGET_OBJECTS:limitless_engine_static>
+
+    demo/demo.cpp
+    demo/materials_demoscene.cpp
+    demo/lighting_demoscene.cpp
+    demo/effects_demoscene.cpp
+    demo/models_demoscene.cpp
+    demo/sponza_demoscene.cpp
+    demo/assets.cpp
 )
 
-if (DEPENDENCIES_AS_SUBMODULES)
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-    target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
 
-    target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
-    target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
-    target_link_libraries(limitless_demo freetype)
-    target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
-endif()
+target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
+target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
+target_link_libraries(limitless_demo freetype)
+target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
 
 add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")

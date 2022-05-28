@@ -66,7 +66,6 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
 	                   aiProcess_Triangulate |
 	                   aiProcess_GenUVCoords |
 	                   aiProcess_GenNormals |
-	                   aiProcess_GenSmoothNormals |
 	                   aiProcess_CalcTangentSpace |
 	                   aiProcess_ImproveCacheLocality;
 
