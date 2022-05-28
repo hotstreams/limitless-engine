@@ -24,7 +24,6 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
     auto scene_flags = aiProcess_ValidateDataStructure |
                        aiProcess_Triangulate |
                        aiProcess_GenUVCoords |
-                       aiProcess_GenNormals |
                        aiProcess_GenSmoothNormals |
                        aiProcess_CalcTangentSpace |
                        aiProcess_ImproveCacheLocality;
