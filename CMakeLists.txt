@@ -309,32 +309,3 @@ if (DEPENDENCIES_AS_SUBMODULES)
 endif()
 
 add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
-
-#if (BUILD_TESTS)
-#    include(FetchContent)
-#    FetchContent_Declare(
-#        googletest
-#        URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-#    )
-#    # For Windows: Prevent overriding the parent project's compiler/linker settings
-#    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-#    FetchContent_MakeAvailable(googletest)
-#endif()
-
-#if (BUILD_TESTS)
-#    enable_testing()
-#
-#    add_executable(
-#        tests
-#        tests/core/buffer_test.cpp
-#
-#        $<TARGET_OBJECTS:limitless_engine_objects>
-#    )
-#    target_link_libraries(
-#        tests
-#        gtest_main
-#    )
-#
-#    include(GoogleTest)
-#    gtest_discover_tests(tests)
-#endif()
