@@ -49,7 +49,7 @@ PlaneQuad::PlaneQuad() : ElementaryModel("planequad") {
 
     meshes.emplace_back(
         std::make_unique<Mesh>(
-            std::make_unique<VertexStream<VertexNormalTangent>>(std::move(vertices), VertexStreamUsage::Static, VertexStreamDraw::Quads),
+            std::make_unique<VertexStream<VertexNormalTangent>>(std::move(vertices), VertexStreamUsage::Static, VertexStreamDraw::Patches),
             "planequad_mesh")
     );
 

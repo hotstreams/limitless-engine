@@ -22,6 +22,8 @@ namespace Limitless {
         MeshInstance(const MeshInstance&) = default;
         MeshInstance(MeshInstance&&) = default;
 
+        void update();
+
         [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
         [[nodiscard]] auto& getMaterial() noexcept { return material; }
         [[nodiscard]] bool isHidden() const noexcept { return hidden; }

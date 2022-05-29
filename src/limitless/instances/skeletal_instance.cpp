@@ -174,7 +174,7 @@ void SkeletalInstance::update(Context& context, const Camera& camera) {
 
 	SocketAttachment::update();
 
-    AbstractInstance::update(context, camera);
+    ModelInstance::update(context, camera);
 }
 
 SkeletalInstance* SkeletalInstance::clone() noexcept {

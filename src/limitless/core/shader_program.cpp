@@ -162,9 +162,6 @@ ShaderProgram& ShaderProgram::operator<<(const UniformSampler& uniform) noexcept
 }
 
 ShaderProgram& ShaderProgram::operator<<(const ms::Material& material) {
-    //TODO: update before draw?
-    const_cast<ms::Material&>(material).update();
-
     auto found = std::find_if(indexed_binds.begin(), indexed_binds.end(), [] (const auto& buf) { return buf.name == "material_buffer"; });
     if (found == indexed_binds.end()) {
 //        throw shader_program_error{"There is no material in shader"};

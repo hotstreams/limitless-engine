@@ -25,6 +25,8 @@ namespace Limitless {
         ModelInstance(const ModelInstance&) = default;
         ModelInstance(ModelInstance&&) noexcept = default;
 
+        void update(Context &context, const Camera &camera) override;
+
         ModelInstance* clone() noexcept override;
 
         const auto& getAbstractModel() const noexcept { return *model; }

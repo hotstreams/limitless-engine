@@ -15,6 +15,9 @@ namespace Limitless {
         Plane& operator=(Plane&&) noexcept = default;
     };
 
+    /*
+     * used only with tesselation pipeline
+     */
     class PlaneQuad : public ElementaryModel {
     public:
         PlaneQuad();
