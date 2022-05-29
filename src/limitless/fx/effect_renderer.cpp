@@ -41,6 +41,7 @@ void EffectRenderer::update(const Instances& instances) {
     updateRenderers(instances);
 
     for (const auto& [type, renderer] : renderers) {
+        type.material->update();
         switch (type.emitter_type) {
             case AbstractEmitter::Type::Sprite: {
                 ParticleCollector<SpriteParticle> collector {type};
