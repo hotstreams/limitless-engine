@@ -135,3 +135,9 @@ void MeshInstance::draw_instanced(Context& ctx,
         }
     }
 }
+
+void MeshInstance::update() {
+	for (const auto& [_, mat] : material) {
+		mat->update();
+	}
+}
