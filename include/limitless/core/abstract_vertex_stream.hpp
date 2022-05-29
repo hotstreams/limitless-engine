@@ -15,7 +15,8 @@ namespace Limitless {
         Lines = GL_LINES,
         LineLoop = GL_LINE_LOOP,
         Points = GL_POINTS,
-        Patches = GL_PATCHES
+        Patches = GL_PATCHES,
+        Quads = GL_QUADS
     };
 
     class AbstractVertexStream {

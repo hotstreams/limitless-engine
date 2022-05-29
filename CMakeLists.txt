@@ -10,7 +10,6 @@ OPTION(OPENGL_TOSTER "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 
 #######################
-
 # SETTINGS COMPILE FLAGS AND DEFINITIONS
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused -Wno-attributes)
@@ -18,7 +17,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-O3)
+    add_compile_options(-Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused -Wno-attributes -O3)
     add_compile_definitions(NDEBUG)
 endif()
 
@@ -28,18 +27,6 @@ endif()
 #######################
 
 include_directories(include)
-
-if (WIN32)
-    #link_libraries(opengl32 glew32 glfw3 assimp freetype)
-endif()
-
-if (UNIX)
-    if (NOT DEPENDENCIES_AS_SUBMODULES)
-        link_libraries(GLEW glfw GL assimp freetype pthread)
-    else()
-        link_libraries(GL pthread)
-    endif()
-endif()
 
 set(ENGINE_CORE
     src/limitless/core/context_debug.cpp
@@ -83,7 +70,6 @@ set(ENGINE_INSTANCES
     src/limitless/instances/model_instance.cpp
     src/limitless/instances/effect_instance.cpp
     src/limitless/instances/instance_attachment.cpp
-    src/limitless/instances/terrain_instance.cpp
 )
 
 set(ENGINE_LIGHTING

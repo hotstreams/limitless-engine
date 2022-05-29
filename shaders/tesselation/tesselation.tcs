@@ -10,7 +10,7 @@ Limitless::EmitterType
 
 #include "../pipeline/material/material.glsl"
 
-layout (vertices = 3) out;
+layout (vertices = 4) out;
 
 #include "../pipeline/interface_block/tess_control_input.glsl"
 #include "../pipeline/interface_block/tess_control_output.glsl"
@@ -19,8 +19,11 @@ layout (vertices = 3) out;
 void main() {
     InterfaceBlockPassThrough();
 
-    gl_TessLevelOuter[0] = getMaterialTesselationFactor().x;
-    gl_TessLevelOuter[1] = getMaterialTesselationFactor().x;
-    gl_TessLevelOuter[2] = getMaterialTesselationFactor().x;
-    gl_TessLevelInner[0] = getMaterialTesselationFactor().y;
+    vec2 factor = getMaterialTesselationFactor();
+    gl_TessLevelOuter[0] = factor.x;
+    gl_TessLevelOuter[1] = factor.x;
+    gl_TessLevelOuter[2] = factor.x;
+    gl_TessLevelOuter[3] = factor.x;
+    gl_TessLevelInner[0] = factor.y;
+    gl_TessLevelInner[1] = factor.y;
 }

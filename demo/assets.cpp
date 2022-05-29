@@ -965,7 +965,7 @@ void DemoAssets::loadModelsScene() {
         MaterialBuilder builder{*this};
         builder .setName("tesselation_sample")
                 .add(::Property::Color, glm::vec4(1.0f, 0.5f, 0.23f, 1.0f))
-                .add(::Property::TessellationFactor, glm::vec2(5.0f))
+                .add(::Property::TessellationFactor, glm::vec2(128.0f))
                 .add(::Property::Roughness, 0.75f)
                 .add(::Property::Metallic, 0.1f)
                 .setTwoSided(true)
