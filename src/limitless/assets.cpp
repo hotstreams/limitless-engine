@@ -53,6 +53,9 @@ void Assets::load([[maybe_unused]] Context& context) {
 
     models.add("plane", std::make_shared<Plane>());
     meshes.add("plane", models.at("plane")->getMeshes().at(0));
+
+    models.add("planequad", std::make_shared<PlaneQuad>());
+    meshes.add("planequad", models.at("planequad")->getMeshes().at(0));
 }
 
 void Assets::initialize(Context& ctx, const RenderSettings& settings) {

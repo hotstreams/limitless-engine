@@ -69,7 +69,9 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
 
     add<ModelInstance>(assets.models.at("cube"), assets.materials.at("tesselation_sample"), glm::vec3(25.0f, 2.0f, 30.0f));
 
-    auto& terrain = add<TerrainInstance>(assets.models.at("plane"), assets.materials.at("tesselation_sample"), glm::vec3(0.0f, 10.0f, 0.0f), 32);
+//    auto& terrain = add<TerrainInstance>(assets.models.at("planequad"), assets.materials.at("tesselation_sample"), glm::vec3(0.0f, 10.0f, 0.0f), 32);
+    auto& terrain = add<ModelInstance>(assets.models.at("planequad"), assets.materials.at("tesselation_sample"), glm::vec3(0.0f, 10.0f, 0.0f))
+            .setScale(glm::vec3(32.0f));
 
     {
         auto& drone = add<ModelInstance>(assets.models.at("drone"), glm::vec3(25.0f, 2.0f, 24.0f))
