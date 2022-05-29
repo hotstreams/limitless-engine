@@ -3,7 +3,6 @@
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/instances/instanced_instance.hpp>
-#include <limitless/instances/terrain_instance.hpp>
 #include <limitless/ms/material.hpp>
 #include <random>
 #include <iostream>
