@@ -31,6 +31,11 @@ Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings)
     create(ctx, settings);
 }
 
+Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& _target)
+    : target {_target} {
+    create(ctx, settings);
+}
+
 void Deferred::update(ContextEventObserver& ctx, const RenderSettings& settings) {
     clear();
     create(ctx, settings);
@@ -77,9 +82,4 @@ void Deferred::create(ContextEventObserver& ctx, const RenderSettings& settings)
 //    #ifdef LIMITLESS_DEBUG
 //        add<RenderDebugPass>(settings);
 //    #endif
-}
-
-Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& _target)
-	: target {_target} {
-	create(ctx, settings);
 }

@@ -281,6 +281,10 @@ void MaterialBuilder::checkRequirements() {
     }
 }
 
+void MaterialBuilder::clear() {
+    createMaterial();
+}
+
 std::shared_ptr<Material> MaterialBuilder::build() {
     checkRequirements();
 
@@ -341,4 +345,36 @@ std::shared_ptr<Material> MaterialBuilder::buildSkybox() {
     createMaterial();
 
     return new_material;
+}
+
+void MaterialBuilder::setTo(const std::shared_ptr<Material>& mat) {
+    createMaterial();
+
+    setBlending(mat->getBlending());
+    setShading(mat->getShading());
+    setTwoSided(mat->getTwoSided());
+    setName(mat->getName());
+
+    setFragmentSnippet(mat->getFragmentSnippet());
+    setVertexSnippet(mat->getVertexSnippet());
+    setTessellationSnippet(mat->getTessellationSnippet());
+    setGlobalSnippet(mat->getGlobalSnippet());
+
+    setModelShaders(mat->getModelShaders());
+
+    {
+        decltype(mat->properties) props;
+        for (const auto&[prop, uniform] : mat->getProperties()) {
+            props.emplace(prop, uniform->clone());
+        }
+        set(std::move(props));
+    }
+
+    {
+        decltype(mat->uniforms) uniforms;
+        for (const auto& [name, uniform] : mat->getUniforms()) {
+            uniforms.emplace(name, uniform->clone());
+        }
+        set(std::move(uniforms));
+    }
 }

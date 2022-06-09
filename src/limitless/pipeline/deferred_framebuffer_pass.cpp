@@ -87,7 +87,7 @@ DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, ContextEven
 }
 
 void DeferredFramebufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
-    ctx.setViewPort(ctx.getSize());
+    ctx.setViewPort({1024, 512});
     ctx.setDepthMask(DepthMask::True);
     ctx.disable(Capabilities::Blending);
     ctx.enable(Capabilities::StencilTest);
