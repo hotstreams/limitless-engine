@@ -10,6 +10,7 @@
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/skybox/skybox.hpp>
 #include <limitless/text/font_atlas.hpp>
+#include <iostream>
 
 using namespace Limitless::ms;
 using namespace Limitless::fx;
@@ -973,6 +974,71 @@ void DemoAssets::loadModelsScene() {
                 .addModelShader(Limitless::ModelShader::Model)
                 .build();
     }
+
+    {
+        const fs::path assets_dir {ASSETS_DIR};
+
+        models.add("issue_test1", ModelLoader::loadModel(*this, assets_dir / "models/Dancing.fbx", ModelLoaderFlags{{ModelLoaderOption::NoMaterials}}));
+
+        auto& model = models.at("issue_test1");
+
+        auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+        ModelLoader::addAnimations(assets_dir / "models/Dancing_Anim_mixamo_com.fbx", model);
+
+        std::cout << "MESHES SIZE = " << skeletal.getMeshes().size() << std::endl;
+        std::cout << "ANIMS SIZE = " << skeletal.getAnimations().size() << std::endl;
+        std::cout << "bons SIZE = " << skeletal.getBones().size() << std::endl;
+        std::cout << "name = " << skeletal.getAnimations().at(0).name << std::endl;
+        std::cout << "name = " << skeletal.getAnimations().at(1).name << std::endl;
+
+        auto& mats = skeletal.getMaterials();
+
+        for (int i = 0; i < skeletal.getMeshes().size(); ++i) {
+            mats.emplace_back(materials.at("red"));
+        }
+    }
+
+//    {
+//        const fs::path assets_dir {ASSETS_DIR};
+//
+//        models.add("issue_test2", ModelLoader::loadModel(*this, assets_dir / "models/hello.fbx", ModelLoaderFlags{{ModelLoaderOption::NoMaterials}}));
+//
+//        auto& model = models.at("issue_test2");
+//
+//        auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+//
+//        std::cout << "MESHES SIZE = " << skeletal.getMeshes().size() << std::endl;
+//        std::cout << "ANIMS SIZE = " << skeletal.getAnimations().size() << std::endl;
+//        std::cout << "bons SIZE = " << skeletal.getBones().size() << std::endl;
+//        std::cout << "name = " << skeletal.getAnimations().at(0).name << std::endl;
+//
+//        auto& mats = skeletal.getMaterials();
+//
+//        for (int i = 0; i < skeletal.getMeshes().size(); ++i) {
+//            mats.emplace_back(materials.at("red"));
+//        }
+//    }
+//
+//    {
+//        const fs::path assets_dir {ASSETS_DIR};
+//
+//        models.add("issue_test3", ModelLoader::loadModel(*this, assets_dir / "models/ybot.fbx", ModelLoaderFlags{{ModelLoaderOption::NoMaterials}}));
+//
+//        auto& model = models.at("issue_test3");
+//
+//        auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+//
+//        std::cout << "MESHES SIZE = " << skeletal.getMeshes().size() << std::endl;
+//        std::cout << "ANIMS SIZE = " << skeletal.getAnimations().size() << std::endl;
+//        std::cout << "bons SIZE = " << skeletal.getBones().size() << std::endl;
+//        std::cout << "name = " << skeletal.getAnimations().at(0).name << std::endl;
+//
+//        auto& mats = skeletal.getMaterials();
+//
+//        for (int i = 0; i < skeletal.getMeshes().size(); ++i) {
+//            mats.emplace_back(materials.at("red"));
+//        }
+//    }
 }
 
 void DemoAssets::loadSponzaScene() {

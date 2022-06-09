@@ -61,6 +61,7 @@ set(ENGINE_CORE
 
     src/limitless/core/texture_binder.cpp
     src/limitless/core/context_thread_pool.cpp
+    src/limitless/core/sync.cpp
 )
 
 set(ENGINE_INSTANCES
@@ -113,6 +114,7 @@ set(ENGINE_UTIL
     src/limitless/util/thread_pool.cpp
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
+    src/limitless/util/color_picker.cpp
 )
 
 set(ENGINE_MS
@@ -210,7 +212,7 @@ set(ENGINE_SRC
     set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE CACHE BOOL "x" FORCE)
     set(ASSIMP_INSTALL_PDB FALSE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_ZLIB TRUE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_ASSIMP_TOOLS FALSE CACHE BOOL "x" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS TRUE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_COLLADA_IMPORTER FALSE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_OBJ_IMPORTER TRUE CACHE BOOL "x" FORCE)
     set(ASSIMP_BUILD_FBX_IMPORTER TRUE CACHE BOOL "x" FORCE)

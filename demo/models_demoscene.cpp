@@ -53,10 +53,10 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
             .setScale(glm::vec3(0.03f))
             .setRotation(glm::vec3{-M_PI_2, -M_PI_2, 0.0f});
 
-    add<SkeletalInstance>(assets.models.at("bob"), glm::vec3(25.0f, 1.0f, 16.0f))
-            .setScale(glm::vec3(0.03f))
-            .setRotation(glm::vec3{M_PI, -M_PI_2, 0.0f})
-            .play("");
+//    add<SkeletalInstance>(assets.models.at("bob"), glm::vec3(25.0f, 1.0f, 16.0f))
+//            .setScale(glm::vec3(0.03f))
+//            .setRotation(glm::vec3{M_PI, -M_PI_2, 0.0f})
+//            .play("");
 
     add<ModelInstance>(assets.models.at("backpack"), glm::vec3(25.0f, 1.5f, 19.0f))
             .setScale(glm::vec3(0.5f))
@@ -87,8 +87,22 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
     add<ModelInstance>(assets.models.at("elemental"), glm::vec3(25.0f, 2.0f, 27.0f))
         .setScale(glm::vec3(10.0f))
         .setRotation(glm::vec3{-M_PI_2, -M_PI_2, 0.0f});
+
+    add<SkeletalInstance>(assets.models.at("issue_test1"), glm::vec3(20.0f, 2.0f, 20.0f))
+        .setScale(glm::vec3(0.01f))
+        .play("Unreal Take");
+//
+//    add<SkeletalInstance>(assets.models.at("issue_test2"), glm::vec3(18.0f, 2.0f, 20.0f))
+//            .setScale(glm::vec3(0.01f))
+//            .play("Take 001");
+//
+//    add<SkeletalInstance>(assets.models.at("issue_test3"), glm::vec3(16.0f, 2.0f, 20.0f))
+//            .setScale(glm::vec3(0.01f))
+//            .play("mixamo.com");
 }
 
 void ModelsScene::update(Limitless::Context& context, const Limitless::Camera& camera) {
     Limitless::Scene::update(context, camera);
+
+
 }

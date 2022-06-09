@@ -29,11 +29,13 @@ namespace Limitless {
         { ShaderPass::Transparent,          "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "transparent"},
 
         { ShaderPass::DirectionalShadow,    "pipeline"  PATH_SEPARATOR "lighting" PATH_SEPARATOR "directional_shadows" },
+
+        { ShaderPass::ColorPicker,          "pipeline"  PATH_SEPARATOR "util"     PATH_SEPARATOR "color_picker" },
     };
 
-    struct shader_storage_error : public std::runtime_error {
-        explicit shader_storage_error(const char* msg) : runtime_error {msg} {}
-        explicit shader_storage_error(const std::string& msg) : runtime_error {msg} {}
+    class shader_storage_error : public std::runtime_error {
+    public:
+        using std::runtime_error::runtime_error;
     };
 
     class ShaderStorage final {
