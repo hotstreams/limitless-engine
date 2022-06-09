@@ -14,8 +14,7 @@ namespace Limitless::ms {
 
 	class material_compilation_error : public std::runtime_error {
 	public:
-		explicit material_compilation_error(const char* error) : std::runtime_error(error) {}
-		explicit material_compilation_error(const std::string& error) : std::runtime_error(error) {}
+	    using std::runtime_error::runtime_error;
 	};
 
     class MaterialCompiler : public ShaderCompiler {

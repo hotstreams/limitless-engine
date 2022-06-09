@@ -12,6 +12,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <limitless/util/glm.hpp>
 #include <limitless/models/mesh.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -26,8 +27,10 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
                        aiProcess_GenUVCoords |
                        aiProcess_GenSmoothNormals |
                        aiProcess_CalcTangentSpace |
-                       aiProcess_ImproveCacheLocality;
-
+                       aiProcess_ImproveCacheLocality |
+                       aiProcess_LimitBoneWeights |
+                        aiProcess_FindInvalidData;
+    importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	if (flags.isPresent(ModelLoaderOption::GlobalScale)) {
 		scene_flags |= aiProcess_GlobalScale;
 	    importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, flags.scale_factor);
@@ -317,6 +320,7 @@ std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(Assets& as
 
 std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
     std::vector<Animation> animations;
+    std::cout << "ANIMS COUNT = " << scene->mNumAnimations << std::endl;
     for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
         const auto* anim = scene->mAnimations[i];
 
@@ -423,8 +427,10 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
                        aiProcess_GenNormals |
                        aiProcess_GenSmoothNormals |
                        aiProcess_CalcTangentSpace |
-                       aiProcess_ImproveCacheLocality;
-
+                       aiProcess_ImproveCacheLocality |
+                       aiProcess_LimitBoneWeights |
+                       aiProcess_FindInvalidData;
+    importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	if (flags.isPresent(ModelLoaderOption::GlobalScale)) {
 		scene_flags |= aiProcess_GlobalScale;
 		importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, flags.scale_factor);
