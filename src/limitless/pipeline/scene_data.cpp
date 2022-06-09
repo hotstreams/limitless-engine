@@ -26,6 +26,7 @@ SceneDataStorage::~SceneDataStorage() {
 }
 
 void SceneDataStorage::update(Context& context, const Camera& camera) {
+    //TODO: map only if changed
     scene_data.projection = camera.getProjection();
     scene_data.projection_inverse = glm::inverse(camera.getProjection());
     scene_data.view = camera.getView();

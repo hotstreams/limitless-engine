@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # CONFIGURABLE OPTIONS
 
-OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" OFF)
+OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 

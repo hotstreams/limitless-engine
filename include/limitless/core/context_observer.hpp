@@ -3,8 +3,17 @@
 #include <limitless/core/context.hpp>
 
 namespace Limitless {
-    enum class MouseButton : uint8_t { Left, Right, Middle };
-    enum class InputState : uint8_t { Released, Pressed, Repeat};
+    enum class MouseButton : uint8_t {
+        Left = GLFW_MOUSE_BUTTON_LEFT,
+        Right = GLFW_MOUSE_BUTTON_RIGHT,
+        Middle = GLFW_MOUSE_BUTTON_MIDDLE
+    };
+
+    enum class InputState : uint8_t {
+        Released = GLFW_RELEASE,
+        Pressed = GLFW_PRESS,
+        Repeat = GLFW_REPEAT
+    };
     enum class Modifier : uint8_t { Shift = 1, Control = 2, Alt = 4, Super = 8, CapsLock = 16, NumLock = 32 };
 
     class FramebufferObserver {
@@ -88,6 +97,8 @@ namespace Limitless {
 
         InputState getKey(int key) const noexcept;
         bool isPressed(int key) const noexcept;
+
+        InputState getMouseButton(MouseButton button);
 
         void registerObserver(FramebufferObserver* obs);
         void registerObserver(MouseClickObserver* obs);

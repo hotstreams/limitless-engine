@@ -14,6 +14,7 @@ namespace Limitless {
     public:
         Deferred(ContextEventObserver& ctx, const RenderSettings& settings);
         Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& target);
+
         ~Deferred() override = default;
 
         auto& getTarget() noexcept { return target; }
