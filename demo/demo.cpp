@@ -4,6 +4,9 @@
 #include <limitless/core/context_observer.hpp>
 #include <limitless/text/text_instance.hpp>
 #include <limitless/loaders/dds_loader.hpp>
+#include <limitless/util/color_picker.hpp>
+#include <limitless/pipeline/deferred_framebuffer_pass.hpp>
+#include <iostream>
 
 using namespace Limitless;
 

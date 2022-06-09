@@ -43,7 +43,7 @@ namespace Limitless {
 
     class framebuffer_error : public std::runtime_error {
     public:
-        explicit framebuffer_error(const char* error) : runtime_error{error} {}
+        using std::runtime_error::runtime_error;
     };
 
     class Framebuffer : public RenderTarget, public FramebufferObserver {
@@ -59,8 +59,8 @@ namespace Limitless {
         Framebuffer(const Framebuffer&) = delete;
         Framebuffer& operator=(const Framebuffer&) = delete;
 
-        Framebuffer(Framebuffer&&) = delete;
-        Framebuffer& operator=(Framebuffer&&) = delete;
+        Framebuffer(Framebuffer&&) noexcept;
+        Framebuffer& operator=(Framebuffer&&) noexcept;
 
         const TextureAttachment& get(FramebufferAttachment attachment) const;
         void specifyLayer(FramebufferAttachment attachment, uint32_t layer);
@@ -77,6 +77,9 @@ namespace Limitless {
         Framebuffer& operator<<(const TextureAttachment &attachment) noexcept;
 
         void onFramebufferChange(glm::uvec2 size) override;
+
+        static Framebuffer asRGB8LinearClampToEdge(glm::vec2 size);
+        static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const std::shared_ptr<Texture>& depth);
     };
 
     class DefaultFramebuffer : public RenderTarget {

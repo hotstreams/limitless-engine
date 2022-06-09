@@ -3,6 +3,8 @@
 #include <limitless/core/indexed_buffer.hpp>
 #include <vector>
 #include <limitless/shader_storage.hpp>
+#include "context_state.hpp"
+
 
 namespace Limitless::ms {
     class Material;

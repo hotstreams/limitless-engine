@@ -28,9 +28,9 @@ namespace Limitless {
             Depth32F = GL_DEPTH_COMPONENT32F,
             Depth24Stencil8 = GL_DEPTH24_STENCIL8,
             R = GL_RED,
-            RG = GL_RG,
-            RGB = GL_RGB,
-            RGBA = GL_RGBA,
+//            RG = GL_RG,
+//            RGB = GL_RGB,
+//            RGBA = GL_RGBA,
             R8 = GL_R8,
             RG8 = GL_RG8,
             RGB8 = GL_RGB8,
@@ -69,8 +69,6 @@ namespace Limitless {
             // GL_ARB_texture_compression_rgtc
             R_RGTC = GL_COMPRESSED_RED_RGTC1,
             RG_RGTC = GL_COMPRESSED_RG_RGTC2
-
-
         };
 
         enum class Format {

@@ -128,6 +128,8 @@ PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
         pass_shaders.emplace(ShaderPass::DirectionalShadow);
     }
 
+    pass_shaders.emplace(ShaderPass::ColorPicker);
+
 //    #ifdef LIMITLESS_DEBUG
 //        pass_shaders.emplace(ShaderPass::Forward);
 //    #endif

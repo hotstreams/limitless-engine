@@ -13,6 +13,8 @@ namespace Limitless {
 
         Skybox,
         DirectionalShadow,
+
+        ColorPicker
     };
 
     enum class ModelShader {

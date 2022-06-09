@@ -114,6 +114,14 @@ void ContextState::setStencilMask(int32_t mask) noexcept {
     }
 }
 
+void ContextState::setPixelStore(PixelStore name, GLint param) noexcept {
+    if (pixel_pack != name || pixel_param != param) {
+        glPixelStorei(static_cast<GLenum>(name), param);
+        pixel_pack = name;
+        pixel_param = param;
+    }
+}
+
 void ContextState::disable(Capabilities func) noexcept {
     if (capability_map[func]) {
         glDisable(static_cast<GLenum>(func));
