@@ -1,5 +1,6 @@
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/core/texture.hpp>
+#include <limitless/core/texture_builder.hpp>
 
 using namespace Limitless;
 
@@ -181,6 +182,73 @@ void Framebuffer::unbind() noexcept {
             state->framebuffer_id = 0;
         }
     }
+}
+
+Framebuffer Framebuffer::asRGB8LinearClampToEdge(glm::vec2 size) {
+    Framebuffer framebuffer;
+
+    TextureBuilder builder;
+    auto color = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(size)
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::UnsignedByte)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
+Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const std::shared_ptr<Texture>& depth) {
+    Framebuffer framebuffer;
+
+    TextureBuilder builder;
+    auto color = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(size)
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::UnsignedByte)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color}
+                << TextureAttachment{FramebufferAttachment::Depth, depth};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
+Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept
+    : attachments {std::move(rhs.attachments)}
+    , context {rhs.context}
+    , draw_state {std::move(rhs.draw_state)} {
+    if (context) {
+        context->registerObserver(this);
+    }
+}
+//TODO: tests
+// remove rhs from observers?
+Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept {
+    attachments = std::move(rhs.attachments);
+    context = rhs.context;
+    draw_state = std::move(rhs.draw_state);
+    if (context) {
+        context->registerObserver(this);
+    }
+    return *this;
 }
 
 void DefaultFramebuffer::unbind() noexcept {

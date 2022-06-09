@@ -19,7 +19,7 @@ namespace Limitless {
 
 	class AbstractInstance : public InstanceAttachment {
     private:
-        static inline uint64_t next_id {};
+        static inline uint64_t next_id {1};
         uint64_t id;
     protected:
         ModelShader shader_type;

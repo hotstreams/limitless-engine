@@ -100,6 +100,11 @@ namespace Limitless {
     	Always = GL_ALWAYS
     };
 
+    enum class PixelStore {
+        PackAlignment = GL_PACK_ALIGNMENT,
+        UnpackAlignment = GL_UNPACK_ALIGNMENT
+    };
+
     class Context;
 
     class ContextState {
@@ -142,6 +147,10 @@ namespace Limitless {
         std::map<GLuint, GLuint> texture_bound;
         // contains [texture_handle, resident]
         std::map<GLuint64, bool> texture_resident;
+
+        // pixel store
+        PixelStore pixel_pack {};
+        GLint pixel_param {};
 
         ContextState() = default;
         void init() noexcept;
@@ -192,6 +201,7 @@ namespace Limitless {
         void setStencilFunc(StencilFunc func, int32_t ref, int32_t mask) noexcept;
         void setStencilOp(StencilOp sfail, StencilOp dpfail, StencilOp dppass) noexcept;
         void setStencilMask(int32_t mask) noexcept;
+        void setPixelStore(PixelStore name, GLint param) noexcept;
 
         auto& getIndexedBuffers() noexcept { return indexed_buffers; }
 

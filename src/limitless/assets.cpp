@@ -9,6 +9,7 @@
 #include <limitless/models/quad.hpp>
 #include <limitless/models/cube.hpp>
 #include <limitless/models/plane.hpp>
+#include <limitless/models/line.hpp>
 #include <utility>
 
 using namespace Limitless;
@@ -56,6 +57,8 @@ void Assets::load([[maybe_unused]] Context& context) {
 
     models.add("planequad", std::make_shared<PlaneQuad>());
     meshes.add("planequad", models.at("planequad")->getMeshes().at(0));
+
+    models.add("line", std::make_shared<Line>(glm::vec3{0.0f}, glm::vec3{1.0f}));
 }
 
 void Assets::initialize(Context& ctx, const RenderSettings& settings) {
@@ -127,6 +130,8 @@ PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
     if (settings.directional_cascade_shadow_mapping) {
         pass_shaders.emplace(ShaderPass::DirectionalShadow);
     }
+
+    pass_shaders.emplace(ShaderPass::ColorPicker);
 
 //    #ifdef LIMITLESS_DEBUG
 //        pass_shaders.emplace(ShaderPass::Forward);
