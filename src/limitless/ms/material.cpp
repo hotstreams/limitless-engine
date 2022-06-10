@@ -108,6 +108,10 @@ Material::Material(const Material& material)
     }
 
     material_buffer = std::shared_ptr<Buffer>(material.material_buffer->clone());
+
+    //TODO: what to do with copy? map here or in update?
+    // move to update mb
+    map();
 }
 
 template<typename V>

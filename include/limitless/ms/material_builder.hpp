@@ -73,6 +73,8 @@ namespace Limitless::ms {
         MaterialBuilder& set(decltype(material->properties)&& properties);
         MaterialBuilder& set(decltype(material->uniforms)&& uniforms);
 
+        void clear();
+        void setTo(const std::shared_ptr<Material>& material);
         std::shared_ptr<Material> build();
         std::shared_ptr<Material> buildSkybox();
     };
