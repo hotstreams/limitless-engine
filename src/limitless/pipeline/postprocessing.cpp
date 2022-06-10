@@ -10,25 +10,17 @@
 using namespace Limitless;
 
 Blur::Blur(ContextEventObserver& ctx)
-    : blur { Framebuffer(ctx), Framebuffer(ctx) } {
-    for (auto& fbo : blur) {
-        TextureBuilder builder;
-        auto texture = builder.setTarget(Texture::Type::Tex2D)
-                .setInternalFormat(Texture::InternalFormat::RGB16F)
-                .setSize(ctx.getSize())
-                .setFormat(Texture::Format::RGB)
-                .setDataType(Texture::DataType::Float)
-                .setMinFilter(Texture::Filter::Linear)
-                .setMagFilter(Texture::Filter::Linear)
-                .setWrapS(Texture::Wrap::ClampToEdge)
-                .setWrapT(Texture::Wrap::ClampToEdge)
-                .build();
-        fbo << TextureAttachment{FramebufferAttachment::Color0, texture};
-        fbo.drawBuffer(FramebufferAttachment::Color0);
-        fbo.checkStatus();
+    : blur { Framebuffer::asRGB16FLinearClampToEdge(ctx), Framebuffer::asRGB16FLinearClampToEdge(ctx) } {
+}
 
-        fbo.unbind();
-    }
+Blur::Blur(glm::uvec2 frame_size) {
+    blur[0] = Framebuffer::asRGB16FLinearClampToEdge(frame_size);
+    blur[1] = Framebuffer::asRGB16FLinearClampToEdge(frame_size);
+}
+
+void Blur::onResize(glm::uvec2 frame_size) {
+    blur[0].onFramebufferChange(frame_size);
+    blur[1].onFramebufferChange(frame_size);
 }
 
 void Blur::process(const Assets& assets, const std::shared_ptr<Texture>& t) {
@@ -66,79 +58,38 @@ void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Textur
     assets.meshes.at("quad")->draw();
 }
 
-void Bloom::blurImage(const Assets& assets) {
-    auto& blur_shader = assets.shaders.get("blur");
-
-    for (uint8_t i = 0; i < blur_iterations; ++i) {
-        auto index = i % 2;
-        auto direction = index ? glm::vec2{1.0f, 0.0f} : glm::vec2{0.0f, 1.0f};
-        auto image = (i == 0) ? brightness.get(FramebufferAttachment::Color0).texture : blur[!index].get(FramebufferAttachment::Color0).texture;
-
-        blur[index].bind();
-
-        blur_shader << UniformValue<glm::vec2>{"direction", direction}
-                    << UniformSampler("image", image);
-
-        blur_shader.use();
-
-        assets.meshes.at("quad")->draw();
-    }
+Bloom::Bloom(ContextEventObserver& ctx)
+    : brightness {Framebuffer::asRGB16FLinearClampToEdge(ctx)}
+    , blur {ctx} {
 }
 
-Bloom::Bloom(ContextEventObserver& ctx)
-    : brightness {ctx}
-    , blur { Framebuffer(ctx), Framebuffer(ctx) } {
-
-    {
-        TextureBuilder builder;
-        auto texture = builder.setTarget(Texture::Type::Tex2D)
-                              .setInternalFormat(Texture::InternalFormat::RGB16F)
-                              .setSize(ctx.getSize())
-                              .setFormat(Texture::Format::RGB)
-                              .setDataType(Texture::DataType::Float)
-                              .setMinFilter(Texture::Filter::Linear)
-                              .setMagFilter(Texture::Filter::Linear)
-                              .setWrapS(Texture::Wrap::ClampToEdge)
-                              .setWrapT(Texture::Wrap::ClampToEdge)
-                              .build();
-
-        brightness << TextureAttachment{FramebufferAttachment::Color0, texture};
-        brightness.drawBuffer(FramebufferAttachment::Color0);
-        brightness.checkStatus();
-    }
-
-    for (auto& fbo : blur) {
-        TextureBuilder builder;
-        auto texture = builder.setTarget(Texture::Type::Tex2D)
-                              .setInternalFormat(Texture::InternalFormat::RGB16F)
-                              .setSize(ctx.getSize())
-                              .setFormat(Texture::Format::RGB)
-                              .setDataType(Texture::DataType::Float)
-                              .setMinFilter(Texture::Filter::Linear)
-                              .setMagFilter(Texture::Filter::Linear)
-                              .setWrapS(Texture::Wrap::ClampToEdge)
-                              .setWrapT(Texture::Wrap::ClampToEdge)
-                              .build();
-        fbo << TextureAttachment{FramebufferAttachment::Color0, texture};
-        fbo.drawBuffer(FramebufferAttachment::Color0);
-        fbo.checkStatus();
-
-        fbo.unbind();
-    }
+Bloom::Bloom(glm::uvec2 frame_size)
+    : brightness {Framebuffer::asRGB16FLinearClampToEdge(frame_size)}
+    , blur {frame_size} {
 }
 
 void Bloom::process(const Assets& assets, const std::shared_ptr<Texture>& image) {
     extractBrightness(assets, image);
-    blurImage(assets);
+    blur.process(assets, brightness.get(FramebufferAttachment::Color0).texture);
 }
 
 const std::shared_ptr<Texture>& Bloom::getResult() const noexcept {
-    return blur[(blur_iterations - 1) % 2].get(FramebufferAttachment::Color0).texture;
+    return blur.getResult();
+}
+
+void Bloom::onResize(glm::uvec2 frame_size) {
+    brightness.onFramebufferChange(frame_size);
+    blur.onResize(frame_size);
 }
 
 PostProcessing::PostProcessing(ContextEventObserver& ctx, RenderTarget& _target)
     : target {_target}
     , bloom_process(ctx) {
+}
+
+PostProcessing::PostProcessing(glm::uvec2 frame_size, RenderTarget& _target)
+    : target {_target}
+    , bloom_process {frame_size} {
 }
 
 void PostProcessing::process(Context& ctx, const Assets& assets, const Framebuffer& offscreen) {
@@ -177,4 +128,8 @@ void PostProcessing::process(Context& ctx, const Assets& assets, const Framebuff
     assets.meshes.at("quad")->draw();
 
     target.unbind();
+}
+
+void PostProcessing::onResize(glm::uvec2 frame_size) {
+    bloom_process.onResize(frame_size);
 }

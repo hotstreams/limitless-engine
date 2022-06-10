@@ -10,14 +10,15 @@ namespace Limitless {
     class Deferred final : public Pipeline {
     private:
     	RenderTarget& target;
-        void create(ContextEventObserver& ctx, const RenderSettings& settings);
+        bool dep {};
+        void buildDependent(ContextEventObserver& ctx, const RenderSettings& settings);
+        void buildIndependent(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings);
     public:
-        Deferred(ContextEventObserver& ctx, const RenderSettings& settings);
-        Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& target);
-        ~Deferred() override = default;
+        Deferred(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings, RenderTarget& target = default_framebuffer);
+        Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& target = default_framebuffer);
 
         auto& getTarget() noexcept { return target; }
 
-	    void update(ContextEventObserver& ctx, const RenderSettings& settings) override;
+	    void update(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings) override;
     };
 }

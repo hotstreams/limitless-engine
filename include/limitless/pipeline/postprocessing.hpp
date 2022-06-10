@@ -10,7 +10,9 @@ namespace Limitless {
         std::array<Framebuffer, 2> blur;
     public:
         explicit Blur(ContextEventObserver& ctx);
-        ~Blur() = default;
+        explicit Blur(glm::uvec2 frame_size);
+
+        void onResize(glm::uvec2 frame_size);
 
         void process(const Assets& ctx, const std::shared_ptr<Texture>& image);
 
@@ -22,12 +24,14 @@ namespace Limitless {
         static constexpr uint8_t blur_iterations = 8;
 
         Framebuffer brightness;
-        std::array<Framebuffer, 2> blur;
+        Blur blur;
 
         void extractBrightness(const Assets& ctx, const std::shared_ptr<Texture>& image);
-        void blurImage(const Assets& ctx);
     public:
         explicit Bloom(ContextEventObserver& ctx);
+        explicit Bloom(glm::uvec2 frame_size);
+
+        void onResize(glm::uvec2 frame_size);
 
         void process(const Assets& ctx, const std::shared_ptr<Texture>& image);
 
@@ -61,7 +65,9 @@ namespace Limitless {
         Bloom bloom_process;
     public:
         explicit PostProcessing(ContextEventObserver& ctx, RenderTarget& target = default_framebuffer);
-        ~PostProcessing() = default;
+        explicit PostProcessing(glm::uvec2 frame_size, RenderTarget& target = default_framebuffer);
+
+        void onResize(glm::uvec2 frame_size);
 
         void process(Context& context, const Assets& assets, const Framebuffer& offscreen);
     };

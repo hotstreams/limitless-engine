@@ -9,7 +9,7 @@ namespace Limitless {
         Framebuffer framebuffer;
     public:
         DeferredFramebufferPass(Pipeline& pipeline, ContextEventObserver& ctx);
-        ~DeferredFramebufferPass() override = default;
+        DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 frame_size);
 
         auto& getFramebuffer() noexcept { return framebuffer; }
         auto& getAlbedo() noexcept { return framebuffer.get(FramebufferAttachment::Color0).texture; }
@@ -21,5 +21,6 @@ namespace Limitless {
         auto& getComposite() noexcept { return framebuffer.get(FramebufferAttachment::Color5).texture; }
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) override;
     };
 }

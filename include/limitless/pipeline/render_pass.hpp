@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 #include <stdexcept>
+#include <glm/vec2.hpp>
 
 namespace Limitless {
     class AbstractInstance;
@@ -28,7 +29,9 @@ namespace Limitless {
         virtual std::shared_ptr<Texture> getResult() { throw std::logic_error{"This RenderPass does not provide result method!"}; }
 
         virtual void addSetter(UniformSetter& setter);
-        virtual void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera);
         virtual void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter);
+
+        void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera);
+        virtual void update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera);
     };
 }

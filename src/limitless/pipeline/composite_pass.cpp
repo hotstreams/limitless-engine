@@ -10,7 +10,7 @@
 
 using namespace Limitless;
 
-CompositePass::CompositePass(Pipeline& pipeline, ContextEventObserver& ctx)
+CompositePass::CompositePass(Pipeline& pipeline)
     : RenderPass(pipeline) {
 }
 

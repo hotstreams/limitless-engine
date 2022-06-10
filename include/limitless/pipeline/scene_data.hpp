@@ -32,6 +32,6 @@ namespace Limitless {
         SceneDataStorage(const SceneDataStorage&) = delete;
         SceneDataStorage(SceneDataStorage&&) = delete;
 
-        void update(Context& context, const Camera& camera);
+        void update(Context& context, glm::uvec2 frame_size, const Camera& camera);
     };
 }

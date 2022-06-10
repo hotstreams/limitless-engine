@@ -27,10 +27,11 @@ namespace Limitless {
         void generateKernel(Context& ctx);
     public:
         SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx);
-        ~SSAOPass() override = default;
+        SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx, glm::uvec2 frame_size);
 
         std::shared_ptr<Texture> getResult() override { return framebuffer.get(FramebufferAttachment::Color1).texture; }
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) override;
     };
 }

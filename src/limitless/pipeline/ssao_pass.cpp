@@ -55,6 +55,37 @@ SSAOPass::SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx)
     generateKernel(ctx);
 }
 
+SSAOPass::SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx, glm::uvec2 frame_size)
+    : RenderPass(pipeline) {
+    TextureBuilder builder;
+    auto ssao = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    auto blurred = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, ssao}
+                << TextureAttachment{FramebufferAttachment::Color1, blurred};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    generateNoise();
+    generateKernel(ctx);
+}
+
 void SSAOPass::generateNoise() {
     std::uniform_real_distribution<GLfloat> r(0.0, 1.0);
     std::default_random_engine gen(std::random_device{}());
@@ -144,4 +175,8 @@ void SSAOPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe
 
         assets.meshes.at("quad")->draw();
     }
+}
+
+void SSAOPass::update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) {
+    framebuffer.onFramebufferChange(frame_size);
 }

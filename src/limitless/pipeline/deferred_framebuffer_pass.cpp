@@ -86,6 +86,88 @@ DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, ContextEven
     framebuffer.unbind();
 }
 
+DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 frame_size)
+    : RenderPass(pipeline)
+    , framebuffer {} {
+    TextureBuilder builder;
+    auto albedo = builder   .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGBA8)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    auto normal = builder   .setTarget(Texture::Type::Tex2D)
+//                            .setInternalFormat(Texture::InternalFormat::RGBA16_SNORM)
+            .setInternalFormat(Texture::InternalFormat::RGBA16F)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    auto props = builder    .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RG8_SNORM)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    auto emissive = builder .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB16F)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    auto depth = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::Depth32F)
+            .setSize(frame_size)
+            .setFormat(Texture::Format::DepthComponent)
+            .setDataType(Texture::DataType::Float)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    auto shaded = builder   .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    auto composite = builder    .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(frame_size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, albedo}
+                << TextureAttachment{FramebufferAttachment::Color1, normal}
+                << TextureAttachment{FramebufferAttachment::Color2, props}
+                << TextureAttachment{FramebufferAttachment::Color3, emissive}
+                << TextureAttachment{FramebufferAttachment::Color4, shaded}
+                << TextureAttachment{FramebufferAttachment::Color5, composite}
+                << TextureAttachment{FramebufferAttachment::Depth, depth};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+}
+
 void DeferredFramebufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     ctx.setViewPort(ctx.getSize());
     ctx.setDepthMask(DepthMask::True);
@@ -105,4 +187,8 @@ void DeferredFramebufferPass::draw([[maybe_unused]] Instances& instances, Contex
     });
 
     framebuffer.clear();
+}
+
+void DeferredFramebufferPass::update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) {
+    framebuffer.onFramebufferChange(frame_size);
 }

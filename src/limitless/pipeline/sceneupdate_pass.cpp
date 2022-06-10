@@ -9,9 +9,9 @@ SceneUpdatePass::SceneUpdatePass(Pipeline& pipeline, Context& ctx)
     , scene_data {ctx} {
 }
 
-void SceneUpdatePass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
+void SceneUpdatePass::update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) {
     scene.update(ctx, camera);
-    scene_data.update(ctx, camera);
+    scene_data.update(ctx, frame_size, camera);
 
     instances = scene.getWrappers();
 }

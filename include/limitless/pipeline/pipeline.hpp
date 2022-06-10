@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/pipeline/render_pass.hpp>
+#include <glm/glm.hpp>
 
 #include <vector>
 #include <memory>
@@ -12,8 +13,7 @@ namespace Limitless {
 
     class pipeline_pass_not_found final : public std::logic_error {
     public:
-        explicit pipeline_pass_not_found(const char* msg) : logic_error(msg) {}
-        ~pipeline_pass_not_found() = default;
+        using std::logic_error::logic_error;
     };
 
     class Pipeline {
@@ -48,12 +48,13 @@ namespace Limitless {
 		        }
 	        }
 
-	        throw std::logic_error {"There is no previous pass!"};
+	        throw pipeline_pass_not_found {"There is no previous pass!"};
         }
 
-        virtual void update(ContextEventObserver& ctx, const RenderSettings& settings);
-        void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
+        void update(ContextEventObserver& ctx, const RenderSettings& settings);
+        virtual void update(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings);
 
+        void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
         void clear();
     };
 }

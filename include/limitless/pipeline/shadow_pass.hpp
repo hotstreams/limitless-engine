@@ -17,10 +17,9 @@ namespace Limitless {
     public:
         DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings);
         DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings, fx::EffectRenderer& renderer);
-        ~DirectionalShadowPass() override = default;
 
         void addSetter(UniformSetter& setter) override;
-        void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;
+        void update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) override;
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };
 }

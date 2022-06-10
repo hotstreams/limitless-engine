@@ -25,7 +25,7 @@ SceneDataStorage::~SceneDataStorage() {
     }
 }
 
-void SceneDataStorage::update(Context& context, const Camera& camera) {
+void SceneDataStorage::update(Context& context, glm::uvec2 frame_size, const Camera& camera) {
     scene_data.projection = camera.getProjection();
     scene_data.projection_inverse = glm::inverse(camera.getProjection());
     scene_data.view = camera.getView();
@@ -33,7 +33,7 @@ void SceneDataStorage::update(Context& context, const Camera& camera) {
     scene_data.VP = camera.getProjection() * camera.getView();
     scene_data.VP_inverse = glm::inverse(scene_data.VP);
     scene_data.camera_position = { camera.getPosition(), 1.0f };
-    scene_data.resolution = context.getSize();
+    scene_data.resolution = frame_size;
     scene_data.far_plane = camera.getFar();
     scene_data.near_plane = camera.getNear();
     buffer->mapData(&scene_data, sizeof(SceneData));
