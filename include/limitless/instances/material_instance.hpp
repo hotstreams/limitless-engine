@@ -54,6 +54,8 @@ namespace Limitless {
         ms::Material& operator[](uint64_t id) { return *materials.at(id); }
         const ms::Material& operator[](uint64_t id) const { return *materials.at(id); }
 
+        auto& get(uint64_t id) { return materials.at(id); }
+
         [[nodiscard]] auto count() const noexcept { return materials.size(); }
 
         [[nodiscard]] auto begin() const noexcept { return materials.cbegin(); }

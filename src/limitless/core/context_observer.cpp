@@ -151,3 +151,7 @@ InputState ContextEventObserver::getKey(int key) const noexcept {
 bool ContextEventObserver::isPressed(int key) const noexcept {
     return getKey(key) == InputState::Pressed;
 }
+
+InputState ContextEventObserver::getMouseButton(MouseButton button) {
+    return static_cast<InputState>(glfwGetMouseButton(window, static_cast<uint8_t>(button)));
+}

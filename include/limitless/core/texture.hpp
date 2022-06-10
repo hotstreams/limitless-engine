@@ -150,6 +150,7 @@ namespace Limitless {
         [[nodiscard]] const auto& getBorderColor() const noexcept { return border_color; }
         [[nodiscard]] auto getDataType() const noexcept { return data_type; }
         [[nodiscard]] auto getFormat() const noexcept { return format; }
+        [[nodiscard]] auto getInternalFormat() const noexcept { return internal_format; }
         [[nodiscard]] auto getType() const noexcept { return target; }
         [[nodiscard]] auto getSize() const noexcept { return size; }
         [[nodiscard]] auto getMin() const noexcept { return min; }
