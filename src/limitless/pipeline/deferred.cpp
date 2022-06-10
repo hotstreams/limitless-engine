@@ -26,17 +26,24 @@
 
 using namespace Limitless;
 
-Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings)
-	: target {default_framebuffer} {
-    create(ctx, settings);
+Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& _target)
+    : target {_target} {
+    buildDependent(ctx, settings);
+    dep = true;
 }
 
-void Deferred::update(ContextEventObserver& ctx, const RenderSettings& settings) {
+Deferred::Deferred(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings, RenderTarget& _target)
+    : target {_target} {
+    dep = false;
+    buildIndependent(ctx, frame_size, settings);
+}
+
+void Deferred::update(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings) {
     clear();
-    create(ctx, settings);
+    dep ? buildDependent(ctx, settings) : buildIndependent(ctx, frame_size, settings);
 }
 
-void Deferred::create(ContextEventObserver& ctx, const RenderSettings& settings) {
+void Deferred::buildDependent(ContextEventObserver& ctx, const RenderSettings& settings) {
     add<SceneUpdatePass>(ctx);
     auto& fx = add<EffectUpdatePass>(ctx);
 
@@ -60,7 +67,7 @@ void Deferred::create(ContextEventObserver& ctx, const RenderSettings& settings)
 
     add<BlurPass>(ctx);
 
-    add<CompositePass>(ctx);
+    add<CompositePass>();
 
 //    add<OutlinePass>();
 
@@ -68,18 +75,56 @@ void Deferred::create(ContextEventObserver& ctx, const RenderSettings& settings)
         add<FXAAPass>(ctx);
     }
 
-    if (settings.depth_of_field) {
-    	add<DoFPass>(ctx);
-    }
+//    if (settings.depth_of_field) {
+//        add<DoFPass>(ctx);
+//    }
 
-	add<QuadPass>(target);
+    add<QuadPass>(target);
 
 //    #ifdef LIMITLESS_DEBUG
 //        add<RenderDebugPass>(settings);
 //    #endif
 }
 
-Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& _target)
-	: target {_target} {
-	create(ctx, settings);
+void Deferred::buildIndependent(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings) {
+    add<SceneUpdatePass>(ctx);
+    auto& fx = add<EffectUpdatePass>(ctx);
+
+    if (settings.directional_cascade_shadow_mapping) {
+        add<DirectionalShadowPass>(ctx, settings, fx.getRenderer());
+    }
+
+    add<DeferredFramebufferPass>(frame_size);
+    add<DepthPass>(fx.getRenderer());
+    add<GBufferPass>(fx.getRenderer());
+
+    add<SkyboxPass>();
+
+    if (settings.screen_space_ambient_occlusion) {
+        add<SSAOPass>(ctx, frame_size);
+    }
+
+    add<DeferredLightingPass>();
+
+    add<TranslucentPass>(fx.getRenderer());
+
+    add<BlurPass>(ctx, frame_size);
+
+    add<CompositePass>();
+
+//    add<OutlinePass>();
+
+    if (settings.fast_approximate_antialiasing) {
+        add<FXAAPass>(frame_size);
+    }
+
+//    if (settings.depth_of_field) {
+//        add<DoFPass>(ctx);
+//    }
+
+    add<QuadPass>(target);
+
+//    #ifdef LIMITLESS_DEBUG
+//        add<RenderDebugPass>(settings);
+//    #endif
 }

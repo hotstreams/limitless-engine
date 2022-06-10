@@ -8,12 +8,9 @@ namespace Limitless {
     class FXAAPass final : public RenderPass {
     private:
     	Framebuffer framebuffer;
-	    RenderTarget& target;
-	    void initialize(Context& ctx);
     public:
-        explicit FXAAPass(Pipeline& pipeline, Context& ctx);
-        explicit FXAAPass(Pipeline& pipeline, RenderTarget& target);
-        ~FXAAPass() override = default;
+        explicit FXAAPass(Pipeline& pipeline, ContextEventObserver& ctx);
+        explicit FXAAPass(Pipeline& pipeline, glm::uvec2 frame_size);
 
         std::shared_ptr<Texture> getResult() override { return framebuffer.get(FramebufferAttachment::Color0).texture; }
 

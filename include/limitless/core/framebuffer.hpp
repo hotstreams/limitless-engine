@@ -78,6 +78,9 @@ namespace Limitless {
 
         void onFramebufferChange(glm::uvec2 size) override;
 
+        static Framebuffer asRGB16FLinearClampToEdge(ContextEventObserver& ctx);
+        static Framebuffer asRGB16FLinearClampToEdge(glm::vec2 size);
+        static Framebuffer asRGB8LinearClampToEdge(ContextEventObserver& ctx);
         static Framebuffer asRGB8LinearClampToEdge(glm::vec2 size);
         static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const std::shared_ptr<Texture>& depth);
     };

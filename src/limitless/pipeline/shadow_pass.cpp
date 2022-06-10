@@ -29,6 +29,10 @@ void DirectionalShadowPass::addSetter(UniformSetter& setter) {
     });
 }
 
-void DirectionalShadowPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
+void DirectionalShadowPass::update(Scene& scene,
+                                   [[maybe_unused]] Instances& instances,
+                                   [[maybe_unused]] Context& ctx,
+                                   [[maybe_unused]] glm::uvec2 frame_size,
+                                   [[maybe_unused]] const Camera& camera) {
     light = &scene.lighting.directional_light;
 }

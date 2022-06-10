@@ -11,34 +11,14 @@
 
 using namespace Limitless;
 
-void FXAAPass::initialize(Context& ctx) {
-	TextureBuilder builder;
-	auto result = builder.setTarget(Texture::Type::Tex2D)
-			.setInternalFormat(Texture::InternalFormat::RGB8)
-			.setSize(ctx.getSize())
-			.setFormat(Texture::Format::RGB)
-			.setDataType(Texture::DataType::UnsignedByte)
-			.setMinFilter(Texture::Filter::Linear)
-			.setMagFilter(Texture::Filter::Linear)
-			.setWrapS(Texture::Wrap::ClampToEdge)
-			.setWrapT(Texture::Wrap::ClampToEdge)
-			.build();
-
-	framebuffer.bind();
-	framebuffer << TextureAttachment{FramebufferAttachment::Color0, result};
-	framebuffer.checkStatus();
-	framebuffer.unbind();
-}
-
-FXAAPass::FXAAPass(Pipeline& pipeline, Context& ctx)
+FXAAPass::FXAAPass(Pipeline& pipeline, ContextEventObserver& ctx)
     : RenderPass(pipeline)
-    , target {framebuffer} {
-	initialize(ctx);
+    , framebuffer {Framebuffer::asRGB8LinearClampToEdge(ctx)} {
 }
 
-FXAAPass::FXAAPass(Pipeline& pipeline, RenderTarget& _target)
-	: RenderPass(pipeline)
-	, target {_target} {
+FXAAPass::FXAAPass(Pipeline& pipeline, glm::uvec2 frame_size)
+    : RenderPass(pipeline)
+    , framebuffer {Framebuffer::asRGB8LinearClampToEdge(frame_size)} {
 }
 
 void FXAAPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
@@ -46,7 +26,7 @@ void FXAAPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
     ctx.disable(Capabilities::Blending);
 
     {
-        target.clear();
+        framebuffer.clear();
         auto& shader = assets.shaders.get("fxaa");
 
         shader << UniformSampler{"scene", pipeline.get<DeferredFramebufferPass>().getComposite()};

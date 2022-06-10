@@ -231,6 +231,75 @@ Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const 
     return framebuffer;
 }
 
+Framebuffer Framebuffer::asRGB16FLinearClampToEdge(glm::vec2 size) {
+    Framebuffer framebuffer;
+
+    TextureBuilder builder;
+    auto color = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB16F)
+            .setSize(size)
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::Float)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
+Framebuffer Framebuffer::asRGB16FLinearClampToEdge(ContextEventObserver& ctx) {
+    Framebuffer framebuffer {ctx};
+
+    TextureBuilder builder;
+    auto color = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB16F)
+            .setSize(ctx.getSize())
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::Float)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
+Framebuffer Framebuffer::asRGB8LinearClampToEdge(ContextEventObserver& ctx) {
+    Framebuffer framebuffer {ctx};
+
+    TextureBuilder builder;
+    auto color = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(ctx.getSize())
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::UnsignedByte)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
 Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept
     : attachments {std::move(rhs.attachments)}
     , context {rhs.context}

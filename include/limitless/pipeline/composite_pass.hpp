@@ -6,8 +6,7 @@
 namespace Limitless {
     class CompositePass final : public RenderPass {
     public:
-        explicit CompositePass(Pipeline& pipeline, ContextEventObserver& ctx);
-        ~CompositePass() override = default;
+        explicit CompositePass(Pipeline& pipeline);
 
         std::shared_ptr<Texture> getResult() override;
 

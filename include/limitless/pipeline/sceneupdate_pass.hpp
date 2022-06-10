@@ -9,8 +9,7 @@ namespace Limitless {
         SceneDataStorage scene_data;
     public:
         SceneUpdatePass(Pipeline& pipeline, Context& ctx);
-        ~SceneUpdatePass() override = default;
 
-        void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;
+        void update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) override;
     };
 }

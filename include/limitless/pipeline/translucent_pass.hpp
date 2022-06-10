@@ -15,7 +15,6 @@ namespace Limitless {
         void sort(Instances& instances, const Camera& camera, ms::Blending blending);
     public:
         explicit TranslucentPass(Pipeline& pipeline, fx::EffectRenderer& renderer);
-        ~TranslucentPass() override = default;
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };
