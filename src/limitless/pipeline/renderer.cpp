@@ -21,12 +21,12 @@ Renderer::Renderer(std::unique_ptr<Pipeline> _pipeline, const RenderSettings& _s
 
 Renderer::Renderer(ContextEventObserver& ctx, const RenderSettings& _settings)
 	: settings {_settings}
-	, pipeline {std::make_unique<Deferred>(ctx, settings)} {
+	, pipeline {std::make_unique<Deferred>(ctx, ctx.getSize(), settings)} {
 }
 
 Renderer::Renderer(ContextEventObserver& ctx)
     : settings {}
-    , pipeline {std::make_unique<Deferred>(ctx, settings)} {
+    , pipeline {std::make_unique<Deferred>(ctx, ctx.getSize(), settings)} {
 }
 
 void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
@@ -35,11 +35,11 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
     //profiler.draw(context, assets);
 }
 
-void Renderer::updatePipeline(ContextEventObserver& ctx) {
-	pipeline->update(ctx, settings);
+void Renderer::updatePipeline(ContextEventObserver& ctx, glm::uvec2 size) {
+    pipeline->update(ctx, settings);
 }
 
-void Renderer::update(ContextEventObserver& ctx, Assets& assets) {
+void Renderer::update(ContextEventObserver& ctx, glm::uvec2 size, Assets& assets) {
     assets.recompileShaders(ctx, settings);
-	updatePipeline(ctx);
+	updatePipeline(ctx, size);
 }

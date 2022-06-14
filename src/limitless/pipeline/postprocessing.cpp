@@ -6,12 +6,9 @@
 #include <limitless/core/uniform.hpp>
 
 #include <limitless/models/abstract_mesh.hpp>
+#include <iostream>
 
 using namespace Limitless;
-
-Blur::Blur(ContextEventObserver& ctx)
-    : blur { Framebuffer::asRGB16FLinearClampToEdge(ctx), Framebuffer::asRGB16FLinearClampToEdge(ctx) } {
-}
 
 Blur::Blur(glm::uvec2 frame_size) {
     blur[0] = Framebuffer::asRGB16FLinearClampToEdge(frame_size);
@@ -58,11 +55,6 @@ void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Textur
     assets.meshes.at("quad")->draw();
 }
 
-Bloom::Bloom(ContextEventObserver& ctx)
-    : brightness {Framebuffer::asRGB16FLinearClampToEdge(ctx)}
-    , blur {ctx} {
-}
-
 Bloom::Bloom(glm::uvec2 frame_size)
     : brightness {Framebuffer::asRGB16FLinearClampToEdge(frame_size)}
     , blur {frame_size} {
@@ -80,11 +72,6 @@ const std::shared_ptr<Texture>& Bloom::getResult() const noexcept {
 void Bloom::onResize(glm::uvec2 frame_size) {
     brightness.onFramebufferChange(frame_size);
     blur.onResize(frame_size);
-}
-
-PostProcessing::PostProcessing(ContextEventObserver& ctx, RenderTarget& _target)
-    : target {_target}
-    , bloom_process(ctx) {
 }
 
 PostProcessing::PostProcessing(glm::uvec2 frame_size, RenderTarget& _target)

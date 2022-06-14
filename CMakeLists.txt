@@ -100,6 +100,7 @@ set(ENGINE_MODELS
     src/limitless/models/quad.cpp
     src/limitless/models/sphere.cpp
     src/limitless/models/model.cpp
+    src/limitless/models/cylinder.cpp
 )
 
 set(ENGINE_SERIALIZATION

@@ -11,11 +11,6 @@
 
 using namespace Limitless;
 
-FXAAPass::FXAAPass(Pipeline& pipeline, ContextEventObserver& ctx)
-    : RenderPass(pipeline)
-    , framebuffer {Framebuffer::asRGB8LinearClampToEdge(ctx)} {
-}
-
 FXAAPass::FXAAPass(Pipeline& pipeline, glm::uvec2 frame_size)
     : RenderPass(pipeline)
     , framebuffer {Framebuffer::asRGB8LinearClampToEdge(frame_size)} {
@@ -35,4 +30,8 @@ void FXAAPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
 
         assets.meshes.at("quad")->draw();
     }
+}
+
+void FXAAPass::onFramebufferChange(glm::uvec2 size) {
+    framebuffer.onFramebufferChange(size);
 }
