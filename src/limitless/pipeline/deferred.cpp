@@ -23,27 +23,22 @@
 #include <limitless/core/texture_builder.hpp>
 #include <limitless/pipeline/dof_pass.hpp>
 #include <limitless/pipeline/outline_pass.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
-Deferred::Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& _target)
-    : target {_target} {
-    buildDependent(ctx, settings);
-    dep = true;
+Deferred::Deferred(ContextEventObserver& ctx, glm::uvec2 size, const RenderSettings& settings, RenderTarget& _target)
+    : Pipeline {size}
+    , target {_target} {
+    build(ctx, settings);
 }
 
-Deferred::Deferred(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings, RenderTarget& _target)
-    : target {_target} {
-    dep = false;
-    buildIndependent(ctx, frame_size, settings);
-}
-
-void Deferred::update(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings) {
+void Deferred::update(ContextEventObserver& ctx, const RenderSettings& settings) {
     clear();
-    dep ? buildDependent(ctx, settings) : buildIndependent(ctx, frame_size, settings);
+    build(ctx, settings);
 }
 
-void Deferred::buildDependent(ContextEventObserver& ctx, const RenderSettings& settings) {
+void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) {
     add<SceneUpdatePass>(ctx);
     auto& fx = add<EffectUpdatePass>(ctx);
 
@@ -51,28 +46,28 @@ void Deferred::buildDependent(ContextEventObserver& ctx, const RenderSettings& s
         add<DirectionalShadowPass>(ctx, settings, fx.getRenderer());
     }
 
-    add<DeferredFramebufferPass>(ctx);
+    add<DeferredFramebufferPass>(size);
     add<DepthPass>(fx.getRenderer());
     add<GBufferPass>(fx.getRenderer());
 
     add<SkyboxPass>();
 
     if (settings.screen_space_ambient_occlusion) {
-        add<SSAOPass>(ctx);
+        add<SSAOPass>(ctx, size);
     }
 
     add<DeferredLightingPass>();
 
     add<TranslucentPass>(fx.getRenderer());
 
-    add<BlurPass>(ctx);
+    add<BlurPass>(size);
 
     add<CompositePass>();
 
 //    add<OutlinePass>();
 
     if (settings.fast_approximate_antialiasing) {
-        add<FXAAPass>(ctx);
+        add<FXAAPass>(size);
     }
 
 //    if (settings.depth_of_field) {
@@ -86,45 +81,13 @@ void Deferred::buildDependent(ContextEventObserver& ctx, const RenderSettings& s
 //    #endif
 }
 
-void Deferred::buildIndependent(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings) {
-    add<SceneUpdatePass>(ctx);
-    auto& fx = add<EffectUpdatePass>(ctx);
+void Deferred::onFramebufferChange(glm::uvec2 size) {
+    Pipeline::onFramebufferChange(size);
 
-    if (settings.directional_cascade_shadow_mapping) {
-        add<DirectionalShadowPass>(ctx, settings, fx.getRenderer());
-    }
+    target.get().onFramebufferChange(size);
+}
 
-    add<DeferredFramebufferPass>(frame_size);
-    add<DepthPass>(fx.getRenderer());
-    add<GBufferPass>(fx.getRenderer());
-
-    add<SkyboxPass>();
-
-    if (settings.screen_space_ambient_occlusion) {
-        add<SSAOPass>(ctx, frame_size);
-    }
-
-    add<DeferredLightingPass>();
-
-    add<TranslucentPass>(fx.getRenderer());
-
-    add<BlurPass>(ctx, frame_size);
-
-    add<CompositePass>();
-
-//    add<OutlinePass>();
-
-    if (settings.fast_approximate_antialiasing) {
-        add<FXAAPass>(frame_size);
-    }
-
-//    if (settings.depth_of_field) {
-//        add<DoFPass>(ctx);
-//    }
-
-    add<QuadPass>(target);
-
-//    #ifdef LIMITLESS_DEBUG
-//        add<RenderDebugPass>(settings);
-//    #endif
+void Deferred::setTarget(RTRef _target) noexcept {
+    target = _target;
+    get<QuadPass>().setTarget(&target.get());
 }

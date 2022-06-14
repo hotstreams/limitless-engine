@@ -8,6 +8,7 @@
 #include <limitless/core/context.hpp>
 #include <limitless/fx/effect_renderer.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
+#include <iostream>
 
 using namespace Limitless;
 

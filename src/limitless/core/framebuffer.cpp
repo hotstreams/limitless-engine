@@ -4,12 +4,6 @@
 
 using namespace Limitless;
 
-Framebuffer::Framebuffer(ContextEventObserver& _context) noexcept
-    : Framebuffer() {
-    context = &_context;
-    context->registerObserver(this);
-}
-
 Framebuffer::Framebuffer() noexcept {
     glGenFramebuffers(1, &id);
 }
@@ -31,10 +25,6 @@ Framebuffer::~Framebuffer() {
             }
             glDeleteFramebuffers(1, &id);
         }
-    }
-
-    if (context) {
-        context->unregisterObserver(this);
     }
 }
 
@@ -163,7 +153,7 @@ Framebuffer& Framebuffer::operator<<(const TextureAttachment& attachment) noexce
             break;
     }
 
-    attachments.emplace(attachment.attachment, attachment);
+    attachments[attachment.attachment] = attachment;
     return *this;
 }
 
@@ -231,6 +221,42 @@ Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const 
     return framebuffer;
 }
 
+Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size) {
+    Framebuffer framebuffer;
+
+    TextureBuilder builder;
+    auto color = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB8)
+            .setSize(size)
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::UnsignedByte)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    //TODO: 32F???? wtf?
+    auto depth = builder.setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::Depth32F)
+            .setSize(size)
+            .setFormat(Texture::Format::DepthComponent)
+            .setDataType(Texture::DataType::Float)
+            .setMinFilter(Texture::Filter::Linear)
+            .setMagFilter(Texture::Filter::Linear)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .build();
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color}
+                << TextureAttachment{FramebufferAttachment::Depth, depth};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
 Framebuffer Framebuffer::asRGB16FLinearClampToEdge(glm::vec2 size) {
     Framebuffer framebuffer;
 
@@ -248,52 +274,7 @@ Framebuffer Framebuffer::asRGB16FLinearClampToEdge(glm::vec2 size) {
 
     framebuffer.bind();
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
-    framebuffer.checkStatus();
-    framebuffer.unbind();
-
-    return framebuffer;
-}
-
-Framebuffer Framebuffer::asRGB16FLinearClampToEdge(ContextEventObserver& ctx) {
-    Framebuffer framebuffer {ctx};
-
-    TextureBuilder builder;
-    auto color = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16F)
-            .setSize(ctx.getSize())
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::Float)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
-
-    framebuffer.bind();
-    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
-    framebuffer.checkStatus();
-    framebuffer.unbind();
-
-    return framebuffer;
-}
-
-Framebuffer Framebuffer::asRGB8LinearClampToEdge(ContextEventObserver& ctx) {
-    Framebuffer framebuffer {ctx};
-
-    TextureBuilder builder;
-    auto color = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(ctx.getSize())
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::UnsignedByte)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
-
-    framebuffer.bind();
-    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
+    framebuffer.drawBuffer(FramebufferAttachment::Color0);
     framebuffer.checkStatus();
     framebuffer.unbind();
 
@@ -302,21 +283,13 @@ Framebuffer Framebuffer::asRGB8LinearClampToEdge(ContextEventObserver& ctx) {
 
 Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept
     : attachments {std::move(rhs.attachments)}
-    , context {rhs.context}
     , draw_state {std::move(rhs.draw_state)} {
-    if (context) {
-        context->registerObserver(this);
-    }
 }
 //TODO: tests
 // remove rhs from observers?
 Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept {
     attachments = std::move(rhs.attachments);
-    context = rhs.context;
     draw_state = std::move(rhs.draw_state);
-    if (context) {
-        context->registerObserver(this);
-    }
     return *this;
 }
 
@@ -345,25 +318,29 @@ void DefaultFramebuffer::clear() {
 }
 
 void DefaultFramebuffer::clear(FramebufferAttachment attachment) {
-	bind();
+    bind();
 
-	GLenum bits = 0;
+    GLenum bits = 0;
 
-	if (attachment == FramebufferAttachment::Color0) {
-		bits |= GL_COLOR_BUFFER_BIT;
-	}
+    if (attachment == FramebufferAttachment::Color0) {
+        bits |= GL_COLOR_BUFFER_BIT;
+    }
 
-	if (attachment == FramebufferAttachment::Depth) {
-		bits |= GL_DEPTH_BUFFER_BIT;
-	}
+    if (attachment == FramebufferAttachment::Depth) {
+        bits |= GL_DEPTH_BUFFER_BIT;
+    }
 
-	if (attachment == FramebufferAttachment::Stencil) {
-		bits |= GL_STENCIL_BUFFER_BIT;
-	}
+    if (attachment == FramebufferAttachment::Stencil) {
+        bits |= GL_STENCIL_BUFFER_BIT;
+    }
 
-	if (attachment == FramebufferAttachment::DepthStencil) {
-		bits |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-	}
+    if (attachment == FramebufferAttachment::DepthStencil) {
+        bits |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+    }
 
-	glClear(bits);
+    glClear(bits);
+}
+
+void DefaultFramebuffer::onFramebufferChange(glm::uvec2 size) {
+    // nothing, its done automatically
 }

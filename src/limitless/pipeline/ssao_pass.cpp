@@ -25,7 +25,7 @@ namespace {
 
 SSAOPass::SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx)
     : RenderPass(pipeline)
-    , framebuffer {ctx} {
+    , framebuffer {} {
     TextureBuilder builder;
     auto ssao = builder     .setTarget(Texture::Type::Tex2D)
                             .setInternalFormat(Texture::InternalFormat::RGB8)
@@ -177,6 +177,9 @@ void SSAOPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe
     }
 }
 
-void SSAOPass::update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) {
-    framebuffer.onFramebufferChange(frame_size);
+void SSAOPass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
+}
+
+void SSAOPass::onFramebufferChange(glm::uvec2 size) {
+    framebuffer.onFramebufferChange(size);
 }

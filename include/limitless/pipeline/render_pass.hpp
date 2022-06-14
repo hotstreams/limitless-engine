@@ -31,7 +31,8 @@ namespace Limitless {
         virtual void addSetter(UniformSetter& setter);
         virtual void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter);
 
-        void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera);
-        virtual void update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera);
+        virtual void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera);
+
+        virtual void onFramebufferChange(glm::uvec2 size);
     };
 }

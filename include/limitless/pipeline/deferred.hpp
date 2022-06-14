@@ -7,18 +7,20 @@ namespace Limitless {
     class ContextEventObserver;
     class RenderSettings;
 
+    using RTRef = std::reference_wrapper<RenderTarget>;
+
     class Deferred final : public Pipeline {
     private:
-    	RenderTarget& target;
-        bool dep {};
-        void buildDependent(ContextEventObserver& ctx, const RenderSettings& settings);
-        void buildIndependent(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings);
+        RTRef target;
+        void build(ContextEventObserver& ctx, const RenderSettings& settings);
     public:
-        Deferred(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings, RenderTarget& target = default_framebuffer);
-        Deferred(ContextEventObserver& ctx, const RenderSettings& settings, RenderTarget& target = default_framebuffer);
+        Deferred(ContextEventObserver& ctx, glm::uvec2 size, const RenderSettings& settings, RenderTarget& target = default_framebuffer);
 
+        void setTarget(RTRef target) noexcept;
         auto& getTarget() noexcept { return target; }
 
-	    void update(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings) override;
+	    void update(ContextEventObserver& ctx, const RenderSettings& settings) override;
+
+        void onFramebufferChange(glm::uvec2 size) override;
     };
 }

@@ -7,11 +7,13 @@ namespace Limitless {
 
     class QuadPass final : public RenderPass {
     private:
-    	RenderTarget& target;
+    	RenderTarget* target;
     public:
         explicit QuadPass(Pipeline& pipeline);
         QuadPass(Pipeline& pipeline, RenderTarget& target);
         ~QuadPass() override = default;
+
+        void setTarget(RenderTarget* target);
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
     };

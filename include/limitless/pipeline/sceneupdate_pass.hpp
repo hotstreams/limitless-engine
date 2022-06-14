@@ -10,6 +10,8 @@ namespace Limitless {
     public:
         SceneUpdatePass(Pipeline& pipeline, Context& ctx);
 
-        void update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) override;
+        void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;
+
+        void onFramebufferChange(glm::uvec2 size) override;
     };
 }

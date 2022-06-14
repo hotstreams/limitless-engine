@@ -19,8 +19,9 @@ namespace Limitless {
     class Pipeline {
     protected:
         std::vector<std::unique_ptr<RenderPass>> passes;
+        glm::uvec2 size;
     public:
-        Pipeline() = default;
+        explicit Pipeline(glm::uvec2 size) : size {size} {}
         virtual ~Pipeline() = default;
 
         template<typename Pass, typename... Args>
@@ -51,8 +52,9 @@ namespace Limitless {
 	        throw pipeline_pass_not_found {"There is no previous pass!"};
         }
 
-        void update(ContextEventObserver& ctx, const RenderSettings& settings);
-        virtual void update(ContextEventObserver& ctx, glm::uvec2 frame_size, const RenderSettings& settings);
+        virtual void update(ContextEventObserver& ctx, const RenderSettings& settings);
+
+        virtual void onFramebufferChange(glm::uvec2 size);
 
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
         void clear();

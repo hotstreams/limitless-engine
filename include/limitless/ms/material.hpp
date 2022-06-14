@@ -19,8 +19,7 @@ namespace Limitless {
 namespace Limitless::ms {
     class material_property_not_found : public std::runtime_error {
     public:
-        explicit material_property_not_found(const char* err) : runtime_error(err) {}
-        explicit material_property_not_found(const std::string& err) : runtime_error(err) {}
+        using std::runtime_error::runtime_error;
     };
 
     class Material final {
@@ -131,6 +130,7 @@ namespace Limitless::ms {
         [[nodiscard]] const auto& getMaterialBuffer() const noexcept { return material_buffer; }
         [[nodiscard]] const auto& getProperties() const noexcept { return properties; }
         [[nodiscard]] const auto& getUniforms() const noexcept { return uniforms; }
+        [[nodiscard]] auto& getUniforms() noexcept { return uniforms; }
 
         auto& getBlending() noexcept { return blending; }
         auto& getTwoSided() noexcept { return two_sided; }

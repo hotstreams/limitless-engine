@@ -49,6 +49,9 @@ namespace Limitless {
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] virtual bool& getChanged() noexcept { return changed; }
 
+        //TODO:: fix? is it legal
+        void setName(std::string _name) { name = std::move(_name); }
+
         [[nodiscard]] virtual Uniform* clone() noexcept = 0;
         virtual void set(const ShaderProgram& shader) = 0;
     };
