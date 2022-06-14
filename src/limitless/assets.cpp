@@ -10,6 +10,8 @@
 #include <limitless/models/cube.hpp>
 #include <limitless/models/plane.hpp>
 #include <limitless/models/line.hpp>
+#include <limitless/models/cylinder.hpp>
+
 #include <utility>
 
 using namespace Limitless;
@@ -28,7 +30,7 @@ void Assets::load([[maybe_unused]] Context& context) {
     // builds default materials for every model type
     ms::MaterialBuilder builder {*this};
     ModelShaders model_types = { ModelShader::Model, ModelShader::Skeletal, ModelShader::Effect, ModelShader::Instanced };
-    builder.setName("default").setShading(ms::Shading::Unlit).add(ms::Property::Color, {0.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
+    builder.setName("default").setShading(ms::Shading::Unlit).add(ms::Property::Color, {0.7f, 0.0f, 0.7f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
@@ -59,6 +61,7 @@ void Assets::load([[maybe_unused]] Context& context) {
     meshes.add("planequad", models.at("planequad")->getMeshes().at(0));
 
     models.add("line", std::make_shared<Line>(glm::vec3{0.0f}, glm::vec3{1.0f}));
+    models.add("cylinder", std::make_shared<Cylinder>());
 }
 
 void Assets::initialize(Context& ctx, const RenderSettings& settings) {
@@ -117,9 +120,9 @@ void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const
 PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
     PassShaders pass_shaders;
 
-    if (settings.pipeline == RenderPipeline::Forward) {
+//    if (settings.pipeline == RenderPipeline::Forward) {
         pass_shaders.emplace(ShaderPass::Forward);
-    }
+//    }
 
     if (settings.pipeline == RenderPipeline::Deferred) {
         pass_shaders.emplace(ShaderPass::Depth);

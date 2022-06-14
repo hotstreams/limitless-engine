@@ -41,8 +41,16 @@ namespace Limitless {
             : framebuffer {Framebuffer::asRGB8LinearClampToEdgeWithDepth(frame_size, depth)} {
         }
 
+        explicit ColorPicker(glm::uvec2 frame_size)
+            : framebuffer {Framebuffer::asRGB8LinearClampToEdgeWithDepth(frame_size)} {
+        }
+
         void process(Context& ctx);
 
+        // can process only one same scene at all picks
         void onPick(Context& ctx, Assets& assets, Scene& scene, glm::uvec2 coords, std::function<void(uint32_t id)> callback);
+        void onPick(Context& ctx, Assets& assets, const Instances& instances, glm::uvec2 coords, std::function<void(uint32_t id)> callback);
+
+        void onFramebufferChange(glm::uvec2 size);
     };
 }

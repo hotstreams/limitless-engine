@@ -12,7 +12,7 @@ InstanceAttachment::InstanceAttachment(const InstanceAttachment& attachment) {
 
 void InstanceAttachment::updateAttachments(Context& context, const Camera& camera) {
 	for (const auto& [_, attachment] : attachments) {
-		attachment->update(context, camera);
+        attachment->update(context, camera);
 	}
 }
 

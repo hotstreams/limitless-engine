@@ -11,12 +11,12 @@ using namespace Limitless;
 
 QuadPass::QuadPass(Pipeline& pipeline)
     : RenderPass(pipeline)
-    , target {default_framebuffer} {
+    , target {&default_framebuffer} {
 }
 
 QuadPass::QuadPass(Pipeline& pipeline, RenderTarget& _target)
 	: RenderPass(pipeline)
-	, target {_target} {
+	, target {&_target} {
 }
 
 void QuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
@@ -24,7 +24,7 @@ void QuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
     ctx.disable(Capabilities::Blending);
 
     {
-	    target.clear();
+	    target->clear();
         auto& shader = assets.shaders.get("quad");
 
         shader << UniformSampler{"screen_texture", getPreviousResult()};
@@ -33,4 +33,8 @@ void QuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
 
         assets.meshes.at("quad")->draw();
     }
+}
+
+void QuadPass::setTarget(RenderTarget* _target) {
+    target = _target;
 }

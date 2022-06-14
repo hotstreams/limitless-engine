@@ -33,6 +33,7 @@ namespace Limitless {
         virtual void bind() noexcept = 0;
         virtual void clear() = 0;
 	    virtual void clear(FramebufferAttachment attachment) = 0;
+	    virtual void onFramebufferChange(glm::uvec2 size) = 0;
     };
 
     struct TextureAttachment {
@@ -46,13 +47,11 @@ namespace Limitless {
         using std::runtime_error::runtime_error;
     };
 
-    class Framebuffer : public RenderTarget, public FramebufferObserver {
+    class Framebuffer : public RenderTarget {
     private:
         std::unordered_map<FramebufferAttachment, TextureAttachment> attachments;
-        ContextEventObserver* context {};
         std::vector<FramebufferAttachment> draw_state;
     public:
-        explicit Framebuffer(ContextEventObserver& context) noexcept;
         Framebuffer() noexcept;
         ~Framebuffer() override;
 
@@ -78,11 +77,10 @@ namespace Limitless {
 
         void onFramebufferChange(glm::uvec2 size) override;
 
-        static Framebuffer asRGB16FLinearClampToEdge(ContextEventObserver& ctx);
         static Framebuffer asRGB16FLinearClampToEdge(glm::vec2 size);
-        static Framebuffer asRGB8LinearClampToEdge(ContextEventObserver& ctx);
         static Framebuffer asRGB8LinearClampToEdge(glm::vec2 size);
         static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const std::shared_ptr<Texture>& depth);
+        static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size);
     };
 
     class DefaultFramebuffer : public RenderTarget {
@@ -94,6 +92,7 @@ namespace Limitless {
         void bind() noexcept override;
         void clear() override;
 	    void clear(FramebufferAttachment attachment) override;
+        void onFramebufferChange(glm::uvec2 size) override;
     };
 
     inline DefaultFramebuffer default_framebuffer;

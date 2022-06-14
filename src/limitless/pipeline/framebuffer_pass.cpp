@@ -11,7 +11,6 @@ FramebufferPass::FramebufferPass(Pipeline& pipeline, RenderTarget& _target)
 
 FramebufferPass::FramebufferPass(Pipeline& pipeline, ContextEventObserver& ctx)
     : RenderPass(pipeline)
-    , framebuffer {ctx}
     , target {framebuffer} {
 
     TextureBuilder builder;

@@ -44,7 +44,7 @@ void EffectInstance::updateEmitters(Context& context, const Camera& camera) cons
 		emitter->setRotation(rotation);
 		//TODO
 		//emitter->setScale(scale);
-		emitter->update(context, camera);
+        emitter->update(context, camera);
 	}
 }
 

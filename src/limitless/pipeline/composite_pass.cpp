@@ -25,7 +25,7 @@ void CompositePass::draw([[maybe_unused]] Instances& instances, Context& ctx, co
     auto& fb = pipeline.get<DeferredFramebufferPass>().getFramebuffer();
 
     {
-        ctx.setViewPort(ctx.getSize());
+        ctx.setViewPort(fb.get(FramebufferAttachment::Color0).texture->getSize());
 
 		fb.drawBuffer(FramebufferAttachment::Color5);
 

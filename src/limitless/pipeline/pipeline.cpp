@@ -22,14 +22,16 @@ void Pipeline::draw(Context& context, const Assets& assets, Scene& scene, Camera
 }
 
 void Pipeline::update(ContextEventObserver& ctx, const RenderSettings& settings) {
-    update(ctx, ctx.getSize(), settings);
-}
-
-void Pipeline::update([[maybe_unused]] ContextEventObserver& ctx,
-                      [[maybe_unused]] glm::uvec2 frame_size,
-                      [[maybe_unused]] const RenderSettings& settings) {
 }
 
 void Pipeline::clear() {
     passes.clear();
+}
+
+void Pipeline::onFramebufferChange(glm::uvec2 frame_size) {
+    size = frame_size;
+
+    for (const auto& pass : passes) {
+        pass->onFramebufferChange(size);
+    }
 }

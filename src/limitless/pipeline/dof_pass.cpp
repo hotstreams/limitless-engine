@@ -10,13 +10,13 @@ using namespace Limitless;
 
 DoFPass::DoFPass(Pipeline& pipeline, ContextEventObserver& ctx, RenderTarget& _target)
 	: RenderPass {pipeline}
-	, blur {ctx}
+	, blur {ctx.getSize()}
 	, target {_target} {
 }
 
 DoFPass::DoFPass(Pipeline& pipeline, ContextEventObserver& ctx)
 	: RenderPass {pipeline}
-	, blur {ctx}
+	, blur {ctx.getSize()}
 	, target {framebuffer} {
 	initialize(ctx);
 }

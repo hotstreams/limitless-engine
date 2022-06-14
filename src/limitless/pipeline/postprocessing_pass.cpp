@@ -4,7 +4,7 @@ using namespace Limitless;
 
 PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context)
     : RenderPass(pipeline)
-    , postprocess {context} {
+    , postprocess {context.getSize()} {
 }
 
 void PostEffectsPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
@@ -14,6 +14,6 @@ void PostEffectsPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused
 
 PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context, RenderTarget& target)
 	: RenderPass(pipeline)
-	, postprocess {context, target} {
+	, postprocess {context.getSize(), target} {
 
 }

@@ -1,12 +1,12 @@
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
 
 #include <limitless/core/texture_builder.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
 DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, ContextEventObserver& ctx)
-    : RenderPass(pipeline)
-    , framebuffer {ctx} {
+    : RenderPass(pipeline) {
     TextureBuilder builder;
     auto albedo = builder   .setTarget(Texture::Type::Tex2D)
                             .setInternalFormat(Texture::InternalFormat::RGBA8)
@@ -189,6 +189,9 @@ void DeferredFramebufferPass::draw([[maybe_unused]] Instances& instances, Contex
     framebuffer.clear();
 }
 
-void DeferredFramebufferPass::update(Scene& scene, Instances& instances, Context& ctx, glm::uvec2 frame_size, const Camera& camera) {
-    framebuffer.onFramebufferChange(frame_size);
+void DeferredFramebufferPass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
+}
+
+void DeferredFramebufferPass::onFramebufferChange(glm::uvec2 size) {
+    framebuffer.onFramebufferChange(size);
 }
