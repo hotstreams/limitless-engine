@@ -183,4 +183,85 @@ TextureBuilder& TextureBuilder::setCompressedData(const void* _data, std::size_t
     return *this;
 }
 
+std::shared_ptr<Texture> TextureBuilder::asRGBA16NearestClampToEdge(glm::uvec2 size) {
+    TextureBuilder builder;
+
+    builder .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGBA16)
+            .setFormat(Texture::Format::RGBA)
+            .setDataType(Texture::DataType::UnsignedByte)
+            .setSize(size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge);
+
+    return builder.build();
+}
+
+std::shared_ptr<Texture> TextureBuilder::asRGB16NearestClampToEdge(glm::uvec2 size) {
+    TextureBuilder builder;
+
+    builder .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB16)
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::UnsignedByte)
+            .setSize(size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge);
+
+    return builder.build();
+}
+
+std::shared_ptr<Texture> TextureBuilder::asRGB16SNORMNearestClampToEdge(glm::uvec2 size) {
+    TextureBuilder builder;
+
+    builder .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB16_SNORM)
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::Byte)
+            .setSize(size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge);
+
+    return builder.build();
+}
+
+std::shared_ptr<Texture> TextureBuilder::asRGB16FNearestClampToEdge(glm::uvec2 size) {
+    TextureBuilder builder;
+
+    builder .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::RGB16F)
+            .setFormat(Texture::Format::RGB)
+            .setDataType(Texture::DataType::Float)
+            .setSize(size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge)
+            .setMipMap(false);
+
+    return builder.build();
+}
+
+std::shared_ptr<Texture> TextureBuilder::asDepth32F(glm::uvec2 size) {
+    TextureBuilder builder;
+
+    builder .setTarget(Texture::Type::Tex2D)
+            .setInternalFormat(Texture::InternalFormat::Depth32F)
+            .setFormat(Texture::Format::DepthComponent)
+            .setDataType(Texture::DataType::Float)
+            .setSize(size)
+            .setMinFilter(Texture::Filter::Nearest)
+            .setMagFilter(Texture::Filter::Nearest)
+            .setWrapS(Texture::Wrap::ClampToEdge)
+            .setWrapT(Texture::Wrap::ClampToEdge);
+
+    return builder.build();
+}
+
 

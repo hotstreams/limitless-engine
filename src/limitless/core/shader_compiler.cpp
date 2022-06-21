@@ -81,6 +81,7 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
     if (render_settings) {
         std::string settings;
 
+        //TODO: remove
         if (render_settings->normal_mapping) {
             settings.append("#define NORMAL_MAPPING\n");
         }
@@ -97,6 +98,10 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
 
         if (render_settings->screen_space_ambient_occlusion) {
 	        settings.append("#define SCREEN_SPACE_AMBIENT_OCCLUSION\n");
+        }
+
+        if (render_settings->micro_shadowing) {
+            settings.append("#define MICRO_SHADOWING\n");
         }
 
         shader.replaceKey("Limitless::Settings", settings);

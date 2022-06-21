@@ -13,7 +13,7 @@ void SkyboxPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const
     }
 }
 
-void SkyboxPass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
+void SkyboxPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
     skybox = scene.getSkybox().get();
 }
 

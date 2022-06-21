@@ -60,9 +60,9 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
         materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
     }
 
-    auto animations = loadAnimations(scene, bones, bone_map, flags);
+    auto animations = loadAnimations(scene, bones, bone_map);
 
-    auto animation_tree = loadAnimationTree(scene, bones, bone_map, flags);
+    auto animation_tree = loadAnimationTree(scene, bones, bone_map);
 
     auto global_matrix = convert(scene->mRootNode->mTransformation);
 
@@ -76,7 +76,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
 }
 
 template<typename T>
-std::vector<T> ModelLoader::loadVertices(aiMesh* mesh, const ModelLoaderFlags& flags) {
+std::vector<T> ModelLoader::loadVertices(aiMesh* mesh) {
     std::vector<T> vertices;
     vertices.reserve(mesh->mNumVertices);
 
@@ -145,9 +145,9 @@ std::shared_ptr<AbstractMesh> ModelLoader::loadMesh(
         return assets.meshes.at(name);
     }
 
-    auto vertices = loadVertices<T>(m, flags);
+    auto vertices = loadVertices<T>(m);
     auto indices = loadIndices<T1>(m);
-    auto weights = loadBoneWeights(m, bones, bone_map, flags);
+    auto weights = loadBoneWeights(m, bones, bone_map);
 
     auto stream = bone_map.empty() ?
         std::make_unique<IndexedVertexStream<T>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles) :
@@ -202,10 +202,6 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
 //
 //        builder.add(ms::Property::Specular, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
 //    }
-
-    float shininess = 16.0f;
-    mat->Get(AI_MATKEY_SHININESS, shininess);
-    builder.add(ms::Property::Shininess, shininess);
 
     if (auto opacity_mask = mat->GetTextureCount(aiTextureType_OPACITY); opacity_mask != 0) {
         aiString texture_name;
@@ -273,7 +269,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
     return builder.build();
 }
 
-std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
+std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     std::vector<VertexBoneWeight> bone_weights;
 
     if (mesh->HasBones()) {
@@ -318,9 +314,9 @@ std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(Assets& as
     return materials;
 }
 
-std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
+std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     std::vector<Animation> animations;
-    std::cout << "ANIMS COUNT = " << scene->mNumAnimations << std::endl;
+
     for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
         const auto* anim = scene->mAnimations[i];
 
@@ -365,7 +361,7 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
     return animations;
 }
 
-Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags) {
+Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     auto bone_finder = [&] (const std::string& str){
         if (auto bi = bone_map.find(str); bi != bone_map.end()) {
             return bi->second;
@@ -454,7 +450,7 @@ void ModelLoader::addAnimations(const fs::path& _path, const std::shared_ptr<Abs
     auto& bones = model.getBones();
     auto& animations = model.getAnimations();
 
-    auto loaded = loadAnimations(scene, bones, bone_map, {});
+    auto loaded = loadAnimations(scene, bones, bone_map);
 
     if (loaded.empty()) {
         throw model_loader_error{"Animations are empty!"};
@@ -472,7 +468,7 @@ void ModelLoader::addAnimations(const std::vector<fs::path>& paths, const std::s
 }
 
 namespace Limitless {
-    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh, const ModelLoaderFlags& flags);
+    template std::vector<VertexNormalTangent> ModelLoader::loadVertices<VertexNormalTangent>(aiMesh* mesh);
 
     template std::vector<GLubyte> ModelLoader::loadIndices<GLubyte>(aiMesh* mesh) noexcept;
     template std::vector<GLushort> ModelLoader::loadIndices<GLushort>(aiMesh* mesh) noexcept;

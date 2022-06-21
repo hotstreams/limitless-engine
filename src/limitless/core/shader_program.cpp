@@ -134,7 +134,7 @@ void ShaderProgram::bindIndexedBuffers(ContextState& ctx) {
         try {
             auto buffer = ctx.getIndexedBuffers().get(name);
 
-            Buffer::Type program_target;
+            Buffer::Type program_target {};
             switch (target) {
                 case IndexedBuffer::Type::UniformBuffer:
                     program_target = Buffer::Type::Uniform;

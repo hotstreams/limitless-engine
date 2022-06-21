@@ -14,12 +14,12 @@ namespace Limitless::fx {
         Time(const Time& module) = default;
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
-            particle.getTime() = 0.0f;
+            particle.time = 0.0f;
         }
 
         void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
             for (auto& particle : particles) {
-                particle.getTime() += dt;
+                particle.time += dt;
             }
         }
 

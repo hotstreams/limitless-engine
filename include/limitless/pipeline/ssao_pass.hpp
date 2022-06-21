@@ -32,7 +32,6 @@ namespace Limitless {
         std::shared_ptr<Texture> getResult() override { return framebuffer.get(FramebufferAttachment::Color1).texture; }
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
-        void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;
 
         void onFramebufferChange(glm::uvec2 size) override;
     };

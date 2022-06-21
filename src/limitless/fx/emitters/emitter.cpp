@@ -17,8 +17,8 @@ void Emitter<P>::emit(uint32_t count) noexcept {
     for (uint32_t i = 0; i < count; ++i) {
         P particle {};
 
-        particle.getPosition() = local_position + position;
-        particle.getRotation() = glm::eulerAngles(rotation * local_rotation);
+        particle.position = local_position + position;
+        particle.rotation = glm::eulerAngles(rotation * local_rotation);
 
         for (auto& module : modules) {
             module->initialize(*this, particle, particles.size());
@@ -110,7 +110,7 @@ void Emitter<P>::setPosition(const glm::vec3& new_position) noexcept {
         const auto diff = final_position - (position + local_position);
 
         for (auto& particle : particles) {
-            particle.getPosition() += diff;
+            particle.position += diff;
         }
     }
 
@@ -124,10 +124,10 @@ void Emitter<P>::setRotation(const glm::quat& new_rotation) noexcept {
         const auto diff = final_rotation * glm::inverse(rotation * local_rotation);
 
         for (auto& particle : particles) {
-            particle.getRotation() += glm::eulerAngles(diff);
+            particle.rotation += glm::eulerAngles(diff);
 
-            particle.getVelocity() = diff * particle.getVelocity();
-            particle.getAcceleration() = diff * particle.getAcceleration();
+            particle.velocity = diff * particle.velocity;
+            particle.acceleration = diff * particle.acceleration;
         }
     }
 
@@ -185,13 +185,13 @@ template<typename P>
 void Emitter<P>::killParticles() noexcept {
     std::vector<size_t> indices;
     for (size_t i = 0; i < particles.size(); ++i) {
-        if (particles[i].getLifetime() <= 0.0f) {
+        if (particles[i].lifetime <= 0.0f) {
             indices.emplace_back(i);
         }
     }
 
     for (auto it = particles.begin(); it != particles.end();) {
-        if (it->getLifetime() <= 0.0f) {
+        if (it->lifetime <= 0.0f) {
             it = particles.erase(it);
         } else {
             ++it;
@@ -223,8 +223,8 @@ void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Ca
         }
 
         for (auto& particle : particles) {
-            particle.getPosition() += particle.getVelocity() * delta_time.count();
-            particle.getVelocity() += particle.getAcceleration() * delta_time.count();
+            particle.position += particle.velocity * delta_time.count();
+            particle.velocity += particle.acceleration * delta_time.count();
         }
     }
 

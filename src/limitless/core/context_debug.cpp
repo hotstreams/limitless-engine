@@ -11,7 +11,7 @@ void Limitless::activate_debug() {
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-		std::cout << "OpenGL debug mode." << std::endl;
+		std::cerr << "OpenGL debug mode" << std::endl;
 
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);

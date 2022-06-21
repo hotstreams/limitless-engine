@@ -26,7 +26,6 @@ namespace Limitless {
         { ShaderPass::Depth,                "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "depth" },
         { ShaderPass::GBuffer,              "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "gbuffer" },
         { ShaderPass::Skybox,               "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "skybox"},
-        { ShaderPass::Transparent,          "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "transparent"},
 
         { ShaderPass::DirectionalShadow,    "pipeline"  PATH_SEPARATOR "lighting" PATH_SEPARATOR "directional_shadows" },
 
@@ -59,6 +58,8 @@ namespace Limitless {
         void add(std::string name, std::shared_ptr<ShaderProgram> program);
         void add(ShaderPass material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program);
         void add(const fx::UniqueEmitterShaderKey& emitter_type, std::shared_ptr<ShaderProgram> program);
+
+        void remove(ShaderPass material_type, ModelShader model_type, uint64_t material_index);
 
         bool contains(const std::string& name) noexcept;
         bool contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept;

@@ -5,19 +5,19 @@
 
 using namespace Limitless;
 
-BlurPass::BlurPass(Pipeline& pipeline, glm::uvec2 frame_size)
+BloomPass::BloomPass(Pipeline& pipeline, glm::uvec2 frame_size)
     : RenderPass {pipeline}
-    , blur {frame_size} {
+    , bloom {frame_size} {
 }
 
-void BlurPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
-    ctx.disable(Capabilities::Blending);
-    blur.process(assets, pipeline.get<DeferredFramebufferPass>().getEmissive());
+void BloomPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+    bloom.process(ctx, assets, getPreviousResult());
 }
 
-void BlurPass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
+void BloomPass::onFramebufferChange(glm::uvec2 size) {
+    bloom.onFramebufferChange(size);
 }
 
-void BlurPass::onFramebufferChange(glm::uvec2 size) {
-    blur.onResize(size);
+std::shared_ptr<Texture> BloomPass::getResult() {
+    return bloom.getResult();
 }

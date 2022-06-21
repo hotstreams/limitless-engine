@@ -19,7 +19,7 @@ namespace Limitless::fx {
             , distribution {module.distribution->clone()} {}
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
-            particle.getMinOffset() = distribution->get();
+            particle.offset = distribution->get();
         }
 
         [[nodiscard]] BeamOffset* clone() const override {

@@ -19,10 +19,10 @@
     float getMaterialMetallic(vec2 uv);
     float getMaterialRoughness(vec2 uv);
 
-    float getMaterialShininess();
     float getMaterialMetallic();
     float getMaterialRoughness();
-    float getMaterialRefraction();
+    float getMaterialIoR();
+    float getMaterialAbsorption();
 
 */
 
@@ -73,10 +73,6 @@ layout (std140) uniform material_buffer {
         vec2 _material_tessellation_factor;
     #endif
 
-    #if defined (MATERIAL_SHININESS)
-        float _material_shininess;
-    #endif
-
     #if defined (MATERIAL_METALLIC)
         float _material_metallic;
     #endif
@@ -86,7 +82,13 @@ layout (std140) uniform material_buffer {
     #endif
 
     #if defined (MATERIAL_REFRACTION)
-        float _material_refraction;
+        #if defined (MATERIAL_IOR)
+            float _material_ior;
+        #endif
+
+        #if defined (MATERIAL_ABSORPTION)
+            float _material_absorption;
+        #endif
     #endif
 
     #if defined (BINDLESS_TEXTURE)
@@ -164,32 +166,36 @@ uint getMaterialShadingModel() {
     }
 #endif
 
+#if defined (MATERIAL_METALLIC)
 float getMaterialMetallic() {
-    #if defined (MATERIAL_METALLIC)
-        return _material_metallic;
-    #else
-        return 0.1;
-    #endif
+    return _material_metallic;
 }
+#endif
 
+#if defined (MATERIAL_ROUGHNESS)
 float getMaterialRoughness() {
-    #if defined (MATERIAL_ROUGHNESS)
-        return _material_roughness;
-    #else
-        return 0.5;
-    #endif
+    return _material_roughness;
 }
+#endif
 
 #if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
-    float getMaterialAmbientOcclusionTexture(vec2 uv) {
+    float getMaterialAmbientOcclusion(vec2 uv) {
         return texture(material_ambient_occlusion_texture, uv).r;
     }
 #endif
 
 #if defined (MATERIAL_REFRACTION)
-    float getMaterialRefraction() {
-        return _material_refraction;
-    }
+    #if defined (MATERIAL_IOR)
+        float getMaterialIOR() {
+            return _material_ior;
+        }
+    #endif
+
+    #if defined (MATERIAL_ABSORPTION)
+        float getMaterialAbsorption() {
+            return _material_absorption;
+        }
+    #endif
 #endif
 
 #if defined (MATERIAL_DIFFUSE)

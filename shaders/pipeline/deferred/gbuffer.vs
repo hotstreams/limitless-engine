@@ -7,7 +7,7 @@ Limitless::EmitterType
 
 #include "../vertex_streams/vertex_stream.glsl"
 #include "../interface_block/vertex.glsl"
-
+#include "../shading/common.glsl"
 #include "../scene.glsl"
 #include "../instance/instance.glsl"
 #include "../material/material.glsl"

@@ -25,6 +25,8 @@ namespace Limitless {
         uint8_t directional_split_count = 3; // [2; 4]
         bool directional_pcf = true;
 
+        bool micro_shadowing = false;
+
         // debug
         bool light_radius = true;
         bool coordinate_system_axes = false;

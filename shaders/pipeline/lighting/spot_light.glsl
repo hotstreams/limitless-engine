@@ -3,48 +3,46 @@ struct SpotLight {
     vec4 direction;
     vec4 color;
     float cutoff;
+    float radius;
 };
 
 layout (std140) buffer SPOT_LIGHTS_BUFFER {
     SpotLight _spot_lights[];
 };
 
-vec3 getRadiance(SpotLight light, vec3 world_pos) {
-    float distance = length(light.position.xyz - world_pos);
-    float attenuation = 1.0 / (distance * distance);
-    return light.color.rgb * attenuation;
-}
-
-vec3 getDirectLighting(lighting_context context, SpotLight light) {
-    vec3 L = normalize(light.position.xyz - context.world_position);
-    float factor = dot(L, light.direction.xyz);
+vec3 computeSpotLight(const LightingContext context, const SpotLight light) {
+    vec3 L = normalize(light.position.xyz - context.worldPos);
+    float factor = dot(L, -light.direction.xyz);
 
     vec3 lighting = vec3(0.0);
     if (factor > light.cutoff) {
         vec3 H = normalize(context.V + L);
 
-        float NoL = max(dot(context.N, L), 0.0);
-        float NoH = max(dot(context.N, H), 0.0);
+        float NoL = saturate(dot(context.N, L));
+        float NoH = saturate(dot(context.N, H));
+        float LoH = saturate(dot(L, H));
 
-        float VoH = clamp(dot(H, context.V), 0.0, 1.0);
+        vec3 Fd = DiffuseBRDF(context.diffuseColor, context.roughness, context.NoV, NoL, LoH);
+        vec3 Fr = SpecularBRDF(context.roughness, NoH, context.NoV, NoL, LoH, H, context.F0, context.a2);
 
-        vec3 F = SpecularF_Schlick(context.F0, VoH);
+        vec3 color = Fd + Fr;
 
-        vec3 radiance = getRadiance(light, context.world_position) * factor;
+        float distance = length(light.position.xyz - context.worldPos);
+        float attenuation = 1.0 / (distance * distance);
 
-        vec3 diffuse = Diffuse_BRDF(context.albedo, F, context.metallic);
-        vec3 specular = Specular_BRDF(context.NoV, NoL, NoH, context.a2, context.roughness, F);
-
-        lighting = (diffuse + specular) * radiance * NoL;
+        lighting = (color * light.color.rgb) * (light.color.a * attenuation * NoL * factor);
     }
 
     return lighting;
 }
 
-vec3 getSpotLightDirectLighting(lighting_context context) {
+vec3 computeSpotLight(const LightingContext context) {
     vec3 direct_light = vec3(0.0);
     for (uint i = 0u; i < getSpotLightsCount(); ++i) {
-        direct_light += getDirectLighting(context, _spot_lights[i]);
+        float l = length(_spot_lights[i].position.xyz - context.worldPos);
+        if (l <= _spot_lights[i].radius) {
+            direct_light += computeSpotLight(context, _spot_lights[i]);
+        }
     }
     return direct_light;
 }

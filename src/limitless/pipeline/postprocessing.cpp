@@ -5,78 +5,11 @@
 #include <limitless/core/shader_program.hpp>
 #include <limitless/core/uniform.hpp>
 
-#include <limitless/models/abstract_mesh.hpp>
-#include <iostream>
-
 using namespace Limitless;
 
-Blur::Blur(glm::uvec2 frame_size) {
-    blur[0] = Framebuffer::asRGB16FLinearClampToEdge(frame_size);
-    blur[1] = Framebuffer::asRGB16FLinearClampToEdge(frame_size);
-}
-
-void Blur::onResize(glm::uvec2 frame_size) {
-    blur[0].onFramebufferChange(frame_size);
-    blur[1].onFramebufferChange(frame_size);
-}
-
-void Blur::process(const Assets& assets, const std::shared_ptr<Texture>& t) {
-    auto& blur_shader = assets.shaders.get("blur");
-
-    for (uint8_t i = 0; i < 8; ++i) {
-        auto index = i % 2;
-        auto direction = index ? glm::vec2{1.0f, 0.0f} : glm::vec2{0.0f, 1.0f};
-        auto image = (i == 0) ? t : blur[!index].get(FramebufferAttachment::Color0).texture;
-
-        blur[index].bind();
-
-        blur_shader << UniformValue<glm::vec2>{"direction", direction}
-                    << UniformSampler("image", image);
-
-        blur_shader.use();
-
-        assets.meshes.at("quad")->draw();
-    }
-}
-
-const std::shared_ptr<Texture>& Blur::getResult() const noexcept {
-    return blur[(8 - 1) % 2].get(FramebufferAttachment::Color0).texture;
-}
-
-void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Texture>& image) {
-    auto& brightness_shader = assets.shaders.get("brightness");
-
-    brightness.bind();
-
-    brightness_shader << UniformSampler("image", image);
-
-    brightness_shader.use();
-
-    assets.meshes.at("quad")->draw();
-}
-
-Bloom::Bloom(glm::uvec2 frame_size)
-    : brightness {Framebuffer::asRGB16FLinearClampToEdge(frame_size)}
-    , blur {frame_size} {
-}
-
-void Bloom::process(const Assets& assets, const std::shared_ptr<Texture>& image) {
-    extractBrightness(assets, image);
-    blur.process(assets, brightness.get(FramebufferAttachment::Color0).texture);
-}
-
-const std::shared_ptr<Texture>& Bloom::getResult() const noexcept {
-    return blur.getResult();
-}
-
-void Bloom::onResize(glm::uvec2 frame_size) {
-    brightness.onFramebufferChange(frame_size);
-    blur.onResize(frame_size);
-}
-
 PostProcessing::PostProcessing(glm::uvec2 frame_size, RenderTarget& _target)
-    : target {_target}
-    , bloom_process {frame_size} {
+        : target {_target}
+        , bloom_process {frame_size} {
 }
 
 void PostProcessing::process(Context& ctx, const Assets& assets, const Framebuffer& offscreen) {
@@ -86,9 +19,9 @@ void PostProcessing::process(Context& ctx, const Assets& assets, const Framebuff
     ctx.setDepthMask(DepthMask::True);
     ctx.disable(Capabilities::Blending);
 
-    if (bloom) {
-        bloom_process.process(assets, offscreen.get(FramebufferAttachment::Color0).texture);
-    }
+//    if (bloom) {
+//        bloom_process.process(assets, offscreen.get(FramebufferAttachment::Color0).texture);
+//    }
 
     target.clear();
 
@@ -118,5 +51,5 @@ void PostProcessing::process(Context& ctx, const Assets& assets, const Framebuff
 }
 
 void PostProcessing::onResize(glm::uvec2 frame_size) {
-    bloom_process.onResize(frame_size);
+    bloom_process.onFramebufferChange(frame_size);
 }

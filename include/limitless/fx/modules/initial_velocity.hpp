@@ -19,7 +19,7 @@ namespace Limitless::fx {
 
         void initialize(AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
             const auto rot = emitter.getRotation() * emitter.getLocalRotation();
-            particle.getVelocity() = distribution->get() * rot;
+            particle.velocity = distribution->get() * rot;
         }
 
         [[nodiscard]] InitialVelocity* clone() const override {

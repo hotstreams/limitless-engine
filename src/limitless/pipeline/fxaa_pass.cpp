@@ -24,7 +24,7 @@ void FXAAPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
         framebuffer.clear();
         auto& shader = assets.shaders.get("fxaa");
 
-        shader << UniformSampler{"scene", pipeline.get<DeferredFramebufferPass>().getComposite()};
+        shader << UniformSampler{"scene", getPreviousResult()};
 
         shader.use();
 

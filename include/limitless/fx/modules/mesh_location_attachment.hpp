@@ -33,7 +33,7 @@ namespace Limitless::fx {
             const auto vertex_index = this->getVertexIndex(selected_mesh);
             const auto triangle_pos = this->getTrianglePosition();
             const auto mesh_position = this->getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
-            particle.getPosition() += mesh_position;
+            particle.position += mesh_position;
 
             cache[index] = { selected_mesh, vertex_index, triangle_pos, mesh_position };
         }
@@ -61,7 +61,7 @@ namespace Limitless::fx {
             for (size_t i = 0; i < particles.size(); ++i) {
                 auto& [selected_mesh, vertex_index, triangle, last_position] = cache[i];
                 const auto mesh_position = this->getPositionOnMesh(selected_mesh, vertex_index, triangle.first, triangle.second);
-                particles[i].getPosition() += mesh_position - last_position;
+                particles[i].position += mesh_position - last_position;
                 last_position = mesh_position;
             }
         }

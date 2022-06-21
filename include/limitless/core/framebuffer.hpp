@@ -1,11 +1,11 @@
 #pragma once
 
 #include <limitless/core/context_observer.hpp>
+#include <limitless/core/texture.hpp>
 #include <memory>
 #include <stdexcept>
 
 namespace Limitless {
-    class Texture;
 
 	enum class FramebufferAttachment {
 		Depth = GL_DEPTH_ATTACHMENT,
@@ -40,6 +40,7 @@ namespace Limitless {
         FramebufferAttachment attachment;
         std::shared_ptr<Texture> texture;
         uint32_t layer {};
+        uint32_t level {};
     };
 
     class framebuffer_error : public std::runtime_error {
@@ -73,6 +74,9 @@ namespace Limitless {
         void clear(FramebufferAttachment attachment) override;
         void checkStatus();
 
+        void blit(Framebuffer& source, Texture::Filter filter);
+
+        void reattach();
         Framebuffer& operator<<(const TextureAttachment &attachment) noexcept;
 
         void onFramebufferChange(glm::uvec2 size) override;
@@ -81,6 +85,7 @@ namespace Limitless {
         static Framebuffer asRGB8LinearClampToEdge(glm::vec2 size);
         static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const std::shared_ptr<Texture>& depth);
         static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size);
+        static Framebuffer asRGB16FNearestClampToEdge(glm::uvec2 size);
     };
 
     class DefaultFramebuffer : public RenderTarget {

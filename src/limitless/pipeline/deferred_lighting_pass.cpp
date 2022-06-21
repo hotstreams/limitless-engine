@@ -11,25 +11,26 @@
 
 using namespace Limitless;
 
-DeferredLightingPass::DeferredLightingPass(Pipeline& pipeline)
-    : RenderPass(pipeline) {
+DeferredLightingPass::DeferredLightingPass(Pipeline& pipeline, glm::uvec2 frame_size)
+    : RenderPass(pipeline)
+    , framebuffer {Framebuffer::asRGB16FNearestClampToEdge(frame_size)} {
 }
 
 void DeferredLightingPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, UniformSetter& setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 
-    auto& gbuffer = pipeline.get<DeferredFramebufferPass>();
-    auto& fb = gbuffer.getFramebuffer();
+    framebuffer.clear();
 
-    fb.drawBuffer(FramebufferAttachment::Color4);
+    auto& gbuffer = pipeline.get<DeferredFramebufferPass>();
 
     auto& shader = assets.shaders.get("deferred");
 
-    shader << UniformSampler{"albedo_texture", gbuffer.getAlbedo()}
+    shader << UniformSampler{"base_texture", gbuffer.getAlbedo()}
            << UniformSampler{"normal_texture", gbuffer.getNormal()}
            << UniformSampler{"props_texture", gbuffer.getProperties()}
-           << UniformSampler{"depth_texture", gbuffer.getDepth()};
+           << UniformSampler{"depth_texture", gbuffer.getDepth()}
+           << UniformSampler{"emissive_texture", gbuffer.getEmissive()};
 
     try {
         auto& ssao = pipeline.get<SSAOPass>();
@@ -43,4 +44,12 @@ void DeferredLightingPass::draw([[maybe_unused]] Instances& instances, Context& 
     shader.use();
 
     assets.meshes.at("quad")->draw();
+}
+
+void DeferredLightingPass::onFramebufferChange(glm::uvec2 size) {
+    framebuffer.onFramebufferChange(size);
+}
+
+std::shared_ptr<Texture> DeferredLightingPass::getResult() {
+    return framebuffer.get(FramebufferAttachment::Color0).texture;
 }

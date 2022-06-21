@@ -49,5 +49,11 @@ namespace Limitless {
         std::shared_ptr<Texture> buildMutable();
         std::shared_ptr<Texture> buildImmutable();
         std::shared_ptr<Texture> build();
+
+        static std::shared_ptr<Texture> asRGBA16NearestClampToEdge(glm::uvec2 size);
+        static std::shared_ptr<Texture> asRGB16NearestClampToEdge(glm::uvec2 size);
+        static std::shared_ptr<Texture> asRGB16SNORMNearestClampToEdge(glm::uvec2 size);
+        static std::shared_ptr<Texture> asRGB16FNearestClampToEdge(glm::uvec2 size);
+        static std::shared_ptr<Texture> asDepth32F(glm::uvec2 size);
     };
 }

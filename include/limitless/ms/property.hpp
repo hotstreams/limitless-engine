@@ -19,9 +19,10 @@ namespace Limitless::ms {
         TessellationFactor,
 
         // float
-        Shininess,
         Metallic,
         Roughness,
-        Refraction
+
+        IoR,
+        Absorption,
     };
 }

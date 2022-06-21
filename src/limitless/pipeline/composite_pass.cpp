@@ -7,35 +7,46 @@
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
 #include <limitless/core/texture_builder.hpp>
+#include <limitless/pipeline/translucent_pass.hpp>
+#include <limitless/pipeline/deferred_lighting_pass.hpp>
 
 using namespace Limitless;
 
-CompositePass::CompositePass(Pipeline& pipeline)
-    : RenderPass(pipeline) {
+CompositePass::CompositePass(Pipeline& pipeline, glm::uvec2 size)
+    : RenderPass(pipeline)
+    , framebuffer {Framebuffer::asRGB8LinearClampToEdge(size)} {
 }
 
 std::shared_ptr<Texture> CompositePass::getResult() {
-	return pipeline.get<DeferredFramebufferPass>().getComposite();
+	return framebuffer.get(FramebufferAttachment::Color0).texture;
 }
 
 void CompositePass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 
-    auto& fb = pipeline.get<DeferredFramebufferPass>().getFramebuffer();
-
     {
-        ctx.setViewPort(fb.get(FramebufferAttachment::Color0).texture->getSize());
-
-		fb.drawBuffer(FramebufferAttachment::Color5);
+        ctx.setViewPort(getResult()->getSize());
+        framebuffer.clear();
 
         auto& shader = assets.shaders.get("composite");
 
-        shader << UniformSampler{"lightened", pipeline.get<DeferredFramebufferPass>().getShaded()};
-        shader << UniformSampler{"emissive", pipeline.get<BlurPass>().getBlurResult()};
+        shader << UniformSampler{"lightened", pipeline.get<TranslucentPass>().getResult()};
+
+        {
+            auto& bloom_pass = pipeline.get<BloomPass>();
+            const auto bloom_strength = bloom_pass.getBloom().strength / static_cast<float>(bloom_pass.getBloom().blur.getIterationCount());
+
+            shader << UniformSampler{"bloom", bloom_pass.getResult()}
+                   << UniformValue{"bloom_strength", bloom_strength};
+        }
 
         shader.use();
 
         assets.meshes.at("quad")->draw();
     }
+}
+
+void CompositePass::onFramebufferChange(glm::uvec2 size) {
+    framebuffer.onFramebufferChange(size);
 }

@@ -23,10 +23,10 @@ namespace Limitless::ms {
 
         static std::string getCustomMaterialScalarUniforms(const Material& material) noexcept;
         static std::string getCustomMaterialSamplerUniforms(const Material& material) noexcept;
-        std::string getMaterialDefines(const Material& material) noexcept;
+        static std::string getMaterialDefines(const Material& material) noexcept;
         static std::string getModelDefines(const ModelShader& type);
 
-        void replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept;
+        static void replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept;
     public:
         MaterialCompiler(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
         ~MaterialCompiler() override = default;

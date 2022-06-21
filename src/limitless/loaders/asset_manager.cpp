@@ -8,6 +8,14 @@
 
 using namespace Limitless;
 
+fs::path Limitless::getAssetsDir() {
+    return ENGINE_ASSETS_DIR;
+}
+
+fs::path Limitless::getShadersDir() {
+    return ENGINE_SHADERS_DIR;
+}
+
 AssetManager::AssetManager(Context& _context, Assets& _assets, uint32_t pool_size)
     : pool {_context, pool_size}
     , assets {_assets} {

@@ -177,9 +177,6 @@ void SSAOPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe
     }
 }
 
-void SSAOPass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
-}
-
 void SSAOPass::onFramebufferChange(glm::uvec2 size) {
     framebuffer.onFramebufferChange(size);
 }

@@ -35,11 +35,11 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
     //profiler.draw(context, assets);
 }
 
-void Renderer::updatePipeline(ContextEventObserver& ctx, glm::uvec2 size) {
+void Renderer::updatePipeline(ContextEventObserver& ctx) {
     pipeline->update(ctx, settings);
 }
 
-void Renderer::update(ContextEventObserver& ctx, glm::uvec2 size, Assets& assets) {
+void Renderer::update(ContextEventObserver& ctx, Assets& assets) {
     assets.recompileShaders(ctx, settings);
-	updatePipeline(ctx, size);
+	updatePipeline(ctx);
 }
