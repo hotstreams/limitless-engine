@@ -115,8 +115,6 @@ void SkeletalInstance::updateAnimationFrame() {
 		return;
 	}
 
-    std::cout << "shrek" << std::endl;
-
 	auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 	auto& bones = skeletal.getBones();
 	const Animation& anim = *animation;
@@ -129,8 +127,6 @@ void SkeletalInstance::updateAnimationFrame() {
 	animation_duration += delta_time;
 	last_time = current_time;
 	const auto animation_time = glm::mod(animation_duration.count() * anim.tps, anim.duration);
-
-    std::cout << animation_time << std::endl;
 
 	std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
 	node_traversal = [&](const Tree<uint32_t>& node, const glm::mat4& parent_mat) {

@@ -69,8 +69,8 @@ LightingScene::LightingScene(Limitless::Context& ctx, const Limitless::Assets& a
 
     setSkybox(assets.skyboxes.at("skybox"));
 
-    lighting.ambient_color.a = 0.1f;
-    lighting.directional_light = {glm::vec4(2.0, -2.0, 1.5, 1.0f), glm::vec4{1.0f}};
+    lighting.ambient_color.a = 0.5f;
+    lighting.directional_light = {glm::vec4(1.0, -1.0, 0.5, 1.0f), glm::vec4{1.0f}};
 }
 
 void LightingScene::update(Limitless::Context& context, const Limitless::Camera& camera) {
