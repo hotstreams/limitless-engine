@@ -16,3 +16,6 @@
 [submodule "thirdparty/glew"]
 	path = thirdparty/glew
 	url = https://github.com/Perlmint/glew-cmake
+[submodule "thirdparty/plog"]
+	path = thirdparty/plog
+	url = https://github.com/SergiusTheBest/plog

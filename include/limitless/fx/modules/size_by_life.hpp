@@ -20,9 +20,9 @@ namespace Limitless::fx {
 
         void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
             for (auto& particle : particles) {
-                const auto tick = particle.getLifetime() / dt;
-                const auto tick_size = (distribution->get() - particle.getSize()) / tick;
-                particle.getSize() += tick_size;
+                const auto tick = particle.lifetime / dt;
+                const auto tick_size = (distribution->get() - particle.size) / tick;
+                particle.size += tick_size;
             }
         }
 
@@ -51,9 +51,9 @@ namespace Limitless::fx {
 
         void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<MeshParticle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
             for (auto& particle : particles) {
-                const auto tick = particle.getLifetime() / dt;
-                const auto tick_size = (distribution->get() - particle.getSize()) / tick;
-                particle.getSize() += tick_size;
+                const auto tick = particle.lifetime / dt;
+                const auto tick_size = (distribution->get() - particle.size) / tick;
+                particle.size += tick_size;
             }
         }
 

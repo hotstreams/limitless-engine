@@ -9,8 +9,13 @@ in vec2 uv;
 out vec3 color;
 
 uniform sampler2D lightened;
-uniform sampler2D emissive;
+
+uniform sampler2D bloom;
+uniform float bloom_strength;
 
 void main() {
-    color = texture(lightened, uv).rgb + toneMapping(texture(emissive, uv).rgb, 1.0);
+    vec3 bloom_color = texture(bloom, uv).rgb * bloom_strength;
+    color = texture(lightened, uv).rgb + bloom_color;
+
+    color = toneMapping(color, 1.0);
 }

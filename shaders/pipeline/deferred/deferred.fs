@@ -3,31 +3,26 @@ Limitless::Extensions
 Limitless::Settings
 
 #include "../scene.glsl"
-#include "../lighting/lighting.glsl"
+#include "../shading/shading.glsl"
 #include "../../functions/reconstruct_position.glsl"
 #include "../../functions/gamma_correction.glsl"
 
+#include "./gbuffer_input.glsl"
+
 in vec2 uv;
 
-uniform sampler2D albedo_texture;
-uniform sampler2D normal_texture;
-uniform sampler2D props_texture;
-uniform sampler2D depth_texture;
-
-out vec3 frag_color;
+out vec3 color;
 
 void main() {
+    // sample parameters from textures
     vec3 P = reconstructPosition(uv, texture(depth_texture, uv).r);
-    vec4 N = texture(normal_texture, uv).rgba;
-    vec4 albedo = texture(albedo_texture, uv).rgba;
-    vec2 props = texture(props_texture, uv).rg;
+    vec3 normal = texture(normal_texture, uv).rgb;
+    vec4 base = texture(base_texture, uv).rgba;
+    vec3 props = texture(props_texture, uv).rgb;
+    float roughness = props.r;
+    float metallic = props.g;
+    uint shading_model = uint(props.b * 255.0);
 
-    float metallic = props.r;
-    float roughness = props.g;
-
-    uint shading_model = uint(N.a);
-
-    frag_color = getFragmentColor(albedo.rgb, albedo.a, N.xyz, P, uv, metallic, roughness, shading_model);
-
-    frag_color = gammaCorrection(frag_color, 2.2);
+    color = getFragmentColor(base.rgb, base.a, normal, P, metallic, roughness, shading_model);
+    color += texture(emissive_texture, uv).rgb;
 }

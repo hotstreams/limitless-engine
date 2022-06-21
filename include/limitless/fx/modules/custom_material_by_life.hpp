@@ -33,8 +33,8 @@ namespace Limitless::fx {
             for (auto& particle : particles) {
                 for (size_t i = 0; i < properties.size(); ++i) {
                     if (properties[i]) {
-                        const auto tick = particle.getLifetime() / dt;
-                        particle.getCustomProperties()[i] += (properties[i]->get() - particle.getCustomProperties()[i]) / tick;
+                        const auto tick = particle.lifetime / dt;
+                        particle.properties[i] += (properties[i]->get() - particle.properties[i]) / tick;
                     }
                 }
             }

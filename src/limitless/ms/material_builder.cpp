@@ -72,17 +72,17 @@ MaterialBuilder& MaterialBuilder::set(decltype(material->uniforms)&& uniforms) {
 
 MaterialBuilder& MaterialBuilder::add(Property type, float value) {
     switch (type) {
-        case Property::Shininess:
-            material->properties[type] = std::make_unique<UniformValue<float>>("material_shininess", value);
+        case Property::Absorption:
+            material->properties[type] = std::make_unique<UniformValue<float>>("material_absorption", value);
+            break;
+        case Property::IoR:
+            material->properties[type] = std::make_unique<UniformValue<float>>("material_ior", value);
             break;
         case Property::Metallic:
             material->properties[type] = std::make_unique<UniformValue<float>>("material_metallic", value);
             break;
         case Property::Roughness:
             material->properties[type] = std::make_unique<UniformValue<float>>("material_roughness", value);
-            break;
-        case Property::Refraction:
-            material->properties[type] = std::make_unique<UniformValue<float>>("material_refraction", value);
             break;
         case Property::TessellationFactor:
         case Property::Color:
@@ -108,7 +108,8 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec4& value) {
             material->properties[type] = std::make_unique<UniformValue<glm::vec4>>("material_emissive_color", value);
             break;
         case Property::TessellationFactor:
-        case Property::Shininess:
+        case Property::IoR:
+        case Property::Absorption:
         case Property::Normal:
         case Property::Metallic:
         case Property::Roughness:
@@ -117,7 +118,6 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec4& value) {
         case Property::MetallicTexture:
         case Property::RoughnessTexture:
         case Property::BlendMask:
-        case Property::Refraction:
         case Property::AmbientOcclusionTexture:
             throw material_builder_error{"Wrong data for material property."};
     }
@@ -132,11 +132,11 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
     switch (type) {
         case Property::TessellationFactor:
         case Property::Color:
-        case Property::Shininess:
+        case Property::Absorption:
+        case Property::IoR:
         case Property::Metallic:
         case Property::Roughness:
         case Property::EmissiveColor:
-        case Property::Refraction:
             throw material_builder_error{"Wrong data for material property."};
         case Property::Diffuse:
             material->properties[type] = std::make_unique<UniformSampler>("material_diffuse", std::move(texture));
@@ -169,7 +169,8 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec2& value) {
             material->properties[type] = std::make_unique<UniformValue<glm::vec2>>("material_tessellation", value);
             break;
         case Property::Color:
-        case Property::Shininess:
+        case Property::IoR:
+        case Property::Absorption:
         case Property::Metallic:
         case Property::Roughness:
         case Property::EmissiveColor:
@@ -179,7 +180,6 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec2& value) {
         case Property::BlendMask:
         case Property::MetallicTexture:
         case Property::RoughnessTexture:
-        case Property::Refraction:
         case Property::AmbientOcclusionTexture:
             throw material_builder_error{"Wrong data for material property."};
     }
@@ -203,6 +203,11 @@ MaterialBuilder& MaterialBuilder::setShading(Shading shading) noexcept {
 
 MaterialBuilder& MaterialBuilder::setTwoSided(bool two_sided) noexcept {
     material->two_sided = two_sided;
+    return *this;
+}
+
+MaterialBuilder& MaterialBuilder::setRefraction(bool refraction) noexcept {
+    material->refraction = refraction;
     return *this;
 }
 
@@ -265,16 +270,6 @@ void MaterialBuilder::checkRequirements() {
     if (material->name.empty()) {
         throw material_builder_error("Name cannot be empty");
     }
-
-//    if ((material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
-//        !(material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
-//        throw material_builder_error("Metallic & Roughness should be set together");
-//    }
-//
-//    if (!(material->contains(Property::Metallic) || material->contains(Property::MetallicTexture)) &&
-//        (material->contains(Property::Roughness) || material->contains(Property::RoughnessTexture))) {
-//        throw material_builder_error("Metallic & Roughness should be set together");
-//    }
 
     if (!material->tessellation_snippet.empty() && !material->contains(Property::TessellationFactor)) {
         throw material_builder_error("Tessellation snippet require TessellationFactor to be set");
@@ -353,6 +348,7 @@ void MaterialBuilder::setTo(const std::shared_ptr<Material>& mat) {
     setBlending(mat->getBlending());
     setShading(mat->getShading());
     setTwoSided(mat->getTwoSided());
+    setRefraction(mat->getRefraction());
     setName(mat->getName());
 
     setFragmentSnippet(mat->getFragmentSnippet());
@@ -372,7 +368,7 @@ void MaterialBuilder::setTo(const std::shared_ptr<Material>& mat) {
 
     {
         decltype(mat->uniforms) uniforms;
-        for (const auto& [name, uniform] : mat->getUniforms()) {
+        for (const auto& [name, uniform] : mat->uniforms) {
             uniforms.emplace(name, uniform->clone());
         }
         set(std::move(uniforms));

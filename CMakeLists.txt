@@ -6,25 +6,43 @@ set(CMAKE_CXX_STANDARD 17)
 # CONFIGURABLE OPTIONS
 
 OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_TOSTER "Disables all extensions" OFF)
+OPTION(OPENGL_TOSTER_MODE "Disables all extensions" ON)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 
-#######################
+#########################################
+
 # SETTINGS COMPILE FLAGS AND DEFINITIONS
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(-O0 -ggdb -Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused -Wno-attributes)
+    set(LIMITLESS_COMPILE_OPTIONS -O0 -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
     add_compile_definitions(GL_DEBUG LIMITLESS_DEBUG)
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-Wpedantic -Wextra -Wall -Wnon-virtual-dtor -Wunused -Wno-attributes -O3)
+    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
     add_compile_definitions(NDEBUG)
 endif()
 
-if (OPENGL_DEBUG)
+if (DEBUG_OPENGL)
     add_compile_definitions(GL_DEBUG)
 endif()
-#######################
+
+if (OPENGL_TOSTER_MODE)
+    add_compile_definitions(OPENGL_TOSTER)
+endif()
+
+if (NOT LIMITLESS_ASSETS_DIR)
+    set(LIMITLESS_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+endif()
+
+if (NOT LIMITLESS_SHADERS_DIR)
+    set(LIMITLESS_SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders/")
+endif()
+
+#add_compile_definitions(ENGINE_ASSETS_DIR="${LIMITLESS_ASSETS_DIR}")
+add_compile_definitions(ENGINE_SHADERS_DIR="${LIMITLESS_SHADERS_DIR}")
+
+#########################################
 
 include_directories(include)
 
@@ -175,6 +193,8 @@ set(ENGINE_PIPELINE
     src/limitless/pipeline/render_debug_pass.cpp
     src/limitless/pipeline/dof_pass.cpp
     src/limitless/pipeline/outline_pass.cpp
+    src/limitless/pipeline/blur.cpp
+    src/limitless/pipeline/bloom.cpp
 )
 
 set(ENGINE_SRC
@@ -230,9 +250,16 @@ set(ENGINE_SRC
     # GLEW
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/build/cmake")
     #####
+
+    # PLOG
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/plog")
+    #####
+
+    target_compile_options(glfw PUBLIC -O3)
+    target_compile_options(assimp PUBLIC -O3)
+    target_compile_options(freetype PUBLIC -O3)
+    target_compile_options(glew PUBLIC -O3)
 ##########################################
-
-
 
 ################# STATIC
 
@@ -245,39 +272,43 @@ target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_
 target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
 target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
 target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
 
 target_link_libraries(limitless_engine_static PUBLIC glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC freetype)
 target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
 
+target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
+
+#######################
+
 ##############################################
 
-#                DEMO
-
-add_executable(limitless_demo
-    $<TARGET_OBJECTS:limitless_engine_static>
-
-    demo/demo.cpp
-    demo/materials_demoscene.cpp
-    demo/lighting_demoscene.cpp
-    demo/effects_demoscene.cpp
-    demo/models_demoscene.cpp
-    demo/sponza_demoscene.cpp
-    demo/assets.cpp
-)
-
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-
-target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
-target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(limitless_demo freetype)
-target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
-
-add_compile_definitions(ENGINE_ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+##                DEMO
+#
+#add_executable(limitless_demo
+#    $<TARGET_OBJECTS:limitless_engine_static>
+#
+#    demo/demo.cpp
+#    demo/materials_demoscene.cpp
+#    demo/lighting_demoscene.cpp
+#    demo/effects_demoscene.cpp
+#    demo/models_demoscene.cpp
+#    demo/sponza_demoscene.cpp
+#    demo/assets.cpp
+#)
+#
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
+#
+#target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
+#target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
+#target_link_libraries(limitless_demo freetype)
+#target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})

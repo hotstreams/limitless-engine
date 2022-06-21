@@ -6,8 +6,7 @@ layout(location = 1) in vec2 uv;
 
 out vec2 fs_uv;
 
-void main()
-{
+void main() {
     fs_uv = uv;
     gl_Position = vec4(position, 1.0);
 }

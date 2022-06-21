@@ -30,7 +30,13 @@ void Assets::load([[maybe_unused]] Context& context) {
     // builds default materials for every model type
     ms::MaterialBuilder builder {*this};
     ModelShaders model_types = { ModelShader::Model, ModelShader::Skeletal, ModelShader::Effect, ModelShader::Instanced };
-    builder.setName("default").setShading(ms::Shading::Unlit).add(ms::Property::Color, {0.7f, 0.0f, 0.7f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
+    builder.setName("default")
+        .setShading(ms::Shading::Unlit)
+        .add(ms::Property::Color, {0.7f, 0.0f, 0.7f, 1.0f})
+        .setModelShaders(model_types)
+        .setTwoSided(true)
+        .build();
+
     builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
@@ -43,7 +49,7 @@ void Assets::load([[maybe_unused]] Context& context) {
     .build();
 
     // used in render as point light model
-    models.add("sphere", std::make_shared<Sphere>(glm::uvec2{50}));
+    models.add("sphere", std::make_shared<Sphere>(glm::uvec2{32}));
     meshes.add("sphere", models.at("sphere")->getMeshes().at(0));
 
     // used in postprocessing
@@ -127,7 +133,7 @@ PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
     if (settings.pipeline == RenderPipeline::Deferred) {
         pass_shaders.emplace(ShaderPass::Depth);
         pass_shaders.emplace(ShaderPass::GBuffer);
-        pass_shaders.emplace(ShaderPass::Transparent);
+        pass_shaders.emplace(ShaderPass::Forward);
     }
 
     if (settings.directional_cascade_shadow_mapping) {
@@ -168,4 +174,20 @@ void Assets::reloadTextures(const TextureLoaderFlags& settings) {
 
 		TextureLoader::load(*this, path, settings);
 	}
+}
+
+void Assets::recompileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material) {
+    ms::MaterialCompiler compiler {ctx, *this, settings};
+
+    for (const auto& model_shader_type : material->getModelShaders()) {
+        // effect shaders compiled separately
+        if (model_shader_type == ModelShader::Effect) {
+            continue;
+        }
+
+        for (const auto& pass_shader : getRequiredPassShaders(settings)) {
+            shaders.remove(pass_shader, model_shader_type, material->getShaderIndex());
+            compiler.compile(*material, pass_shader, model_shader_type);
+        }
+    }
 }

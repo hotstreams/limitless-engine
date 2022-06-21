@@ -49,6 +49,8 @@ namespace Limitless {
         void compileEffect(Context& ctx, const RenderSettings& settings, const std::shared_ptr<EffectInstance>& effect);
         void compileSkybox(Context& ctx, const RenderSettings& settings, const std::shared_ptr<Skybox>& skybox);
 
+        void recompileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material);
+
         virtual void compileShaders(Context& ctx, const RenderSettings& settings);
         void recompileShaders(Context& ctx, const RenderSettings& settings);
 

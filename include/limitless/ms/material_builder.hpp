@@ -17,8 +17,9 @@ namespace Limitless {
 }
 
 namespace Limitless::ms {
-    struct material_builder_error : public std::runtime_error {
-        explicit material_builder_error(const char* err) : std::runtime_error(err) {}
+    class material_builder_error : public std::runtime_error {
+    public:
+        using std::runtime_error::runtime_error;
     };
 
     class MaterialBuilder {
@@ -56,6 +57,7 @@ namespace Limitless::ms {
         MaterialBuilder& setBlending(Blending blending) noexcept;
         MaterialBuilder& setShading(Shading shading) noexcept;
         MaterialBuilder& setTwoSided(bool two_sided) noexcept;
+        MaterialBuilder& setRefraction(bool refraction) noexcept;
         MaterialBuilder& setName(std::string name) noexcept;
         [[nodiscard]] const auto& getName() const noexcept { return material->name; }
 

@@ -4,8 +4,14 @@
 #include <limitless/core/uniform_setter.hpp>
 #include <limitless/pipeline/render_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
+#include <limitless/pipeline/quad_pass.hpp>
 
 using namespace Limitless;
+
+Pipeline::Pipeline(glm::uvec2 size, RenderTarget& target) noexcept
+    : target {&target}
+    , size {size} {
+}
 
 void Pipeline::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
     Instances instances;
@@ -21,7 +27,7 @@ void Pipeline::draw(Context& context, const Assets& assets, Scene& scene, Camera
     }
 }
 
-void Pipeline::update(ContextEventObserver& ctx, const RenderSettings& settings) {
+void Pipeline::update([[maybe_unused]] ContextEventObserver& ctx, [[maybe_unused]] const RenderSettings& settings) {
 }
 
 void Pipeline::clear() {
@@ -34,4 +40,17 @@ void Pipeline::onFramebufferChange(glm::uvec2 frame_size) {
     for (const auto& pass : passes) {
         pass->onFramebufferChange(size);
     }
+
+    target->onFramebufferChange(size);
+}
+
+void Pipeline::setTarget(RenderTarget& _target) noexcept {
+    target = &_target;
+
+    // setting last quad pass RT to target
+    get<FinalQuadPass>().setTarget(_target);
+}
+
+RenderTarget& Pipeline::getTarget() noexcept {
+    return *target;
 }

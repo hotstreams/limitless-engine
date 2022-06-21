@@ -46,8 +46,8 @@ namespace Limitless::fx {
                     auto dot = glm::dot(v_miter, nv_line);
                     dot = glm::min(dot, DOT_PRODUCT_RANGE.y);
                     dot = glm::max(dot, DOT_PRODUCT_RANGE.x);
-                    pos.x += (v_miter * particle.getSize() / pos.w * (tri_i == 1 ? -0.5f : 0.5f) / dot).x;
-                    pos.y += (v_miter * particle.getSize() / pos.w * (tri_i == 1 ? -0.5f : 0.5f) / dot).y;
+                    pos.x += (v_miter * particle.size / pos.w * (tri_i == 1 ? -0.5f : 0.5f) / dot).x;
+                    pos.y += (v_miter * particle.size / pos.w * (tri_i == 1 ? -0.5f : 0.5f) / dot).y;
                 } else {
                     glm::vec2 v_succ = normalize(glm::vec2(va[3]) - glm::vec2(va[2]));
                     glm::vec2 v_miter = normalize(nv_line + glm::vec2(-v_succ.y, v_succ.x));
@@ -56,8 +56,8 @@ namespace Limitless::fx {
                     auto dot = glm::dot(v_miter, nv_line);
                     dot = glm::min(dot, DOT_PRODUCT_RANGE.y);
                     dot = glm::max(dot, DOT_PRODUCT_RANGE.x);
-                    pos.x += (v_miter * particle.getSize() / pos.w * (tri_i == 5 ? 0.5f : -0.5f) / dot).x;
-                    pos.y += (v_miter * particle.getSize() / pos.w * (tri_i == 5 ? 0.5f : -0.5f) / dot).y;
+                    pos.x += (v_miter * particle.size / pos.w * (tri_i == 5 ? 0.5f : -0.5f) / dot).x;
+                    pos.y += (v_miter * particle.size / pos.w * (tri_i == 5 ? 0.5f : -0.5f) / dot).y;
                 }
 
                 pos.x = (glm::vec2(pos) / resolution * 2.0f - 1.0f).x;
@@ -93,20 +93,20 @@ namespace Limitless::fx {
 
 
                 BeamParticleMapping p;
-                p.getPosition() = pos;
-                p.getSize() = particle.getSize();
-                p.getColor() = particle.getColor();
-                p.getSubUV() = particle.getSubUV();
-                p.getCustomProperties() = particle.getCustomProperties();
-                p.getAcceleration() = particle.getAcceleration();
-                p.getLifetime() = particle.getLifetime();
-                p.getRotation() = particle.getRotation();
-                p.getTime() = particle.getTime();
-                p.getVelocity() = particle.getVelocity();
-                p.getUV() = uv;
-                p.getLength() = particle.getLength();
-                p.getStart() = particle.getPosition();
-                p.getEnd() = particle.getTarget();
+                p.position = pos;
+                p.size = particle.size;
+                p.color = particle.color;
+                p.subUV = particle.subUV;
+                p.properties = particle.properties;
+                p.acceleration = particle.acceleration;
+                p.lifetime = particle.lifetime;
+                p.rotation = particle.rotation;
+                p.time = particle.time;
+                p.velocity = particle.velocity;
+                p.uv = uv;
+                p.length = particle.length;
+                p.start = particle.position;
+                p.end = particle.target;
 
                 beam_particles.emplace_back(std::move(p));
             }
@@ -117,7 +117,7 @@ namespace Limitless::fx {
             std::mt19937 generator(rd());
             auto uni = std::uniform_real_distribution<float>(-distance, distance);
 
-            if (distance < particle.getMinOffset()) {
+            if (distance < particle.offset) {
                 line.emplace_back(source);
                 line.emplace_back(dest);
             } else {
@@ -153,12 +153,12 @@ namespace Limitless::fx {
                 if (delta_time > particle.rebuild_delta) {
                     auto& line = particle.derivative_line;
                     line.clear();
-                    generate(particle.derivative_line, particle, particle.getPosition(), particle.getTarget(), particle.getDisplacement());
+                    generate(particle.derivative_line, particle, particle.position, particle.target, particle.displacement);
 
                     // shitty algorithm requirements
                     {
                         std::sort(line.begin(), line.end(), [&](const auto& a, const auto& b) {
-                            return glm::distance(particle.getPosition(), a) < glm::distance(particle.getPosition(), b);
+                            return glm::distance(particle.position, a) < glm::distance(particle.position, b);
                         });
                         line.erase(std::unique(line.begin(), line.end()), line.end());
 

@@ -21,8 +21,8 @@ namespace Limitless::fx {
         BeamSpeed(const BeamSpeed& module) : Module<Particle>(module.type), distribution {module.distribution->clone()} {}
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
-            particle.getSpeed() = distribution->get();
-            particle.getLength() = 0.0f;
+            particle.speed = distribution->get();
+            particle.length = 0.0f;
             particle.speed_start = std::chrono::steady_clock::now();
         }
 
@@ -36,8 +36,8 @@ namespace Limitless::fx {
                 const auto current_time = steady_clock::now();
                 std::chrono::duration<double> mil = current_time - particle.speed_start;
 
-                particle.getLength() = mil.count() / particle.getSpeed();
-                particle.getLength() = glm::clamp(particle.getLength(), 0.0f, 1.0f);
+                particle.length = mil.count() / particle.speed;
+                particle.length = glm::clamp(particle.length, 0.0f, 1.0f);
             }
         }
     };

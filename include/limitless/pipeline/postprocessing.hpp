@@ -3,39 +3,9 @@
 #include <limitless/core/framebuffer.hpp>
 #include <array>
 #include <limitless/assets.hpp>
+#include "bloom.hpp"
 
 namespace Limitless {
-    class Blur {
-    private:
-        std::array<Framebuffer, 2> blur;
-    public:
-        explicit Blur(glm::uvec2 frame_size);
-
-        void onResize(glm::uvec2 frame_size);
-
-        void process(const Assets& ctx, const std::shared_ptr<Texture>& image);
-
-        [[nodiscard]] const std::shared_ptr<Texture>& getResult() const noexcept;
-    };
-
-    class Bloom {
-    private:
-        static constexpr uint8_t blur_iterations = 8;
-
-        Framebuffer brightness;
-        Blur blur;
-
-        void extractBrightness(const Assets& ctx, const std::shared_ptr<Texture>& image);
-    public:
-        explicit Bloom(glm::uvec2 frame_size);
-
-        void onResize(glm::uvec2 frame_size);
-
-        void process(const Assets& ctx, const std::shared_ptr<Texture>& image);
-
-        [[nodiscard]] const std::shared_ptr<Texture>& getResult() const noexcept;
-    };
-
     class PostProcessing final {
     public:
         bool bloom {true};

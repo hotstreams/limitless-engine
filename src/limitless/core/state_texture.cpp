@@ -46,7 +46,7 @@ void StateTexture::texImage2D(GLenum target, GLsizei levels, GLenum internal_for
 void StateTexture::texImage3D(GLenum target, GLsizei levels, GLenum internal_format, GLenum format, GLenum type, glm::uvec3 size, bool border, const void *data) noexcept {
     bind(target, 0);
 
-    glTexImage3D(target, levels, internal_format, size.x, size.y, size.z, 0, format, type, data);
+    glTexImage3D(target, levels, internal_format, size.x, size.y, size.z, border, format, type, data);
 }
 
 void StateTexture::texSubImage2D(GLenum target, GLsizei levels, GLint xoffset, GLint yoffset, glm::uvec2 size, GLenum format, GLenum type, const void* data) noexcept {

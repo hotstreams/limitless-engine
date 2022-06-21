@@ -1,27 +1,30 @@
 #include "./directional_csm.glsl"
 
-vec3 getGlobalLightDirectLighting(lighting_context context) {
-    DirectionalLight dir_light = getDirectionalLight();
-    vec3 L = normalize(-dir_light.direction.xyz);
+vec3 computeDirectionalLight(const LightingContext context) {
+    DirectionalLight light = getDirectionalLight();
+
+    vec3 L = normalize(-light.direction.xyz);
     vec3 H = normalize(context.V + L);
 
-    float NoL = max(dot(context.N, L), 0.0);
-    float NoH = max(dot(context.N, H), 0.0);
-    float VoH = clamp(dot(H, context.V), 0.0, 1.0);
+    float NoL = saturate(dot(context.N, L));
+    float NoH = saturate(dot(context.N, H));
+    float LoH = saturate(dot(L, H));
 
-    vec3 F = SpecularF_Schlick(context.F0, VoH);
+    vec3 Fd = DiffuseBRDF(context.diffuseColor, context.roughness, context.NoV, NoL, LoH);
+    vec3 Fr = SpecularBRDF(context.roughness, NoH, context.NoV, NoL, LoH, H, context.F0, context.a2);
 
-    vec3 radiance = dir_light.color.rgb * dir_light.color.a;
+    vec3 color = Fd + Fr;
 
-    vec3 diffuse = Diffuse_BRDF(context.albedo, F, context.metallic);
-    vec3 specular = Specular_BRDF(context.NoV, NoL, NoH, context.a2, context.roughness, F);
-
-    vec3 lighting = (diffuse + specular) * radiance * NoL;
+    float visibility = 1.0;
 
     #if defined (DIRECTIONAL_CSM)
-        float shadow = getDirectionalShadow(context.N, context.world_position);
-        lighting *= (1.0 - shadow);
+        float shadow = getDirectionalShadow(context.N, context.worldPos);
+        visibility *= (1.0 - shadow);
     #endif
 
-    return lighting;
+    #if defined (MICRO_SHADOWING)
+        visibility *= computeMicroShadowing(NoL, context.ambientOcclusion);
+    #endif
+
+    return (color * light.color.rgb) * (light.color.a * NoL * visibility);
 }

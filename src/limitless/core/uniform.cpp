@@ -326,6 +326,7 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
                 case UniformValueType::Mat4:
                     return sizeof(glm::mat4);
             }
+            break;
         case UniformType::Sampler:
             return ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ? sizeof(uint64_t) : 0;
         case UniformType::Time:
@@ -358,6 +359,7 @@ size_t Limitless::getUniformAlignment(const Uniform& uniform) {
                 case UniformValueType::Mat4:
                     return sizeof(glm::vec4); // red zone
             }
+            break;
         case UniformType::Sampler:
             return ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ? sizeof(uint64_t) : 0;
         case UniformType::Time:

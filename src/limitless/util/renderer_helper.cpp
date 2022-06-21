@@ -1,3 +1,4 @@
+#include <cmath>
 #include <limitless/util/renderer_helper.hpp>
 
 #include <limitless/pipeline/render_settings.hpp>
@@ -9,6 +10,8 @@
 #include <limitless/ms/blending.hpp>
 #include <limitless/models/line.hpp>
 #include <limitless/instances/model_instance.hpp>
+#include <limitless/models/cylinder.hpp>
+#include <iostream>
 
 using namespace Limitless;
 using namespace Limitless::ms;
@@ -18,7 +21,7 @@ RendererHelper::RendererHelper(const RenderSettings& _settings)
 }
 
 void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera) {
-    if (lighting.point_lights.empty()) {
+    if (lighting.point_lights.empty() && lighting.spot_lights.empty()) {
         return;
     }
 
@@ -36,6 +39,22 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
         sphere_instance.update(context, camera);
         sphere_instance.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
     }
+
+    for (const auto& light : lighting.spot_lights) {
+        auto cone = std::make_shared<Cylinder>(0.0f, light.radius * std::sin(glm::acos(light.cutoff)), light.radius);
+        auto cone_instance = ModelInstance(cone, assets.materials.at("default"), glm::vec3(0.0f));
+
+        cone_instance.setPosition(light.position);
+
+        auto y = glm::vec3{0.0f, 1.0f, 0.0f};
+        auto a = glm::cross(y, glm::vec3{light.direction});
+        auto angle = glm::acos(glm::dot(y, glm::vec3{light.direction}));
+
+        cone_instance.setRotation(a * angle);
+        cone_instance.update(context, camera);
+        cone_instance.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
+    }
+
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 

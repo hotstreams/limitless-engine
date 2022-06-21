@@ -29,12 +29,12 @@ void Texture::storage(const void* data) {
         }
     }
 
-    if (mipmap && data) {
+    if (mipmap) {
         generateMipMap();
     }
 }
 
-void Texture::storage(const std::array<void*, 6>& data) {
+void Texture::storage([[maybe_unused]] const std::array<void*, 6>& data) {
     setParameters();
 
     throw std::runtime_error("Not yet implemented");
@@ -55,7 +55,7 @@ void Texture::image(const void* data) {
         image(0, { size.x, size.y, size.z * 6 }, data);
     }
 
-    if (mipmap && data) {
+    if (mipmap) {
         generateMipMap();
     }
 }

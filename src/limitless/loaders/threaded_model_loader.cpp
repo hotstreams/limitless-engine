@@ -28,9 +28,9 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
         name += std::to_string(i++);
     }
 
-    auto vertices = loadVertices<V>(m, ModelLoaderFlags{});
+    auto vertices = loadVertices<V>(m);
     auto indices = loadIndices<I>(m);
-    auto weights = loadBoneWeights(m, bones, bone_map, ModelLoaderFlags{});
+    auto weights = loadBoneWeights(m, bones, bone_map);
 
     // class reference variable assets will be dead by the moment of lambda invocation
     // so we need to store the original reference to assets
@@ -98,8 +98,8 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
         materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
     }
 
-    auto animations = loadAnimations(scene, bones, bone_map, flags);
-    auto animation_tree = loadAnimationTree(scene, bones, bone_map, flags);
+    auto animations = loadAnimations(scene, bones, bone_map);
+    auto animation_tree = loadAnimationTree(scene, bones, bone_map);
     auto global_matrix = convert(scene->mRootNode->mTransformation);
 
     importer.FreeScene();

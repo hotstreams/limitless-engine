@@ -28,18 +28,25 @@ Framebuffer::~Framebuffer() {
     }
 }
 
+void Framebuffer::Framebuffer::reattach() {
+    for (const auto& [type, attachment] : attachments) {
+        *this << attachment;
+    }
+}
+
 void Framebuffer::onFramebufferChange(glm::uvec2 size) {
     for (auto& [type, attachment] : attachments) {
         attachment.texture->resize({ size, attachment.texture->getSize().z });
-        *this << attachment;
     }
+
+    reattach();
 }
 
 void Framebuffer::checkStatus() {
     bind();
 
     if (auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER); status != GL_FRAMEBUFFER_COMPLETE) {
-        throw framebuffer_error{"Framebuffer is incomplete"};
+        throw framebuffer_error{"Framebuffer is incomplete: " + std::to_string(status)};
     }
 }
 
@@ -141,10 +148,10 @@ Framebuffer& Framebuffer::operator<<(const TextureAttachment& attachment) noexce
 
     switch (attachment.texture->getType()) {
         case Texture::Type::Tex2D:
-            glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(attachment.attachment), static_cast<GLenum>(attachment.texture->getType()), attachment.texture->getId(), 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(attachment.attachment), static_cast<GLenum>(attachment.texture->getType()), attachment.texture->getId(), attachment.level);
             break;
         case Texture::Type::CubeMap:
-            glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment.attachment), attachment.texture->getId(), 0);
+            glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment.attachment), attachment.texture->getId(), attachment.level);
             break;
         case Texture::Type::Tex2DArray:
         case Texture::Type::TexCubeMapArray:
@@ -281,16 +288,50 @@ Framebuffer Framebuffer::asRGB16FLinearClampToEdge(glm::vec2 size) {
     return framebuffer;
 }
 
+Framebuffer Framebuffer::asRGB16FNearestClampToEdge(glm::uvec2 size) {
+    Framebuffer framebuffer;
+
+    TextureBuilder builder;
+    auto color = TextureBuilder::asRGB16FNearestClampToEdge(size);
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
+    framebuffer.drawBuffer(FramebufferAttachment::Color0);
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
 Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept
     : attachments {std::move(rhs.attachments)}
     , draw_state {std::move(rhs.draw_state)} {
+    reattach();
 }
-//TODO: tests
-// remove rhs from observers?
+
 Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept {
     attachments = std::move(rhs.attachments);
     draw_state = std::move(rhs.draw_state);
+    reattach();
     return *this;
+}
+
+void Framebuffer::blit(Framebuffer& source, Texture::Filter filter) {
+    //TODO: constraints
+    auto size = attachments.at(FramebufferAttachment::Color0).texture->getSize();
+
+    drawBuffer(FramebufferAttachment::Color0);
+    source.readBuffer(FramebufferAttachment::Color0);
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, id);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER , source.id);
+
+    glBlitFramebuffer(0, 0, size.x, size.y,
+                      0, 0, size.x, size.y,
+                      GL_COLOR_BUFFER_BIT, static_cast<GLenum>(filter));
+
+    source.drawBuffer(FramebufferAttachment::Color0);
+    glReadBuffer(GL_NONE);
 }
 
 void DefaultFramebuffer::unbind() noexcept {
@@ -341,6 +382,6 @@ void DefaultFramebuffer::clear(FramebufferAttachment attachment) {
     glClear(bits);
 }
 
-void DefaultFramebuffer::onFramebufferChange(glm::uvec2 size) {
+void DefaultFramebuffer::onFramebufferChange([[maybe_unused]] glm::uvec2 size) {
     // nothing, its done automatically
 }

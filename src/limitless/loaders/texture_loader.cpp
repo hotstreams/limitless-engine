@@ -24,7 +24,7 @@ namespace {
 }
 
 void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags& flags, int channels) {
-    Texture::InternalFormat internal;
+    Texture::InternalFormat internal {};
 
     switch (flags.compression) {
         case TextureLoaderFlags::Compression::None:
@@ -111,7 +111,7 @@ void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags&
             goto none;
     }
 
-    Texture::Format format;
+    Texture::Format format {};
     switch (channels) {
         case 1: format = Texture::Format::Red; break;
         case 2: format = Texture::Format::RG; break;

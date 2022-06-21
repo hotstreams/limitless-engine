@@ -33,9 +33,6 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
             case Property::BlendMask:
                 property_defines.append("#define MATERIAL_BLENDMASK\n");
                 break;
-            case Property::Shininess:
-                property_defines.append("#define MATERIAL_SHININESS\n");
-                break;
             case Property::Metallic:
                 property_defines.append("#define MATERIAL_METALLIC\n");
                 break;
@@ -51,13 +48,20 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
             case Property::TessellationFactor:
                 property_defines.append("#define MATERIAL_TESSELLATION_FACTOR\n");
                 break;
-            case Property::Refraction:
-                property_defines.append("#define MATERIAL_REFRACTION\n");
-                break;
             case Property::AmbientOcclusionTexture:
                 property_defines.append("#define MATERIAL_AMBIENT_OCCLUSION_TEXTURE\n");
                 break;
+            case Property::IoR:
+                property_defines.append("#define MATERIAL_IOR\n");
+                break;
+            case Property::Absorption:
+                property_defines.append("#define MATERIAL_ABSORPTION\n");
+                break;
         }
+    }
+
+    if (material.getRefraction()) {
+        property_defines.append("#define MATERIAL_REFRACTION\n");
     }
 
     switch (material.getShading()) {

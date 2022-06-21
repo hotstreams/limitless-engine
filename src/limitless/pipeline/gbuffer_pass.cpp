@@ -29,12 +29,6 @@ void GBufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[ma
     auto& fb = pipeline.get<DeferredFramebufferPass>().getFramebuffer();
 
     fb.bind();
-    fb.drawBuffers({
-        FramebufferAttachment::Color0,
-        FramebufferAttachment::Color1,
-        FramebufferAttachment::Color2,
-        FramebufferAttachment::Color3
-    });
 
     for (auto& instance : instances) {
         instance.get().draw(ctx, assets, ShaderPass::GBuffer, ms::Blending::Opaque, setter);

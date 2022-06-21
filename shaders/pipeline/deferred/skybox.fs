@@ -4,54 +4,27 @@ Limitless::Settings
 Limitless::MaterialType
 Limitless::ModelType
 
-vec3 getVertexNormal() {
-    return vec3(0.0);
-}
-
-#include "../scene.glsl"
-#include "../material/material.glsl"
-#include "../material/fragment_properties.glsl"
-
-layout (location = 0) out vec4 g_albedo;
-layout (location = 1) out vec4 g_normal;
-layout (location = 2) out vec2 g_props;
-layout (location = 3) out vec3 g_emissive;
-
 in vec3 uv;
 
+#include "../interface_block/fragment.glsl"
+#include "../scene.glsl"
+#include "../shading/fragment.glsl"
+
+#include "./gbuffer_output.glsl"
+
 void main() {
-    vec4 albedo = getFragmentAlbedo();
-    uint shading_model = getMaterialShadingModel();
-    vec3 normal = getFragmentNormal();
-    float ao = getFragmentAO();
-    float metallic = getFragmentMetallic();
-    float roughness = getFragmentRoughness();
-    vec3 emissive = getFragmentEmissive();
+    FragmentData data = initializeFragmentData();
 
-    /*               */
+    customFragment(data);
 
-    // do whatever you want
-    //
-    // %albedo
-    // %shading_model
-    // %normal
-    // %ao
-    // %metallic
-    // %roughness
-    // %emissive
+    g_base.rgb = getFragmentBaseColor(data).rgb;
+    g_base.a = getFragmentAO(data);
 
-    _MATERIAL_FRAGMENT_SNIPPET
+    g_normal = getFragmentNormal(data);
 
-    /*               */
+    g_props.r = data.roughness;
+    g_props.g = data.metallic;
+    g_props.b = float(data.shading_model) / 255.0;
 
-    g_albedo.rgb = albedo.rgb;
-    g_albedo.a = ao;
-
-    g_normal.rgb = normal;
-    g_normal.a = shading_model;
-
-//    g_props.r = metallic;
-//    g_props.g = roughness;
-
-    g_emissive = emissive;
+    g_emissive = getFragmentEmissive(data);
 }
