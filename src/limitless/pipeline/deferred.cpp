@@ -57,7 +57,7 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
 
     add<DeferredLightingPass>(size);
 
-    add<TranslucentPass>(fx.getRenderer(), size);
+    add<TranslucentPass>(fx.getRenderer(), size, get<DeferredFramebufferPass>().getDepth());
 
     add<BloomPass>(size);
 

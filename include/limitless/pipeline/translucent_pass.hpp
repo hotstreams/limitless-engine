@@ -15,7 +15,7 @@ namespace Limitless {
         fx::EffectRenderer& renderer;
         void sort(Instances& instances, const Camera& camera, ms::Blending blending);
     public:
-        explicit TranslucentPass(Pipeline& pipeline, fx::EffectRenderer& renderer, glm::uvec2 frame_size);
+        explicit TranslucentPass(Pipeline& pipeline, fx::EffectRenderer& renderer, glm::uvec2 frame_size, std::shared_ptr<Texture> depth);
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
 

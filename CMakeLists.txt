@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 # CONFIGURABLE OPTIONS
 
-OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_TOSTER_MODE "Disables all extensions" ON)
+OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" OFF)
+OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 
 #########################################
@@ -39,7 +39,7 @@ if (NOT LIMITLESS_SHADERS_DIR)
     set(LIMITLESS_SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders/")
 endif()
 
-#add_compile_definitions(ENGINE_ASSETS_DIR="${LIMITLESS_ASSETS_DIR}")
+add_compile_definitions(ENGINE_ASSETS_DIR="${LIMITLESS_ASSETS_DIR}")
 add_compile_definitions(ENGINE_SHADERS_DIR="${LIMITLESS_SHADERS_DIR}")
 
 #########################################
@@ -285,30 +285,30 @@ target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIO
 
 ##############################################
 
-##                DEMO
-#
-#add_executable(limitless_demo
-#    $<TARGET_OBJECTS:limitless_engine_static>
-#
-#    demo/demo.cpp
-#    demo/materials_demoscene.cpp
-#    demo/lighting_demoscene.cpp
-#    demo/effects_demoscene.cpp
-#    demo/models_demoscene.cpp
-#    demo/sponza_demoscene.cpp
-#    demo/assets.cpp
-#)
-#
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-#target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
-#
-#target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
-#target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
-#target_link_libraries(limitless_demo freetype)
-#target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
+#                DEMO
+
+add_executable(limitless_demo
+    $<TARGET_OBJECTS:limitless_engine_static>
+
+    demo/demo.cpp
+    demo/materials_demoscene.cpp
+    demo/lighting_demoscene.cpp
+    demo/effects_demoscene.cpp
+    demo/models_demoscene.cpp
+    demo/sponza_demoscene.cpp
+    demo/assets.cpp
+)
+
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
+
+target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
+target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
+target_link_libraries(limitless_demo freetype)
+target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})

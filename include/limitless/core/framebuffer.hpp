@@ -6,6 +6,11 @@
 #include <stdexcept>
 
 namespace Limitless {
+    enum class FramebufferBlit {
+        Color = GL_COLOR_BUFFER_BIT,
+        Depth = GL_DEPTH_BUFFER_BIT,
+        Stencil = GL_STENCIL_BUFFER_BIT
+    };
 
 	enum class FramebufferAttachment {
 		Depth = GL_DEPTH_ATTACHMENT,
@@ -74,7 +79,7 @@ namespace Limitless {
         void clear(FramebufferAttachment attachment) override;
         void checkStatus();
 
-        void blit(Framebuffer& source, Texture::Filter filter);
+        void blit(Framebuffer& source, Texture::Filter filter, FramebufferBlit blit = FramebufferBlit::Color);
 
         void reattach();
         Framebuffer& operator<<(const TextureAttachment &attachment) noexcept;
@@ -86,6 +91,7 @@ namespace Limitless {
         static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const std::shared_ptr<Texture>& depth);
         static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size);
         static Framebuffer asRGB16FNearestClampToEdge(glm::uvec2 size);
+        static Framebuffer asRGB16FNearestClampToEdgeWithDepth(glm::uvec2 size, const std::shared_ptr<Texture>& depth);
     };
 
     class DefaultFramebuffer : public RenderTarget {

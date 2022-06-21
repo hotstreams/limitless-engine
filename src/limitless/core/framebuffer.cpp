@@ -303,6 +303,22 @@ Framebuffer Framebuffer::asRGB16FNearestClampToEdge(glm::uvec2 size) {
     return framebuffer;
 }
 
+Framebuffer Framebuffer::asRGB16FNearestClampToEdgeWithDepth(glm::uvec2 size, const std::shared_ptr<Texture>& depth) {
+    Framebuffer framebuffer;
+
+    TextureBuilder builder;
+    auto color = TextureBuilder::asRGB16FNearestClampToEdge(size);
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, color}
+                << TextureAttachment{FramebufferAttachment::Depth, depth};
+    framebuffer.drawBuffer(FramebufferAttachment::Color0);
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
 Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept
     : attachments {std::move(rhs.attachments)}
     , draw_state {std::move(rhs.draw_state)} {
@@ -316,7 +332,7 @@ Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept {
     return *this;
 }
 
-void Framebuffer::blit(Framebuffer& source, Texture::Filter filter) {
+void Framebuffer::blit(Framebuffer& source, Texture::Filter filter, FramebufferBlit blit) {
     //TODO: constraints
     auto size = attachments.at(FramebufferAttachment::Color0).texture->getSize();
 
@@ -328,7 +344,7 @@ void Framebuffer::blit(Framebuffer& source, Texture::Filter filter) {
 
     glBlitFramebuffer(0, 0, size.x, size.y,
                       0, 0, size.x, size.y,
-                      GL_COLOR_BUFFER_BIT, static_cast<GLenum>(filter));
+                      static_cast<GLenum>(blit), static_cast<GLenum>(filter));
 
     source.drawBuffer(FramebufferAttachment::Color0);
     glReadBuffer(GL_NONE);

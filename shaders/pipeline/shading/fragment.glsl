@@ -1,6 +1,5 @@
 #include "../material/material.glsl"
 #include "./fragment_data.glsl"
-#include "../material/custom_fragment.glsl"
 #include "./fragment_data_initializer.glsl"
 
 vec4 getFragmentBaseColor(const FragmentData data) {
@@ -109,3 +108,5 @@ vec4 computeFragment(const FragmentData data) {
 
     return color;
 }
+
+#include "../material/custom_fragment.glsl"
