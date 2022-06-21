@@ -16,6 +16,7 @@ void Limitless::ms::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.blending, rhs.blending);
     swap(lhs.shading, rhs.shading);
     swap(lhs.two_sided, rhs.two_sided);
+    swap(lhs.refraction, rhs.refraction);
     swap(lhs.name, rhs.name);
     swap(lhs.shader_index, rhs.shader_index);
     swap(lhs.model_shaders, rhs.model_shaders);
@@ -89,6 +90,7 @@ Material::Material(const Material& material)
     : blending {material.blending}
     , shading {material.shading}
     , two_sided {material.two_sided}
+    , refraction {material.refraction}
     , name {material.name}
     , shader_index {material.shader_index}
     , model_shaders {material.model_shaders}
@@ -220,14 +222,6 @@ const UniformValue<glm::vec4>& Material::getEmissiveColor() const {
     }
 }
 
-const UniformValue<float>& Material::getShininess() const {
-    try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::Shininess));
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No shininess in material.");
-    }
-}
-
 const UniformValue<float>& Material::getMetallic() const {
     try {
         return static_cast<UniformValue<float>&>(*properties.at(Property::Metallic));
@@ -324,14 +318,6 @@ UniformValue<glm::vec2>& Material::getTesselationFactor() {
     }
 }
 
-UniformValue<float>& Material::getShininess() {
-    try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::Shininess));
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No shininess in material.");
-    }
-}
-
 UniformValue<float>& Material::getMetallic() {
     try {
         return static_cast<UniformValue<float>&>(*properties.at(Property::Metallic));
@@ -402,4 +388,36 @@ bool Material::contains(Property property) const {
 
 bool Material::contains(const std::string& uniform_name) const {
     return uniforms.count(uniform_name);
+}
+
+const UniformValue<float>& Material::getAbsorption() const {
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(Property::Absorption));
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No absorption in material.");
+    }
+}
+
+UniformValue<float>& Material::getIoR() {
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(Property::IoR));
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No IoR in material.");
+    }
+}
+
+UniformValue<float>& Material::getAbsorption() {
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(Property::Absorption));
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No absorption in material.");
+    }
+}
+
+const UniformValue<float>& Material::getIoR() const {
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(Property::IoR));
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No IoR in material.");
+    }
 }

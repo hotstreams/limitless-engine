@@ -5,164 +5,33 @@
 
 using namespace Limitless;
 
-DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, ContextEventObserver& ctx)
-    : RenderPass(pipeline) {
-    TextureBuilder builder;
-    auto albedo = builder   .setTarget(Texture::Type::Tex2D)
-                            .setInternalFormat(Texture::InternalFormat::RGBA8)
-                            .setSize(ctx.getSize())
-                            .setMinFilter(Texture::Filter::Nearest)
-                            .setMagFilter(Texture::Filter::Nearest)
-                            .setWrapS(Texture::Wrap::ClampToEdge)
-                            .setWrapT(Texture::Wrap::ClampToEdge)
-                            .build();
-
-    auto normal = builder   .setTarget(Texture::Type::Tex2D)
-//                            .setInternalFormat(Texture::InternalFormat::RGBA16_SNORM)
-                            .setInternalFormat(Texture::InternalFormat::RGBA16F)
-                            .setSize(ctx.getSize())
-                            .setMinFilter(Texture::Filter::Nearest)
-                            .setMagFilter(Texture::Filter::Nearest)
-                            .setWrapS(Texture::Wrap::ClampToEdge)
-                            .setWrapT(Texture::Wrap::ClampToEdge)
-                            .build();
-
-    auto props = builder    .setTarget(Texture::Type::Tex2D)
-                            .setInternalFormat(Texture::InternalFormat::RG8_SNORM)
-                            .setSize(ctx.getSize())
-                            .setMinFilter(Texture::Filter::Nearest)
-                            .setMagFilter(Texture::Filter::Nearest)
-                            .setWrapS(Texture::Wrap::ClampToEdge)
-                            .setWrapT(Texture::Wrap::ClampToEdge)
-                            .build();
-
-    auto emissive = builder .setTarget(Texture::Type::Tex2D)
-                            .setInternalFormat(Texture::InternalFormat::RGB16F)
-                            .setSize(ctx.getSize())
-                            .setMinFilter(Texture::Filter::Nearest)
-                            .setMagFilter(Texture::Filter::Nearest)
-                            .setWrapS(Texture::Wrap::ClampToEdge)
-                            .setWrapT(Texture::Wrap::ClampToEdge)
-                            .build();
-
-	auto depth = builder.setTarget(Texture::Type::Tex2D)
-						.setInternalFormat(Texture::InternalFormat::Depth32F)
-						.setSize(ctx.getSize())
-						.setFormat(Texture::Format::DepthComponent)
-						.setDataType(Texture::DataType::Float)
-						.setMinFilter(Texture::Filter::Linear)
-						.setMagFilter(Texture::Filter::Linear)
-						.setWrapS(Texture::Wrap::ClampToEdge)
-						.setWrapT(Texture::Wrap::ClampToEdge)
-						.build();
-
-    auto shaded = builder   .setTarget(Texture::Type::Tex2D)
-                            .setInternalFormat(Texture::InternalFormat::RGB8)
-                            .setSize(ctx.getSize())
-                            .setMinFilter(Texture::Filter::Nearest)
-                            .setMagFilter(Texture::Filter::Nearest)
-                            .setWrapS(Texture::Wrap::ClampToEdge)
-                            .setWrapT(Texture::Wrap::ClampToEdge)
-                            .build();
-
-	auto composite = builder    .setTarget(Texture::Type::Tex2D)
-								.setInternalFormat(Texture::InternalFormat::RGB8)
-								.setSize(ctx.getSize())
-								.setMinFilter(Texture::Filter::Nearest)
-								.setMagFilter(Texture::Filter::Nearest)
-								.setWrapS(Texture::Wrap::ClampToEdge)
-								.setWrapT(Texture::Wrap::ClampToEdge)
-								.build();
-
-    framebuffer.bind();
-    framebuffer << TextureAttachment{FramebufferAttachment::Color0, albedo}
-                << TextureAttachment{FramebufferAttachment::Color1, normal}
-                << TextureAttachment{FramebufferAttachment::Color2, props}
-                << TextureAttachment{FramebufferAttachment::Color3, emissive}
-                << TextureAttachment{FramebufferAttachment::Color4, shaded}
-                << TextureAttachment{FramebufferAttachment::Color5, composite}
-                << TextureAttachment{FramebufferAttachment::Depth, depth};
-    framebuffer.checkStatus();
-    framebuffer.unbind();
-}
-
 DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 frame_size)
     : RenderPass(pipeline)
     , framebuffer {} {
-    TextureBuilder builder;
-    auto albedo = builder   .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGBA8)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
 
-    auto normal = builder   .setTarget(Texture::Type::Tex2D)
-//                            .setInternalFormat(Texture::InternalFormat::RGBA16_SNORM)
-            .setInternalFormat(Texture::InternalFormat::RGBA16F)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
+    // UNSIGNED NORMALIZED [0; 1]
+    // RGBA8 - RGB - base color, A - ao
 
-    auto props = builder    .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RG8_SNORM)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
+    // SIGNED NORMALIZED [-1; 1]
+    // RGB - normal
 
-    auto emissive = builder .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16F)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
+    // UNSIGNED NORMALIZED [0; 1]
+    // R - roughness, G - metallic, B - shading model (uint)
 
-    auto depth = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::Depth32F)
-            .setSize(frame_size)
-            .setFormat(Texture::Format::DepthComponent)
-            .setDataType(Texture::DataType::Float)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
+    // FLOATING POINT
+    // RGB - emissive
 
-    auto shaded = builder   .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
-
-    auto composite = builder    .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .build();
+    auto albedo = TextureBuilder::asRGBA16NearestClampToEdge(frame_size);
+    auto normal = TextureBuilder::asRGB16SNORMNearestClampToEdge(frame_size);
+    auto props = TextureBuilder::asRGB16NearestClampToEdge(frame_size);
+    auto emissive = TextureBuilder::asRGB16FNearestClampToEdge(frame_size);
+    auto depth = TextureBuilder::asDepth32F(frame_size);
 
     framebuffer.bind();
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, albedo}
                 << TextureAttachment{FramebufferAttachment::Color1, normal}
                 << TextureAttachment{FramebufferAttachment::Color2, props}
                 << TextureAttachment{FramebufferAttachment::Color3, emissive}
-                << TextureAttachment{FramebufferAttachment::Color4, shaded}
-                << TextureAttachment{FramebufferAttachment::Color5, composite}
                 << TextureAttachment{FramebufferAttachment::Depth, depth};
     framebuffer.checkStatus();
     framebuffer.unbind();
@@ -181,15 +50,10 @@ void DeferredFramebufferPass::draw([[maybe_unused]] Instances& instances, Contex
         FramebufferAttachment::Color0,
         FramebufferAttachment::Color1,
         FramebufferAttachment::Color2,
-        FramebufferAttachment::Color3,
-        FramebufferAttachment::Color4,
-        FramebufferAttachment::Color5
+        FramebufferAttachment::Color3
     });
 
     framebuffer.clear();
-}
-
-void DeferredFramebufferPass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
 }
 
 void DeferredFramebufferPass::onFramebufferChange(glm::uvec2 size) {

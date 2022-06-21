@@ -25,13 +25,13 @@ void MeshEmitter::update(Context& context, const Camera& camera) {
     Emitter::update(context, camera);
 
     for (auto& particle : particles) {
-        auto model = glm::translate(glm::mat4(1.0f), particle.getPosition());
+        auto model = glm::translate(glm::mat4(1.0f), particle.position);
 
-        model = glm::rotate(model, particle.getRotation().x, glm::vec3(1.0f, 0.f, 0.f));
-        model = glm::rotate(model, particle.getRotation().y, glm::vec3(0.0f, 1.f, 0.f));
-        model = glm::rotate(model, particle.getRotation().z, glm::vec3(0.0f, 0.f, 1.f));
+        model = glm::rotate(model, particle.rotation.x, glm::vec3(1.0f, 0.f, 0.f));
+        model = glm::rotate(model, particle.rotation.y, glm::vec3(0.0f, 1.f, 0.f));
+        model = glm::rotate(model, particle.rotation.z, glm::vec3(0.0f, 0.f, 1.f));
 
-        model = glm::scale(model, particle.getSize());
+        model = glm::scale(model, particle.size);
 
         particle.model = model;
     }

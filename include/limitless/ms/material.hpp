@@ -37,6 +37,9 @@ namespace Limitless::ms {
         // determines whether cull face on or off
         bool two_sided {};
 
+        // uses screen space refraction based on IoR & Absorption
+        bool refraction {};
+
         // contains material name
         std::string name;
 
@@ -94,9 +97,10 @@ namespace Limitless::ms {
         [[nodiscard]] const UniformValue<glm::vec4>& getColor() const;
         [[nodiscard]] const UniformValue<glm::vec4>& getEmissiveColor() const;
         [[nodiscard]] const UniformValue<glm::vec2>& getTesselationFactor() const;
-        [[nodiscard]] const UniformValue<float>& getShininess() const;
         [[nodiscard]] const UniformValue<float>& getMetallic() const;
         [[nodiscard]] const UniformValue<float>& getRoughness() const;
+        [[nodiscard]] const UniformValue<float>& getIoR() const;
+        [[nodiscard]] const UniformValue<float>& getAbsorption() const;
         [[nodiscard]] const UniformSampler& getMetallicTexture() const;
         [[nodiscard]] const UniformSampler& getRoughnessTexture() const;
         [[nodiscard]] const UniformSampler& getDiffuse() const;
@@ -107,9 +111,10 @@ namespace Limitless::ms {
         UniformValue<glm::vec4>& getColor();
         UniformValue<glm::vec4>& getEmissiveColor();
         UniformValue<glm::vec2>& getTesselationFactor();
-        UniformValue<float>& getShininess();
         UniformValue<float>& getMetallic();
         UniformValue<float>& getRoughness();
+        UniformValue<float>& getIoR();
+        UniformValue<float>& getAbsorption();
         UniformSampler& getMetallicTexture();
         UniformSampler& getRoughnessTexture();
         UniformSampler& getDiffuse();
@@ -124,13 +129,13 @@ namespace Limitless::ms {
         [[nodiscard]] const auto& getName() const noexcept { return name; }
         [[nodiscard]] auto getShaderIndex() const noexcept { return shader_index; }
         [[nodiscard]] const auto& getVertexSnippet() const noexcept { return vertex_snippet; }
+        [[nodiscard]] const auto& getRefraction() const noexcept { return refraction; }
         [[nodiscard]] const auto& getFragmentSnippet() const noexcept { return fragment_snippet; }
         [[nodiscard]] const auto& getGlobalSnippet() const noexcept { return global_snippet; }
         [[nodiscard]] const auto& getTessellationSnippet() const noexcept { return tessellation_snippet; }
         [[nodiscard]] const auto& getMaterialBuffer() const noexcept { return material_buffer; }
         [[nodiscard]] const auto& getProperties() const noexcept { return properties; }
         [[nodiscard]] const auto& getUniforms() const noexcept { return uniforms; }
-        [[nodiscard]] auto& getUniforms() noexcept { return uniforms; }
 
         auto& getBlending() noexcept { return blending; }
         auto& getTwoSided() noexcept { return two_sided; }

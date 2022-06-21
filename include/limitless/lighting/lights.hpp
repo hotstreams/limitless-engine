@@ -40,7 +40,8 @@ namespace Limitless {
         glm::vec4 position {};
         glm::vec4 direction {};
         glm::vec4 color {};
-        float cutoff {};
+        float cutoff {}; // cos (radians(degrees))
+        float radius {5.0f};
 
         SpotLight() = default;
         ~SpotLight() = default;

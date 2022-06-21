@@ -106,7 +106,7 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
 
     if (settings.pipeline == RenderPipeline::Forward) {
         add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
-        add("brightness", compiler.compile(shader_dir / "postprocessing/brightness"));
+        add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
         add("postprocess", compiler.compile(shader_dir / "postprocessing/postprocess"));
     }
 
@@ -115,7 +115,10 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
         add("composite", compiler.compile(shader_dir / "pipeline/deferred/composite"));
         add("ssao", compiler.compile(shader_dir / "postprocessing/ssao"));
         add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao_blur"));
-        add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
+
+        add("blur_downsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_downsample"));
+        add("blur_upsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_upsample"));
+        add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
     }
 
     if (settings.fast_approximate_antialiasing) {
@@ -153,4 +156,12 @@ void ShaderStorage::add(const ShaderStorage& other) {
 
 bool ShaderStorage::contains(const std::string& name) noexcept {
     return shaders.find(name) != shaders.end();
+}
+
+void ShaderStorage::remove(ShaderPass material_type, ModelShader model_type, uint64_t material_index) {
+    std::unique_lock lock(mutex);
+
+    const auto key = ShaderKey{material_type, model_type, material_index};
+
+    materials.erase(key);
 }

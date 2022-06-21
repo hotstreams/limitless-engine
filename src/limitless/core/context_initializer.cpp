@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -67,6 +68,7 @@ void ContextInitializer::getExtensions() noexcept {
     }
 
 	#ifdef OPENGL_TOSTER
+        std::cerr << "OpenGL toster mode" << std::endl;
 		extensions.clear();
         extensions.emplace_back("GL_ARB_shader_storage_buffer_object");
         extensions.emplace_back("GL_ARB_shading_language_420pack");

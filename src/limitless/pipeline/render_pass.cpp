@@ -15,7 +15,7 @@ void RenderPass::addSetter([[maybe_unused]] UniformSetter& setter) {
 
 }
 
-void RenderPass::update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) {
+void RenderPass::update([[maybe_unused]] Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
 
 }
 

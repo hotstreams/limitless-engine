@@ -160,7 +160,7 @@ namespace Limitless::fx {
             const auto selected_mesh = getSelectedMesh();
             const auto vertex_index = getVertexIndex(selected_mesh);
             const auto triangle_pos = getTrianglePosition();
-            particle.getPosition() += getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
+            particle.position += getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
         }
 
         [[nodiscard]] InitialMeshLocation* clone() const noexcept override {

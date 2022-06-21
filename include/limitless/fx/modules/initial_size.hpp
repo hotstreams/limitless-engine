@@ -18,7 +18,7 @@ namespace Limitless::fx {
             , distribution {module.distribution->clone()} {}
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
-            particle.getSize() = distribution->get();
+            particle.size = distribution->get();
         }
 
         [[nodiscard]] InitialSize* clone() const override {
@@ -44,7 +44,7 @@ namespace Limitless::fx {
                 , distribution {module.distribution->clone()} {}
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, MeshParticle& particle, [[maybe_unused]] size_t index) noexcept override {
-            particle.getSize() = distribution->get();
+            particle.size = distribution->get();
         }
 
         [[nodiscard]] InitialSize* clone() const override {

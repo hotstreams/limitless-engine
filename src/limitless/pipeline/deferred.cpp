@@ -28,8 +28,7 @@
 using namespace Limitless;
 
 Deferred::Deferred(ContextEventObserver& ctx, glm::uvec2 size, const RenderSettings& settings, RenderTarget& _target)
-    : Pipeline {size}
-    , target {_target} {
+    : Pipeline {size, _target} {
     build(ctx, settings);
 }
 
@@ -52,17 +51,17 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
 
     add<SkyboxPass>();
 
-    if (settings.screen_space_ambient_occlusion) {
-        add<SSAOPass>(ctx, size);
-    }
+//    if (settings.screen_space_ambient_occlusion) {
+//        add<SSAOPass>(ctx, size);
+//    }
 
-    add<DeferredLightingPass>();
+    add<DeferredLightingPass>(size);
 
-    add<TranslucentPass>(fx.getRenderer());
+    add<TranslucentPass>(fx.getRenderer(), size);
 
-    add<BlurPass>(size);
+    add<BloomPass>(size);
 
-    add<CompositePass>();
+    add<CompositePass>(size);
 
 //    add<OutlinePass>();
 
@@ -74,20 +73,5 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
 //        add<DoFPass>(ctx);
 //    }
 
-    add<QuadPass>(target);
-
-//    #ifdef LIMITLESS_DEBUG
-//        add<RenderDebugPass>(settings);
-//    #endif
-}
-
-void Deferred::onFramebufferChange(glm::uvec2 size) {
-    Pipeline::onFramebufferChange(size);
-
-    target.get().onFramebufferChange(size);
-}
-
-void Deferred::setTarget(RTRef _target) noexcept {
-    target = _target;
-    get<QuadPass>().setTarget(&target.get());
+    add<FinalQuadPass>(*target);
 }

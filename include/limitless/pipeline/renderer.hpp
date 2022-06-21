@@ -31,8 +31,8 @@ namespace Limitless {
         auto& getSettings() noexcept { return settings; }
         [[nodiscard]] const auto& getSettings() const noexcept { return settings; }
 
-        void update(ContextEventObserver& ctx, glm::uvec2 size, Assets& assets);
-        void updatePipeline(ContextEventObserver& ctx, glm::uvec2 size);
+        void update(ContextEventObserver& ctx, Assets& assets);
+        void updatePipeline(ContextEventObserver& ctx);
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
     };
 }

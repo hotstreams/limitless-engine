@@ -6,20 +6,21 @@
 #include <limitless/core/shader_program.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/composite_pass.hpp>
+#include <limitless/pipeline/deferred_lighting_pass.hpp>
 
 using namespace Limitless;
 
-QuadPass::QuadPass(Pipeline& pipeline)
+FinalQuadPass::FinalQuadPass(Pipeline& pipeline)
     : RenderPass(pipeline)
     , target {&default_framebuffer} {
 }
 
-QuadPass::QuadPass(Pipeline& pipeline, RenderTarget& _target)
+FinalQuadPass::FinalQuadPass(Pipeline& pipeline, RenderTarget& _target)
 	: RenderPass(pipeline)
 	, target {&_target} {
 }
 
-void QuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void FinalQuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 
@@ -35,6 +36,6 @@ void QuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
     }
 }
 
-void QuadPass::setTarget(RenderTarget* _target) {
-    target = _target;
+void FinalQuadPass::setTarget(RenderTarget& _target) {
+    target = &_target;
 }

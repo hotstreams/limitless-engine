@@ -68,8 +68,12 @@ void MaterialInstance::setMaterialState(Context& ctx, uint64_t id, ShaderPass pa
             setBlendingMode(ctx, Blending::MultipleOpaque, opaque_count);
         }
     } else {
-        if (pass == ShaderPass::Transparent)
-        setBlendingMode(ctx, material->getBlending());
+
+        if (material->getRefraction()) {
+            setBlendingMode(ctx, Blending::Opaque);
+        } else {
+            setBlendingMode(ctx, material->getBlending());
+        }
     }
 
     // sets culling based on two-sideness

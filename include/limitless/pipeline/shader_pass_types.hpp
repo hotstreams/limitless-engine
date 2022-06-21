@@ -9,7 +9,6 @@ namespace Limitless {
 
         Depth,
         GBuffer,
-        Transparent,
 
         Skybox,
         DirectionalShadow,
