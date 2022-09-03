@@ -1,6 +1,7 @@
 Limitless::GLSL_VERSION
 Limitless::Extensions
 
+#include "../interface_block/vertex.glsl"
 #include "../scene.glsl"
 
 layout (location = 0) in vec3 vertex_position;
