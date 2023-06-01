@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v3.3.3
+      - uses: actions/checkout@v3
       - name: run build script
         run: |
           sudo apt-get install xorg-dev libglu1-mesa-dev
