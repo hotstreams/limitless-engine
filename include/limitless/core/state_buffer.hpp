@@ -4,6 +4,13 @@
 #include <optional>
 
 namespace Limitless {
+    /**
+     * Implementation of Buffer
+     *
+     * Uses OpenGL function with state changing
+     *
+     * Two types of buffer: mutable and immutable
+     */
     class StateBuffer : public Buffer {
     protected:
         GLuint id;
@@ -22,12 +29,18 @@ namespace Limitless {
         StateBuffer() noexcept;
         friend void swap(StateBuffer& lhs, StateBuffer& rhs) noexcept;
     public:
+        /**
+         * Mutable buffer constructor
+         */
         StateBuffer(Type target, size_t size, const void* data, Usage usage, MutableAccess access) noexcept;
+        /**
+         * Immutable buffer constructor
+         */
         StateBuffer(Type target, size_t size, const void* data, Storage usage, ImmutableAccess access);
         ~StateBuffer() override;
 
         StateBuffer(const StateBuffer&) noexcept = delete;
-        StateBuffer& operator=(const StateBuffer&) const noexcept = delete;
+        StateBuffer& operator=(const StateBuffer&) noexcept = delete;
 
         StateBuffer(StateBuffer&& rhs) noexcept;
         StateBuffer& operator=(StateBuffer&& rhs) noexcept;
