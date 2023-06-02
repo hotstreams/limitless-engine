@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" OFF)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
+OPTION(WEBGL_BUILD "Web build" OFF)
 
 #########################################
 
@@ -223,7 +224,9 @@ set(ENGINE_SRC
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
+    if (NOT WEBGL_BUILD)
+        add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
+    endif()
     #####
 
     # ASSIMP
