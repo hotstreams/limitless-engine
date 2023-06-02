@@ -1,28 +1,10 @@
 #include <limitless/core/shader.hpp>
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/core/keyline_extensions.hpp>
 #include <string>
 #include <sstream>
 
 using namespace Limitless;
-
-namespace {
-    inline constexpr auto version_key = "Limitless::GLSL_VERSION";
-    inline constexpr auto extensions_key = "Limitless::Extensions";
-
-    inline constexpr auto bindless_texture = "GL_ARB_bindless_texture";
-    inline constexpr auto bindless_texture_define = "#define BINDLESS_TEXTURE\n";
-    inline constexpr auto extension_bindless_texture = "#extension GL_ARB_bindless_texture : require\n";
-    inline constexpr auto bindless_samplers = "layout(bindless_sampler) uniform;\n";
-
-    inline constexpr auto shader_storage_buffer_object = "GL_ARB_shader_storage_buffer_object";
-    inline constexpr auto extension_shader_storage_buffer_object = "#extension GL_ARB_shader_storage_buffer_object : require\n";
-
-    inline constexpr auto shading_language_420pack = "GL_ARB_shading_language_420pack";
-    inline constexpr auto extension_shading_language_420pack = "#extension GL_ARB_shading_language_420pack : require\n";
-
-    inline constexpr auto explicit_uniform_location = "GL_ARB_explicit_uniform_location";
-    inline constexpr auto extension_explicit_uniform_location = "#extension GL_ARB_explicit_uniform_location : require\n";
-}
 
 Shader::Shader(fs::path _path, Type _type, const ShaderAction& action)
     : path{std::move(_path)}
@@ -172,28 +154,6 @@ void Shader::replaceIncludes(const fs::path& base_dir) {
     } catch (const shader_file_not_found& not_found) {
         throw shader_include_not_found("Failed to resolve include for " + path.string() + ": " + not_found.what());
     }
-
-//    size_t found = 0;
-//    for (;;) {
-//        found = source.find(include, found);
-//
-//        if (found == std::string::npos) {
-//            break;
-//        }
-//
-//        size_t beg = found + include.length() + 2;
-//        size_t end = source.find('"', beg);
-//        size_t name_length = end - beg;
-//
-//        std::string file_name = source.substr(beg, name_length);
-//
-//        try {
-//            const auto& include_src = getSource(base_dir / file_name);
-//            source.replace(found, include.length() + 3 + name_length, include_src);
-//        } catch (const shader_file_not_found& not_found) {
-//            throw shader_include_not_found("Failed to resolve include for " + path.string() + ": " + not_found.what());
-//        }
-//    }
 }
 
 void Shader::compile() const {

@@ -1,4 +1,4 @@
-#include "catch_amalgamated.hpp"
+#include "limitless/catch_amalgamated.hpp"
 
 #include <core/context.hpp>
 #include <limitless/loaders/material_loader.hpp>
