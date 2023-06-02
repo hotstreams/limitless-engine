@@ -4,6 +4,7 @@
 
 [![Linux Build Status](https://github.com/hotstreams/limitless-engine/workflows/Linux/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3ALinux)
 [![Windows Build Status](https://github.com/hotstreams/limitless-engine/workflows/Windows/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWindows)
+[![Web Build Status](https://github.com/hotstreams/limitless-engine/workflows/Web/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWeb)
 
 ### Lighting
 
