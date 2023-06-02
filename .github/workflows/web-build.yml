@@ -12,15 +12,14 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
-      - name: set up dependencies
+      - name: run
         run: |
           sudo apt-get install xorg-dev libglu1-mesa-dev libx11-dev
           git submodule init
           git submodule update
           cd thirdparty/glew
           make extensions
-      - name: run
-        run: |
+          cd ..
           curl -L https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.15.zip > emsdk.zip
           unzip emsdk.zip ; mv emsdk-* emsdk ; cd emsdk
           ./emsdk install latest
