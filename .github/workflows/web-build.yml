@@ -19,16 +19,15 @@ jobs:
           git submodule update
           cd thirdparty/glew
           make extensions
-      - name: set up emscripten
+      - name: run
         run: |
           curl -L https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.15.zip > emsdk.zip
           unzip emsdk.zip ; mv emsdk-* emsdk ; cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
           source ./emsdk_env.sh
-          set-env EMDSDK="$PWD"
-      - name: run build
-        run: |
+          export EMDSDK="$PWD"
+          cd ..
           mkdir build
           source "${EMSDK}/emsdk_env.sh"
           cmake -DCMAKE_TOOLCHAIN_FILE="${EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" -S . -B build
