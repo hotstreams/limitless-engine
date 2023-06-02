@@ -258,7 +258,9 @@ set(ENGINE_SRC
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/plog")
     #####
 
-    target_compile_options(glfw PUBLIC -O3)
+    if (NOT WEBGL_BUILD)
+        target_compile_options(glfw PUBLIC -O3)
+    endif()
     target_compile_options(assimp PUBLIC -O3)
     target_compile_options(freetype PUBLIC -O3)
     target_compile_options(glew PUBLIC -O3)
