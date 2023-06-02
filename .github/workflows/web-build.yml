@@ -26,7 +26,7 @@ jobs:
           ./emsdk install latest
           ./emsdk activate latest
           source ./emsdk_env.sh
-          export EMSDK="$PWD"
+          set-env EMDSDK="$PWD"
       - name: run build
         run: |
           mkdir build
