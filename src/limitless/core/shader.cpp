@@ -36,28 +36,26 @@ void Shader::checkStatus() const {
     GLint success;
     glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 
-//    if (!success) {
-        GLint log_size = 0;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &log_size);
+    GLint log_size = 0;
+    glGetShaderiv(id, GL_INFO_LOG_LENGTH, &log_size);
 
-        if (log_size == 0) {
-            return;
-        }
+    if (log_size == 0) {
+        return;
+    }
 
-        std::string log;
-        log.resize(log_size);
-        glGetShaderInfoLog(id, log_size, &log_size, log.data());
+    std::string log;
+    log.resize(log_size);
+    glGetShaderInfoLog(id, log_size, &log_size, log.data());
 
-        {
-            std::ofstream file("shader_compilation_error");
-            file << path << std::endl;
-            file << log << std::endl;
-            file << "-------------" << std::endl;
-            file << "Shader source:" << source << std::endl;
-        }
+    {
+        std::ofstream file("shader_compilation_error");
+        file << path << std::endl;
+        file << log << std::endl;
+        file << "-------------" << std::endl;
+        file << "Shader source:" << source << std::endl;
+    }
 
-        throw shader_compilation_error("failed to compile " + path.string() + ": " + log);
-//    }
+    throw shader_compilation_error("failed to compile " + path.string() + ": " + log);
 }
 
 void Shader::replaceVersion() noexcept {
