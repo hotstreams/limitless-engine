@@ -3,20 +3,9 @@
 #include <fstream>
 #include <limitless/core/context.hpp>
 #include <limitless/core/shader_program.hpp>
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/core/shader_extensions.hpp>
 
 using namespace Limitless;
-
-namespace {
-    constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {
-        { ".vs",  Shader::Type::Vertex },
-        { ".tcs", Shader::Type::TessControl },
-        { ".tes", Shader::Type::TessEval },
-        { ".gs",  Shader::Type::Geometry },
-        { ".fs",  Shader::Type::Fragment },
-        { ".cs",  Shader::Type::Compute }
-    };
-}
 
 ShaderCompiler::ShaderCompiler(Context& _context)
     : context {_context} {

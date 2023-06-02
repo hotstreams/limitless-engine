@@ -44,6 +44,13 @@ GLint StateQuery::getTexi(GLenum target, GLenum pname) {
     return value;
 }
 
+GLint StateQuery::getiForIndex(QueryState name, GLuint index) {
+    GLint value {};
+    glGetIntegeri_v(static_cast<GLenum>(name), index, &value);
+    return value;
+}
+
+
 
 //void MaterialBuilder::initializeMaterialBuffer(Material& material, const ShaderProgram& shader) {
 //    if (material.material_buffer) {

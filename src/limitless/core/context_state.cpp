@@ -4,15 +4,30 @@
 
 using namespace Limitless;
 
-bool Limitless::operator<(const BindingPoint& a, const BindingPoint& b) noexcept
-{
-    return (a.target == b.target) ? a.point < b.point : a.target < b.target;
-}
-
 void ContextState::init() noexcept {
     for (GLint i = 0; i < ContextInitializer::limits.max_texture_units; ++i) {
         texture_bound.emplace(i, 0);
     }
+
+    for (GLuint i = 0; i < (GLuint)ContextInitializer::limits.shader_storage_max_count; ++i) {
+        buffer_point.emplace(BindingPoint{Buffer::Type::ShaderStorage, i}, 0);
+    }
+
+    for (GLuint i = 0; i < (GLuint)ContextInitializer::limits.uniform_buffer_max_count; ++i) {
+        buffer_point.emplace(BindingPoint{Buffer::Type::Uniform, i}, 0);
+    }
+
+    capability_map.emplace(Capabilities::DepthTest, false);
+    capability_map.emplace(Capabilities::Blending, false);
+    capability_map.emplace(Capabilities::ProgramPointSize, false);
+    capability_map.emplace(Capabilities::ScissorTest, false);
+    capability_map.emplace(Capabilities::StencilTest, false);
+    capability_map.emplace(Capabilities::CullFace, false);
+
+    buffer_target.emplace(Buffer::Type::Element, 0);
+    buffer_target.emplace(Buffer::Type::Array, 0);
+    buffer_target.emplace(Buffer::Type::ShaderStorage, 0);
+    buffer_target.emplace(Buffer::Type::Uniform, 0);
 }
 
 void ContextState::registerState(GLFWwindow* window) noexcept {
@@ -27,12 +42,16 @@ void ContextState::unregisterState(GLFWwindow* window) noexcept {
     state_map.erase(window);
 }
 
-void ContextState::swapStateMap(Context& lhs, Context& rhs) noexcept {
+void ContextState::swap_state_map(Context& lhs, Context& rhs) noexcept {
     std::unique_lock lock{mutex};
 
-    // we do not register nullptr window at context default construct, so have to check
-    // try to understand that is going on here
-    // love implicit casts ;)
+    /*
+     * we do NOT register nullptr GLFWWindow at Context default constructor (it is private, so GLFWWindow pointer gets nullptr)
+     * so have to check that it is present here
+     */
+
+    // love implicit casts btw ;)
+
     if (lhs && rhs) {
         std::swap(state_map[lhs], state_map[rhs]);
         return;
@@ -65,8 +84,8 @@ void ContextState::setBlendFunc(BlendFactor src, BlendFactor dst) noexcept {
 }
 
 void ContextState::setBlendColor(const glm::vec4& color) noexcept {
-    if (blending_color != color) {
-        blending_color = color;
+    if (blend_color != color) {
+        blend_color = color;
         glBlendColor(color.r, color.g, color.b, color.a);
     }
 }
@@ -130,17 +149,18 @@ void ContextState::disable(Capabilities func) noexcept {
 }
 
 void ContextState::setViewPort(glm::uvec2 viewport_size) noexcept {
-    if (viewport != viewport_size) {
-        viewport = viewport_size;
-        glViewport(0, 0, viewport.x, viewport.y);
+    if (glm::uvec2{viewport.z, viewport.w} != viewport_size) {
+        viewport.z = viewport_size.x;
+        viewport.w = viewport_size.y;
+        glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
     }
 }
 
-void ContextState::setViewPort(glm::uvec2 position, glm::uvec2 size) noexcept {
-//    if (viewport != size) {
-//        viewport = size;
-        glViewport(position.x, position.y, size.x, size.y);
-//    }
+void ContextState::setViewPort(glm::uvec4 new_viewport) noexcept {
+    if (viewport != new_viewport) {
+        viewport = new_viewport;
+        glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+    }
 }
 
 void ContextState::setDepthFunc(DepthFunc func) noexcept {
@@ -192,9 +212,9 @@ bool ContextState::hasState(GLFWwindow* window) noexcept {
 }
 
 void ContextState::setScissorTest(glm::uvec2 origin, glm::uvec2 size) noexcept {
-    if (scissor_origin != origin || scissor_size != size) {
+//    if (scissor_viewport != origin || scissor_size != size) {
         glScissor(origin.x, origin.y, size.x, size.y);
-        scissor_origin = origin;
-        scissor_size = size;
-    }
+//        scissor_origin = origin;
+//        scissor_size = size;
+//    }
 }
