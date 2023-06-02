@@ -333,6 +333,7 @@ add_executable(limitless_test
         test/limitless/core/shader_compiler_test.cpp
         test/limitless/core/shader_test.cpp
         test/limitless/core/context_test.cpp
+        test/limitless/core/state_buffer_test.cpp
 )
 
 target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
