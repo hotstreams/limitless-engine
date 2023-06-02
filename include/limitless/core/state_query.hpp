@@ -7,6 +7,9 @@ namespace Limitless {
     enum class QueryState {
         ActiveTexture = GL_ACTIVE_TEXTURE,
         ArrayBufferBinding = GL_ARRAY_BUFFER_BINDING,
+        VertexArrayObject = GL_VERTEX_ARRAY_BINDING,
+        ShaderStorageBufferBinding = GL_SHADER_STORAGE_BUFFER_BINDING,
+        UniformBufferBinding = GL_UNIFORM_BUFFER_BINDING,
         Blend = GL_BLEND,
         BlendColor = GL_BLEND_COLOR,
         BlendDstAlpha = GL_BLEND_DST_ALPHA,
@@ -25,7 +28,9 @@ namespace Limitless {
         ReadFramebufferBinding = GL_READ_FRAMEBUFFER_BINDING,
         ElementArrayBufferBinding = GL_ELEMENT_ARRAY_BUFFER_BINDING,
         LineWidth = GL_LINE_WIDTH,
-        Max3DTextureSize = GL_MAX_3D_TEXTURE_SIZE,
+        // TODO: this is limit
+        // move to limits
+//        Max3DTextureSize = GL_MAX_3D_TEXTURE_SIZE,
         MaxArrayTextureLayers = GL_MAX_ARRAY_TEXTURE_LAYERS,
         MaxCubeMapTextureSize = GL_MAX_CUBE_MAP_TEXTURE_SIZE,
         MaxDrawBuffers = GL_MAX_DRAW_BUFFERS,
@@ -33,8 +38,10 @@ namespace Limitless {
         MaxElementsVertices = GL_MAX_ELEMENTS_VERTICES,
         MaxTextureSize = GL_MAX_TEXTURE_SIZE,
         MaxUniformBufferBindings = GL_MAX_UNIFORM_BUFFER_BINDINGS,
+        MaxShaderStorageBufferBindings = GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS,
         MaxUniformBlockSize = GL_MAX_UNIFORM_BLOCK_SIZE,
         PointSize = GL_POINT_SIZE,
+        ProgramPointSize = GL_PROGRAM_POINT_SIZE,
         ScissorTest = GL_SCISSOR_TEST,
         StencilTest = GL_STENCIL_TEST,
         TextureBinding2D = GL_TEXTURE_BINDING_2D,
@@ -50,6 +57,7 @@ namespace Limitless {
         glm::vec4 get4f(QueryState name);
         glm::vec3 get3f(QueryState name);
         glm::uvec4 get4ui(QueryState name);
+        GLint getiForIndex(QueryState name, GLuint index);
 
         GLint getTexi(GLenum target, GLenum pname);
     };

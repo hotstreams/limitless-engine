@@ -6,6 +6,7 @@ using namespace Limitless;
 Context::Context(std::string_view title, glm::uvec2 s, const WindowHints& hints)
     : ContextInitializer(), ContextState(), size(s) {
 
+    // sets window hints for creation
     for (const auto& [hint, value] : hints) {
         glfwWindowHint(static_cast<int>(hint), value);
     }
@@ -23,6 +24,7 @@ Context::Context(std::string_view title, glm::uvec2 s, const WindowHints& hints)
 
     init();
 
+    // we created window, reset to default ones
     defaultHints();
 
     registerState(window);
@@ -51,7 +53,7 @@ Context::Context(std::string_view title, glm::uvec2 s, const Context& shared, co
 void Limitless::swap(Context& lhs, Context& rhs) noexcept {
     using std::swap;
 
-    lhs.swapStateMap(lhs, rhs);
+    Context::swap_state_map(lhs, rhs);
 
     swap(lhs.window, rhs.window);
     swap(lhs.monitor, rhs.monitor);
