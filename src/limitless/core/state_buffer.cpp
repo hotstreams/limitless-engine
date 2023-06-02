@@ -29,11 +29,13 @@ StateBuffer::~StateBuffer() {
             auto& target_map = state->buffer_target;
             auto& point_map = state->buffer_point;
 
+            // if buffer is bound to any target we should reset it to zero
             std::for_each(target_map.begin(), target_map.end(), [&] (auto& state_target) {
                 auto& [s_target, s_id] = state_target;
                 if (s_id == id) s_id = 0;
             });
 
+            // if buffer is linked to any buffer point we should reset it to zero too
             bool bound {};
             std::for_each(point_map.begin(), point_map.end(), [&] (auto& state_point) {
                 auto& [s_point, s_id] = state_point;
@@ -46,9 +48,14 @@ StateBuffer::~StateBuffer() {
             // some strange behavior on old cpu
             // if buffer's bound to any binding point
             // we have to reset its target binding
-            if (bound) {
-                target_map[target] = 0;
-            }
+            // no any mention of it at opengl docs
+            // mb its somewhere else
+            // TODO:
+            // COULD NOT REPRODUCE IT ON MY MACHINE IN TESTS
+            // TEST ON SOMEBODY's else
+//            if (bound) {
+//                target_map[target] = 0;
+//            }
 
             glDeleteBuffers(1, &id);
         }
@@ -249,6 +256,7 @@ void StateBuffer::bindBufferRangeAs(Buffer::Type _target, GLuint index, GLintptr
         if (auto& point_map = state->buffer_point; point_map[{_target, index}] != id) {
             glBindBufferRange(static_cast<GLenum>(_target), index, id, offset, size);
             point_map[{_target, index}] = id;
+            state->buffer_target[_target] = id;
         }
     }
 }
@@ -258,6 +266,7 @@ void StateBuffer::bindBufferRange(GLuint index, GLintptr offset) const noexcept 
         if (auto& point_map = state->buffer_point; point_map[{target, index}] != id) {
             glBindBufferRange(static_cast<GLenum>(target), index, id, offset, size);
             point_map[{target, index}] = id;
+            state->buffer_target[target] = id;
         }
     }
 }
@@ -290,7 +299,6 @@ void StateBuffer::resize(size_t new_size) noexcept{
         StateBuffer new_buffer{target, size, nullptr, std::get<Storage>(usage_flags), std::get<ImmutableAccess>(access)};
         swap(*this, new_buffer);
     } else {
-        bind();
         StateBuffer::bufferData(nullptr);
     }
 }
