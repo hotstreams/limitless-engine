@@ -26,7 +26,9 @@ jobs:
           ./emsdk install latest
           ./emsdk activate latest
           source ./emsdk_env.sh
+          export EMSDK="$PWD"
       - name: run build
         run: |
           mkdir build
-          cmake -S . -B build
+          source "${EMSDK}/emsdk_env.sh"
+          cmake -DCMAKE_TOOLCHAIN_FILE="${EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" -S . -B build
