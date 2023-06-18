@@ -3,7 +3,7 @@ name: Linux
 on:
   push:
     branches:
-      - master
+      - material-tests
       
 jobs:
   build-linux:
@@ -23,3 +23,5 @@ jobs:
         run: |
           mkdir build
           cmake -S . -B build
+          cd build
+          make
