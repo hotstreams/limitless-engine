@@ -9,7 +9,7 @@ namespace Limitless {
     protected:
         GLuint id {};
     public:
-        StateTexture() noexcept;
+        StateTexture() noexcept = default;
         ~StateTexture() override;
 
         StateTexture(const StateTexture&) = delete;
@@ -17,6 +17,8 @@ namespace Limitless {
 
         StateTexture(StateTexture&&) noexcept;
         StateTexture& operator=(StateTexture&&) noexcept;
+
+        void generateId() noexcept override;
 
         [[nodiscard]] StateTexture* clone() const override;
 

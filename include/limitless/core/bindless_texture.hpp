@@ -27,6 +27,8 @@ namespace Limitless {
         void makeResident() noexcept;
         void makeNonResident() noexcept;
 
+        void generateId() noexcept override;
+
         // clones extension texture; returns new generated one
         [[nodiscard]] BindlessTexture* clone() const override;
 

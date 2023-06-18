@@ -3,11 +3,13 @@
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/named_texture.hpp>
 #include <limitless/core/bindless_texture.hpp>
+#include <iostream>
+#include <memory>
 
 using namespace Limitless;
 
 void TextureBuilder::create() {
-    // uses protected destructor
+    // uses protected ctor
     texture = std::unique_ptr<Texture>(new Texture());
     data = {};
     cube_data = {};
@@ -28,16 +30,6 @@ bool TextureBuilder::isImmutable() {
 
 TextureBuilder::TextureBuilder() {
     create();
-}
-
-void TextureBuilder::createExtensionTexture() {
-    ExtensionTexture* extension = ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access") ?
-        new NamedTexture(static_cast<GLenum>(texture->target)) : new StateTexture();
-
-    auto* ext = ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") ?
-        new BindlessTexture(extension) : extension;
-
-    texture->texture = std::unique_ptr<ExtensionTexture>(ext);
 }
 
 TextureBuilder& TextureBuilder::setInternalFormat(Texture::InternalFormat internal) {
@@ -71,7 +63,7 @@ TextureBuilder& TextureBuilder::setData(const std::array<void *, 6>& _data) {
 }
 
 TextureBuilder& TextureBuilder::setSize(glm::uvec2 size) {
-    texture->size = { size, 0 };
+    texture->size = { size, 1 };
     return *this;
 }
 
@@ -132,16 +124,14 @@ TextureBuilder& TextureBuilder::setBorderColor(const glm::vec4& color) {
 }
 
 std::shared_ptr<Texture> TextureBuilder::buildMutable() {
-    createExtensionTexture();
+    if (!texture->texture) {
+        useBestSupportedExtensionTexture();
+    }
 
     if (isCompressed()) {
         texture->compressedImage(data, byte_count);
     } else {
-        if (isCubeMap()) {
-            texture->image(cube_data);
-        } else {
-            texture->image(data);
-        }
+        isCubeMap() ? texture->image(cube_data) : texture->image(data);
     }
 
     auto tex = std::move(texture);
@@ -150,7 +140,9 @@ std::shared_ptr<Texture> TextureBuilder::buildMutable() {
 }
 
 std::shared_ptr<Texture> TextureBuilder::buildImmutable() {
-    createExtensionTexture();
+    if (!texture->texture) {
+        useBestSupportedExtensionTexture();
+    }
 
     texture->immutable = true;
 
@@ -170,6 +162,7 @@ std::shared_ptr<Texture> TextureBuilder::buildImmutable() {
 
     auto tex = std::move(texture);
     create();
+    tex->bind(0);
     return tex;
 }
 
@@ -264,4 +257,36 @@ std::shared_ptr<Texture> TextureBuilder::asDepth32F(glm::uvec2 size) {
     return builder.build();
 }
 
+void TextureBuilder::useStateExtensionTexture() {
+    texture->texture = std::make_unique<StateTexture>();
+    texture->texture->generateId();
+}
 
+void TextureBuilder::useNamedExtensionTexture() {
+    if (!ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access")) {
+        throw std::runtime_error{"NamedExtensionTexture is not supported!"};
+    }
+
+    texture->texture = std::make_unique<NamedTexture>(static_cast<GLenum>(texture->target));
+    texture->texture->generateId();
+}
+
+void TextureBuilder::useBindlessExtensionTexture() {
+    if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
+        throw std::runtime_error{"BindlessTexture is not supported!"};
+    }
+
+    if (!texture->texture) {
+        throw std::runtime_error{"ExtensionTexture is not created for wrapping into bindless!"};
+    }
+
+    texture->texture = std::make_unique<BindlessTexture>(texture->texture.release());
+}
+
+void TextureBuilder::useBestSupportedExtensionTexture() {
+    ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access") ? useNamedExtensionTexture() : useStateExtensionTexture();
+
+    if (ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
+        useBindlessExtensionTexture();
+    }
+}

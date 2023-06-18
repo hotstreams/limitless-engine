@@ -17,6 +17,8 @@ namespace Limitless {
         ExtensionTexture(ExtensionTexture&&) noexcept = default;
         ExtensionTexture& operator=(ExtensionTexture&&) noexcept = default;
 
+        virtual void generateId() noexcept = 0;
+
         // clones extension texture; returns new generated one
         [[nodiscard]] virtual ExtensionTexture* clone() const = 0;
 
