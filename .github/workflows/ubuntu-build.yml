@@ -3,7 +3,7 @@ name: Linux
 on:
   push:
     branches:
-      - material-tests
+      - master
       
 jobs:
   build-linux:
@@ -23,10 +23,3 @@ jobs:
         run: |
           mkdir build
           cmake -S . -B build
-          echo "build"
-          ls /home/runner/work/limitless-engine/limitless-engine/build
-          echo "root"
-          ls /home/runner/work/limitless-engine/limitless-engine
-          echo "bin"
-          ls /home/runner/work/limitless-engine/limitless-engine/build/bin
-      
