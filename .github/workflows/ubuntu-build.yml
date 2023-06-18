@@ -23,6 +23,5 @@ jobs:
         run: |
           mkdir build
           cmake -S . -B build
-          ls .
-          ls ./build
+          ls ./build/bin
       
