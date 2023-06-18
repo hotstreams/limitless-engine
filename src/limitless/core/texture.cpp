@@ -2,6 +2,7 @@
 
 #include <limitless/core/extension_texture.hpp>
 #include <limitless/core/context_initializer.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -136,6 +137,7 @@ void Texture::resize(glm::uvec3 _size) {
 
     if (isImmutable()) {
         texture = std::unique_ptr<ExtensionTexture>(texture->clone());
+        texture->generateId();
         storage();
     }
 }
@@ -202,10 +204,9 @@ void Texture::setParameters() {
         setBorderColor(border_color);
     }
 
-    //TODO: check
-//    if (anisotropic != 0.0) {
-//
-//    }
+    if (anisotropic != 1.0f) {
+        setAnisotropicFilter(anisotropic);
+    }
 }
 
 uint32_t Texture::getId() const noexcept {

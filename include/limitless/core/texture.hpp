@@ -120,7 +120,7 @@ namespace Limitless {
         std::unique_ptr<ExtensionTexture> texture;
         std::optional<fs::path> path {};
         glm::vec4 border_color {};
-        glm::uvec3 size {};
+        glm::uvec3 size {1};
         InternalFormat internal_format {InternalFormat::RGB8};
         DataType data_type {DataType::UnsignedByte};
         Format format {Format::RGB};
@@ -131,7 +131,7 @@ namespace Limitless {
         Wrap wrap_s {Wrap::ClampToEdge};
         Wrap wrap_t {Wrap::ClampToEdge};
         uint32_t levels {1};
-        float anisotropic {0.0f};
+        float anisotropic {1.0f};
         bool mipmap {false};
         bool border {false};
         bool compressed {false};
