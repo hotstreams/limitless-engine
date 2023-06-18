@@ -17,6 +17,8 @@ namespace Limitless {
         NamedTexture(NamedTexture&&) noexcept;
         NamedTexture& operator=(NamedTexture&&) noexcept;
 
+        void generateId() noexcept override;
+
         [[nodiscard]] NamedTexture* clone() const override;
 
         void texStorage2D(GLenum target, GLsizei levels, GLenum internal_format, glm::uvec2 size) noexcept override;

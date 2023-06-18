@@ -6,6 +6,9 @@
 using namespace Limitless;
 
 NamedTexture::NamedTexture(GLenum _target) noexcept : target{_target} {
+}
+
+void NamedTexture::generateId() noexcept {
     glCreateTextures(target, 1, &id);
 }
 

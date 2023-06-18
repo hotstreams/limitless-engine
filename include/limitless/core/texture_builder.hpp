@@ -7,9 +7,12 @@
 #include <memory>
 
 namespace Limitless {
+    /**
+     * TextureBuilder is class that is used to build Textures
+     * with different properties using different OpenGL extensions
+     */
     class TextureBuilder {
     private:
-        void createExtensionTexture();
         [[nodiscard]] static bool isImmutable();
         [[nodiscard]] bool isCompressed() const;
         [[nodiscard]] bool isCubeMap() const;
@@ -45,6 +48,11 @@ namespace Limitless {
         TextureBuilder& setWrapR(Texture::Wrap wrap);
         TextureBuilder& setBorder(bool border);
         TextureBuilder& setBorderColor(const glm::vec4& color);
+
+        void useStateExtensionTexture();
+        void useNamedExtensionTexture();
+        void useBindlessExtensionTexture();
+        void useBestSupportedExtensionTexture();
 
         std::shared_ptr<Texture> buildMutable();
         std::shared_ptr<Texture> buildImmutable();

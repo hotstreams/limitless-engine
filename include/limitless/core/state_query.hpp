@@ -45,6 +45,9 @@ namespace Limitless {
         ScissorTest = GL_SCISSOR_TEST,
         StencilTest = GL_STENCIL_TEST,
         TextureBinding2D = GL_TEXTURE_BINDING_2D,
+        TextureBinding3D = GL_TEXTURE_BINDING_3D,
+        TextureBinding2DArray = GL_TEXTURE_BINDING_2D_ARRAY,
+        TextureBindingCubeMap = GL_TEXTURE_BINDING_CUBE_MAP,
         Viewport = GL_VIEWPORT,
         TessLevel = GL_MAX_TESS_GEN_LEVEL
     };
