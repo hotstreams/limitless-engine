@@ -7,6 +7,8 @@
 #include <limitless/util/color_picker.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
 #include <iostream>
+#include <limitless/core/state_query.hpp>
+#include <limitless/core/state_texture.hpp>
 
 using namespace Limitless;
 

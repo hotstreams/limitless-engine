@@ -6,7 +6,7 @@
 
 using namespace Limitless;
 
-StateTexture::StateTexture() noexcept {
+void StateTexture::generateId() noexcept {
     glGenTextures(1, &id);
 }
 
