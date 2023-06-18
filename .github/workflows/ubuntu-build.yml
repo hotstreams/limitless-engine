@@ -23,4 +23,5 @@ jobs:
         run: |
           mkdir build
           cmake -S . -B build
+          ./build/limitless_test
       
