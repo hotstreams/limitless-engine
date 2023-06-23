@@ -1,0 +1,32 @@
+name: Web
+
+on:
+  push:
+    branches:
+      - master
+      
+jobs:
+  build-linux:
+    name: build-web
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: run
+        run: |
+          sudo apt-get install xorg-dev libglu1-mesa-dev libx11-dev libxss-dev libxxf86vm-dev libxkbfile-dev libxv-dev
+          git submodule init
+          git submodule update
+          cd thirdparty/glew
+          make extensions
+          cd ../..
+          curl -L https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.15.zip > emsdk.zip
+          unzip emsdk.zip ; mv emsdk-* emsdk ; cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          source ./emsdk_env.sh
+          export EMDSDK="$PWD"
+          cd ..
+          mkdir build
+          source "${EMSDK}/emsdk_env.sh"
+          cmake -DCMAKE_TOOLCHAIN_FILE="${EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" -DWEBGL_BUILD=ON -S . -B build

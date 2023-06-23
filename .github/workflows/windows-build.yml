@@ -1,0 +1,25 @@
+name: Windows
+
+on:
+  push:
+    branches:
+      - master
+      
+jobs:
+  build-linux:
+    name: build-windows
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: set up dependencies
+        run: |
+          #sudo apt-get install xorg-dev libglu1-mesa-dev
+          git submodule init
+          git submodule update
+          cd thirdparty/glew
+          make extensions
+      - name: run build
+        run: |
+          mkdir build
+          cmake -S . -B build
