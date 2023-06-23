@@ -28,9 +28,9 @@ if (DEBUG_OPENGL)
     add_compile_definitions(GL_DEBUG)
 endif()
 
-if (OPENGL_TOSTER_MODE)
-    add_compile_definitions(OPENGL_TOSTER)
-endif()
+#if (OPENGL_TOSTER_MODE)
+#    add_compile_definitions(OPENGL_TOSTER)
+#endif()
 
 if (NOT LIMITLESS_ASSETS_DIR)
     set(LIMITLESS_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/")
@@ -334,6 +334,8 @@ add_executable(limitless_test
         test/limitless/core/shader_test.cpp
         test/limitless/core/context_test.cpp
         test/limitless/core/state_buffer_test.cpp
+        test/limitless/core/state_texture_test.cpp
+        test/limitless/core/texture_builder_test.cpp
 )
 
 target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")

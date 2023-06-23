@@ -7,6 +7,10 @@ BindlessTexture::BindlessTexture(ExtensionTexture* _texture)
     : texture {_texture} {
 }
 
+void BindlessTexture::generateId() noexcept {
+    texture->generateId();
+}
+
 void BindlessTexture::makeBindless() noexcept {
     if (!handle) {
         handle = glGetTextureHandleARB(texture->getId());
