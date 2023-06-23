@@ -43,7 +43,12 @@ namespace LimitlessTest {
             const auto last_active_texture = state->getActiveTexture();
             for (const auto& [unit, id] : state->getTextureBound()) {
                 StateTexture::activate(unit);
-                REQUIRE(id == query.geti(QueryState::TextureBinding2D));
+
+                bool a = id == query.geti(QueryState::TextureBinding2D)
+                        || id == query.geti(QueryState::TextureBinding3D)
+                        || id == query.geti(QueryState::TextureBinding2DArray)
+                        || id == query.geti(QueryState::TextureBindingCubeMap);
+                REQUIRE(a);
             }
             StateTexture::activate(last_active_texture);
 
