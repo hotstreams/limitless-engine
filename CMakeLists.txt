@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # CONFIGURABLE OPTIONS
 
-OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" OFF)
+OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 
@@ -68,7 +68,10 @@ set(ENGINE_CORE
     src/limitless/core/indexed_buffer.cpp
     src/limitless/core/buffer_builder.cpp
 
-    src/limitless/core/uniform.cpp
+    src/limitless/core/uniform/uniform.cpp
+    src/limitless/core/uniform/uniform_value.cpp
+    src/limitless/core/uniform/uniform_sampler.cpp
+    src/limitless/core/uniform/uniform_time.cpp
     src/limitless/core/uniform_setter.cpp
     src/limitless/core/shader.cpp
     src/limitless/core/shader_program.cpp
@@ -331,6 +334,8 @@ add_executable(limitless_test
         test/limitless/core/state_buffer_test.cpp
         test/limitless/core/state_texture_test.cpp
         test/limitless/core/texture_builder_test.cpp
+        test/limitless/ms/material_test.cpp
+        test/limitless/core/uniform_test.cpp
 )
 
 target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")

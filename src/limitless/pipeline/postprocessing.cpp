@@ -3,7 +3,10 @@
 #include <limitless/models/model.hpp>
 #include <limitless/core/texture_builder.hpp>
 #include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
+
+#include <limitless/core/uniform/uniform_value.hpp>
+#include <limitless/core/uniform/uniform_sampler.hpp>
 
 using namespace Limitless;
 

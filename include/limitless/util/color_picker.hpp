@@ -3,7 +3,7 @@
 #include <limitless/core/framebuffer.hpp>
 #include <future>
 #include <limitless/core/sync.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 #include <limitless/scene.hpp>
 #include <limitless/core/texture_builder.hpp>
 #include <utility>
