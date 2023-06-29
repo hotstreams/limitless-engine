@@ -5,14 +5,14 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/fx/effect_renderer.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 #include <limitless/core/shader_program.hpp>
 #include <limitless/core/uniform_setter.hpp>
 #include <limitless/core/texture_builder.hpp>
 #include <stdexcept>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_lighting_pass.hpp>
-
+#include <limitless/core/uniform/uniform_sampler.hpp>
 using namespace Limitless;
 
 TranslucentPass::TranslucentPass(Pipeline& pipeline, fx::EffectRenderer& _renderer, glm::uvec2 frame_size, std::shared_ptr<Texture> depth)

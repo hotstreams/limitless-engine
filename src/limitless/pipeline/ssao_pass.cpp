@@ -7,7 +7,7 @@
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/fx/effect_renderer.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 #include <limitless/core/shader_program.hpp>
 #include <random>
 #include <iostream>
@@ -16,7 +16,7 @@
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
 #include <limitless/core/buffer_builder.hpp>
-
+#include <limitless/core/uniform/uniform_sampler.hpp>
 using namespace Limitless;
 
 namespace {

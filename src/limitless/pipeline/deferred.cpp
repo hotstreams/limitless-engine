@@ -38,6 +38,47 @@ void Deferred::update(ContextEventObserver& ctx, const RenderSettings& settings)
 }
 
 void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) {
+    /*
+        scene update pass ->
+                                [buffer bind] scene
+
+        shadow pass ->
+                            [buffer bind] shadow
+
+        render pass ->
+                        for each instance
+                            [buffer bind] skeletal
+
+                            for each mesh
+                                for each material layer
+                                    set ctx state
+                                    set shader program
+                                    set uniform state
+                                    mesh draw
+
+
+     we should sort
+
+     Renderer
+        accepts scene
+            |
+        gets instances
+            |
+        for each instance
+                |
+            for each mesh
+                    |
+                for each material layer
+                        |
+
+
+
+     CommonRenderer
+
+     BatchedRenderer
+
+     */
+
     add<SceneUpdatePass>(ctx);
     auto& fx = add<EffectUpdatePass>(ctx);
 

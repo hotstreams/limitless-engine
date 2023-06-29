@@ -1,13 +1,13 @@
 #include <limitless/pipeline/quad_pass.hpp>
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/shader_program.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/composite_pass.hpp>
 #include <limitless/pipeline/deferred_lighting_pass.hpp>
-
+#include <limitless/core/uniform/uniform_sampler.hpp>
 using namespace Limitless;
 
 FinalQuadPass::FinalQuadPass(Pipeline& pipeline)

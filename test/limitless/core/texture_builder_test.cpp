@@ -3,7 +3,6 @@
 
 #include <limitless/core/context.hpp>
 #include <limitless/core/texture_builder.hpp>
-#include <iostream>
 
 using namespace Limitless;
 using namespace LimitlessTest;

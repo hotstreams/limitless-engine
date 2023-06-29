@@ -4,7 +4,7 @@
 #include <limitless/core/buffer_builder.hpp>
 #include <limitless/core/shader_program.hpp>
 #include <limitless/core/uniform_setter.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 
 #include <limitless/ms/blending.hpp>
 #include <limitless/instances/abstract_instance.hpp>
@@ -15,6 +15,9 @@
 #include <limitless/scene.hpp>
 
 #include <limitless/fx/effect_renderer.hpp>
+
+#include <limitless/core/uniform/uniform_value.hpp>
+#include <limitless/core/uniform/uniform_sampler.hpp>
 
 using namespace Limitless;
 

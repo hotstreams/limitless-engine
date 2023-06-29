@@ -1,11 +1,11 @@
 #include <limitless/pipeline/dof_pass.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
 #include <limitless/core/texture_builder.hpp>
 #include <limitless/core/shader_program.hpp>
-
+#include <limitless/core/uniform/uniform_sampler.hpp>
 using namespace Limitless;
 
 DoFPass::DoFPass(Pipeline& pipeline, ContextEventObserver& ctx, RenderTarget& _target)

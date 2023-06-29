@@ -2,12 +2,14 @@
 
 #include <limitless/ms/blending.hpp>
 #include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/text/font_atlas.hpp>
 #include <limitless/assets.hpp>
 
 #include <glm/gtx/transform.hpp>
+
+#include <limitless/core/uniform/uniform_sampler.hpp>
 
 using namespace Limitless;
 
