@@ -1,4 +1,4 @@
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/ssao_pass.hpp>
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/pipeline/shader_pass_types.hpp>
@@ -7,15 +7,15 @@
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/fx/effect_renderer.hpp>
-#include <limitless/core/uniform.hpp>
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/uniform/uniform.hpp"
+#include "limitless/core/shader/shader_program.hpp"
 #include <random>
 #include <iostream>
 #include <limitless/camera.hpp>
 #include <limitless/pipeline/gbuffer_pass.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 
 using namespace Limitless;
 
@@ -155,9 +155,9 @@ void SSAOPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe
         auto& shader = assets.shaders.get("ssao");
         auto& gbuffer = pipeline.get<DeferredFramebufferPass>();
 
-        shader << UniformSampler{"normal_texture", gbuffer.getNormal()}
-               << UniformSampler{"depth_texture", gbuffer.getDepth()}
-               << UniformSampler{"noise", noise};
+        shader .setUniform("normal_texture", gbuffer.getNormal())
+               .setUniform("depth_texture", gbuffer.getDepth())
+               .setUniform("noise", noise);
 
         shader.use();
 
@@ -169,7 +169,7 @@ void SSAOPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe
 
         auto& shader = assets.shaders.get("ssao_blur");
 
-        shader << UniformSampler{"ssao", framebuffer.get(FramebufferAttachment::Color0).texture};
+        shader.setUniform("ssao", framebuffer.get(FramebufferAttachment::Color0).texture);
 
         shader.use();
 

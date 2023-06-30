@@ -4,7 +4,7 @@
 #include <limitless/fx/emitters/visitor_collector.hpp>
 #include <limitless/fx/emitters/sprite_emitter.hpp>
 
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 #include <limitless/assets.hpp>
 #include <limitless/models/mesh.hpp>
 
@@ -46,7 +46,7 @@ namespace Limitless::fx {
                 ctx.enable(Capabilities::CullFace);
             }
 
-            shader << material;
+            shader.setMaterial(material);
 
             setter(shader);
 

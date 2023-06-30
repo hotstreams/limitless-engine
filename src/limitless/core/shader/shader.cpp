@@ -1,4 +1,4 @@
-#include <limitless/core/shader.hpp>
+#include <limitless/core/shader/shader.hpp>
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/keyline_extensions.hpp>
 #include <string>

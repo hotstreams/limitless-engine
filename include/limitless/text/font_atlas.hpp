@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/util/filesystem.hpp>
 #include <glm/glm.hpp>
 #include <limitless/core/vertex.hpp>

@@ -1,4 +1,4 @@
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/gbuffer_pass.hpp>
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/pipeline/shader_pass_types.hpp>

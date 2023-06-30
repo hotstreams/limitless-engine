@@ -1,7 +1,7 @@
 #include <limitless/pipeline/pipeline.hpp>
 
 #include <limitless/scene.hpp>
-#include <limitless/core/uniform_setter.hpp>
+#include "limitless/core/uniform/uniform_setter.hpp"
 #include <limitless/pipeline/render_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/pipeline/quad_pass.hpp>

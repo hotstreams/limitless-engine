@@ -1,8 +1,8 @@
 #include <limitless/pipeline/blur.hpp>
 
-#include <limitless/core/texture_builder.hpp>
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
+#include "limitless/core/shader/shader_program.hpp"
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/assets.hpp>
 
 using namespace Limitless;
@@ -88,8 +88,8 @@ void Blur::downsample(Context& ctx, const Assets& assets, const std::shared_ptr<
 
     auto& blur = assets.shaders.get("blur_downsample");
 
-    blur << UniformSampler{"source", source}
-         << UniformValue{"level", 0.0f};
+    blur .setUniform("source", source)
+    .setUniform("level", 0.0f);
 
     auto vp = ctx.getViewPort();
     for (uint8_t i = 0; i < ITERATION_COUNT; ++i) {
@@ -104,8 +104,8 @@ void Blur::downsample(Context& ctx, const Assets& assets, const std::shared_ptr<
 
         assets.meshes.at("quad")->draw();
 
-        blur << UniformSampler{"source", parity ? out : stage};
-        blur << UniformValue{"level", static_cast<float>(i)};
+        blur .setUniform("source", parity ? out : stage);
+        blur .setUniform("level", static_cast<float>(i));
     }
 }
 
@@ -134,9 +134,9 @@ void Blur::upsample(Context& ctx, const Assets& assets) {
 //        s->setMagFilter(Texture::Filter::Linear);
 //        s->setMinFilter(Texture::Filter::LinearMipMapNearest);
 
-        blur << UniformSampler{"source", parity ? stage : out}
-             << UniformValue{"resolution", glm::vec4{w, h, 1.0f / w, 1.0f / h}}
-             << UniformValue{"level", static_cast<float>(i)};
+        blur .setUniform("source", parity ? stage : out)
+                .setUniform("resolution", glm::vec4{w, h, 1.0f / w, 1.0f / h})
+                .setUniform("level", static_cast<float>(i));
 
         blur.use();
 

@@ -1,8 +1,8 @@
 #include <limitless/ms/material_builder.hpp>
 
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/ms/material_compiler.hpp>
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 #include <limitless/assets.hpp>
 #include <limitless/core/context_initializer.hpp>
 

@@ -10,15 +10,15 @@ namespace Limitless {
     private:
         std::chrono::time_point<std::chrono::steady_clock> start;
         friend class UniformSerializer;
-
-        void update() noexcept;
     public:
-        explicit UniformTime(std::string name, GLint location) noexcept;
+        explicit UniformTime(std::string name) noexcept;
         ~UniformTime() override = default;
 
         [[nodiscard]] std::unique_ptr<Uniform> clone() noexcept override;
+
         void set() override;
 
+        void update() noexcept;
         void reset() noexcept;
     };
 }

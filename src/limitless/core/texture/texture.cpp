@@ -1,6 +1,6 @@
-#include <limitless/core/texture.hpp>
+#include <limitless/core/texture/texture.hpp>
 
-#include <limitless/core/extension_texture.hpp>
+#include <limitless/core/texture/extension_texture.hpp>
 #include <limitless/core/context_initializer.hpp>
 #include <iostream>
 

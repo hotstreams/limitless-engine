@@ -1,4 +1,4 @@
-#include <limitless/core/named_buffer.hpp>
+#include <limitless/core/buffer/named_buffer.hpp>
 #include <stdexcept>
 
 using namespace Limitless;

@@ -1,4 +1,4 @@
-#include <limitless/core/triple_buffer.hpp>
+#include <limitless/core/buffer/triple_buffer.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <cstdlib>

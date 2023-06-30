@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/shader_compiler.hpp>
+#include <limitless/core/shader/shader_compiler.hpp>
 
 namespace Limitless {
     enum class ShaderPass;

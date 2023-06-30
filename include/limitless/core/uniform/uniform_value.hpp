@@ -23,11 +23,11 @@ namespace Limitless {
 
         constexpr UniformValueType getUniformValueType();
 
-        UniformValue(std::string name, GLint location, UniformType type, const T& value) noexcept;
+        UniformValue(std::string name, UniformType type, const T& value) noexcept;
 
         friend class UniformSerializer;
     public:
-        UniformValue(std::string name, GLint location, const T& value) noexcept;
+        UniformValue(std::string name, const T& value) noexcept;
         ~UniformValue() override = default;
 
         [[nodiscard]] std::unique_ptr<Uniform> clone() noexcept override;

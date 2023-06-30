@@ -1,7 +1,7 @@
 #include <limitless/loaders/texture_loader.hpp>
 
 #include <limitless/core/context_initializer.hpp>
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

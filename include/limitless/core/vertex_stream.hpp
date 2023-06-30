@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/core/vertex_array.hpp>
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/abstract_vertex_stream.hpp>
 
 namespace Limitless {

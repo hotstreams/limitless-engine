@@ -1,8 +1,8 @@
 #include <limitless/text/text_instance.hpp>
 
 #include <limitless/ms/blending.hpp>
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/shader/shader_program.hpp"
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/core/context.hpp>
 #include <limitless/text/font_atlas.hpp>
 #include <limitless/assets.hpp>
@@ -83,9 +83,9 @@ void TextInstance::draw(Context& ctx, const Assets& assets) {
 
         auto& shader = assets.shaders.get("text_selection");
 
-        shader << UniformValue{"model", model_matrix}
-               << UniformValue{"proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y))}
-               << UniformValue{"color", selection_color};
+        shader.setUniform("model", model_matrix)
+              .setUniform("proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y)))
+              .setUniform("color", selection_color);
 
         shader.use();
 
@@ -98,10 +98,10 @@ void TextInstance::draw(Context& ctx, const Assets& assets) {
 
         setBlendingMode(ms::Blending::Text);
 
-        shader << UniformSampler{"bitmap", font->getTexture()}
-               << UniformValue{"model", model_matrix}
-               << UniformValue{"proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y))}
-               << UniformValue{"color", color};
+        shader.setUniform("bitmap", font->getTexture())
+              .setUniform("model", model_matrix)
+              .setUniform("proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y)))
+              .setUniform("color", color);
 
         shader.use();
 

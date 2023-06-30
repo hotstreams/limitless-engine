@@ -14,7 +14,7 @@ namespace Limitless {
         GLuint sampler_id {};
         friend class UniformSerializer;
     public:
-        UniformSampler(std::string name, GLint location, std::shared_ptr<Texture> sampler) noexcept;
+        UniformSampler(std::string name, std::shared_ptr<Texture> sampler) noexcept;
         ~UniformSampler() override = default;
 
         [[nodiscard]] std::unique_ptr<Uniform> clone() noexcept override;

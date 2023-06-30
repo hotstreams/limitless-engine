@@ -4,7 +4,7 @@
 #include <limitless/ms/material.hpp>
 #include <limitless/fx/emitters/emitter.hpp>
 #include <limitless/core/context.hpp>
-#include <limitless/core/uniform_setter.hpp>
+#include "limitless/core/uniform/uniform_setter.hpp"
 #include <limitless/fx/emitters/emitter_visitor.hpp>
 #include <limitless/fx/emitters/visitor_creator.hpp>
 

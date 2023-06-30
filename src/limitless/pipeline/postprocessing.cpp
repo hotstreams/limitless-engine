@@ -1,9 +1,9 @@
 #include <limitless/pipeline/postprocessing.hpp>
 
 #include <limitless/models/model.hpp>
-#include <limitless/core/texture_builder.hpp>
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
+#include "limitless/core/shader/shader_program.hpp"
+#include "limitless/core/uniform/uniform.hpp"
 
 using namespace Limitless;
 
@@ -25,23 +25,23 @@ void PostProcessing::process(Context& ctx, const Assets& assets, const Framebuff
 
     target.clear();
 
-    postprocess_shader << UniformValue("bloom", static_cast<int>(bloom))
-                       << UniformSampler("bloom_image", bloom_process.getResult())
-                       << UniformValue("tone_mapping", static_cast<int>(tone_mapping))
-                       << UniformValue("exposure", exposure)
-                       << UniformValue("gamma_correction", static_cast<int>(gamma_correction))
-                       << UniformValue("gamma", gamma)
-                       << UniformValue("vignette", static_cast<int>(vignette))
-                       << UniformValue("vignette_radius", vignette_radius)
-                       << UniformValue("vignette_softness", vignette_softness)
-                       << UniformValue("tone_shading", static_cast<int>(tone_shading))
-                       << UniformValue("number_of_colors", number_of_colors)
-                       << UniformValue("line_texel_offset", line_texel_offset)
-                       << UniformValue("line_multiplier", line_multiplier)
-                       << UniformValue("line_bias", line_bias)
-                       << UniformValue("fxaa", static_cast<int>(fxaa))
-                       << UniformSampler("image", offscreen.get(FramebufferAttachment::Color0).texture)
-                       << UniformSampler("image_depth", offscreen.get(FramebufferAttachment::Depth).texture);
+    postprocess_shader.setUniform("bloom", static_cast<int>(bloom))
+                        .setUniform("bloom_image", bloom_process.getResult())
+                        .setUniform("tone_mapping", static_cast<int>(tone_mapping))
+                        .setUniform("exposure", exposure)
+                        .setUniform("gamma_correction", static_cast<int>(gamma_correction))
+                        .setUniform("gamma", gamma)
+                        .setUniform("vignette", static_cast<int>(vignette))
+                        .setUniform("vignette_radius", vignette_radius)
+                        .setUniform("vignette_softness", vignette_softness)
+                        .setUniform("tone_shading", static_cast<int>(tone_shading))
+                        .setUniform("number_of_colors", number_of_colors)
+                        .setUniform("line_texel_offset", line_texel_offset)
+                        .setUniform("line_multiplier", line_multiplier)
+                        .setUniform("line_bias", line_bias)
+                        .setUniform("fxaa", static_cast<int>(fxaa))
+                        .setUniform("image", offscreen.get(FramebufferAttachment::Color0).texture)
+                        .setUniform("image_depth", offscreen.get(FramebufferAttachment::Depth).texture);
 
     postprocess_shader.use();
 

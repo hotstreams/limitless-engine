@@ -1,9 +1,9 @@
-#include <limitless/core/shader_compiler.hpp>
+#include <limitless/core/shader/shader_compiler.hpp>
 
 #include <fstream>
 #include <limitless/core/context.hpp>
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/shader_extensions.hpp>
+#include "limitless/core/shader/shader_program.hpp"
+#include <limitless/core/shader/shader_extensions.hpp>
 
 using namespace Limitless;
 
@@ -63,7 +63,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
 
     shaders.clear();
 
-    return std::shared_ptr<ShaderProgram>(new ShaderProgram(context, program_id));
+    return std::shared_ptr<ShaderProgram>(new ShaderProgram(program_id));
 }
 
 void ShaderCompiler::replaceRenderSettings(Shader& shader) const {

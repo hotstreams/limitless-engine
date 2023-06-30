@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # CONFIGURABLE OPTIONS
 
-OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" OFF)
+OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
@@ -28,9 +28,9 @@ if (DEBUG_OPENGL)
     add_compile_definitions(GL_DEBUG)
 endif()
 
-#if (OPENGL_TOSTER_MODE)
-#    add_compile_definitions(OPENGL_TOSTER)
-#endif()
+if (OPENGL_TOSTER_MODE)
+    add_compile_definitions(OPENGL_TOSTER)
+endif()
 
 if (NOT LIMITLESS_ASSETS_DIR)
     set(LIMITLESS_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/")
@@ -57,32 +57,43 @@ set(ENGINE_CORE
     src/limitless/core/profiler.cpp
     src/limitless/core/time_query.cpp
 
-    src/limitless/core/texture.cpp
-    src/limitless/core/state_texture.cpp
-    src/limitless/core/named_texture.cpp
-    src/limitless/core/bindless_texture.cpp
-    src/limitless/core/texture_builder.cpp
+        src/limitless/core/texture/texture.cpp
+        src/limitless/core/texture/state_texture.cpp
+        src/limitless/core/texture/named_texture.cpp
+        src/limitless/core/texture/bindless_texture.cpp
+        src/limitless/core/texture/texture_builder.cpp
+    src/limitless/core/texture/texture_uniform_alignment_getter.cpp
+    src/limitless/core/texture/texture_uniform_size_getter.cpp
+    src/limitless/core/texture/texture_uniform_setter.cpp
+    src/limitless/core/texture/texture_extension_capturer.cpp
+    src/limitless/core/texture/texture_resident_maker.cpp
 
-    src/limitless/core/state_buffer.cpp
-    src/limitless/core/named_buffer.cpp
-    src/limitless/core/triple_buffer.cpp
-    src/limitless/core/indexed_buffer.cpp
-    src/limitless/core/buffer_builder.cpp
+        src/limitless/core/buffer/state_buffer.cpp
+        src/limitless/core/buffer/named_buffer.cpp
+        src/limitless/core/buffer/triple_buffer.cpp
+        src/limitless/core/buffer/indexed_buffer.cpp
+        src/limitless/core/buffer/buffer_builder.cpp
 
-    src/limitless/core/uniform.cpp
-    src/limitless/core/uniform_setter.cpp
-    src/limitless/core/shader.cpp
-    src/limitless/core/shader_program.cpp
-    src/limitless/core/shader_compiler.cpp
+    src/limitless/core/uniform/uniform.cpp
+    src/limitless/core/uniform/uniform_value.cpp
+    src/limitless/core/uniform/uniform_sampler.cpp
+    src/limitless/core/uniform/uniform_time.cpp
+    src/limitless/core/uniform/uniform_setter.cpp
+
+        src/limitless/core/shader/shader.cpp
+    src/limitless/core/shader/shader_program.cpp
+    src/limitless/core/shader/shader_program_texture_setter.cpp
+        src/limitless/core/shader/shader_compiler.cpp
 
     src/limitless/core/vertex_array.cpp
     src/limitless/core/framebuffer.cpp
 
-    src/limitless/core/texture_binder.cpp
+        src/limitless/core/texture/texture_binder.cpp
     src/limitless/core/context_thread_pool.cpp
     src/limitless/core/sync.cpp
 
-    src/limitless/core/buffer_binding_point.cpp
+        src/limitless/core/buffer/buffer_binding_point.cpp
+    src/limitless/core/shader/shader_program_introspection.cpp
 )
 
 set(ENGINE_INSTANCES

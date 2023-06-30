@@ -3,13 +3,14 @@
 #include <limitless/core/texture/texture_uniform_alignment_getter.hpp>
 #include <limitless/core/texture/texture_uniform_size_getter.hpp>
 #include <limitless/core/context_initializer.hpp>
-#include <limitless/core/texture.hpp>
+#include <limitless/core/texture/texture.hpp>
+#include <limitless/core/uniform/uniform.hpp>
+
 
 using namespace Limitless;
 
-Uniform::Uniform(std::string name, GLint location, UniformType type, UniformValueType value_type) noexcept
+Uniform::Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept
     : name {std::move(name)}
-    , location {location}
     , type {type}
     , value_type {value_type} {
 }
@@ -28,6 +29,18 @@ GLint Uniform::getLocation() const noexcept {
 
 const std::string& Uniform::getName() const noexcept {
     return name;
+}
+
+bool Uniform::isChanged() const noexcept {
+    return changed;
+}
+
+void Uniform::resetChanged() noexcept {
+    changed = false;
+}
+
+void Uniform::setLocation(GLint loc) noexcept {
+    location = loc;
 }
 
 bool Limitless::operator==(const Uniform& lhs, const Uniform& rhs) noexcept {
@@ -197,6 +210,8 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
         case UniformType::Time:
             return sizeof(float);
     }
+
+    return 0;
 }
 
 size_t Limitless::getUniformAlignment(const Uniform& uniform) {
@@ -228,4 +243,6 @@ size_t Limitless::getUniformAlignment(const Uniform& uniform) {
         case UniformType::Time:
             return sizeof(float);
     }
+
+    return 0;
 }

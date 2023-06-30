@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/indexed_buffer.hpp>
+#include <limitless/core/buffer/indexed_buffer.hpp>
 
 #include <vector>
 
