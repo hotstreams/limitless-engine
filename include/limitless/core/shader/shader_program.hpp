@@ -1,9 +1,8 @@
 #pragma once
 
 #include <limitless/core/indexed_buffer.hpp>
+
 #include <vector>
-#include <limitless/shader_storage.hpp>
-#include "context_state.hpp"
 
 namespace Limitless::ms {
     class Material;
@@ -15,11 +14,8 @@ namespace Limitless {
     template<typename T> class UniformValue;
     class UniformSampler;
     class Uniform;
+    class Texture;
     class ContextState;
-
-    struct shader_program_error : public std::runtime_error {
-        explicit shader_program_error(const char* error) noexcept : runtime_error{error} {}
-    };
 
     /**
      * ShadeProgram describes compiled shader program object that is used to render object
@@ -53,66 +49,40 @@ namespace Limitless {
         std::map<std::string, std::unique_ptr<Uniform>> uniforms;
 
         /**
-         * Gets uniform location from map
-         *
-         * If uniform is not used inside the shader program code, it will be optimized out
-         *
-         * @param uniform - location to fetch of
-         * @return - location index or -1 if not found/optimized out
-         */
-        GLint getUniformLocation(const Uniform& uniform) const noexcept;
-
-        /**
-         * Introspects ShaderProgram and fetches uniform locations to fill the map
-         */
-        void getUniformLocations() noexcept;
-
-        /**
-         * Introspects ShaderProgram and fetches uniform buffer and shader buffer storages
-         *
-         * @param ctx
-         */
-        void getIndexedBufferBounds(ContextState& ctx) noexcept;
-
-        /**
          * Binds buffer objects inside shader to current context state
-         *
-         * @param ctx - state to be bound to
          */
-        void bindIndexedBuffers(ContextState& ctx);
+        void bindIndexedBuffers();
 
         /**
-         * Binds textures used in ShaderProgram to current context state
+         * Binds resources in shader program
          */
-        void bindTextures() const noexcept;
+        void bindResources();
 
         ShaderProgram() noexcept = default;
-        ShaderProgram(ContextState& ctx, GLuint id);
+        explicit ShaderProgram(GLuint id) noexcept;
 
         template<typename T> friend class UniformValue;
         friend class UniformSampler;
         friend class ms::MaterialCompiler;
         friend class ShaderCompiler;
         friend class ms::MaterialBuilder;
-        friend void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept;
     public:
         ~ShaderProgram();
 
         ShaderProgram(const ShaderProgram&) noexcept = delete;
         ShaderProgram& operator=(const ShaderProgram&) noexcept = delete;
 
-        ShaderProgram(ShaderProgram&& rhs) noexcept;
-        ShaderProgram& operator=(ShaderProgram&& rhs) noexcept;
+        ShaderProgram(ShaderProgram&&) noexcept = default;
+        ShaderProgram& operator=(ShaderProgram&&) noexcept = default;
 
         [[nodiscard]] auto getId() const noexcept { return id; }
 
         void use();
 
-        template<typename T>
-        ShaderProgram& operator<<(const UniformValue<T>& uniform) noexcept;
-        ShaderProgram& operator<<(const UniformSampler& uniform) noexcept;
-        ShaderProgram& operator<<(const ms::Material& material);
-    };
+        ShaderProgram& setUniform(const std::string& name, std::shared_ptr<Texture> texture);
+        ShaderProgram& setMaterial(const ms::Material& material);
 
-    void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept;
+        template<typename T>
+        ShaderProgram& setUniform(const std::string& name, const T& value);
+    };
 }
