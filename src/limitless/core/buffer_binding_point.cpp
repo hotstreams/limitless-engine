@@ -1,4 +1,4 @@
-#include <limitless/core/buffer_binding_point.hpp>
+#include <limitless/core/buffer/buffer_binding_point.hpp>
 
 using namespace Limitless;
 
