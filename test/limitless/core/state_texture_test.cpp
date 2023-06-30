@@ -87,6 +87,7 @@ TEST_CASE("Texture constructor") {
 
     {
         StateTexture tex = StateTexture();
+        tex.generateId();
 
         REQUIRE(tex.getId() != 0);
 
