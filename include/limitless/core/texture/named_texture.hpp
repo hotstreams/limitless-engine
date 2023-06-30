@@ -1,7 +1,7 @@
 #pragma once
 
-#include <limitless/core/state_texture.hpp>
-#include <limitless/core/texture_visitor.hpp>
+#include <limitless/core/texture/state_texture.hpp>
+#include "limitless/core/texture/texture_visitor.hpp"
 
 namespace Limitless {
     class NamedTexture : public StateTexture {

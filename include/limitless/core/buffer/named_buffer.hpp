@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/state_buffer.hpp>
+#include <limitless/core/buffer/state_buffer.hpp>
 
 namespace Limitless {
     class NamedBuffer : public StateBuffer {

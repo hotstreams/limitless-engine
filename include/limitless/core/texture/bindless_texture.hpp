@@ -1,7 +1,7 @@
 #pragma once
 
-#include <limitless/core/extension_texture.hpp>
-#include <limitless/core/texture_visitor.hpp>
+#include <limitless/core/texture/extension_texture.hpp>
+#include "limitless/core/texture/texture_visitor.hpp"
 #include <limitless/core/context_state.hpp>
 #include <memory>
 

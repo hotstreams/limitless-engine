@@ -1,8 +1,8 @@
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/context_state.hpp>
-#include <limitless/core/named_buffer.hpp>
+#include <limitless/core/buffer/named_buffer.hpp>
 
 using namespace Limitless;
 
