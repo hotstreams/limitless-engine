@@ -14,7 +14,7 @@ using namespace Limitless;
 
 class Game : public MouseMoveObserver, public KeyObserver, public FramebufferObserver {
 private:
-    glm::uvec2 window_size {1024, 768};
+    glm::uvec2 window_size {1080, 720};
 
     ContextEventObserver context;
     Camera camera;

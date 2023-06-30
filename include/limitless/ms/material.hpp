@@ -1,6 +1,9 @@
 #pragma once
 
+#include <limitless/core/uniform/uniform.hpp>
+#include <limitless/core/uniform/uniform_value.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
+#include <limitless/core/uniform/uniform_time.hpp>
 #include <limitless/pipeline/shader_pass_types.hpp>
 #include <limitless/ms/property.hpp>
 #include <limitless/ms/blending.hpp>
@@ -22,57 +25,110 @@ namespace Limitless::ms {
         using std::runtime_error::runtime_error;
     };
 
+    /**
+     * Material class describes visual look of a surface
+     *
+     * Can be applied to meshes, models and effects
+     *
+     * Should be compiled using MaterialCompiler to generate shader for usage
+     */
     class Material final {
     private:
-        // contains set of properties
-        // the set cant be changed at run-time, but values of props can
+        /**
+         * Contains set of predefined properties
+         *
+         * values of properties can be changed at run-time
+         */
         std::map<Property, std::unique_ptr<Uniform>> properties;
 
-        // blending can be changed at run-time
+        /**
+         *  Describes material blending mode
+         *
+         *  can be changed at run-time
+         */
         Blending blending {};
 
-        // shading is compile-time only
+        /**
+         *  Describes material shading model
+         *
+         *  compile-time only
+         */
         Shading shading {};
 
-        // determines whether cull face on or off
+        /**
+         *  Describes whether material is two sided
+         */
         bool two_sided {};
 
-        // uses screen space refraction based on IoR & Absorption
+        /**
+         *  Describes whether material is using refraction
+         */
         bool refraction {};
 
-        // contains material name
+        /**
+         * Unique material name
+         */
         std::string name;
 
-        // unique index describes which shader to use
+        /**
+         * Describes which shader is compiled for this material
+         */
         uint64_t shader_index {};
 
-        // contains ModelShader type for which this material is used
+        /**
+         * Describes for which ModelShader types this material is used and compiled
+         */
         ModelShaders model_shaders;
 
-        // opengl buffer that stores properties
+        /**
+         * Corresponding OpenGL buffer to store properties on GPU
+         */
         std::shared_ptr<Buffer> material_buffer;
 
-        // properties offsets in the buffer
+        /**
+         * Run-time fetched property offsets in buffer
+         */
         std::unordered_map<std::string, uint64_t> uniform_offsets;
 
-        // contains additional custom properties
+        /**
+         * Custom user-defined properties
+         */
         std::map<std::string, std::unique_ptr<Uniform>> uniforms;
 
-        // vertex snippet
+        /**
+         * Vertex shader code to allow customization
+         */
         std::string vertex_snippet;
 
-        // fragment snippet
+        /**
+         * Fragment shader code to allow customization
+         */
         std::string fragment_snippet;
 
-        // global snippet
+        /**
+         * Global shader code to allow customization
+         */
         std::string global_snippet;
 
-        // tessellation snippet
+        /**
+         * Tessellation shader code to allow customization
+         */
         std::string tessellation_snippet;
 
+        /**
+         * Adds uniform typed value at specific offset in block so it can be mapped to GPU
+         */
         template<typename V>
         void map(std::vector<std::byte>& block, const Uniform& uniform) const;
+
+        /**
+        * Adds any uniform to block
+        */
         void map(std::vector<std::byte>& block, Uniform& uniform);
+
+        /**
+         * Maps material to GPU uniform buffer
+         */
         void map();
 
         friend void swap(Material&, Material&) noexcept;
@@ -80,18 +136,34 @@ namespace Limitless::ms {
 
         friend class MaterialBuilder;
 
-        // compares material properties that can be used in same shader
+        /**
+         * Equality operators to determine whether two materials could be used by the same shader
+         */
         friend bool operator==(const Material& lhs, const Material& rhs) noexcept;
         friend bool operator<(const Material& lhs, const Material& rhs) noexcept;
     public:
         ~Material() = default;
 
+        /**
+         * Material copy constructor
+         *
+         * makes material deep copy
+         */
         Material(const Material&);
+
+        /**
+         * Material copy assignment operator
+         *
+         * makes material deep copy
+         */
         Material& operator=(Material);
 
         Material(Material&&) noexcept = default;
         Material& operator=(Material&&) noexcept = default;
 
+        /**
+         *
+         */
         void update();
 
         [[nodiscard]] const UniformValue<glm::vec4>& getColor() const;

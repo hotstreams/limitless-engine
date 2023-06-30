@@ -3,7 +3,7 @@
 #include <limitless/pipeline/shader_pass_types.hpp>
 #include <utility>
 #include <iostream>
-
+#include <limitless/core/uniform/uniform_sampler.hpp>
 using namespace Limitless;
 
 void ColorPicker::onPick(Context& ctx, Assets& assets, Scene& scene, glm::uvec2 coords, std::function<void(uint32_t id)> callback) {
