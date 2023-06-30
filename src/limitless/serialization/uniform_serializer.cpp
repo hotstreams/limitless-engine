@@ -1,6 +1,6 @@
 #include <limitless/serialization/uniform_serializer.hpp>
 
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/util/bytebuffer.hpp>
 #include <limitless/core/texture.hpp>
 #include <glm/glm.hpp>

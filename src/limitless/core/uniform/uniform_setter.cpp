@@ -1,6 +1,6 @@
-#include <limitless/core/uniform_setter.hpp>
+#include "limitless/core/uniform/uniform_setter.hpp"
 
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 
 using namespace Limitless;
 
