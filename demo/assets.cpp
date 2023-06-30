@@ -10,6 +10,7 @@
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/skybox/skybox.hpp>
 #include <limitless/text/font_atlas.hpp>
+#include <limitless/core/uniform/uniform_time.hpp>
 #include <iostream>
 
 using namespace Limitless::ms;

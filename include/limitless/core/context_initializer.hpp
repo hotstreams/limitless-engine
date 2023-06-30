@@ -41,5 +41,8 @@ namespace Limitless {
         static void printExtensions() noexcept;
         static bool isExtensionSupported(std::string_view name) noexcept;
         static bool checkMinimumRequirements() noexcept;
+
+        static bool isProgramInterfaceQuerySupported() noexcept;
+        static bool isBindlessTexturesSupported() noexcept;
     };
 }

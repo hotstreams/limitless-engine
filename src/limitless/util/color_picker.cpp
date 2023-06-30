@@ -1,4 +1,6 @@
 #include <limitless/util/color_picker.hpp>
+
+#include <limitless/pipeline/shader_pass_types.hpp>
 #include <utility>
 #include <iostream>
 
@@ -23,7 +25,7 @@ void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instance
         auto& instance = wrapper.get();
         const auto id = instance.getId();
         const auto setter = UniformSetter([color_id = convert(id)](ShaderProgram& shader) {
-            shader << UniformValue<glm::vec3>("color_id", color_id);
+            shader.setUniform("color_id", color_id);
         });
         instance.draw(ctx, assets, ShaderPass::ColorPicker, ms::Blending::Opaque, setter);
     }

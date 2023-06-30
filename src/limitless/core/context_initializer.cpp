@@ -110,10 +110,18 @@ bool ContextInitializer::checkMinimumRequirements() noexcept {
     std::vector<std::string_view> requirements = {
         "GL_ARB_shader_storage_buffer_object",
         "GL_ARB_shading_language_420pack",
-        "GL_ARB_explicit_uniform_location",
+        "GL_ARB_explicit_uniform_location", //TODO: check usage
     };
 
     return std::all_of(requirements.begin(), requirements.end(), [] (const auto& extension) {
         return isExtensionSupported(extension);
     });
+}
+
+bool ContextInitializer::isProgramInterfaceQuerySupported() noexcept {
+    return isExtensionSupported("GL_ARB_program_interface_query");
+}
+
+bool ContextInitializer::isBindlessTexturesSupported() noexcept {
+    return isExtensionSupported("GL_ARB_bindless_texture");
 }

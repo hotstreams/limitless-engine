@@ -1,7 +1,7 @@
 #pragma once
 
-#include <limitless/core/buffer_binding_point.hpp>
-#include <limitless/core/indexed_buffer.hpp>
+#include <limitless/core/buffer/buffer_binding_point.hpp>
+#include <limitless/core/buffer/indexed_buffer.hpp>
 #include <limitless/core/capabilities.hpp>
 #include <limitless/core/polygon_mode.hpp>
 #include <limitless/core/pixel_store.hpp>
@@ -9,7 +9,7 @@
 #include <limitless/core/depth_func.hpp>
 #include <limitless/core/blending.hpp>
 #include <limitless/core/cullface.hpp>
-#include <limitless/core/buffer.hpp>
+#include <limitless/core/buffer/buffer.hpp>
 #include <limitless/core/clear.hpp>
 
 #include <unordered_map>

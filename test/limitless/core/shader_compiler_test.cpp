@@ -2,7 +2,7 @@
 #include "../opengl_state.hpp"
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/shader_compiler.hpp>
+#include <limitless/core/shader/shader_compiler.hpp>
 
 using namespace Limitless;
 using namespace LimitlessTest;

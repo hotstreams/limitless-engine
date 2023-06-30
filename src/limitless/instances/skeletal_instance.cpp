@@ -1,10 +1,10 @@
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/shader_storage.hpp>
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/ms/material.hpp>
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/vertex.hpp>
 #include <limitless/models/mesh.hpp>
 #include <limitless/core/skeletal_stream.hpp>

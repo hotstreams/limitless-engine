@@ -1,7 +1,7 @@
 #include <limitless/pipeline/scene_data.hpp>
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/camera.hpp>
 
 using namespace Limitless;

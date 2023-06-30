@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/state_buffer.hpp>
+#include <limitless/core/buffer/state_buffer.hpp>
 #include <limitless/core/state_query.hpp>
 
 TEST(BufferTest, StateBufferFunctions) {

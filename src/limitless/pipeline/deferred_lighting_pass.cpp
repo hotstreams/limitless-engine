@@ -1,10 +1,10 @@
 #include <limitless/pipeline/deferred_lighting_pass.hpp>
 
 #include <limitless/assets.hpp>
-#include <limitless/core/uniform.hpp>
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform_setter.hpp>
-#include <limitless/core/texture_builder.hpp>
+#include "limitless/core/uniform/uniform.hpp"
+#include "limitless/core/shader/shader_program.hpp"
+#include "limitless/core/uniform/uniform_setter.hpp"
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/ssao_pass.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
@@ -26,15 +26,15 @@ void DeferredLightingPass::draw([[maybe_unused]] Instances& instances, Context& 
 
     auto& shader = assets.shaders.get("deferred");
 
-    shader << UniformSampler{"base_texture", gbuffer.getAlbedo()}
-           << UniformSampler{"normal_texture", gbuffer.getNormal()}
-           << UniformSampler{"props_texture", gbuffer.getProperties()}
-           << UniformSampler{"depth_texture", gbuffer.getDepth()}
-           << UniformSampler{"emissive_texture", gbuffer.getEmissive()};
+    shader .setUniform("base_texture", gbuffer.getAlbedo())
+           .setUniform("normal_texture", gbuffer.getNormal())
+           .setUniform("props_texture", gbuffer.getProperties())
+           .setUniform("depth_texture", gbuffer.getDepth())
+           .setUniform("emissive_texture", gbuffer.getEmissive());
 
     try {
         auto& ssao = pipeline.get<SSAOPass>();
-        shader << UniformSampler{"ssao_texture", ssao.getResult()};
+        shader.setUniform("ssao_texture", ssao.getResult());
     } catch (const pipeline_pass_not_found& e) {
         // nothing :|
     }

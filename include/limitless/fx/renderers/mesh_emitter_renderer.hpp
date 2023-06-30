@@ -65,7 +65,7 @@ namespace Limitless::fx {
                 ctx.enable(Capabilities::CullFace);
             }
 
-            shader << material;
+            shader.setMaterial(material);
 
             setter(shader);
 

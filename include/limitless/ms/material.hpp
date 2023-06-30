@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/uniform/uniform_sampler.hpp>
 #include <limitless/pipeline/shader_pass_types.hpp>
 #include <limitless/ms/property.hpp>
 #include <limitless/ms/blending.hpp>

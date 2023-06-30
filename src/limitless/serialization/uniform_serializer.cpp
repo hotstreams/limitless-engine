@@ -1,11 +1,13 @@
 #include <limitless/serialization/uniform_serializer.hpp>
 
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/util/bytebuffer.hpp>
-#include <limitless/core/texture.hpp>
+#include <limitless/core/texture/texture.hpp>
 #include <glm/glm.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 #include <limitless/assets.hpp>
+#include <limitless/core/uniform/uniform_sampler.hpp>
+#include <limitless/core/uniform/uniform_time.hpp>
 
 using namespace Limitless;
 
