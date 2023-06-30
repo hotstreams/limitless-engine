@@ -229,6 +229,7 @@ set(ENGINE_SRC
     src/limitless/assets.cpp
     src/limitless/scene.cpp
     src/limitless/skybox/skybox.cpp
+    src/limitless/log.cpp
 )
 
 ##### CONFIGURE SUBMODULES
