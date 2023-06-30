@@ -1,8 +1,8 @@
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 
 #include <limitless/core/context_initializer.hpp>
-#include <limitless/core/named_texture.hpp>
-#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/texture/named_texture.hpp>
+#include <limitless/core/texture/bindless_texture.hpp>
 #include <iostream>
 #include <memory>
 

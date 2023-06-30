@@ -86,13 +86,15 @@ void ShaderProgram::use() {
 
 template<typename T>
 ShaderProgram& ShaderProgram::setUniform(const std::string& name, const T& value) {
+    // if uniform got optimized out
+    if (locations.find(name) == locations.end()) {
+        return *this;
+    }
+
     // if not present, add new
     if (auto it = uniforms.find(name); it == uniforms.end()) {
-        try {
-            uniforms[name] = std::make_unique<UniformValue<T>>(name, locations.at(name), value);
-        } catch (...) {
-            throw std::runtime_error("Looks like this got optimized out");
-        }
+        uniforms[name] = std::make_unique<UniformValue<T>>(name, value);
+        uniforms[name]->setLocation(locations.at(name));
     } else {
         // else just update value
         static_cast<UniformValue<T>&>(*it->second).setValue(value);
@@ -102,13 +104,15 @@ ShaderProgram& ShaderProgram::setUniform(const std::string& name, const T& value
 }
 
 ShaderProgram& ShaderProgram::setUniform(const std::string& name, std::shared_ptr<Texture> texture) {
+    // if uniform got optimized out
+    if (locations.find(name) == locations.end()) {
+        return *this;
+    }
+
     // if not present, add new
     if (auto it = uniforms.find(name); it == uniforms.end()) {
-        try {
-            uniforms[name] = std::make_unique<UniformSampler>(name, locations.at(name), std::move(texture));
-        } catch (...) {
-            throw std::runtime_error("Looks like this got optimized out");
-        }
+        uniforms[name] = std::make_unique<UniformSampler>(name, std::move(texture));
+        uniforms[name]->setLocation(locations.at(name));
     } else {
         // else just update value
         static_cast<UniformSampler&>(*it->second).setSampler(std::move(texture)); //NOLINT
@@ -142,4 +146,15 @@ ShaderProgram& ShaderProgram::setMaterial(const ms::Material& material) {
     }
 
     return *this;
+}
+
+namespace Limitless {
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const int32_t& value);
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const uint32_t& value);
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const float& value);
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::vec2& value);
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::vec3& value);
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::vec4& value);
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::mat3& value);
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::mat4& value);
 }

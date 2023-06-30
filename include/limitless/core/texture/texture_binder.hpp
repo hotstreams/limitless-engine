@@ -1,7 +1,6 @@
 #pragma once
 
-#include <limitless/core/extension_texture.hpp>
-#include <limitless/core/texture.hpp>
+#include <limitless/core/texture/texture.hpp>
 #include <vector>
 
 namespace Limitless {

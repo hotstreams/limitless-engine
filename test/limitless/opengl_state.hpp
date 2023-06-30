@@ -2,7 +2,7 @@
 
 #include <limitless/core/context_state.hpp>
 #include <limitless/core/state_query.hpp>
-#include <limitless/core/state_texture.hpp>
+#include <limitless/core/texture/state_texture.hpp>
 
 namespace LimitlessTest {
     using namespace Limitless;

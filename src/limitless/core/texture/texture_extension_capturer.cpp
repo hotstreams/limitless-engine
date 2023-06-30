@@ -5,10 +5,10 @@ using namespace Limitless;
 TextureExtensionCapturer::TextureExtensionCapturer(std::vector<ExtensionTexture*>& textures) noexcept
     : textures {textures} {}
 
-void TextureExtensionCapturer::visit(ExtensionTexture& texture) noexcept {
+void TextureExtensionCapturer::visit([[maybe_unused]] ExtensionTexture& texture) noexcept {
     textures.emplace_back(&texture);
 }
 
-void TextureExtensionCapturer::visit(BindlessTexture& texture) noexcept {
+void TextureExtensionCapturer::visit([[maybe_unused]] BindlessTexture& texture) noexcept {
 
 }

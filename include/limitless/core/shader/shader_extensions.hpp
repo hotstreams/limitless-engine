@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/shader.hpp>
+#include <limitless/core/shader/shader.hpp>
 #include <string_view>
 
 namespace Limitless {

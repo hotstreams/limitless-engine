@@ -1,6 +1,6 @@
 #include <limitless/core/texture/texture_resident_maker.hpp>
 
-#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/texture/bindless_texture.hpp>
 
 using namespace Limitless;
 

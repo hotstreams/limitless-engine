@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/buffer.hpp>
+#include <limitless/core/buffer/buffer.hpp>
 #include <optional>
 
 namespace Limitless {

@@ -36,13 +36,13 @@ constexpr UniformValueType UniformValue<T>::getUniformValueType() {
 }
 
 template<typename T>
-UniformValue<T>::UniformValue(std::string name, GLint location, UniformType type, const T& value) noexcept
-    : Uniform {std::move(name), location, type, UniformValue::getUniformValueType()}
+UniformValue<T>::UniformValue(std::string name, UniformType type, const T& value) noexcept
+    : Uniform {std::move(name), type, UniformValue::getUniformValueType()}
     , value {value} {}
 
 template<typename T>
-UniformValue<T>::UniformValue(std::string name, GLint location, const T& value) noexcept
-    : Uniform {std::move(name), location, UniformType::Value, UniformValue::getUniformValueType()}
+UniformValue<T>::UniformValue(std::string name, const T& value) noexcept
+    : Uniform {std::move(name), UniformType::Value, UniformValue::getUniformValueType()}
     , value {value} {}
 
 template<typename T>

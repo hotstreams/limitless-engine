@@ -1,4 +1,4 @@
-#include <limitless/core/indexed_buffer.hpp>
+#include <limitless/core/buffer/indexed_buffer.hpp>
 #include <limitless/core/context_initializer.hpp>
 
 using namespace Limitless;

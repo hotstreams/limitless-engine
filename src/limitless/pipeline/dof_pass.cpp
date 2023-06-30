@@ -1,10 +1,10 @@
 #include <limitless/pipeline/dof_pass.hpp>
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/assets.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
-#include <limitless/core/texture_builder.hpp>
-#include <limitless/core/shader_program.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 
 using namespace Limitless;
 
@@ -51,11 +51,11 @@ void DoFPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const As
 		auto& shader = assets.shaders.get("dof");
 		auto& gbuffer = pipeline.get<DeferredFramebufferPass>();
 
-		shader << UniformSampler{ "depth_texture", gbuffer.getDepth() }
-		       << UniformSampler{ "focus_texture", getPreviousResult() }
-		       << UniformSampler{ "unfocus_texture", blur.getResult() }
-		       << UniformValue<glm::vec2>{ "uv_focus", focus }
-		       << UniformValue<glm::vec2>{ "distance", distance };
+		shader .setUniform( "depth_texture", gbuffer.getDepth())
+               .setUniform( "focus_texture", getPreviousResult())
+               .setUniform( "unfocus_texture", blur.getResult())
+               .setUniform( "uv_focus", focus)
+               .setUniform( "distance", distance);
 
 		shader.use();
 

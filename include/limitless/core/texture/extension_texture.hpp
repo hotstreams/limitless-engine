@@ -1,8 +1,8 @@
 #pragma once
 
 #include <limitless/core/context_debug.hpp>
-#include <limitless/core/texture_visitor.hpp>
-#include <limitless/core/texture.hpp>
+#include "limitless/core/texture/texture_visitor.hpp"
+#include <limitless/core/texture/texture.hpp>
 #include <glm/glm.hpp>
 
 namespace Limitless {

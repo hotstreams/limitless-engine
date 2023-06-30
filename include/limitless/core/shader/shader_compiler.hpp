@@ -4,7 +4,7 @@
 #include <functional>
 #include <optional>
 
-#include <limitless/core/shader.hpp>
+#include <limitless/core/shader/shader.hpp>
 #include <limitless/pipeline/render_settings.hpp>
 
 namespace Limitless {

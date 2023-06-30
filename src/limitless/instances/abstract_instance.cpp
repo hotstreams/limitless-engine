@@ -1,5 +1,5 @@
 #include <limitless/instances/abstract_instance.hpp>
-#include <limitless/core/uniform_setter.hpp>
+#include "limitless/core/uniform/uniform_setter.hpp"
 
 using namespace Limitless;
 

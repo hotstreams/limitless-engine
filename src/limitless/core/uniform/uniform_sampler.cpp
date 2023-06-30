@@ -1,12 +1,12 @@
 #include <limitless/core/uniform/uniform_sampler.hpp>
 
 #include <limitless/core/texture/texture_uniform_setter.hpp>
-#include <limitless/core/texture.hpp>
+#include <limitless/core/texture/texture.hpp>
 
 using namespace Limitless;
 
-UniformSampler::UniformSampler(std::string name, GLint location, std::shared_ptr<Texture> sampler) noexcept
-    : UniformValue {std::move(name), location, UniformType::Sampler, -1}
+UniformSampler::UniformSampler(std::string name, std::shared_ptr<Texture> sampler) noexcept
+    : UniformValue {std::move(name), UniformType::Sampler, -1}
     , sampler{std::move(sampler)} {}
 
 std::unique_ptr<Uniform> UniformSampler::clone() noexcept {

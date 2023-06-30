@@ -1,6 +1,6 @@
 #include <limitless/core/vertex_array.hpp>
 #include <limitless/core/context_state.hpp>
-#include <limitless/core/buffer.hpp>
+#include <limitless/core/buffer/buffer.hpp>
 #include <utility>
 
 using namespace Limitless;

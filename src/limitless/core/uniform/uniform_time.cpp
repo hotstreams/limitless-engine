@@ -2,8 +2,8 @@
 
 using namespace Limitless;
 
-UniformTime::UniformTime(std::string name, GLint location) noexcept
-    : UniformValue {std::move(name), location, UniformType::Time, 0.0f} {}
+UniformTime::UniformTime(std::string name) noexcept
+    : UniformValue {std::move(name), UniformType::Time, 0.0f} {}
 
 void UniformTime::set() {
     update();

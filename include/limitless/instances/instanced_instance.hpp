@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/instances/model_instance.hpp>
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/context.hpp>
 
 namespace Limitless {

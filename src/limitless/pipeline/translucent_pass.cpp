@@ -5,10 +5,10 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <limitless/fx/effect_renderer.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/core/uniform.hpp>
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform_setter.hpp>
-#include <limitless/core/texture_builder.hpp>
+#include "limitless/core/uniform/uniform.hpp"
+#include "limitless/core/shader/shader_program.hpp"
+#include "limitless/core/uniform/uniform_setter.hpp"
+#include <limitless/core/texture/texture_builder.hpp>
 #include <stdexcept>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred_lighting_pass.hpp>
@@ -47,7 +47,7 @@ void TranslucentPass::draw(Instances& instances, Context& ctx, const Assets& ass
     framebuffer.blit(pipeline.get<DeferredLightingPass>().getFramebuffer(), Texture::Filter::Nearest);
 
     setter.add([&] (ShaderProgram& shader) {
-        shader << UniformSampler{"refraction_texture", getPreviousResult()};
+        shader.setUniform("refraction_texture", getPreviousResult());
     });
 
     for (const auto& blending : transparent) {

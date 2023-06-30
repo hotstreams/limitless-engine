@@ -1,7 +1,7 @@
 #include <limitless/lighting/lighting.hpp>
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 
 using namespace Limitless;
 

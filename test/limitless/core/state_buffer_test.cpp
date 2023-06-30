@@ -2,7 +2,7 @@
 #include "../opengl_state.hpp"
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/state_buffer.hpp>
+#include <limitless/core/buffer/state_buffer.hpp>
 
 using namespace Limitless;
 using namespace LimitlessTest;

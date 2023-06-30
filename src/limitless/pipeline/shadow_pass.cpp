@@ -1,7 +1,7 @@
 #include <limitless/pipeline/shadow_pass.hpp>
 
 #include <limitless/scene.hpp>
-#include <limitless/core/uniform_setter.hpp>
+#include "limitless/core/uniform/uniform_setter.hpp"
 
 using namespace Limitless;
 

@@ -2,8 +2,8 @@
 
 #include <limitless/core/texture/texture_extension_capturer.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
-#include <limitless/core/texture_binder.hpp>
-#include <limitless/core/extension_texture.hpp>
+#include <limitless/core/texture/texture_binder.hpp>
+#include <limitless/core/texture/extension_texture.hpp>
 
 using namespace Limitless;
 
@@ -25,11 +25,29 @@ void ShaderProgramTextureSetter::bindTextures(const std::map<std::string, std::u
     }
 
     // then we determine to which units should we bind these textures
-    const auto units = TextureBinder::bind(state_samplers);
+    std::vector<Texture*> se_samplers;
+    for (const auto& sampler : state_samplers) {
+        se_samplers.emplace_back(*std::find_if(samplers.begin(), samplers.end(), [&] (Texture* texture) {
+            return texture->getId() == sampler->getId();
+        }));
+    }
+    const auto units = TextureBinder::bind(se_samplers);
 
     // then we update unit values in uniforms and set them in shader
+    std::vector<Uniform*> bound;
+    for (const auto& texture : se_samplers) {
+        bound.emplace_back(std::find_if(uniforms.begin(), uniforms.end(), [&] (auto& p) {
+            if (p.second->getType() == UniformType::Sampler) {
+                auto &sampler = static_cast<UniformSampler&>(*p.second); //NOLINT
+                return sampler.getSampler()->getId() == texture->getId();
+            } else {
+                return false;
+            }
+        })->second.get());
+    }
+
     uint32_t i = 0;
-    for (const auto& [name, uniform] : uniforms) {
+    for (const auto& uniform : bound) {
         if (uniform->getType() == UniformType::Sampler) {
             auto &sampler = static_cast<UniformSampler&>(*uniform); //NOLINT
             if (sampler.getSampler()->getId() == state_samplers[i]->getId()) {

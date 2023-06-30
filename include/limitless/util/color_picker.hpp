@@ -3,13 +3,13 @@
 #include <limitless/core/framebuffer.hpp>
 #include <future>
 #include <limitless/core/sync.hpp>
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/scene.hpp>
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <utility>
 #include <limitless/instances/abstract_instance.hpp>
-#include <limitless/core/uniform_setter.hpp>
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/uniform/uniform_setter.hpp"
+#include "limitless/core/shader/shader_program.hpp"
 #include <limitless/ms/blending.hpp>
 #include <list>
 #include "sorter.hpp"

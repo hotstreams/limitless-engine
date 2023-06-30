@@ -1,8 +1,8 @@
 #pragma once
 
-#include <limitless/core/texture.hpp>
-#include <limitless/core/extension_texture.hpp>
-#include <limitless/core/texture_visitor.hpp>
+#include <limitless/core/texture/texture.hpp>
+#include <limitless/core/texture/extension_texture.hpp>
+#include <limitless/core/texture/texture_visitor.hpp>
 
 namespace Limitless {
     class StateTexture : public ExtensionTexture {

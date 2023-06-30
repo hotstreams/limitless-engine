@@ -1,7 +1,7 @@
 #include <limitless/core/texture/texture_uniform_setter.hpp>
 
 #include <limitless/core/uniform/uniform_value.hpp>
-#include <limitless/core/bindless_texture.hpp>
+#include <limitless/core/texture/bindless_texture.hpp>
 #include <glm/vec4.hpp>
 
 using namespace Limitless;

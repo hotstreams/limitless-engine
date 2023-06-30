@@ -43,7 +43,7 @@ namespace Limitless {
 
         friend class UniformSerializer;
     public:
-        Uniform(std::string name, GLint location, UniformType type, UniformValueType value_type) noexcept;
+        Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;
 
         /*
@@ -60,6 +60,10 @@ namespace Limitless {
         [[nodiscard]] GLint getLocation() const noexcept;
         [[nodiscard]] const std::string& getName() const noexcept;
         [[nodiscard]] UniformType getType() const noexcept;
+        [[nodiscard]] bool isChanged() const noexcept;
+
+        void resetChanged() noexcept;
+        void setLocation(GLint location) noexcept;
     };
 
     bool operator==(const Uniform& lhs, const Uniform& rhs) noexcept;

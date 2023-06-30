@@ -1,6 +1,6 @@
 #include <limitless/pipeline/framebuffer_pass.hpp>
 
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 
 using namespace Limitless;
 
