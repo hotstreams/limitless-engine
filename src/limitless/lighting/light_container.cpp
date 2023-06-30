@@ -1,6 +1,6 @@
 #include <limitless/lighting/light_container.hpp>
 
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/lighting/lights.hpp>
 #include <limitless/core/context_state.hpp>
 

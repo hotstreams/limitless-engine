@@ -1,4 +1,4 @@
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/depth_pass.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/instances/abstract_instance.hpp>

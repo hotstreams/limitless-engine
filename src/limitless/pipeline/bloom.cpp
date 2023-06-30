@@ -1,7 +1,7 @@
 #include <limitless/pipeline/bloom.hpp>
 
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/shader/shader_program.hpp"
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/assets.hpp>
 
 using namespace Limitless;
@@ -11,8 +11,8 @@ void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Textur
 
     brightness.clear();
 
-    brightness_shader << UniformSampler("image", image)
-                      << UniformValue("threshold", threshold);
+    brightness_shader .setUniform("image", image)
+                      .setUniform("threshold", threshold);
     brightness_shader.use();
 
     assets.meshes.at("quad")->draw();

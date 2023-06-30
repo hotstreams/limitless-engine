@@ -2,7 +2,7 @@
 #include "../opengl_state.hpp"
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <iostream>
 
 using namespace Limitless;

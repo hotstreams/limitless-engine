@@ -1,6 +1,6 @@
 #include <limitless/models/text_model.hpp>
 
-#include <limitless/core/buffer_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 
 using namespace Limitless;
 

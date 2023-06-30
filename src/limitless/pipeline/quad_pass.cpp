@@ -1,9 +1,9 @@
 #include <limitless/pipeline/quad_pass.hpp>
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/assets.hpp>
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/composite_pass.hpp>
 #include <limitless/pipeline/deferred_lighting_pass.hpp>
@@ -28,7 +28,7 @@ void FinalQuadPass::draw([[maybe_unused]] Instances& instances, Context& ctx, co
 	    target->clear();
         auto& shader = assets.shaders.get("quad");
 
-        shader << UniformSampler{"screen_texture", getPreviousResult()};
+        shader.setUniform("screen_texture", getPreviousResult());
 
         shader.use();
 

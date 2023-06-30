@@ -1,6 +1,6 @@
 #include <limitless/loaders/dds_loader.hpp>
 #include <limitless/loaders/texture_loader.hpp>
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/util/filesystem.hpp>
 #include <fstream>
 #include <iostream>

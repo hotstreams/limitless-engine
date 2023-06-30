@@ -3,7 +3,7 @@
 #include <limitless/models/mesh.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 #include <limitless/core/context.hpp>
 
 using namespace Limitless;
@@ -46,8 +46,8 @@ void MeshInstance::draw(Context& ctx,
         auto& shader = assets.shaders.get(pass, model, mat.getShaderIndex());
 
         // updates model/material uniforms
-        shader << UniformValue {"_model_transform", model_matrix}
-               << mat;
+        shader.setUniform("_model_transform", model_matrix)
+                .setMaterial(mat);
 
         // sets custom pass-dependent uniforms
         uniform_setter(shader);
@@ -77,8 +77,8 @@ void MeshInstance::draw(Context& ctx,
         auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());
 
         // updates model/material uniforms
-        shader << UniformValue {"_model_transform", model_matrix}
-               << *mat;
+        shader.setUniform("_model_transform", model_matrix)
+              .setMaterial(*mat);
 
         // sets custom pass-dependent uniforms
         uniform_setter(shader);
@@ -119,8 +119,8 @@ void MeshInstance::draw_instanced(Context& ctx,
         auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());
 
         // updates model/material uniforms
-        shader << UniformValue {"_model_transform", model_matrix}
-               << *mat;
+        shader.setUniform("_model_transform", model_matrix)
+              .setMaterial(*mat);
 
         // sets custom pass-dependent uniforms
         uniform_setter(shader);

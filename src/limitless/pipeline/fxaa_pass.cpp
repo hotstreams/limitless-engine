@@ -1,12 +1,12 @@
 #include <limitless/pipeline/fxaa_pass.hpp>
 
 #include <limitless/core/context.hpp>
-#include <limitless/core/uniform.hpp>
+#include "limitless/core/uniform/uniform.hpp"
 #include <limitless/assets.hpp>
-#include <limitless/core/shader_program.hpp>
+#include "limitless/core/shader/shader_program.hpp"
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/composite_pass.hpp>
-#include <limitless/core/texture_builder.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/deferred_framebuffer_pass.hpp>
 
 using namespace Limitless;
@@ -24,7 +24,7 @@ void FXAAPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const A
         framebuffer.clear();
         auto& shader = assets.shaders.get("fxaa");
 
-        shader << UniformSampler{"scene", getPreviousResult()};
+        shader.setUniform("scene", getPreviousResult());
 
         shader.use();
 

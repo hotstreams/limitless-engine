@@ -1,10 +1,10 @@
 #include <limitless/lighting/cascade_shadows.hpp>
 
-#include <limitless/core/texture_builder.hpp>
-#include <limitless/core/buffer_builder.hpp>
-#include <limitless/core/shader_program.hpp>
-#include <limitless/core/uniform_setter.hpp>
-#include <limitless/core/uniform.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
+#include "limitless/core/shader/shader_program.hpp"
+#include "limitless/core/uniform/uniform_setter.hpp"
+#include "limitless/core/uniform/uniform.hpp"
 
 #include <limitless/ms/blending.hpp>
 #include <limitless/instances/abstract_instance.hpp>
@@ -204,7 +204,7 @@ void CascadeShadows::draw(Instances& instances,
         framebuffer->clear();
 
         const auto uniform_set = [&] (ShaderProgram& shader) {
-            shader << UniformValue{"light_space", frustums[i].crop};
+            shader.setUniform("light_space", frustums[i].crop);
         };
 
         for (const auto& instance : instances) {
@@ -228,7 +228,7 @@ void CascadeShadows::setUniform(ShaderProgram& shader) const {
 		light_buffer->bindBase(ctx->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, DIRECTIONAL_CSM_BUFFER_NAME));
 	}
 
-    shader << UniformSampler{"_dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture};
+    shader.setUniform("_dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture);
 
     // TODO: ?
     glm::vec4 bounds {0.0f};
@@ -236,7 +236,7 @@ void CascadeShadows::setUniform(ShaderProgram& shader) const {
         bounds[i] = far_bounds[i];
     }
 
-    shader << UniformValue{"_far_bounds", bounds};
+    shader.setUniform("_far_bounds", bounds);
 }
 
 void CascadeShadows::mapData() const {
