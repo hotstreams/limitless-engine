@@ -162,7 +162,7 @@ namespace Limitless::ms {
         Material& operator=(Material&&) noexcept = default;
 
         /**
-         *
+         *  Maps material to uniform buffer
          */
         void update();
 
@@ -179,6 +179,7 @@ namespace Limitless::ms {
         [[nodiscard]] const UniformSampler& getNormal() const;
         [[nodiscard]] const UniformSampler& getEmissiveMask() const;
         [[nodiscard]] const UniformSampler& getBlendMask() const;
+        [[nodiscard]] const UniformSampler& getAmbientOcclusionTexture() const;
 
         UniformValue<glm::vec4>& getColor();
         UniformValue<glm::vec4>& getEmissiveColor();
@@ -193,6 +194,7 @@ namespace Limitless::ms {
         UniformSampler& getNormal();
         UniformSampler& getEmissiveMask();
         UniformSampler& getBlendMask();
+        UniformSampler& getAmbientOcclusionTexture();
 
         [[nodiscard]] const auto& getModelShaders() const noexcept { return model_shaders; }
         [[nodiscard]] auto getBlending() const noexcept { return blending; }
