@@ -9,11 +9,6 @@
 
 namespace Limitless {
     class Assets;
-    class Context;
-
-    namespace fx {
-        class EffectBuilder;
-    }
 }
 
 namespace Limitless::ms {
