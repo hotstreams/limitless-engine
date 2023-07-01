@@ -60,7 +60,7 @@ float getFragmentAO(const FragmentData data) {
 #endif
 
 #if defined (SCREEN_SPACE_AMBIENT_OCCLUSION)
-    ao = min(ao, texture(ssao_texture, uv).r);
+    ao = min(ao, texture(ssao_texture, getVertexUV()).r);
 #endif
 
     return ao;
