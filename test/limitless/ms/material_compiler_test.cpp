@@ -706,3 +706,20 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_uniform_sampler f
         test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(settings);
     }
 }
+
+TEST_CASE("MaterialCompiler throws") {
+    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Assets assets {"../assets"};
+
+    MaterialBuilder builder {assets};
+    auto material = builder.setName("material")
+            .add(Property::Color, glm::vec4 {1.0f})
+            .setFragmentSnippet("shreker")
+            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .build();
+
+    RenderSettings settings {};
+    REQUIRE_THROWS_AS(assets.compileMaterial(context, settings, material), material_compilation_error);
+
+    check_opengl_state();
+}
