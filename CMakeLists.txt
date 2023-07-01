@@ -358,7 +358,9 @@ add_executable(limitless_test
         test/limitless/core/state_buffer_test.cpp
         test/limitless/core/state_texture_test.cpp
         test/limitless/core/texture_builder_test.cpp
+        test/limitless/ms/material_builder_test.cpp
         test/limitless/ms/material_test.cpp
+        test/limitless/ms/material_compiler_test.cpp
 )
 
 
