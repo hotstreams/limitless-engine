@@ -445,3 +445,19 @@ UniformSampler &Material::getAmbientOcclusionTexture() {
         throw material_property_not_found("No AmbientOcclusionTexture in material.");
     }
 }
+
+const UniformSampler &Material::getORMTexture() const {
+    try {
+        return static_cast<UniformSampler&>(*properties.at(Property::ORM)); //NOLINT
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No ORM in material.");
+    }
+}
+
+UniformSampler &Material::getORMTexture() {
+    try {
+        return static_cast<UniformSampler&>(*properties.at(Property::ORM)); //NOLINT
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No ORM in material.");
+    }
+}
