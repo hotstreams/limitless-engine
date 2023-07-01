@@ -428,3 +428,19 @@ const UniformValue<float>& Material::getIoR() const {
         throw material_property_not_found("No IoR in material.");
     }
 }
+
+const UniformSampler &Material::getAmbientOcclusionTexture() const {
+    try {
+        return static_cast<UniformSampler&>(*properties.at(Property::AmbientOcclusionTexture)); //NOLINT
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No AmbientOcclusionTexture in material.");
+    }
+}
+
+UniformSampler &Material::getAmbientOcclusionTexture() {
+    try {
+        return static_cast<UniformSampler&>(*properties.at(Property::AmbientOcclusionTexture)); //NOLINT
+    } catch (const std::out_of_range& e) {
+        throw material_property_not_found("No AmbientOcclusionTexture in material.");
+    }
+}

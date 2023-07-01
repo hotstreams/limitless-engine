@@ -70,7 +70,6 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
     if (render_settings) {
         std::string settings;
 
-        //TODO: remove
         if (render_settings->normal_mapping) {
             settings.append("#define NORMAL_MAPPING\n");
         }

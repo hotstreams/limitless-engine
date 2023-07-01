@@ -13,6 +13,7 @@
 #include <limitless/models/cylinder.hpp>
 
 #include <utility>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -126,13 +127,14 @@ void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const
 PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
     PassShaders pass_shaders;
 
-//    if (settings.pipeline == RenderPipeline::Forward) {
+    if (settings.pipeline == RenderPipeline::Forward) {
         pass_shaders.emplace(ShaderPass::Forward);
-//    }
+    }
 
     if (settings.pipeline == RenderPipeline::Deferred) {
         pass_shaders.emplace(ShaderPass::Depth);
         pass_shaders.emplace(ShaderPass::GBuffer);
+        //for transparent pass?
         pass_shaders.emplace(ShaderPass::Forward);
     }
 
@@ -141,10 +143,6 @@ PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
     }
 
     pass_shaders.emplace(ShaderPass::ColorPicker);
-
-//    #ifdef LIMITLESS_DEBUG
-//        pass_shaders.emplace(ShaderPass::Forward);
-//    #endif
 
     return pass_shaders;
 }
