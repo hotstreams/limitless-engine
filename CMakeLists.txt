@@ -9,7 +9,7 @@ OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
-OPTION(CODECOV "Compile with test coverage" ON)
+OPTION(CODECOV "Compile with test coverage" OFF)
 
 #########################################
 
@@ -21,7 +21,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3 -fprofile-arcs -ftest-coverage)
+    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
     add_compile_definitions(NDEBUG)
 endif()
 
@@ -305,10 +305,11 @@ target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
 
 target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
 
-if (CODECOV)
-    target_link_options(limitless_engine_static PUBLIC -lgcov --coverage)
-    target_link_libraries(limitless_engine_static PUBLIC gcov)
-endif ()
+#if (CODECOV)
+#    message("shrek1")
+#    target_link_options(limitless_engine_static PUBLIC -lgcov --coverage)
+#    target_link_libraries(limitless_engine_static PUBLIC gcov)
+#endif ()
 
 #######################
 
@@ -362,7 +363,6 @@ add_executable(limitless_test
         test/limitless/ms/material_test.cpp
         test/limitless/ms/material_compiler_test.cpp
 )
-
 
 if (CODECOV)
     target_link_options(limitless_test PUBLIC -lgcov --coverage)

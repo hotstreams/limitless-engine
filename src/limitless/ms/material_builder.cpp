@@ -330,6 +330,11 @@ MaterialBuilder& MaterialBuilder::setTessellationSnippet(std::string tes_code) n
 std::shared_ptr<Material> MaterialBuilder::buildSkybox() {
     checkRequirements();
 
+    // skybox allows only be unlit!
+    if (material->getShading() == Shading::Lit) {
+        throw material_builder_error("Does not make sense for skybox to be lit!");
+    }
+
     setMaterialIndex();
 
     initializeMaterialBuffer();
