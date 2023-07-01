@@ -9,6 +9,7 @@ OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
+OPTION(CODECOV "Compile with test coverage" OFF)
 
 #########################################
 
@@ -30,6 +31,10 @@ endif()
 
 if (OPENGL_TOSTER_MODE)
     add_compile_definitions(OPENGL_TOSTER)
+endif()
+
+if (CODECOV)
+    set(LIMITLESS_COMPILE_OPTIONS ${LIMITLESS_COMPILE_OPTIONS} -fprofile-arcs -ftest-coverage)
 endif()
 
 if (NOT LIMITLESS_ASSETS_DIR)
@@ -57,22 +62,22 @@ set(ENGINE_CORE
     src/limitless/core/profiler.cpp
     src/limitless/core/time_query.cpp
 
-        src/limitless/core/texture/texture.cpp
-        src/limitless/core/texture/state_texture.cpp
-        src/limitless/core/texture/named_texture.cpp
-        src/limitless/core/texture/bindless_texture.cpp
-        src/limitless/core/texture/texture_builder.cpp
+    src/limitless/core/texture/texture.cpp
+    src/limitless/core/texture/state_texture.cpp
+    src/limitless/core/texture/named_texture.cpp
+    src/limitless/core/texture/bindless_texture.cpp
+    src/limitless/core/texture/texture_builder.cpp
     src/limitless/core/texture/texture_uniform_alignment_getter.cpp
     src/limitless/core/texture/texture_uniform_size_getter.cpp
     src/limitless/core/texture/texture_uniform_setter.cpp
     src/limitless/core/texture/texture_extension_capturer.cpp
     src/limitless/core/texture/texture_resident_maker.cpp
 
-        src/limitless/core/buffer/state_buffer.cpp
-        src/limitless/core/buffer/named_buffer.cpp
-        src/limitless/core/buffer/triple_buffer.cpp
-        src/limitless/core/buffer/indexed_buffer.cpp
-        src/limitless/core/buffer/buffer_builder.cpp
+    src/limitless/core/buffer/state_buffer.cpp
+    src/limitless/core/buffer/named_buffer.cpp
+    src/limitless/core/buffer/triple_buffer.cpp
+    src/limitless/core/buffer/indexed_buffer.cpp
+    src/limitless/core/buffer/buffer_builder.cpp
 
     src/limitless/core/uniform/uniform.cpp
     src/limitless/core/uniform/uniform_value.cpp
@@ -80,19 +85,19 @@ set(ENGINE_CORE
     src/limitless/core/uniform/uniform_time.cpp
     src/limitless/core/uniform/uniform_setter.cpp
 
-        src/limitless/core/shader/shader.cpp
+    src/limitless/core/shader/shader.cpp
     src/limitless/core/shader/shader_program.cpp
     src/limitless/core/shader/shader_program_texture_setter.cpp
-        src/limitless/core/shader/shader_compiler.cpp
+    src/limitless/core/shader/shader_compiler.cpp
 
     src/limitless/core/vertex_array.cpp
     src/limitless/core/framebuffer.cpp
 
-        src/limitless/core/texture/texture_binder.cpp
+    src/limitless/core/texture/texture_binder.cpp
     src/limitless/core/context_thread_pool.cpp
     src/limitless/core/sync.cpp
 
-        src/limitless/core/buffer/buffer_binding_point.cpp
+    src/limitless/core/buffer/buffer_binding_point.cpp
     src/limitless/core/shader/shader_program_introspection.cpp
 )
 
@@ -229,6 +234,7 @@ set(ENGINE_SRC
     src/limitless/assets.cpp
     src/limitless/scene.cpp
     src/limitless/skybox/skybox.cpp
+    src/limitless/log.cpp
 )
 
 ##### CONFIGURE SUBMODULES
@@ -299,6 +305,12 @@ target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
 
 target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
 
+#if (CODECOV)
+#    message("shrek1")
+#    target_link_options(limitless_engine_static PUBLIC -lgcov --coverage)
+#    target_link_libraries(limitless_engine_static PUBLIC gcov)
+#endif ()
+
 #######################
 
 ##############################################
@@ -347,7 +359,15 @@ add_executable(limitless_test
         test/limitless/core/state_buffer_test.cpp
         test/limitless/core/state_texture_test.cpp
         test/limitless/core/texture_builder_test.cpp
+        test/limitless/ms/material_builder_test.cpp
+        test/limitless/ms/material_test.cpp
+        test/limitless/ms/material_compiler_test.cpp
 )
+
+if (CODECOV)
+    target_link_options(limitless_test PUBLIC -lgcov --coverage)
+    target_link_libraries(limitless_test gcov)
+endif ()
 
 target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
 target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")

@@ -9,7 +9,7 @@ namespace LimitlessDemo {
     class LightingScene : public Limitless::Scene {
     private:
         static constexpr auto FLOOR_INSTANCE_COUNT = 64;
-        static constexpr auto LIGHT_COUNT = 256;
+        static constexpr auto LIGHT_COUNT = 512;
 
         struct light_data {
             glm::vec3 direction {};

@@ -4,7 +4,7 @@ Limitless::Settings
 Limitless::MaterialType
 Limitless::ModelType
 
-in vec3 uv;
+in vec3 skybox_uv;
 
 #include "../interface_block/fragment.glsl"
 #include "../scene.glsl"

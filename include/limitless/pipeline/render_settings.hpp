@@ -13,7 +13,6 @@ namespace Limitless {
     public:
         RenderPipeline pipeline = RenderPipeline::Deferred;
 
-        // actually this is not toogleable
         bool normal_mapping = true;
 
         bool screen_space_ambient_occlusion = false;

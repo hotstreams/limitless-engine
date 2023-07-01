@@ -25,6 +25,6 @@ jobs:
           cmake -S . -B build
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-        env: 
+        env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      
+

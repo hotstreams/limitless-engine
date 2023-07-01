@@ -21,7 +21,7 @@ Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& f
     material = material_builder
                     .setName(path.stem().string())
                     .addUniform(std::make_unique<UniformSampler>("skybox", cube_map_texture))
-                    .setFragmentSnippet("data.color.rgb = texture(skybox, uv).rgb;\n")
+                    .setFragmentSnippet("data.color.rgb = texture(skybox, skybox_uv).rgb;\n")
                     .add(Property::Color, glm::vec4(1.0f))
                     .setTwoSided(true)
                     .setShading(Shading::Unlit)
@@ -37,8 +37,8 @@ void Skybox::draw(Context& context, const Assets& assets) {
     context.setDepthMask(DepthMask::True);
     context.disable(Capabilities::Blending);
 
-    shader.setMaterial(*material);
-
+    shader.setMaterial(*material)
+          .setUniform("_model_transform", glm::mat4{1.0f});
     shader.use();
 
     assets.meshes.at("cube")->draw();
