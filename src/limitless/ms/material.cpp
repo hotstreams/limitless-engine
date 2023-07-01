@@ -191,11 +191,12 @@ void Material::map() {
 
 void Material::update() {
     //TODO: not map the whole buffer if changed only 1 value?
+    // must do for time
     const auto properties_changed = std::any_of(properties.begin(), properties.end(), [] (auto& property) {
         return property.second->isChanged();
     });
     const auto uniforms_changed = std::any_of(uniforms.begin(), uniforms.end(), [] (auto& uniform) {
-        return uniform.second->isChanged();
+        return uniform.second->isChanged() || uniform.second->getType() == UniformType::Time;
     });
 
     if (!properties_changed && !uniforms_changed) {
