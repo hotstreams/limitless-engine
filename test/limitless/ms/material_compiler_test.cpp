@@ -405,42 +405,90 @@ void test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(RenderS
 
 std::vector<RenderSettings> generateSettings() {
     RenderSettings s1 {};
+    s1.normal_mapping = true;
     s1.screen_space_ambient_occlusion = false;
     s1.directional_cascade_shadow_mapping = false;
     s1.directional_pcf = false;
     s1.micro_shadowing = false;
 
     RenderSettings s2 {};
+    s2.normal_mapping = true;
     s2.screen_space_ambient_occlusion = true;
     s2.directional_cascade_shadow_mapping = false;
     s2.directional_pcf = false;
     s2.micro_shadowing = false;
 
     RenderSettings s3 {};
+    s3.normal_mapping = true;
     s3.screen_space_ambient_occlusion = true;
     s3.directional_cascade_shadow_mapping = true;
     s3.directional_pcf = false;
     s3.micro_shadowing = false;
 
     RenderSettings s4 {};
+    s4.normal_mapping = true;
     s4.screen_space_ambient_occlusion = true;
     s4.directional_cascade_shadow_mapping = true;
     s4.directional_pcf = true;
     s4.micro_shadowing = false;
 
     RenderSettings s5 {};
-    s4.screen_space_ambient_occlusion = true;
-    s4.directional_cascade_shadow_mapping = true;
-    s4.directional_pcf = false;
-    s4.micro_shadowing = true;
+    s5.normal_mapping = true;
+    s5.screen_space_ambient_occlusion = true;
+    s5.directional_cascade_shadow_mapping = true;
+    s5.directional_pcf = false;
+    s5.micro_shadowing = true;
 
     RenderSettings s6 {};
+    s6.normal_mapping = true;
     s6.screen_space_ambient_occlusion = true;
     s6.directional_cascade_shadow_mapping = true;
     s6.directional_pcf = true;
     s6.micro_shadowing = true;
 
-    return {s1, s2, s3, s4, s5, s6};
+    RenderSettings s7 {};
+    s7.normal_mapping = false;
+    s7.screen_space_ambient_occlusion = false;
+    s7.directional_cascade_shadow_mapping = false;
+    s7.directional_pcf = false;
+    s7.micro_shadowing = false;
+
+    RenderSettings s8 {};
+    s8.normal_mapping = false;
+    s8.screen_space_ambient_occlusion = true;
+    s8.directional_cascade_shadow_mapping = false;
+    s8.directional_pcf = false;
+    s8.micro_shadowing = false;
+
+    RenderSettings s9 {};
+    s9.normal_mapping = false;
+    s9.screen_space_ambient_occlusion = true;
+    s9.directional_cascade_shadow_mapping = true;
+    s9.directional_pcf = false;
+    s9.micro_shadowing = false;
+
+    RenderSettings s10 {};
+    s10.normal_mapping = false;
+    s10.screen_space_ambient_occlusion = true;
+    s10.directional_cascade_shadow_mapping = true;
+    s10.directional_pcf = true;
+    s10.micro_shadowing = false;
+
+    RenderSettings s11 {};
+    s11.normal_mapping = false;
+    s11.screen_space_ambient_occlusion = true;
+    s11.directional_cascade_shadow_mapping = true;
+    s11.directional_pcf = false;
+    s11.micro_shadowing = true;
+
+    RenderSettings s12 {};
+    s12.normal_mapping = false;
+    s12.screen_space_ambient_occlusion = true;
+    s12.directional_cascade_shadow_mapping = true;
+    s12.directional_pcf = true;
+    s12.micro_shadowing = true;
+
+    return {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12};
 }
 
 TEST_CASE("test_MaterialCompiler_compiles_material_with_color for all render settings") {
