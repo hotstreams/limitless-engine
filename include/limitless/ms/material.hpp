@@ -180,6 +180,7 @@ namespace Limitless::ms {
         [[nodiscard]] const UniformSampler& getEmissiveMask() const;
         [[nodiscard]] const UniformSampler& getBlendMask() const;
         [[nodiscard]] const UniformSampler& getAmbientOcclusionTexture() const;
+        [[nodiscard]] const UniformSampler& getORMTexture() const;
 
         UniformValue<glm::vec4>& getColor();
         UniformValue<glm::vec4>& getEmissiveColor();
@@ -195,6 +196,7 @@ namespace Limitless::ms {
         UniformSampler& getEmissiveMask();
         UniformSampler& getBlendMask();
         UniformSampler& getAmbientOcclusionTexture();
+        UniformSampler& getORMTexture();
 
         [[nodiscard]] const auto& getModelShaders() const noexcept { return model_shaders; }
         [[nodiscard]] auto getBlending() const noexcept { return blending; }

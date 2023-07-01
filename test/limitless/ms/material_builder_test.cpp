@@ -395,6 +395,25 @@ TEST_CASE("MaterialBuilder builds material with AmbientOcclusionTexture") {
     check_opengl_state();
 }
 
+TEST_CASE("MaterialBuilder builds material with ORM") {
+    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Assets assets {"../assets"};
+    assets.textures.add("fake", Textures::fake());
+
+    MaterialBuilder builder {assets};
+
+    builder.setName("material")
+            .add(Property::ORM, assets.textures.at("fake"));
+
+    auto material = builder.build();
+
+    REQUIRE(material->getName() == "material");
+    REQUIRE(material->getORMTexture().getSampler() == assets.textures.at("fake"));
+    REQUIRE(material->getProperties().size() == 1);
+
+    check_opengl_state();
+}
+
 TEST_CASE("MaterialBuilder builds material with blending") {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../assets"};

@@ -57,6 +57,9 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
             case Property::Absorption:
                 property_defines.append("#define MATERIAL_ABSORPTION\n");
                 break;
+            case Property::ORM:
+                property_defines.append("#define MATERIAL_ORM_TEXTURE\n");
+                break;
         }
     }
 

@@ -25,7 +25,13 @@ FragmentData initializeFragmentData() {
     data.blend_mask = getMaterialBlendMask(getVertexUV());
 #endif
 
-#if defined (MATERIAL_METALLIC_TEXTURE)
+#if defined (MATERIAL_ORM_TEXTURE)
+    vec3 _orm = getMaterialORM(getVertexUV());
+#endif
+
+#if defined (MATERIAL_ORM_TEXTURE)
+    data.metallic = _orm.b;
+#elif defined (MATERIAL_METALLIC_TEXTURE)
     data.metallic = getMaterialMetallic(getVertexUV());
 #elif defined (MATERIAL_METALLIC)
     data.metallic = getMaterialMetallic();
@@ -33,7 +39,9 @@ FragmentData initializeFragmentData() {
     data.metallic = 0.6;
 #endif
 
-#if defined (MATERIAL_ROUGHNESS_TEXTURE)
+#if defined (MATERIAL_ORM_TEXTURE)
+    data.roughness = _orm.g;
+#elif defined (MATERIAL_ROUGHNESS_TEXTURE)
     data.roughness = getMaterialRoughness(getVertexUV());
 #elif defined (MATERIAL_ROUGHNESS)
     data.roughness = getMaterialRoughness();
@@ -41,13 +49,15 @@ FragmentData initializeFragmentData() {
     data.roughness = 0.3;
 #endif
 
-#if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
+#if defined (MATERIAL_ORM_TEXTURE)
+    data.ao = _orm.r;
+#elif defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
     data.ao = getMaterialAmbientOcclusion(getVertexUV());
 #endif
 
 #if defined (MATERIAL_DISPLACEMENT)
-data.displacement = getMaterialDisplacement(getVertexUV());
-    #endif
+    data.displacement = getMaterialDisplacement(getVertexUV());
+#endif
 
 #if defined (MATERIAL_TESSELLATION_FACTOR)
     data.tessellation_factor = getMaterialTesselationFactor();
