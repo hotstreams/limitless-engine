@@ -607,7 +607,8 @@ TEST_CASE("MaterialBuilder builds skybox material") {
     MaterialBuilder builder {assets};
 
     builder.setName("material")
-            .add(Property::Color, glm::vec4 {1.0f});
+            .add(Property::Color, glm::vec4 {1.0f})
+            .setShading(Shading::Unlit);
 
     auto material = builder.buildSkybox();
 
