@@ -94,6 +94,7 @@ MaterialBuilder& MaterialBuilder::add(Property type, float value) {
         case Property::RoughnessTexture:
         case Property::BlendMask:
         case Property::AmbientOcclusionTexture:
+        case Property::ORM:
             throw material_builder_error{"Wrong data for material property."};
     }
     return *this;
@@ -119,6 +120,7 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec4& value) {
         case Property::RoughnessTexture:
         case Property::BlendMask:
         case Property::AmbientOcclusionTexture:
+        case Property::ORM:
             throw material_builder_error{"Wrong data for material property."};
     }
     return *this;
@@ -159,6 +161,9 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
         case Property::AmbientOcclusionTexture:
             material->properties[type] = std::make_unique<UniformSampler>("material_ambient_occlusion_texture", std::move(texture));
             break;
+        case Property::ORM:
+            material->properties[type] = std::make_unique<UniformSampler>("material_orm_texture", std::move(texture));
+            break;
     }
     return *this;
 }
@@ -181,6 +186,7 @@ MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec2& value) {
         case Property::MetallicTexture:
         case Property::RoughnessTexture:
         case Property::AmbientOcclusionTexture:
+        case Property::ORM:
             throw material_builder_error{"Wrong data for material property."};
     }
     return *this;

@@ -257,6 +257,24 @@ void test_MaterialCompiler_compiles_material_with_ao(RenderSettings& settings) {
     check_opengl_state();
 }
 
+void test_MaterialCompiler_compiles_material_with_orm(RenderSettings& settings) {
+    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Assets assets {"../assets"};
+    assets.textures.add("fake", Textures::fake());
+
+    MaterialBuilder builder {assets};
+    auto material = builder.setName("material")
+            .add(Property::ORM, assets.textures.at("fake"))
+            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .build();
+
+    MaterialCompiler compiler {context, assets, settings};
+
+    REQUIRE_NOTHROW(assets.compileMaterial(context, settings, material));
+
+    check_opengl_state();
+}
+
 void test_MaterialCompiler_compiles_material_with_unlit(RenderSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../assets"};
@@ -656,6 +674,18 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_ao for all render settin
                   << settings.micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_ao(settings);
+    }
+}
+
+TEST_CASE("test_MaterialCompiler_compiles_material_with_orm for all render settings") {
+    for (auto& settings: generateSettings()) {
+        std::cout << "With: "
+                  << settings.screen_space_ambient_occlusion
+                  << settings.directional_cascade_shadow_mapping
+                  << settings.directional_pcf
+                  << settings.micro_shadowing
+                  << std::endl;
+        test_MaterialCompiler_compiles_material_with_orm(settings);
     }
 }
 
