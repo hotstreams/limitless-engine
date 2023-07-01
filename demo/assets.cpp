@@ -164,7 +164,7 @@ void DemoAssets::loadMaterialsScene() {
             .addUniform(std::make_unique<UniformTime>("time"))
             .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga")))
             .setFragmentSnippet("data.IoR = texture(noise, vec2(getVertexUV().x, getVertexUV().y + time * 0.1)).r;"
-                                "data.IoR = clamp(data.IoR, 1.3, 10.0);"
+                                "data.IoR = clamp(data.IoR, 0.0, 1.0);"
             )
             .setShading(Shading::Unlit)
             .build();
@@ -206,14 +206,16 @@ void DemoAssets::loadMaterialsScene() {
 
     builder .setName("lava")
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/lava.png", {
-                    TextureLoaderFlags::Space::sRGB
+                TextureLoaderFlags::Space::sRGB
             }))
+            .add(Property::EmissiveColor, glm::vec4{1.0f})
             .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga")))
             .addUniform(std::make_unique<UniformTime>("time"))
             .setFragmentSnippet(
-                    "vec2 panned = vec2(getVertexUV().x + time * 0.1, getVertexUV().y + time * 0.05);"
+                    "vec2 panned = vec2(getVertexUV().x + time * 0.1, getVertexUV().y + time * 0.3);"
                     "vec2 uv = getVertexUV() + texture(noise, panned).r;"
                     "data.baseColor.rgb = getMaterialDiffuse(uv).rgb;"
+                    "data.emissive = data.baseColor.rgb;"
             )
             .setShading(Shading::Unlit)
             .build();

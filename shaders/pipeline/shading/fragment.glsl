@@ -73,12 +73,12 @@ vec3 getFragmentEmissive(const FragmentData data) {
     vec3 emissive = vec3(1.0);
 
     #if defined (MATERIAL_EMISSIVE_COLOR)
-        emissive *= getMaterialEmissive();
+        emissive *= data.emissive;
     #endif
 
-#if defined (MATERIAL_EMISSIVEMASK)
-    emissive *= getMaterialEmissiveMask(getVertexUV());
-#endif
+    #if defined (MATERIAL_EMISSIVEMASK)
+        emissive *= data.emissive_mask;
+    #endif
 
     return emissive;
 #endif

@@ -89,7 +89,7 @@ void Blur::downsample(Context& ctx, const Assets& assets, const std::shared_ptr<
     auto& blur = assets.shaders.get("blur_downsample");
 
     blur .setUniform("source", source)
-    .setUniform("level", 0.0f);
+         .setUniform("level", 0.0f);
 
     auto vp = ctx.getViewPort();
     for (uint8_t i = 0; i < ITERATION_COUNT; ++i) {
@@ -98,7 +98,7 @@ void Blur::downsample(Context& ctx, const Assets& assets, const std::shared_ptr<
         auto& RT = parity ? outRT[i] : stageRT[i];
 
         RT.bind();
-        ctx.setViewPort(glm::uvec2{vp.x >> i, vp.y >> i});
+        ctx.setViewPort(glm::uvec2 {vp.z >> i, vp.w >> i});
 
         blur.use();
 
