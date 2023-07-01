@@ -208,19 +208,20 @@ void DemoAssets::loadMaterialsScene() {
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/lava.png", {
                 TextureLoaderFlags::Space::sRGB
             }))
-            .add(Property::EmissiveColor, glm::vec4{1.0f})
+            .add(Property::EmissiveColor, glm::vec4(2.5f, 0.9f, 0.1f, 1.0f))
             .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga")))
             .addUniform(std::make_unique<UniformTime>("time"))
             .setFragmentSnippet(
-                    "vec2 panned = vec2(getVertexUV().x + time * 0.1, getVertexUV().y + time * 0.3);"
+                    "vec2 panned = vec2(getVertexUV().x + time * 0.1, getVertexUV().y + time * 0.05);"
                     "vec2 uv = getVertexUV() + texture(noise, panned).r;"
                     "data.baseColor.rgb = getMaterialDiffuse(uv).rgb;"
-                    "data.emissive = data.baseColor.rgb;"
+                    "data.emissive *= texture(noise, panned).g;"
             )
             .setShading(Shading::Unlit)
             .build();
 
     builder .setName("ice")
+            .add(Property::EmissiveColor, glm::vec4(1.0f))
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/ice.jpg", {
                     TextureLoaderFlags::Space::sRGB
             }))
@@ -229,11 +230,13 @@ void DemoAssets::loadMaterialsScene() {
             .setFragmentSnippet(
                     "vec2 uv = getVertexUV() + time * 0.05;"
                     "data.baseColor.rgb += texture(snow, uv).rgb * abs(cos(time * 0.5));"
+                    "data.emissive *= texture(snow, uv).r;"
             )
             .setShading(Shading::Unlit)
             .build();
 
     builder .setName("poison")
+            .add(Property::EmissiveColor, glm::vec4(0.1f, 4.0f, 0.1f, 1.0f))
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/poison.jpg", {
                     TextureLoaderFlags::Space::sRGB
             }))
@@ -243,6 +246,7 @@ void DemoAssets::loadMaterialsScene() {
                     "vec2 panned = vec2(getVertexUV().x + time * 0.05, getVertexUV().y);"
                     "vec2 uv = vec2(getVertexUV().x, getVertexUV().y  + texture(noise, panned).g);"
                     "data.baseColor.rgb = getMaterialDiffuse(uv).rgb;"
+                    "data.emissive *= getMaterialDiffuse(uv).g;"
             )
             .setShading(Shading::Unlit)
             .build();
