@@ -1,5 +1,5 @@
 /*
-    order of buffer variables should match Limitless::ms::Property
+    !!!order of buffer variables should match Limitless::ms::Property!!!
 
     functions to get material properties
 
@@ -62,6 +62,10 @@ layout (std140) uniform material_buffer {
 
         #if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
             sampler2D material_ambient_occlusion_texture;
+        #endif
+
+        #if defined (MATERIAL_ORM_TEXTURE)
+            sampler2D material_orm_texture;
         #endif
 
         #if defined (MATERIAL_DISPLACEMENT)
@@ -133,6 +137,10 @@ layout (std140) uniform material_buffer {
         uniform sampler2D material_ambient_occlusion_texture;
     #endif
 
+    #if defined (MATERIAL_ORM_TEXTURE)
+        uniform sampler2D material_orm_texture;
+    #endif
+
     _MATERIAL_SAMPLER_UNIFORMS
 #endif
 
@@ -181,6 +189,12 @@ float getMaterialRoughness() {
 #if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
     float getMaterialAmbientOcclusion(vec2 uv) {
         return texture(material_ambient_occlusion_texture, uv).r;
+    }
+#endif
+
+#if defined (MATERIAL_ORM_TEXTURE)
+    vec3 getMaterialORM(vec2 uv) {
+        return texture(material_orm_texture, uv).rgb;
     }
 #endif
 

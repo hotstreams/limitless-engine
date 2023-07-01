@@ -23,10 +23,10 @@ struct FragmentData {
     float blend_mask;
 #endif
 
-float metallic;
-float roughness;
+    float metallic;
+    float roughness;
 
-#if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
+#if defined (MATERIAL_AMBIENT_OCCLUSION_TEXTURE) || defined (MATERIAL_ORM_TEXTURE)
     float ao;
 #endif
 
