@@ -7,7 +7,7 @@
 
 using namespace Limitless;
 
-ModelInstance::ModelInstance(ModelShader shader, decltype(model) _model, const glm::vec3& position)
+ModelInstance::ModelInstance(InstanceType shader, decltype(model) _model, const glm::vec3& position)
     : AbstractInstance(shader, position)
     , model {std::move(_model)} {
     try {
@@ -24,11 +24,11 @@ ModelInstance::ModelInstance(ModelShader shader, decltype(model) _model, const g
 }
 
 ModelInstance::ModelInstance(decltype(model) _model, const glm::vec3& _position)
-    : ModelInstance {ModelShader::Model, std::move(_model), _position} {
+    : ModelInstance {InstanceType::Model, std::move(_model), _position} {
 }
 
 ModelInstance::ModelInstance(decltype(model) _model, std::shared_ptr<ms::Material> material, const glm::vec3& position)
-    : AbstractInstance(ModelShader::Model, position)
+    : AbstractInstance(InstanceType::Model, position)
     , model {std::move(_model)} {
     try {
         auto& elementary_model = dynamic_cast<ElementaryModel&>(*model);
@@ -39,7 +39,7 @@ ModelInstance::ModelInstance(decltype(model) _model, std::shared_ptr<ms::Materia
     }
 }
 
-void ModelInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, ms::Blending blending, const UniformSetter& uniform_setter) {
+void ModelInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }

@@ -16,11 +16,11 @@ namespace Limitless::fx {
         static std::string getEmitterDefines(const AbstractEmitter& emitter) noexcept;
 
         template<typename T>
-        void compile(ShaderPass shader_type, const T& emitter);
+        void compile(ShaderType shader_type, const T& emitter);
     public:
         explicit EffectCompiler(Context& context, Assets& assets, const RenderSettings& settings);
 
         using ShaderCompiler::compile;
-        void compile(const EffectInstance& instance, ShaderPass material_shader);
+        void compile(const EffectInstance& instance, ShaderType material_shader);
     };
 }

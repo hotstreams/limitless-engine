@@ -30,7 +30,7 @@ Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& f
 }
 
 void Skybox::draw(Context& context, const Assets& assets) {
-    auto& shader = assets.shaders.get(ShaderPass::Skybox, ModelShader::Model, material->getShaderIndex());
+    auto& shader = assets.shaders.get(ShaderType::Skybox, InstanceType::Model, material->getShaderIndex());
 
     context.enable(Capabilities::DepthTest);
     context.setDepthFunc(DepthFunc::Lequal);

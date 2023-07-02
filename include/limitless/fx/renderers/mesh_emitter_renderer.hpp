@@ -47,7 +47,7 @@ namespace Limitless::fx {
 
         void draw(Context& ctx,
                   const Assets& assets,
-                  ShaderPass pass,
+                  ShaderType pass,
                   const std::shared_ptr<AbstractMesh>& mesh,
                   const ms::Material& material,
                   ms::Blending blending,

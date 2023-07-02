@@ -22,7 +22,7 @@ void EffectRenderer::visitEmitters(const Instances& instances, EmitterVisitor& e
             visitor(*attachment);
         }
 
-        if (instance.getShaderType() == ModelShader::Effect) {
+        if (instance.getShaderType() == InstanceType::Effect) {
             effect_instance_visitor(static_cast<const EffectInstance&>(instance), emitter_visitor);
         }
     };
@@ -66,7 +66,7 @@ void EffectRenderer::update(const Instances& instances) {
     }
 }
 
-void EffectRenderer::draw(Context& ctx, const Assets& assets, ShaderPass shader, ms::Blending blending, const UniformSetter& setter) {
+void EffectRenderer::draw(Context& ctx, const Assets& assets, ShaderType shader, ms::Blending blending, const UniformSetter& setter) {
     for (const auto& [type, renderer] : renderers) {
         switch (type.emitter_type) {
             case AbstractEmitter::Type::Sprite: {

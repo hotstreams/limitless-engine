@@ -16,7 +16,7 @@ ShaderProgram& ShaderStorage::get(const std::string& name) const {
     }
 }
 
-ShaderProgram& ShaderStorage::get(ShaderPass material_type, ModelShader model_type, uint64_t material_index) const {
+ShaderProgram& ShaderStorage::get(ShaderType material_type, InstanceType model_type, uint64_t material_index) const {
     try {
         return *materials.at({material_type, model_type, material_index});
     } catch (const std::out_of_range& e) {
@@ -33,7 +33,7 @@ void ShaderStorage::add(std::string name, std::shared_ptr<ShaderProgram> program
     }
 }
 
-void ShaderStorage::add(ShaderPass material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) {
+void ShaderStorage::add(ShaderType material_type, InstanceType model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) {
     std::unique_lock lock(mutex);
     const auto key = ShaderKey{material_type, model_type, material_index};
 
@@ -48,7 +48,7 @@ void ShaderStorage::add(ShaderPass material_type, ModelShader model_type, uint64
     }
 }
 
-bool ShaderStorage::contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept {
+bool ShaderStorage::contains(ShaderType material_type, InstanceType model_type, uint64_t material_index) noexcept {
     std::unique_lock lock(mutex);
     return materials.find({material_type, model_type, material_index}) != materials.end();
 }
@@ -58,7 +58,7 @@ bool ShaderStorage::contains(const fx::UniqueEmitterShaderKey& emitter_type) noe
     return emitters.find(emitter_type) != emitters.end();
 }
 
-bool ShaderStorage::reserveIfNotContains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept {
+bool ShaderStorage::reserveIfNotContains(ShaderType material_type, InstanceType model_type, uint64_t material_index) noexcept {
     std::unique_lock lock(mutex);
     bool contains = materials.find({material_type, model_type, material_index}) != materials.end();
 
@@ -158,7 +158,7 @@ bool ShaderStorage::contains(const std::string& name) noexcept {
     return shaders.find(name) != shaders.end();
 }
 
-void ShaderStorage::remove(ShaderPass material_type, ModelShader model_type, uint64_t material_index) {
+void ShaderStorage::remove(ShaderType material_type, InstanceType model_type, uint64_t material_index) {
     std::unique_lock lock(mutex);
 
     const auto key = ShaderKey{material_type, model_type, material_index};

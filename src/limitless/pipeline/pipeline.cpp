@@ -2,9 +2,8 @@
 
 #include <limitless/scene.hpp>
 #include "limitless/core/uniform/uniform_setter.hpp"
-#include <limitless/pipeline/render_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
-#include <limitless/pipeline/quad_pass.hpp>
+#include <limitless/pipeline/common/quad_pass.hpp>
 
 using namespace Limitless;
 
@@ -48,7 +47,7 @@ void Pipeline::setTarget(RenderTarget& _target) noexcept {
     target = &_target;
 
     // setting last quad pass RT to target
-    get<FinalQuadPass>().setTarget(_target);
+    get<ScreenPass>().setTarget(_target);
 }
 
 RenderTarget& Pipeline::getTarget() noexcept {

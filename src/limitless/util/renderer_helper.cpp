@@ -37,7 +37,7 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
         sphere_instance.setPosition(light.position);
         sphere_instance.setScale(glm::vec3(light.radius));
         sphere_instance.update(context, camera);
-        sphere_instance.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
+        sphere_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
     }
 
     for (const auto& light : lighting.spot_lights) {
@@ -52,7 +52,7 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
 
         cone_instance.setRotation(a * angle);
         cone_instance.update(context, camera);
-        cone_instance.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
+        cone_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
     }
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
@@ -74,9 +74,9 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
     static ModelInstance y_i {y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}};
     static ModelInstance z_i {z, assets.materials.at("red"), {5.0f, 1.0f, 0.0f}};
 
-    x_i.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
-    y_i.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
-    z_i.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
+    x_i.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+    y_i.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+    z_i.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
 }
 
 void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, Instances& instances) {
@@ -89,7 +89,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 
         box.setPosition(bounding_box.center).setScale(bounding_box.size);
 
-        box.draw(context, assets, ShaderPass::Forward, ms::Blending::Opaque);
+        box.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }

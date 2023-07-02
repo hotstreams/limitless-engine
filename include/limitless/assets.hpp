@@ -44,7 +44,7 @@ namespace Limitless {
 
         void reloadTextures(const TextureLoaderFlags& settings);
 
-        static PassShaders getRequiredPassShaders(const RenderSettings& settings);
+        static ShaderTypes getRequiredPassShaders(const RenderSettings& settings);
         void compileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material);
         void compileEffect(Context& ctx, const RenderSettings& settings, const std::shared_ptr<EffectInstance>& effect);
         void compileSkybox(Context& ctx, const RenderSettings& settings, const std::shared_ptr<Skybox>& skybox);

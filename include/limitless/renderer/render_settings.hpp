@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <glm/vec2.hpp>
 
 namespace Limitless {

@@ -19,7 +19,7 @@ void test_MaterialCompiler_compiles_material_with_color(RenderSettings& settings
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
                                              .add(Property::Color, glm::vec4{1.0f})
-                                             .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+                                             .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
                                              .build();
 
     REQUIRE_NOTHROW(assets.compileMaterial(context, settings, material));
@@ -34,7 +34,7 @@ void test_MaterialCompiler_compiles_material_with_emissive(RenderSettings& setti
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
                             .add(Property::EmissiveColor, glm::vec4{1.0f})
-                            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+                            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
                             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -51,7 +51,7 @@ void test_MaterialCompiler_compiles_material_with_metalic(RenderSettings& settin
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
                             .add(Property::Metallic, 1.0f)
-                            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+                            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
                             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -68,7 +68,7 @@ void test_MaterialCompiler_compiles_material_with_roughness(RenderSettings& sett
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::Roughness, 1.0f)
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -85,7 +85,7 @@ void test_MaterialCompiler_compiles_material_with_tesselation(RenderSettings& se
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::TessellationFactor, glm::vec2{8.0f, 8.0f})
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -103,7 +103,7 @@ void test_MaterialCompiler_compiles_material_with_refraction_ior(RenderSettings&
     auto material = builder.setName("material")
             .add(Property::IoR, 0.66f)
             .setRefraction(true)
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -121,7 +121,7 @@ void test_MaterialCompiler_compiles_material_with_refration_abs(RenderSettings& 
     auto material = builder.setName("material")
             .add(Property::Absorption, 0.66f)
             .setRefraction(true)
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -139,7 +139,7 @@ void test_MaterialCompiler_compiles_material_with_diffuse(RenderSettings& settin
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::Diffuse, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -157,7 +157,7 @@ void test_MaterialCompiler_compiles_material_with_normal(RenderSettings& setting
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::Normal, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -175,7 +175,7 @@ void test_MaterialCompiler_compiles_material_with_emissivemask(RenderSettings& s
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::EmissiveMask, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -193,7 +193,7 @@ void test_MaterialCompiler_compiles_material_with_blendmask(RenderSettings& sett
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::BlendMask, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -211,7 +211,7 @@ void test_MaterialCompiler_compiles_material_with_mettalictexture(RenderSettings
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::MetallicTexture, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -229,7 +229,7 @@ void test_MaterialCompiler_compiles_material_with_roughnesstexture(RenderSetting
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::RoughnessTexture, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -247,7 +247,7 @@ void test_MaterialCompiler_compiles_material_with_ao(RenderSettings& settings) {
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::AmbientOcclusionTexture, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -265,7 +265,7 @@ void test_MaterialCompiler_compiles_material_with_orm(RenderSettings& settings) 
     MaterialBuilder builder {assets};
     auto material = builder.setName("material")
             .add(Property::ORM, assets.textures.at("fake"))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -283,7 +283,7 @@ void test_MaterialCompiler_compiles_material_with_unlit(RenderSettings& settings
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .setShading(Shading::Unlit)
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -301,7 +301,7 @@ void test_MaterialCompiler_compiles_material_with_lit(RenderSettings& settings) 
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .setShading(Shading::Lit)
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -319,7 +319,7 @@ void test_MaterialCompiler_compiles_material_with_custom_fragment(RenderSettings
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .setFragmentSnippet("")
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -337,7 +337,7 @@ void test_MaterialCompiler_compiles_material_with_custom_vertex(RenderSettings& 
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .setVertexSnippet("")
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -356,7 +356,7 @@ void test_MaterialCompiler_compiles_material_with_custom_tess(RenderSettings& se
             .add(Property::Color, glm::vec4 {1.0f})
             .setTessellationSnippet("")
             .add(Property::TessellationFactor, glm::vec2 {16.0f})
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -374,7 +374,7 @@ void test_MaterialCompiler_compiles_material_with_custom_global(RenderSettings& 
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .setGlobalSnippet("")
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -392,7 +392,7 @@ void test_MaterialCompiler_compiles_material_with_custom_uniform_value(RenderSet
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .addUniform(std::make_unique<UniformValue<float>>("custom", 0.5f))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -411,7 +411,7 @@ void test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(RenderS
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .addUniform(std::make_unique<UniformSampler>("custom", assets.textures.at("fake")))
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     MaterialCompiler compiler {context, assets, settings};
@@ -793,7 +793,7 @@ TEST_CASE("MaterialCompiler throws") {
     auto material = builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
             .setFragmentSnippet("shreker")
-            .setModelShaders({ModelShader::Model, ModelShader::Skeletal, ModelShader::Instanced})
+            .setModelShaders({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build();
 
     RenderSettings settings {};
