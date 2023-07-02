@@ -3,13 +3,15 @@
 #include <limitless/instances/material_instance.hpp>
 #include <limitless/models/abstract_mesh.hpp>
 #include <limitless/ms/blending.hpp>
-#include "limitless/core/uniform/uniform_setter.hpp"
+#include <limitless/core/uniform/uniform_setter.hpp>
 
 namespace Limitless {
     class Assets;
     enum class ShaderPass;
     enum class ModelShader;
+}
 
+namespace Limitless {
     class MeshInstance final {
     private:
         std::shared_ptr<AbstractMesh> mesh;

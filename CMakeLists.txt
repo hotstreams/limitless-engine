@@ -9,7 +9,7 @@ OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
-OPTION(CODECOV "Compile with test coverage" OFF)
+OPTION(CODECOV "Compile with test coverage" ON)
 
 #########################################
 
@@ -108,6 +108,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/model_instance.cpp
     src/limitless/instances/effect_instance.cpp
     src/limitless/instances/instance_attachment.cpp
+    src/limitless/instances/socket_attachment.cpp
 )
 
 set(ENGINE_LIGHTING
@@ -362,6 +363,10 @@ add_executable(limitless_test
         test/limitless/ms/material_builder_test.cpp
         test/limitless/ms/material_test.cpp
         test/limitless/ms/material_compiler_test.cpp
+        test/limitless/instance/model_instance_test.cpp
+        test/limitless/instance/skeletal_instance_test.cpp
+        test/limitless/instance/instance_attachment_test.cpp
+        test/limitless/instance/socket_attachment_test.cpp
 )
 
 if (CODECOV)
