@@ -27,15 +27,15 @@ void EffectsScene::addInstances(Limitless::Assets& assets) {
     add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{29.0f, 1.0f, 16.0f});
 
     auto& bob = add<SkeletalInstance>(assets.models.at("bob"), glm::vec3(29.0f, 1.0f, 19.0f))
+            .play("")
             .setScale(glm::vec3(0.025f))
-            .setRotation(glm::vec3{0.0f, -M_PI_2, M_PI})
-            .play("");
+            .setRotation(glm::vec3{0.0f, -M_PI_2, M_PI});
 
     const auto& module = add<EffectInstance>(assets.effects.at("modeldrop"), glm::vec3{0.0f})
         .get<fx::SpriteEmitter>("sparks")
         .getModule(fx::ModuleType::InitialMeshLocation);
         dynamic_cast<fx::InitialMeshLocation<fx::SpriteParticle>&>(*module)
-        .attachModelInstance(&bob);
+        .attachModelInstance(dynamic_cast<SkeletalInstance*>(&bob));
 
     add<EffectInstance>(assets.effects.at("skeleton"), glm::vec3{23.0f, 1.0f, 1.0f});
     add<EffectInstance>(assets.effects.at("aura"), glm::vec3{23.0f, 1.0f, 4.0f});
