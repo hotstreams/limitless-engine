@@ -1,58 +1,76 @@
 #pragma once
 
 #include <limitless/models/skeletal_model.hpp>
-#include <unordered_map>
+#include <map>
+#include <stdexcept>
 #include <string>
 #include <glm/glm.hpp>
 
 namespace Limitless {
-	class SkeletalInstance;
+    class no_such_bone : std::runtime_error {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+}
 
-	template<typename SkeletalInstance = Limitless::SkeletalInstance>
+namespace Limitless {
+    class AbstractInstance;
+    /**
+     * SocketAttachment is a class that allows you to attach instance to specific bones of SkeletalInstance
+     */
 	class SocketAttachment {
-		static_assert(std::is_base_of_v<SkeletalInstance, Limitless::SkeletalInstance>, "Template argument should be base of SkeletalInstance!");
 	private:
+        /**
+         * Contains additional data about instance attachments
+         */
 		class Attachment {
 		public:
+            /**
+             * To which bone it is attached to
+             */
 			std::string bone_name;
+
+            /**
+             * Attached bone transformation matrix
+             */
 			glm::mat4 transformation_matrix {1.0f};
 
-			Attachment(std::string _bone_name)
-				: bone_name {std::move(_bone_name)} {
-			}
+            explicit Attachment(std::string bone_name) noexcept;
 		};
-		// contains id of InstanceAttachment
-		std::unordered_map<uint64_t, Attachment> attachments;
+
+        /**
+         * Contains attachment data for InstanceAttachment
+         *
+         * [id, attachment_info]
+         */
+		std::map<uint64_t, Attachment> attachment_data;
 	protected:
-		void setTransformation() {
-			for (const auto& [id, attachment] : static_cast<SkeletalInstance&>(*this).getAttachments()) {
-				if (attachments.find(id) != attachments.end()) {
-					attachment->setTransformation(attachments.at(id).transformation_matrix);
-				}
-			}
-		}
-
-		void update() {
-			const auto& skeletal = static_cast<const SkeletalModel&>(static_cast<SkeletalInstance&>(*this).getAbstractModel());
-			const auto& bone_transforms = static_cast<SkeletalInstance&>(*this).getBoneTransform();
-			const auto& bone_map = skeletal.getBoneMap();
-			const auto& bones = skeletal.getBones();
-
-			for (auto& [_, attachment] : attachments) {
-				auto& [bone_name, transformation_matrix] = attachment;
-				const auto bone_index = bone_map.at(attachment.bone_name);
-				transformation_matrix = bone_transforms.at(bone_index) * glm::inverse(bones.at(bone_index).offset_matrix);
-			}
-		}
+        /**
+         * Calculates transformation matrix using bone_transforms from SkeletalInstance
+         * and specified bone matrix to which instance attached to
+         *
+         * Sets this transformation matrix to attached instances
+         */
+        void updateSocketAttachments();
 	public:
 		SocketAttachment() = default;
 		virtual ~SocketAttachment() = default;
 
-		template<typename Instance, typename... Args>
-		auto& attachToBone(std::string bone_name, Args&&... args) {
-			auto& attachment = static_cast<SkeletalInstance&>(*this).template attach<Instance>(std::forward<Args>(args)...);
-			attachments.emplace(attachment->getId(), std::move(bone_name));
-			return attachment;
-		}
+        SocketAttachment(const SocketAttachment&) noexcept;
+        SocketAttachment(SocketAttachment&&) = default;
+
+        /**
+         * Attaches instance to specified bone
+         *
+         * throws no_such_bone if not found
+         */
+        void attachToBone(std::string bone_name, std::unique_ptr<AbstractInstance> instance);
+
+        /**
+         * Detaches instance from bone
+         */
+        void detachFromBone(uint64_t id);
+
+        const auto& getAttachmentBoneData() const noexcept { return attachment_data; }
 	};
 }

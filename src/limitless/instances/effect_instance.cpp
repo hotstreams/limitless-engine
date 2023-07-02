@@ -5,10 +5,6 @@
 
 using namespace Limitless;
 
-void Limitless::swap(EffectInstance& lhs, EffectInstance& rhs) noexcept {
-    std::swap(lhs.emitters, rhs.emitters);
-}
-
 bool EffectInstance::isDone() const noexcept {
     bool done = true;
     for (const auto& [_, emitter] : emitters) {
@@ -17,12 +13,8 @@ bool EffectInstance::isDone() const noexcept {
     return done;
 }
 
-EffectInstance::EffectInstance(const EffectInstance& effect) noexcept
-    : AbstractInstance{effect} {
-    emitters.reserve(effect.emitters.size());
-    for (const auto& [name, emitter] : effect.emitters) {
-        emitters.emplace(name, emitter->clone());
-    }
+void EffectInstance::updateBoundingBox() noexcept {
+    //TODO:
 }
 
 void EffectInstance::updateEmitters(Context& context, const Camera& camera) const noexcept {
@@ -48,6 +40,30 @@ void EffectInstance::updateEmitters(Context& context, const Camera& camera) cons
 	}
 }
 
+EffectInstance::EffectInstance() noexcept
+    : AbstractInstance(ModelShader::Effect, glm::vec3{0.0f}) {
+}
+
+EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
+    : AbstractInstance(ModelShader::Effect, position) {
+    emitters.reserve(effect->emitters.size());
+    for (const auto& [emitter_name, emitter] : effect->emitters) {
+        emitters.emplace(emitter_name, emitter->clone());
+    }
+}
+
+EffectInstance::EffectInstance(const EffectInstance& effect) noexcept
+    : AbstractInstance {effect} {
+    emitters.reserve(effect.emitters.size());
+    for (const auto& [emitter_name, emitter] : effect.emitters) {
+        emitters.emplace(emitter_name, emitter->clone());
+    }
+}
+
+std::unique_ptr<AbstractInstance> EffectInstance::clone() noexcept {
+    return std::make_unique<EffectInstance>(*this);
+}
+
 void EffectInstance::update(Context& context, const Camera& camera) {
     AbstractInstance::update(context, camera);
 	updateEmitters(context, camera);
@@ -61,27 +77,4 @@ void EffectInstance::draw([[maybe_unused]] Limitless::Context& ctx,
                           [[maybe_unused]] const UniformSetter& uniform_set) {
     // One does not simply render effect instance!
     // use EffectRenderer
-}
-
-EffectInstance* EffectInstance::clone() noexcept {
-    return new EffectInstance(*this);
-}
-
-EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
-	: AbstractInstance(ModelShader::Effect, position) {
-	emitters.reserve(effect->emitters.size());
-	for (const auto& [name, emitter] : effect->emitters) {
-		emitters.emplace(name, emitter->clone());
-	}
-
-	EffectInstance::setPosition(position);
-	EffectInstance::setRotation(rotation);
-}
-
-EffectInstance::EffectInstance() noexcept
-    : AbstractInstance(ModelShader::Effect, glm::vec3{0.f}) {
-}
-
-void EffectInstance::updateBoundingBox() noexcept {
-    //TODO:
 }

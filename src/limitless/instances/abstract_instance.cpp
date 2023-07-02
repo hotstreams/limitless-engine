@@ -9,6 +9,25 @@ AbstractInstance::AbstractInstance(ModelShader _shader_type, const glm::vec3& _p
 	, position {_position} {
 }
 
+AbstractInstance::AbstractInstance(const AbstractInstance& rhs)
+    : InstanceAttachment {rhs}
+    , id {next_id++}
+    , shader_type {rhs.shader_type}
+    , final_matrix {rhs.final_matrix}
+    , parent {rhs.parent}
+    , transformation_matrix {rhs.transformation_matrix}
+    , model_matrix {rhs.model_matrix}
+    , rotation {rhs.rotation}
+    , position {rhs.position}
+    , scale {rhs.scale}
+    , bounding_box {rhs.bounding_box}
+    , shadow_cast {rhs.shadow_cast}
+    , outlined {rhs.outlined}
+    , hidden {rhs.hidden}
+    , done {rhs.done} {
+}
+
+
 void AbstractInstance::updateModelMatrix() noexcept {
     const auto translation_matrix = glm::translate(glm::mat4{1.0f}, position);
     const auto rotation_matrix = glm::toMat4(rotation);
@@ -23,10 +42,16 @@ void AbstractInstance::updateFinalMatrix() noexcept {
 
 void AbstractInstance::reveal() noexcept {
     hidden = false;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->reveal();
+    }
 }
 
 void AbstractInstance::hide() noexcept {
     hidden = true;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->hide();
+    }
 }
 
 bool AbstractInstance::isHidden() const noexcept {
@@ -43,10 +68,16 @@ bool AbstractInstance::isKilled() const noexcept {
 
 void AbstractInstance::castShadow() noexcept {
 	shadow_cast = true;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->castShadow();
+    }
 }
 
 void AbstractInstance::removeShadow() noexcept {
 	shadow_cast = false;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->removeShadow();
+    }
 }
 
 bool AbstractInstance::doesCastShadow() const noexcept {
@@ -78,18 +109,13 @@ AbstractInstance& AbstractInstance::setTransformation(const glm::mat4& transform
 	return *this;
 }
 
-AbstractInstance& AbstractInstance::setParent(const glm::mat4& _parent) {
+AbstractInstance& AbstractInstance::setParent(const glm::mat4& _parent) noexcept {
 	parent = _parent;
 	return *this;
 }
 
 void AbstractInstance::draw(Context& ctx, const Assets& assets, ShaderPass material_shader_type, ms::Blending blending) {
     draw(ctx, assets, material_shader_type, blending, UniformSetter {});
-}
-
-void AbstractInstance::updateAttachments(Context& context, const Camera& camera) {
-	InstanceAttachment::setParent(final_matrix);
-	InstanceAttachment::updateAttachments(context, camera);
 }
 
 void AbstractInstance::update(Context& context, const Camera& camera) {
@@ -99,15 +125,22 @@ void AbstractInstance::update(Context& context, const Camera& camera) {
 	updateBoundingBox();
 
 	// propagates current instance values to attachments
-	updateAttachments(context, camera);
+    InstanceAttachment::setAttachmentsParent(final_matrix);
+    InstanceAttachment::updateAttachments(context, camera);
 }
 
 void AbstractInstance::removeOutline() noexcept {
 	outlined = false;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->removeOutline();
+    }
 }
 
 void AbstractInstance::makeOutlined() noexcept {
 	outlined = true;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->makeOutlined();
+    }
 }
 
 bool AbstractInstance::isOutlined() const noexcept {

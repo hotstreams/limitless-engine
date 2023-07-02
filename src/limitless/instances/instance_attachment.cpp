@@ -1,12 +1,20 @@
 #include <limitless/instances/instance_attachment.hpp>
 #include <limitless/instances/abstract_instance.hpp>
+
 #include <stdexcept>
+#include <algorithm>
 
 using namespace Limitless;
 
+bool InstanceAttachment::AttachmentID::operator<(const Limitless::InstanceAttachment::AttachmentID& rhs) const {
+    return std::tie(id, type) < std::tie(rhs.id, rhs.type);
+}
+
 InstanceAttachment::InstanceAttachment(const InstanceAttachment& attachment) {
-	for (const auto& [id, att] : attachment.attachments) {
-		attachments.emplace(id, att->clone());
+	for (const auto& [attId, att] : attachment.attachments) {
+        auto clone = att->clone();
+        auto id = clone->getId();
+		attachments.emplace(AttachmentID {id, attId.type}, std::move(clone));
 	}
 }
 
@@ -16,7 +24,7 @@ void InstanceAttachment::updateAttachments(Context& context, const Camera& camer
 	}
 }
 
-InstanceAttachment& InstanceAttachment::setParent(const glm::mat4& parent) noexcept {
+InstanceAttachment& InstanceAttachment::setAttachmentsParent(const glm::mat4& parent) noexcept {
 	for (const auto& [_, attachment] : attachments) {
 		attachment->setParent(parent);
 	}
@@ -24,23 +32,39 @@ InstanceAttachment& InstanceAttachment::setParent(const glm::mat4& parent) noexc
 }
 
 void InstanceAttachment::attach(std::unique_ptr<AbstractInstance> attachment) {
-	const auto [it, success] = attachments.emplace(attachment->getId(), std::move(attachment));
-	if (!success) {
-		throw std::logic_error {"Attachment already attached! id: " + std::to_string(attachment->getId())};
-	}
+	attachments.emplace(AttachmentID {attachment->getId(), AttachmentType::Basic}, std::move(attachment));
 }
 
 void InstanceAttachment::detach(uint64_t id) {
-	const auto erased = attachments.erase(id);
-	if (erased == 0) {
-		throw std::logic_error {"There is no such attachment! id: " + std::to_string(id)};
-	}
+    auto it = std::find_if(attachments.begin(), attachments.end(), [&] (const auto& att) {
+        return att.first.id == id;
+    });
+
+    if (it != attachments.end()) {
+        attachments.erase(it);
+    }
 }
 
-const std::unique_ptr<AbstractInstance>& InstanceAttachment::getAttachment(uint64_t id) const {
-	return attachments.at(id);
+const AbstractInstance& InstanceAttachment::getAttachment(uint64_t id) const {
+    auto it = std::find_if(attachments.begin(), attachments.end(), [&] (const auto& att) {
+        return att.first.id == id;
+    });
+
+    if (it != attachments.end()) {
+        return *it->second;
+    } else {
+        throw no_such_attachment("id " + std::to_string(id));
+    }
 }
 
-std::unique_ptr<AbstractInstance>& InstanceAttachment::getAttachment(uint64_t id) {
-	return attachments.at(id);
+AbstractInstance& InstanceAttachment::getAttachment(uint64_t id) {
+    auto it = std::find_if(attachments.begin(), attachments.end(), [&] (const auto& att) {
+        return att.first.id == id;
+    });
+
+    if (it != attachments.end()) {
+        return *it->second;
+    } else {
+        throw no_such_attachment("id " + std::to_string(id));
+    }
 }
