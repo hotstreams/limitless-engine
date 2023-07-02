@@ -9,7 +9,7 @@ OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
-OPTION(CODECOV "Compile with test coverage" ON)
+OPTION(CODECOV "Compile with test coverage" OFF)
 
 #########################################
 
