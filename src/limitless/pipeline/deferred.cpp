@@ -82,7 +82,7 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
     add<SceneUpdatePass>(ctx);
     auto& fx = add<EffectUpdatePass>(ctx);
 
-    if (settings.directional_cascade_shadow_mapping) {
+    if (settings.cascade_shadow_maps) {
         add<DirectionalShadowPass>(ctx, settings, fx.getRenderer());
     }
 

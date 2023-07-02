@@ -10,7 +10,7 @@
 #include <limitless/instances/abstract_instance.hpp>
 
 #include <limitless/lighting/lights.hpp>
-#include <limitless/pipeline/renderer.hpp>
+#include <limitless/renderer/renderer.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
 
@@ -62,8 +62,8 @@ void CascadeShadows::initBuffers(Context& context) {
 }
 
 CascadeShadows::CascadeShadows(Context& context, const RenderSettings& settings)
-    : shadow_resolution {settings.directional_shadow_resolution}
-    , split_count {settings.directional_split_count} {
+    : shadow_resolution {settings.csm_resolution}
+    , split_count {settings.csm_split_count} {
     initBuffers(context);
     frustums.resize(split_count);
     far_bounds.resize(split_count);
@@ -244,8 +244,8 @@ void CascadeShadows::mapData() const {
 }
 
 void CascadeShadows::update(Context& ctx, const RenderSettings& settings) {
-    shadow_resolution = settings.directional_shadow_resolution;
-    split_count = settings.directional_split_count;
+    shadow_resolution = settings.csm_resolution;
+    split_count = settings.csm_split_count;
 
     initBuffers(ctx);
 

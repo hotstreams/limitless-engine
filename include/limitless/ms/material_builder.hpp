@@ -5,7 +5,7 @@
 #include <limitless/ms/unique_material.hpp>
 #include <functional>
 #include <mutex>
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 
 namespace Limitless {
     class Assets;

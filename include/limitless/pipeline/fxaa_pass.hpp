@@ -2,7 +2,7 @@
 
 #include <limitless/pipeline/render_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 
 namespace Limitless {
     class FXAAPass final : public RenderPass {

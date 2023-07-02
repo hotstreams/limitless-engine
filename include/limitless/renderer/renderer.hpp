@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <memory>
 

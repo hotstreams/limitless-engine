@@ -1,6 +1,6 @@
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader/shader_compiler.hpp>
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 
 using namespace Limitless;
 

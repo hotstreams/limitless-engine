@@ -1,4 +1,4 @@
-#include <limitless/pipeline/renderer.hpp>
+#include <limitless/renderer/renderer.hpp>
 
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/assets.hpp>

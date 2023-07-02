@@ -74,12 +74,12 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
             settings.append("#define NORMAL_MAPPING\n");
         }
 
-        if (render_settings->directional_cascade_shadow_mapping) {
+        if (render_settings->cascade_shadow_maps) {
             settings.append("#define DIRECTIONAL_CSM\n");
 
-            settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(render_settings->directional_split_count) + '\n');
+            settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(render_settings->csm_split_count) + '\n');
 
-            if (render_settings->directional_pcf) {
+            if (render_settings->csm_pcf) {
                 settings.append("#define DIRECTIONAL_PFC\n");
             }
         }
@@ -88,7 +88,7 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
 	        settings.append("#define SCREEN_SPACE_AMBIENT_OCCLUSION\n");
         }
 
-        if (render_settings->micro_shadowing) {
+        if (render_settings->csm_micro_shadowing) {
             settings.append("#define MICRO_SHADOWING\n");
         }
 

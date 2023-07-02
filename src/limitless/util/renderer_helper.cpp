@@ -1,7 +1,7 @@
 #include <cmath>
 #include <limitless/util/renderer_helper.hpp>
 
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 #include <limitless/scene.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/context.hpp>
