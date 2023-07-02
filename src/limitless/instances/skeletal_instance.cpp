@@ -24,12 +24,57 @@ void SkeletalInstance::initializeBuffer() {
             .build();
 }
 
-SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : ModelInstance(ModelShader::Skeletal, std::move(m), position) {
-    auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+void SkeletalInstance::updateAnimationFrame() {
+    if (!animation || paused) {
+        return;
+    }
 
-    bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
-    initializeBuffer();
+    auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+    auto& bones = skeletal.getBones();
+    const Animation& anim = *animation;
+
+    const auto current_time = std::chrono::steady_clock::now();
+    if (last_time == std::chrono::time_point<std::chrono::steady_clock>()) {
+        last_time = current_time;
+    }
+    const auto delta_time = current_time - last_time;
+    animation_duration += delta_time;
+    last_time = current_time;
+    const auto animation_time = glm::mod(animation_duration.count() * anim.tps, anim.duration);
+
+    std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
+    node_traversal = [&](const Tree<uint32_t>& node, const glm::mat4& parent_mat) {
+        auto anim_node = findAnimationNode(bones[*node]);
+
+        auto local_transform = !bones[*node].isFake() ? bones[*node].node_transform : glm::mat4(1.f);
+
+        if (anim_node) {
+            glm::vec3 scale = anim_node->scalingLerp(animation_time);
+            glm::vec3 position = anim_node->positionLerp(animation_time);
+            auto rotation = anim_node->rotationLerp(animation_time);
+
+            auto translate = glm::translate(glm::mat4(1.f), position);
+            auto rotate = glm::mat4_cast(rotation);
+            auto scale_mat = glm::scale(glm::mat4(1.f), scale);
+
+            local_transform =  translate * rotate * scale_mat;
+        }
+
+        auto transform = parent_mat * local_transform;
+        bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform * bones[*node].offset_matrix;
+
+        for (const auto& n : node) {
+            node_traversal(n, transform);
+        }
+    };
+
+    try {
+        node_traversal(skeletal.getSkeletonTree(), glm::mat4(1.f));
+    } catch (const std::exception& e) {
+        throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
+    }
+
+    bone_buffer->mapData(bone_transform.data(), sizeof(glm::mat4) * bone_transform.size());
 }
 
 const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const noexcept {
@@ -44,39 +89,37 @@ const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const
     return nullptr;
 }
 
-SkeletalInstance& SkeletalInstance::setPosition(const glm::vec3& position) noexcept {
-    AbstractInstance::setPosition(position);
-    return *this;
+SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
+    : ModelInstance(ModelShader::Skeletal, std::move(m), position) {
+    //TODO: check type
+    auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+
+    bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
+    initializeBuffer();
 }
 
-SkeletalInstance& SkeletalInstance::setRotation(const glm::quat& rotation) noexcept {
-    AbstractInstance::setRotation(rotation);
-    return *this;
+SkeletalInstance::SkeletalInstance(const SkeletalInstance& rhs) noexcept
+    : ModelInstance {rhs}
+    , SocketAttachment {rhs}
+    , bone_transform {rhs.bone_transform}
+    , animation {rhs.animation}
+    , paused {rhs.paused}
+    , last_time {rhs.last_time}
+    , animation_duration {rhs.animation_duration} {
+    initializeBuffer();
 }
 
-SkeletalInstance& SkeletalInstance::setScale(const glm::vec3& scale) noexcept {
-    AbstractInstance::setScale(scale);
-    return *this;
+
+std::unique_ptr<AbstractInstance> SkeletalInstance::clone() noexcept {
+    return std::make_unique<SkeletalInstance>(*this);
 }
 
-SkeletalInstance& SkeletalInstance::setTransformation(const glm::mat4& transformation) {
-	transformation_matrix = transformation;
-	return *this;
-}
+void SkeletalInstance::update(Context& context, const Camera& camera) {
+    updateAnimationFrame();
 
-void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, ms::Blending blending, const UniformSetter& uniform_setter) {
-    if (hidden) {
-        return;
-    }
+    SocketAttachment::updateSocketAttachments();
 
-	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
-
-    // iterates over all meshes
-    for (auto& [name, mesh] : meshes) {
-        mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
-    }
-
-    bone_buffer->fence();
+    ModelInstance::update(context, camera);
 }
 
 SkeletalInstance& SkeletalInstance::play(const std::string& name) {
@@ -85,7 +128,7 @@ SkeletalInstance& SkeletalInstance::play(const std::string& name) {
 
     const auto found = std::find_if(animations.begin(), animations.end(), [&] (const auto& anim) { return name == anim.name; });
     if (found == animations.end()) {
-        throw std::runtime_error("Animation not found " + name);
+        throw no_such_animation("with name " + name);
     } else {
         animation = &(*found);
         animation_duration = std::chrono::seconds(0);
@@ -110,79 +153,19 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
-void SkeletalInstance::updateAnimationFrame() {
-	if (!animation || paused) {
-		return;
-	}
+void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, ms::Blending blending, const UniformSetter& uniform_setter) {
+    if (hidden) {
+        return;
+    }
 
-	auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
-	auto& bones = skeletal.getBones();
-	const Animation& anim = *animation;
+	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
 
-	const auto current_time = std::chrono::steady_clock::now();
-	if (last_time == std::chrono::time_point<std::chrono::steady_clock>()) {
-		last_time = current_time;
-	}
-	const auto delta_time = current_time - last_time;
-	animation_duration += delta_time;
-	last_time = current_time;
-	const auto animation_time = glm::mod(animation_duration.count() * anim.tps, anim.duration);
+    // iterates over all meshes
+    for (auto& [name, mesh] : meshes) {
+        mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
+    }
 
-	std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
-	node_traversal = [&](const Tree<uint32_t>& node, const glm::mat4& parent_mat) {
-		auto anim_node = findAnimationNode(bones[*node]);
-
-		//TODO: move to ctor
-		auto local_transform = !bones[*node].isFake() ? bones[*node].node_transform : glm::mat4(1.f);
-
-		if (anim_node) {
-			glm::vec3 scale = anim_node->scalingLerp(animation_time);
-			glm::vec3 position = anim_node->positionLerp(animation_time);
-			auto rotation = anim_node->rotationLerp(animation_time);
-
-			auto translate = glm::translate(glm::mat4(1.f), position);
-			auto rotate = glm::mat4_cast(rotation);
-			auto scale_mat = glm::scale(glm::mat4(1.f), scale);
-
-			local_transform =  translate * rotate * scale_mat;
-		}
-
-		auto transform = parent_mat * local_transform;
-		bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform * bones[*node].offset_matrix;
-
-		for (const auto& n : node) {
-			node_traversal(n, transform);
-		}
-	};
-
-	try {
-		node_traversal(skeletal.getSkeletonTree(), glm::mat4(1.f));
-	} catch (const std::exception& e) {
-		throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
-	}
-
-	bone_buffer->mapData(bone_transform.data(), sizeof(glm::mat4) * bone_transform.size());
-}
-
-void SkeletalInstance::updateAttachments(Context& context, const Camera& camera) {
-	SocketAttachment::setTransformation();
-	AbstractInstance::updateAttachments(context, camera);
-}
-
-void SkeletalInstance::update(Context& context, const Camera& camera) {
-	updateAnimationFrame();
-
-	SocketAttachment::update();
-
-    ModelInstance::update(context, camera);
-}
-
-SkeletalInstance* SkeletalInstance::clone() noexcept {
-    return new SkeletalInstance(*this);
-}
-
-void SkeletalInstance::updateBoundingBox() noexcept {
-	ModelInstance::updateBoundingBox();
+    bone_buffer->fence();
 }
 
 glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const {
@@ -201,3 +184,17 @@ glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<Abstr
 
     return matrix * glm::vec4(vertex.position, 1.0);
 }
+
+const std::vector<Animation>& SkeletalInstance::getAllAnimations() const noexcept {
+    const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+    const auto& animations = skeletal.getAnimations();
+    return animations;
+}
+
+const std::vector<Bone>& SkeletalInstance::getAllBones() const noexcept {
+    const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+    const auto& bones = skeletal.getBones();
+    return bones;
+}
+
+
