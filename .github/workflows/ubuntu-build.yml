@@ -22,5 +22,5 @@ jobs:
       - name: run build
         run: |
           mkdir build
-          cmake --build -S . -B build
+          cmake -S . -B build --target limitless-demo
       
