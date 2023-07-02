@@ -138,7 +138,7 @@ PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
         pass_shaders.emplace(ShaderPass::Forward);
     }
 
-    if (settings.directional_cascade_shadow_mapping) {
+    if (settings.cascade_shadow_maps) {
         pass_shaders.emplace(ShaderPass::DirectionalShadow);
     }
 

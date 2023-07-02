@@ -80,8 +80,8 @@ namespace Limitless {
         }
         InstancedInstance(InstancedInstance&&) noexcept = default;
 
-        InstancedInstance* clone() noexcept override {
-            return new InstancedInstance<ModelInstance>(*this);
+        std::unique_ptr<AbstractInstance> clone() noexcept override {
+            return std::make_unique<InstancedInstance<ModelInstance>>(*this);
         }
 
         void addInstance(std::unique_ptr<ModelInstance> instance) {

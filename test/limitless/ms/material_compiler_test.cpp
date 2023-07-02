@@ -425,86 +425,86 @@ std::vector<RenderSettings> generateSettings() {
     RenderSettings s1 {};
     s1.normal_mapping = true;
     s1.screen_space_ambient_occlusion = false;
-    s1.directional_cascade_shadow_mapping = false;
-    s1.directional_pcf = false;
-    s1.micro_shadowing = false;
+    s1.cascade_shadow_maps = false;
+    s1.csm_pcf = false;
+    s1.csm_micro_shadowing = false;
 
     RenderSettings s2 {};
     s2.normal_mapping = true;
     s2.screen_space_ambient_occlusion = true;
-    s2.directional_cascade_shadow_mapping = false;
-    s2.directional_pcf = false;
-    s2.micro_shadowing = false;
+    s2.cascade_shadow_maps = false;
+    s2.csm_pcf = false;
+    s2.csm_micro_shadowing = false;
 
     RenderSettings s3 {};
     s3.normal_mapping = true;
     s3.screen_space_ambient_occlusion = true;
-    s3.directional_cascade_shadow_mapping = true;
-    s3.directional_pcf = false;
-    s3.micro_shadowing = false;
+    s3.cascade_shadow_maps = true;
+    s3.csm_pcf = false;
+    s3.csm_micro_shadowing = false;
 
     RenderSettings s4 {};
     s4.normal_mapping = true;
     s4.screen_space_ambient_occlusion = true;
-    s4.directional_cascade_shadow_mapping = true;
-    s4.directional_pcf = true;
-    s4.micro_shadowing = false;
+    s4.cascade_shadow_maps = true;
+    s4.csm_pcf = true;
+    s4.csm_micro_shadowing = false;
 
     RenderSettings s5 {};
     s5.normal_mapping = true;
     s5.screen_space_ambient_occlusion = true;
-    s5.directional_cascade_shadow_mapping = true;
-    s5.directional_pcf = false;
-    s5.micro_shadowing = true;
+    s5.cascade_shadow_maps = true;
+    s5.csm_pcf = false;
+    s5.csm_micro_shadowing = true;
 
     RenderSettings s6 {};
     s6.normal_mapping = true;
     s6.screen_space_ambient_occlusion = true;
-    s6.directional_cascade_shadow_mapping = true;
-    s6.directional_pcf = true;
-    s6.micro_shadowing = true;
+    s6.cascade_shadow_maps = true;
+    s6.csm_pcf = true;
+    s6.csm_micro_shadowing = true;
 
     RenderSettings s7 {};
     s7.normal_mapping = false;
     s7.screen_space_ambient_occlusion = false;
-    s7.directional_cascade_shadow_mapping = false;
-    s7.directional_pcf = false;
-    s7.micro_shadowing = false;
+    s7.cascade_shadow_maps = false;
+    s7.csm_pcf = false;
+    s7.csm_micro_shadowing = false;
 
     RenderSettings s8 {};
     s8.normal_mapping = false;
     s8.screen_space_ambient_occlusion = true;
-    s8.directional_cascade_shadow_mapping = false;
-    s8.directional_pcf = false;
-    s8.micro_shadowing = false;
+    s8.cascade_shadow_maps = false;
+    s8.csm_pcf = false;
+    s8.csm_micro_shadowing = false;
 
     RenderSettings s9 {};
     s9.normal_mapping = false;
     s9.screen_space_ambient_occlusion = true;
-    s9.directional_cascade_shadow_mapping = true;
-    s9.directional_pcf = false;
-    s9.micro_shadowing = false;
+    s9.cascade_shadow_maps = true;
+    s9.csm_pcf = false;
+    s9.csm_micro_shadowing = false;
 
     RenderSettings s10 {};
     s10.normal_mapping = false;
     s10.screen_space_ambient_occlusion = true;
-    s10.directional_cascade_shadow_mapping = true;
-    s10.directional_pcf = true;
-    s10.micro_shadowing = false;
+    s10.cascade_shadow_maps = true;
+    s10.csm_pcf = true;
+    s10.csm_micro_shadowing = false;
 
     RenderSettings s11 {};
     s11.normal_mapping = false;
     s11.screen_space_ambient_occlusion = true;
-    s11.directional_cascade_shadow_mapping = true;
-    s11.directional_pcf = false;
-    s11.micro_shadowing = true;
+    s11.cascade_shadow_maps = true;
+    s11.csm_pcf = false;
+    s11.csm_micro_shadowing = true;
 
     RenderSettings s12 {};
     s12.normal_mapping = false;
     s12.screen_space_ambient_occlusion = true;
-    s12.directional_cascade_shadow_mapping = true;
-    s12.directional_pcf = true;
-    s12.micro_shadowing = true;
+    s12.cascade_shadow_maps = true;
+    s12.csm_pcf = true;
+    s12.csm_micro_shadowing = true;
 
     return {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12};
 }
@@ -513,9 +513,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_color for all render set
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
             << settings.screen_space_ambient_occlusion
-            << settings.directional_cascade_shadow_mapping
-            << settings.directional_pcf
-            << settings.micro_shadowing
+            << settings.cascade_shadow_maps
+            << settings.csm_pcf
+            << settings.csm_micro_shadowing
             << std::endl;
         test_MaterialCompiler_compiles_material_with_color(settings);
     }
@@ -525,9 +525,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_emissive for all render 
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_emissive(settings);
     }
@@ -537,9 +537,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_metalic for all render s
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_metalic(settings);
     }
@@ -549,9 +549,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_roughness for all render
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_roughness(settings);
     }
@@ -561,9 +561,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_tesselation for all rend
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_tesselation(settings);
     }
@@ -573,9 +573,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_refraction_ior for all r
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_refraction_ior(settings);
     }
@@ -585,9 +585,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_refration_abs for all re
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_refration_abs(settings);
     }
@@ -597,9 +597,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_diffuse for all render s
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_diffuse(settings);
     }
@@ -609,9 +609,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_normal for all render se
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_normal(settings);
     }
@@ -621,9 +621,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_emissivemask for all ren
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_emissivemask(settings);
     }
@@ -633,9 +633,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_blendmask for all render
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_blendmask(settings);
     }
@@ -645,9 +645,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_metallurgical for all re
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_mettalictexture(settings);
     }
@@ -657,9 +657,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_roughnesstexture for all
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_roughnesstexture(settings);
     }
@@ -669,9 +669,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_ao for all render settin
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_ao(settings);
     }
@@ -681,9 +681,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_orm for all render setti
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_orm(settings);
     }
@@ -693,9 +693,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_unlit for all render set
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_unlit(settings);
     }
@@ -705,9 +705,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_lit for all render setti
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_lit(settings);
     }
@@ -717,9 +717,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_fragment for all 
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_custom_fragment(settings);
     }
@@ -729,9 +729,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_vertex for all re
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_custom_vertex(settings);
     }
@@ -741,9 +741,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_tess for all rend
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_custom_tess(settings);
     }
@@ -753,9 +753,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_global for all re
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_custom_global(settings);
     }
@@ -765,9 +765,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_uniform_value for
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_custom_uniform_value(settings);
     }
@@ -777,9 +777,9 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_uniform_sampler f
     for (auto& settings: generateSettings()) {
         std::cout << "With: "
                   << settings.screen_space_ambient_occlusion
-                  << settings.directional_cascade_shadow_mapping
-                  << settings.directional_pcf
-                  << settings.micro_shadowing
+                  << settings.cascade_shadow_maps
+                  << settings.csm_pcf
+                  << settings.csm_micro_shadowing
                   << std::endl;
         test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(settings);
     }

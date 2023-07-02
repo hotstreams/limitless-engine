@@ -1,6 +1,6 @@
 #include <limitless/ms/material_compiler.hpp>
 
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
 
