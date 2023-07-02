@@ -54,9 +54,9 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
             .setRotation(glm::vec3{-M_PI_2, -M_PI_2, 0.0f});
 
     add<SkeletalInstance>(assets.models.at("bob"), glm::vec3(25.0f, 1.0f, 16.0f))
+            .play("")
             .setScale(glm::vec3(0.03f))
-            .setRotation(glm::vec3{M_PI, -M_PI_2, 0.0f})
-            .play("");
+            .setRotation(glm::vec3{M_PI, -M_PI_2, 0.0f});
 
     add<ModelInstance>(assets.models.at("backpack"), glm::vec3(25.0f, 1.5f, 19.0f))
             .setScale(glm::vec3(0.5f))

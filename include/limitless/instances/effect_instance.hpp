@@ -6,6 +6,7 @@
 #include <limitless/instances/abstract_instance.hpp>
 #include <unordered_map>
 #include <stdexcept>
+#include <iostream>
 
 namespace Limitless {
     namespace fx {
@@ -89,7 +90,7 @@ namespace Limitless {
         template<typename EmitterType>
         const EmitterType& get(const std::string& emitter_name) const {
             try {
-                return static_cast<EmitterType&>(*emitters.at(name));
+                return static_cast<EmitterType&>(*emitters.at(emitter_name));
             } catch (...) {
                 throw no_such_emitter("with name " + emitter_name);
             }
@@ -101,7 +102,7 @@ namespace Limitless {
         template<typename EmitterType>
         EmitterType& get(const std::string& emitter_name) {
             try {
-                return static_cast<EmitterType&>(*emitters.at(name));
+                return static_cast<EmitterType&>(*emitters.at(emitter_name));
             } catch (...) {
                 throw no_such_emitter("with name " + emitter_name);
             }

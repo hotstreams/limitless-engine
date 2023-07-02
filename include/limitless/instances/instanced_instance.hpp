@@ -75,13 +75,13 @@ namespace Limitless {
             : AbstractInstance(rhs.shader_type, rhs.position) {
             initializeBuffer(rhs.instances.size());
             for (const auto& instance : rhs.instances) {
-                instances.emplace_back(instance->clone());
+                instances.emplace_back((ModelInstance*)instance->clone().release());
             }
         }
         InstancedInstance(InstancedInstance&&) noexcept = default;
 
         std::unique_ptr<AbstractInstance> clone() noexcept override {
-            return std::make_unique<InstancedInstance<ModelInstance>>(*this);
+            return std::make_unique<InstancedInstance>(*this);
         }
 
         void addInstance(std::unique_ptr<ModelInstance> instance) {
