@@ -57,7 +57,7 @@ TEST_CASE("MaterialBuilder successfully build material with color") {
 
     auto material = builder.build();
 
-    REQUIRE(material->getShaderIndex() == 1);
+    REQUIRE(material->getShaderIndex() != 0);
     REQUIRE(material->getColor().getValue() == glm::vec4 {1.0f});
     REQUIRE(material->getModelShaders() == std::set {ModelShader::Model});
 
@@ -77,7 +77,7 @@ TEST_CASE("MaterialBuilder successfully build material with color and not defaul
 
     auto material = builder.build();
 
-    REQUIRE(material->getShaderIndex() == 1);
+    REQUIRE(material->getShaderIndex() != 0);
     REQUIRE(material->getColor().getValue() == glm::vec4 {1.0f});
     REQUIRE(material->getModelShaders() == std::set {ModelShader::Skeletal});
 

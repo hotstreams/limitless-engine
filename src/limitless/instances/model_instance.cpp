@@ -3,6 +3,7 @@
 #include <limitless/models/model.hpp>
 #include <limitless/models/elementary_model.hpp>
 #include <stdexcept>
+#include <utility>
 
 using namespace Limitless;
 
@@ -23,7 +24,7 @@ ModelInstance::ModelInstance(ModelShader shader, decltype(model) _model, const g
 }
 
 ModelInstance::ModelInstance(decltype(model) _model, const glm::vec3& _position)
-    : ModelInstance {ModelShader::Model, _model, _position} {
+    : ModelInstance {ModelShader::Model, std::move(_model), _position} {
 }
 
 ModelInstance::ModelInstance(decltype(model) _model, std::shared_ptr<ms::Material> material, const glm::vec3& position)
@@ -43,18 +44,29 @@ void ModelInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, ms
         return;
     }
 
-    // iterates over all meshes
     for (auto& [name, mesh] : meshes) {
         mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
     }
 }
 
 MeshInstance& ModelInstance::operator[](const std::string& mesh) {
-    return meshes.at(mesh);
+    try {
+        return meshes.at(mesh);
+    } catch (...) {
+        throw no_such_mesh("with name " + mesh);
+    }
 }
 
-ModelInstance* ModelInstance::clone() noexcept {
-    return new ModelInstance(*this);
+MeshInstance& ModelInstance::operator[](uint32_t index) {
+    if (index >= meshes.size()) {
+        throw no_such_mesh("with index " + std::to_string(index));
+    }
+
+    return std::next(meshes.begin(), index)->second;
+}
+
+std::unique_ptr<AbstractInstance> ModelInstance::clone() noexcept {
+    return std::make_unique<ModelInstance>(*this);
 }
 
 void ModelInstance::updateBoundingBox() noexcept {
@@ -64,7 +76,7 @@ void ModelInstance::updateBoundingBox() noexcept {
 
 void ModelInstance::update(Context& context, const Camera& camera) {
 	AbstractInstance::update(context, camera);
-	//TODO: propagate to inherited classes
+
 	for (auto& [_, mesh] : meshes) {
 		mesh.update();
 	}
