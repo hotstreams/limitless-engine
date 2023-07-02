@@ -312,19 +312,19 @@ UniqueMaterial MaterialBuilder::getMaterialType() const noexcept {
     return { std::move(props), material->shading };
 }
 
-MaterialBuilder& MaterialBuilder::setModelShaders(const Limitless::ModelShaders& shaders) noexcept {
+MaterialBuilder& MaterialBuilder::setModelShaders(const Limitless::InstanceTypes& shaders) noexcept {
     material->model_shaders = shaders;
     return *this;
 }
 
-MaterialBuilder& MaterialBuilder::addModelShader(ModelShader model) noexcept {
+MaterialBuilder& MaterialBuilder::addModelShader(InstanceType model) noexcept {
     material->model_shaders.emplace(model);
     return *this;
 }
 
 void MaterialBuilder::setModelShaders() {
     if (material->model_shaders.empty()) {
-        material->model_shaders.emplace(ModelShader::Model);
+        material->model_shaders.emplace(InstanceType::Model);
     }
 }
 

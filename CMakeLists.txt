@@ -5,14 +5,14 @@ set(CMAKE_CXX_STANDARD 17)
 
 # CONFIGURABLE OPTIONS
 
-# IF YOU CHANGE THIS OPTIONS DO NOT FORGET
+# IF YOU CHANGE THESE OPTIONS DO NOT FORGET
 # TO INVALIDATE CMAKE CACHE
 
 OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
-OPTION(CODECOV "Compile with test coverage" ON)
+OPTION(CODECOV "Compile with test coverage" OFF)
 
 #########################################
 
@@ -189,35 +189,35 @@ set(ENGINE_FX
 
 set(ENGINE_PIPELINE
     src/limitless/pipeline/pipeline.cpp
-    src/limitless/pipeline/render_pass.cpp
-    src/limitless/pipeline/color_pass.cpp
-    src/limitless/pipeline/particle_pass.cpp
-    src/limitless/pipeline/framebuffer_pass.cpp
-    src/limitless/pipeline/shadow_pass.cpp
-    src/limitless/pipeline/sceneupdate_pass.cpp
-    src/limitless/pipeline/skybox_pass.cpp
-    src/limitless/pipeline/postprocessing_pass.cpp
-    src/limitless/pipeline/forward.cpp
-    src/limitless/pipeline/postprocessing.cpp
-    src/limitless/pipeline/renderer.cpp
-    src/limitless/pipeline/scene_data.cpp
-    src/limitless/pipeline/effectupdate_pass.cpp
-    src/limitless/pipeline/deferred_framebuffer_pass.cpp
-    src/limitless/pipeline/gbuffer_pass.cpp
-    src/limitless/pipeline/deferred_lighting_pass.cpp
-    src/limitless/pipeline/deferred.cpp
-    src/limitless/pipeline/depth_pass.cpp
-    src/limitless/pipeline/translucent_pass.cpp
-    src/limitless/pipeline/blur_pass.cpp
-    src/limitless/pipeline/composite_pass.cpp
-    src/limitless/pipeline/ssao_pass.cpp
-    src/limitless/pipeline/fxaa_pass.cpp
-    src/limitless/pipeline/quad_pass.cpp
-    src/limitless/pipeline/render_debug_pass.cpp
-    src/limitless/pipeline/dof_pass.cpp
-    src/limitless/pipeline/outline_pass.cpp
-    src/limitless/pipeline/blur.cpp
-    src/limitless/pipeline/bloom.cpp
+        src/limitless/pipeline/render_pass.cpp
+        src/limitless/pipeline/forward/color_pass.cpp
+        src/limitless/pipeline/forward/particle_pass.cpp
+        src/limitless/pipeline/forward/framebuffer_pass.cpp
+        src/limitless/pipeline/common/shadow_pass.cpp
+        src/limitless/pipeline/common/sceneupdate_pass.cpp
+        src/limitless/pipeline/common/skybox_pass.cpp
+        src/limitless/pipeline/forward/postprocessing_pass.cpp
+        src/limitless/pipeline/forward/forward.cpp
+        src/limitless/pipeline/forward/postprocessing.cpp
+        src/limitless/renderer/renderer.cpp
+        src/limitless/pipeline/common/scene_data.cpp
+        src/limitless/pipeline/deferred/effectupdate_pass.cpp
+        src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
+        src/limitless/pipeline/deferred/gbuffer_pass.cpp
+        src/limitless/pipeline/deferred/deferred_lighting_pass.cpp
+        src/limitless/pipeline/deferred/deferred.cpp
+        src/limitless/pipeline/deferred/depth_pass.cpp
+        src/limitless/pipeline/deferred/translucent_pass.cpp
+        src/limitless/pipeline/common/bloom_pass.cpp
+        src/limitless/pipeline/deferred/composite_pass.cpp
+        src/limitless/pipeline/common/ssao_pass.cpp
+        src/limitless/pipeline/common/fxaa_pass.cpp
+        src/limitless/pipeline/common/quad_pass.cpp
+        src/limitless/pipeline/common/render_debug_pass.cpp
+        src/limitless/pipeline/common/dof_pass.cpp
+        src/limitless/pipeline/common/outline_pass.cpp
+        src/limitless/postprocessing/blur.cpp
+        src/limitless/postprocessing/bloom.cpp
 )
 
 set(ENGINE_SRC

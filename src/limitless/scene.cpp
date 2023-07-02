@@ -24,13 +24,13 @@ void Scene::update(Context& context, const Camera& camera) {
 
     //TODO: why is here two updates?
     for (auto& [_, instance] : instances) {
-        if (instance->getShaderType() != ModelShader::Effect) {
+        if (instance->getShaderType() != InstanceType::Effect) {
             instance->update(context, camera);
         }
     }
 
     for (auto& [_, instance] : instances) {
-        if (instance->getShaderType() == ModelShader::Effect) {
+        if (instance->getShaderType() == InstanceType::Effect) {
             instance->update(context, camera);
         }
     }

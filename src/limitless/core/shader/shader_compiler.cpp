@@ -106,6 +106,14 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
 
             replaceRenderSettings(shader);
 
+
+            std::string e = type == Shader::Type::Vertex ? ".vert" : ".frag";
+            // TODO: temp ref/remove
+            static int i = 0;
+            std::ofstream f {"D:/Dev/Projects/limitless-engine/glslang/" + std::to_string(i++) + e};
+            f << shader.getSource();
+            f.close();
+
             *this << std::move(shader);
 
             ++shader_count;

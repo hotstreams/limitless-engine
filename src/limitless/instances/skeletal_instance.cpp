@@ -90,7 +90,7 @@ const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const
 }
 
 SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
-    : ModelInstance(ModelShader::Skeletal, std::move(m), position) {
+    : ModelInstance(InstanceType::Skeletal, std::move(m), position) {
     //TODO: check type
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
@@ -153,7 +153,7 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
-void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderPass pass, ms::Blending blending, const UniformSetter& uniform_setter) {
+void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_setter) {
     if (hidden) {
         return;
     }

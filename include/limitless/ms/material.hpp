@@ -4,7 +4,7 @@
 #include <limitless/core/uniform/uniform_value.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
 #include <limitless/core/uniform/uniform_time.hpp>
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <limitless/ms/property.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/ms/shading.hpp>
@@ -78,7 +78,7 @@ namespace Limitless::ms {
         /**
          * Describes for which ModelShader types this material is used and compiled
          */
-        ModelShaders model_shaders;
+        InstanceTypes model_shaders;
 
         /**
          * Corresponding OpenGL buffer to store properties on GPU

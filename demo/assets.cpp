@@ -27,8 +27,8 @@ void DemoAssets::loadLightingScene() {
                 .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/rustediron2_basecolor.png", {::TextureLoaderFlags::Space::sRGB}))
                 .add(Property::Normal, TextureLoader::load(*this, assets_dir / "textures/rustediron2_normal.png"))
                 .setShading(Shading::Lit)
-                .addModelShader(::ModelShader::Instanced)
-                .addModelShader(::ModelShader::Model)
+                .addModelShader(::InstanceType::Instanced)
+                .addModelShader(::InstanceType::Model)
                 .build();
     }
 
@@ -41,8 +41,8 @@ void DemoAssets::loadLightingScene() {
                 .add(Property::Normal, TextureLoader::load(*this, assets_dir / "textures/wood_normal.png"))
                 .setShading(Shading::Lit)
                 .setTwoSided(true)
-                .addModelShader(ModelShader::Model)
-                .addModelShader(ModelShader::Instanced)
+                .addModelShader(InstanceType::Model)
+                .addModelShader(InstanceType::Instanced)
                 .build();
     }
 }
@@ -347,7 +347,7 @@ void DemoAssets::loadEffectsScene() {
                                     "\n"
                                     "data.color.a = mix(0.0, m_a, pow(r, erode));"
                 )
-                .addModelShader(ModelShader::Effect)
+                .addModelShader(InstanceType::Effect)
                 .build();
     }
 
@@ -394,7 +394,7 @@ void DemoAssets::loadEffectsScene() {
         builder .setName("shield")
                 .setShading(::Shading::Unlit)
                 .setBlending(::Blending::Additive)
-                .addModelShader(::ModelShader::Effect)
+                .addModelShader(::InstanceType::Effect)
                 .add(Property::Color, glm::vec4(1.0f))
                 .addUniform(std::make_unique<UniformSampler>("maintexture", TextureLoader::load(*this, assets_dir / "textures/shield_texture.jpg")))
                 .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/noise.png")))
@@ -450,7 +450,7 @@ void DemoAssets::loadEffectsScene() {
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Additive)
                 .setGlobalSnippet("#include \"../../functions/tone_mapping.glsl\"")
-                .addModelShader(::ModelShader::Effect)
+                .addModelShader(::InstanceType::Effect)
                 .build();
 
         builder .setName("fireball_sparks")
@@ -462,7 +462,7 @@ void DemoAssets::loadEffectsScene() {
                 .add(Property::Color, glm::vec4(1.0))
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Additive)
-                .addModelShader(::ModelShader::Effect)
+                .addModelShader(::InstanceType::Effect)
                 .build();
     }
     {
@@ -503,7 +503,7 @@ void DemoAssets::loadEffectsScene() {
                 .setFragmentSnippet("data.emissive *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;"
                                     "data.color.rgb *= circle(getVertexUV(), 0.7);")
                 .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
-                .addModelShader(ModelShader::Effect)
+                .addModelShader(InstanceType::Effect)
                 .build();
     }
 
@@ -535,7 +535,7 @@ void DemoAssets::loadEffectsScene() {
                 .setFragmentSnippet("data.emissive *= circle(getVertexUV(), 0.5);"
                                     "data.color.rgb = vec3(0.0);")
                 .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
-                .addModelShader(ModelShader::Effect)
+                .addModelShader(InstanceType::Effect)
                 .build();
     }
 
@@ -567,7 +567,7 @@ void DemoAssets::loadEffectsScene() {
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Additive)
                 .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
-                .addModelShader(ModelShader::Effect)
+                .addModelShader(InstanceType::Effect)
                 .build();
     }
 
@@ -594,7 +594,7 @@ void DemoAssets::loadEffectsScene() {
                 .setFragmentSnippet("data.emissive *= getParticleColor().rgb;")
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Opaque)
-                .addModelShader(ModelShader::Effect)
+                .addModelShader(InstanceType::Effect)
                 .build();
     }
 
@@ -629,7 +629,7 @@ void DemoAssets::loadEffectsScene() {
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Additive)
                 .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
-                .addModelShader(ModelShader::Effect)
+                .addModelShader(InstanceType::Effect)
                 .build();
     }
 
@@ -654,7 +654,7 @@ void DemoAssets::loadEffectsScene() {
                 .setBlending(::Blending::Additive)
                 .setTwoSided(true)
                 .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/aura.png"))
-                .addModelShader(::ModelShader::Effect)
+                .addModelShader(::InstanceType::Effect)
                 .build();
 
         builder .setName("aura_sparks")
@@ -666,7 +666,7 @@ void DemoAssets::loadEffectsScene() {
                         TextureLoaderFlags::Filter::Nearest
                 }))
                 .add(Property::EmissiveColor, glm::vec4(3.5f, 0.0f, 0.0f, 1.0f))
-                .addModelShader(::ModelShader::Effect)
+                .addModelShader(::InstanceType::Effect)
                 .build();
 
         builder .setName("aura_beam")
@@ -674,7 +674,7 @@ void DemoAssets::loadEffectsScene() {
                 .setBlending(::Blending::Additive)
                 .setTwoSided(true)
                 .add(Property::EmissiveColor, glm::vec4(3.5f, 0.0f, 0.0f, 1.0f))
-                .addModelShader(::ModelShader::Effect)
+                .addModelShader(::InstanceType::Effect)
                 .build();
     }
 
@@ -736,7 +736,7 @@ void DemoAssets::loadModelsScene() {
                                                                                                         "models/thanos/yellow_env.tga")))
                 .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto grayenv = builder.setName("grayenv")
@@ -747,7 +747,7 @@ void DemoAssets::loadModelsScene() {
                 .addUniform(std::make_unique<UniformSampler>("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/gray_env.tga")))
                 .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto eyesenv = builder.setName("eyesenv")
@@ -759,7 +759,7 @@ void DemoAssets::loadModelsScene() {
                                                                                                         "models/thanos/eye_env.tga")))
                 .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto blueenv = builder.setName("blueenv")
@@ -771,7 +771,7 @@ void DemoAssets::loadModelsScene() {
                                                                                                         "models/thanos/blue_env.tga")))
                 .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto eyes = builder.setName("eyes")
@@ -781,7 +781,7 @@ void DemoAssets::loadModelsScene() {
                 .add(Property::MetallicTexture, TextureLoader::load(*this, assets_dir / "models/thanos/body_s.tga"))
                 .add(Property::Roughness, 0.2f)
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto body = builder.setName("body")
@@ -793,7 +793,7 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::AmbientOcclusionTexture,
                      TextureLoader::load(*this, assets_dir / "models/thanos/body_ao.tga"))
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto skin = builder.setName("skin")
@@ -803,7 +803,7 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::Roughness, 0.2f)
                 .add(::Property::AmbientOcclusionTexture, TextureLoader::load(*this, assets_dir / "models/thanos/skin_ao.tga"))
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         materials[0] = skin;
@@ -837,7 +837,7 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::AmbientOcclusionTexture,
                      TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_L.png"))
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto cloth = builder.setName("dae_cloth")
@@ -851,7 +851,7 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::AmbientOcclusionTexture,
                      TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_L.png"))
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto hair = builder.setName("dae_hair")
@@ -864,7 +864,7 @@ void DemoAssets::loadModelsScene() {
                      TextureLoader::load(*this, assets_dir / "models/daenerys/jitter2.png"))
                 .add(::Property::Roughness, 0.2f)
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         materials[0] = hair;
@@ -892,7 +892,7 @@ void DemoAssets::loadModelsScene() {
                                     "data.roughness = skin.g;"
                                     "data.metallic = skin.b;")
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         materials[0] = skin;
@@ -919,7 +919,7 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::MetallicTexture, TextureLoader::load(*this, assets_dir / "models/k2/K2_S.tga"))
                 .add(::Property::Roughness, 0.2f)
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         auto head = builder.setName("k2_head")
@@ -928,7 +928,7 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::MetallicTexture, TextureLoader::load(*this, assets_dir / "models/k2/K2_Head_S.tga"))
                 .add(::Property::Roughness, 0.2f)
                 .setShading(Shading::Lit)
-                .addModelShader(ModelShader::Skeletal)
+                .addModelShader(InstanceType::Skeletal)
                 .build();
 
         materials[0] = head;
@@ -978,8 +978,8 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::Roughness, 0.75f)
                 .add(::Property::Metallic, 0.1f)
                 .setTwoSided(true)
-                .addModelShader(Limitless::ModelShader::Instanced)
-                .addModelShader(Limitless::ModelShader::Model)
+                .addModelShader(Limitless::InstanceType::Instanced)
+                .addModelShader(Limitless::InstanceType::Model)
                 .build();
     }
 }

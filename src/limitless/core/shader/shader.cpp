@@ -7,8 +7,8 @@
 using namespace Limitless;
 
 Shader::Shader(fs::path _path, Type _type, const ShaderAction& action)
-    : path{std::move(_path)}
-    , type{_type} {
+    : path {std::move(_path)}
+    , type {_type} {
     source = getSource(path);
 
     replaceVersion();

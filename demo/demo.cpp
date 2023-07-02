@@ -5,7 +5,7 @@
 #include <limitless/text/text_instance.hpp>
 #include <limitless/loaders/dds_loader.hpp>
 #include <limitless/util/color_picker.hpp>
-#include <limitless/pipeline/deferred_framebuffer_pass.hpp>
+#include <limitless/pipeline/deferred/deferred_framebuffer_pass.hpp>
 #include <iostream>
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>

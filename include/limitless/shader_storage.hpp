@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/fx/emitters/unique_emitter.hpp>
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <limitless/util/filesystem.hpp>
 #include <unordered_map>
 #include <memory>
@@ -14,22 +14,22 @@ namespace Limitless {
     class Context;
 
     struct ShaderKey {
-        ShaderPass material_type;
-        ModelShader model_type;
+        ShaderType material_type;
+        InstanceType model_type;
         uint64_t material_index;
     };
     bool operator<(const ShaderKey& lhs, const ShaderKey& rhs) noexcept;
 
-    inline const std::map<ShaderPass, std::string> SHADER_PASS_PATH = {
-        { ShaderPass::Forward,              "pipeline"  PATH_SEPARATOR "forward" PATH_SEPARATOR "forward" },
+    inline const std::map<ShaderType, std::string> SHADER_PASS_PATH = {
+        {ShaderType::Forward,           "pipeline"  PATH_SEPARATOR "forward" PATH_SEPARATOR "forward" },
 
-        { ShaderPass::Depth,                "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "depth" },
-        { ShaderPass::GBuffer,              "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "gbuffer" },
-        { ShaderPass::Skybox,               "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "skybox"},
+        {ShaderType::Depth,             "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "depth" },
+        {ShaderType::GBuffer,           "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "gbuffer" },
+        {ShaderType::Skybox,            "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "skybox"},
 
-        { ShaderPass::DirectionalShadow,    "pipeline"  PATH_SEPARATOR "lighting" PATH_SEPARATOR "directional_shadows" },
+        {ShaderType::DirectionalShadow, "pipeline"  PATH_SEPARATOR "lighting" PATH_SEPARATOR "directional_shadows" },
 
-        { ShaderPass::ColorPicker,          "pipeline"  PATH_SEPARATOR "util"     PATH_SEPARATOR "color_picker" },
+        {ShaderType::ColorPicker,       "pipeline"  PATH_SEPARATOR "util"     PATH_SEPARATOR "color_picker" },
     };
 
     class shader_storage_error : public std::runtime_error {
@@ -52,20 +52,20 @@ namespace Limitless {
         void initialize(Context& ctx, const RenderSettings& settings, const fs::path& shader_dir);
 
         ShaderProgram& get(const std::string& name) const;
-        ShaderProgram& get(ShaderPass material_type, ModelShader model_type, uint64_t material_index) const;
+        ShaderProgram& get(ShaderType material_type, InstanceType model_type, uint64_t material_index) const;
         ShaderProgram& get(const fx::UniqueEmitterShaderKey& emitter_type) const;
 
         void add(std::string name, std::shared_ptr<ShaderProgram> program);
-        void add(ShaderPass material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program);
+        void add(ShaderType material_type, InstanceType model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program);
         void add(const fx::UniqueEmitterShaderKey& emitter_type, std::shared_ptr<ShaderProgram> program);
 
-        void remove(ShaderPass material_type, ModelShader model_type, uint64_t material_index);
+        void remove(ShaderType material_type, InstanceType model_type, uint64_t material_index);
 
         bool contains(const std::string& name) noexcept;
-        bool contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept;
+        bool contains(ShaderType material_type, InstanceType model_type, uint64_t material_index) noexcept;
         bool contains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept;
 
-        bool reserveIfNotContains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept;
+        bool reserveIfNotContains(ShaderType material_type, InstanceType model_type, uint64_t material_index) noexcept;
         bool reserveIfNotContains(const fx::UniqueEmitterShaderKey& emitter_type) noexcept;
 
         const auto& getCommonShaders() const noexcept { return shaders; }
