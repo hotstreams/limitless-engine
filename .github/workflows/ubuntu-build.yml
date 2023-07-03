@@ -13,10 +13,13 @@ jobs:
       image: utensils/opengl:latest
       options: --user root
     steps:
+      - name: setup git
+        run: |
+          apk add git
+          
       - uses: actions/checkout@v3
       - name: set up dependencies
         run: |
-          apk add git
           ls -a
           git submodule init
           git submodule update
