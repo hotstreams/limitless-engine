@@ -24,6 +24,5 @@ jobs:
           mkdir build
           cmake -S . -B build
           cd build
-          ls
           make
-      
+          ./limitless_test
