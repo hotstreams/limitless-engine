@@ -15,7 +15,8 @@ jobs:
     steps:
       - name: setup
         run: |
-          apk add git cmake make build-base libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python
+          apk add git cmake make build-base libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
+          ln -s /usr/bin/python3 /usr/bin/python
           
       - uses: actions/checkout@v3
       - name: set up engine dependencies
