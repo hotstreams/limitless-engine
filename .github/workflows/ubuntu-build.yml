@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: setup
         run: |
-          apk add git cmake make build-base libx11 xorg-server-dev libxrandr-dev
+          apk add git cmake make build-base libx11 xorg-server-dev libxrandr-dev libxinerama-dev
           
       - uses: actions/checkout@v3
       - name: set up engine dependencies
