@@ -33,6 +33,7 @@ void ContextInitializer::initializeGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major_version);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor_version);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint( GLFW_CONTEXT_CREATION_API, GLFW_OSMESA_CONTEXT_API);
 
 #ifdef GL_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
