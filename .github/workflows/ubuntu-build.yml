@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: setup git
         run: |
-          apk add git
+          apk add git cmake make
           
       - uses: actions/checkout@v3
       - name: set up dependencies
