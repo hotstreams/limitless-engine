@@ -15,6 +15,10 @@ jobs:
     steps:
       - name: setup
         run: |
+          echo "CHECK"
+          echo "$LD_LIBRARY_PATH"
+          ls /usr/lib
+        
           apk add git cmake make build-base mesa-dev glu-dev libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
           ln -s /usr/bin/python3 /usr/bin/python
           
