@@ -13,7 +13,7 @@ jobs:
 #       image: jamesbrink/opengl:demos
 #       options: --user root
     steps:
-      - uses: openrndr/setup-opengl@v1.1
+   #   - uses: openrndr/setup-opengl@v1.1
       - name: setup
         run: |
           sudo apt-get update
