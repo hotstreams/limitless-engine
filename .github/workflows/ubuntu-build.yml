@@ -25,6 +25,7 @@ jobs:
           git submodule update
           cd thirdparty/glew
           make extensions
+          glxinfo | grep llvmpipe
       - name: run build
         run: |
           mkdir build
