@@ -15,35 +15,25 @@ jobs:
     steps:
       - name: setup
         run: |
-          echo "CHECK"
-          echo "$LD_LIBRARY_PATH"
-          echo "FORCE"
-          echo "$LIBGL_ALWAYS_SOFTWARE"
-          cp /usr/lib/libGL.so.1 temp
-          cp /usr/lib/libGL.so.1 temp1
-          
           apk add git cmake make build-base mesa-dev glu-dev libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
           ln -s /usr/bin/python3 /usr/bin/python
+
+          glxinfo
+
           
-          mv temp /usr/lib/libGL.so.1
-          mv temp1 /usr/lib/libGL.so
-          
-          echo "FORCE"
-          echo "$LIBGL_ALWAYS_SOFTWARE"
-          
-      - uses: actions/checkout@v3
-      - name: set up engine dependencies
-        run: |
-          git submodule init
-          git submodule update
-          cd thirdparty/glew
-          make extensions
-      - name: run build
-        run: |
-          mkdir build
-          cmake -S . -B build
-          cd build
-          make
-            echo "FORCE"
-            echo "$LIBGL_ALWAYS_SOFTWARE"
-          ./limitless_test
+#       - uses: actions/checkout@v3
+#       - name: set up engine dependencies
+#         run: |
+#           git submodule init
+#           git submodule update
+#           cd thirdparty/glew
+#           make extensions
+#       - name: run build
+#         run: |
+#           mkdir build
+#           cmake -S . -B build
+#           cd build
+#           make
+#             echo "FORCE"
+#             echo "$LIBGL_ALWAYS_SOFTWARE"
+#           ./limitless_test
