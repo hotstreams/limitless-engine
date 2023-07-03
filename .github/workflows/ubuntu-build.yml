@@ -16,12 +16,15 @@ jobs:
       - uses: openrndr/setup-opengl@v1.1
       - name: setup
         run: |
-          apk add --update
-          apk add git cmake make build-base mesa-dev mesa-gl glu-dev libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
+          sudo apt-get update
+          sudo apt-get install -y mesa-utils xvfb
+          xvfb-run glxinfo
+          #apk add --update
+          #apk add git cmake make build-base mesa-dev mesa-gl glu-dev libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
           #ln -s /usr/bin/python3 /usr/bin/python
           
-          echo $LD_LIBRARY_PATH
-          glxgears -info
+          #echo $LD_LIBRARY_PATH
+          #glxgears -info
           #glxinfo
 
 #       - uses: actions/checkout@v3
