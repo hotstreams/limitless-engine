@@ -9,9 +9,9 @@ jobs:
   build-linux:
     name: build-linux
     runs-on: ubuntu-latest
-    container: 
-      image: jamesbrink/opengl:demos
-      options: --user root
+#     container: 
+#       image: jamesbrink/opengl:demos
+#       options: --user root
     steps:
       - uses: openrndr/setup-opengl@v1.1
       - name: setup
