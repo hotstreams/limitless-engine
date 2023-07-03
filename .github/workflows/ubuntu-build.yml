@@ -15,6 +15,7 @@ jobs:
       - name: set up dependencies
         run: |
           apk add git
+          ls
           git submodule init
           git submodule update
           cd thirdparty/glew
