@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: setup
         run: |
-          apk add git cmake make gcc
+          apk add git cmake make build-base
           
       - uses: actions/checkout@v3
       - name: set up engine dependencies
