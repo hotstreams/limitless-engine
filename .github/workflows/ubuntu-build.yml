@@ -13,7 +13,7 @@ jobs:
       - name: setup
         run: |
           sudo apt-get update
-          sudo apt-get install -y mesa-utils xvfb lixrandr
+          sudo apt-get install -y mesa-utils xvfb librandr
           #xvfb-run glxinfo
       - uses: actions/checkout@v3
       - name: set up engine dependencies
