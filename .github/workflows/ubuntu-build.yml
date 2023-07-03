@@ -24,8 +24,12 @@ jobs:
           git submodule update
           cd thirdparty/glew
           make
+          echo "pwd"
+          pwd
+          echo "auto"
           ls auto
-          make extensions
+          cd auto
+          make
       - name: run build
         run: |
           mkdir build
