@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: setup
         run: |
-          apk add git cmake make build-base mesa-dev mesa-utils glu-dev libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
+          apk add git cmake make build-base mesa-dev mesa-gl glu-dev libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
           ln -s /usr/bin/python3 /usr/bin/python
 
           glxinfo
