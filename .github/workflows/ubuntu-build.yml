@@ -24,7 +24,7 @@ jobs:
           git submodule update
           cd thirdparty/glew
           make
-          ls
+          ls auto
           make extensions
       - name: run build
         run: |
