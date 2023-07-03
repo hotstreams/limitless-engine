@@ -9,7 +9,7 @@ jobs:
   build-linux:
     name: build-linux
     runs-on: ubuntu-latest
-    
+    container: utensils/opengl:latest
     steps:
       - uses: actions/checkout@v3
       - name: set up dependencies
