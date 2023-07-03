@@ -9,37 +9,23 @@ jobs:
   build-linux:
     name: build-linux
     runs-on: ubuntu-latest
-#     container: 
-#       image: jamesbrink/opengl:demos
-#       options: --user root
     steps:
-   #   - uses: openrndr/setup-opengl@v1.1
       - name: setup
         run: |
           sudo apt-get update
           sudo apt-get install -y mesa-utils xvfb
           xvfb-run glxinfo
-          #apk add --update
-          #apk add git cmake make build-base mesa-dev mesa-gl glu-dev libx11 xorg-server-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev bash perl python3
-          #ln -s /usr/bin/python3 /usr/bin/python
-          
-          #echo $LD_LIBRARY_PATH
-          #glxgears -info
-          #glxinfo
-
-#       - uses: actions/checkout@v3
-#       - name: set up engine dependencies
-#         run: |
-#           git submodule init
-#           git submodule update
-#           cd thirdparty/glew
-#           make extensions
-#       - name: run build
-#         run: |
-#           mkdir build
-#           cmake -S . -B build
-#           cd build
-#           make
-#             echo "FORCE"
-#             echo "$LIBGL_ALWAYS_SOFTWARE"
-#           ./limitless_test
+      - uses: actions/checkout@v3
+      - name: set up engine dependencies
+        run: |
+          git submodule init
+          git submodule update
+          cd thirdparty/glew
+          make extensions
+      - name: run build
+        run: |
+          mkdir build
+          cmake -S . -B build
+          cd build
+          make
+          xvfb-run ./limitless_test
