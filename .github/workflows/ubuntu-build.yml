@@ -13,18 +13,17 @@ jobs:
       image: utensils/opengl:latest
       options: --user root
     steps:
-      - name: setup git
+      - name: setup
         run: |
           apk add git cmake make
           
       - uses: actions/checkout@v3
-      - name: set up dependencies
+      - name: set up engine dependencies
         run: |
-          ls -a
           git submodule init
           git submodule update
-          cd thirdparty/glew
-          make extensions
+          #cd thirdparty/glew
+          #make extensions
       - name: run build
         run: |
           mkdir build
