@@ -14,7 +14,9 @@ namespace Limitless {
         glm::vec3 position;
         glm::vec3 front, up, right, world_up;
 
-        glm::mat4 projection, view;
+        glm::mat4 projection;
+        glm::mat4 view;
+        glm::mat4 view_to_screen;
 
         CameraMode mode {};
 
@@ -30,6 +32,7 @@ namespace Limitless {
     public:
         explicit Camera(glm::uvec2 window_size) noexcept;
 
+        [[nodiscard]] const auto& getViewToScreen() const noexcept { return view_to_screen; }
         [[nodiscard]] const auto& getProjection() const noexcept { return projection; }
         [[nodiscard]] const auto& getPosition() const noexcept { return position; }
         [[nodiscard]] const auto& getFront() const noexcept { return front; }

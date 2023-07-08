@@ -19,6 +19,7 @@ namespace Limitless {
     public:
         glm::mat4 projection {1.0f};
         glm::mat4 projection_inverse {1.0f};
+        glm::mat4 projection_to_screen {1.0f};
         glm::mat4 view {1.0f};
         glm::mat4 view_inverse {1.0f};
         glm::mat4 VP {1.0f};

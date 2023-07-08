@@ -1,13 +1,13 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/pipeline/common/scene_data.hpp>
 
 namespace Limitless {
     /**
      * Updates global info about the whole scene and context
      */
-    class SceneUpdatePass final : public RenderPass {
+    class SceneUpdatePass final : public PipelinePass {
     private:
         SceneDataStorage scene_data;
     public:
