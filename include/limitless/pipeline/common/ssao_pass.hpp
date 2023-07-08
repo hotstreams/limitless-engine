@@ -1,35 +1,22 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
-#include "limitless/pipeline/forward/postprocessing.hpp"
+#include <limitless/postprocessing/ssao.hpp>
 
 namespace Limitless {
-    class SSAOPass final : public RenderPass {
+    class SSAOPass final : public PipelinePass {
     private:
-        struct SSAOData {
-            static constexpr auto KERNEL_COUNT = 64u;
-
-            uint32_t NOISE_SIZE = 4u;
-            uint32_t KERNEL_SAMPLES_COUNT = KERNEL_COUNT;
-
-            float radius = 3.0f;
-            float bias = 2e-3f;
-
-            std::array<glm::vec4, KERNEL_COUNT> kernel;
-        } data;
-
-        Framebuffer framebuffer;
-        std::shared_ptr<Texture> noise;
-        std::shared_ptr<Buffer> buffer;
-
-        void generateNoise();
-        void generateKernel(Context& ctx);
+        SSAO ssao;
     public:
         SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx);
         SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx, glm::uvec2 frame_size);
 
-        std::shared_ptr<Texture> getResult() override { return framebuffer.get(FramebufferAttachment::Color1).texture; }
+        std::shared_ptr<Texture> getResult() override { return ssao.getFramebuffer().get(FramebufferAttachment::Color0).texture; }
+
+        void addSetter(Limitless::UniformSetter &setter) override;
+
+        void update(Limitless::Scene &scene, Limitless::Instances &instances, Limitless::Context &ctx, const Limitless::Camera &camera) override;
 
         void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
 
