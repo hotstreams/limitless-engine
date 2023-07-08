@@ -1,10 +1,10 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 
 namespace Limitless {
-    class FramebufferPass final : public RenderPass {
+    class FramebufferPass final : public PipelinePass {
     private:
         Framebuffer framebuffer;
         RenderTarget& target;

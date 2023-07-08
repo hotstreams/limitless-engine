@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 
 namespace Limitless {
 	class Framebuffer;
@@ -11,7 +11,7 @@ namespace Limitless {
      * note: as an input image uses previous result
      * note2: handling framebuffer resize is on user
      */
-    class ScreenPass final : public RenderPass {
+    class ScreenPass final : public PipelinePass {
     private:
         /**
          * Render target

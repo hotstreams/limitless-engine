@@ -10,7 +10,7 @@
 using namespace Limitless;
 
 ColorPass::ColorPass(Pipeline& pipeline, ms::Blending _blending)
-        : RenderPass(pipeline)
+        : PipelinePass(pipeline)
         , blending {_blending} {
 }
 

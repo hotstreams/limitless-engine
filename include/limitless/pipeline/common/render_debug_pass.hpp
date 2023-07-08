@@ -1,11 +1,11 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/util/renderer_helper.hpp>
 #include <limitless/lighting/lighting.hpp>
 
 namespace Limitless {
-//    class RenderDebugPass final : public RenderPass {
+//    class RenderDebugPass final : public PipelinePass {
 //    private:
 //        RendererHelper helper;
 //        Lighting* lighting {};

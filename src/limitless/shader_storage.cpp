@@ -4,8 +4,9 @@
 
 using namespace Limitless;
 
-bool Limitless::operator<(const ShaderKey& lhs, const ShaderKey& rhs) noexcept {
-    return std::tie(lhs.material_type, lhs.model_type, lhs.material_index) < std::tie(rhs.material_type, rhs.model_type, rhs.material_index);
+bool ShaderKey::operator<(const ShaderKey& rhs) const noexcept {
+    return std::tie(material_type, model_type, material_index) <
+           std::tie(rhs.material_type, rhs.model_type, rhs.material_index);
 }
 
 ShaderProgram& ShaderStorage::get(const std::string& name) const {
@@ -103,7 +104,7 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
 
 void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, const fs::path& shader_dir) {
     ShaderCompiler compiler {ctx, settings};
-
+//TODO: check
     if (settings.pipeline == RenderPipeline::Forward) {
         add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
         add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
@@ -113,8 +114,8 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
     if (settings.pipeline == RenderPipeline::Deferred) {
         add("deferred", compiler.compile(shader_dir / "pipeline/deferred/deferred"));
         add("composite", compiler.compile(shader_dir / "pipeline/deferred/composite"));
-        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao"));
-        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao_blur"));
+        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));
+        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao/ssao_blur"));
 
         add("blur_downsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_downsample"));
         add("blur_upsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_upsample"));
@@ -128,6 +129,8 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
     if (settings.depth_of_field) {
 	    add("dof", compiler.compile(shader_dir / "postprocessing/dof"));
     }
+
+    add("ssr", compiler.compile(shader_dir / "postprocessing/ssr/ssr"));
 
     add("quad", compiler.compile(shader_dir / "pipeline/quad"));
     add("text", compiler.compile(shader_dir / "text/text"));

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/renderer/render_settings.hpp>
 
@@ -10,7 +10,7 @@ namespace Limitless {
      *
      * note: as an input image gets previous result
      */
-    class FXAAPass final : public RenderPass {
+    class FXAAPass final : public PipelinePass {
     private:
         /**
          * Result framebuffer

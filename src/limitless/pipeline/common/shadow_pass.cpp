@@ -6,12 +6,12 @@
 using namespace Limitless;
 
 DirectionalShadowPass::DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , shadows {ctx, settings} {
 }
 
 DirectionalShadowPass::DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings, fx::EffectRenderer& renderer)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , shadows {ctx, settings}
     , effect_renderer {&renderer} {
 }

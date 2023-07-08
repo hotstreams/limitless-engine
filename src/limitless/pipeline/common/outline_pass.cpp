@@ -8,7 +8,7 @@
 //using namespace Limitless;
 //
 //OutlinePass::OutlinePass(Pipeline& pipeline)
-//	: RenderPass(pipeline) {
+//	: PipelinePass(pipeline) {
 //
 //}
 //

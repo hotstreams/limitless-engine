@@ -1,13 +1,13 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 
 namespace Limitless::ms {
     enum class Blending;
 }
 
 namespace Limitless {
-    class ColorPass final : public RenderPass {
+    class ColorPass final : public PipelinePass {
     private:
         ms::Blending blending;
     public:

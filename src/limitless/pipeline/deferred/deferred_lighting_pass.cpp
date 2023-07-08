@@ -12,7 +12,7 @@
 using namespace Limitless;
 
 DeferredLightingPass::DeferredLightingPass(Pipeline& pipeline, glm::uvec2 frame_size)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , framebuffer {Framebuffer::asRGB16FNearestClampToEdge(frame_size)} {
 }
 
@@ -35,14 +35,6 @@ void DeferredLightingPass::draw([[maybe_unused]] Instances& instances, Context& 
            .setUniform("props_texture", gbuffer.getProperties())
            .setUniform("depth_texture", gbuffer.getDepth())
            .setUniform("emissive_texture", gbuffer.getEmissive());
-
-    //TODO: move to setter?
-    try {
-        auto& ssao = pipeline.get<SSAOPass>();
-        shader.setUniform("ssao_texture", ssao.getResult());
-    } catch (const pipeline_pass_not_found& e) {
-        // nothing :|
-    }
 
     setter(shader);
 

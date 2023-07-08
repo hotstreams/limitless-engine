@@ -46,7 +46,7 @@ public:
         context.registerObserver(static_cast<MouseMoveObserver*>(this));
         context.registerObserver(static_cast<FramebufferObserver*>(this));
 
-        assets.recompileShaders(context, render.getSettings());
+        assets.recompileAssets(context, render.getSettings());
     }
 
     ~Game() override {

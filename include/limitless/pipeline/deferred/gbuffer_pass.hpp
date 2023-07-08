@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 
 namespace Limitless::fx {
@@ -12,7 +12,7 @@ namespace Limitless {
      * GBufferPass renders opaque objects to DeferredFramebufferPass's framebuffer to populate material data
      * used for later light calculations
      */
-    class GBufferPass final : public RenderPass {
+    class GBufferPass final : public PipelinePass {
     private:
         /**
          * EffectRenderer to render opaque effects

@@ -18,21 +18,47 @@ namespace Limitless {
 
     class Pipeline;
 
-    class RenderPass {
+    /**
+     *  PipelinePass describes some stage of pipeline that have to be updated, draw and has result
+     */
+    class PipelinePass {
     protected:
+        /**
+         * Pipeline ref
+         */
         Pipeline& pipeline;
     public:
-        explicit RenderPass(Pipeline& pass) noexcept;
-        virtual ~RenderPass() = default;
+        explicit PipelinePass(Pipeline& pass) noexcept;
+        virtual ~PipelinePass() = default;
 
+        /**
+         *  Returns result from current pipeline pass
+         */
+        virtual std::shared_ptr<Texture> getResult();
+
+        /**
+         *  Returns result from previous pass
+         */
         std::shared_ptr<Texture> getPreviousResult();
-        virtual std::shared_ptr<Texture> getResult() { throw std::logic_error{"This RenderPass does not provide result method!"}; }
 
+        /**
+         * Adds uniform setters for future passes
+         */
         virtual void addSetter(UniformSetter& setter);
+
+        /**
+         * Render curent pass
+         */
         virtual void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter);
 
+        /**
+         * Update current pass
+         */
         virtual void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera);
 
+        /**
+         * Framebuffer change callback
+         */
         virtual void onFramebufferChange(glm::uvec2 size);
     };
 }

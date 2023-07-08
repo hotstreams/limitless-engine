@@ -13,7 +13,7 @@
 using namespace Limitless;
 
 DepthPass::DepthPass(Pipeline& pipeline, fx::EffectRenderer& _renderer)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , renderer {_renderer} {
 }
 

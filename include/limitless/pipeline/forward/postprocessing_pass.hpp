@@ -1,10 +1,10 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/pipeline/forward/postprocessing.hpp>
 
 namespace Limitless {
-    class PostEffectsPass final : public RenderPass {
+    class PostEffectsPass final : public PipelinePass {
     private:
         PostProcessing postprocess;
     public:

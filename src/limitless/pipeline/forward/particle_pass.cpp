@@ -5,7 +5,7 @@
 using namespace Limitless;
 
 ParticlePass::ParticlePass(Pipeline& pipeline, fx::EffectRenderer& _renderer, ms::Blending _blending)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , renderer {_renderer}
     , blending {_blending} {
 }

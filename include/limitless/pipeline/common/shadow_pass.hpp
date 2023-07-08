@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/lighting/cascade_shadows.hpp>
 
 namespace Limitless::fx {
@@ -11,7 +11,7 @@ namespace Limitless {
     /**
      * DirectionalShadowPass renders all objects and effects that casts shadow in shadow map
      */
-    class DirectionalShadowPass final : public RenderPass {
+    class DirectionalShadowPass final : public PipelinePass {
     private:
         /**
          * CSM implementation

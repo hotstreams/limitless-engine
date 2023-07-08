@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 
 namespace Limitless::fx {
     class EffectRenderer;
@@ -11,7 +11,7 @@ namespace Limitless::ms {
 }
 
 namespace Limitless {
-    class ParticlePass final : public RenderPass {
+    class ParticlePass final : public PipelinePass {
     private:
         std::reference_wrapper<fx::EffectRenderer> renderer;
         ms::Blending blending;

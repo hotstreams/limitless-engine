@@ -6,7 +6,7 @@
 using namespace Limitless;
 
 BloomPass::BloomPass(Pipeline& pipeline, glm::uvec2 frame_size)
-    : RenderPass {pipeline}
+    : PipelinePass {pipeline}
     , bloom {frame_size} {
 }
 

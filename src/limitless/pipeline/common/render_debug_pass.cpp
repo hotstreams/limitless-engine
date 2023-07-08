@@ -11,7 +11,7 @@
 using namespace Limitless;
 
 //RenderDebugPass::RenderDebugPass(Pipeline& pipeline, const RenderSettings& settings)
-//    : RenderPass(pipeline)
+//    : PipelinePass(pipeline)
 //    , helper {settings} {
 //}
 //

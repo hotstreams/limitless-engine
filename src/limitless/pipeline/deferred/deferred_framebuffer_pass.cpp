@@ -5,7 +5,7 @@
 using namespace Limitless;
 
 DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 frame_size)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , framebuffer {} {
     auto albedo = TextureBuilder::asRGBA16NearestClampToEdge(frame_size);
     auto normal = TextureBuilder::asRGB16SNORMNearestClampToEdge(frame_size);

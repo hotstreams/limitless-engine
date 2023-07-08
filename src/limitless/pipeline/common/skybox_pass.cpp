@@ -7,7 +7,7 @@
 using namespace Limitless;
 
 SkyboxPass::SkyboxPass(Pipeline& pipeline)
-    : RenderPass(pipeline) {
+    : PipelinePass(pipeline) {
 }
 
 void SkyboxPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {

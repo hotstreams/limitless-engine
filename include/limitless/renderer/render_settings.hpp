@@ -2,6 +2,8 @@
 
 #include <limitless/pipeline/shader_type.hpp>
 #include <glm/vec2.hpp>
+#include <limitless/postprocessing/ssr.hpp>
+#include <limitless/postprocessing/ssao.hpp>
 
 namespace Limitless {
     enum class RenderPipeline {
@@ -25,11 +27,13 @@ namespace Limitless {
          * Screen Space Ambient Occlusion
          */
         bool screen_space_ambient_occlusion {false};
-        uint32_t ssao_noise_size {4u};
-        uint32_t ssao_kernel_samples_count {64u};
-        float ssao_radius {3.0f};
-        float ssao_bias {2e-3f};
-        //TODO: check with shaders
+        SSAO::Settings settings;
+
+        /**
+         * Screen Space Reflections
+         */
+        bool screen_space_reflections {true};
+        SSR::Settings screen_space_reflections_settings;
 
         /**
          * FXAA Fast Approximate Antialiasing

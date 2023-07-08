@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 
 namespace Limitless::fx {
     class EffectRenderer;
@@ -12,7 +12,7 @@ namespace Limitless {
      *
      * so we can discard useless fragments later and restore positions from depth for postprocessing effects
      */
-    class DepthPass final : public RenderPass {
+    class DepthPass final : public PipelinePass {
     private:
         fx::EffectRenderer& renderer;
     public:

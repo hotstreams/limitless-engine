@@ -11,12 +11,12 @@
 using namespace Limitless;
 
 ScreenPass::ScreenPass(Pipeline& pipeline)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , target {&default_framebuffer} {
 }
 
 ScreenPass::ScreenPass(Pipeline& pipeline, RenderTarget& _target)
-	: RenderPass(pipeline)
+	: PipelinePass(pipeline)
 	, target {&_target} {
 }
 
