@@ -5,7 +5,7 @@
 using namespace Limitless;
 
 SceneUpdatePass::SceneUpdatePass(Pipeline& pipeline, Context& ctx)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , scene_data {ctx} {
 }
 

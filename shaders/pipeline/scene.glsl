@@ -11,6 +11,7 @@
 layout (std140) uniform scene_data {
     mat4 _projection;
     mat4 _projection_inverse;
+    mat4 _view_to_screen;
     mat4 _view;
     mat4 _view_inverse;
     mat4 _VP;
@@ -27,6 +28,10 @@ mat4 getProjection() {
 
 mat4 getProjectionInverse() {
     return _projection_inverse;
+}
+
+mat4 getViewToScreen() {
+    return _view_to_screen;
 }
 
 mat4 getView() {
