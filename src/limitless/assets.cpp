@@ -42,13 +42,6 @@ void Assets::load([[maybe_unused]] Context& context) {
     builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
 
-    builder.setName("outline")
-    .add(ms::Property::Color, {100.0f, 0.0f, 0.0f, 1.0f})
-    .setModelShaders(model_types)
-    .setShading(ms::Shading::Unlit)
-    .setTwoSided(true)
-    .build();
-
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(glm::uvec2{32}));
     meshes.add("sphere", models.at("sphere")->getMeshes().at(0));
@@ -86,7 +79,7 @@ void Assets::add(const Assets& other) {
     fonts.add(other.fonts);
 }
 
-void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
+void Assets::compileAssets(Context& ctx, const RenderSettings& settings) {
 	initialize(ctx, settings);
 
     for (const auto& [_, material] : materials) {
@@ -102,9 +95,9 @@ void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
     }
 }
 
-void Assets::recompileShaders(Context& ctx, const RenderSettings& settings) {
+void Assets::recompileAssets(Context& ctx, const RenderSettings& settings) {
     shaders.clear();
-    compileShaders(ctx, settings);
+    compileAssets(ctx, settings);
 }
 
 void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material) {

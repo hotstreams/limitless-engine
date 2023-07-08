@@ -1018,6 +1018,6 @@ DemoAssets::DemoAssets(::Context& ctx, ::Renderer& renderer, const fs::path& pat
 
         loadAssets();
 
-        compileShaders(ctx, renderer.getSettings());
+        compileAssets(ctx, renderer.getSettings());
     }
 }
