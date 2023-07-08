@@ -189,7 +189,7 @@ set(ENGINE_FX
 
 set(ENGINE_PIPELINE
     src/limitless/pipeline/pipeline.cpp
-        src/limitless/pipeline/render_pass.cpp
+        src/limitless/pipeline/pipeline_pass.cpp
         src/limitless/pipeline/forward/color_pass.cpp
         src/limitless/pipeline/forward/particle_pass.cpp
         src/limitless/pipeline/forward/framebuffer_pass.cpp
@@ -216,8 +216,11 @@ set(ENGINE_PIPELINE
         src/limitless/pipeline/common/render_debug_pass.cpp
         src/limitless/pipeline/common/dof_pass.cpp
         src/limitless/pipeline/common/outline_pass.cpp
+        src/limitless/pipeline/common/ssr_pass.cpp
         src/limitless/postprocessing/blur.cpp
         src/limitless/postprocessing/bloom.cpp
+        src/limitless/postprocessing/ssao.cpp
+        src/limitless/postprocessing/ssr.cpp
 )
 
 set(ENGINE_SRC

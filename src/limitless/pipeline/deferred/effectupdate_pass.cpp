@@ -3,7 +3,7 @@
 using namespace Limitless;
 
 EffectUpdatePass::EffectUpdatePass(Pipeline& pipeline, Context& ctx)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , renderer {ctx} {
 }
 

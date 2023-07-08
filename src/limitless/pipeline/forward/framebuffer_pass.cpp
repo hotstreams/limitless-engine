@@ -5,12 +5,12 @@
 using namespace Limitless;
 
 FramebufferPass::FramebufferPass(Pipeline& pipeline, RenderTarget& _target)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , target {_target} {
 }
 
 FramebufferPass::FramebufferPass(Pipeline& pipeline, ContextEventObserver& ctx)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , target {framebuffer} {
 
     TextureBuilder builder;

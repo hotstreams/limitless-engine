@@ -1,11 +1,11 @@
 #pragma once
 
 #include <limitless/core/framebuffer.hpp>
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/pipeline/forward/postprocessing.hpp>
 
 namespace Limitless {
-	class DoFPass final : public RenderPass {
+	class DoFPass final : public PipelinePass {
 	private:
 		Framebuffer framebuffer;
 		Blur blur;

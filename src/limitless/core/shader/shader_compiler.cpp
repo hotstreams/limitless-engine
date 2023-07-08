@@ -88,6 +88,38 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
 	        settings.append("#define SCREEN_SPACE_AMBIENT_OCCLUSION\n");
         }
 
+        if (render_settings->screen_space_reflections) {
+            settings.append("#define SCREEN_SPACE_REFLECTIONS\n");
+
+            if (render_settings->screen_space_reflections_settings.intersection_distance_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_INTERSECTION_DISTANCE_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.iteration_count_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_ITERATION_COUNT_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.borders_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_BORDERS_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.fresnel_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_FRESNEL_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.camera_facing_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_CAMERA_FACING_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.clip_to_frustrum) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_CLIP_TO_FRUSTRUM\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.refiniment) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_REFINEMENT\n");
+            }
+        }
+
         if (render_settings->csm_micro_shadowing) {
             settings.append("#define MICRO_SHADOWING\n");
         }

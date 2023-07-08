@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 
 namespace Limitless {
     class Skybox;
@@ -10,7 +10,7 @@ namespace Limitless {
      *
      * note: uses current framebuffer
      */
-    class SkyboxPass final : public RenderPass {
+    class SkyboxPass final : public PipelinePass {
     private:
         /**
          * Current skybox

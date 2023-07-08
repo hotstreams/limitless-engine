@@ -12,7 +12,7 @@
 using namespace Limitless;
 
 FXAAPass::FXAAPass(Pipeline& pipeline, glm::uvec2 frame_size)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , framebuffer {Framebuffer::asRGB8LinearClampToEdge(frame_size)} {
 }
 

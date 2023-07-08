@@ -40,6 +40,6 @@ void Renderer::updatePipeline(ContextEventObserver& ctx) {
 }
 
 void Renderer::update(ContextEventObserver& ctx, Assets& assets) {
-    assets.recompileShaders(ctx, settings);
+    assets.recompileAssets(ctx, settings);
 	updatePipeline(ctx);
 }

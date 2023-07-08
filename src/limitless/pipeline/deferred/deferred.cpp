@@ -22,6 +22,7 @@
 #include <limitless/pipeline/common/render_debug_pass.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/common/dof_pass.hpp>
+#include <limitless/pipeline/common/ssr_pass.hpp>
 #include <limitless/pipeline/common/outline_pass.hpp>
 #include <iostream>
 
@@ -79,6 +80,8 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
         add<SSAOPass>(ctx, size);
     }
 
+    add<SSRPass>(ctx, size);
+
     /*
      * Makes lighting calculations (with AO) from GBUFFER and renders result in another framebuffer
      */
@@ -104,9 +107,9 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
     //TODO: restore
 //    add<OutlinePass>();
 
-    if (settings.fast_approximate_antialiasing) {
-        add<FXAAPass>(size);
-    }
+//    if (settings.fast_approximate_antialiasing) {
+//        add<FXAAPass>(size);
+//    }
 
     //TODO: refactor move to postprocessing
 //    if (settings.depth_of_field) {

@@ -13,7 +13,7 @@
 using namespace Limitless;
 
 CompositePass::CompositePass(Pipeline& pipeline, glm::uvec2 size)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , framebuffer {Framebuffer::asRGB8LinearClampToEdge(size)} {
 }
 

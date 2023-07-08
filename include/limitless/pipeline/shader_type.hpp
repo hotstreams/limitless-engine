@@ -1,6 +1,8 @@
 #pragma once
 
+#include <limitless/util/filesystem.hpp>
 #include <set>
+#include <map>
 
 namespace Limitless {
     /**
@@ -60,6 +62,18 @@ namespace Limitless {
         ColorPicker
     };
 
+    inline const std::map<ShaderType, std::string> SHADER_PASS_PATH = {
+        {ShaderType::Forward,           "pipeline"  PATH_SEPARATOR "forward" PATH_SEPARATOR "forward" },
+
+        {ShaderType::Depth,             "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "depth" },
+        {ShaderType::GBuffer,           "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "gbuffer" },
+        {ShaderType::Skybox,            "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "skybox"},
+
+        {ShaderType::DirectionalShadow, "pipeline"  PATH_SEPARATOR "lighting" PATH_SEPARATOR "directional_shadows" },
+
+        {ShaderType::ColorPicker,       "pipeline"  PATH_SEPARATOR "util"     PATH_SEPARATOR "color_picker" },
+    };
+
     /**
      * InstanceType defines shader type to render different types of instances
      *
@@ -74,4 +88,18 @@ namespace Limitless {
 
     using ShaderTypes = std::set<ShaderType>;
     using InstanceTypes = std::set<InstanceType>;
+
+    /**
+     * ShaderKey describes unique shader used in rendering pipeline
+     *
+     * We are not using uber shaders, so we have to compile each ShaderType against each model and material types
+     */
+    class ShaderKey {
+    public:
+        ShaderType material_type;
+        InstanceType model_type;
+        uint64_t material_index;
+
+        bool operator<(const ShaderKey& rhs) const noexcept;
+    };
 }

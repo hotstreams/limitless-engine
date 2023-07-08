@@ -3,7 +3,7 @@
 using namespace Limitless;
 
 PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , postprocess {context.getSize()} {
 }
 
@@ -13,7 +13,7 @@ void PostEffectsPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused
 }
 
 PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context, RenderTarget& target)
-	: RenderPass(pipeline)
+	: PipelinePass(pipeline)
 	, postprocess {context.getSize(), target} {
 
 }

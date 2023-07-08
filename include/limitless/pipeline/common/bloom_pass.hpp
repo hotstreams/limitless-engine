@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/postprocessing/bloom.hpp>
 
 namespace Limitless {
@@ -11,7 +11,7 @@ namespace Limitless {
      *
      * note: as an input image uses previous pass result
      */
-    class BloomPass final : public RenderPass {
+    class BloomPass final : public PipelinePass {
     private:
         /**
          * Bloom implementation

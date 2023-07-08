@@ -4,7 +4,7 @@
 //#include <limitless/core/context_observer.hpp>
 //
 //namespace Limitless {
-//	class OutlinePass : public RenderPass {
+//	class OutlinePass : public PipelinePass {
 //	public:
 //		explicit OutlinePass(Pipeline& pipeline);
 //		~OutlinePass() override = default;

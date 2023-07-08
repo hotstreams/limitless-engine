@@ -1,13 +1,13 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 
 namespace Limitless {
     /**
      * DeferredLightingPass makes lighting calculation using data from GBUFFER and renders result to its own framebuffer
      */
-    class DeferredLightingPass final : public RenderPass {
+    class DeferredLightingPass final : public PipelinePass {
     private:
         /**
          * Lighting result framebuffer

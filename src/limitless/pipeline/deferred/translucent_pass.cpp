@@ -16,7 +16,7 @@
 using namespace Limitless;
 
 TranslucentPass::TranslucentPass(Pipeline& pipeline, fx::EffectRenderer& _renderer, glm::uvec2 frame_size, std::shared_ptr<Texture> depth)
-    : RenderPass(pipeline)
+    : PipelinePass(pipeline)
     , framebuffer {Framebuffer::asRGB16FNearestClampToEdgeWithDepth(frame_size, depth)}
     , renderer {_renderer} {
 }

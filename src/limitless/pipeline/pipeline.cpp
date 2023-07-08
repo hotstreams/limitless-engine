@@ -53,3 +53,15 @@ void Pipeline::setTarget(RenderTarget& _target) noexcept {
 RenderTarget& Pipeline::getTarget() noexcept {
     return *target;
 }
+
+std::unique_ptr<PipelinePass>& Pipeline::getPrevious(PipelinePass* curr) {
+    for (uint32_t i = 1; i < passes.size(); ++i) {
+        if (passes[i].get() == curr) {
+            return passes[i - 1];
+        }
+    }
+
+    throw pipeline_pass_not_found {"There is no previous pass!"};
+}
+
+

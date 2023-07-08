@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 
 namespace Limitless {
@@ -26,7 +26,7 @@ namespace Limitless {
      * Depth buffer:
      *      DEPTH32F
      */
-    class DeferredFramebufferPass final : public RenderPass {
+    class DeferredFramebufferPass final : public PipelinePass {
     private:
         Framebuffer framebuffer;
     public:

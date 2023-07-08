@@ -1,10 +1,10 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/fx/effect_renderer.hpp>
 
 namespace Limitless {
-    class EffectUpdatePass final : public RenderPass {
+    class EffectUpdatePass final : public PipelinePass {
     private:
         fx::EffectRenderer renderer;
     public:

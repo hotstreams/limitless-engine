@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 
 namespace Limitless {
@@ -9,7 +9,7 @@ namespace Limitless {
      *
      * result from transparent pass (lighting image + transparent objects) combined with bloom pass result
      */
-    class CompositePass final : public RenderPass {
+    class CompositePass final : public PipelinePass {
     private:
         /**
          * Result framebuffer

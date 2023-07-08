@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/render_pass.hpp>
+#include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/core/framebuffer.hpp>
 
@@ -19,7 +19,7 @@ namespace Limitless {
      *
      * Also this pass allows us to make screen space refraction because we have background image
      */
-    class TranslucentPass final : public RenderPass {
+    class TranslucentPass final : public PipelinePass {
     private:
         /**
          * Result framebuffer
