@@ -156,7 +156,7 @@ void Material::map(std::vector<std::byte>& block, Uniform& uniform) {
             }
             break;
         case UniformType::Sampler:
-            if (ContextInitializer::isBindlessTexturesSupported()) {
+            if (ContextInitializer::isBindlessTextureSupported()) {
                 const auto& uni = static_cast<const UniformSampler&>(uniform); //NOLINT
                 const auto offset = uniform_offsets.at(uniform.getName());
                 auto& bindless_texture = static_cast<BindlessTexture&>(uni.getSampler()->getExtensionTexture()); //NOLINT
