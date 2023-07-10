@@ -122,6 +122,14 @@ bool ContextInitializer::isProgramInterfaceQuerySupported() noexcept {
     return isExtensionSupported("GL_ARB_program_interface_query");
 }
 
-bool ContextInitializer::isBindlessTexturesSupported() noexcept {
+bool ContextInitializer::isBindlessTextureSupported() noexcept {
     return isExtensionSupported("GL_ARB_bindless_texture");
+}
+
+bool ContextInitializer::isImmutableTextureSupported() noexcept {
+    return isExtensionSupported("GL_ARB_texture_storage");
+}
+
+bool ContextInitializer::isNamedTextureSupported() noexcept {
+    return isExtensionSupported("GL_ARB_direct_state_access");
 }

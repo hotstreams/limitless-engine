@@ -43,6 +43,8 @@ namespace Limitless {
         static bool checkMinimumRequirements() noexcept;
 
         static bool isProgramInterfaceQuerySupported() noexcept;
-        static bool isBindlessTexturesSupported() noexcept;
+        static bool isBindlessTextureSupported() noexcept;
+        static bool isImmutableTextureSupported() noexcept;
+        static bool isNamedTextureSupported() noexcept;
     };
 }
