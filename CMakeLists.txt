@@ -350,6 +350,11 @@ target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_demo freetype)
 target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
 
+if (UNIX)
+    # Required for OpenGL on X11.
+    target_link_libraries(limitless_demo GL)
+endif()
+
 ##############################################
 
 ###################### TESTS
@@ -393,5 +398,10 @@ target_link_libraries(limitless_test glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_test assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_test freetype)
 target_link_libraries(limitless_test glew ${GLEW_LIBRARIES})
+
+if (UNIX)
+    # Required for OpenGL on X11.
+    target_link_libraries(limitless_test GL)
+endif()
 
 ##############################################
