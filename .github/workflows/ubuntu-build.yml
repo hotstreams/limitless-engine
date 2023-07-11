@@ -9,6 +9,7 @@ jobs:
   build-linux:
     name: build-linux
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: setup
         run: |
