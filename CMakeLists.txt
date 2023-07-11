@@ -34,9 +34,9 @@ if (OPENGL_TOSTER_MODE)
     add_compile_definitions(OPENGL_TOSTER)
 endif()
 
-if (GLSLANG_SHADER_OUTPUT)
+#if (GLSLANG_SHADER_OUTPUT)
     add_compile_definitions(GLSLANG_SHADER_OUTPUT)
-endif()
+#endif()
 
 if (CODECOV)
     set(LIMITLESS_COMPILE_OPTIONS ${LIMITLESS_COMPILE_OPTIONS} -fprofile-arcs -ftest-coverage)

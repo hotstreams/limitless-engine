@@ -143,16 +143,6 @@ void MaterialCompiler::compile(const Material& material, ShaderPass pass_shader,
         auto tesc = Shader { assets.getShaderDir() / "tesselation" / "tesselation.tesc", Shader::Type::TessControl, props };
         auto tese = Shader { assets.getShaderDir() / "tesselation" / "tesselation.tese", Shader::Type::TessEval, props };
 
-#ifdef GLSLANG_SHADER_OUTPUT
-        static int i = 0;
-        std::ofstream f1 {"./glslang/" + std::to_string(i) + ".tesc"};
-        f1 << tesc.getSource();
-        f1.close();
-
-        std::ofstream f2 {"./glslang/" + std::to_string(i) + ".tese"};
-        f2 << tese.getSource();
-        f2.close();
-#endif
         *this << std::move(tesc)
               << std::move(tese);
     }

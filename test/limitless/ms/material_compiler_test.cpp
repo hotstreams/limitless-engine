@@ -799,5 +799,6 @@ TEST_CASE("MaterialCompiler throws") {
     RenderSettings settings {};
     REQUIRE_THROWS_AS(assets.compileMaterial(context, settings, material), material_compilation_error);
 
-    check_opengl_state();
+    // we should reset state because shader compilation got an error
+    gl_error_count = 0;
 }
