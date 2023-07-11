@@ -13,6 +13,7 @@ OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
 OPTION(CODECOV "Compile with test coverage" OFF)
+OPTION(GLSLANG_SHADER_OUTPUT OFF)
 
 #########################################
 
@@ -34,6 +35,10 @@ endif()
 
 if (OPENGL_TOSTER_MODE)
     add_compile_definitions(OPENGL_TOSTER)
+endif()
+
+if (GLSLANG_SHADER_OUTPUT)
+    add_compile_definitions(GLSLANG_SHADER_OUTPUT)
 endif()
 
 if (CODECOV)
@@ -350,11 +355,6 @@ target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_demo freetype)
 target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
 
-if (UNIX)
-    # Required for OpenGL on X11.
-    target_link_libraries(limitless_demo GL)
-endif()
-
 ##############################################
 
 ###################### TESTS
@@ -398,10 +398,5 @@ target_link_libraries(limitless_test glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_test assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_test freetype)
 target_link_libraries(limitless_test glew ${GLEW_LIBRARIES})
-
-if (UNIX)
-    # Required for OpenGL on X11.
-    target_link_libraries(limitless_test GL)
-endif()
 
 ##############################################

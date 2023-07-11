@@ -54,6 +54,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
 
     for (const auto& shader : shaders) {
         shader.compile();
+
         glAttachShader(program_id, shader.getId());
     }
 

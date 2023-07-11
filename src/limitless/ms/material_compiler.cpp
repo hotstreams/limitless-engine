@@ -3,7 +3,6 @@
 #include <limitless/renderer/render_settings.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
-#include <iostream>
 
 using namespace Limitless::ms;
 
@@ -141,17 +140,11 @@ void MaterialCompiler::compile(const Material& material, ShaderType pass_shader,
     };
 
     if (material.contains(Property::TessellationFactor)) {
-        auto shader1 = Shader { assets.getShaderDir() / "tesselation" / "tesselation.tcs", Shader::Type::TessControl, props };
-        auto shader2 = Shader { assets.getShaderDir() / "tesselation" / "tesselation.tes", Shader::Type::TessEval, props };
-        static int i = 0;
-        std::ofstream f1 {"D:/Dev/Projects/limitless-engine/glslang/" + std::to_string(i++) + ".tesc"};
-        f1 << shader1.getSource();
-        f1.close();
-        std::ofstream f2 {"D:/Dev/Projects/limitless-engine/glslang/" + std::to_string(i++) + ".tese"};
-        f2 << shader2.getSource();
-        f2.close();
-        *this << std::move(shader1)
-              << std::move(shader2);
+        auto tesc = Shader { assets.getShaderDir() / "tesselation" / "tesselation.tesc", Shader::Type::TessControl, props };
+        auto tese = Shader { assets.getShaderDir() / "tesselation" / "tesselation.tese", Shader::Type::TessEval, props };
+
+        *this << std::move(tesc)
+              << std::move(tese);
     }
 
 	try {

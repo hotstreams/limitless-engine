@@ -134,8 +134,6 @@ enum class TextureType  {
 };
 
 void test_with_type_and_extension_texture(Texture::Type type, ExtensionTextureType ex_type, TextureType tex_type) {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
-
     // build texture without mipmap
     {
         TextureBuilder builder {};
@@ -377,97 +375,163 @@ void test_with_type_and_extension_texture(Texture::Type type, ExtensionTextureTy
 }
 
 TEST_CASE("[State Mutable Texture 2D]") {
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
     test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::State, TextureType::Mutable);
 }
 
 TEST_CASE("[State Mutable Texture 2D Array]") {
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
     test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::State, TextureType::Mutable);
 }
 
 TEST_CASE("[State Mutable Texture 3D]") {
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
     test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::State, TextureType::Mutable);
 }
 
 TEST_CASE("[State Immutable Texture 2D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::State, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::State, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[State Immutable Texture 2D Array]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::State, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::State, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[State Immutable Texture 3D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::State, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::State, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[Named Mutable Texture 2D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::Named, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isNamedTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::Named, TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[Named Mutable Texture 2D Array]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::Named, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isNamedTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::Named, TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[Named Mutable Texture 3D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::Named, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isNamedTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::Named, TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[Named Immutable Texture 2D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::Named, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isNamedTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::Named, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[Named Immutable Texture 2D Array]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::Named, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isNamedTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::Named, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[Named Immutable Texture 3D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::Named, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isNamedTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::Named, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[BindlessState Mutable Texture 2D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessState, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessState,TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[BindlessState Mutable Texture 2D Array]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessState, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessState, TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[BindlessState Mutable Texture 3D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessState, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessState,TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[BindlessState Immutable Texture 2D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessState, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessState, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[BindlessState Immutable Texture 2D Array]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessState, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessState, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[BindlessState Immutable Texture 3D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessState, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessState, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[BindlessNamed Mutable Texture 2D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessNamed, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isNamedTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessNamed, TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[BindlessNamed Mutable Texture 2D Array]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessNamed, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isNamedTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessNamed,  TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[BindlessNamed Mutable Texture 3D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessNamed, TextureType::Mutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isNamedTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessNamed, TextureType::Mutable);
+    }
 }
 
 TEST_CASE("[BindlessNamed Immutable Texture 2D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessNamed, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isNamedTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2D, ExtensionTextureType::BindlessNamed, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[BindlessNamed Immutable Texture 2D Array]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessNamed, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isNamedTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex2DArray, ExtensionTextureType::BindlessNamed, TextureType::Immutable);
+    }
 }
 
 TEST_CASE("[BindlessNamed Immutable Texture 3D]") {
-    test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessNamed, TextureType::Immutable);
+    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    if (ContextInitializer::isBindlessTextureSupported() && ContextInitializer::isNamedTextureSupported() && ContextInitializer::isImmutableTextureSupported()) {
+        test_with_type_and_extension_texture(Texture::Type::Tex3D, ExtensionTextureType::BindlessNamed, TextureType::Immutable);
+    }
 }
