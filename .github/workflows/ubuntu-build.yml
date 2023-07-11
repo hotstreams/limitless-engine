@@ -31,9 +31,11 @@ jobs:
           make
       - name: test
         run: |
+          cd build
           mkdir glslang
           xvfb-run ./limitless_test
       - name: shader glslang validation
         run: |
+          cd build
           cd glslang
           ls | glslangValidator -C
