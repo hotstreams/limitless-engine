@@ -9,7 +9,6 @@ jobs:
   build-linux:
     name: build-linux
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: setup
         run: |
@@ -39,4 +38,4 @@ jobs:
         run: |
           cd build
           cd glslang
-          ls | glslangValidator -C
+          for file in ./*; do glslangValidator -C "$file"; done
