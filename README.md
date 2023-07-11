@@ -7,33 +7,6 @@
 [![MacOS Build Status](https://github.com/hotstreams/limitless-engine/workflows/MacOS/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AMac)
 [![Web Build Status](https://github.com/hotstreams/limitless-engine/workflows/Web/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWeb)
 
-# Build
-This project requires C++17 compiler and CMake.
-
-1) After cloning this Git repo, initialize its Git submodules, which contain 3rd party dependencies:
-```sh
-git submodule init
-git submodule update
-```
-
-2) Create a new directory for resulting build and start it:
-```sh
-mkdir build && cd build
-cmake ..
-make -j12 limitless_demo
-./limitless_demo
-```
-
-# Dependencies
-- glfw3
-- glew
-- OpenGL
-- glm
-- assimp
-- stb_image
-- stb_image_resize
-- freetype
-
 ### Lighting
 
 - Forward/Deferred shading
@@ -169,3 +142,32 @@ Material Properties:
 ![me](content/sponza.png)
 
 ![me](content/warlocks.png)
+
+# Build
+This project requires C++17 compiler and CMake.
+
+1) After cloning this Git repo, initialize its Git submodules, which contain 3rd party dependencies and build glew extensions:
+```sh
+git submodule init
+git submodule update
+cd thirdparty/glew
+make extensions
+```
+
+2) Create a new directory for resulting build and start it:
+```sh
+mkdir build && cd build
+cmake ..
+make -j12 limitless_demo
+./limitless_demo
+```
+
+# Dependencies
+- glfw3
+- glew
+- OpenGL
+- glm
+- assimp
+- stb_image
+- stb_image_resize
+- freetype
