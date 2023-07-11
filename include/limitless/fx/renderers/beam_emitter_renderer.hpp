@@ -22,7 +22,7 @@ namespace Limitless::fx {
 
         void draw(Context& ctx,
                   const Assets& assets,
-                  ShaderPass shader_type,
+                  ShaderType shader_type,
                   const ms::Material& material,
                   ms::Blending blending,
                   const UniformSetter& setter) {

@@ -30,7 +30,7 @@ Assets::Assets(fs::path _base_dir, fs::path _shader_dir) noexcept
 void Assets::load([[maybe_unused]] Context& context) {
     // builds default materials for every model type
     ms::MaterialBuilder builder {*this};
-    ModelShaders model_types = { ModelShader::Model, ModelShader::Skeletal, ModelShader::Effect, ModelShader::Instanced };
+    InstanceTypes model_types = {InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced };
     builder.setName("default")
         .setShading(ms::Shading::Unlit)
         .add(ms::Property::Color, {0.7f, 0.0f, 0.7f, 1.0f})
@@ -41,13 +41,6 @@ void Assets::load([[maybe_unused]] Context& context) {
     builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
     builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
-
-    builder.setName("outline")
-    .add(ms::Property::Color, {100.0f, 0.0f, 0.0f, 1.0f})
-    .setModelShaders(model_types)
-    .setShading(ms::Shading::Unlit)
-    .setTwoSided(true)
-    .build();
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(glm::uvec2{32}));
@@ -86,7 +79,7 @@ void Assets::add(const Assets& other) {
     fonts.add(other.fonts);
 }
 
-void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
+void Assets::compileAssets(Context& ctx, const RenderSettings& settings) {
 	initialize(ctx, settings);
 
     for (const auto& [_, material] : materials) {
@@ -102,9 +95,9 @@ void Assets::compileShaders(Context& ctx, const RenderSettings& settings) {
     }
 }
 
-void Assets::recompileShaders(Context& ctx, const RenderSettings& settings) {
+void Assets::recompileAssets(Context& ctx, const RenderSettings& settings) {
     shaders.clear();
-    compileShaders(ctx, settings);
+    compileAssets(ctx, settings);
 }
 
 void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material) {
@@ -112,7 +105,7 @@ void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const
 
     for (const auto& model_shader_type : material->getModelShaders()) {
         // effect shaders compiled separately
-        if (model_shader_type == ModelShader::Effect) {
+        if (model_shader_type == InstanceType::Effect) {
             continue;
         }
 
@@ -124,25 +117,25 @@ void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const
     }
 }
 
-PassShaders Assets::getRequiredPassShaders(const RenderSettings& settings) {
-    PassShaders pass_shaders;
+ShaderTypes Assets::getRequiredPassShaders(const RenderSettings& settings) {
+    ShaderTypes pass_shaders;
 
     if (settings.pipeline == RenderPipeline::Forward) {
-        pass_shaders.emplace(ShaderPass::Forward);
+        pass_shaders.emplace(ShaderType::Forward);
     }
 
     if (settings.pipeline == RenderPipeline::Deferred) {
-        pass_shaders.emplace(ShaderPass::Depth);
-        pass_shaders.emplace(ShaderPass::GBuffer);
+        pass_shaders.emplace(ShaderType::Depth);
+        pass_shaders.emplace(ShaderType::GBuffer);
         //for transparent pass?
-        pass_shaders.emplace(ShaderPass::Forward);
+        pass_shaders.emplace(ShaderType::Forward);
     }
 
-    if (settings.directional_cascade_shadow_mapping) {
-        pass_shaders.emplace(ShaderPass::DirectionalShadow);
+    if (settings.cascade_shadow_maps) {
+        pass_shaders.emplace(ShaderType::DirectionalShadow);
     }
 
-    pass_shaders.emplace(ShaderPass::ColorPicker);
+    pass_shaders.emplace(ShaderType::ColorPicker);
 
     return pass_shaders;
 }
@@ -158,8 +151,8 @@ void Assets::compileEffect(Context& ctx, const RenderSettings& settings, const s
 void Assets::compileSkybox(Context& ctx, const RenderSettings& settings, const std::shared_ptr<Skybox>& skybox) {
     ms::MaterialCompiler compiler {ctx, *this, settings};
 
-    if (!shaders.contains(ShaderPass::Skybox, ModelShader::Model, skybox->getMaterial().getShaderIndex())) {
-        compiler.compile(skybox->getMaterial(), ShaderPass::Skybox, ModelShader::Model);
+    if (!shaders.contains(ShaderType::Skybox, InstanceType::Model, skybox->getMaterial().getShaderIndex())) {
+        compiler.compile(skybox->getMaterial(), ShaderType::Skybox, InstanceType::Model);
     }
 }
 
@@ -179,7 +172,7 @@ void Assets::recompileMaterial(Context& ctx, const RenderSettings& settings, con
 
     for (const auto& model_shader_type : material->getModelShaders()) {
         // effect shaders compiled separately
-        if (model_shader_type == ModelShader::Effect) {
+        if (model_shader_type == InstanceType::Effect) {
             continue;
         }
 

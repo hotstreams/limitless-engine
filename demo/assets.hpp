@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/assets.hpp>
-#include <limitless/pipeline/renderer.hpp>
+#include <limitless/renderer/renderer.hpp>
 
 class DemoAssets : public Limitless::Assets {
 private:

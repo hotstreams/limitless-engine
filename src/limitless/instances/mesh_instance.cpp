@@ -23,8 +23,8 @@ void MeshInstance::reveal() noexcept {
 
 void MeshInstance::draw(Context& ctx,
                         const Assets& assets,
-                        ShaderPass pass,
-                        ModelShader model,
+                        ShaderType pass,
+                        InstanceType model,
                         const glm::mat4& model_matrix,
                         ms::Blending blending,
                         const UniformSetter& uniform_setter) {
@@ -95,13 +95,13 @@ void MeshInstance::draw(Context& ctx,
 }
 
 void MeshInstance::draw_instanced(Context& ctx,
-                        const Assets& assets,
-                        ShaderPass pass,
-                        ModelShader model,
-                        const glm::mat4& model_matrix,
-                        ms::Blending blending,
-                        const UniformSetter& uniform_setter,
-                        uint32_t count) {
+                                  const Assets& assets,
+                                  ShaderType pass,
+                                  InstanceType model,
+                                  const glm::mat4& model_matrix,
+                                  ms::Blending blending,
+                                  const UniformSetter& uniform_setter,
+                                  uint32_t count) {
     if (hidden) {
         return;
     }

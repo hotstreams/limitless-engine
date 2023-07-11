@@ -75,12 +75,12 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
             settings.append("#define NORMAL_MAPPING\n");
         }
 
-        if (render_settings->directional_cascade_shadow_mapping) {
+        if (render_settings->cascade_shadow_maps) {
             settings.append("#define DIRECTIONAL_CSM\n");
 
-            settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(render_settings->directional_split_count) + '\n');
+            settings.append("#define DIRECTIONAL_SPLIT_COUNT " + std::to_string(render_settings->csm_split_count) + '\n');
 
-            if (render_settings->directional_pcf) {
+            if (render_settings->csm_pcf) {
                 settings.append("#define DIRECTIONAL_PFC\n");
             }
         }
@@ -89,7 +89,39 @@ void ShaderCompiler::replaceRenderSettings(Shader& shader) const {
 	        settings.append("#define SCREEN_SPACE_AMBIENT_OCCLUSION\n");
         }
 
-        if (render_settings->micro_shadowing) {
+        if (render_settings->screen_space_reflections) {
+            settings.append("#define SCREEN_SPACE_REFLECTIONS\n");
+
+            if (render_settings->screen_space_reflections_settings.intersection_distance_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_INTERSECTION_DISTANCE_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.iteration_count_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_ITERATION_COUNT_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.borders_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_BORDERS_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.fresnel_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_FRESNEL_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.camera_facing_attenuation) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_CAMERA_FACING_ATTENUATION\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.clip_to_frustrum) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_CLIP_TO_FRUSTRUM\n");
+            }
+
+            if (render_settings->screen_space_reflections_settings.refiniment) {
+                settings.append("#define SCREEN_SPACE_REFLECTIONS_REFINEMENT\n");
+            }
+        }
+
+        if (render_settings->csm_micro_shadowing) {
             settings.append("#define MICRO_SHADOWING\n");
         }
 
@@ -106,6 +138,14 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
             Shader shader { path.string() + extension.data(), type, action };
 
             replaceRenderSettings(shader);
+
+
+            std::string e = type == Shader::Type::Vertex ? ".vert" : ".frag";
+            // TODO: temp ref/remove
+            static int i = 0;
+            std::ofstream f {"D:/Dev/Projects/limitless-engine/glslang/" + std::to_string(i++) + e};
+            f << shader.getSource();
+            f.close();
 
             *this << std::move(shader);
 

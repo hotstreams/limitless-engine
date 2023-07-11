@@ -1,6 +1,6 @@
 #include <limitless/ms/material_compiler.hpp>
 
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
 
@@ -79,19 +79,19 @@ std::string MaterialCompiler::getMaterialDefines(const Material& material) noexc
     return property_defines;
 }
 
-std::string MaterialCompiler::getModelDefines(const ModelShader& type) {
+std::string MaterialCompiler::getModelDefines(const InstanceType& type) {
     std::string defines;
     switch (type) {
-        case ModelShader::Model:
+        case InstanceType::Model:
             defines.append("#define SIMPLE_MODEL\n");
             break;
-        case ModelShader::Skeletal:
+        case InstanceType::Skeletal:
             defines.append("#define SKELETAL_MODEL\n");
             break;
-        case ModelShader::Instanced:
+        case InstanceType::Instanced:
             defines.append("#define INSTANCED_MODEL\n");
             break;
-        case ModelShader::Effect:
+        case InstanceType::Effect:
             defines.append("#define EFFECT_MODEL\n");
             break;
     }
@@ -120,7 +120,7 @@ std::string MaterialCompiler::getCustomMaterialSamplerUniforms(const Material& m
     return uniforms;
 }
 
-void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept {
+void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& material, InstanceType model_shader) noexcept {
     shader.replaceKey("Limitless::MaterialType", getMaterialDefines(material));
     shader.replaceKey("Limitless::ModelType", getModelDefines(model_shader));
     shader.replaceKey("Limitless::EmitterType", "");
@@ -133,7 +133,7 @@ void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& m
     shader.replaceKey("_MATERIAL_SAMPLER_UNIFORMS", getCustomMaterialSamplerUniforms(material));
 }
 
-void MaterialCompiler::compile(const Material& material, ShaderPass pass_shader, ModelShader model_shader) {
+void MaterialCompiler::compile(const Material& material, ShaderType pass_shader, InstanceType model_shader) {
     const auto props = [&] (Shader& shader) {
         replaceMaterialSettings(shader, material, model_shader);
         replaceRenderSettings(shader);

@@ -1,6 +1,6 @@
 #include <limitless/util/color_picker.hpp>
 
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <utility>
 #include <iostream>
 #include <limitless/core/uniform/uniform_sampler.hpp>
@@ -27,7 +27,7 @@ void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instance
         const auto setter = UniformSetter([color_id = convert(id)](ShaderProgram& shader) {
             shader.setUniform("color_id", color_id);
         });
-        instance.draw(ctx, assets, ShaderPass::ColorPicker, ms::Blending::Opaque, setter);
+        instance.draw(ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter);
     }
 
     pick.sync.place();

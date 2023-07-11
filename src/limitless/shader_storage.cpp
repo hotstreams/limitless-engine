@@ -1,11 +1,12 @@
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader/shader_compiler.hpp>
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 
 using namespace Limitless;
 
-bool Limitless::operator<(const ShaderKey& lhs, const ShaderKey& rhs) noexcept {
-    return std::tie(lhs.material_type, lhs.model_type, lhs.material_index) < std::tie(rhs.material_type, rhs.model_type, rhs.material_index);
+bool ShaderKey::operator<(const ShaderKey& rhs) const noexcept {
+    return std::tie(material_type, model_type, material_index) <
+           std::tie(rhs.material_type, rhs.model_type, rhs.material_index);
 }
 
 ShaderProgram& ShaderStorage::get(const std::string& name) const {
@@ -16,7 +17,7 @@ ShaderProgram& ShaderStorage::get(const std::string& name) const {
     }
 }
 
-ShaderProgram& ShaderStorage::get(ShaderPass material_type, ModelShader model_type, uint64_t material_index) const {
+ShaderProgram& ShaderStorage::get(ShaderType material_type, InstanceType model_type, uint64_t material_index) const {
     try {
         return *materials.at({material_type, model_type, material_index});
     } catch (const std::out_of_range& e) {
@@ -33,7 +34,7 @@ void ShaderStorage::add(std::string name, std::shared_ptr<ShaderProgram> program
     }
 }
 
-void ShaderStorage::add(ShaderPass material_type, ModelShader model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) {
+void ShaderStorage::add(ShaderType material_type, InstanceType model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) {
     std::unique_lock lock(mutex);
     const auto key = ShaderKey{material_type, model_type, material_index};
 
@@ -48,7 +49,7 @@ void ShaderStorage::add(ShaderPass material_type, ModelShader model_type, uint64
     }
 }
 
-bool ShaderStorage::contains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept {
+bool ShaderStorage::contains(ShaderType material_type, InstanceType model_type, uint64_t material_index) noexcept {
     std::unique_lock lock(mutex);
     return materials.find({material_type, model_type, material_index}) != materials.end();
 }
@@ -58,7 +59,7 @@ bool ShaderStorage::contains(const fx::UniqueEmitterShaderKey& emitter_type) noe
     return emitters.find(emitter_type) != emitters.end();
 }
 
-bool ShaderStorage::reserveIfNotContains(ShaderPass material_type, ModelShader model_type, uint64_t material_index) noexcept {
+bool ShaderStorage::reserveIfNotContains(ShaderType material_type, InstanceType model_type, uint64_t material_index) noexcept {
     std::unique_lock lock(mutex);
     bool contains = materials.find({material_type, model_type, material_index}) != materials.end();
 
@@ -103,7 +104,7 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
 
 void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, const fs::path& shader_dir) {
     ShaderCompiler compiler {ctx, settings};
-
+//TODO: check
     if (settings.pipeline == RenderPipeline::Forward) {
         add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
         add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
@@ -113,8 +114,8 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
     if (settings.pipeline == RenderPipeline::Deferred) {
         add("deferred", compiler.compile(shader_dir / "pipeline/deferred/deferred"));
         add("composite", compiler.compile(shader_dir / "pipeline/deferred/composite"));
-        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao"));
-        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao_blur"));
+        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));
+        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao/ssao_blur"));
 
         add("blur_downsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_downsample"));
         add("blur_upsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_upsample"));
@@ -128,6 +129,8 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
     if (settings.depth_of_field) {
 	    add("dof", compiler.compile(shader_dir / "postprocessing/dof"));
     }
+
+    add("ssr", compiler.compile(shader_dir / "postprocessing/ssr/ssr"));
 
     add("quad", compiler.compile(shader_dir / "pipeline/quad"));
     add("text", compiler.compile(shader_dir / "text/text"));
@@ -158,7 +161,7 @@ bool ShaderStorage::contains(const std::string& name) noexcept {
     return shaders.find(name) != shaders.end();
 }
 
-void ShaderStorage::remove(ShaderPass material_type, ModelShader model_type, uint64_t material_index) {
+void ShaderStorage::remove(ShaderType material_type, InstanceType model_type, uint64_t material_index) {
     std::unique_lock lock(mutex);
 
     const auto key = ShaderKey{material_type, model_type, material_index};
