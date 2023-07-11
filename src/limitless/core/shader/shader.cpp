@@ -3,6 +3,7 @@
 #include <limitless/core/keyline_extensions.hpp>
 #include <string>
 #include <sstream>
+#include <limitless/core/shader/shader_extensions.hpp>
 
 using namespace Limitless;
 
@@ -40,6 +41,20 @@ void Shader::checkStatus() const {
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &log_size);
 
     if (log_size == 0) {
+
+#ifdef GLSLANG_SHADER_OUTPUT
+        static int i = 0;
+
+        for (const auto& [ext, t]: shader_file_extensions) {
+            if (t == type) {
+                std::ofstream f {"./glslang/" + std::to_string(i++) + ext.data()};
+                f << getSource();
+                f.close();
+                break;
+            }
+        }
+#endif
+
         return;
     }
 

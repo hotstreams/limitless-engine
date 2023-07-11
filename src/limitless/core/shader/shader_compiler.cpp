@@ -54,6 +54,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
 
     for (const auto& shader : shaders) {
         shader.compile();
+
         glAttachShader(program_id, shader.getId());
     }
 
@@ -105,13 +106,6 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
             Shader shader { path.string() + extension.data(), type, action };
 
             replaceRenderSettings(shader);
-
-#ifdef GLSLANG_SHADER_OUTPUT
-            static int i = 0;
-            std::ofstream f {"./glslang/" + std::to_string(i) + extension.data()};
-            f << shader.getSource();
-            f.close();
-#endif
 
             *this << std::move(shader);
 

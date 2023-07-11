@@ -28,6 +28,7 @@ jobs:
           cmake -DGLSLANG_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
+          mkdir glslang
           xvfb-run ./limitless_test
           cd glslang
           ls | glslangValidator -C

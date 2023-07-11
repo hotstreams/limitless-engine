@@ -15,8 +15,8 @@ TEST_CASE("Manual shader program compilation") {
 
         ShaderCompiler shader_compiler = ShaderCompiler(context, settings);
 
-        shader_compiler << Shader{"../test/limitless/assets/sc1.vs", Shader::Type::Vertex}
-                        << Shader{"../test/limitless/assets/sc1.fs", Shader::Type::Fragment};
+        shader_compiler << Shader{"../test/limitless/assets/sc1.vert", Shader::Type::Vertex}
+                        << Shader{"../test/limitless/assets/sc1.frag", Shader::Type::Fragment};
 
         shader_compiler.compile();
 
