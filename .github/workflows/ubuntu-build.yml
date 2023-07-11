@@ -38,5 +38,6 @@ jobs:
       - name: shader glslang validation
         run: |
           cd build
+          cat errors
           cd glslang
           for file in ./*; do glslangValidator -C "$file"; done
