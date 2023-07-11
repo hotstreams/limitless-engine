@@ -57,7 +57,7 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
 
     std::vector<std::shared_ptr<ms::Material>> materials;
     if (!flags.isPresent(ModelLoaderOption::NoMaterials)) {
-        materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+        materials = loadMaterials(assets, scene, path, bone_map.empty() ? InstanceType::Model : InstanceType::Skeletal);
     }
 
     auto animations = loadAnimations(scene, bones, bone_map);
@@ -164,7 +164,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         Assets& assets,
         aiMaterial* mat,
         const fs::path& path,
-        const ModelShaders& model_shaders) {
+        const InstanceTypes& model_shaders) {
     aiString aname;
     mat->Get(AI_MATKEY_NAME, aname);
 
@@ -302,7 +302,7 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
     return bone_weights;
 }
 
-std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, ModelShader model_shader) {
+std::vector<std::shared_ptr<ms::Material>> ModelLoader::loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, InstanceType model_shader) {
     std::vector<std::shared_ptr<ms::Material>> materials;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {

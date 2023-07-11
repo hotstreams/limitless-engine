@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <set>
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <optional>
 
 namespace Limitless::ms {
@@ -30,7 +30,7 @@ namespace Limitless::fx {
 
     struct UniqueEmitterShaderKey {
         UniqueEmitterShader emitter_type;
-        ShaderPass shader;
+        ShaderType shader;
     };
 
     bool operator<(const UniqueEmitterShaderKey& lhs, const UniqueEmitterShaderKey& rhs) noexcept;

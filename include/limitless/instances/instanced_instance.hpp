@@ -59,13 +59,13 @@ namespace Limitless {
             buffer->mapData(data.data(), data.size() * sizeof(glm::mat4));
         }
 
-        explicit InstancedInstance(ModelShader shader, const glm::vec3& position, uint32_t count)
+        explicit InstancedInstance(InstanceType shader, const glm::vec3& position, uint32_t count)
             : AbstractInstance(shader, position) {
             initializeBuffer(count);
         }
     public:
         explicit InstancedInstance(const glm::vec3& position, uint32_t count = 4)
-            : AbstractInstance(ModelShader::Instanced, position) {
+            : AbstractInstance(InstanceType::Instanced, position) {
             initializeBuffer(count);
         }
 
@@ -111,7 +111,7 @@ namespace Limitless {
             updateBuffer(context, camera);
         }
 
-        void draw(Context& ctx, const Assets& assets, ShaderPass pass, ms::Blending blending, const UniformSetter& uniform_set) override {
+        void draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_set) override {
             if (hidden || instances.empty()) {
                 return;
             }

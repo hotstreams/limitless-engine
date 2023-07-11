@@ -95,7 +95,7 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
 
     std::vector<std::shared_ptr<ms::Material>> materials;
     if (!flags.isPresent(ModelLoaderOption::NoMaterials)) {
-        materials = loadMaterials(assets, scene, path, bone_map.empty() ? ModelShader::Model : ModelShader::Skeletal);
+        materials = loadMaterials(assets, scene, path, bone_map.empty() ? InstanceType::Model : InstanceType::Skeletal);
     }
 
     auto animations = loadAnimations(scene, bones, bone_map);

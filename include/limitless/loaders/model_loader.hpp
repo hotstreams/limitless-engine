@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/util/filesystem.hpp>
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <assimp/scene.h>
 #include <limitless/util/tree.hpp>
 #include <glm/glm.hpp>
@@ -56,8 +56,8 @@ namespace Limitless {
         static std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
         static std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
         static Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
-        static std::shared_ptr<ms::Material> loadMaterial(Assets& assets, aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
-        static std::vector<std::shared_ptr<ms::Material>> loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, ModelShader model_shader);
+        static std::shared_ptr<ms::Material> loadMaterial(Assets& assets, aiMaterial* mat, const fs::path& path, const InstanceTypes& model_shaders);
+        static std::vector<std::shared_ptr<ms::Material>> loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, InstanceType model_shader);
         template<typename T> static std::vector<T> loadVertices(aiMesh* mesh);
         template<typename T> static std::vector<T> loadIndices(aiMesh* mesh) noexcept;
 

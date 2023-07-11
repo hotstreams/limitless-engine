@@ -5,7 +5,7 @@
 #include <optional>
 
 #include <limitless/core/shader/shader.hpp>
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 
 namespace Limitless {
     class ShaderProgram;

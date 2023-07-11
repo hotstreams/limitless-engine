@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <memory>
 #include <map>
 #include <vector>
@@ -44,7 +44,7 @@ namespace Limitless {
         void remove(uint64_t id);
 
         // sets context state for %id layer
-        void setMaterialState(Context& ctx, uint64_t id, ShaderPass pass);
+        void setMaterialState(Context& ctx, uint64_t id, ShaderType pass);
 
         void makeLayered() noexcept;
         void makeNonLayered() noexcept;

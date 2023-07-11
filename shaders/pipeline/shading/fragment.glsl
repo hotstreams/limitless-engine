@@ -48,9 +48,12 @@ vec3 getFragmentNormal(const FragmentData data) {
 #endif
 }
 
-#if defined (SCREEN_SPACE_AMBIENT_OCCLUSION)
-    uniform sampler2D ssao_texture;
-#endif
+/*
+ *  It is for forward pipeline??
+ */
+//#if defined (SCREEN_SPACE_AMBIENT_OCCLUSION)
+//    uniform sampler2D ssao_texture;
+//#endif
 
 float getFragmentAO(const FragmentData data) {
     float ao = 1.0;
@@ -59,9 +62,9 @@ float getFragmentAO(const FragmentData data) {
     ao = data.ao;
 #endif
 
-#if defined (SCREEN_SPACE_AMBIENT_OCCLUSION)
-    ao = min(ao, texture(ssao_texture, getVertexUV()).r);
-#endif
+//#if defined (SCREEN_SPACE_AMBIENT_OCCLUSION)
+//    ao = min(ao, texture(ssao_texture, getVertexUV()).r);
+//#endif
 
     return ao;
 }

@@ -179,6 +179,7 @@ TextureBuilder& TextureBuilder::setCompressedData(const void* _data, std::size_t
 std::shared_ptr<Texture> TextureBuilder::asRGBA16NearestClampToEdge(glm::uvec2 size) {
     TextureBuilder builder;
 
+    //TODO: change to RGB16 UNSIGNED SHORT?
     builder .setTarget(Texture::Type::Tex2D)
             .setInternalFormat(Texture::InternalFormat::RGBA16)
             .setFormat(Texture::Format::RGBA)

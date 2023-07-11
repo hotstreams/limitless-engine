@@ -9,17 +9,17 @@
 namespace Limitless {
     class shader_file_not_found : public std::runtime_error {
     public:
-        explicit shader_file_not_found(const std::string& error) : std::runtime_error(error) {}
+        using std::runtime_error::runtime_error;
     };
 
     class shader_include_not_found : public std::runtime_error {
     public:
-        explicit shader_include_not_found(const std::string& error) : std::runtime_error(error) {}
+        using std::runtime_error::runtime_error;
     };
 
     class shader_compilation_error : public std::runtime_error {
     public:
-        explicit shader_compilation_error(const std::string& error) : std::runtime_error(error) {}
+        using std::runtime_error::runtime_error;
     };
 
     /**
@@ -159,6 +159,8 @@ namespace Limitless {
          * @param value - replaced with
          */
         void replaceKey(const std::string& key, const std::string& value) noexcept;
+
+        const auto& getSource() const noexcept { return source; }
     };
 
     void swap(Shader& lhs, Shader&rhs) noexcept;

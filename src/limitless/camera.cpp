@@ -118,6 +118,17 @@ void Camera::updateView() noexcept {
 
 void Camera::updateProjection(glm::uvec2 size) noexcept {
     projection = glm::perspective(glm::radians(fov), static_cast<float>(size.x) / static_cast<float>(size.y), near_distance, far_distance);
+
+    // matrix that converts from
+    // clip space [-1, 1] to screen space [0, screen size]
+    glm::mat4 clip_to_screen = glm::mat4(
+        0.5 * size.x, 0.0, 0.0, 0.0,
+        0.0, 0.5 * size.y, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0,
+        0.5 * size.x, 0.5 * size.y, 0.0, 1.0
+    );
+
+    view_to_screen = clip_to_screen * projection;
 }
 
 void Camera::setPosition(const glm::vec3& _position) noexcept {

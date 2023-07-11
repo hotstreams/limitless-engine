@@ -3,8 +3,8 @@
 #include <limitless/core/shader/shader_compiler.hpp>
 
 namespace Limitless {
-    enum class ShaderPass;
-    enum class ModelShader;
+    enum class ShaderType;
+    enum class InstanceType;
     class Assets;
     class RenderSettings;
 }
@@ -24,14 +24,14 @@ namespace Limitless::ms {
         static std::string getCustomMaterialScalarUniforms(const Material& material) noexcept;
         static std::string getCustomMaterialSamplerUniforms(const Material& material) noexcept;
         static std::string getMaterialDefines(const Material& material) noexcept;
-        static std::string getModelDefines(const ModelShader& type);
+        static std::string getModelDefines(const InstanceType& type);
 
-        static void replaceMaterialSettings(Shader& shader, const Material& material, ModelShader model_shader) noexcept;
+        static void replaceMaterialSettings(Shader& shader, const Material& material, InstanceType model_shader) noexcept;
     public:
         MaterialCompiler(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
         ~MaterialCompiler() override = default;
 
         using ShaderCompiler::compile;
-        void compile(const Material& material, ShaderPass pass_shader, ModelShader model_shader);
+        void compile(const Material& material, ShaderType pass_shader, InstanceType model_shader);
     };
 }
