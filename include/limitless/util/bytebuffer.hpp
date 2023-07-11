@@ -6,6 +6,7 @@
 #include <set>
 #include <unordered_map>
 #include <map>
+#include <vector>
 
 namespace Limitless {
     class Assets;
