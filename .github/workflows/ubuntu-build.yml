@@ -13,8 +13,7 @@ jobs:
       - name: setup
         run: |
           sudo apt-get update
-          #sudo apt-get install -y mesa-utils xvfb libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
-          sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev
+          sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev
           #xvfb-run glxinfo
       - uses: actions/checkout@v3
       - name: set up engine dependencies
@@ -26,7 +25,9 @@ jobs:
       - name: run build
         run: |
           mkdir build
-          cmake -S . -B build
+          cmake -DGLSLANG_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
           xvfb-run ./limitless_test
+          cd glslang
+          ls | glslangValidator -C
