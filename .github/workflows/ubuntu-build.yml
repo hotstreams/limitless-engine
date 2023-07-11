@@ -23,13 +23,17 @@ jobs:
           git submodule update
           cd thirdparty/glew
           make extensions
-      - name: run build
+      - name: build
         run: |
           mkdir build
           cmake -DGLSLANG_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
+      - name: test
+        run: |
           mkdir glslang
           xvfb-run ./limitless_test
+      - name: shader glslang validation
+        run: |
           cd glslang
           ls | glslangValidator -C
