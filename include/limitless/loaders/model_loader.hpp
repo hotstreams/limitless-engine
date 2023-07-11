@@ -10,6 +10,7 @@
 #include <limitless/core/context_debug.hpp>
 #include <memory>
 #include <set>
+#include <unordered_map>
 
 namespace Limitless::ms {
     class Material;
@@ -48,6 +49,15 @@ namespace Limitless {
     };
 
     class ModelLoader {
+    public:
+        // Load a 3D model from given file.
+        // Will also attempt to load materials referenced in model definition.
+        // Returns a shared pointer to resulting model on success.
+        // On failure, a model_loader_error exception is thrown.
+        static std::shared_ptr<AbstractModel> loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags = {});
+        static void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
+        static void addAnimations(const std::vector<fs::path>& paths, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
+
     private:
         static std::vector<std::shared_ptr<AbstractMesh>> loadMeshes(Assets& assets, const aiScene *scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags);
         template<typename T, typename T1>
@@ -63,9 +73,5 @@ namespace Limitless {
 
         ModelLoader() = default;
         virtual ~ModelLoader() = default;
-    public:
-        static std::shared_ptr<AbstractModel> loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags = {});
-        static void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
-        static void addAnimations(const std::vector<fs::path>& paths, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
     };
 }
