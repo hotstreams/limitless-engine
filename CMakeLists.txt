@@ -10,6 +10,7 @@ OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
 OPTION(WEBGL_BUILD "Web build" OFF)
 OPTION(CODECOV "Compile with test coverage" OFF)
+OPTION(GLSLANG_SHADER_OUTPUT ON)
 
 #########################################
 
@@ -31,6 +32,10 @@ endif()
 
 if (OPENGL_TOSTER_MODE)
     add_compile_definitions(OPENGL_TOSTER)
+endif()
+
+if (GLSLANG_SHADER_OUTPUT)
+    add_compile_definitions(GLSLANG_SHADER_OUTPUT)
 endif()
 
 if (CODECOV)

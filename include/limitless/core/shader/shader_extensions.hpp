@@ -5,11 +5,11 @@
 
 namespace Limitless {
     constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {
-            { ".vs",  Shader::Type::Vertex },
-            { ".tcs", Shader::Type::TessControl },
-            { ".tes", Shader::Type::TessEval },
-            { ".gs",  Shader::Type::Geometry },
-            { ".fs",  Shader::Type::Fragment },
-            { ".cs",  Shader::Type::Compute }
+            { ".vert",  Shader::Type::Vertex },
+            { ".tesc", Shader::Type::TessControl },
+            { ".tese", Shader::Type::TessEval },
+            { ".geom",  Shader::Type::Geometry },
+            { ".frag",  Shader::Type::Fragment },
+            { ".comp",  Shader::Type::Compute }
     };
 }
