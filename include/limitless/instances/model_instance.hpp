@@ -18,11 +18,12 @@ namespace Limitless {
      */
     class ModelInstance : public AbstractInstance {
     protected:
+        //TODO: material applying interface to all meshes
         std::map<std::string, MeshInstance> meshes;
         std::shared_ptr<AbstractModel> model;
 
         void updateBoundingBox() noexcept override;
-        ModelInstance(ModelShader shader, decltype(model) model, const glm::vec3& position);
+        ModelInstance(InstanceType shader, decltype(model) model, const glm::vec3& position);
     public:
         /**
          * Creates static model with specified loaded Model
@@ -72,6 +73,6 @@ namespace Limitless {
         auto& getMeshes() noexcept { return meshes; }
 
         using AbstractInstance::draw;
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
+        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

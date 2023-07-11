@@ -111,6 +111,6 @@ namespace Limitless {
         const auto& getBoneTransform() const noexcept { return bone_transform; }
 
         using AbstractInstance::draw;
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
+        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

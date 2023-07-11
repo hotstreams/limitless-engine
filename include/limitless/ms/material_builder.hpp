@@ -1,11 +1,11 @@
 #pragma once
 
 #include <limitless/ms/material.hpp>
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <limitless/ms/unique_material.hpp>
 #include <functional>
 #include <mutex>
-#include <limitless/pipeline/render_settings.hpp>
+#include <limitless/renderer/render_settings.hpp>
 
 namespace Limitless {
     class Assets;
@@ -64,8 +64,8 @@ namespace Limitless::ms {
         MaterialBuilder& addUniform(std::unique_ptr<Uniform> uniform);
         MaterialBuilder& removeUniform(const std::string& name);
 
-        MaterialBuilder& setModelShaders(const ModelShaders& shaders) noexcept;
-        MaterialBuilder& addModelShader(ModelShader model) noexcept;
+        MaterialBuilder& setModelShaders(const InstanceTypes& shaders) noexcept;
+        MaterialBuilder& addModelShader(InstanceType model) noexcept;
 
         MaterialBuilder& set(decltype(material->properties)&& properties);
         MaterialBuilder& set(decltype(material->uniforms)&& uniforms);

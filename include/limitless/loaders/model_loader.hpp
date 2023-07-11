@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/util/filesystem.hpp>
-#include <limitless/pipeline/shader_pass_types.hpp>
+#include <limitless/pipeline/shader_type.hpp>
 #include <assimp/scene.h>
 #include <limitless/util/tree.hpp>
 #include <glm/glm.hpp>
@@ -10,6 +10,7 @@
 #include <limitless/core/context_debug.hpp>
 #include <memory>
 #include <set>
+#include <unordered_map>
 
 namespace Limitless::ms {
     class Material;
@@ -48,6 +49,15 @@ namespace Limitless {
     };
 
     class ModelLoader {
+    public:
+        // Load a 3D model from given file.
+        // Will also attempt to load materials referenced in model definition.
+        // Returns a shared pointer to resulting model on success.
+        // On failure, a model_loader_error exception is thrown.
+        static std::shared_ptr<AbstractModel> loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags = {});
+        static void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
+        static void addAnimations(const std::vector<fs::path>& paths, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
+
     private:
         static std::vector<std::shared_ptr<AbstractMesh>> loadMeshes(Assets& assets, const aiScene *scene, const fs::path& path, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, const ModelLoaderFlags& flags);
         template<typename T, typename T1>
@@ -56,16 +66,12 @@ namespace Limitless {
         static std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
         static std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
         static Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
-        static std::shared_ptr<ms::Material> loadMaterial(Assets& assets, aiMaterial* mat, const fs::path& path, const ModelShaders& model_shaders);
-        static std::vector<std::shared_ptr<ms::Material>> loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, ModelShader model_shader);
+        static std::shared_ptr<ms::Material> loadMaterial(Assets& assets, aiMaterial* mat, const fs::path& path, const InstanceTypes& model_shaders);
+        static std::vector<std::shared_ptr<ms::Material>> loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, InstanceType model_shader);
         template<typename T> static std::vector<T> loadVertices(aiMesh* mesh);
         template<typename T> static std::vector<T> loadIndices(aiMesh* mesh) noexcept;
 
         ModelLoader() = default;
         virtual ~ModelLoader() = default;
-    public:
-        static std::shared_ptr<AbstractModel> loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags = {});
-        static void addAnimations(const fs::path& path, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
-        static void addAnimations(const std::vector<fs::path>& paths, const std::shared_ptr<AbstractModel>& skeletal, const ModelLoaderFlags& flags = {});
     };
 }

@@ -3,7 +3,7 @@
 
 using namespace Limitless;
 
-AbstractInstance::AbstractInstance(ModelShader _shader_type, const glm::vec3& _position) noexcept
+AbstractInstance::AbstractInstance(InstanceType _shader_type, const glm::vec3& _position) noexcept
 	: id {next_id++}
 	, shader_type {_shader_type}
 	, position {_position} {
@@ -114,7 +114,7 @@ AbstractInstance& AbstractInstance::setParent(const glm::mat4& _parent) noexcept
 	return *this;
 }
 
-void AbstractInstance::draw(Context& ctx, const Assets& assets, ShaderPass material_shader_type, ms::Blending blending) {
+void AbstractInstance::draw(Context& ctx, const Assets& assets, ShaderType material_shader_type, ms::Blending blending) {
     draw(ctx, assets, material_shader_type, blending, UniformSetter {});
 }
 

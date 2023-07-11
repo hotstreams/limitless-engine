@@ -59,7 +59,7 @@ TEST_CASE("MaterialBuilder successfully build material with color") {
 
     REQUIRE(material->getShaderIndex() != 0);
     REQUIRE(material->getColor().getValue() == glm::vec4 {1.0f});
-    REQUIRE(material->getModelShaders() == std::set {ModelShader::Model});
+    REQUIRE(material->getModelShaders() == std::set {InstanceType::Model});
 
     check_opengl_state();
 }
@@ -72,14 +72,14 @@ TEST_CASE("MaterialBuilder successfully build material with color and not defaul
 
     builder.setName("material")
            .add(Property::Color, glm::vec4{1.0f})
-           .setModelShaders({ModelShader::Skeletal});
+           .setModelShaders({InstanceType::Skeletal});
 
 
     auto material = builder.build();
 
     REQUIRE(material->getShaderIndex() != 0);
     REQUIRE(material->getColor().getValue() == glm::vec4 {1.0f});
-    REQUIRE(material->getModelShaders() == std::set {ModelShader::Skeletal});
+    REQUIRE(material->getModelShaders() == std::set {InstanceType::Skeletal});
 
     check_opengl_state();
 }
@@ -604,8 +604,8 @@ TEST_CASE("MaterialBuilder builds material with model shaders") {
 
     builder.setName("material")
             .add(Property::Color, glm::vec4 {1.0f})
-            .addModelShader(ModelShader::Effect)
-            .addModelShader(ModelShader::Skeletal);
+            .addModelShader(InstanceType::Effect)
+            .addModelShader(InstanceType::Skeletal);
 
     auto material = builder.build();
 
@@ -614,7 +614,7 @@ TEST_CASE("MaterialBuilder builds material with model shaders") {
     REQUIRE(material->getProperties().size() == 1);
 
     REQUIRE(material->getModelShaders().size() == 2);
-    REQUIRE(material->getModelShaders() == std::set {ModelShader::Effect, ModelShader::Skeletal});
+    REQUIRE(material->getModelShaders() == std::set {InstanceType::Effect, InstanceType::Skeletal});
 
     check_opengl_state();
 }
