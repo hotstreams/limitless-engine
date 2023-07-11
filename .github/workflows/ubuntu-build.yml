@@ -14,7 +14,7 @@ jobs:
       - name: setup
         run: |
           sudo apt-get update
-          sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev
+          sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
           #xvfb-run glxinfo
       - uses: actions/checkout@v3
       - name: set up engine dependencies
