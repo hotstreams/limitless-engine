@@ -5,6 +5,7 @@
 #include <limitless/util/filesystem.hpp>
 #include <fstream>
 #include <utility>
+#include <functional>
 
 namespace Limitless {
     class shader_file_not_found : public std::runtime_error {

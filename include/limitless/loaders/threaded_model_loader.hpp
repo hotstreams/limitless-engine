@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/loaders/model_loader.hpp>
+#include <functional>
 
 namespace Limitless {
     class ThreadedModelLoader : protected ModelLoader {

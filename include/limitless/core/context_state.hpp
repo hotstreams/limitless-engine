@@ -16,6 +16,7 @@
 #include <glm/glm.hpp>
 #include <mutex>
 #include <map>
+#include <array>
 
 namespace Limitless {
     class Context;
