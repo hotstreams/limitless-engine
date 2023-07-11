@@ -27,7 +27,9 @@ void ContextInitializer::initializeGLEW() {
 
 void ContextInitializer::initializeGLFW() {
     if (!glfwInit()) {
-        throw std::runtime_error("Failed to initialize GLFW.");
+        const char* description;
+        int code = glfwGetError(&description);
+        throw std::runtime_error("Failed to initialize GLFW: " + std::to_string(code) + " " + description);
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major_version);
