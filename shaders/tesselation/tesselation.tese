@@ -77,7 +77,7 @@ void main() {
 
         #if defined (BeamEmitter) && defined (BeamSpeed_MODULE)
             _out_data.start = interpolate3D(getParticleStart(0u), getParticleStart(1u), getParticleStart(2u), getParticleStart(3u));
-            _out_data.end = interpolate3D(getParticleEnd(0u), getParticleEnd(1u), getParticleEnd(2u), getParticleEnd(3));
+            _out_data.end = interpolate3D(getParticleEnd(0u), getParticleEnd(1u), getParticleEnd(2u), getParticleEnd(3u));
             _out_data.length = interpolate1D(getParticleLength(0u), getParticleLength(1u), getParticleLength(2u), getParticleLength(3u));
         #endif
 

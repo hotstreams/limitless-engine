@@ -159,6 +159,8 @@ namespace Limitless {
          * @param value - replaced with
          */
         void replaceKey(const std::string& key, const std::string& value) noexcept;
+
+        const std::string& getSource() const noexcept { return source; }
     };
 
     void swap(Shader& lhs, Shader&rhs) noexcept;
