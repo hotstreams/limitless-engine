@@ -27,7 +27,9 @@ void ContextInitializer::initializeGLEW() {
 
 void ContextInitializer::initializeGLFW() {
     if (!glfwInit()) {
-        throw std::runtime_error("Failed to initialize GLFW.");
+        const char* description;
+        int code = glfwGetError(&description);
+        throw std::runtime_error("Failed to initialize GLFW: " + std::to_string(code) + " " + description);
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major_version);
@@ -122,6 +124,14 @@ bool ContextInitializer::isProgramInterfaceQuerySupported() noexcept {
     return isExtensionSupported("GL_ARB_program_interface_query");
 }
 
-bool ContextInitializer::isBindlessTexturesSupported() noexcept {
+bool ContextInitializer::isBindlessTextureSupported() noexcept {
     return isExtensionSupported("GL_ARB_bindless_texture");
+}
+
+bool ContextInitializer::isImmutableTextureSupported() noexcept {
+    return isExtensionSupported("GL_ARB_texture_storage");
+}
+
+bool ContextInitializer::isNamedTextureSupported() noexcept {
+    return isExtensionSupported("GL_ARB_direct_state_access");
 }
