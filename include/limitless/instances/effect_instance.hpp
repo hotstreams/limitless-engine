@@ -77,7 +77,7 @@ namespace Limitless {
          *
          * use EffectRenderer instead
          */
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
+        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
 
         const auto& getEmitters() const noexcept { return emitters; }
         auto& getEmitters() noexcept { return emitters; }

@@ -36,7 +36,7 @@ FragmentData initializeFragmentData() {
 #elif defined (MATERIAL_METALLIC)
     data.metallic = getMaterialMetallic();
 #else
-    data.metallic = 0.6;
+    data.metallic = 0.1;
 #endif
 
 #if defined (MATERIAL_ORM_TEXTURE)
@@ -46,7 +46,7 @@ FragmentData initializeFragmentData() {
 #elif defined (MATERIAL_ROUGHNESS)
     data.roughness = getMaterialRoughness();
 #else
-    data.roughness = 0.3;
+    data.roughness = 0.8;
 #endif
 
 #if defined (MATERIAL_ORM_TEXTURE)

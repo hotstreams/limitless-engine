@@ -33,6 +33,6 @@ namespace Limitless::fx {
         ~EffectRenderer() = default;
 
         void update(const Instances& instances);
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader, ms::Blending blending, const UniformSetter& setter);
+        void draw(Context& ctx, const Assets& assets, ShaderType shader, ms::Blending blending, const UniformSetter& setter);
     };
 }

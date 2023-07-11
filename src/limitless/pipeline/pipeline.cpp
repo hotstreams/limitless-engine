@@ -2,9 +2,8 @@
 
 #include <limitless/scene.hpp>
 #include "limitless/core/uniform/uniform_setter.hpp"
-#include <limitless/pipeline/render_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
-#include <limitless/pipeline/quad_pass.hpp>
+#include <limitless/pipeline/common/quad_pass.hpp>
 
 using namespace Limitless;
 
@@ -48,9 +47,21 @@ void Pipeline::setTarget(RenderTarget& _target) noexcept {
     target = &_target;
 
     // setting last quad pass RT to target
-    get<FinalQuadPass>().setTarget(_target);
+    get<ScreenPass>().setTarget(_target);
 }
 
 RenderTarget& Pipeline::getTarget() noexcept {
     return *target;
 }
+
+std::unique_ptr<PipelinePass>& Pipeline::getPrevious(PipelinePass* curr) {
+    for (uint32_t i = 1; i < passes.size(); ++i) {
+        if (passes[i].get() == curr) {
+            return passes[i - 1];
+        }
+    }
+
+    throw pipeline_pass_not_found {"There is no previous pass!"};
+}
+
+

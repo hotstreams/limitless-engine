@@ -5,8 +5,8 @@
 #include <limitless/util/matrix_stack.hpp>
 
 namespace Limitless {
-    enum class ShaderPass;
-    enum class ModelShader;
+    enum class ShaderType;
+    enum class InstanceType;
     class ShaderProgram;
     class UniformSetter;
     class Assets;
@@ -33,7 +33,7 @@ namespace Limitless {
         /**
          * Instance type
          */
-        ModelShader shader_type;
+        InstanceType shader_type;
 
         /**
          * Matrices used to calculate transformation among hierarchy of different instances
@@ -102,7 +102,7 @@ namespace Limitless {
 		void updateModelMatrix() noexcept;
 		void updateFinalMatrix() noexcept;
 
-        AbstractInstance(ModelShader shader_type, const glm::vec3& position) noexcept;
+        AbstractInstance(InstanceType shader_type, const glm::vec3& position) noexcept;
     public:
         ~AbstractInstance() override = default;
 
@@ -204,8 +204,8 @@ namespace Limitless {
 		virtual void update(Context& context, const Camera& camera);
 
         // draws instance with no extra uniform setting
-        void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending);
+        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending);
 
-        virtual void draw(Context& ctx, const Assets& assets, ShaderPass shader_type, ms::Blending blending, const UniformSetter& uniform_set) = 0;
+        virtual void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) = 0;
     };
 }

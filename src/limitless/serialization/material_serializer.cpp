@@ -77,7 +77,7 @@ std::shared_ptr<Material> MaterialSerializer::deserialize(Assets& assets, ByteBu
 
     deserialize(buffer, assets, builder);
 
-    ModelShaders compile_models;
+    InstanceTypes compile_models;
     buffer >> compile_models;
 
     builder.setModelShaders(compile_models);

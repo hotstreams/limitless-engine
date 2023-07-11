@@ -7,8 +7,8 @@
 
 namespace Limitless {
     class Assets;
-    enum class ShaderPass;
-    enum class ModelShader;
+    enum class ShaderType;
+    enum class InstanceType;
 }
 
 namespace Limitless {
@@ -35,16 +35,16 @@ namespace Limitless {
 
         void draw(Context& ctx,
                   const Assets& assets,
-                  ShaderPass pass,
-                  ModelShader model,
+                  ShaderType pass,
+                  InstanceType model,
                   const glm::mat4& model_matrix,
                   ms::Blending blending,
                   const UniformSetter& uniform_setter);
 
         void draw_instanced(Context& ctx,
                             const Assets& assets,
-                            ShaderPass pass,
-                            ModelShader model,
+                            ShaderType pass,
+                            InstanceType model,
                             const glm::mat4& model_matrix,
                             ms::Blending blending,
                             const UniformSetter& uniform_setter,

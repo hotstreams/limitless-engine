@@ -339,6 +339,7 @@ void Framebuffer::blit(Framebuffer& source, Texture::Filter filter, FramebufferB
     drawBuffer(FramebufferAttachment::Color0);
     source.readBuffer(FramebufferAttachment::Color0);
 
+    //TODO: context state check
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, id);
     glBindFramebuffer(GL_READ_FRAMEBUFFER , source.id);
 

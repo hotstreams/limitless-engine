@@ -1,6 +1,6 @@
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/fx/emitters/mesh_emitter.hpp>
-#include <limitless/pipeline/postprocessing.hpp>
+#include <limitless/pipeline/forward/postprocessing.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
 using namespace Limitless;
@@ -41,11 +41,11 @@ void EffectInstance::updateEmitters(Context& context, const Camera& camera) cons
 }
 
 EffectInstance::EffectInstance() noexcept
-    : AbstractInstance(ModelShader::Effect, glm::vec3{0.0f}) {
+    : AbstractInstance(InstanceType::Effect, glm::vec3{0.0f}) {
 }
 
 EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
-    : AbstractInstance(ModelShader::Effect, position) {
+    : AbstractInstance(InstanceType::Effect, position) {
     emitters.reserve(effect->emitters.size());
     for (const auto& [emitter_name, emitter] : effect->emitters) {
         emitters.emplace(emitter_name, emitter->clone());
@@ -72,7 +72,7 @@ void EffectInstance::update(Context& context, const Camera& camera) {
 
 void EffectInstance::draw([[maybe_unused]] Limitless::Context& ctx,
                           [[maybe_unused]] const Assets& assets,
-                          [[maybe_unused]] ShaderPass shader_type,
+                          [[maybe_unused]] ShaderType shader_type,
                           [[maybe_unused]] ms::Blending blending,
                           [[maybe_unused]] const UniformSetter& uniform_set) {
     // One does not simply render effect instance!
