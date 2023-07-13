@@ -8,8 +8,6 @@
 [//]: # ([![MacOS Build Status]&#40;https://github.com/hotstreams/limitless-engine/workflows/MacOS/badge.svg&#41;]&#40;https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AMac&#41;)
 [//]: # ([![Web Build Status]&#40;https://github.com/hotstreams/limitless-engine/workflows/Web/badge.svg&#41;]&#40;https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWeb&#41;)
 
----
-
 ### Core Features
 - OpenGL state caching for reducing driver overhead
 - Multithreaded OpenGL context resource sharing
