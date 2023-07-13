@@ -1,166 +1,144 @@
 ![me](content/logo.jpg)
 
-## Limitless Engine is a 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL & C++17.
+## The project is 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL & C++17.
 
 [![Linux Build Status](https://github.com/hotstreams/limitless-engine/workflows/Linux/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3ALinux)
 [![Windows Build Status](https://github.com/hotstreams/limitless-engine/workflows/Windows/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWindows)
-[![MacOS Build Status](https://github.com/hotstreams/limitless-engine/workflows/MacOS/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AMac)
-[![Web Build Status](https://github.com/hotstreams/limitless-engine/workflows/Web/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWeb)
 
-### Lighting
+[//]: # ([![MacOS Build Status]&#40;https://github.com/hotstreams/limitless-engine/workflows/MacOS/badge.svg&#41;]&#40;https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AMac&#41;)
+[//]: # ([![Web Build Status]&#40;https://github.com/hotstreams/limitless-engine/workflows/Web/badge.svg&#41;]&#40;https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWeb&#41;)
 
-- Forward/Deferred shading
-- Dynamic directional light
-- Dynamic point lights
-- Dynamic spot lights
+---
+
+### Core Features
+- OpenGL state caching for reducing driver overhead
+- Multithreaded OpenGL context resource sharing
+- Shader Compiler & Shader Program introspection
+- Indexed buffers automatic binding
+- Textures automatic binding
+- Texture Compression support
+- Time queries
+- Buffer data streaming: Orphaning, Unsynchonized, Persistent, Coherent, TrippleBuffering, Explicit synchronization
+- Extension support:
+    - [x] GL_ARB_buffer_storage
+    - [x] GL_ARB_direct_state_access
+    - [x] GL_ARB_shader_storage_buffer_object
+    - [x] GL_ARB_shading_language_420pack
+    - [x] GL_ARB_explicit_uniform_location
+    - [x] GL_ARB_tessellation_shader
+    - [x] GL_ARB_program_interface_query
+    - [x] GL_ARB_texture_storage
+    - [x] GL_ARB_bindless_texture
+    - [x] GL_EXT_texture_filter_anisotropic
+    - [x] GL_EXT_texture_compression_s3tc
+    - [x] GL_ARB_texture_compression_bptc
+    - [x] GL_ARB_texture_compression_rgtc
+---
+
+### Rendering
+
+- Forward & Deferred rendering
+- Cook-Torrance microfacet specular BRDF
+- Lambertian diffuse BRDF
+- Roughness-Metallic workflow
+- Translucent materials
+- Normal mapping
+- Ambient occlusion mapping
+- Dynamic directional light, point lights and spot lights
 - Directional Cascade Shadow maps
 - Percentage-Closer Filtering
 - Skybox
+- Screen space ambient occlusion
+- Screen space reflections
+- Screen space refraction
+- Tone mapping
+- Gamma correction
+- HDR Bloom
+- FXAA
 
-![me](content/lighting.gif)
+[lighting.mp4](content%2Flighting.mp4) [lighting1.mp4](content%2Flighting1.mp4)
 
 ---
 
 ### Material System
 
-Material Properties:
-- Сolor
-- Albedo texture
-- Normal map
+- Lit, unlit shading models
+- Base color (scalar, texture)
+- Metallic (scalar, texture)
+- Roughness (scalar, texture)
+- Refraction
+- Normal
 - Emissive color
 - Emissive mask
 - Blend mask
-- Refraction
 - Ambient occlusion
 - Transparency: Translucent, Additive, Modulate
-- Shading: Lit, Unlit
-- Metallic & roughness workflow
 - Material layering
 - Custom materials via GLSL snippets that allow you to create whatever material you want
 - All properties are run-time changeable
-
-![me](content/color.png) 
-![me](content/albedo.png)
-![me](content/emissive.png)
-![me](content/open.gif)
-![me](content/masked.png)
-![me](content/refraction.png)
-
-![me](content/basic1.png)
-![me](content/basic2.png)
-![me](content/basic3.png)
-![me](content/basic4.png)
-![me](content/basic5.png)
-![me](content/basic6.png)
-![me](content/basic7.png)
-
-![me](content/translucent.png)
-![me](content/additive_modulate.png)
-
-![me](content/custom_materials.gif)
-![me](content/layering.gif)
-
-![me](content/fireball_hue_shift.gif)
 
 ---
 
 ### Effect System
 
-- Sprite / Mesh / Beam emitters
-- 'initial' & 'by life' modules, const & range value distributions
+- Sprite, Mesh, Beam emitters
+- Initial, By life modules types
+- Const, Range value distributions
 - Interoperation with material custom properties
-- Color, location, velocity, acceleration, size, lifetime, mesh location, mesh attachment, rotation, rotation rate, custom material, beam targets & speed & offset & rebuild & displacement
+- Modules:
+    - Color
+    - Location
+    - Velocity
+    - Acceleration
+    - Size
+    - Lifetime
+    - Mesh location
+    - Mesh attachment
+    - Rotation
+    - Rotation rate
+    - Custom material
+    - Beam targets, speed, offset, rebuild, displacement
 
-![me](content/smoke.gif)
-![me](content/shield.gif)
-![me](content/fire.gif)
-![me](content/explosion.gif)
-![me](content/ball.gif)
-![me](content/lightning_effect.gif)
-![me](content/attachment.gif)
-![me](content/skeleton_spawn_effect.gif)
-![me](content/aura_effect.gif)
-  
----
-
-### Model Loading
-
-- Model loading using Assimp
-- Skeletal models with animations
-- Instancing support
-
-![me](content/thanos.png)
-![me](content/daenerys.png)
-![me](content/taskmaster.png)
-![me](content/k2.png)
-![me](content/skeleton.png)
-![me](content/skeletal_model.gif)
-![me](content/backpack.png)
-![me](content/cyborg.png)
-![me](content/drone.png)
-![me](content/elemental.png)
+<div style="padding: 5px">
+    <img src="content/smoke.gif" width="250" />
+    <img src="content/shield.gif" width="250" />
+    <img src="content/explosion.gif" width="250" />
+    <img src="content/ball.gif" width="250" />
+    <img src="content/lightning_effect.gif" width="250" />
+    <img src="content/attachment.gif" width="250" />
+    <img src="content/skeleton_spawn_effect.gif" width="250" />
+    <img src="content/aura_effect.gif" width="250" />
+</div>
 
 ---
 
-### Core Features
-- OpenGL state caching for reducing driver overhead 
-- Multithreaded OpenGL context resource sharing
-- ShaderCompiler & ShaderProgram introspection
-- Indexed buffers automatic binding to location
-- Textures automatic binding to texture units
-- Texture Compression formats support
-- Buffer data streaming: Orphaning, Unsynchonized, Persistent, Coherent, TrippleBuffering, Explicit synchronization
-- Supports GL_ARB_buffer_storage for immutable buffers
-- Supports GL_ARB_texture_storage for immutable textures
-- Supports GL_ARB_direct_state_access for VertexArrays, BufferObjects, Textures, etc
-- Supports GL_ARB_bindless_texture for bindless textures
-- Supports GL_ARB_shader_storage_buffer_object for large blocks in shaders
+### Examples
 
----
-
-### PostProcessing
-  - Tone mapping
-  - Gamma correction
-  - Bloom
-  - Vignette
-  - Tone shading
-  - FXAA
-  - SSAO
----
-
-### Text rendering using FreeType
----
-
-### Content
-  
-![me](content/materials_scene.png)
-
-![me](content/effects_scene.png)
-
-![me](content/models_scene.png)
-
-![me](content/sponza.png)
-
-![me](content/warlocks.png)
+<div style="padding: 5px">
+    <img src="content/bistro.png" width="250" />
+    <img src="content/scene.png" width="250" />
+    <img src="content/sponza1.png" width="250" />
+    <img src="content/alienhelmet.png" width="250" />
+    <img src="content/boombox.png" width="250" />
+    <img src="content/damagedhelmet.png" width="250" />
+    <img src="content/helmet.png" width="250" />
+    <img src="content/bottle.png" width="250" />
+    <img src="content/sponza.png" width="250" />
+    <img src="content/warlocks.png" width="250" />
+    <img src="content/thanos.png" width="250" />
+    <img src="content/daenerys.png" width="250" />
+    <img src="content/taskmaster.png" width="250" />
+    <img src="content/k2.png" width="250" />
+    <img src="content/skeleton.png" width="250" />
+    <img src="content/skeletal_model.gif" width="250" />
+    <img src="content/backpack.png" width="250" />
+    <img src="content/cyborg.png" width="250" />
+    <img src="content/drone.png" width="250" />
+    <img src="content/elemental.png" width="250" />
+</div>
 
 # Build
-This project requires C++17 compiler and CMake.
-
-1) After cloning this Git repo, initialize its Git submodules, which contain 3rd party dependencies and build glew extensions:
-```sh
-git submodule init
-git submodule update
-cd thirdparty/glew
-make extensions
-```
-
-2) Create a new directory for resulting build and start it:
-```sh
-mkdir build && cd build
-cmake ..
-make -j12 limitless_demo
-./limitless_demo
-```
+The project uses C++17 and CMake's find_package for dependencies.
 
 # Dependencies
 - glfw3
