@@ -56,7 +56,9 @@
 - HDR Bloom
 - FXAA
 
-[lighting.mp4](content%2Flighting.mp4) [lighting1.mp4](content%2Flighting1.mp4)
+https://github.com/hotstreams/limitless-engine/assets/37740577/a10e9994-232e-490c-af86-82356a7106fa 
+
+https://github.com/hotstreams/limitless-engine/assets/37740577/7f862e5c-b2ee-4d0f-8d51-4c03b028906a
 
 ---
 
@@ -138,7 +140,23 @@
 </div>
 
 # Build
-The project uses C++17 and CMake's find_package for dependencies.
+This project requires C++17 compiler and CMake.
+
+1) After cloning this Git repo, initialize its Git submodules, which contain 3rd party dependencies and build glew extensions:
+```sh
+git submodule init
+git submodule update
+cd thirdparty/glew
+make extensions
+```
+
+2) Create a new directory for resulting build and start it:
+```sh
+mkdir build && cd build
+cmake ..
+make -j12 limitless_demo
+./limitless_demo
+```
 
 # Dependencies
 - glfw3
