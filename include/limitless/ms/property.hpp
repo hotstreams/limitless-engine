@@ -46,5 +46,6 @@ namespace Limitless::ms {
         SubsurfacePower,
 
         SheenColor
+
     };
 }
