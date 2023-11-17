@@ -66,6 +66,21 @@ namespace Limitless::ms {
         bool refraction {};
 
         /**
+         * Describes whether material is using specular anti-aliasing
+         */
+        bool specular_antialiasing {true};
+
+        /**
+         * Describes specular anti-aliasing variance
+         */
+        float specular_antialiasing_variance {0.15f};
+
+        /**
+         * Describes specular anti-aliasing threshold
+         */
+        float specular_antialiasing_threshold {0.1f};
+
+        /**
          * Unique material name
          */
         std::string name;

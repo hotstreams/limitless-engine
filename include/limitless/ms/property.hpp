@@ -2,12 +2,13 @@
 
 namespace Limitless::ms {
     enum class Property {
-        // vec4
+        // vec4; rgb - color; a - intensity; linear space; [0 - 1]
         Color,
+        // vec4; rgb - color; a - intensity; linear space; [0 - n]
         EmissiveColor,
-
         // texture
         Diffuse,
+        // texture
         Normal,
         EmissiveMask,
         BlendMask,
@@ -35,5 +36,15 @@ namespace Limitless::ms {
 
         IoR,
         Absorption,
+
+        Reflectance,
+        Transmission,
+        MicroThickness,
+        Thickness,
+
+        SubsurfaceColor,
+        SubsurfacePower,
+
+        SheenColor
     };
 }

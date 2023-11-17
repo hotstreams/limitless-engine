@@ -21,7 +21,8 @@ namespace Limitless::ms {
          */
         Unlit,
 
-//        Cloth,
-//        Subsurface
+        Cloth,
+        Subsurface,
+        Custom,
     };
 }
