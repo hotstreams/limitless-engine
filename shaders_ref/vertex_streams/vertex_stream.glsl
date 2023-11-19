@@ -1,4 +1,4 @@
-#if defined (EFFECT_MODEL)
+#if defined (ENGINE_MATERIAL_EFFECT_MODEL)
     #if defined (SpriteEmitter)
         #include "./sprite_emitter.glsl"
     #endif

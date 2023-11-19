@@ -1,5 +1,5 @@
-#define LIGHT_TYPE_POINT 0
-#define LIGHT_TYPE_SPOT 1
+#define LIGHT_TYPE_POINT 0u
+#define LIGHT_TYPE_SPOT 1u
 
 struct Light {
     // rgb - linear color, a - intensity
@@ -14,6 +14,10 @@ struct Light {
     uint type;
     // does light cast shadow
     bool casts_shadow;
+    // falloff
+    float falloff;
+    // spot direction
+    vec3 direction;
 };
 
 /*
@@ -30,38 +34,14 @@ struct Light {
         Light _lights[];
     };
 #else
+    //TODO: remove to settigns
+    #define ENGINE_SETTINGS_MAX_LIGHTS 100
+
     layout (std140) uniform LIGHTS_BUFFER {
-        Light _lights[MAX_LIGHTS];
+        Light _lights[ENGINE_SETTINGS_MAX_LIGHTS];
     };
 #endif
 
 Light getLight(const uint index) {
     return _lights[index];
-}
-
-vec3 computeLights(const ShadingContext sctx) {
-    vec3 color = vec3(0.0);
-    for (uint i = 0u; i < getLightsCount(); ++i) {
-        Light light = getLight(i);
-
-        LightingContext lctx = computeLightingContext(sctx, light);
-
-        if (lctx.len > light.radius || lctx.NoL <= 0.0 || light.attenuation <= 0.0) {
-            continue;
-        }
-
-#if defined (SHADOWS)
-        if (light.casts_shadow) {
-
-        }
-#endif
-
-        if (lctx.visibility <= 0.0) {
-            continue;
-        }
-
-        color += shadeForLight(sctx, lctx, light);
-    }
-
-    return color;
 }

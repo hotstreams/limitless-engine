@@ -1,3 +1,6 @@
+#include "./material.glsl"
+#include "../interface_block/vertex.glsl"
+
 struct MaterialContext {
 #if defined (ENGINE_MATERIAL_COLOR)
     vec4 color;
@@ -40,7 +43,7 @@ struct MaterialContext {
 #endif
 };
 
-MaterialContext computeMaterialContext() {
+MaterialContext computeDefaultMaterialContext() {
     MaterialContext mctx;
 
 #if defined (ENGINE_MATERIAL_COLOR)
@@ -115,6 +118,16 @@ MaterialContext computeMaterialContext() {
 #endif
 #endif
 
+    return mctx;
+}
+
+void customMaterialContext(inout MaterialContext mctx) {
+    ENGINE_MATERIAL_FRAGMENT_SNIPPET
+}
+
+MaterialContext computeMaterialContext() {
+    MaterialContext mctx = computeDefaultMaterialContext();
+    customMaterialContext(mctx);
     return mctx;
 }
 

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <utility>
 #include <functional>
+#include <set>
 
 namespace Limitless {
     class shader_file_not_found : public std::runtime_error {
@@ -63,18 +64,9 @@ namespace Limitless {
         GLuint id {};
 
         /**
-         * Replaces key-line "Limitless::Extensions" in shader source code with extensions enabled by Engine
-         *
-         * Replaced extensions depend on functionality used by Engine and GPU capabilities
+         * Set to implement pragma once for includes in shaders (Now works only for file names, not file paths)
          */
-        void replaceExtensions() noexcept;
-
-        /**
-         * Replaces key-line "Limitless::GLSL_VERSION" in shader source code with version used by Engine
-         *
-         * It is always 3.3 version for now (Advanced functionality supported by use of extensions)
-         */
-        void replaceVersion() noexcept;
+        std::set<std::string> include_entries;
 
         /**
          * Self-implemented "#include" directive for GLSL
@@ -84,7 +76,7 @@ namespace Limitless {
          * @param base_dir - directory file path at which current include file is located
          */
         void replaceIncludes(const fs::path& base_dir);
-        static void resolveIncludes(const fs::path& base_dir, std::string& src);
+        void resolveIncludes(const fs::path& base_dir, std::string& src);
 
         /**
          * Checks compilation status of shader

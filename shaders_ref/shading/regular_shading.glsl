@@ -11,5 +11,6 @@ vec3 regularShading(const ShadingContext sctx, const LightingContext lctx, const
     Fd *= (1.0 - sctx.transmission);
 #endif
 
+    //TODO: add emissive ???
     return (color * light.color.rgb) * (light.color.a * lctx.NoL * light.attenuation * lctx.visibility);
 }

@@ -19,7 +19,7 @@ void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& m
 void MaterialCompiler::compile(const Material& material, ShaderType pass_shader, InstanceType model_shader) {
     const auto props = [&] (Shader& shader) {
         replaceMaterialSettings(shader, material, model_shader);
-        replaceRenderSettings(shader);
+        replaceEngineDefines(shader);
     };
 
 //    if (material.contains(Property::TessellationFactor)) {

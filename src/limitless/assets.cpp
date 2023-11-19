@@ -19,7 +19,7 @@ using namespace Limitless;
 
 Assets::Assets(const fs::path& _base_dir) noexcept
 	: base_dir {_base_dir}
-	, shader_dir {_base_dir / "../shaders"} {
+	, shader_dir {_base_dir / "../shaders_ref"} {
 }
 
 Assets::Assets(fs::path _base_dir, fs::path _shader_dir) noexcept

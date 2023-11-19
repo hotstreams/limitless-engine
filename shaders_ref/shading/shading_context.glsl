@@ -1,3 +1,6 @@
+#include "../functions/common.glsl"
+#include "../scene.glsl"
+
 struct ShadingContext {
     vec3 diffuseColor;
     float metallic;
@@ -47,8 +50,4 @@ ShadingContext computeShadingContext(
 #endif
 
     return context;
-}
-
-ShadingContext computeShadingContext() {
-
 }

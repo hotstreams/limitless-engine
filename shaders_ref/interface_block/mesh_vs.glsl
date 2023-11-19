@@ -1,5 +1,5 @@
 out _vertex_data {
-    #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+    #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
         mat3 TBN;
     #else
         vec3 normal;

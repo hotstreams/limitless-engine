@@ -49,11 +49,27 @@ namespace Limitless {
         /**
          * Sets up ShaderAction to be applied to shader source code
          *
-         * Replaces key-line with used settings
+         * Replaces EngineShaderDefine keys with corresponding values
          *
          * @param shader - shader to be applied to
          */
-        void replaceRenderSettings(Shader& shader) const;
+        void replaceEngineDefines(Shader& shader) const;
+
+        /**
+         * Replaces key-line "Limitless::Extensions" in shader source code with extensions enabled by Engine
+         *
+         * Replaced extensions depend on functionality used by Engine and GPU capabilities
+         */
+        static std::string getVersionDefine();
+
+        /**
+         * Replaces key-line "Limitless::GLSL_VERSION" in shader source code with version used by Engine
+         *
+         * It is always 3.3 version for now (Advanced functionality supported by use of extensions)
+         */
+        static std::string getExtensionsDefine();
+        std::string getSettingsDefine() const;
+        std::string getCommonDefine() const;
     public:
         /**
          * Shader constructor

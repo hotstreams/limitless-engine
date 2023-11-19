@@ -10,7 +10,7 @@ RenderSettingsShaderDefiner::RenderSettingsShaderDefiner(const RenderSettings& s
 
 }
 
-void RenderSettingsShaderDefiner::define(Shader &shader) {
+std::string RenderSettingsShaderDefiner::define() {
     std::string s;
 
     if (settings.normal_mapping) {
@@ -67,5 +67,5 @@ void RenderSettingsShaderDefiner::define(Shader &shader) {
         s.append("#define ENGINE_SETTINGS_MICRO_SHADOWING\n");
     }
 
-    shader.replaceKey(ENGINE_SHADER_DEFINE_NAMES[EngineShaderDefine::Settings], s);
+    return s;
 }

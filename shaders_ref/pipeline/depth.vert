@@ -1,10 +1,11 @@
 ENGINE::MATERIALDEPENDENT
 
-
+#include "../vertex_streams/vertex_stream.glsl"
+#include "../interface_block/vertex.glsl"
+#include "../shading/common.glsl"
+#include "../scene.glsl"
 #include "../instance/instance.glsl"
-
-#include "../material/material_context.glsl"
-
+#include "../material/material.glsl"
 #include "../interface_block/pass_through.glsl"
 
 void main() {
@@ -16,7 +17,9 @@ void main() {
 
     vec3 vertex_position = getVertexPosition();
 
-    ENGINE_MATERIAL_VERTEX_SNIPPET
+    // %uv
+    // %vertex_position
+    _MATERIAL_VERTEX_SNIPPET
 
     mat4 model_transform = getModelTransform();
 

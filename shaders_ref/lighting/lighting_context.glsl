@@ -1,3 +1,7 @@
+#include "../functions/common.glsl"
+#include "../shading/shading_context.glsl"
+#include "./light.glsl"
+
 struct LightingContext {
     vec3 L;
     float NoL;
@@ -19,11 +23,20 @@ float getAttenuation(const ShadingContext sctx, const Light light) {
     vec3 L = light.position.xyz - sctx.worldPos;
 
     float distance = dot(L, L);
-    float factor = distance * falloff;
+    float factor = distance * light.falloff;
     float smoothFactor = saturate(1.0 - factor * factor);
     float attenuation = smoothFactor * factor;
 
-    return attenuation / max(distance, 1e-4);
+    attenuation = attenuation / max(distance, 1e-4);
+
+    if (light.type == LIGHT_TYPE_SPOT) {
+        float cd = dot(-light.direction, L);
+        float att = saturate(cd * light.scale_offset.x + light.scale_offset.y);
+        float att2 =  att * att;
+        attenuation *= att2;
+    }
+
+    return attenuation;
 }
 
 LightingContext computeLightingContext(const ShadingContext sctx, const Light light) {
@@ -33,15 +46,17 @@ LightingContext computeLightingContext(const ShadingContext sctx, const Light li
 
     lctx.visibility = 1.0;
     lctx.L = normalize(light.position.xyz - sctx.worldPos);
-    lctx.H = normalize(context.V + L);
+    lctx.H = normalize(sctx.V + lctx.L);
     lctx.len = length(light.position.xyz - sctx.worldPos);
 
-    lctx.NoL = saturate(dot(context.N, L));
-    lctx.NoH = saturate(dot(context.N, H));
-    lctx.LoH = saturate(dot(L, H));
+    lctx.NoL = saturate(dot(sctx.N, lctx.L));
+    lctx.NoH = saturate(dot(sctx.N, lctx.H));
+    lctx.LoH = saturate(dot(lctx.L, lctx.H));
 
 #if defined (ENGINE_MATERIAL_SPECULAR_GGX)
     lctx.lambdaV = lctx.NoL * sqrt((sctx.NoV - sctx.a2 * sctx.NoV) * sctx.NoV + sctx.a2);
 #endif
+
+    return lctx;
 }
 

@@ -1,3 +1,5 @@
+#include "../vertex_streams/vertex_stream.glsl"
+
 // REGULAR MODEL OR SKELETAL MODEL
 #if defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL)
 uniform mat4 _model_transform;

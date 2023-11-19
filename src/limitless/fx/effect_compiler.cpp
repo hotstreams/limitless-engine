@@ -112,7 +112,7 @@ void EffectCompiler::compile(ShaderType shader_type, const T& emitter) {
             shader.replaceKey("Limitless::EmitterType", getEmitterDefines(emitter));
 
             replaceMaterialSettings(shader, emitter.getMaterial(), InstanceType::Effect);
-            replaceRenderSettings(shader);
+            replaceEngineDefines(shader);
         };
 
         assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / SHADER_PASS_PATH.at(shader_type), props));

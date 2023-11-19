@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace Limitless {
     class RenderSettings;
     class Shader;
@@ -10,6 +12,6 @@ namespace Limitless {
     public:
         explicit RenderSettingsShaderDefiner(const RenderSettings& settings) noexcept;
 
-        void define(Shader& shader);
+        std::string define();
     };
 }
