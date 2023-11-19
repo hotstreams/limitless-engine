@@ -21,11 +21,6 @@ namespace Limitless::ms {
     protected:
         Assets& assets;
 
-        static std::string getCustomMaterialScalarUniforms(const Material& material) noexcept;
-        static std::string getCustomMaterialSamplerUniforms(const Material& material) noexcept;
-        static std::string getMaterialDefines(const Material& material) noexcept;
-        static std::string getModelDefines(const InstanceType& type);
-
         static void replaceMaterialSettings(Shader& shader, const Material& material, InstanceType model_shader) noexcept;
     public:
         MaterialCompiler(Context& context, Assets& assets, const RenderSettings& settings) noexcept;

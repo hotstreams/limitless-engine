@@ -102,7 +102,7 @@ MaterialContext computeMaterialContext() {
 #endif
 
 #if defined (ENGINE_MATERIAL_REFRACTION)
-#if defined (MATERIAL_IOR)
+#if defined (ENGINE_MATERIAL_IOR)
     mctx.IoR = getMaterialIOR();
 #else
     mctx.IoR = 1.0;

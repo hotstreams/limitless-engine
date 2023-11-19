@@ -83,6 +83,7 @@ namespace Limitless {
         Model,
         Skeletal,
         Instanced,
+        SkeletalInstanced,
         Effect
     };
 

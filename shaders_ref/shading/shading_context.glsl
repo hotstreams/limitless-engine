@@ -48,3 +48,7 @@ ShadingContext computeShadingContext(
 
     return context;
 }
+
+ShadingContext computeShadingContext() {
+
+}

@@ -156,7 +156,7 @@ ENGINE_MATERIAL_GLOBAL_DEFINITIONS
 #endif
 
 #if defined (ENGINE_MATERIAL_REFRACTION)
-#if defined (MATERIAL_IOR)
+#if defined (ENGINE_MATERIAL_IOR)
     float getMaterialIOR() {
         return _material_ior;
     }
