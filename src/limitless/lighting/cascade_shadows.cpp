@@ -126,11 +126,11 @@ void CascadeShadows::updateFrustums(Context& ctx, const Camera& camera) {
     }
 }
 
-void CascadeShadows::updateLightMatrices(const DirectionalLight& light) {
+void CascadeShadows::updateLightMatrices(const Light& light) {
     // clear matrices
     light_space.clear();
 
-    const auto view = glm::lookAt(-glm::vec3(light.direction), { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+    const auto view = glm::lookAt(-light.getDirection(), { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
     for (auto& frustum : frustums) {
         glm::vec3 max = {std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), 0.0f};
         glm::vec3 min = {std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), 0.0f};
@@ -179,7 +179,7 @@ void CascadeShadows::updateLightMatrices(const DirectionalLight& light) {
 }
 
 void CascadeShadows::draw(Instances& instances,
-                          const DirectionalLight& light,
+                          const Light& light,
                           Context& ctx, const
                           Assets& assets,
                           const Camera& camera,

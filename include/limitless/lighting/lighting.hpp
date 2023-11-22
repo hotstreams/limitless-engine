@@ -11,18 +11,22 @@ namespace Limitless {
         std::shared_ptr<Buffer> buffer;
         Context& context;
 
+        Light directional_light;
+        LightContainer<Light> lights;
+
         void createLightBuffer();
         void updateLightBuffer();
     public:
+        explicit Lighting(Context& ctx);
+
+        Lighting& addLight(const Light& light) {
+            lights.
+        }
+
+
         // ambient lighting
         glm::vec4 ambient_color {1.0f, 1.0f, 1.0f, 1.0f};
 
-        // global lighting
-        DirectionalLight directional_light;
-
-        LightContainer<Light> lights;
-
-        explicit Lighting(Context& ctx);
         ~Lighting() = default;
 
         Lighting(const Lighting&) = delete;

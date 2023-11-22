@@ -7,7 +7,8 @@ using namespace Limitless;
 
 namespace {
     struct SceneLighting {
-        DirectionalLight directional_light {};
+        glm::vec4 direction;
+        glm::vec4 color;
         glm::vec4 ambient_color {};
         uint32_t light_count {};
     };

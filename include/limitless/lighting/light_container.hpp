@@ -7,16 +7,11 @@
 namespace Limitless {
     class Buffer;
 
-    template<typename T>
     class LightContainer {
-        /**
-         *      requirement for shader buffer object name in type T
-         **/
-        static_assert(sizeof(T::SHADER_STORAGE_NAME), "value_type must implement static shader_storage_name variable");
     private:
         std::unordered_map<uint64_t, uint64_t> lights_map;
         std::shared_ptr<Buffer> buffer;
-        std::vector<T> lights;
+        std::vector<Light> lights;
         uint64_t next_id {};
         bool modified {};
     public:

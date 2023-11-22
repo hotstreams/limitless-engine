@@ -8,7 +8,7 @@ namespace Limitless::fx {
 }
 
 namespace Limitless {
-    struct DirectionalLight;
+    class Light;
     class AbstractInstance;
     class ShaderProgram;
     class Renderer;
@@ -44,7 +44,7 @@ namespace Limitless {
 
         void initBuffers(Context& context);
         void updateFrustums(Context& ctx, const Camera& camera);
-        void updateLightMatrices(const DirectionalLight& light);
+        void updateLightMatrices(const Light& light);
     public:
         explicit CascadeShadows(Context& context, const RenderSettings& settings);
         ~CascadeShadows();
@@ -52,7 +52,7 @@ namespace Limitless {
         void update(Context& ctx, const RenderSettings& settings);
 
         void draw(Instances& instances,
-                  const DirectionalLight& light,
+                  const Light& light,
                   Context& ctx, const
                   Assets& assets,
                   const Camera& camera,
