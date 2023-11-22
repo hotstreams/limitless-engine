@@ -9,8 +9,50 @@
 #include <iostream>
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
+#include <limitless/util/stack_trace.hpp>
 
 using namespace Limitless;
+
+std::ostream& operator<<(std::ostream& stream, const StackFrame& stackframe) {
+    return stream << stackframe.module << ": " << stackframe.func << std::endl;
+}
+
+std::ostream& operator<<(std::ostream& stream, const StackTrace& stacktrace) {
+    for (const auto& frame : stacktrace) {
+        stream << frame;
+    }
+    return stream;
+}
+
+static void terminationHandler() {
+    std::cerr << "The application has to be terminated due to a fatal error";
+    bool printed_stack_trace = false;
+
+    auto exception = std::current_exception();
+    if (exception) {
+        try {
+            std::rethrow_exception(exception);
+        }
+        catch (const std::runtime_error& ex) {
+            std::cerr << ": " << ex.what() << std::endl;
+//            std::cerr << ex.stack_trace;
+            printed_stack_trace = true;
+        }
+        catch (const std::exception& ex) {
+            std::cerr << ": " << ex.what() << std::endl;
+        }
+        catch (...) {
+            std::cerr << "." << std::endl;
+        }
+    } else {
+        std::cerr << "." << std::endl;
+    }
+
+    if (!printed_stack_trace) {
+        std::cerr << getStackTrace(1) << std::endl;
+    }
+    std::abort();
+}
 
 class Game : public MouseMoveObserver, public KeyObserver, public FramebufferObserver {
 private:
@@ -153,6 +195,7 @@ public:
 };
 
 int main() {
+    std::set_terminate(terminationHandler);
     Game game;
     game.gameLoop();
     return 0;

@@ -1,3 +1,14 @@
+
+#if defined (ENGINE_MATERIAL_QUALITY_HIGH)
+    #define ENGINE_MATERIAL_DIFFUSE_BURLEY
+    #define ENGINE_MATERIAL_SPECULAR_GGX
+    #define ENGINE_MATERIAL_SPECULAR_SCHLICK
+#else
+    #define ENGINE_MATERIAL_DIFFUSE_LAMBERT
+    #define ENGINE_MATERIAL_SPECULAR_GGX_FAST
+    #define ENGINE_MATERIAL_SPECULAR_SCHLICK_FAST
+#endif
+
 // "An Inexpensive BRDF Model for Physically-Based Rendering", Schlick 1994
 vec3 F_Schlick(const vec3 F0, float F90, float VoH) {
     return F0 + (F90 - F0) * pow5(1.0 - VoH);
@@ -33,11 +44,11 @@ float V_SmithGGXCorrelatedFast(float roughness, float NoV, float NoL) {
 }
 
 vec3 SpecularF(const vec3 F0, float LoH) {
-#if defined (ENGINE_MATERIAL_QUALITY_LOW)
-    return F_Schlick(F0, LoH);
-#else
+#if defined (ENGINE_MATERIAL_SPECULAR_SCHLICK)
     float F90 = saturate(dot(F0, vec3(50.0 * 0.33)));
     return F_Schlick(F0, F90, LoH);
+#elif defined (ENGINE_MATERIAL_SPECULAR_SCHLICK_FAST)
+    return F_Schlick(F0, LoH);
 #endif
 }
 

@@ -5,6 +5,7 @@
 #include <limitless/ms/property.hpp>
 #include <limitless/ms/shading.hpp>
 #include <limitless/pipeline/shader_type.hpp>
+#include <limitless/core/shader/shader_define_replacer.hpp>
 
 namespace Limitless {
     class Shader;
@@ -12,9 +13,9 @@ namespace Limitless {
     namespace ms {
         class Material;
 
-        class MaterialShaderDefiner {
-        private:
-            static inline std::unordered_map<Property, std::string> SHADER_PROPERTY_DEFINE =
+        class MaterialShaderDefineReplacer : public ShaderDefineReplacer {
+        protected:
+            static inline std::unordered_map<Property, std::string> PROPERTY_DEFINE =
             {
                 { Property::Color, "ENGINE_MATERIAL_COLOR" },
                 { Property::EmissiveColor, "ENGINE_MATERIAL_EMISSIVE_COLOR" },
@@ -33,7 +34,7 @@ namespace Limitless {
                 { Property::Absorption, "ENGINE_MATERIAL_ABSORPTION" },
             };
 
-            static inline std::unordered_map<Shading, std::string> SHADER_SHADING_DEFINE =
+            static inline std::unordered_map<Shading, std::string> SHADING_DEFINE =
             {
                 { Shading::Lit, "ENGINE_MATERIAL_SHADING_REGULAR_MODEL" },
                 { Shading::Unlit, "ENGINE_MATERIAL_SHADING_UNLIT_MODEL" },
@@ -42,7 +43,7 @@ namespace Limitless {
                 { Shading::Custom, "ENGINE_MATERIAL_SHADING_CUSTOM_MODEL" },
             };
 
-            static inline std::unordered_map<InstanceType, std::string> SHADER_MODEL_DEFINE =
+            static inline std::unordered_map<InstanceType, std::string> MODEL_DEFINE =
             {
                 { InstanceType::Model, "ENGINE_MATERIAL_REGULAR_MODEL" },
                 { InstanceType::Skeletal, "ENGINE_MATERIAL_SKELETAL_MODEL" },
@@ -60,7 +61,7 @@ namespace Limitless {
                 CustomSamplers
             };
 
-            static inline std::unordered_map<SnippetDefineType, std::string> SHADER_SNIPPET_DEFINE =
+            static inline std::unordered_map<SnippetDefineType, std::string> SNIPPET_DEFINE =
             {
                 { SnippetDefineType::Vertex, "ENGINE_MATERIAL_VERTEX_SNIPPET" },
                 { SnippetDefineType::Tesselation, "ENGINE_MATERIAL_TESSELATION_SNIPPET" },
@@ -74,12 +75,13 @@ namespace Limitless {
             static std::string getShadingDefines(const Material& material);
             static std::string getModelDefines(InstanceType model_shader);
             static std::string getMaterialDefines(const Material& material);
+            static std::string getMaterialDependentDefine(const Material& material, InstanceType model_shader);
             static std::string getScalarUniformDefines(const Material& material);
             static std::string getSamplerUniformDefines(const Material& material);
 
-            MaterialShaderDefiner() noexcept = default;
+            MaterialShaderDefineReplacer() noexcept = default;
         public:
-            static void define(Shader &shader, const Material& material, InstanceType model_shader);
+            static void replaceMaterialDependentDefine(Shader& shader, const Material& material, InstanceType model_shader);
         };
     }
 }

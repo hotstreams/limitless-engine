@@ -163,8 +163,8 @@ void DemoAssets::loadMaterialsScene() {
             .add(Property::IoR, 1.5)
             .addUniform(std::make_unique<UniformTime>("time"))
             .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga")))
-            .setFragmentSnippet("data.IoR = texture(noise, vec2(getVertexUV().x, getVertexUV().y + time * 0.1)).r;"
-                                "data.IoR = clamp(data.IoR, 0.0, 1.0);"
+            .setFragmentSnippet("mctx.IoR = texture(noise, vec2(getVertexUV().x, getVertexUV().y + time * 0.1)).r;"
+                                "mctx.IoR = clamp(mctx.IoR, 0.0, 1.0);"
             )
             .setShading(Shading::Unlit)
             .build();
@@ -209,19 +209,21 @@ void DemoAssets::loadMaterialsScene() {
                 TextureLoaderFlags::Space::sRGB
             }))
             .add(Property::EmissiveColor, glm::vec4(2.5f, 0.9f, 0.1f, 1.0f))
+            .add(Property::Color, glm::vec4(2.5f, 0.9f, 0.1f, 1.0f))
             .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga")))
             .addUniform(std::make_unique<UniformTime>("time"))
             .setFragmentSnippet(
                     "vec2 panned = vec2(getVertexUV().x + time * 0.1, getVertexUV().y + time * 0.05);"
                     "vec2 uv = getVertexUV() + texture(noise, panned).r;"
-                    "data.baseColor.rgb = getMaterialDiffuse(uv).rgb;"
-                    "data.emissive *= texture(noise, panned).g;"
+                    "mctx.color.rgb = getMaterialDiffuse(uv).rgb;"
+                    "mctx.emissive_color *= texture(noise, panned).g;"
             )
             .setShading(Shading::Unlit)
             .build();
 
     builder .setName("ice")
             .add(Property::EmissiveColor, glm::vec4(1.0f))
+            .add(Property::Color, glm::vec4(1.0f))
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/ice.jpg", {
                     TextureLoaderFlags::Space::sRGB
             }))
@@ -229,24 +231,25 @@ void DemoAssets::loadMaterialsScene() {
             .addUniform(std::make_unique<UniformTime>("time"))
             .setFragmentSnippet(
                     "vec2 uv = getVertexUV() + time * 0.05;"
-                    "data.baseColor.rgb += texture(snow, uv).rgb * abs(cos(time * 0.5));"
-                    "data.emissive *= texture(snow, uv).r;"
+                    "mctx.color.rgb += texture(snow, uv).rgb * abs(cos(time * 0.5));"
+                    "mctx.emissive_color *= texture(snow, uv).r;"
             )
             .setShading(Shading::Unlit)
             .build();
 
     builder .setName("poison")
             .add(Property::EmissiveColor, glm::vec4(0.1f, 4.0f, 0.1f, 1.0f))
+            .add(Property::Color, glm::vec4(0.1f, 4.0f, 0.1f, 1.0f))
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/poison.jpg", {
                     TextureLoaderFlags::Space::sRGB
             }))
             .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga")))
             .addUniform(std::make_unique<UniformTime>("time"))
             .setFragmentSnippet(
-                    "vec2 panned = vec2(getVertexUV().x + time * 0.05, getVertexUV().y);"
+            "vec2 panned = vec2(getVertexUV().x + time * 0.05, getVertexUV().y);"
                     "vec2 uv = vec2(getVertexUV().x, getVertexUV().y  + texture(noise, panned).g);"
-                    "data.baseColor.rgb = getMaterialDiffuse(uv).rgb;"
-                    "data.emissive *= getMaterialDiffuse(uv).g;"
+                    "mctx.color.rgb = getMaterialDiffuse(uv).rgb;"
+                    "mctx.emissive_color *= getMaterialDiffuse(uv).g;"
             )
             .setShading(Shading::Unlit)
             .build();
@@ -266,9 +269,9 @@ void DemoAssets::loadMaterialsScene() {
                                 "float s = texture(fire_mask, uv_1).r;\n"
                                 "float t = texture(fire_mask, uv_2).r;\n"
                                 "\n"
-                                "data.emissive = getMaterialDiffuse(uv + vec2(s, t)).rgb;\n"
+                                "mctx.emissive_color = getMaterialDiffuse(uv + vec2(s, t)).rgb;\n"
                                 "\n"
-                                "if (data.emissive.r <= 0.2) discard;")
+                                "if (mctx.emissive_color.r <= 0.2) discard;")
             .addUniform(std::make_unique<UniformTime>("time"))
             .addUniform(std::make_unique<UniformSampler>("fire_mask", TextureLoader::load(*this, assets_dir / "textures/fireball_mask.png")))
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/rock_lava.png"))
@@ -300,10 +303,10 @@ void DemoAssets::loadMaterialsScene() {
                     TextureLoaderFlags::Space::sRGB
             }))
             .setGlobalSnippet(
-                    "#include \"../../functions/fresnel.glsl\""
+                    "#include \"../functions/fresnel.glsl\""
             )
             .setFragmentSnippet(
-                    "data.emissive *= fresnel(getFragmentNormal(data), getCameraPosition() - getVertexPosition(), 5.0);"
+                    "mctx.emissive_color *= fresnel(getVertexNormal(), getCameraPosition() - getVertexPosition(), 5.0);"
             )
             .build();
 
@@ -313,11 +316,12 @@ void DemoAssets::loadMaterialsScene() {
             .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/albedo.jpg", {
                     TextureLoaderFlags::Space::sRGB
             }))
+            .add(Property::Color, glm::vec4(1.0))
             .setGlobalSnippet(
-                    "#include \"../../functions/hue_shift.glsl\""
+                    "#include \"../functions/hue_shift.glsl\""
             )
             .setFragmentSnippet(
-                    "data.baseColor.rgb = hue_shift(data.baseColor.rgb, time);"
+                    "mctx.color.rgb = hue_shift(mctx.color.rgb, time);"
             )
             .build();
 }
@@ -345,7 +349,7 @@ void DemoAssets::loadEffectsScene() {
                                     "\n"
                                     "float m_a = getMaterialDiffuse(uv1).r;\n"
                                     "\n"
-                                    "data.color.a = mix(0.0, m_a, pow(r, erode));"
+                                    "mctx.color.a = mix(0.0, m_a, pow(r, erode));"
                 )
                 .addModelShader(InstanceType::Effect)
                 .build();
@@ -402,13 +406,13 @@ void DemoAssets::loadEffectsScene() {
                 .addUniform(std::make_unique<UniformValue<glm::vec3>>("vertex_offset_dir", glm::vec3(0.2)))
                 .setFragmentSnippet("vec2 uv = getVertexUV();"
                             "float fres = fresnel(getVertexNormal(), getCameraPosition() - getVertexPosition(), 3.5);"
-                            "data.color.rgb *= 1.0 - texture(maintexture, uv).r;"
-                            "data.color.rgb *= fres * vec3(33.0 / 255.0 * 15.0f, 99.0 / 255.0 * 15.0f, 1000.0 / 255.0 * 25.0f);"
+                            "mctx.color.rgb *= 1.0 - texture(maintexture, uv).r;"
+                            "mctx.color.rgb *= fres * vec3(33.0 / 255.0 * 15.0f, 99.0 / 255.0 * 15.0f, 1000.0 / 255.0 * 25.0f);"
                 )
                 .setVertexSnippet(
                         "vertex_position.xyz += sin(getParticleTime() * vertex_offset_freq) * getVertexNormal() * vertex_offset_dir *texture(noise, getParticleTime() + uv).r;")
 
-                .setGlobalSnippet("#include \"../../functions/fresnel.glsl\"")
+                .setGlobalSnippet("#include \"../functions/fresnel.glsl\"")
                 .build();
     }
 
@@ -442,21 +446,22 @@ void DemoAssets::loadEffectsScene() {
                                     "\n"
                                     "float r = offset1 * offset2;\n"
                                     "\n"
-                                    "data.baseColor.rgb = getMaterialDiffuse(uv).rgb;\n"
-                                    "data.baseColor.rgb *= clamp((1.0 - getParticleProperties().z) * r, 0, 1);"
+                                    "mctx.color.rgb = getMaterialDiffuse(uv).rgb;\n"
+                                    "mctx.color.rgb *= clamp((1.0 - getParticleProperties().z) * r, 0, 1);"
                 )
                 .addUniform(std::make_unique<UniformSampler>("noise", TextureLoader::load(*this, assets_dir /"textures/true_noise.tga")))
                 .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "textures/true_fire.tga"))
+                .add(Property::Color, glm::vec4(1.0f))
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Additive)
-                .setGlobalSnippet("#include \"../../functions/tone_mapping.glsl\"")
+                .setGlobalSnippet("#include \"../functions/tone_mapping.glsl\"")
                 .addModelShader(::InstanceType::Effect)
                 .build();
 
         builder .setName("fireball_sparks")
-                .setFragmentSnippet("data.emissive *= circle(getVertexUV(), 0.7);"
-                                    "data.color.rgb *= circle(getVertexUV(), 0.7);")
-                .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
+                .setFragmentSnippet("mctx.emissive_color *= circle(getVertexUV(), 0.7);"
+                                    "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
+                .setGlobalSnippet("#include \"../functions/circle.glsl\"")
 
                 .add(Property::EmissiveColor, glm::vec4{5.0f, 1.5f, 1.0f, 1.0f})
                 .add(Property::Color, glm::vec4(1.0))
@@ -500,9 +505,9 @@ void DemoAssets::loadEffectsScene() {
                 .setBlending(Blending::Additive)
                 .add(::Property::EmissiveColor, glm::vec4(2.0, 1.0, 0.3, 1.0))
                 .add(::Property::Color, glm::vec4(1.0, 1.0, 0.3, 1.0))
-                .setFragmentSnippet("data.emissive *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;"
-                                    "data.color.rgb *= circle(getVertexUV(), 0.7);")
-                .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
+                .setFragmentSnippet("mctx.emissive_color *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;"
+                                    "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
+                .setGlobalSnippet("#include \"../functions/circle.glsl\"")
                 .addModelShader(InstanceType::Effect)
                 .build();
     }
@@ -532,9 +537,9 @@ void DemoAssets::loadEffectsScene() {
                 .setBlending(Blending::Additive)
                 .add(::Property::EmissiveColor, glm::vec4(5.0, 0.0, 5.0, 1.0))
                 .add(::Property::Color, glm::vec4(1.0, 0.0, 1.0, 1.0))
-                .setFragmentSnippet("data.emissive *= circle(getVertexUV(), 0.5);"
-                                    "data.color.rgb = vec3(0.0);")
-                .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
+                .setFragmentSnippet("mctx.emissive_color *= circle(getVertexUV(), 0.5);"
+                                    "mctx.color.rgb = vec3(0.0);")
+                .setGlobalSnippet("#include \"../functions/circle.glsl\"")
                 .addModelShader(InstanceType::Effect)
                 .build();
     }
@@ -562,11 +567,11 @@ void DemoAssets::loadEffectsScene() {
         builder.setName("drop")
                 .add(Property::EmissiveColor, glm::vec4(0.3f, 1.5f, 0.5f, 1.0f))
                 .add(Property::Color, glm::vec4(0.3f, 1.5f, 0.5f, 1.0f))
-                .setFragmentSnippet("data.emissive *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;"
-                                    "data.color.rgb *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;")
+                .setFragmentSnippet("mctx.emissive_color *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;"
+                                    "mctx.color.rgb *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;")
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Additive)
-                .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
+                .setGlobalSnippet("#include \"../functions/circle.glsl\"")
                 .addModelShader(InstanceType::Effect)
                 .build();
     }
@@ -591,7 +596,7 @@ void DemoAssets::loadEffectsScene() {
         MaterialBuilder builder {*this};
         builder.setName("beam_lightning")
                 .add(Property::EmissiveColor, glm::vec4(2.8f, 2.8f, 4.8f, 1.0f))
-                .setFragmentSnippet("data.emissive *= getParticleColor().rgb;")
+                .setFragmentSnippet("mctx.emissive_color *= getParticleColor().rgb;")
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Opaque)
                 .addModelShader(InstanceType::Effect)
@@ -624,11 +629,11 @@ void DemoAssets::loadEffectsScene() {
         builder.setName("skeleton4ik")
                 .add(Property::EmissiveColor, glm::vec4(0.3f, 1.5f, 0.5f, 1.0f))
                 .add(Property::Color, glm::vec4(0.3f, 1.5f, 0.5f, 1.0f))
-                .setFragmentSnippet("data.emissive *= circle(getVertexUV(), 0.7);"
-                                    "data.color.rgb *= circle(getVertexUV(), 0.7);")
+                .setFragmentSnippet("mctx.emissive_color *= circle(getVertexUV(), 0.7);"
+                                    "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
                 .setShading(Shading::Unlit)
                 .setBlending(Blending::Additive)
-                .setGlobalSnippet("#include \"../../functions/circle.glsl\"")
+                .setGlobalSnippet("#include \"../functions/circle.glsl\"")
                 .addModelShader(InstanceType::Effect)
                 .build();
     }
@@ -734,7 +739,7 @@ void DemoAssets::loadModelsScene() {
                 .add(Property::Normal, TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
                 .addUniform(std::make_unique<UniformSampler>("emissive_map", TextureLoader::load(*this, assets_dir /
                                                                                                         "models/thanos/yellow_env.tga")))
-                .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
+                .setFragmentSnippet("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
                 .addModelShader(InstanceType::Skeletal)
                 .build();
@@ -745,7 +750,7 @@ void DemoAssets::loadModelsScene() {
                 .add(Property::Diffuse, TextureLoader::load(*this, assets_dir / "models/thanos/bodygray_m.tga"))
                 .add(Property::Normal, TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
                 .addUniform(std::make_unique<UniformSampler>("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/gray_env.tga")))
-                .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
+                .setFragmentSnippet("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
                 .addModelShader(InstanceType::Skeletal)
                 .build();
@@ -757,7 +762,7 @@ void DemoAssets::loadModelsScene() {
                 .add(Property::Normal, TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
                 .addUniform(std::make_unique<UniformSampler>("emissive_map", TextureLoader::load(*this, assets_dir /
                                                                                                         "models/thanos/eye_env.tga")))
-                .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
+                .setFragmentSnippet("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
                 .addModelShader(InstanceType::Skeletal)
                 .build();
@@ -769,7 +774,7 @@ void DemoAssets::loadModelsScene() {
                 .add(Property::Normal, TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
                 .addUniform(std::make_unique<UniformSampler>("emissive_map", TextureLoader::load(*this, assets_dir /
                                                                                                         "models/thanos/blue_env.tga")))
-                .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
+                .setFragmentSnippet("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
                 .addModelShader(InstanceType::Skeletal)
                 .build();
@@ -888,9 +893,9 @@ void DemoAssets::loadModelsScene() {
                 .add(Property::AmbientOcclusionTexture, TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body_OcclusionRoughnessMetallic.png"))
                 .addUniform(std::make_unique<UniformSampler>("ao_r_m", TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body_OcclusionRoughnessMetallic.png")))
                 .setFragmentSnippet("vec3 skin = texture(ao_r_m, getVertexUV()).rgb;"
-                                    "data.ao = skin.r;"
-                                    "data.roughness = skin.g;"
-                                    "data.metallic = skin.b;")
+                                    "mctx.ao = skin.r;"
+                                    "mctx.roughness = skin.g;"
+                                    "mctx.metallic = skin.b;")
                 .setShading(Shading::Lit)
                 .addModelShader(InstanceType::Skeletal)
                 .build();
@@ -952,7 +957,7 @@ void DemoAssets::loadModelsScene() {
                 .add(::Property::RoughnessTexture, TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Rougness FireElemental.png"))
                 .add(::Property::Metallic, 0.1f)
                 .addUniform(std::make_unique<UniformSampler>("emissive_map", TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Emission FireElemental.png")))
-                .setFragmentSnippet("data.emissive = texture(emissive_map, getVertexUV()).rgb;")
+                .setFragmentSnippet("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
                 .setShading(Shading::Lit)
                 .build();
 

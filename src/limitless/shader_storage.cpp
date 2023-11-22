@@ -104,12 +104,18 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
 
 void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, const fs::path& shader_dir) {
     ShaderCompiler compiler {ctx, settings};
-//TODO: check
-    if (settings.pipeline == RenderPipeline::Forward) {
-//        add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
-//        add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
-//        add("postprocess", compiler.compile(shader_dir / "postprocessing/postprocess"));
+
+    if (settings.bloom) {
+        add("blur_downsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_downsample"));
+        add("blur_upsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_upsample"));
+        add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
     }
+
+//TODO: check
+//    if (settings.pipeline == RenderPipeline::Forward) {
+//        add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
+//        add("postprocess", compiler.compile(shader_dir / "postprocessing/postprocess"));
+//    }
 
     if (settings.pipeline == RenderPipeline::Deferred) {
         add("deferred", compiler.compile(shader_dir / "pipeline/deferred"));
@@ -117,9 +123,7 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
 //        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));
 //        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao/ssao_blur"));
 
-//        add("blur_downsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_downsample"));
-//        add("blur_upsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_upsample"));
-//        add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
+//
     }
 
     if (settings.fast_approximate_antialiasing) {
@@ -130,9 +134,10 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
 	    add("dof", compiler.compile(shader_dir / "postprocessing/dof"));
     }
 
-    add("ssr", compiler.compile(shader_dir / "postprocessing/ssr/ssr"));
+//    add("ssr", compiler.compile(shader_dir / "postprocessing/ssr/ssr"));
 
     add("quad", compiler.compile(shader_dir / "pipeline/quad"));
+
     add("text", compiler.compile(shader_dir / "text/text"));
     add("text_selection", compiler.compile(shader_dir / "text/text_selection"));
 }

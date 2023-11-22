@@ -32,3 +32,16 @@ float computeMicroShadowing(float NoL, float visibility) {
     float microShadow = saturate(NoL * aperture);
     return microShadow * microShadow;
 }
+
+float specularAA(const vec3 normal, float perceptualRoughness, float aaThreshold, float aaVariance) {
+    vec3 du = dFdx(normal);
+    vec3 dv = dFdy(normal);
+
+    float variance = aaVariance * (dot(du, du) + dot(dv, dv));
+
+    float roughness = perceptualRoughness * perceptualRoughness;
+    float kernelRoughness = min(2.0 * variance, aaThreshold);
+    float squareRoughness = saturate(roughness * roughness + kernelRoughness);
+
+    return sqrt(sqrt(squareRoughness));
+}

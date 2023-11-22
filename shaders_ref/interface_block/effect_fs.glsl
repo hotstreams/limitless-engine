@@ -17,7 +17,7 @@ in _vertex_data {
     #endif
 
     #if defined (MeshEmitter)
-        #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+        #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
             mat3 TBN;
         #else
             vec3 normal;
@@ -123,7 +123,7 @@ vec3 getVertexPosition() {
 
 #if defined (SpriteEmitter) && defined (InitialVelocity_MODULE)
     vec3 getParticleVelocity() {
-     return _in_data.velocity;
+        return _in_data.velocity;
     }
 #endif
 
@@ -165,7 +165,7 @@ vec3 getVertexPosition() {
 #endif
 
 #if defined (MeshEmitter)
-    #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+    #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
         mat3 getVertexTBN() {
             return _in_data.TBN;
         }

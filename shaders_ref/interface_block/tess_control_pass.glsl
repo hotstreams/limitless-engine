@@ -1,7 +1,7 @@
 void InterfaceBlockPassThrough() {
         uint index = uint(gl_InvocationID);
 
-#if defined (EFFECT_MODEL)
+#if defined (ENGINE_MATERIAL_EFFECT_MODEL)
         _out_data[gl_InvocationID].world_position = getVertexPosition(index);
 
     #if !defined (SpriteEmitter)
@@ -15,7 +15,7 @@ void InterfaceBlockPassThrough() {
     #endif
 
     #if defined (MeshEmitter)
-        #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+        #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
             _out_data[gl_InvocationID].TBN = getVertexTBN(index);
         #else
             _out_data[gl_InvocationID].normal = getVertexNormal(index);
@@ -57,7 +57,7 @@ void InterfaceBlockPassThrough() {
         _out_data[gl_InvocationID].size = getParticleSize(index);
     #endif
 #else
-    #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+    #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
         _out_data[gl_InvocationID].TBN = getVertexTBN(index);
     #else
         _out_data[gl_InvocationID].normal = getVertexNormal(index);

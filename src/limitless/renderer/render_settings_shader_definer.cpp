@@ -1,16 +1,11 @@
 #include <limitless/renderer/render_settings_shader_definer.hpp>
 #include <limitless/renderer/render_settings.hpp>
 #include <limitless/core/shader/shader.hpp>
-#include <limitless/core/shader/shader_defines.hpp>
+#include <limitless/core/shader/shader_define_replacer.hpp>
 
 using namespace Limitless;
 
-RenderSettingsShaderDefiner::RenderSettingsShaderDefiner(const RenderSettings& settings) noexcept
-    : settings {settings} {
-
-}
-
-std::string RenderSettingsShaderDefiner::define() {
+std::string RenderSettingsShaderDefiner::getDefine(const RenderSettings &settings) {
     std::string s;
 
     if (settings.normal_mapping) {
@@ -23,7 +18,7 @@ std::string RenderSettingsShaderDefiner::define() {
         s.append("#define ENGINE_SETTINGS_CSM_SPLIT_COUNT " + std::to_string(settings.csm_split_count) + '\n');
 
         if (settings.csm_pcf) {
-            s.append("#define ENGINE_SETTINGS_PFC\n");
+            s.append("#define ENGINE_SETTINGS_PCF\n");
         }
     }
 
@@ -65,6 +60,12 @@ std::string RenderSettingsShaderDefiner::define() {
 
     if (settings.csm_micro_shadowing) {
         s.append("#define ENGINE_SETTINGS_MICRO_SHADOWING\n");
+    }
+
+    if (settings.specular_aa) {
+        s.append("#define ENGINE_SETTINGS_SPECULAR_AA\n");
+        s.append("#define ENGINE_SETTINGS_SPECULAR_AA_THRESHOLD " + std::to_string(settings.specular_aa_threshold) + '\n');
+        s.append("#define ENGINE_SETTINGS_SPECULAR_AA_VARIANCE " + std::to_string(settings.specular_aa_variance) + '\n');
     }
 
     return s;

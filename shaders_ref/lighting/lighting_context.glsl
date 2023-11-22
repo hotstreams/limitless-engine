@@ -21,16 +21,15 @@ struct LightingContext {
 
 float getAttenuation(const ShadingContext sctx, const Light light) {
     vec3 L = light.position.xyz - sctx.worldPos;
-
-    float distance = dot(L, L);
-    float factor = distance * light.falloff;
+    float distanceSquare = dot(L, L);
+    float factor = distanceSquare * light.falloff;
     float smoothFactor = saturate(1.0 - factor * factor);
-    float attenuation = smoothFactor * factor;
+    float attenuation = smoothFactor * smoothFactor;
 
-    attenuation = attenuation / max(distance, 1e-4);
+    attenuation = attenuation / max(distanceSquare, 1e-4);
 
     if (light.type == LIGHT_TYPE_SPOT) {
-        float cd = dot(-light.direction, L);
+        float cd = dot(-light.direction.xyz, L);
         float att = saturate(cd * light.scale_offset.x + light.scale_offset.y);
         float att2 =  att * att;
         attenuation *= att2;
@@ -45,7 +44,13 @@ LightingContext computeLightingContext(const ShadingContext sctx, const Light li
     lctx.attenuation = getAttenuation(sctx, light);
 
     lctx.visibility = 1.0;
-    lctx.L = normalize(light.position.xyz - sctx.worldPos);
+
+    if (light.type == LIGHT_TYPE_DIRECTIONAL) {
+        lctx.L = normalize(-light.direction.xyz);
+    } else {
+        lctx.L = normalize(light.position.xyz - sctx.worldPos);
+    }
+
     lctx.H = normalize(sctx.V + lctx.L);
     lctx.len = length(light.position.xyz - sctx.worldPos);
 

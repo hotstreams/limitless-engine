@@ -20,11 +20,7 @@ namespace Limitless {
         // global lighting
         DirectionalLight directional_light;
 
-        // point lighting
-        LightContainer<PointLight> point_lights;
-
-        // spot lighting
-        LightContainer<SpotLight> spot_lights;
+        LightContainer<Light> lights;
 
         explicit Lighting(Context& ctx);
         ~Lighting() = default;

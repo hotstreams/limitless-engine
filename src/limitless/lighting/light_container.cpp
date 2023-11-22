@@ -60,4 +60,5 @@ void LightContainer<T>::update() {
 namespace Limitless {
     template class LightContainer<PointLight>;
     template class LightContainer<SpotLight>;
+    template class LightContainer<Light>;
 }

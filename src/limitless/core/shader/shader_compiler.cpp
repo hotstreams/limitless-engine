@@ -5,7 +5,7 @@
 #include "limitless/core/shader/shader_program.hpp"
 #include <limitless/core/shader/shader_extensions.hpp>
 #include <limitless/renderer/render_settings_shader_definer.hpp>
-#include <limitless/core/shader/shader_defines.hpp>
+#include <limitless/core/shader/shader_define_replacer.hpp>
 #include <limitless/core/keyline_extensions.hpp>
 
 using namespace Limitless;
@@ -44,7 +44,6 @@ void ShaderCompiler::checkStatus(const GLuint program_id) {
 
 ShaderCompiler& ShaderCompiler::operator<<(Shader&& shader) noexcept {
     shaders.emplace_back(std::move(shader));
-
     return *this;
 }
 
@@ -70,11 +69,8 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile() {
     return std::shared_ptr<ShaderProgram>(new ShaderProgram(program_id));
 }
 
-void ShaderCompiler::replaceEngineDefines(Shader& shader) const {
-    shader.replaceKey(ENGINE_SHADER_DEFINE_NAMES[EngineShaderDefine::GLSLVersion], getVersionDefine());
-    shader.replaceKey(ENGINE_SHADER_DEFINE_NAMES[EngineShaderDefine::Extensions], getExtensionsDefine());
-    shader.replaceKey(ENGINE_SHADER_DEFINE_NAMES[EngineShaderDefine::Settings], getSettingsDefine());
-    shader.replaceKey(ENGINE_SHADER_DEFINE_NAMES[EngineShaderDefine::Common], getCommonDefine());
+void ShaderCompiler::replaceCommonDefines(Shader &shader) {
+    ShaderDefineReplacer::replaceCommon(shader, render_settings);
 }
 
 std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, const ShaderAction& action) {
@@ -83,14 +79,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
         try {
             Shader shader { path.string() + extension.data(), type, action };
 
-            replaceEngineDefines(shader);
-
-            std::string e = type == Shader::Type::Vertex ? ".vert" : ".frag";
-            // TODO: temp ref/remove
-            static int i = 0;
-            std::ofstream f {"D:/Dev/Projects/limitless-engine/glslang/" + std::to_string(i++) + e};
-            f << shader.getSource();
-            f.close();
+            replaceCommonDefines(shader);
 
             *this << std::move(shader);
 
@@ -101,52 +90,9 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
     }
 
     if (shader_count == 0) {
-        throw shader_compilation_error("Shaders not found : " + path.string());
+        throw shader_compilation_error("Shaders not found: " + path.string());
     }
 
     return compile();
 }
 
-std::string ShaderCompiler::getVersionDefine() {
-    return "#version " + std::to_string(ContextInitializer::major_version) + std::to_string(ContextInitializer::minor_version) + "0 core\n";
-}
-
-std::string ShaderCompiler::getExtensionsDefine() {
-    std::string extensions;
-
-    if (ContextInitializer::isExtensionSupported(shader_storage_buffer_object)) {
-        extensions.append(extension_shader_storage_buffer_object);
-    }
-
-    if (ContextInitializer::isExtensionSupported(shading_language_420pack)) {
-        extensions.append(extension_shading_language_420pack);
-    }
-
-    if (ContextInitializer::isExtensionSupported(explicit_uniform_location)) {
-        extensions.append(extension_explicit_uniform_location);
-    }
-
-    if (ContextInitializer::isExtensionSupported(bindless_texture)) {
-        extensions.append(extension_bindless_texture);
-        extensions.append(bindless_texture_define);
-        extensions.append(bindless_samplers);
-    }
-
-    return extensions;
-}
-
-std::string ShaderCompiler::getSettingsDefine() const {
-    std::string define;
-    if (render_settings) {
-        RenderSettingsShaderDefiner settings {*render_settings};
-        define = settings.define();
-    }
-    return define;
-}
-
-std::string ShaderCompiler::getCommonDefine() const {
-    std::string defines = getVersionDefine();
-    defines.append(getExtensionsDefine());
-    defines.append(getSettingsDefine());
-    return defines;
-}

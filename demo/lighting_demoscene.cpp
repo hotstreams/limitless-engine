@@ -53,7 +53,7 @@ bool LightingScene::isInsideFloor(const glm::vec3& position) {
 
 void LightingScene::addLights() {
     for (int i = 0; i < LIGHT_COUNT; ++i) {
-        lighting.point_lights.emplace_back(
+        lighting.lights.emplace_back(
                 glm::vec4{FLOOR_INSTANCE_COUNT / 4.0f, 1.0f, FLOOR_INSTANCE_COUNT / 4.0f, 1.0f},
                 glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
                 2.0f
@@ -88,16 +88,16 @@ void LightingScene::update(Limitless::Context& context, const Limitless::Camera&
     std::uniform_real_distribution<> dis_color(0.0, 1.0);
 
     for (std::size_t i = 0; i < data.size(); ++i) {
-        auto& light = lighting.point_lights.at(i);
+        auto& light = lighting.lights.at(i);
         auto& light_data = data[i];
 
-        light.position += glm::vec4(light_data.direction, 0.0f) * delta_time * 10.0f;
+        light.position += glm::vec4(light_data.direction, 1.0) * delta_time * 10.0f;
         light.position = glm::clamp(light.position, glm::vec4(0.0f), glm::vec4(FLOOR_INSTANCE_COUNT / 2.0f));
 
         if (light_data.duration <= 0.0f) {
             light_data.direction = glm::vec3(dis_direction(e), 0.0f, dis_direction(e));
             light_data.duration = dis_duration(e);
-            light.color = glm::vec4(dis_color(e), dis_color(e), dis_color(e), 2.0f);
+            light.color = glm::vec4(dis_color(e), dis_color(e), dis_color(e), 1.0f);
         } else {
             light_data.duration -= delta_time;
         }

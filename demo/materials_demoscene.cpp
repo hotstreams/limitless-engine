@@ -10,7 +10,25 @@ MaterialsScene::MaterialsScene(Limitless::Context& ctx, Limitless::Assets& asset
     : Limitless::Scene(ctx) {
     addModels(assets);
     setSkybox(assets.skyboxes.at("skybox"));
-    lighting.directional_light = {glm::vec4(2.0, -2.0, 1.5, 1.0f), glm::vec4{1.0f}};
+    lighting.directional_light = {glm::vec4(1.0, -1.0, 0.5, 1.0f), glm::vec4{1.0f}};
+
+    lighting.lights.emplace_back(
+        glm::vec4{0.0f, 0.5f, 0.0f, 1.0f},
+        glm::vec4{1.0f, 0.0f, 0.0f, 2.0f},
+        2.0f
+    );
+
+    lighting.lights.emplace_back(
+            glm::vec4{5.0f, 0.5f, 0.0f, 1.0f},
+            glm::vec4{0.0f, 1.0f, 0.0f, 2.0f},
+            2.0f
+    );
+
+    lighting.lights.emplace_back(
+            glm::vec4{0.0f, 0.5f, 5.0f, 1.0f},
+            glm::vec4{0.0f, 0.0f, 1.0f, 2.0f},
+            2.0f
+    );
 }
 
 void MaterialsScene::addModels(const Limitless::Assets& assets) {

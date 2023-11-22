@@ -1,8 +1,6 @@
-Limitless::GLSL_VERSION
-Limitless::Extensions
-Limitless::Settings
+ENGINE::COMMON
 
-#include "../../functions/tone_mapping.glsl"
+#include "../functions/tone_mapping.glsl"
 
 in vec2 uv;
 

@@ -1,5 +1,4 @@
 #include "./material.glsl"
-#include "../interface_block/vertex.glsl"
 
 struct MaterialContext {
 #if defined (ENGINE_MATERIAL_COLOR)
@@ -41,6 +40,8 @@ struct MaterialContext {
     float IoR;
     float absorption;
 #endif
+
+    uint shading_model;
 };
 
 MaterialContext computeDefaultMaterialContext() {
@@ -118,6 +119,8 @@ MaterialContext computeDefaultMaterialContext() {
 #endif
 #endif
 
+    mctx.shading_model = getMaterialShadingModel();
+
     return mctx;
 }
 
@@ -143,18 +146,18 @@ vec4 computeMaterialColor(const MaterialContext mctx) {
 #endif
 
 #if defined (ENGINE_MATERIAL_BLENDMASK_TEXTURE)
-    if (mctx.blend_mask == 0.0) {
+    if (mctx.blend_mask <= 0.0) {
         discard;
     }
 #endif
 
-#if defined (EFFECT_MODEL) && defined (BeamEmitter) && defined (BeamSpeed_MODULE)
+#if defined (ENGINE_MATERIAL_EFFECT_MODEL) && defined (BeamEmitter) && defined (BeamSpeed_MODULE)
     if (distance(getVertexPosition(), getParticleStart()) / distance(getParticleStart(), getParticleEnd()) >= getParticleLength()) {
         discard;
     }
 #endif
 
-#if defined (EFFECT_MODEL) && defined (InitialColor_MODULE)
+#if defined (ENGINE_MATERIAL_EFFECT_MODEL) && defined (InitialColor_MODULE)
     color *= getParticleColor();
 #endif
 
@@ -183,7 +186,7 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #if defined (SpriteEmitter) || defined (BeamEmitter)
     return getCameraPosition() - getVertexPosition();
 #else
-#if defined (ENGINE_MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
     vec3 normal = mctx.normal;
     normal = normalize(normal * 2.0 - 1.0);
     normal = normalize(getVertexTBN() * normal);

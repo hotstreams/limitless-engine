@@ -73,16 +73,16 @@ MaterialBuilder& MaterialBuilder::set(decltype(material->uniforms)&& uniforms) {
 MaterialBuilder& MaterialBuilder::add(Property type, float value) {
     switch (type) {
         case Property::Absorption:
-            material->properties[type] = std::make_unique<UniformValue<float>>("material_absorption", value);
+            material->properties[type] = std::make_unique<UniformValue<float>>("_material_absorption", value);
             break;
         case Property::IoR:
-            material->properties[type] = std::make_unique<UniformValue<float>>("material_ior", value);
+            material->properties[type] = std::make_unique<UniformValue<float>>("_material_ior", value);
             break;
         case Property::Metallic:
-            material->properties[type] = std::make_unique<UniformValue<float>>("material_metallic", value);
+            material->properties[type] = std::make_unique<UniformValue<float>>("_material_metallic", value);
             break;
         case Property::Roughness:
-            material->properties[type] = std::make_unique<UniformValue<float>>("material_roughness", value);
+            material->properties[type] = std::make_unique<UniformValue<float>>("_material_roughness", value);
             break;
         case Property::TessellationFactor:
         case Property::Color:
@@ -103,10 +103,10 @@ MaterialBuilder& MaterialBuilder::add(Property type, float value) {
 MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec4& value) {
     switch (type) {
         case Property::Color:
-            material->properties[type] = std::make_unique<UniformValue<glm::vec4>>("material_color", value);
+            material->properties[type] = std::make_unique<UniformValue<glm::vec4>>("_material_color", value);
             break;
         case Property::EmissiveColor:
-            material->properties[type] = std::make_unique<UniformValue<glm::vec4>>("material_emissive_color", value);
+            material->properties[type] = std::make_unique<UniformValue<glm::vec4>>("_material_emissive_color", value);
             break;
         case Property::TessellationFactor:
         case Property::IoR:
@@ -141,28 +141,28 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
         case Property::EmissiveColor:
             throw material_builder_error{"Wrong data for material property."};
         case Property::Diffuse:
-            material->properties[type] = std::make_unique<UniformSampler>("material_diffuse", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_diffuse_texture", std::move(texture));
             break;
         case Property::Normal:
-            material->properties[type] = std::make_unique<UniformSampler>("material_normal", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_normal_texture", std::move(texture));
             break;
         case Property::EmissiveMask:
-            material->properties[type] = std::make_unique<UniformSampler>("material_emissive_mask", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_emissive_mask_texture", std::move(texture));
             break;
         case Property::BlendMask:
-            material->properties[type] = std::make_unique<UniformSampler>("material_blend_mask", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_blend_mask_texture", std::move(texture));
             break;
         case Property::MetallicTexture:
-            material->properties[type] = std::make_unique<UniformSampler>("material_metallic_texture", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_metallic_texture", std::move(texture));
             break;
         case Property::RoughnessTexture:
-            material->properties[type] = std::make_unique<UniformSampler>("material_roughness_texture", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_roughness_texture", std::move(texture));
             break;
         case Property::AmbientOcclusionTexture:
-            material->properties[type] = std::make_unique<UniformSampler>("material_ambient_occlusion_texture", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_ambient_occlusion_texture", std::move(texture));
             break;
         case Property::ORM:
-            material->properties[type] = std::make_unique<UniformSampler>("material_orm_texture", std::move(texture));
+            material->properties[type] = std::make_unique<UniformSampler>("_material_orm_texture", std::move(texture));
             break;
     }
     return *this;
@@ -171,7 +171,7 @@ MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> te
 MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec2& value) {
     switch (type) {
         case Property::TessellationFactor:
-            material->properties[type] = std::make_unique<UniformValue<glm::vec2>>("material_tessellation", value);
+            material->properties[type] = std::make_unique<UniformValue<glm::vec2>>("_material_tessellation", value);
             break;
         case Property::Color:
         case Property::IoR:

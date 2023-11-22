@@ -1,15 +1,11 @@
-Limitless::GLSL_VERSION
-Limitless::Extensions
-Limitless::Settings
-Limitless::MaterialType
-Limitless::ModelType
-Limitless::EmitterType
+ENGINE::COMMON
+ENGINE::MATERIALDEPENDENT
 
 #include "../interface_block/fragment.glsl"
 
-#include "../scene.glsl"
-#include "../shading/depth_discarder.glsl"
+#include "../shading/shading_mctx.glsl"
 
 void main() {
-    discardForDepth();
+    const MaterialContext mctx = computeMaterialContext();
+    shadeFragment(mctx);
 }

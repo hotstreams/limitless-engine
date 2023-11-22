@@ -68,6 +68,8 @@ layout (std140) uniform MATERIAL_BUFFER {
 #endif
 
     ENGINE_MATERIAL_CUSTOM_SCALARS
+
+    uint _material_shading_model;
 };
 
 #if !defined (ENGINE_EXT_BINDLESS_TEXTURE)
@@ -204,3 +206,7 @@ ENGINE_MATERIAL_GLOBAL_DEFINITIONS
         return texture(_material_roughness_texture, uv).r;
     }
 #endif
+
+uint getMaterialShadingModel() {
+    return _material_shading_model;
+}

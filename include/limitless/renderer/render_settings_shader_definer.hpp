@@ -7,11 +7,7 @@ namespace Limitless {
     class Shader;
 
     class RenderSettingsShaderDefiner {
-    private:
-        const RenderSettings& settings;
     public:
-        explicit RenderSettingsShaderDefiner(const RenderSettings& settings) noexcept;
-
-        std::string define();
+        static std::string getDefine(const RenderSettings& settings);
     };
 }

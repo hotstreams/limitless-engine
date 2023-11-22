@@ -1,5 +1,5 @@
 void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transform) {
-    #if defined (EFFECT_MODEL)
+    #if defined (ENGINE_MATERIAL_EFFECT_MODEL)
         _out_data.world_position = world_position;
 
         #if !defined (SpriteEmitter)
@@ -21,7 +21,7 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
         #endif
 
         #if defined (MeshEmitter)
-            #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+            #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
                 _out_data.TBN = getModelTBN(model_transform);
             #else
                 _out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
@@ -63,7 +63,7 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
             _out_data.size = getParticleSize();
         #endif
     #else
-        #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+        #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
             _out_data.TBN = getModelTBN(model_transform);
         #else
             _out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();

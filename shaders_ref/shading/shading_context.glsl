@@ -1,6 +1,12 @@
 #include "../functions/common.glsl"
 #include "../scene.glsl"
 
+#define ENGINE_SHADING_UNLIT 0u
+#define ENGINE_SHADING_LIT 1u
+#define ENGINE_SHADING_CLOTH 2u
+#define ENGINE_SHADING_SUBSURFACE 3u
+#define ENGINE_SHADING_CUSTOM 4u
+
 struct ShadingContext {
     vec3 diffuseColor;
     float metallic;
@@ -16,21 +22,40 @@ struct ShadingContext {
 
     vec3 F0;
     float ambientOcclusion;
+
+    vec3 emissive_color;
+
+    float alpha;
+    uint shading_model;
 };
 
 ShadingContext computeShadingContext(
-    const vec3 baseColor, float metallic,
-    const vec3 worldPos, float roughness,
-    const vec3 N, float ambientOcclusion
+    const vec3 baseColor,
+    float alpha,
+    float metallic,
+    const vec3 worldPos,
+    float roughness,
+    const vec3 N,
+    float ambientOcclusion,
+    vec3 emissive_color,
+    uint shading_model
 ) {
     ShadingContext context;
 
     context.metallic = saturate(metallic);
     context.diffuseColor = computeDiffuseColor(baseColor, context.metallic);
+    context.alpha = alpha;
+    context.shading_model = shading_model;
 
     context.worldPos = worldPos;
 
-    float perceptualRoughness = clamp(roughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
+    float perceptualRoughness = roughness;
+
+#if defined (ENGINE_SETTINGS_SPECULAR_AA)
+    perceptualRoughness = specularAA(N, perceptualRoughness, ENGINE_SETTINGS_SPECULAR_AA_THRESHOLD, ENGINE_SETTINGS_SPECULAR_AA_VARIANCE);
+#endif
+
+    perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
     context.roughness = perceptualRoughness * perceptualRoughness;
 
     context.N = N;
@@ -41,6 +66,7 @@ ShadingContext computeShadingContext(
 
     context.F0 = computeF0(baseColor, context.metallic, 1.0);
     context.ambientOcclusion = ambientOcclusion;
+    context.emissive_color = emissive_color;
 
 #if defined (ENGINE_MATERIAL_ANISOTROPY)
     vec3 direction = material.anisotropyDirection;

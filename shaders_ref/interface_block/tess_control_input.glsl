@@ -1,4 +1,4 @@
-#if defined (EFFECT_MODEL)
+#if defined (ENGINE_MATERIAL_EFFECT_MODEL)
 in _vertex_data {
 #if defined (InitialColor_MODULE)
     vec4 color;
@@ -18,7 +18,7 @@ in _vertex_data {
     #endif
 
     #if defined (MeshEmitter)
-    #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+    #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
     mat3 TBN;
     #else
     vec3 normal;
@@ -153,7 +153,7 @@ vec2 getVertexUV() {
     #endif
 
     #if defined (MeshEmitter)
-    #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+    #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
 mat3 getVertexTBN(uint id) {
     return _in_data[id].TBN;
 }
@@ -166,7 +166,7 @@ vec3 getVertexNormal(uint id) {
 
     #else
 in _vertex_data {
-#if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
     mat3 TBN;
     #else
     vec3 normal;
@@ -184,7 +184,7 @@ vec2 getVertexUV(uint id) {
     return _in_data[id].uv;
 }
 
-    #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+    #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
 mat3 getVertexTBN(uint id) {
     return _in_data[id].TBN;
 }

@@ -1,4 +1,4 @@
-#if defined (EFFECT_MODEL)
+#if defined (ENGINE_MATERIAL_EFFECT_MODEL)
     out _vertex_data {
         #if defined (InitialColor_MODULE)
             vec4 color;
@@ -18,7 +18,7 @@
         #endif
 
         #if defined (MeshEmitter)
-            #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+            #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
                 mat3 TBN;
             #else
                 vec3 normal;
@@ -62,7 +62,7 @@
 
 #else
     out _vertex_data {
-        #if defined (MATERIAL_NORMAL) && defined (NORMAL_MAPPING)
+        #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
             mat3 TBN;
         #else
             vec3 normal;

@@ -1,31 +1,81 @@
 #include "./lighting_context.glsl"
 #include "../scene.glsl"
-#include "../shading/shade_for_light.glsl"
+
+#include "../shading/regular.glsl"
+#include "../shading/cloth.glsl"
+#include "../shading/subsurface.glsl"
+#include "../shading/custom.glsl"
+
+#include "./scene_lighting.glsl"
+#include "./shadows.glsl"
+
+vec3 computeLight(const ShadingContext sctx, const LightingContext lctx, const Light light) {
+    /* [forward pipeline] */
+#if defined (ENGINE_MATERIAL_SHADING_REGULAR_MODEL)
+    return regularShading(sctx, lctx, light);
+#elif defined (ENGINE_MATERIAL_SHADING_CLOTH_MODEL)
+    return clothShading(sctx, lctx, light);
+#elif defined (ENGINE_MATERIAL_SHADING_SUBSURFACE_MODEL)
+    return subsurfaceShading(sctx, lctx, light);
+#elif defined (ENGINE_MATERIAL_SHADING_CUSTOM_LIT_MODEL)
+    return customShading(sctx, lctx, light);
+#else
+    /* [deferred pipeline] */
+    switch (sctx.shading_model) {
+        case 1u: // Lit
+            return regularShading(sctx, lctx, light);
+        case 2u: // Cloth
+            return clothShading(sctx, lctx, light);
+        case 3u: // Subsurface
+            return subsurfaceShading(sctx, lctx, light);
+        default:
+            // deferred pipeline does not support custom shading
+            // and unlit paths calculated before
+            return vec3(10.0);
+    }
+#endif
+}
+
+vec3 computeDirectionalLight(const ShadingContext sctx) {
+    const Light light = getDirectionalLight();
+    LightingContext lctx = computeLightingContext(sctx, light);
+    lctx.attenuation = 1.0;
+
+    vec3 color = vec3(0.0);
+
+    if (lctx.NoL <= 0.0) {
+        return color;
+    }
+
+    #if defined (ENGINE_SETTINGS_CSM)
+        float shadow = getDirectionalShadow(sctx.N, sctx.worldPos);
+        lctx.visibility *= (1.0 - shadow);
+    #endif
+
+    #if defined (ENGINE_SETTINGS_MICRO_SHADOWING)
+        lctx.visibility *= computeMicroShadowing(lctx.NoL, sctx.ambientOcclusion);
+    #endif
+
+    if (lctx.visibility <= 0.0) {
+       return color;
+    }
+
+    return computeLight(sctx, lctx, light);
+}
 
 vec3 computeLights(const ShadingContext sctx) {
-    vec3 color = vec3(0.0);
-    //TODO: lights count
-    //for (uint i = 0u; i < getLightsCount(); ++i) {
-    for (uint i = 0u; i < 0u; ++i) {
+    vec3 color = computeDirectionalLight(sctx);
+
+    for (uint i = 0u; i < getLightCount(); ++i) {
         Light light = getLight(i);
 
         LightingContext lctx = computeLightingContext(sctx, light);
 
-        if (lctx.len > light.radius || lctx.NoL <= 0.0 || lctx.attenuation <= 0.0) {
+        if (lctx.NoL <= 0.0 || lctx.attenuation <= 0.0) {
             continue;
         }
 
-        #if defined (SHADOWS)
-        if (light.casts_shadow) {
-
-        }
-        #endif
-
-        if (lctx.visibility <= 0.0) {
-            continue;
-        }
-
-        //color += shadeForLight(sctx, lctx, light);
+        color += computeLight(sctx, lctx, light);
     }
 
     return color;

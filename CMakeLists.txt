@@ -15,6 +15,9 @@ OPTION(WEBGL_BUILD "Web build" OFF)
 OPTION(CODECOV "Compile with test coverage" OFF)
 OPTION(GLSLANG_SHADER_OUTPUT OFF)
 
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set(CMAKE_ENABLE_EXPORTS ON)
 #########################################
 
 # SETTINGS COMPILE FLAGS AND DEFINITIONS
@@ -25,7 +28,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
+    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
     add_compile_definitions(NDEBUG)
 endif()
 
@@ -97,6 +100,7 @@ set(ENGINE_CORE
     src/limitless/core/shader/shader_program.cpp
     src/limitless/core/shader/shader_program_texture_setter.cpp
     src/limitless/core/shader/shader_compiler.cpp
+    src/limitless/core/shader/shader_define_replacer.cpp
 
     src/limitless/core/vertex_array.cpp
     src/limitless/core/framebuffer.cpp
@@ -164,6 +168,7 @@ set(ENGINE_UTIL
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
     src/limitless/util/color_picker.cpp
+    src/limitless/util/stack_trace.cpp
 )
 
 set(ENGINE_MS
@@ -173,7 +178,7 @@ set(ENGINE_MS
     src/limitless/ms/material_builder.cpp
     src/limitless/ms/material_compiler.cpp
     src/limitless/ms/material_instance.cpp
-    src/limitless/ms/material_shader_definer.cpp
+        src/limitless/ms/material_shader_define_replacer.cpp
 )
 
 set(ENGINE_TEXT
@@ -193,6 +198,7 @@ set(ENGINE_FX
     src/limitless/fx/effect_builder.cpp
     src/limitless/fx/effect_compiler.cpp
     src/limitless/fx/particle.cpp
+    src/limitless/fx/effect_shader_define_replacer.cpp
 )
 
 set(ENGINE_PIPELINE
@@ -318,9 +324,9 @@ target_link_libraries(limitless_engine_static PUBLIC glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC freetype)
 target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
+target_link_libraries(limitless_engine_static PUBLIC dbghelp)
 
 target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
-
 #if (CODECOV)
 #    message("shrek1")
 #    target_link_options(limitless_engine_static PUBLIC -lgcov --coverage)
@@ -358,6 +364,7 @@ target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_demo freetype)
 target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
+target_link_libraries(limitless_demo dbghelp)
 
 ##############################################
 

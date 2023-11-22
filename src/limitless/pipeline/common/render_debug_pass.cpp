@@ -10,18 +10,18 @@
 #include <limitless/scene.hpp>
 using namespace Limitless;
 
-//RenderDebugPass::RenderDebugPass(Pipeline& pipeline, const RenderSettings& settings)
-//    : PipelinePass(pipeline)
-//    , helper {settings} {
-//}
-//
-//void RenderDebugPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
-//    if (lighting) {
-//        helper.render(ctx, assets, camera, *lighting, instances);
-//    }
-//}
-//
-//void RenderDebugPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
-//    lighting = &scene.lighting;
-//}
+RenderDebugPass::RenderDebugPass(Pipeline& pipeline, const RenderSettings& settings)
+    : PipelinePass(pipeline)
+    , helper {settings} {
+}
+
+void RenderDebugPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+    if (lighting) {
+        helper.render(ctx, assets, camera, *lighting, instances);
+    }
+}
+
+void RenderDebugPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
+    lighting = &scene.lighting;
+}
 
