@@ -107,7 +107,15 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
     return [meshes = std::move(meshes), materials = std::move(materials), bones = std::move(bones), bone_map = std::move(bone_map), animations = std::move(animations), animation_tree = std::move(animation_tree), global_matrix, name = path.stem().string()] () mutable {
         return bone_map.empty() ?
                std::shared_ptr<AbstractModel>(new Model(meshes(), std::move(materials), name)) :
-               std::shared_ptr<AbstractModel>(new SkeletalModel(meshes(), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix), name));
+               std::shared_ptr<AbstractModel>(new SkeletalModel(
+                meshes(),
+                std::move(materials),
+                std::move(bones),
+                std::move(bone_map),
+                std::move(animation_tree),
+                std::move(animations),
+                name)
+            );
     };
 }
 

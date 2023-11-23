@@ -70,7 +70,15 @@ std::shared_ptr<AbstractModel> ModelLoader::loadModel(Assets& assets, const fs::
 
     auto model = bone_map.empty() ?
         std::shared_ptr<AbstractModel>(new Model(std::move(meshes), std::move(materials), path.stem().string())) :
-        std::shared_ptr<AbstractModel>(new SkeletalModel(std::move(meshes), std::move(materials), std::move(bones), std::move(bone_map), std::move(animation_tree), std::move(animations), glm::inverse(global_matrix), path.stem().string()));
+        std::shared_ptr<AbstractModel>(new SkeletalModel(
+            std::move(meshes),
+            std::move(materials),
+            std::move(bones),
+            std::move(bone_map),
+            std::move(animation_tree),
+            std::move(animations),
+            path.stem().string()
+        ));
 
     return model;
 }
@@ -281,7 +289,7 @@ std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::ve
             auto offset_mat = convert(mesh->mBones[j]->mOffsetMatrix);
             uint32_t bone_index;
             if (bi == bone_map.end()) {
-                bones.emplace_back(bone_name, offset_mat);
+                bones.emplace_back(j, bone_name, offset_mat);
                 bone_index = bones.size() - 1;
                 bone_map.insert({bone_name, bone_index});
             } else {
@@ -328,7 +336,7 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
 
             auto bi = bone_map.find(channel->mNodeName.C_Str());
             if (bi == bone_map.end()) {
-                bones.emplace_back(channel->mNodeName.C_Str(), glm::mat4(1.f));
+                bones.emplace_back(bones.size(), channel->mNodeName.C_Str(), glm::mat4(1.f));
                 bone_map.emplace(channel->mNodeName.C_Str(), bones.size() - 1);
             }
 
@@ -361,12 +369,12 @@ std::vector<Animation> ModelLoader::loadAnimations(const aiScene* scene, std::ve
     return animations;
 }
 
-Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
+std::vector<Tree<uint32_t>> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
     auto bone_finder = [&] (const std::string& str){
         if (auto bi = bone_map.find(str); bi != bone_map.end()) {
             return bi->second;
         } else {
-            bones.emplace_back(str, glm::mat4(1.f));
+            bones.emplace_back(bones.size(), str, glm::mat4(1.f));
             bone_map.emplace(str, bones.size() - 1);
             return static_cast<uint32_t>(bones.size() - 1);
         }
@@ -386,7 +394,8 @@ Tree<uint32_t> ModelLoader::loadAnimationTree(const aiScene* scene, std::vector<
 
     dfs(tree, scene->mRootNode, 0);
 
-    return tree;
+    std::vector<Tree<uint32_t>> result = { std::move(tree) };
+    return result;
 }
 
 std::vector<std::shared_ptr<AbstractMesh>> ModelLoader::loadMeshes(

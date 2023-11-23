@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/core/indexed_stream.hpp>
+#include <limitless/models/bones.hpp>
 
 namespace Limitless {
     template <typename Vertex>

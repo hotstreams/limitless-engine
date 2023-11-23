@@ -13,11 +13,11 @@ void Limitless::activate_debug() {
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
 		std::cerr << "OpenGL debug mode" << std::endl;
 
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		// glEnable(GL_DEBUG_OUTPUT);
+		// glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		// glDebugMessageCallback(glDebugOutput, nullptr);
+		// glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
 }
 

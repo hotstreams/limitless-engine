@@ -38,9 +38,9 @@ size_t AnimationNode::findScalingKeyframe(double anim_time) const {
     throw std::out_of_range("no scaling keyframe for time " + std::to_string(anim_time));
 }
 
-glm::vec3 AnimationNode::positionLerp(double anim_time) const {
+std::optional<glm::vec3> AnimationNode::positionLerp(double anim_time) const {
     if (positions.empty()) {
-        return glm::vec3{0.0f};
+        return std::nullopt;
     }
 
     if (positions.size() == 1) {
@@ -62,9 +62,9 @@ glm::vec3 AnimationNode::positionLerp(double anim_time) const {
     return a.data * (float)(1.0 - norm) + b.data * (float)norm;
 }
 
-glm::fquat AnimationNode::rotationLerp(double anim_time) const {
+std::optional<glm::fquat> AnimationNode::rotationLerp(double anim_time) const {
     if (rotations.empty()) {
-        return glm::fquat{1.f, 0.f, 0.f, 0.f};
+        return std::nullopt;
     }
     if (rotations.size() == 1) {
         return rotations[0].data;
@@ -84,9 +84,9 @@ glm::fquat AnimationNode::rotationLerp(double anim_time) const {
     return glm::normalize(glm::slerp(a.data, b.data, static_cast<float>(norm)));
 }
 
-glm::vec3 AnimationNode::scalingLerp(double anim_time) const {
+std::optional<glm::vec3> AnimationNode::scalingLerp(double anim_time) const {
     if (scales.empty()) {
-        return glm::vec3{1.f};
+        return std::nullopt;
     }
 
     if (scales.size() == 1) {
@@ -107,11 +107,18 @@ glm::vec3 AnimationNode::scalingLerp(double anim_time) const {
     return glm::mix(a.data, b.data, norm);
 }
 
-SkeletalModel::SkeletalModel(decltype(meshes)&& meshes, decltype(materials)&& materials, decltype(bones)&& _bones, decltype(bone_map)&& _bone_map, decltype(skeleton)&& _skeleton, decltype(animations)&& _animations, const glm::mat4& _global_matrix, std::string name) noexcept
+SkeletalModel::SkeletalModel(
+    decltype(meshes)&& meshes,
+    decltype(materials)&& materials,
+    decltype(bones)&& _bones,
+    decltype(bone_map)&& _bone_map,
+    decltype(skeletons)&& _skeletons,
+    decltype(animations)&& _animations,
+    std::string name
+) noexcept
     : Model {std::move(meshes), std::move(materials), std::move(name)}
     , bone_map {std::move(_bone_map)}
     , animations {std::move(_animations)}
     , bones {std::move(_bones)}
-    , global_inverse {_global_matrix}
-    , skeleton {std::move(_skeleton)} {
+    , skeletons {std::move(_skeletons)} {
 }
