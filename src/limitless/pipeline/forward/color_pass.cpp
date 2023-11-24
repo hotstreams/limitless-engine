@@ -24,7 +24,6 @@ void ColorPass::draw(Instances& instances, Context& ctx, const Assets& assets, c
         case ms::Blending::Modulate:
             std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
             break;
-        case ms::Blending::MultipleOpaque:
         case ms::Blending::Text:
             throw std::logic_error("This type of blending cannot be used as ColorPass value");
     }

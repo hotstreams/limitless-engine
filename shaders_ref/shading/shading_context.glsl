@@ -3,9 +3,7 @@
 
 #define ENGINE_SHADING_UNLIT 0u
 #define ENGINE_SHADING_LIT 1u
-#define ENGINE_SHADING_CLOTH 2u
-#define ENGINE_SHADING_SUBSURFACE 3u
-#define ENGINE_SHADING_CUSTOM 4u
+#define ENGINE_SHADING_CUSTOM 3u
 
 struct ShadingContext {
     vec3 diffuseColor;

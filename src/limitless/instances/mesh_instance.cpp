@@ -54,13 +54,7 @@ void MeshInstance::draw(Context& ctx,
 
         shader.use();
 
-        if (mat.contains(ms::Property::TessellationFactor)) {
-            //TODO: move to somewhere else
-            glPatchParameteri(GL_PATCH_VERTICES, 4);
-            mesh->draw(VertexStreamDraw::Patches);
-        } else {
-            mesh->draw();
-        }
+        mesh->draw();
         return;
     }
 
@@ -85,12 +79,7 @@ void MeshInstance::draw(Context& ctx,
 
         shader.use();
 
-        if (mat->contains(ms::Property::TessellationFactor)) {
-            glPatchParameteri(GL_PATCH_VERTICES, 4);
-            mesh->draw(VertexStreamDraw::Patches);
-        } else {
-            mesh->draw();
-        }
+        mesh->draw();
     }
 }
 
@@ -127,12 +116,7 @@ void MeshInstance::draw_instanced(Context& ctx,
 
         shader.use();
 
-        if (mat->contains(ms::Property::TessellationFactor)) {
-            glPatchParameteri(GL_PATCH_VERTICES, 4);
-            mesh->draw_instanced(VertexStreamDraw::Patches, count);
-        } else {
-            mesh->draw_instanced(count);
-        }
+        mesh->draw_instanced(count);
     }
 }
 

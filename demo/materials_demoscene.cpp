@@ -101,10 +101,10 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
 void MaterialsScene::update(Limitless::Context& context, const Limitless::Camera& camera) {
     Limitless::Scene::update(context, camera);
 
-    (*open)["plane_mesh"].getMaterial()[0].getEmissiveColor().setValue({
+    (*open)["plane_mesh"].getMaterial()[0].getEmissiveColor() = {
         glm::abs(glm::cos(glfwGetTime() * 2.5)) * 2.5,
         0.0f,
         glm::abs(glm::cos(glfwGetTime() * 2.5)) * 5.0,
         1.0f
-    });
+    };
 }

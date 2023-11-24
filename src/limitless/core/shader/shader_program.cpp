@@ -130,7 +130,7 @@ ShaderProgram& ShaderProgram::setMaterial(const ms::Material& material) {
 
     // bind current material buffer to shader
     // these contain scalar values
-    material.getMaterialBuffer()->bindBase(found->bound_point);
+    material.getBuffer().getBuffer()->bindBase(found->bound_point);
 
     // and we need explicitly set samplers
     for (const auto& [type, uniform] : material.getProperties()) {

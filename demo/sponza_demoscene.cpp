@@ -21,7 +21,7 @@ SponzaScene::SponzaScene(Limitless::Context& ctx, Limitless::Assets& assets)
             .setScale(glm::vec3(0.005f)));
 
     for (auto& [name, mesh] : sponza.getMeshes()) {
-        mesh.getMaterial()[0].getTwoSided() = true;
+//        mesh.getMaterial()[0].getTwoSided() = true;
         mesh.getMaterial()[0].getBlending() = Limitless::ms::Blending::Opaque;
     }
 }

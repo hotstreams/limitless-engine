@@ -185,44 +185,37 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         return assets.materials.at(name);
     }
 
-    ms::MaterialBuilder builder {assets};
+    ms::Material::Builder builder = ms::Material::builder();
 
-    builder.setName(std::move(name))
-           .setShading(ms::Shading::Lit);
+    builder.name(std::move(name))
+           .shading(ms::Shading::Lit);
 
     if (auto diffuse_count = mat->GetTextureCount(aiTextureType_DIFFUSE); diffuse_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_DIFFUSE, 0, &texture_name);
 
-        builder.add(ms::Property::Diffuse, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str(), {TextureLoaderFlags::Space::sRGB}));
+        builder.diffuse(TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str(), {TextureLoaderFlags::Space::sRGB}));
     }
 
     if (auto normal_count = mat->GetTextureCount(aiTextureType_HEIGHT); normal_count != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_HEIGHT, 0, &texture_name);
 
-        builder.add(ms::Property::Normal, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.normal(TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
-
-//    if (auto specular_count = mat->GetTextureCount(aiTextureType_SPECULAR); specular_count != 0) {
-//        aiString texture_name;
-//        mat->GetTexture(aiTextureType_SPECULAR, 0, &texture_name);
-//
-//        builder.add(ms::Property::Specular, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
-//    }
 
     if (auto opacity_mask = mat->GetTextureCount(aiTextureType_OPACITY); opacity_mask != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_OPACITY, 0, &texture_name);
 
-        builder.add(ms::Property::BlendMask, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
+        builder.blend_mask(TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str()));
     }
 
     if (auto emissive_mask = mat->GetTextureCount(aiTextureType_EMISSIVE); emissive_mask != 0) {
         aiString texture_name;
         mat->GetTexture(aiTextureType_EMISSIVE, 0, &texture_name);
 
-        builder.add(ms::Property::EmissiveMask, TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str(), {TextureLoaderFlags::Space::sRGB}));
+        builder.emissive_mask(TextureLoader::load(assets, path_str + PATH_SEPARATOR + texture_name.C_Str(), {TextureLoaderFlags::Space::sRGB}));
     }
 
     {
@@ -231,10 +224,10 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         switch (blending) {
             case _aiBlendMode_Force32Bit:
             case aiBlendMode_Default:
-                builder.setBlending(ms::Blending::Opaque);
+                builder.blending(ms::Blending::Opaque);
                 break;
             case aiBlendMode_Additive:
-                builder.setBlending(ms::Blending::Additive);
+                builder.blending(ms::Blending::Additive);
                 break;
         }
     }
@@ -244,7 +237,7 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
 
         mat->Get(AI_MATKEY_TWOSIDED, twosided);
 
-        builder.setTwoSided(twosided);
+        builder.two_sided(twosided);
     }
 
     {
@@ -255,11 +248,11 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         mat->Get(AI_MATKEY_OPACITY, opacity);
 
         if (opacity != 1.0f) {
-            builder.setBlending(ms::Blending::Translucent);
+            builder.blending(ms::Blending::Translucent);
         }
 
         if (color != aiColor3D{0.0f}) {
-            builder.add(ms::Property::Color, glm::vec4{color.r, color.g, color.b, opacity});
+            builder.color({color.r, color.g, color.b, opacity});
         }
     }
 
@@ -268,13 +261,13 @@ std::shared_ptr<ms::Material> ModelLoader::loadMaterial(
         mat->Get(AI_MATKEY_COLOR_EMISSIVE, color);
 
         if (color != aiColor3D{0.0f}) {
-            builder.add(ms::Property::EmissiveColor, glm::vec4{color.r, color.g, color.b, 1.0f});
-            builder.setShading(ms::Shading::Unlit);
+            builder.emissive_color({color.r, color.g, color.b});
+            builder.shading(ms::Shading::Unlit);
         }
     }
 
-    builder.setModelShaders(model_shaders);
-    return builder.build();
+    builder.models(model_shaders);
+    return builder.build(assets);
 }
 
 std::vector<VertexBoneWeight> ModelLoader::loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {

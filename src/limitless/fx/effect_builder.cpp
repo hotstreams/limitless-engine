@@ -78,9 +78,9 @@ EffectBuilder& EffectBuilder::setMaterial(std::shared_ptr<ms::Material> material
         throw std::runtime_error{"Cannot set empty material for emitter!"};
     }
 
-    if (material->contains("time")) {
-        throw std::runtime_error{"Uniform Time cannot be used in emitter material. Use TimeModule instead!"};
-    }
+//    if (material->contains("time")) {
+//        throw std::runtime_error{"Uniform Time cannot be used in emitter material. Use TimeModule instead!"};
+//    }
 
     switch (effect->emitters.at(last_emitter)->getType()) {
         case AbstractEmitter::Type::Sprite:

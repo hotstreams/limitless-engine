@@ -3,6 +3,7 @@
 #include <limitless/ms/material.hpp>
 #include <limitless/core/shader/shader.hpp>
 #include <limitless/core/shader/shader_define_replacer.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 
 using namespace Limitless::ms;
 

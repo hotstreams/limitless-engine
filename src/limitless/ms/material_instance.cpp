@@ -3,7 +3,7 @@
 #include <limitless/core/context.hpp>
 #include <limitless/ms/material.hpp>
 #include <stdexcept>
-#include <algorithm>
+#include <limitless/core/uniform/uniform.hpp>
 
 using namespace Limitless;
 using namespace Limitless::ms;
@@ -58,10 +58,6 @@ void MaterialInstance::setMaterialState(Context& ctx, uint64_t id, ShaderType pa
     // checks for multiple opaque materials
     // that should be blended as sum color/N
     if (material->getBlending() == Blending::Opaque) {
-        const auto opaque_count = std::count_if(begin(), end(), [] (const auto& pair) {
-            return pair.second->getBlending() == Blending::Opaque;
-        });
-
         setBlendingMode(Blending::Opaque);
     } else {
         if (material->getRefraction()) {

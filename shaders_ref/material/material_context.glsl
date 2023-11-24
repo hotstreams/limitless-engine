@@ -124,6 +124,8 @@ MaterialContext computeDefaultMaterialContext() {
     return mctx;
 }
 
+ENGINE_MATERIAL_GLOBAL_DEFINITIONS
+
 void customMaterialContext(inout MaterialContext mctx) {
     ENGINE_MATERIAL_FRAGMENT_SNIPPET
 }

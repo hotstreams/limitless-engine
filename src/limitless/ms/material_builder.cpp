@@ -5,383 +5,265 @@
 #include "limitless/core/shader/shader_program.hpp"
 #include <limitless/assets.hpp>
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/core/uniform/uniform_time.hpp>
+#include <limitless/core/uniform/uniform_sampler.hpp>
 
 using namespace Limitless::ms;
 
-void MaterialBuilder::createMaterial() {
-    // this is private ctor
-    material = std::shared_ptr<Material>(new Material());
-}
-
-MaterialBuilder::MaterialBuilder(Assets& _assets)
-    : assets {_assets} {
-    createMaterial();
-}
-
-void MaterialBuilder::initializeMaterialBuffer() {
-    // check the order in material.glsl
-    // std140
-    // https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf#page=159
-
-    size_t offset = 0;
-    const auto offset_setter = [&] (const auto& container, const std::function<bool(const Uniform&)>& condition = {}) {
-        for (const auto& [key, uniform] : container) {
-            if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture") && uniform->getType() == UniformType::Sampler) {
-                continue;
-            }
-
-            if (condition && !condition(*uniform)) {
-                continue;
-            }
-
-            const auto size = getUniformSize(*uniform);
-            const auto alignment = getUniformAlignment(*uniform);
-
-            offset += offset % alignment ? alignment - offset % alignment : 0;
-
-            material->uniform_offsets.emplace(uniform->getName(), offset);
-            offset += size;
-        }
-    };
-
-    offset_setter(material->properties);
-    offset_setter(material->uniforms, [] (const Uniform& uniform) { return uniform.getType() == UniformType::Sampler; });
-    offset_setter(material->uniforms, [] (const Uniform& uniform) { return uniform.getType() != UniformType::Sampler; });
-
-    // ShadingModel uint
-    offset += 4;
-
-    BufferBuilder builder;
-    material->material_buffer = builder
-            .setTarget(Buffer::Type::Uniform)
-            .setUsage(Buffer::Usage::DynamicDraw)
-            .setAccess(Buffer::MutableAccess::WriteOrphaning)
-            .setDataSize(sizeof(std::byte) * offset)
-            .build();
-}
-
-MaterialBuilder& MaterialBuilder::set(decltype(material->properties)&& properties) {
-    material->properties = std::move(properties);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::set(decltype(material->uniforms)&& uniforms) {
-    material->uniforms = std::move(uniforms);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::add(Property type, float value) {
-    switch (type) {
-        case Property::Absorption:
-            material->properties[type] = std::make_unique<UniformValue<float>>("_material_absorption", value);
-            break;
-        case Property::IoR:
-            material->properties[type] = std::make_unique<UniformValue<float>>("_material_ior", value);
-            break;
-        case Property::Metallic:
-            material->properties[type] = std::make_unique<UniformValue<float>>("_material_metallic", value);
-            break;
-        case Property::Roughness:
-            material->properties[type] = std::make_unique<UniformValue<float>>("_material_roughness", value);
-            break;
-        case Property::TessellationFactor:
-        case Property::Color:
-        case Property::EmissiveColor:
-        case Property::Normal:
-        case Property::Diffuse:
-        case Property::EmissiveMask:
-        case Property::MetallicTexture:
-        case Property::RoughnessTexture:
-        case Property::BlendMask:
-        case Property::AmbientOcclusionTexture:
-        case Property::ORM:
-            throw material_builder_error{"Wrong data for material property."};
-    }
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec4& value) {
-    switch (type) {
-        case Property::Color:
-            material->properties[type] = std::make_unique<UniformValue<glm::vec4>>("_material_color", value);
-            break;
-        case Property::EmissiveColor:
-            material->properties[type] = std::make_unique<UniformValue<glm::vec4>>("_material_emissive_color", value);
-            break;
-        case Property::TessellationFactor:
-        case Property::IoR:
-        case Property::Absorption:
-        case Property::Normal:
-        case Property::Metallic:
-        case Property::Roughness:
-        case Property::Diffuse:
-        case Property::EmissiveMask:
-        case Property::MetallicTexture:
-        case Property::RoughnessTexture:
-        case Property::BlendMask:
-        case Property::AmbientOcclusionTexture:
-        case Property::ORM:
-            throw material_builder_error{"Wrong data for material property."};
-    }
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::add(Property type, std::shared_ptr<Texture> texture) {
-    if (!texture) {
-        throw material_builder_error{"Bad texture specified."};
-    }
-
-    switch (type) {
-        case Property::TessellationFactor:
-        case Property::Color:
-        case Property::Absorption:
-        case Property::IoR:
-        case Property::Metallic:
-        case Property::Roughness:
-        case Property::EmissiveColor:
-            throw material_builder_error{"Wrong data for material property."};
-        case Property::Diffuse:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_diffuse_texture", std::move(texture));
-            break;
-        case Property::Normal:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_normal_texture", std::move(texture));
-            break;
-        case Property::EmissiveMask:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_emissive_mask_texture", std::move(texture));
-            break;
-        case Property::BlendMask:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_blend_mask_texture", std::move(texture));
-            break;
-        case Property::MetallicTexture:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_metallic_texture", std::move(texture));
-            break;
-        case Property::RoughnessTexture:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_roughness_texture", std::move(texture));
-            break;
-        case Property::AmbientOcclusionTexture:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_ambient_occlusion_texture", std::move(texture));
-            break;
-        case Property::ORM:
-            material->properties[type] = std::make_unique<UniformSampler>("_material_orm_texture", std::move(texture));
-            break;
-    }
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::add(Property type, const glm::vec2& value) {
-    switch (type) {
-        case Property::TessellationFactor:
-            material->properties[type] = std::make_unique<UniformValue<glm::vec2>>("_material_tessellation", value);
-            break;
-        case Property::Color:
-        case Property::IoR:
-        case Property::Absorption:
-        case Property::Metallic:
-        case Property::Roughness:
-        case Property::EmissiveColor:
-        case Property::Diffuse:
-        case Property::Normal:
-        case Property::EmissiveMask:
-        case Property::BlendMask:
-        case Property::MetallicTexture:
-        case Property::RoughnessTexture:
-        case Property::AmbientOcclusionTexture:
-        case Property::ORM:
-            throw material_builder_error{"Wrong data for material property."};
-    }
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::remove(Property type) {
-    material->properties.erase(type);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setBlending(Blending blending) noexcept {
-    material->blending = blending;
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setShading(Shading shading) noexcept {
-    material->shading = shading;
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setTwoSided(bool two_sided) noexcept {
-    material->two_sided = two_sided;
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setRefraction(bool refraction) noexcept {
-    material->refraction = refraction;
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setName(std::string name) noexcept {
-    material->name = std::move(name);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setFragmentSnippet(std::string fs_code) noexcept {
-    material->fragment_snippet = std::move(fs_code);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setVertexSnippet(std::string vs_code) noexcept {
-    material->vertex_snippet = std::move(vs_code);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::setGlobalSnippet(std::string g_code) noexcept {
-    material->global_snippet = std::move(g_code);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::addUniform(std::unique_ptr<Uniform> uniform) {
-    material->uniforms[uniform->getName()] = std::move(uniform);
-    return *this;
-}
-
-MaterialBuilder& MaterialBuilder::removeUniform(const std::string& name) {
-    material->uniforms.erase(name);
-    return *this;
-}
-
-void MaterialBuilder::setMaterialIndex() {
+void Material::Builder::setMaterialIndex() {
     std::unique_lock lock(mutex);
 
-    material->shader_index = next_shader_index++;
-
-    if (!material->uniforms.empty() || !material->vertex_snippet.empty() || !material->fragment_snippet.empty() || !material->tessellation_snippet.empty() || !material->global_snippet.empty()) {
+    //TODO: make snippets comparisons
+    if (!uniforms.empty() || !vertex_snippet.empty() || !fragment_snippet.empty() || !global_snippet.empty() || !shading_snippet.empty()) {
         // it is custom material; makes index unique
-        material->shader_index = next_shader_index++;
+        shader_index = next_shader_index++;
     } else {
         const auto material_type = getMaterialType();
         if (auto found = unique_materials.find(material_type); found != unique_materials.end()) {
-            // already exist
-            material->shader_index = found->second;
+            // already exists
+            shader_index = found->second;
         } else {
             // new one
-            material->shader_index = next_shader_index++;
-            unique_materials.emplace(material_type, material->shader_index);
+            shader_index = next_shader_index++;
+            unique_materials.emplace(material_type, shader_index);
         }
     }
 }
 
-void MaterialBuilder::checkRequirements() {
-    if (material->properties.empty()) {
-        throw material_builder_error("Properties cannot be empty");
-    }
-
-    if (material->name.empty()) {
-        throw material_builder_error("Name cannot be empty");
-    }
-
-    if (!material->tessellation_snippet.empty() && !material->contains(Property::TessellationFactor)) {
-        throw material_builder_error("Tessellation snippet require TessellationFactor to be set");
+void Material::Builder::checkRequirements() {
+    if (_name.empty()) {
+        throw material_builder_exception("Name cannot be empty!");
     }
 }
 
-void MaterialBuilder::clear() {
-    createMaterial();
-}
-
-std::shared_ptr<Material> MaterialBuilder::build() {
+std::shared_ptr<Material> Material::Builder::build(Assets& assets) {
     checkRequirements();
 
     setMaterialIndex();
-    setModelShaders();
 
-    initializeMaterialBuffer();
+    if (!_skybox) {
+        setModelShaders();
+    }
 
-    auto new_material = material;
+    auto material = std::shared_ptr<Material>(new Material(*this));
+
     assets.materials.add(material->name, material);
 
-    createMaterial();
-
-    return new_material;
+    return material;
 }
 
-UniqueMaterial MaterialBuilder::getMaterialType() const noexcept {
+UniqueMaterial Material::Builder::getMaterialType() const noexcept {
     std::set<Property> props;
 
-    std::for_each(material->properties.begin(), material->properties.end(), [&] (auto& prop) {
+    std::for_each(properties.begin(), properties.end(), [&] (auto& prop) {
         props.emplace(prop.first);
     });
 
-    return { std::move(props), material->shading };
+    return { std::move(props), _shading };
 }
 
-MaterialBuilder& MaterialBuilder::setModelShaders(const Limitless::InstanceTypes& shaders) noexcept {
-    material->model_shaders = shaders;
+void Material::Builder::setModelShaders() {
+    if (_model_shaders.empty()) {
+        _model_shaders.emplace(InstanceType::Model);
+    }
+}
+
+Material::Builder &Material::Builder::color(const glm::vec4& color) noexcept {
+    properties[Property::Color] = std::make_unique<UniformValue<glm::vec4>>("_material_color", color);
     return *this;
 }
 
-MaterialBuilder& MaterialBuilder::addModelShader(InstanceType model) noexcept {
-    material->model_shaders.emplace(model);
+Material::Builder &Material::Builder::emissive_color(const glm::vec3& emissive_color) noexcept {
+    properties[Property::EmissiveColor] = std::make_unique<UniformValue<glm::vec3>>("_material_emissive_color", emissive_color);
     return *this;
 }
 
-void MaterialBuilder::setModelShaders() {
-    if (material->model_shaders.empty()) {
-        material->model_shaders.emplace(InstanceType::Model);
-    }
-}
-
-MaterialBuilder& MaterialBuilder::setTessellationSnippet(std::string tes_code) noexcept {
-    material->tessellation_snippet = std::move(tes_code);
+Material::Builder& Material::Builder::diffuse(const std::shared_ptr<Texture>& texture) noexcept {
+    properties[Property::Diffuse] = std::make_unique<UniformSampler>("_material_diffuse_texture", texture);
     return *this;
 }
 
-std::shared_ptr<Material> MaterialBuilder::buildSkybox() {
-    checkRequirements();
-
-    // skybox allows only be unlit!
-    if (material->getShading() == Shading::Lit) {
-        throw material_builder_error("Does not make sense for skybox to be lit!");
-    }
-
-    setMaterialIndex();
-
-    initializeMaterialBuffer();
-
-    auto new_material = material;
-    assets.materials.add(material->name, material);
-
-    createMaterial();
-
-    return new_material;
+Material::Builder &Material::Builder::normal(const std::shared_ptr<Texture>& texture) noexcept {
+    properties[Property::Normal] = std::make_unique<UniformSampler>("_material_normal_texture", texture);
+    return *this;
 }
 
-void MaterialBuilder::setTo(const std::shared_ptr<Material>& mat) {
-    createMaterial();
+Material::Builder &Material::Builder::emissive_mask(const std::shared_ptr<Texture>& texture) noexcept {
+    properties[Property::EmissiveMask] = std::make_unique<UniformSampler>("_material_emissive_mask_texture", texture);
+    return *this;
+}
 
-    setBlending(mat->getBlending());
-    setShading(mat->getShading());
-    setTwoSided(mat->getTwoSided());
-    setRefraction(mat->getRefraction());
-    setName(mat->getName());
+Material::Builder &Material::Builder::blend_mask(const std::shared_ptr<Texture> &texture) noexcept {
+    properties[Property::BlendMask] = std::make_unique<UniformSampler>("_material_blend_mask_texture", texture);
+    return *this;
+}
 
-    setFragmentSnippet(mat->getFragmentSnippet());
-    setVertexSnippet(mat->getVertexSnippet());
-    setTessellationSnippet(mat->getTessellationSnippet());
-    setGlobalSnippet(mat->getGlobalSnippet());
+Material::Builder &Material::Builder::metallic(float metallic) noexcept {
+    properties[Property::Metallic] = std::make_unique<UniformValue<float>>("_material_metallic", metallic);
+    return *this;
+}
 
-    setModelShaders(mat->getModelShaders());
+Material::Builder &Material::Builder::metallic(const std::shared_ptr<Texture>& texture) noexcept {
+    properties[Property::MetallicTexture] = std::make_unique<UniformSampler>("_material_metallic_texture", texture);
+    return *this;
+}
 
-    {
-        decltype(mat->properties) props;
-        for (const auto&[prop, uniform] : mat->getProperties()) {
-            props.emplace(prop, uniform->clone());
-        }
-        set(std::move(props));
-    }
+Material::Builder &Material::Builder::roughness(float roughness) noexcept {
+    properties[Property::Roughness] = std::make_unique<UniformValue<float>>("_material_roughness", roughness);
+    return *this;
+}
 
-    {
-        decltype(mat->uniforms) uniforms;
-        for (const auto& [name, uniform] : mat->uniforms) {
-            uniforms.emplace(name, uniform->clone());
-        }
-        set(std::move(uniforms));
-    }
+Material::Builder &Material::Builder::roughness(const std::shared_ptr<Texture>& texture) noexcept {
+    properties[Property::RoughnessTexture] = std::make_unique<UniformSampler>("_material_roughness_texture", texture);
+    return *this;
+}
+
+Material::Builder &Material::Builder::ao(const std::shared_ptr<Texture>& texture) noexcept {
+    properties[Property::AmbientOcclusionTexture] = std::make_unique<UniformSampler>("_material_ambient_occlusion_texture", texture);
+    return *this;
+}
+
+Material::Builder &Material::Builder::orm(const std::shared_ptr<Texture>& texture) noexcept {
+    properties[Property::ORM] = std::make_unique<UniformSampler>("_material_orm_texture", texture);
+    return *this;
+}
+
+Material::Builder &Material::Builder::ior(float ior) noexcept {
+    properties[Property::IoR] = std::make_unique<UniformValue<float>>("_material_ior", ior);
+    return *this;
+}
+
+Material::Builder &Material::Builder::absorption(float absorption) noexcept {
+    properties[Property::Absorption] = std::make_unique<UniformValue<float>>("_material_absorption", absorption);
+    return *this;
+}
+
+Material::Builder &Material::Builder::microthickness(float microthickness) noexcept {
+    properties[Property::MicroThickness] = std::make_unique<UniformValue<float>>("_material_microthickness", microthickness);
+    return *this;
+}
+
+Material::Builder &Material::Builder::thickness(float thickness) noexcept {
+    properties[Property::Thickness] = std::make_unique<UniformValue<float>>("_material_thickness", thickness);
+    return *this;
+}
+
+Material::Builder &Material::Builder::reflectance(float reflectance) noexcept {
+    properties[Property::Reflectance] = std::make_unique<UniformValue<float>>("_material_reflectance", reflectance);
+    return *this;
+}
+
+Material::Builder &Material::Builder::transmission(float transmission) noexcept {
+    properties[Property::Transmission] = std::make_unique<UniformValue<float>>("_material_transmission", transmission);
+    return *this;
+}
+
+Material::Builder &Material::Builder::blending(Blending blending) noexcept {
+    _blending = blending;
+    return *this;
+}
+
+Material::Builder &Material::Builder::shading(Shading shading) noexcept {
+    _shading = shading;
+    return *this;
+}
+
+Material::Builder &Material::Builder::two_sided(bool two_sided) noexcept {
+    _two_sided = two_sided;
+    return *this;
+}
+
+Material::Builder &Material::Builder::name(const std::string& name) noexcept {
+    _name = name;
+    return *this;
+}
+
+Material::Builder &Material::Builder::vertex(const std::string& snippet) noexcept {
+    vertex_snippet = snippet;
+    return *this;
+}
+
+Material::Builder &Material::Builder::fragment(const std::string& snippet) noexcept {
+    fragment_snippet = snippet;
+    return *this;
+}
+
+Material::Builder &Material::Builder::global(const std::string& snippet) noexcept {
+    global_snippet = snippet;
+    return *this;
+}
+
+Material::Builder &Material::Builder::shading(const std::string& snippet) noexcept {
+    shading_snippet = snippet;
+    return *this;
+}
+
+Material::Builder &Material::Builder::model(InstanceType model) noexcept {
+    _model_shaders = { model };
+    return *this;
+}
+
+Material::Builder& Material::Builder::models(const InstanceTypes& models) noexcept {
+    _model_shaders = models;
+    return *this;
+}
+
+Material::Builder &Material::Builder::skybox() noexcept {
+    _skybox = true;
+    return *this;
+}
+
+Material::Builder& Material::Builder::time() noexcept {
+    uniforms["time"] = std::make_unique<UniformTime>("time");
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string& name, float value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<float>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, int32_t value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<int32_t>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, const glm::mat3 &value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<glm::mat3>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, const glm::mat4 &value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<glm::mat4>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, uint32_t value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<uint32_t>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, const glm::vec2 &value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<glm::vec2>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, const glm::vec3 &value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<glm::vec3>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, const glm::vec4 &value) noexcept {
+    uniforms[name] = std::make_unique<UniformValue<glm::vec4>>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::custom(const std::string &name, const std::shared_ptr<Texture> &value) noexcept {
+    uniforms[name] = std::make_unique<UniformSampler>(name, value);
+    return *this;
+}
+
+Material::Builder &Material::Builder::refraction(bool refraction_) noexcept {
+    _refraction = refraction_;
+    return *this;
 }

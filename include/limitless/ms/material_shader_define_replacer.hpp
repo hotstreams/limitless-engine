@@ -69,7 +69,6 @@ namespace Limitless {
                 { SnippetDefineType::Global, "ENGINE_MATERIAL_GLOBAL_DEFINITIONS" },
                 { SnippetDefineType::CustomScalar, "ENGINE_MATERIAL_CUSTOM_SCALARS" },
                 { SnippetDefineType::CustomSamplers, "ENGINE_MATERIAL_CUSTOM_SAMPLERS" },
-                { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_CUSTOM_SAMPLERS" },
                 { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_SHADING_CUSTOM_SNIPPET" },
             };
 

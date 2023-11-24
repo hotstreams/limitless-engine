@@ -31,7 +31,6 @@ void TranslucentPass::sort(Instances& instances, const Camera& camera, ms::Blend
         case ms::Blending::Modulate:
             std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
             break;
-        case ms::Blending::MultipleOpaque:
         case ms::Blending::Text:
             throw std::logic_error("This type of blending cannot be used as ColorPass value");
     }

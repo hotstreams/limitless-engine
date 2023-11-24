@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <limitless/serialization/asset_deserializer.hpp>
+#include <limitless/ms/material.hpp>
 
 namespace Limitless {
     class Context;
@@ -9,17 +10,12 @@ namespace Limitless {
     class ByteBuffer;
 }
 
-namespace Limitless::ms {
-    class Material;
-    class MaterialBuilder;
-}
-
 namespace Limitless {
     class MaterialSerializer {
     private:
-        static constexpr uint8_t VERSION = 0x1;
+        static constexpr uint8_t VERSION = 0x2;
 
-        void deserialize(ByteBuffer& buffer, Assets& assets, ms::MaterialBuilder& builder);
+        void deserialize(ByteBuffer& buffer, Assets& assets, ms::Material::Builder& builder);
     public:
         ByteBuffer serialize(const ms::Material& material);
         std::shared_ptr<ms::Material> deserialize(Assets& assets, ByteBuffer& buffer);

@@ -120,8 +120,6 @@ layout (std140) uniform MATERIAL_BUFFER {
     ENGINE_MATERIAL_CUSTOM_SAMPLERS
 #endif
 
-ENGINE_MATERIAL_GLOBAL_DEFINITIONS
-
 /**
   *     Public material access API
   *

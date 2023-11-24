@@ -2,8 +2,6 @@
 #include "../scene.glsl"
 
 #include "../shading/regular.glsl"
-#include "../shading/cloth.glsl"
-#include "../shading/subsurface.glsl"
 #include "../shading/custom.glsl"
 
 #include "./scene_lighting.glsl"
@@ -17,17 +15,13 @@ vec3 computeLight(const ShadingContext sctx, const LightingContext lctx, const L
     return clothShading(sctx, lctx, light);
 #elif defined (ENGINE_MATERIAL_SHADING_SUBSURFACE_MODEL)
     return subsurfaceShading(sctx, lctx, light);
-#elif defined (ENGINE_MATERIAL_SHADING_CUSTOM_LIT_MODEL)
+#elif defined (ENGINE_MATERIAL_SHADING_CUSTOM_MODEL)
     return customShading(sctx, lctx, light);
 #else
     /* [deferred pipeline] */
     switch (sctx.shading_model) {
-        case 1u: // Lit
+        case ENGINE_SHADING_LIT: // Lit
             return regularShading(sctx, lctx, light);
-        case 2u: // Cloth
-            return clothShading(sctx, lctx, light);
-        case 3u: // Subsurface
-            return subsurfaceShading(sctx, lctx, light);
         default:
             // deferred pipeline does not support custom shading
             // and unlit paths calculated before

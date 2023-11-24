@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/core/buffer/indexed_buffer.hpp>
+#include <limitless/core/uniform/uniform.hpp>
 
 #include <vector>
 
@@ -13,9 +14,7 @@ namespace Limitless::ms {
 namespace Limitless {
     template<typename T> class UniformValue;
     class UniformSampler;
-    class Uniform;
     class Texture;
-    class ContextState;
 
     /**
      * ShadeProgram describes compiled shader program object that is used to render object
