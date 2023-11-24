@@ -127,6 +127,7 @@ set(ENGINE_LIGHTING
     src/limitless/lighting/lighting.cpp
     src/limitless/lighting/light_container.cpp
     src/limitless/lighting/cascade_shadows.cpp
+    src/limitless/lighting/light.cpp
 )
 
 set(ENGINE_LOADERS
@@ -178,7 +179,8 @@ set(ENGINE_MS
     src/limitless/ms/material_builder.cpp
     src/limitless/ms/material_compiler.cpp
     src/limitless/ms/material_instance.cpp
-        src/limitless/ms/material_shader_define_replacer.cpp
+    src/limitless/ms/material_buffer.cpp
+    src/limitless/ms/material_shader_define_replacer.cpp
 )
 
 set(ENGINE_TEXT

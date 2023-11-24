@@ -17,7 +17,7 @@ namespace Limitless::ms {
         using std::runtime_error::runtime_error;
     };
 
-    class MaterialBuilder {
+    class Material::Builder {
     private:
         static inline std::map<UniqueMaterial, uint64_t> unique_materials;
         static inline uint64_t next_shader_index {};
@@ -42,6 +42,41 @@ namespace Limitless::ms {
 
         MaterialBuilder(MaterialBuilder&&) = delete;
         MaterialBuilder& operator=(MaterialBuilder&&) = delete;
+
+        Builder& color(const glm::vec4& color) noexcept;
+        Builder& emissive_color(const glm::vec4& color) noexcept;
+        Builder& diffuse(const glm::vec4& color) noexcept;
+        Builder& normal(const glm::vec4& color) noexcept;
+        Builder& emissive_mask(const glm::vec4& color) noexcept;
+        Builder& blend_mask(const glm::vec4& color) noexcept;
+        Builder& metallic(const glm::vec4& color) noexcept;
+        Builder& metallic(const glm::vec4& color) noexcept;
+        Builder& roughness(const glm::vec4& color) noexcept;
+        Builder& roughness(const glm::vec4& color) noexcept;
+        Builder& ao(const glm::vec4& color) noexcept;
+        Builder& orm(const glm::vec4& color) noexcept;
+        Builder& ior(const glm::vec4& color) noexcept;
+        Builder& absorption(const glm::vec4& color) noexcept;
+        Builder& microthickness(const glm::vec4& color) noexcept;
+        Builder& reflectance(const glm::vec4& color) noexcept;
+        Builder& transmission(const glm::vec4& color) noexcept;
+
+        Builder& blending(const glm::vec4& color) noexcept;
+        Builder& shading(const glm::vec4& color) noexcept;
+        Builder& two_sided(const glm::vec4& color) noexcept;
+        Builder& refraction(const glm::vec4& color) noexcept;
+        Builder& name(const glm::vec4& color) noexcept;
+
+        Builder& vertex(const glm::vec4& color) noexcept;
+        Builder& fragment(const glm::vec4& color) noexcept;
+        Builder& global(const glm::vec4& color) noexcept;
+        Builder& shading(const glm::vec4& color) noexcept;
+        Builder& model(const glm::vec4& color) noexcept;
+        Builder& models(const glm::vec4& color) noexcept;
+
+
+
+
 
         MaterialBuilder& add(Property type, std::shared_ptr<Texture> texture);
         MaterialBuilder& add(Property type, const glm::vec4& value);

@@ -21,7 +21,7 @@ namespace Limitless {
         /**
          * Current direction light used to shadow cast
          */
-        DirectionalLight* light {};
+        Light* light {};
 
         /**
          * EffectRenderer

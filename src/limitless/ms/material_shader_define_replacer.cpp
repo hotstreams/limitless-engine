@@ -18,6 +18,10 @@ std::string MaterialShaderDefineReplacer::getPropertyDefines(const Material& mat
         defines.append("#define ENGINE_MATERIAL_REFRACTION\n");
     }
 
+    if (material.getTwoSided()) {
+        defines.append("#define ENGINE_MATERIAL_TWO_SIDED\n");
+    }
+
     return defines;
 }
 
@@ -33,11 +37,11 @@ void MaterialShaderDefineReplacer::replaceMaterialDependentDefine(Shader &shader
     shader.replaceKey(DEFINE_NAMES.at(Define::MaterialDependent), getMaterialDependentDefine(material, model_shader));
 
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Vertex], material.getVertexSnippet());
-    shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Tesselation], material.getTessellationSnippet());
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Fragment], material.getFragmentSnippet());
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Global], material.getGlobalSnippet());
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomScalar], getScalarUniformDefines(material));
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomSamplers], getSamplerUniformDefines(material));
+    shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomShading], material.getShadingSnippet());
 }
 
 std::string MaterialShaderDefineReplacer::getScalarUniformDefines(const Material &material) {

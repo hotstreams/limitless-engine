@@ -195,7 +195,7 @@ public:
 };
 
 int main() {
-    std::set_terminate(terminationHandler);
+//    std::set_terminate(terminationHandler);
     Game game;
     game.gameLoop();
     return 0;

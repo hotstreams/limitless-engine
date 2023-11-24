@@ -21,7 +21,7 @@ RendererHelper::RendererHelper(const RenderSettings& _settings)
 }
 
 void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera) {
-    if (lighting.lights.empty()) {
+    if (lighting.getLights().size() != 0) {
         return;
     }
 
@@ -33,22 +33,22 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
     auto sphere_instance = ModelInstance(assets.models.at("sphere"), assets.materials.at("default"), glm::vec3(0.0f));
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& light : lighting.lights) {
-        if (light.type == 1u) {
-            sphere_instance.setPosition(light.position);
+    for (const auto& [_, light] : lighting.getLights()) {
+        if (light.isPoint()) {
+            sphere_instance.setPosition(light.getPosition());
             sphere_instance.setScale(glm::vec3(light.getRadius()));
             sphere_instance.update(context, camera);
             sphere_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
         }
-        if (light.type == 2u) {
-            auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() * std::sin(glm::acos(light.scale_offset.x)), light.getRadius());
+        if (light.isSpot()) {
+            auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() * std::sin(glm::acos(light.getCone().x)), light.getRadius());
             auto cone_instance = ModelInstance(cone, assets.materials.at("default"), glm::vec3(0.0f));
 
-            cone_instance.setPosition(light.position);
+            cone_instance.setPosition(light.getPosition());
 
             auto y = glm::vec3{0.0f, 1.0f, 0.0f};
-            auto a = glm::cross(y, glm::vec3{light.direction});
-            auto angle = glm::acos(glm::dot(y, glm::vec3{light.direction}));
+            auto a = glm::cross(y, light.getDirection());
+            auto angle = glm::acos(glm::dot(y, light.getDirection()));
 
             cone_instance.setRotation(a * angle);
             cone_instance.update(context, camera);

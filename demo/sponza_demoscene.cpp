@@ -11,7 +11,11 @@ SponzaScene::SponzaScene(Limitless::Context& ctx, Limitless::Assets& assets)
 
     setSkybox(assets.skyboxes.at("skybox"));
 
-    lighting.directional_light = {glm::vec4(0.0, -1.0, 0.25, 1.0f), glm::vec4{0.5f, 1.1f, 1.0f, 1.0f}};
+    lighting.add(Light::builder()
+        .color(glm::vec4(0.0, -1.0, 0.25, 1.0f))
+        .direction(glm::vec3(0.5f, -1.1f, 1.0f))
+        .build()
+    );
 
     auto& sponza = dynamic_cast<ModelInstance&>(add<ModelInstance>(assets.models.at("sponza"), glm::vec3(17.0f, 8.0f, 15.0f))
             .setScale(glm::vec3(0.005f)));

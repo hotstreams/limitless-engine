@@ -27,19 +27,20 @@ namespace Limitless {
                 { Property::RoughnessTexture, "ENGINE_MATERIAL_ROUGHNESS_TEXTURE" },
                 { Property::AmbientOcclusionTexture, "ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE" },
                 { Property::ORM, "ENGINE_MATERIAL_ORM_TEXTURE" },
-                { Property::TessellationFactor, "ENGINE_MATERIAL_TESSELLATION_FACTOR" },
                 { Property::Metallic, "ENGINE_MATERIAL_METALLIC" },
                 { Property::Roughness, "ENGINE_MATERIAL_ROUGHNESS" },
                 { Property::IoR, "ENGINE_MATERIAL_IOR" },
                 { Property::Absorption, "ENGINE_MATERIAL_ABSORPTION" },
+                { Property::MicroThickness, "ENGINE_MATERIAL_MICROTHICKNESS" },
+                { Property::Thickness, "ENGINE_MATERIAL_THICKNESS" },
+                { Property::Transmission, "ENGINE_MATERIAL_TRANSMISSION" },
+                { Property::Reflectance, "ENGINE_MATERIAL_REFLECTANCE" },
             };
 
             static inline std::unordered_map<Shading, std::string> SHADING_DEFINE =
             {
                 { Shading::Lit, "ENGINE_MATERIAL_SHADING_REGULAR_MODEL" },
                 { Shading::Unlit, "ENGINE_MATERIAL_SHADING_UNLIT_MODEL" },
-                { Shading::Cloth, "ENGINE_MATERIAL_SHADING_CLOTH_MODEL" },
-                { Shading::Subsurface, "ENGINE_MATERIAL_SHADING_SUBSURFACE_MODEL" },
                 { Shading::Custom, "ENGINE_MATERIAL_SHADING_CUSTOM_MODEL" },
             };
 
@@ -54,21 +55,22 @@ namespace Limitless {
 
             enum class SnippetDefineType {
                 Vertex,
-                Tesselation,
                 Fragment,
                 Global,
                 CustomScalar,
-                CustomSamplers
+                CustomSamplers,
+                CustomShading
             };
 
             static inline std::unordered_map<SnippetDefineType, std::string> SNIPPET_DEFINE =
             {
                 { SnippetDefineType::Vertex, "ENGINE_MATERIAL_VERTEX_SNIPPET" },
-                { SnippetDefineType::Tesselation, "ENGINE_MATERIAL_TESSELATION_SNIPPET" },
                 { SnippetDefineType::Fragment, "ENGINE_MATERIAL_FRAGMENT_SNIPPET" },
                 { SnippetDefineType::Global, "ENGINE_MATERIAL_GLOBAL_DEFINITIONS" },
                 { SnippetDefineType::CustomScalar, "ENGINE_MATERIAL_CUSTOM_SCALARS" },
                 { SnippetDefineType::CustomSamplers, "ENGINE_MATERIAL_CUSTOM_SAMPLERS" },
+                { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_CUSTOM_SAMPLERS" },
+                { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_SHADING_CUSTOM_SNIPPET" },
             };
 
             static std::string getPropertyDefines(const Material& material);

@@ -45,11 +45,15 @@ EffectsScene::EffectsScene(Limitless::Context& ctx, Limitless::Assets& assets)
     : Limitless::Scene(ctx) {
     addInstances(assets);
 
-
-
     setSkybox(assets.skyboxes.at("skybox"));
-    lighting.ambient_color *= 0.5;
-    lighting.directional_light = {glm::vec4(2.0, -2.0, 1.5, 1.0f), glm::vec4{1.0f}};
+
+    lighting.getAmbientColor().a *= 0.5;
+
+    lighting.add(Light::builder()
+         .color({2.0, -2.0, 1.5, 1.0f})
+         .direction(glm::vec3{-1.0f})
+         .build()
+    );
 
     auto& floor = add<Limitless::InstancedInstance<Limitless::ModelInstance>>(glm::vec3{0.0f});
     for (int i = 0; i < 30; ++i) {

@@ -9,7 +9,7 @@
 #include <limitless/ms/blending.hpp>
 #include <limitless/instances/abstract_instance.hpp>
 
-#include <limitless/lighting/lights.hpp>
+#include <limitless/lighting/light.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>

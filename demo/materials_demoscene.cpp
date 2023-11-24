@@ -3,31 +3,41 @@
 #include <limitless/scene.hpp>
 #include <limitless/instances/instanced_instance.hpp>
 #include <limitless/ms/material.hpp>
+#include <limitless/lighting/light.hpp>
 
 using namespace LimitlessDemo;
+using namespace Limitless;
 
 MaterialsScene::MaterialsScene(Limitless::Context& ctx, Limitless::Assets& assets)
     : Limitless::Scene(ctx) {
     addModels(assets);
     setSkybox(assets.skyboxes.at("skybox"));
-    lighting.directional_light = {glm::vec4(1.0, -1.0, 0.5, 1.0f), glm::vec4{1.0f}};
 
-    lighting.lights.emplace_back(
-        glm::vec4{0.0f, 0.5f, 0.0f, 1.0f},
-        glm::vec4{1.0f, 0.0f, 0.0f, 2.0f},
-        2.0f
+    lighting.add(Light::builder()
+         .color(glm::vec4(1.0, 1.0, 0.5, 1.0f))
+         .direction(glm::vec3{-1.0f})
+         .build()
     );
 
-    lighting.lights.emplace_back(
-            glm::vec4{5.0f, 0.5f, 0.0f, 1.0f},
-            glm::vec4{0.0f, 1.0f, 0.0f, 2.0f},
-            2.0f
+    lighting.add(Light::builder()
+         .position({0.0f, 0.5f, 0.0f})
+         .color({1.0f, 0.0f, 0.0f, 2.0f})
+         .radius(2.0f)
+         .build()
     );
 
-    lighting.lights.emplace_back(
-            glm::vec4{0.0f, 0.5f, 5.0f, 1.0f},
-            glm::vec4{0.0f, 0.0f, 1.0f, 2.0f},
-            2.0f
+    lighting.add(Light::builder()
+                         .position({5.0f, 0.5f, 0.0f})
+                         .color({0.0f, 1.0f, 0.0f, 2.0f})
+                         .radius(2.0f)
+                         .build()
+    );
+
+    lighting.add(Light::builder()
+                         .position({0.0f, 0.5f, 5.0f})
+                         .color({0.0f, 0.0f, 1.0f, 2.0f})
+                         .radius(2.0f)
+                         .build()
     );
 }
 

@@ -62,17 +62,12 @@ void MaterialInstance::setMaterialState(Context& ctx, uint64_t id, ShaderType pa
             return pair.second->getBlending() == Blending::Opaque;
         });
 
-        if (opaque_count == 1) {
-            setBlendingMode(ctx, Blending::Opaque);
-        } else {
-            setBlendingMode(ctx, Blending::MultipleOpaque, opaque_count);
-        }
+        setBlendingMode(Blending::Opaque);
     } else {
-
         if (material->getRefraction()) {
-            setBlendingMode(ctx, Blending::Opaque);
+            setBlendingMode(Blending::Opaque); //TODO: ???? wtf?
         } else {
-            setBlendingMode(ctx, material->getBlending());
+            setBlendingMode(material->getBlending());
         }
     }
 

@@ -1,26 +1,24 @@
 #pragma once
 
 #include <limitless/core/uniform/uniform.hpp>
-#include <limitless/core/uniform/uniform_value.hpp>
-#include <limitless/core/uniform/uniform_sampler.hpp>
-#include <limitless/core/uniform/uniform_time.hpp>
 #include <limitless/pipeline/shader_type.hpp>
+#include <limitless/ms/material_buffer.hpp>
 #include <limitless/ms/property.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/ms/shading.hpp>
 
-#include <unordered_map>
 #include <glm/glm.hpp>
 #include <stdexcept>
-#include <vector>
 #include <map>
+#include <limitless/core/uniform/uniform_value.hpp>
+#include <limitless/core/uniform/uniform_sampler.hpp>
 
 namespace Limitless {
     class Buffer;
 }
 
 namespace Limitless::ms {
-    class material_property_not_found : public std::runtime_error {
+    class material_exception : public std::runtime_error {
     public:
         using std::runtime_error::runtime_error;
     };
@@ -66,44 +64,19 @@ namespace Limitless::ms {
         bool refraction {};
 
         /**
-         * Describes whether material is using specular anti-aliasing
-         */
-        bool specular_antialiasing {true};
-
-        /**
-         * Describes specular anti-aliasing variance
-         */
-        float specular_antialiasing_variance {0.15f};
-
-        /**
-         * Describes specular anti-aliasing threshold
-         */
-        float specular_antialiasing_threshold {0.1f};
-
-        /**
-         * Unique material name
+         *  Unique material name
          */
         std::string name;
 
         /**
-         * Describes which shader is compiled for this material
+         *  Describes which shader is compiled for this material
          */
         uint64_t shader_index {};
 
         /**
-         * Describes for which ModelShader types this material is used and compiled
+         *  Describes for which ModelShader types this material is used and compiled
          */
         InstanceTypes model_shaders;
-
-        /**
-         * Corresponding OpenGL buffer to store properties on GPU
-         */
-        std::shared_ptr<Buffer> material_buffer;
-
-        /**
-         * Run-time fetched property offsets in buffer
-         */
-        std::unordered_map<std::string, uint64_t> uniform_offsets;
 
         /**
          * Custom user-defined properties
@@ -126,25 +99,9 @@ namespace Limitless::ms {
         std::string global_snippet;
 
         /**
-         * Tessellation shader code to allow customization
+         * Shading shader code to allow customization
          */
-        std::string tessellation_snippet;
-
-        /**
-         * Adds uniform typed value at specific offset in block so it can be mapped to GPU
-         */
-        template<typename V>
-        void map(std::vector<std::byte>& block, const Uniform& uniform) const;
-
-        /**
-        * Adds any uniform to block
-        */
-        void map(std::vector<std::byte>& block, Uniform& uniform);
-
-        /**
-         * Maps material to GPU uniform buffer
-         */
-        void map();
+        std::string shading_snippet;
 
         friend void swap(Material&, Material&) noexcept;
         Material() = default;
@@ -181,37 +138,34 @@ namespace Limitless::ms {
          */
         void update();
 
-        [[nodiscard]] const UniformValue<glm::vec4>& getColor() const;
-        [[nodiscard]] const UniformValue<glm::vec4>& getEmissiveColor() const;
-        [[nodiscard]] const UniformValue<glm::vec2>& getTesselationFactor() const;
-        [[nodiscard]] const UniformValue<float>& getMetallic() const;
-        [[nodiscard]] const UniformValue<float>& getRoughness() const;
-        [[nodiscard]] const UniformValue<float>& getIoR() const;
-        [[nodiscard]] const UniformValue<float>& getAbsorption() const;
-        [[nodiscard]] const UniformSampler& getMetallicTexture() const;
-        [[nodiscard]] const UniformSampler& getRoughnessTexture() const;
-        [[nodiscard]] const UniformSampler& getDiffuse() const;
-        [[nodiscard]] const UniformSampler& getNormal() const;
-        [[nodiscard]] const UniformSampler& getEmissiveMask() const;
-        [[nodiscard]] const UniformSampler& getBlendMask() const;
-        [[nodiscard]] const UniformSampler& getAmbientOcclusionTexture() const;
-        [[nodiscard]] const UniformSampler& getORMTexture() const;
+        /**
+         * Const-context property getters
+         */
+        [[nodiscard]] const glm::vec4& getColor() const;
+        [[nodiscard]] const glm::vec4& getEmissiveColor() const;
+        [[nodiscard]] float getMetallic() const;
+        [[nodiscard]] float getRoughness() const;
+        [[nodiscard]] float getIoR() const;
+        [[nodiscard]] float getAbsorption() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getMetallicTexture() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getRoughnessTexture() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getDiffuseTexture() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getNormalTexture() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getEmissiveMaskTexture() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getBlendMaskTexture() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getAmbientOcclusionTexture() const;
+        [[nodiscard]] const std::shared_ptr<Texture>& getORMTexture() const;
 
-        UniformValue<glm::vec4>& getColor();
-        UniformValue<glm::vec4>& getEmissiveColor();
-        UniformValue<glm::vec2>& getTesselationFactor();
-        UniformValue<float>& getMetallic();
-        UniformValue<float>& getRoughness();
-        UniformValue<float>& getIoR();
-        UniformValue<float>& getAbsorption();
-        UniformSampler& getMetallicTexture();
-        UniformSampler& getRoughnessTexture();
-        UniformSampler& getDiffuse();
-        UniformSampler& getNormal();
-        UniformSampler& getEmissiveMask();
-        UniformSampler& getBlendMask();
-        UniformSampler& getAmbientOcclusionTexture();
-        UniformSampler& getORMTexture();
+        /**
+         * Mutable property getters
+         */
+        glm::vec4& getColor();
+        glm::vec4& getEmissiveColor();
+        glm::vec2& getTesselationFactor();
+        float& getMetallic();
+        float& getRoughness();
+        float& getIoR();
+        float& getAbsorption();
 
         [[nodiscard]] const auto& getModelShaders() const noexcept { return model_shaders; }
         [[nodiscard]] auto getBlending() const noexcept { return blending; }
@@ -251,6 +205,10 @@ namespace Limitless::ms {
                 throw material_property_not_found(uniform_name);
             }
         }
+
+        class Builder;
+
+        static Builder builder();
     };
 
     void swap(Material& lhs, Material& rhs) noexcept;

@@ -10,12 +10,18 @@
 #include <limitless/ms/material_builder.hpp>
 
 using namespace LimitlessDemo;
+using namespace Limitless;
 
 ModelsScene::ModelsScene(Limitless::Context& ctx, Limitless::Assets& assets)
     : Limitless::Scene(ctx) {
         setSkybox(assets.skyboxes.at("skybox"));
-        lighting.ambient_color.a = 1.0f;
-        lighting.directional_light = {glm::vec4(1.0, -1.0, 1.5, 1.0f), glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}};
+
+        lighting.add(Light::builder()
+             .color({1.0, -1.0, 1.5, 1.0f})
+             .direction({-1.0f, -1.0f, -1.0f})
+             .build()
+        );
+
         addInstances(assets);
 }
 

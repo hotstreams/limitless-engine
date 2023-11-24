@@ -30,5 +30,5 @@ void DirectionalShadowPass::addSetter(UniformSetter& setter) {
 }
 
 void DirectionalShadowPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
-    light = &scene.lighting.directional_light;
+    light = &scene.lighting.getDirectionalLight();
 }

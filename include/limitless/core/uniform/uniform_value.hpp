@@ -33,8 +33,8 @@ namespace Limitless {
         [[nodiscard]] std::unique_ptr<Uniform> clone() noexcept override;
         void set() override;
 
-        void setValue(const T& val) noexcept;
         [[nodiscard]] const T& getValue() const noexcept;
-
+        [[nodiscard]] T& getValue() noexcept;
+        void setValue(const T& val) noexcept;
     };
 }

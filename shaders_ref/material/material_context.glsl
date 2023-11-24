@@ -188,8 +188,18 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #else
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
     vec3 normal = mctx.normal;
+#if defined (ENGINE_MATERIAL_TWO_SIDED)
+    normal = gl_FrontFacing ? normal : -normal;
+#endif
     normal = normalize(normal * 2.0 - 1.0);
-    normal = normalize(getVertexTBN() * normal);
+
+    mat3 TBN = getVertexTBN();
+#if defined (ENGINE_MATERIAL_TWO_SIDED)
+    TBN[0] = gl_FrontFacing ? TBN[0] : -TBN[0];
+    TBN[1] = gl_FrontFacing ? TBN[1] : -TBN[1];
+    TBN[1] = gl_FrontFacing ? TBN[2] : -TBN[2];
+#endif
+    normal = normalize(TBN * normal);
 #else
     vec3 normal = normalize(getVertexNormal());
 #endif

@@ -5,16 +5,7 @@
 
 using namespace Limitless;
 
-namespace {
-    struct SceneLighting {
-        glm::vec4 direction;
-        glm::vec4 color;
-        glm::vec4 ambient_color {};
-        uint32_t light_count {};
-    };
-
-    constexpr auto SCENE_LIGHTING_BUFFER_NAME = "scene_lighting";
-}
+constexpr auto SCENE_LIGHTING_BUFFER_NAME = "scene_lighting";
 
 void Lighting::createLightBuffer() {
     BufferBuilder builder;
@@ -26,39 +17,103 @@ void Lighting::createLightBuffer() {
 }
 
 Lighting::Lighting(Context& ctx)
-    : context {ctx} {
+    : directional_light {Light::builder().buildDefaultDirectional()}
+    , context {ctx}
+    , changed {true} {
     createLightBuffer();
 }
 
-void Lighting::updateLightBuffer() {
+const glm::vec4& Lighting::getAmbientColor() const noexcept {
+    return ambient_color;
+}
+
+glm::vec4& Lighting::getAmbientColor() noexcept {
+    change();
+    return ambient_color;
+}
+
+void Lighting::setAmbientColor(const glm::vec4& _ambient_color) noexcept {
+    ambient_color = _ambient_color;
+    change();
+}
+
+const Light& Lighting::getDirectionalLight() const noexcept {
+    return directional_light;
+}
+
+Light& Lighting::getDirectionalLight() noexcept {
+    return directional_light;
+}
+
+void Lighting::setDirectionalLight(const Light& _directional_light) {
+    directional_light = _directional_light;
+    change();
+}
+
+bool Lighting::isChanged() const noexcept {
+    return changed;
+}
+
+void Lighting::resetChanged() noexcept {
+    changed = false;
+}
+
+void Lighting::change() noexcept {
+    changed = true;
+}
+
+const std::map<uint64_t, Light>& Lighting::getLights() const noexcept {
+    return punctual_lights.getLights();;
+}
+
+std::map<uint64_t, Light>& Lighting::getLights() noexcept {
+    return punctual_lights.getLights();
+}
+
+LightContainer& Lighting::getLightContainer() noexcept {
+    return punctual_lights;
+}
+
+Light& Lighting::add(Light&& light) {
+    if (light.isDirectional()) {
+        directional_light = std::move(light);
+        return directional_light;
+    }
+
+    return punctual_lights.add(std::move(light));
+}
+
+Light& Lighting::add(const Light& light) {
+    if (light.isDirectional()) {
+        directional_light = light;
+        return directional_light;
+    }
+
+    return punctual_lights.add(light);
+}
+
+
+void Lighting::updateSceneLightBuffer() {
     SceneLighting light_info {
-        directional_light,
+        { directional_light.getDirection(), 0.0f },
+        directional_light.getColor(),
         ambient_color,
-        static_cast<uint32_t>(lights.size())
+        static_cast<uint32_t>(punctual_lights.visibleSize())
     };
-    //TODO update changed?
+
     buffer->mapData(&light_info, sizeof(SceneLighting));
 }
 
 void Lighting::update() {
-    lights.update();
+    punctual_lights.update();
 
-    // maps global scene light buffer
-    updateLightBuffer();
+    if (isChanged() || directional_light.isChanged()) {
+        updateSceneLightBuffer();
+        resetChanged();
+        directional_light.resetChanged();
+    }
 
     // binds light buffer to the context
     // in case if there are many scenes or lighting classes
     buffer->bindBase(context.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SCENE_LIGHTING_BUFFER_NAME));
-}
-
-template<typename T>
-Lighting::operator LightContainer<T>&() noexcept {
-    if constexpr (std::is_same_v<T, Light>)
-        return lights;
-    else
-        static_assert(!std::is_same_v<T, T>, "No such light container for T type");
-}
-
-namespace Limitless {
-    template Lighting::operator LightContainer<Light>&() noexcept;
 }

@@ -2,9 +2,9 @@
 
 namespace Limitless::ms {
     /**
-     * Shading describes intrinsic properties of a surface
+     *  Shading describes intrinsic properties of a surface
      *
-     * defines how lighting is computed
+     *  defines how lighting is computed
      */
     enum class Shading {
         /**
@@ -15,16 +15,15 @@ namespace Limitless::ms {
         Unlit,
 
         /**
-         * Standard model
+         *  Standard model
          *
-         * used to describe metallic and non-metallic surfaces
+         *  Used to describe metallic and non-metallic surfaces
          */
         Lit,
 
-        Cloth,
-
-        Subsurface,
-
+        /**
+         *  Custom shading model defined by user
+         */
         Custom,
     };
 }

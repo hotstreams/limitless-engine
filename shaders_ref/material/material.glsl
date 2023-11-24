@@ -41,10 +41,6 @@ layout (std140) uniform MATERIAL_BUFFER {
 #endif
 #endif
 
-#if defined (ENGINE_MATERIAL_TESSELLATION_FACTOR)
-    vec2 _material_tessellation_factor;
-#endif
-
 #if defined (ENGINE_MATERIAL_METALLIC)
     float _material_metallic;
 #endif
@@ -61,6 +57,22 @@ layout (std140) uniform MATERIAL_BUFFER {
 #if defined (ENGINE_MATERIAL_ABSORPTION)
     float _material_absorption;
 #endif
+
+#if defined (ENGINE_MATERIAL_MICROTHICKNESS)
+    float _material_microthickness;
+#endif
+
+#if defined (ENGINE_MATERIAL_THICKNESS)
+    float _material_thickness;
+#endif
+#endif
+
+#if defined (ENGINE_MATERIAL_REFLECTANCE)
+    float _material_reflectance;
+#endif
+
+#if defined (ENGINE_MATERIAL_TRANSMISSION)
+    float _material_transmission;
 #endif
 
 #if defined (ENGINE_EXT_BINDLESS_TEXTURE)
@@ -127,12 +139,6 @@ ENGINE_MATERIAL_GLOBAL_DEFINITIONS
     }
 #endif
 
-#if defined (ENGINE_MATERIAL_TESSELLATION_FACTOR)
-    vec2 getMaterialTesselationFactor() {
-        return _material_tessellation_factor;
-    }
-#endif
-
 #if defined (ENGINE_MATERIAL_METALLIC)
     float getMaterialMetallic() {
         return _material_metallic;
@@ -167,6 +173,18 @@ ENGINE_MATERIAL_GLOBAL_DEFINITIONS
 #if defined (ENGINE_MATERIAL_ABSORPTION)
     float getMaterialAbsorption() {
         return _material_absorption;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_MICROTHICKNESS)
+    float getMaterialMicrothickness() {
+        return _material_microthickness;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_THICKNESS)
+    float getMaterialThickness() {
+        return _material_thickness;
     }
 #endif
 #endif
@@ -204,6 +222,18 @@ ENGINE_MATERIAL_GLOBAL_DEFINITIONS
 #if defined (ENGINE_MATERIAL_ROUGHNESS_TEXTURE)
     float getMaterialRoughness(vec2 uv) {
         return texture(_material_roughness_texture, uv).r;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_REFLECTANCE)
+    float getMaterialReflectance() {
+        return _material_reflectance;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_TRANSMISSION)
+    float getMaterialTransmission() {
+        return _material_transmission;
     }
 #endif
 

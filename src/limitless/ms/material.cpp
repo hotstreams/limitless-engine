@@ -28,7 +28,7 @@ void Limitless::ms::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.vertex_snippet, rhs.vertex_snippet);
     swap(lhs.fragment_snippet, rhs.fragment_snippet);
     swap(lhs.global_snippet, rhs.global_snippet);
-    swap(lhs.tessellation_snippet, rhs.tessellation_snippet);
+    swap(lhs.shading_snippet, rhs.shading_snippet);
 }
 
 Material& Material::operator=(Material material) {
@@ -118,61 +118,6 @@ Material::Material(const Material& material)
     map();
 }
 
-template<typename V>
-void Material::map(std::vector<std::byte>& block, const Uniform& uniform) const {
-    const auto& uni = static_cast<const UniformValue<V>&>(uniform);
-    const auto offset = uniform_offsets.at(uniform.getName());
-    std::memcpy(block.data() + offset, &uni.getValue(), sizeof(V));
-}
-
-void Material::map(std::vector<std::byte>& block, Uniform& uniform) {
-    switch (uniform.getType()) {
-        case UniformType::Value:
-            switch (uniform.getValueType()) {
-                case UniformValueType::Uint:
-                    map<unsigned int>(block, uniform);
-                    break;
-                case UniformValueType::Int:
-                    map<int>(block, uniform);
-                    break;
-                case UniformValueType::Float:
-                    map<float>(block, uniform);
-                    break;
-                case UniformValueType::Vec2:
-                    map<glm::vec2>(block, uniform);
-                    break;
-                case UniformValueType::Vec3:
-                    map<glm::vec3>(block, uniform);
-                    break;
-                case UniformValueType::Vec4:
-                    map<glm::vec4>(block, uniform);
-                    break;
-                case UniformValueType::Mat4:
-                    map<glm::mat4>(block, uniform);
-                    break;
-                case UniformValueType::Mat3:
-                    map<glm::mat3>(block, uniform);
-                    break;
-            }
-            break;
-        case UniformType::Sampler:
-            if (ContextInitializer::isBindlessTextureSupported()) {
-                const auto& uni = static_cast<const UniformSampler&>(uniform); //NOLINT
-                const auto offset = uniform_offsets.at(uniform.getName());
-                auto& bindless_texture = static_cast<BindlessTexture&>(uni.getSampler()->getExtensionTexture()); //NOLINT
-                bindless_texture.makeResident();
-                std::memcpy(block.data() + offset, &bindless_texture.getHandle(), sizeof(uint64_t));
-            }
-            break;
-        case UniformType::Time: {
-            auto& time = static_cast<UniformTime&>(uniform); //NOLINT
-            time.update();
-            map<float>(block, uniform);
-            break;
-        }
-    }
-}
-
 void Material::map() {
     std::vector<std::byte> block(material_buffer->getSize());
 
@@ -214,179 +159,123 @@ void Material::update() {
     }
 }
 
-const UniformValue<glm::vec4>& Material::getColor() const {
+const glm::vec4& Material::getColor() const {
     try {
-        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::Color)); //NOLINT
+        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::Color)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No color in material.");
+        throw material_exception("Material property not found - Color");
     }
 }
 
-const UniformValue<glm::vec4>& Material::getEmissiveColor() const {
+const glm::vec4& Material::getEmissiveColor() const {
     try {
-        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::EmissiveColor)); //NOLINT
+        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::EmissiveColor)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No emissive color in material.");
+        throw material_exception("Material property not found - Emissive Color");
     }
 }
 
-const UniformValue<float>& Material::getMetallic() const {
+float Material::getMetallic() const {
     try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::Metallic)); //NOLINT
+        return static_cast<UniformValue<float>&>(*properties.at(Property::Metallic)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No metallic in material.");
+        throw material_exception("Material property not found - Metallic");
     }
 }
 
-const UniformValue<float>& Material::getRoughness() const {
+float Material::getRoughness() const {
     try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::Roughness)); //NOLINT
+        return static_cast<UniformValue<float>&>(*properties.at(Property::Roughness)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No roughness in material.");
+        throw material_exception("Material property not found - Roughness");
     }
 }
 
-const UniformSampler& Material::getDiffuse() const {
+const std::shared_ptr<Texture>& Material::getDiffuseTexture() const {
     try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Diffuse)); //NOLINT
+        return static_cast<UniformSampler&>(*properties.at(Property::Diffuse)).getSampler(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No diffuse in material.");
+        throw material_exception("Material property not found - Diffuse");
     }
 }
 
-const UniformSampler& Material::getNormal() const {
+const std::shared_ptr<Texture>& Material::getNormalTexture() const {
     try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Normal)); //NOLINT
+        return static_cast<UniformSampler&>(*properties.at(Property::Normal)).getSampler(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No normal in material.");
+        throw material_exception("Material property not found - Normal");
     }
 }
 
-const UniformSampler& Material::getEmissiveMask() const {
+const std::shared_ptr<Texture>& Material::getEmissiveMaskTexture() const {
     try {
-        return static_cast<UniformSampler&>(*properties.at(Property::EmissiveMask)); //NOLINT
+        return static_cast<UniformSampler&>(*properties.at(Property::EmissiveMask)).getSampler(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No emissive mask in material.");
+        throw material_exception("Material property not found - EmissiveMask");
     }
 }
 
-const UniformSampler& Material::getBlendMask() const {
+const std::shared_ptr<Texture>& Material::getBlendMaskTexture() const {
     try {
-        return static_cast<UniformSampler&>(*properties.at(Property::BlendMask)); //NOLINT
+        return static_cast<UniformSampler&>(*properties.at(Property::BlendMask)).getSampler(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No blend mask in material.");
+        throw material_exception("Material property not found - BlendMask");
     }
 }
 
-const UniformSampler& Material::getMetallicTexture() const {
+const std::shared_ptr<Texture>& Material::getMetallicTexture() const {
     try {
-        return static_cast<UniformSampler&>(*properties.at(Property::MetallicTexture)); //NOLINT
+        return static_cast<UniformSampler&>(*properties.at(Property::MetallicTexture)).getSampler(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No MetallicTexture in material.");
+        throw material_exception("Material property not found - MetallicTexture");
     }
 }
 
-const UniformSampler& Material::getRoughnessTexture() const {
+const std::shared_ptr<Texture>& Material::getRoughnessTexture() const {
     try {
-        return static_cast<UniformSampler&>(*properties.at(Property::RoughnessTexture)); //NOLINT
+        return static_cast<UniformSampler&>(*properties.at(Property::RoughnessTexture)).getSampler(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No RoughnessTexture in material.");
+        throw material_exception("Material property not found - RoughnessTexture");
     }
 }
 
-const UniformValue<glm::vec2>& Material::getTesselationFactor() const {
+glm::vec4& Material::getColor() {
     try {
-        return static_cast<UniformValue<glm::vec2>&>(*properties.at(Property::TessellationFactor)); //NOLINT
+        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::Color)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No RoughnessTexture in material.");
+        throw material_exception("Material property not found - Color");
     }
 }
 
-UniformValue<glm::vec4>& Material::getColor() {
+glm::vec4& Material::getEmissiveColor() {
     try {
-        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::Color)); //NOLINT
+        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::EmissiveColor)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No color in material.");
+        throw material_exception("Material property not found - EmissiveColor");
     }
 }
 
-UniformValue<glm::vec4>& Material::getEmissiveColor() {
+float& Material::getMetallic() {
     try {
-        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::EmissiveColor)); //NOLINT
+        return static_cast<UniformValue<float>&>(*properties.at(Property::Metallic)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No emissive color in material.");
+        throw material_exception("Material property not found - Metallic");
     }
 }
 
-UniformValue<glm::vec2>& Material::getTesselationFactor() {
+float& Material::getRoughness() {
     try {
-        return static_cast<UniformValue<glm::vec2>&>(*properties.at(Property::TessellationFactor)); //NOLINT
+        return static_cast<UniformValue<float>&>(*properties.at(Property::Roughness)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No RoughnessTexture in material.");
+        throw material_exception("Material property not found - Roughness");
     }
 }
 
-UniformValue<float>& Material::getMetallic() {
+float& Material::getAbsorption() {
     try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::Metallic)); //NOLINT
+        return static_cast<UniformValue<float>&>(*properties.at(Property::Absorption)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No metallic in material.");
-    }
-}
-
-UniformValue<float>& Material::getRoughness() {
-    try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::Roughness)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No roughness in material.");
-    }
-}
-
-UniformSampler& Material::getMetallicTexture() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::MetallicTexture)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No MetallicTexture in material.");
-    }
-}
-
-UniformSampler& Material::getRoughnessTexture() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::RoughnessTexture)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No RoughnessTexture in material.");
-    }
-}
-
-UniformSampler& Material::getDiffuse() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Diffuse)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No diffuse in material.");
-    }
-}
-
-UniformSampler& Material::getNormal() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::Normal)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No normal in material.");
-    }
-}
-
-UniformSampler& Material::getEmissiveMask() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::EmissiveMask)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No emissive mask in material.");
-    }
-}
-
-UniformSampler& Material::getBlendMask() {
-    try {
-        return static_cast<UniformSampler&>(*properties.at(Property::BlendMask)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No blend mask in material.");
+        throw material_exception("Material property not found - Absorption");
     }
 }
 
@@ -398,19 +287,11 @@ bool Material::contains(const std::string& uniform_name) const {
     return uniforms.count(uniform_name);
 }
 
-const UniformValue<float>& Material::getAbsorption() const {
+float& Material::getIoR() {
     try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::Absorption)); //NOLINT
+        return static_cast<UniformValue<float>&>(*properties.at(Property::IoR)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No absorption in material.");
-    }
-}
-
-UniformValue<float>& Material::getIoR() {
-    try {
-        return static_cast<UniformValue<float>&>(*properties.at(Property::IoR)); //NOLINT
-    } catch (const std::out_of_range& e) {
-        throw material_property_not_found("No IoR in material.");
+        throw material_exception("Material property not found - IoR");
     }
 }
 
