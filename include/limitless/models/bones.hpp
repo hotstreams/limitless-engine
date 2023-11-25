@@ -8,10 +8,17 @@
 
 namespace Limitless {
     struct Bone {
+        // Index of transformation matrix sent to skinning shader.
         std::optional<uint32_t> joint_index;
+
+        // Internal bones index.
         uint32_t index;
         std::string name;
+
+        // Bone local transform matrix.
         glm::mat4 node_transform {1.0f};
+
+        // Bone inverse bind matrix.
         glm::mat4 offset_matrix {1.0f};
 
         // Bone node local transforms as individual components.
@@ -38,7 +45,11 @@ namespace Limitless {
         {
         }
 
-        [[nodiscard]] auto isFake() const noexcept { return name.at(0) == '<'; }
+        // Return true if this bone does not affect any vertices directly,
+        // and is only used in skinning hierarchy.
+        [[nodiscard]] auto isFake() const noexcept {
+            return !joint_index.has_value();
+        }
     };
 
     struct VertexBoneWeight {

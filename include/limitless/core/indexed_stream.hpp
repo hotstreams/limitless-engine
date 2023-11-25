@@ -1,3 +1,5 @@
+#pragma once
+
 #include <limitless/core/vertex_stream.hpp>
 
 namespace Limitless {

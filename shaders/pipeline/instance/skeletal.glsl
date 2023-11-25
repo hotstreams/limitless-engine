@@ -2,8 +2,6 @@ layout (std430) buffer bone_buffer {
     mat4 _bones[];
 };
 
-uniform mat4 world_transform;
-
 mat4 getBoneMatrix() {
     ivec4 bone_id = getVertexBoneID();
     vec4 bone_weight = getVertexBoneWeight();
@@ -13,5 +11,5 @@ mat4 getBoneMatrix() {
     bone_transform     += _bones[bone_id[2]] * bone_weight[2];
     bone_transform     += _bones[bone_id[3]] * bone_weight[3];
 
-    return world_transform * bone_transform;
+    return bone_transform;
 }

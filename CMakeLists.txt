@@ -25,7 +25,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O0 -ggdb)
+    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
     add_compile_definitions(NDEBUG)
 endif()
 
@@ -403,31 +403,30 @@ target_link_libraries(limitless_test glew ${GLEW_LIBRARIES})
 
 ##############################################
 
-add_executable(cgltf
+add_executable(demo_gltf_viewer
     $<TARGET_OBJECTS:limitless_engine_static>
-    test/cgltf_test.cpp
+    demo/gltf_viewer/gltf_viewer.cpp
 )
 
-target_compile_options(cgltf PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
+target_compile_options(demo_gltf_viewer PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
 
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
 
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(cgltf PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
+target_link_libraries(demo_gltf_viewer glfw ${GLFW_LIBRARIES})
+target_link_libraries(demo_gltf_viewer assimp ${ASSIMP_LIBRARIES})
+target_link_libraries(demo_gltf_viewer freetype)
+target_link_libraries(demo_gltf_viewer glew ${GLEW_LIBRARIES})
 
-target_link_libraries(cgltf glfw ${GLFW_LIBRARIES})
-target_link_libraries(cgltf assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(cgltf freetype)
-target_link_libraries(cgltf glew ${GLEW_LIBRARIES})
-
-target_link_options(cgltf PUBLIC)
+target_link_options(demo_gltf_viewer PUBLIC)
 
 if (UNIX)
     # Required for OpenGL on X11.
-    target_link_libraries(cgltf GL)
+    target_link_libraries(demo_gltf_viewer GL)
 endif()

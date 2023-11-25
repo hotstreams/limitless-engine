@@ -24,27 +24,6 @@ void SkeletalInstance::initializeBuffer() {
             .build();
 }
 
-// static void printVec3(const glm::vec3& vec) {
-//     printf("%.3f %.3f %.3f\n", vec[0], vec[1], vec[2]);
-// }
-
-// static void printQuat(const glm::fquat& vec) {
-//     printf("%.3f %.3f %.3f %.3f\n", vec.x, vec.y, vec.z, vec.w);
-// }
-
-// static void printMat4(const glm::mat4& src) {
-//     printf(
-//         "%.3f %.3f %.3f %.3f\n"
-//         "%.3f %.3f %.3f %.3f\n"
-//         "%.3f %.3f %.3f %.3f\n"
-//         "%.3f %.3f %.3f %.3f\n",
-//         src[0][0], src[1][0], src[2][0], src[3][0],
-//         src[0][1], src[1][1], src[2][1], src[3][1],
-//         src[0][2], src[1][2], src[2][2], src[3][2],
-//         src[0][3], src[1][3], src[2][3], src[3][3]
-//     );
-// }
-
 void SkeletalInstance::updateAnimationFrame() {
     if (!animation || paused) {
         return;
@@ -133,8 +112,6 @@ SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::
         return bone.joint_index.has_value();
     });
 
-    printf("%zu skinned bones\n", skinned_bones);
-
     bone_transform.resize(skinned_bones, glm::mat4(1.0f));
     initializeBuffer();
 }
@@ -202,19 +179,7 @@ void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderType pass,
 	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
     const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
-    // iterates over all meshes
     for (auto& [name, mesh] : meshes) {
-        glm::mat4 world_transform = glm::mat4(1.f);
-        // auto it = skeletal.getBoneMap().find(name);
-        // if (it != skeletal.getBoneMap().end()) {
-        //     auto& bone = skeletal.getBones().at(it->second);
-        //     world_transform = bone.world_transform;
-        // }
-
-        const_cast<UniformSetter&>(uniform_setter).add([&](ShaderProgram& shader_program) {
-            shader_program.setUniform("world_transform", world_transform);
-        });
-
         mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
     }
 

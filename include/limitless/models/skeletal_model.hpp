@@ -70,12 +70,10 @@ namespace Limitless {
         SkeletalModel(const SkeletalModel&) = delete;
         SkeletalModel& operator=(const SkeletalModel&) = delete;
 
-        // [[nodiscard]] const auto& getGlobalInverseMatrix() const noexcept { return global_inverse; }
         [[nodiscard]] const auto& getAnimations() const noexcept { return animations; }
         [[nodiscard]] const auto& getSkeletonTrees() const noexcept { return skeletons; }
         [[nodiscard]] const auto& getBones() const noexcept { return bones; }
 
-        // auto& getGlobalInverseMatrix() noexcept { return global_inverse; }
         auto& getSkeletonTrees() noexcept { return skeletons; }
         auto& getAnimations() noexcept { return animations; }
         auto& getBoneMap() noexcept { return bone_map; }

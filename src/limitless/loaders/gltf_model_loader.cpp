@@ -240,24 +240,22 @@ static std::string generateMeshName(const std::string& model_name, size_t mesh_i
 
 // TODO: return std::vector of mesh + material.
 // Note that material pointer can be empty if mesh does not have material.
-static std::
-	pair<std::vector<std::shared_ptr<AbstractMesh>>, std::vector<std::shared_ptr<ms::Material>>>
-	loadMeshes(
-		const cgltf_node& node,
-		const cgltf_mesh& mesh,
-		const cgltf_skin* skin,
-		const std::string& model_name,
-		size_t mesh_index,
-		const std::vector<std::shared_ptr<ms::Material>>& materials,
-		const cgltf_data& data
-	) {
+static std::pair<std::vector<std::shared_ptr<AbstractMesh>>, std::vector<std::shared_ptr<ms::Material>>>
+loadMeshes(
+	const cgltf_node& node,
+	const cgltf_mesh& mesh,
+	const cgltf_skin* skin,
+	const std::string& model_name,
+	size_t mesh_index,
+	const std::vector<std::shared_ptr<ms::Material>>& materials,
+	const cgltf_data& data
+) {
 	auto base_mesh_name =
 		std::string(mesh.name ? mesh.name : generateMeshName(model_name, mesh_index));
 	std::vector<std::shared_ptr<AbstractMesh>> meshes;
 	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
 
-	auto select_mesh_material = [&](const cgltf_primitive& primitive
-	                            ) -> std::shared_ptr<ms::Material> {
+	auto select_mesh_material = [&](const cgltf_primitive& primitive) -> std::shared_ptr<ms::Material> {
 		if (!primitive.material) {
 			return {nullptr};
 		}
@@ -432,6 +430,7 @@ static std::
 			// plain mesh.
 
 			// move all vertices from mesh space into model space.
+			//　TODO: do we have to rotate normals here?
 			for (auto& vertice : vertices) {
 				auto model_position = mesh_matrix * glm::vec4(vertice.position, 1.f);
 				vertice.position = glm::vec3(model_position.x, model_position.y, model_position.z);
@@ -487,7 +486,6 @@ static std::
 Animation loadAnimation(
 	std::string anim_name,
 	const cgltf_animation& animation,
-	// const std::vector<Bone>& bones,
 	const std::unordered_map<const cgltf_node*, Bone*>& bone_map
 ) {
 	std::unordered_map<cgltf_node*, AnimationNode> anim_nodes;
