@@ -56,11 +56,11 @@ void LightContainer::InternalLight::update(const Light& light) noexcept {
 }
 
 LightContainer::LightContainer() {
-    BufferBuilder builder;
-    buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-            .setUsage(Buffer::Usage::DynamicDraw)
-            .setAccess(Buffer::MutableAccess::WriteOrphaning)
-            .setDataSize(sizeof(InternalLight) * 1024)
+    buffer = Buffer::builder()
+            .target(Buffer::Type::ShaderStorage)
+            .usage(Buffer::Usage::DynamicDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
+            .size(sizeof(InternalLight) * 1024)
             .build(SHADER_STORAGE_NAME, *ContextState::getState(glfwGetCurrentContext()));
 }
 

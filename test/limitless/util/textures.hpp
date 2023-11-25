@@ -10,11 +10,11 @@ namespace LimitlessTest {
         static inline std::shared_ptr<Texture> fake() {
             TextureBuilder builder {};
 
-            return builder.setTarget(Texture::Type::Tex2D)
-                    .setMipMap(false)
-                    .setInternalFormat(Texture::InternalFormat::R8)
-                    .setFormat(Texture::Format::Red)
-                    .setDataType(Texture::DataType::UnsignedByte)
+            return builder.target(Texture::Type::Tex2D)
+                    .mipmap(false)
+                    .internal_format(Texture::InternalFormat::R8)
+                    .format(Texture::Format::Red)
+                    .data_type(Texture::DataType::UnsignedByte)
                     .build();
         }
     };

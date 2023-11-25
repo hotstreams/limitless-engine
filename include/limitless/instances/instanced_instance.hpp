@@ -20,12 +20,12 @@ namespace Limitless {
         std::shared_ptr<Buffer> buffer;
 
         void initializeBuffer(uint32_t count) {
-            BufferBuilder builder;
-            buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-                    .setUsage(Buffer::Usage::DynamicDraw)
-                    .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                    .setData(nullptr)
-                    .setDataSize(sizeof(glm::mat4) * count)
+            buffer = Buffer::builder()
+                    .target(Buffer::Type::ShaderStorage)
+                    .usage(Buffer::Usage::DynamicDraw)
+                    .access(Buffer::MutableAccess::WriteOrphaning)
+                    .data(nullptr)
+                    .size(sizeof(glm::mat4) * count)
                     .build("model_buffer", *ContextState::getState(glfwGetCurrentContext()));
         }
 

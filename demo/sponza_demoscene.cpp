@@ -20,10 +20,10 @@ SponzaScene::SponzaScene(Limitless::Context& ctx, Limitless::Assets& assets)
     auto& sponza = dynamic_cast<ModelInstance&>(add<ModelInstance>(assets.models.at("sponza"), glm::vec3(17.0f, 8.0f, 15.0f))
             .setScale(glm::vec3(0.005f)));
 
-    for (auto& [name, mesh] : sponza.getMeshes()) {
-//        mesh.getMaterial()[0].getTwoSided() = true;
-        mesh.getMaterial()[0].getBlending() = Limitless::ms::Blending::Opaque;
-    }
+//    for (auto& [name, mesh] : sponza.getMeshes()) {
+////        mesh.getMaterial()[0].getTwoSided() = true;
+//        mesh.getMaterial()[0].getBlending() = Limitless::ms::Blending::Opaque;
+//    }
 }
 
 void SponzaScene::update(Limitless::Context& context, const Limitless::Camera& camera) {

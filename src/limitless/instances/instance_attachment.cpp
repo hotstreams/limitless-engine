@@ -31,7 +31,7 @@ InstanceAttachment& InstanceAttachment::setAttachmentsParent(const glm::mat4& pa
 	return *this;
 }
 
-void InstanceAttachment::attach(std::unique_ptr<AbstractInstance> attachment) {
+void InstanceAttachment::attach(std::shared_ptr<AbstractInstance> attachment) {
 	attachments.emplace(AttachmentID {attachment->getId(), AttachmentType::Basic}, std::move(attachment));
 }
 

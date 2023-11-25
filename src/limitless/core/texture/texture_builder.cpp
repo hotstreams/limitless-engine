@@ -8,130 +8,120 @@
 
 using namespace Limitless;
 
-void TextureBuilder::create() {
+void Texture::Builder::create() {
     // uses protected ctor
     texture = std::unique_ptr<Texture>(new Texture());
-    data = {};
+    data_ = {};
     cube_data = {};
     byte_count = {};
 }
 
-bool TextureBuilder::isCompressed() const {
+bool Texture::Builder::isCompressed() const {
     return byte_count != 0;
 }
 
-bool TextureBuilder::isCubeMap() const {
+bool Texture::Builder::isCubeMap() const {
     return cube_data != std::array<void*, 6>{};
 }
 
-bool TextureBuilder::isImmutable() {
+bool Texture::Builder::isImmutable() {
     return ContextInitializer::isExtensionSupported("GL_ARB_texture_storage");
 }
 
-TextureBuilder::TextureBuilder() {
+Texture::Builder::Builder() {
     create();
 }
 
-TextureBuilder& TextureBuilder::setInternalFormat(Texture::InternalFormat internal) {
+Texture::Builder& Texture::Builder::internal_format(Texture::InternalFormat internal) {
     texture->internal_format = internal;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setFormat(Texture::Format format) {
+Texture::Builder& Texture::Builder::format(Texture::Format format) {
     texture->format = format;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setTarget(Texture::Type target) {
+Texture::Builder& Texture::Builder::target(Texture::Type target) {
     texture->target = target;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setDataType(Texture::DataType type) {
+Texture::Builder& Texture::Builder::data_type(Texture::DataType type) {
     texture->data_type = type;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setData(const void* _data) {
-    data = _data;
+Texture::Builder& Texture::Builder::data(const void* _data) {
+    data_ = _data;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setData(const std::array<void *, 6>& _data) {
+Texture::Builder& Texture::Builder::data(const std::array<void *, 6>& _data) {
     cube_data = _data;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setSize(glm::uvec2 size) {
+Texture::Builder& Texture::Builder::size(glm::uvec2 size) {
     texture->size = { size, 1 };
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setSize(glm::uvec3 size) {
+Texture::Builder& Texture::Builder::size(glm::uvec3 size) {
     texture->size = size;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setLevels(uint32_t levels) {
+Texture::Builder& Texture::Builder::levels(uint32_t levels) {
     texture->levels = levels;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setPath(const fs::path& path) {
+Texture::Builder& Texture::Builder::path(const fs::path& path) {
     texture->path = path;
     return *this;
 }
 
 
-TextureBuilder& TextureBuilder::setMipMap(bool mipmap) {
+Texture::Builder& Texture::Builder::mipmap(bool mipmap) {
     texture->mipmap = mipmap;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setMinFilter(Texture::Filter filter) {
+Texture::Builder& Texture::Builder::min_filter(Texture::Filter filter) {
     texture->min = filter;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setMagFilter(Texture::Filter filter) {
+Texture::Builder& Texture::Builder::mag_filter(Texture::Filter filter) {
     texture->mag = filter;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setWrapS(Texture::Wrap wrap) {
+Texture::Builder& Texture::Builder::wrap_s(Texture::Wrap wrap) {
     texture->wrap_s = wrap;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setWrapT(Texture::Wrap wrap) {
+Texture::Builder& Texture::Builder::wrap_t(Texture::Wrap wrap) {
     texture->wrap_t = wrap;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setWrapR(Texture::Wrap wrap) {
+Texture::Builder& Texture::Builder::wrap_r(Texture::Wrap wrap) {
     texture->wrap_r = wrap;
     return *this;
 }
 
-TextureBuilder& TextureBuilder::setBorder(bool border) {
-    texture->border = border;
-    return *this;
-}
-
-TextureBuilder& TextureBuilder::setBorderColor(const glm::vec4& color) {
-    texture->border_color = color;
-    return *this;
-}
-
-std::shared_ptr<Texture> TextureBuilder::buildMutable() {
+std::shared_ptr<Texture> Texture::Builder::buildMutable() {
     if (!texture->texture) {
         useBestSupportedExtensionTexture();
     }
 
     if (isCompressed()) {
-        texture->compressedImage(data, byte_count);
+        texture->compressedImage(data_, byte_count);
     } else {
-        isCubeMap() ? texture->image(cube_data) : texture->image(data);
+        isCubeMap() ? texture->image(cube_data) : texture->image(data_);
     }
 
     auto tex = std::move(texture);
@@ -139,7 +129,7 @@ std::shared_ptr<Texture> TextureBuilder::buildMutable() {
     return tex;
 }
 
-std::shared_ptr<Texture> TextureBuilder::buildImmutable() {
+std::shared_ptr<Texture> Texture::Builder::buildImmutable() {
     if (!texture->texture) {
         useBestSupportedExtensionTexture();
     }
@@ -156,7 +146,7 @@ std::shared_ptr<Texture> TextureBuilder::buildImmutable() {
         if (isCubeMap()) {
             texture->storage(cube_data);
         } else {
-            texture->storage(data);
+            texture->storage(data_);
         }
     }
 
@@ -166,104 +156,94 @@ std::shared_ptr<Texture> TextureBuilder::buildImmutable() {
     return tex;
 }
 
-std::shared_ptr<Texture> TextureBuilder::build() {
+std::shared_ptr<Texture> Texture::Builder::build() {
     return isImmutable() ? buildImmutable() : buildMutable();
 }
 
-TextureBuilder& TextureBuilder::setCompressedData(const void* _data, std::size_t count) {
-    data = _data;
+Texture::Builder& Texture::Builder::compressed_data(const void* _data, std::size_t count) {
+    data_= _data;
     byte_count = count;
     return *this;
 }
 
-std::shared_ptr<Texture> TextureBuilder::asRGBA16NearestClampToEdge(glm::uvec2 size) {
-    TextureBuilder builder;
-
+std::shared_ptr<Texture> Texture::Builder::asRGBA16NearestClampToEdge(glm::uvec2 size) {
     //TODO: change to RGB16 UNSIGNED SHORT?
-    builder .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGBA16)
-            .setFormat(Texture::Format::RGBA)
-            .setDataType(Texture::DataType::UnsignedByte)
-            .setSize(size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge);
-
-    return builder.build();
+    return Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGBA16)
+            .format(Texture::Format::RGBA)
+            .data_type(Texture::DataType::UnsignedByte)
+            .size(size)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .build();
 }
 
-std::shared_ptr<Texture> TextureBuilder::asRGB16NearestClampToEdge(glm::uvec2 size) {
-    TextureBuilder builder;
-
-    builder .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16)
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::UnsignedByte)
-            .setSize(size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge);
-
-    return builder.build();
+std::shared_ptr<Texture> Texture::Builder::asRGB16NearestClampToEdge(glm::uvec2 size) {
+    return Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB16)
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::UnsignedByte)
+            .size(size)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .build();
 }
 
-std::shared_ptr<Texture> TextureBuilder::asRGB16SNORMNearestClampToEdge(glm::uvec2 size) {
-    TextureBuilder builder;
-
-    builder .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16_SNORM)
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::Byte)
-            .setSize(size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge);
-
-    return builder.build();
+std::shared_ptr<Texture> Texture::Builder::asRGB16SNORMNearestClampToEdge(glm::uvec2 size) {
+    return Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB16_SNORM)
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::Byte)
+            .size(size)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .build();
 }
 
-std::shared_ptr<Texture> TextureBuilder::asRGB16FNearestClampToEdge(glm::uvec2 size) {
-    TextureBuilder builder;
-
-    builder .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16F)
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::Float)
-            .setSize(size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
-            .setMipMap(false);
-
-    return builder.build();
+std::shared_ptr<Texture> Texture::Builder::asRGB16FNearestClampToEdge(glm::uvec2 size) {
+    return Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB16F)
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::Float)
+            .size(size)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .mipmap(false)
+            .build();
 }
 
-std::shared_ptr<Texture> TextureBuilder::asDepth32F(glm::uvec2 size) {
-    TextureBuilder builder;
-
-    builder .setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::Depth32F)
-            .setFormat(Texture::Format::DepthComponent)
-            .setDataType(Texture::DataType::Float)
-            .setSize(size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge);
-
-    return builder.build();
+std::shared_ptr<Texture> Texture::Builder::asDepth32F(glm::uvec2 size) {
+    return Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::Depth32F)
+            .format(Texture::Format::DepthComponent)
+            .data_type(Texture::DataType::Float)
+            .size(size)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .build();
 }
 
-void TextureBuilder::useStateExtensionTexture() {
+void Texture::Builder::useStateExtensionTexture() {
     texture->texture = std::make_unique<StateTexture>();
     texture->texture->generateId();
 }
 
-void TextureBuilder::useNamedExtensionTexture() {
+void Texture::Builder::useNamedExtensionTexture() {
     if (!ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access")) {
         throw std::runtime_error{"NamedExtensionTexture is not supported!"};
     }
@@ -272,7 +252,7 @@ void TextureBuilder::useNamedExtensionTexture() {
     texture->texture->generateId();
 }
 
-void TextureBuilder::useBindlessExtensionTexture() {
+void Texture::Builder::useBindlessExtensionTexture() {
     if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
         throw std::runtime_error{"BindlessTexture is not supported!"};
     }
@@ -284,7 +264,7 @@ void TextureBuilder::useBindlessExtensionTexture() {
     texture->texture = std::make_unique<BindlessTexture>(texture->texture.release());
 }
 
-void TextureBuilder::useBestSupportedExtensionTexture() {
+void Texture::Builder::useBestSupportedExtensionTexture() {
     ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access") ? useNamedExtensionTexture() : useStateExtensionTexture();
 
     if (ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {

@@ -46,12 +46,11 @@ void Material::Buffer::initialize(const Material& material) {
     // ShadingModel uint32_t
     offset += sizeof(uint32_t);
 
-    BufferBuilder builder;
-    material_buffer = builder
-            .setTarget(Limitless::Buffer::Type::Uniform)
-            .setUsage(Limitless::Buffer::Usage::DynamicDraw)
-            .setAccess(Limitless::Buffer::MutableAccess::WriteOrphaning)
-            .setDataSize(sizeof(std::byte) * offset)
+    material_buffer = ::Buffer::builder()
+            .target(::Buffer::Type::Uniform)
+            .usage(::Buffer::Usage::DynamicDraw)
+            .access(::Buffer::MutableAccess::WriteOrphaning)
+            .size(sizeof(std::byte) * offset)
             .build();
 }
 

@@ -76,12 +76,6 @@ void ModelsScene::addInstances(Limitless::Assets& assets) {
         auto& drone = add<ModelInstance>(assets.models.at("drone"), glm::vec3(25.0f, 2.0f, 24.0f))
                 .setScale(glm::vec3(0.01f))
                 .setRotation(glm::vec3{M_PI, M_PI_2, 0.0f});
-
-        auto it = dynamic_cast<ModelInstance&>(drone).getMeshes().begin();
-        for (int i = 0; i < 21; ++i) {
-            ++it;
-        }
-        it->second.hide();
     }
 
     add<ModelInstance>(assets.models.at("elemental"), glm::vec3(25.0f, 2.0f, 27.0f))

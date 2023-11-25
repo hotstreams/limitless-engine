@@ -46,7 +46,7 @@ namespace Limitless::fx {
             const auto v_index3 = indices[vertex_index + 2];
 
             if (instance) {
-                if (instance->getShaderType() == InstanceType::Skeletal) {
+                if (instance->getInstanceType() == InstanceType::Skeletal) {
                     const auto& skeletal_instance = static_cast<SkeletalInstance&>(*instance);
                     const auto pos1 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index1);
                     const auto pos2 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index2);

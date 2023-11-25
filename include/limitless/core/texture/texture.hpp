@@ -28,9 +28,6 @@ namespace Limitless {
             Depth32F = GL_DEPTH_COMPONENT32F,
             Depth24Stencil8 = GL_DEPTH24_STENCIL8,
             R = GL_RED,
-//            RG = GL_RG,
-//            RGB = GL_RGB,
-//            RGBA = GL_RGBA,
             R8 = GL_R8,
             RG8 = GL_RG8,
             RGB8 = GL_RGB8,
@@ -119,7 +116,6 @@ namespace Limitless {
     private:
         std::unique_ptr<ExtensionTexture> texture;
         std::optional<fs::path> path {};
-        glm::vec4 border_color {};
         glm::uvec3 size {1};
         InternalFormat internal_format {InternalFormat::RGB8};
         DataType data_type {DataType::UnsignedByte};
@@ -133,12 +129,10 @@ namespace Limitless {
         uint32_t levels {1};
         float anisotropic {1.0f};
         bool mipmap {false};
-        bool border {false};
         bool compressed {false};
         bool immutable {false};
     protected:
         Texture() = default;
-        friend class TextureBuilder;
     public:
         virtual ~Texture() = default;
 
@@ -149,7 +143,6 @@ namespace Limitless {
         Texture& operator=(Texture&&) noexcept = default;
 
         [[nodiscard]] const auto& getPath() const noexcept { return path; }
-        [[nodiscard]] const auto& getBorderColor() const noexcept { return border_color; }
         [[nodiscard]] auto getDataType() const noexcept { return data_type; }
         [[nodiscard]] auto getFormat() const noexcept { return format; }
         [[nodiscard]] auto getInternalFormat() const noexcept { return internal_format; }
@@ -163,7 +156,6 @@ namespace Limitless {
         [[nodiscard]] auto getLevels() const noexcept { return levels; }
         [[nodiscard]] auto getAnisotropic() const noexcept { return anisotropic; }
         [[nodiscard]] auto hasMipmap() const noexcept { return mipmap; }
-        [[nodiscard]] auto hasBorder() const noexcept { return border; }
         [[nodiscard]] auto isCompressed() const noexcept { return compressed; }
         [[nodiscard]] bool isMutable() const noexcept;
         [[nodiscard]] bool isImmutable() const noexcept;
@@ -177,7 +169,6 @@ namespace Limitless {
         Texture& setMagFilter(Filter filter);
         Texture& setAnisotropicFilter(float value);
         Texture& setAnisotropicFilterMax();
-        Texture& setBorderColor(const glm::vec4& color);
         Texture& setWrapS(Wrap wrap);
         Texture& setWrapT(Wrap wrap);
         Texture& setWrapR(Wrap wrap);
@@ -219,5 +210,9 @@ namespace Limitless {
         void resize(glm::uvec3 size);
 
         void accept(TextureVisitor& visitor);
+
+        class Builder;
+
+        static Builder builder();
     };
 }

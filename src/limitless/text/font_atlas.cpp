@@ -82,18 +82,18 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
     chars.at('\t').advance *= TAB_WIDTH_IN_SPACES;
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    TextureBuilder builder;
-    texture = builder.setTarget(Texture::Type::Tex2D)
-                     .setInternalFormat(Texture::InternalFormat::R)
-                     .setSize(side_size)
-                     .setFormat(Texture::Format::Red)
-                     .setDataType(Texture::DataType::UnsignedByte)
-                     .setData(data.data())
-                     .setWrapS(Texture::Wrap::ClampToEdge)
-                     .setWrapT(Texture::Wrap::ClampToEdge)
-                     .setMinFilter(Texture::Filter::Linear)
-                     .setMagFilter(Texture::Filter::Linear)
-                     .setMipMap(false)
+    texture = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::R)
+            .size(side_size)
+            .format(Texture::Format::Red)
+            .data_type(Texture::DataType::UnsignedByte)
+            .data(data.data())
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .mipmap(false)
                      .buildMutable();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }

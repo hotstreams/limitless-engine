@@ -8,12 +8,12 @@
 using namespace Limitless;
 
 SceneDataStorage::SceneDataStorage(Context& ctx) {
-    BufferBuilder builder;
-    buffer = builder.setTarget(Buffer::Type::Uniform)
-                    .setUsage(Buffer::Usage::DynamicDraw)
-                    .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                    .setDataSize(sizeof(SceneData))
-                    .build(PipelineShaderBuffers::SCENE_DATA_BUFFER_NAME, ctx);
+    buffer = Buffer::builder()
+            .target(Buffer::Type::Uniform)
+            .usage(Buffer::Usage::DynamicDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
+            .size(sizeof(SceneData))
+            .build(PipelineShaderBuffers::SCENE_DATA_BUFFER_NAME, ctx);
 }
 
 SceneDataStorage::~SceneDataStorage() {

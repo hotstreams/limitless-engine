@@ -12,11 +12,14 @@ namespace Limitless {
 
     using Instances = std::vector<std::reference_wrapper<AbstractInstance>>;
 
+    /**
+     *
+     */
     class Scene {
     public:
         Lighting lighting;
     private:
-        std::unordered_map<uint64_t, std::unique_ptr<AbstractInstance>> instances;
+        std::unordered_map<uint64_t, std::shared_ptr<AbstractInstance>> instances;
         std::shared_ptr<Skybox> skybox;
 
         void removeDeadInstances() noexcept;
@@ -26,6 +29,11 @@ namespace Limitless {
 
         Scene(const Scene&) = delete;
         Scene(Scene&&) = delete;
+
+        /**
+         *  Takes ownership of passed instance and manages it
+         */
+        void add(AbstractInstance* instance);
 
         template<typename T>
         T& add(T* instance) noexcept {
@@ -67,21 +75,5 @@ namespace Limitless {
         Instances getWrappers() noexcept;
 
         auto size() const noexcept { return instances.size(); }
-
-        #ifdef NDEBUG
-            template<typename T>
-            T& get(uint64_t id) {
-                try {
-                    return dynamic_cast<T&>(*instances[id]);
-                } catch (...) {
-                    throw std::runtime_error("Scene wrong instance cast");
-                }
-            }
-        #else
-            template<typename T>
-            T& get(uint64_t id) noexcept {
-                return static_cast<T&>(*instances[id]);
-            }
-		#endif
     };
 }

@@ -22,7 +22,7 @@ namespace Limitless {
      * InstanceAttachment is base class for any instance that can have an attachments of another instances
      *
      * instances attached to this instance ARE OWNED BY this instance,
-     * it means they get deleted if this instance dies
+     * it means they become not managed if this instance dies
      */
 	class InstanceAttachment {
     public:
@@ -44,7 +44,7 @@ namespace Limitless {
             bool operator<(const AttachmentID& rhs) const;
         };
 	private:
-		std::map<AttachmentID, std::unique_ptr<AbstractInstance>> attachments;
+		std::map<AttachmentID, std::shared_ptr<AbstractInstance>> attachments;
 	protected:
         /**
          * Sets parent matrix to attachments
@@ -68,7 +68,7 @@ namespace Limitless {
         /**
          * Attaches instance
          */
-		void attach(std::unique_ptr<AbstractInstance> attachment);
+		void attach(std::shared_ptr<AbstractInstance> attachment);
 
         /**
          * Detaches instance with specified id

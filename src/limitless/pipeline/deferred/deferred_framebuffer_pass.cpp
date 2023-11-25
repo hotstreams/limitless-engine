@@ -7,11 +7,11 @@ using namespace Limitless;
 DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 frame_size)
     : PipelinePass(pipeline)
     , framebuffer {} {
-    auto albedo = TextureBuilder::asRGBA16NearestClampToEdge(frame_size);
-    auto normal = TextureBuilder::asRGB16SNORMNearestClampToEdge(frame_size);
-    auto props = TextureBuilder::asRGB16NearestClampToEdge(frame_size);
-    auto emissive = TextureBuilder::asRGB16FNearestClampToEdge(frame_size);
-    auto depth = TextureBuilder::asDepth32F(frame_size);
+    auto albedo = Texture::Builder::asRGBA16NearestClampToEdge(frame_size);
+    auto normal = Texture::Builder::asRGB16SNORMNearestClampToEdge(frame_size);
+    auto props = Texture::Builder::asRGB16NearestClampToEdge(frame_size);
+    auto emissive = Texture::Builder::asRGB16FNearestClampToEdge(frame_size);
+    auto depth = Texture::Builder::asDepth32F(frame_size);
 
     framebuffer.bind();
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, albedo}

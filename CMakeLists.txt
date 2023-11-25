@@ -121,6 +121,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/effect_instance.cpp
     src/limitless/instances/instance_attachment.cpp
     src/limitless/instances/socket_attachment.cpp
+    src/limitless/instances/instance_builder.cpp
 )
 
 set(ENGINE_LIGHTING
@@ -178,7 +179,6 @@ set(ENGINE_MS
     src/limitless/ms/unique_material.cpp
     src/limitless/ms/material_builder.cpp
     src/limitless/ms/material_compiler.cpp
-    src/limitless/ms/material_instance.cpp
     src/limitless/ms/material_buffer.cpp
     src/limitless/ms/material_shader_define_replacer.cpp
 )

@@ -16,11 +16,11 @@ namespace Limitless::fx {
         void checkStorageSize(uint64_t count) {
             if (count > max_particle_count) {
                 max_particle_count = count;
-                BufferBuilder builder;
-                buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-                        .setUsage(Buffer::Usage::DynamicDraw)
-                        .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                        .setDataSize(sizeof(MeshParticle) * max_particle_count)
+                buffer = Buffer::builder()
+                        .target(Buffer::Type::ShaderStorage)
+                        .usage(Buffer::Usage::DynamicDraw)
+                        .access(Buffer::MutableAccess::WriteOrphaning)
+                        .size(sizeof(MeshParticle) * max_particle_count)
                         .build();
             }
         }
@@ -30,11 +30,11 @@ namespace Limitless::fx {
         explicit EmitterRenderer(const MeshEmitter& emitter)
             : max_particle_count {emitter.getSpawn().max_count * EMITTER_STORAGE_INSTANCE_COUNT}
             , unique_type {emitter.getUniqueShaderType()} {
-            BufferBuilder builder;
-            buffer = builder .setTarget(Buffer::Type::ShaderStorage)
-                    .setUsage(Buffer::Usage::DynamicDraw)
-                    .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                    .setDataSize(sizeof(MeshParticle) * max_particle_count)
+            buffer = Buffer::builder()
+                    .target(Buffer::Type::ShaderStorage)
+                    .usage(Buffer::Usage::DynamicDraw)
+                    .access(Buffer::MutableAccess::WriteOrphaning)
+                    .size(sizeof(MeshParticle) * max_particle_count)
                     .build();
         }
 

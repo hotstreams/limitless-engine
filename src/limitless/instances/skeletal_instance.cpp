@@ -15,12 +15,12 @@ using namespace Limitless;
 constexpr auto SKELETAL_BUFFER_NAME = "bone_buffer";
 
 void SkeletalInstance::initializeBuffer() {
-    BufferBuilder builder;
-    bone_buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-            .setUsage(Buffer::Usage::DynamicDraw)
-            .setAccess(Buffer::MutableAccess::WriteOrphaning)
-            .setData(bone_transform.data())
-            .setDataSize(bone_transform.size() * sizeof(glm::mat4))
+    bone_buffer = Buffer::builder()
+            .target(Buffer::Type::ShaderStorage)
+            .usage(Buffer::Usage::DynamicDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
+            .data(bone_transform.data())
+            .size(bone_transform.size() * sizeof(glm::mat4))
             .build();
 }
 

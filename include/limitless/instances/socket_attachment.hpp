@@ -64,7 +64,7 @@ namespace Limitless {
          *
          * throws no_such_bone if not found
          */
-        void attachToBone(std::string bone_name, std::unique_ptr<AbstractInstance> instance);
+        void attachToBone(std::string bone_name, std::shared_ptr<AbstractInstance> instance);
 
         /**
          * Detaches instance from bone

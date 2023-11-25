@@ -94,7 +94,7 @@ namespace Limitless {
 		bool hidden {};
 
         /**
-         * Does instance should be removed from scene in next frame
+         * Whether instance should be removed from scene in the next update
          */
         bool done {};
 
@@ -114,7 +114,7 @@ namespace Limitless {
          */
         virtual std::unique_ptr<AbstractInstance> clone() noexcept = 0;
 
-        [[nodiscard]] auto getShaderType() const noexcept { return shader_type; }
+        [[nodiscard]] auto getInstanceType() const noexcept { return shader_type; }
         [[nodiscard]] auto getId() const noexcept { return id; }
 
         [[nodiscard]] const auto& getPosition() const noexcept { return position; }
@@ -207,5 +207,12 @@ namespace Limitless {
         void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending);
 
         virtual void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) = 0;
+
+        /**
+         *  Instance builder
+         */
+        class Builder;
+
+        static Builder builder() noexcept;
     };
 }

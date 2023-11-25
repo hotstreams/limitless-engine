@@ -85,25 +85,30 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
     DDSHEADER header {};
     fs.read(reinterpret_cast<char*>(&header), sizeof(DDSHEADER));
 
-    TextureBuilder builder;
-    builder .setTarget(Texture::Type::Tex2D);
+    Texture::Builder& builder = Texture::builder().target(Texture::Type::Tex2D);
 
     uint32_t channels {};
     switch (header.ddspf.dwFourCC) {
         case DXT1_CODE:
-	        flags.space == TextureLoaderFlags::Space::Linear ? builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT1) : builder.setInternalFormat(Texture::InternalFormat::sRGBA_DXT1);
+	        flags.space == TextureLoaderFlags::Space::Linear ? builder.internal_format(
+                    Texture::InternalFormat::RGBA_DXT1) : builder.internal_format(
+                    Texture::InternalFormat::sRGBA_DXT1);
             channels = 3;
             break;
 	    case DXT3_CODE:
-		    flags.space == TextureLoaderFlags::Space::Linear ? builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT3) : builder.setInternalFormat(Texture::InternalFormat::sRGBA_DXT3);
+		    flags.space == TextureLoaderFlags::Space::Linear ? builder.internal_format(
+                    Texture::InternalFormat::RGBA_DXT3) : builder.internal_format(
+                    Texture::InternalFormat::sRGBA_DXT3);
 		    channels = 4;
 		    break;
         case DXT5_CODE:
-		    flags.space == TextureLoaderFlags::Space::Linear ? builder.setInternalFormat(Texture::InternalFormat::RGBA_DXT5) : builder.setInternalFormat(Texture::InternalFormat::sRGBA_DXT5);
+		    flags.space == TextureLoaderFlags::Space::Linear ? builder.internal_format(
+                    Texture::InternalFormat::RGBA_DXT5) : builder.internal_format(
+                    Texture::InternalFormat::sRGBA_DXT5);
             channels = 4;
             break;
     	case BC5u_CODE:
-		    builder.setInternalFormat(Texture::InternalFormat::RG_RGTC);
+            builder.internal_format(Texture::InternalFormat::RG_RGTC);
 		    channels = 4;
     		break;
         default:
@@ -126,13 +131,13 @@ std::shared_ptr<Texture> DDSLoader::load(Assets& assets, const fs::path& _path, 
 		}
 		fs.seekg(byte_count, std::ios_base::cur);
 	}
-	builder.setSize(size);
+    builder.size(size);
 	const auto byte_count = getDXTByteCount(size, channels == 3 ? DXT1_BLOCK_SIZE : DXT5_BLOCK_SIZE);
 	auto* data = new uint8_t[byte_count];
 	fs.read(reinterpret_cast<char*>(data), byte_count);
-	builder.setCompressedData(data, byte_count);
+    builder.compressed_data(data, byte_count);
 	TextureLoader::setTextureParameters(builder, flags);
-	builder.setPath(path);
+    builder.path(path);
 	auto texture = builder.buildMutable();
 	delete[] data;
 

@@ -1,8 +1,8 @@
 #include <limitless/core/texture/texture.hpp>
 
 #include <limitless/core/texture/extension_texture.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/core/context_initializer.hpp>
-#include <iostream>
 
 using namespace Limitless;
 
@@ -65,7 +65,7 @@ void Texture::image(const std::array<void*, 6>& data) {
     setParameters();
 
     for (std::size_t i = 0; i < data.size(); ++i) {
-        texture->texImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), size, border, data[i]);
+        texture->texImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), size, false, data[i]);
     }
 
     if (mipmap) {
@@ -75,12 +75,12 @@ void Texture::image(const std::array<void*, 6>& data) {
 
 void Texture::image(uint32_t level, glm::uvec2 _size, const void* data) {
     setParameters();
-    texture->texImage2D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), _size, border, data);
+    texture->texImage2D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), _size, false, data);
 }
 
 void Texture::image(uint32_t level, glm::uvec3 _size, const void* data) {
     setParameters();
-    texture->texImage3D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), _size, border, data);
+    texture->texImage3D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), _size, false, data);
 }
 
 void Texture::compressedImage(const void* data, std::size_t byte_count) {
@@ -92,12 +92,12 @@ void Texture::compressedImage(const void* data, std::size_t byte_count) {
 
 void Texture::compressedImage(uint32_t level, glm::uvec2 _size, const void* data, std::size_t byte_count) {
     setParameters();
-    texture->compressedTexImage2D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), _size, border, data, byte_count);
+    texture->compressedTexImage2D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), _size, false, data, byte_count);
 }
 
 void Texture::compressedImage(uint32_t level, glm::uvec3 _size, const void* data, std::size_t byte_count) {
     setParameters();
-    texture->compressedTexImage3D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), _size, border, data, byte_count);
+    texture->compressedTexImage3D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), _size, false, data, byte_count);
 }
 
 void Texture::subImage(uint32_t level, glm::uvec2 offset, glm::uvec2 _size, const void* data) {
@@ -170,12 +170,6 @@ Texture& Texture::setAnisotropicFilterMax() {
     return *this;
 }
 
-Texture& Texture::setBorderColor(const glm::vec4& color) {
-    border_color = color;
-    texture->setBorderColor(static_cast<GLenum>(target), &border_color[0]);
-    return *this;
-}
-
 Texture& Texture::setWrapS(Wrap wrap) {
     wrap_s = wrap;
     texture->setWrapS(static_cast<GLenum>(target), static_cast<GLenum>(wrap_s));
@@ -200,9 +194,6 @@ void Texture::setParameters() {
     setWrapS(wrap_s);
     setWrapT(wrap_t);
     setWrapR(wrap_r);
-    if (border) {
-        setBorderColor(border_color);
-    }
 
     if (anisotropic != 1.0f) {
         setAnisotropicFilter(anisotropic);
@@ -219,4 +210,8 @@ bool Texture::isMutable() const noexcept {
 
 bool Texture::isImmutable() const noexcept {
     return immutable;
+}
+
+Texture::Builder Texture::builder() {
+    return {};
 }

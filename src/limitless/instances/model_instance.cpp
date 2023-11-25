@@ -81,3 +81,101 @@ void ModelInstance::update(Context& context, const Camera& camera) {
 		mesh.update();
 	}
 }
+
+void ModelInstance::changeMaterial(uint32_t mesh_index, const std::shared_ptr<ms::Material> &material) {
+    if (mesh_index >= meshes.size()) {
+        throw no_such_mesh("with index " + std::to_string(mesh_index));
+    }
+
+    std::next(meshes.begin(), mesh_index)->second.changeMaterial(material);
+}
+
+void ModelInstance::changeMaterial(const std::string& mesh_name, const std::shared_ptr<ms::Material> &material) {
+    try {
+        meshes.at(mesh_name).changeMaterial(material);
+    } catch (...) {
+        throw no_such_mesh("with name " + mesh_name);
+    }
+}
+
+void ModelInstance::changeMaterials(const std::shared_ptr<ms::Material> &material) {
+    for (auto& [_, mesh] : meshes) {
+        mesh.changeMaterial(material);
+    }
+}
+
+void ModelInstance::changeBaseMaterial(uint32_t mesh_index, const std::shared_ptr<ms::Material> &material) {
+    if (mesh_index >= meshes.size()) {
+        throw no_such_mesh("with index " + std::to_string(mesh_index));
+    }
+
+    std::next(meshes.begin(), mesh_index)->second.changeBaseMaterial(material);
+}
+
+void ModelInstance::changeBaseMaterial(const std::string& mesh_name, const std::shared_ptr<ms::Material> &material) {
+    try {
+        meshes.at(mesh_name).changeBaseMaterial(material);
+    } catch (...) {
+        throw no_such_mesh("with name " + mesh_name);
+    }
+}
+
+void ModelInstance::changeBaseMaterials(const std::shared_ptr<ms::Material>& material) {
+    for (auto& [_, mesh]: meshes) {
+        mesh.changeBaseMaterial(material);
+    }
+}
+
+void ModelInstance::resetMaterial(uint32_t mesh_index) {
+    if (mesh_index >= meshes.size()) {
+        throw no_such_mesh("with index " + std::to_string(mesh_index));
+    }
+
+    std::next(meshes.begin(), mesh_index)->second.reset();
+}
+
+void ModelInstance::resetMaterial(const std::string& mesh_name) {
+    try {
+        meshes.at(mesh_name).reset();
+    } catch (...) {
+        throw no_such_mesh("with name " + mesh_name);
+    }
+}
+
+void ModelInstance::resetMaterials() {
+    for (auto& [_, mesh] : meshes) {
+        mesh.reset();
+    }
+}
+
+MeshInstance& ModelInstance::getMeshInstance(const std::string &mesh) {
+    try {
+        return meshes.at(mesh);
+    } catch (...) {
+        throw no_such_mesh("with name " + mesh);
+    }
+}
+
+MeshInstance& ModelInstance::getMeshInstance(uint32_t index) {
+    if (index >= meshes.size()) {
+        throw no_such_mesh("with index " + std::to_string(index));
+    }
+
+    return std::next(meshes.begin(), index)->second;
+}
+
+const std::shared_ptr<ms::Material> &ModelInstance::getMaterial(uint32_t mesh_index) {
+    if (mesh_index >= meshes.size()) {
+        throw no_such_mesh("with index " + std::to_string(mesh_index));
+    }
+
+    return std::next(meshes.begin(), mesh_index)->second.getMaterial();
+}
+
+const std::shared_ptr<ms::Material> &ModelInstance::getMaterial(const std::string& mesh_name) {
+    try {
+        return meshes.at(mesh_name).getMaterial();
+    } catch (...) {
+        throw no_such_mesh("with name " + mesh_name);
+    }
+}

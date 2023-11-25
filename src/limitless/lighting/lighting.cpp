@@ -8,11 +8,11 @@ using namespace Limitless;
 constexpr auto SCENE_LIGHTING_BUFFER_NAME = "scene_lighting";
 
 void Lighting::createLightBuffer() {
-    BufferBuilder builder;
-    buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-            .setUsage(Buffer::Usage::DynamicDraw)
-            .setAccess(Buffer::MutableAccess::WriteOrphaning)
-            .setDataSize(sizeof(SceneLighting))
+    buffer = Buffer::builder()
+            .target(Buffer::Type::ShaderStorage)
+            .usage(Buffer::Usage::DynamicDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
+            .size(sizeof(SceneLighting))
             .build(SCENE_LIGHTING_BUFFER_NAME, context);
 }
 

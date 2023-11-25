@@ -15,13 +15,13 @@ TextModel::TextModel(size_t count)
 }
 
 void TextModel::initialize(size_t count) {
-    BufferBuilder builder;
-    buffer = builder .setTarget(Buffer::Type::Array)
-                     .setData(vertices.empty() ? nullptr : vertices.data())
-                     .setDataSize(count * sizeof(TextVertex))
-                     .setUsage(Buffer::Usage::DynamicDraw)
-                     .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                     .build();
+    buffer = Buffer::builder()
+            .target(Buffer::Type::Array)
+            .data(vertices.empty() ? nullptr : vertices.data())
+            .size(count * sizeof(TextVertex))
+            .usage(Buffer::Usage::DynamicDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
+            .build();
 
     vertex_array << std::pair<TextVertex, const std::shared_ptr<Buffer>&>(TextVertex{}, buffer);
 }

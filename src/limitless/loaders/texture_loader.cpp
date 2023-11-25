@@ -23,7 +23,7 @@ namespace {
     constexpr auto RGTC_EXTENSION = "GL_ARB_texture_compression_rgtc";
 }
 
-void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags& flags, int channels) {
+void TextureLoader::setFormat(Texture::Builder& builder, const TextureLoaderFlags& flags, int channels) {
     Texture::InternalFormat internal {};
 
     switch (flags.compression) {
@@ -120,8 +120,8 @@ void TextureLoader::setFormat(TextureBuilder& builder, const TextureLoaderFlags&
         default: throw texture_loader_exception("Bad channels count!");
     }
 
-    builder.setInternalFormat(internal)
-           .setFormat(format);
+    builder.internal_format(internal)
+            .format(format);
 }
 
 void TextureLoader::setAnisotropicFilter(const std::shared_ptr<Texture>& texture, const TextureLoaderFlags& flags) {
@@ -162,14 +162,14 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
 
     setDownScale(width, height, channels, data, flags);
 
-    TextureBuilder builder;
+    Texture::Builder builder = Texture::builder();
 
-    builder.setTarget(Texture::Type::Tex2D)
-           .setLevels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
-           .setSize({ width, height })
-           .setDataType(Texture::DataType::UnsignedByte)
-           .setData(data)
-           .setPath(path);
+    builder.target(Texture::Type::Tex2D)
+            .levels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
+            .size({width, height})
+            .data_type(Texture::DataType::UnsignedByte)
+            .data(data)
+            .path(path);
 
     setFormat(builder, flags, channels);
     setTextureParameters(builder, flags);
@@ -206,20 +206,21 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& ass
         }
     }
 
-    TextureBuilder builder;
-    builder .setTarget(Texture::Type::CubeMap)
-            .setSize(glm::uvec2{ width, height })
-            .setDataType(Texture::DataType::UnsignedByte)
-            .setData(data);
+    Texture::Builder builder = Texture::builder();
+
+    builder.target(Texture::Type::CubeMap)
+            .size(glm::uvec2{width, height})
+            .data_type(Texture::DataType::UnsignedByte)
+            .data(data);
 
     setFormat(builder, flags, channels);
     setTextureParameters(builder, flags);
 
-    builder.setWrapS(Texture::Wrap::ClampToEdge)
-           .setWrapT(Texture::Wrap::ClampToEdge)
-           .setWrapR(Texture::Wrap::ClampToEdge);
+    builder.wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .wrap_r(Texture::Wrap::ClampToEdge);
 
-    builder.setPath(path);
+    builder.path(path);
     auto texture = builder.buildMutable();
     setAnisotropicFilter(texture, flags);
 
@@ -268,25 +269,23 @@ void TextureLoader::setDownScale(int& width, int& height, int channels, unsigned
     data = resized_data;
 }
 
-void TextureLoader::setTextureParameters(TextureBuilder& builder, const TextureLoaderFlags& flags) {
-    builder.setMipMap(flags.mipmap)
-           .setBorder(flags.border)
-           .setBorderColor(flags.border_color)
-           .setWrapS(flags.wrapping)
-           .setWrapT(flags.wrapping)
-           .setWrapR(flags.wrapping);
+void TextureLoader::setTextureParameters(Texture::Builder& builder, const TextureLoaderFlags& flags) {
+    builder.mipmap(flags.mipmap)
+            .wrap_s(flags.wrapping)
+            .wrap_t(flags.wrapping)
+            .wrap_r(flags.wrapping);
 
     switch (flags.filter) {
         case TextureLoaderFlags::Filter::Linear:
-            builder.setMagFilter(Texture::Filter::Linear);
+            builder.mag_filter(Texture::Filter::Linear);
             if (flags.mipmap) {
-                builder.setMinFilter(Texture::Filter::LinearMipmapLinear);
+                builder.min_filter(Texture::Filter::LinearMipmapLinear);
             }
             break;
         case TextureLoaderFlags::Filter::Nearest:
-            builder.setMagFilter(Texture::Filter::Nearest);
+            builder.mag_filter(Texture::Filter::Nearest);
             if (flags.mipmap) {
-                builder.setMinFilter(Texture::Filter::NearestMipmapNearest);
+                builder.min_filter(Texture::Filter::NearestMipmapNearest);
             }
             break;
     }

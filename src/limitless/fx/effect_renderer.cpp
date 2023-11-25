@@ -22,7 +22,7 @@ void EffectRenderer::visitEmitters(const Instances& instances, EmitterVisitor& e
             visitor(*attachment);
         }
 
-        if (instance.getShaderType() == InstanceType::Effect) {
+        if (instance.getInstanceType() == InstanceType::Effect) {
             effect_instance_visitor(static_cast<const EffectInstance&>(instance), emitter_visitor);
         }
     };

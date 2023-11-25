@@ -6,21 +6,21 @@
 namespace Limitless {
     class ContextState;
 
-    class BufferBuilder {
+    class Buffer::Builder {
     private:
-        Buffer::Type target;
-        std::variant<Buffer::Usage, Buffer::Storage> usage;
-        std::variant<Buffer::MutableAccess, Buffer::ImmutableAccess> access;
-        const void* data {};
-        size_t size {};
+        Buffer::Type target_;
+        std::variant<Buffer::Usage, Buffer::Storage> usage_;
+        std::variant<Buffer::MutableAccess, Buffer::ImmutableAccess> access_;
+        const void* data_ {};
+        size_t size_ {};
     public:
-        BufferBuilder& setTarget(Buffer::Type _target);
-        BufferBuilder& setUsage(Buffer::Usage _usage);
-        BufferBuilder& setUsage(Buffer::Storage _storage);
-        BufferBuilder& setAccess(Buffer::MutableAccess _access);
-        BufferBuilder& setAccess(Buffer::ImmutableAccess _access);
-        BufferBuilder& setData(const void* _data);
-        BufferBuilder& setDataSize(size_t _size);
+        Builder& target(Buffer::Type _target);
+        Builder& usage(Buffer::Usage _usage);
+        Builder& usage(Buffer::Storage _storage);
+        Builder& access(Buffer::MutableAccess _access);
+        Builder& access(Buffer::ImmutableAccess _access);
+        Builder& data(const void* _data);
+        Builder& size(size_t _size);
 
         std::unique_ptr<Buffer> build();
         // builds indexed buffer for specified context

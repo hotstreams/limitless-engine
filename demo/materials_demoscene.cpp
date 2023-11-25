@@ -88,8 +88,6 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("lava"), glm::vec3{14.0f, 1.0f, 1.0f });
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("ice"), glm::vec3{14.0f, 1.0f, 4.0f });
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("poison"), glm::vec3{14.0f, 1.0f, 7.0f });
-    auto& m = add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("ice"), glm::vec3{14.0f, 1.0f, 10.0f });
-    m["sphere"].getMaterial().apply(assets.materials.at("poison"));
 
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("bump_mapping"), glm::vec3{14.0f, 1.0f, 13.0f });
     add<ModelInstance>(assets.models.at("sphere"), assets.materials.at("fresnel"), glm::vec3{14.0f, 1.0f, 17.0f });
@@ -101,7 +99,7 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
 void MaterialsScene::update(Limitless::Context& context, const Limitless::Camera& camera) {
     Limitless::Scene::update(context, camera);
 
-    (*open)["plane_mesh"].getMaterial()[0].getEmissiveColor() = {
+    (*open)["plane_mesh"].getMaterial()->getEmissiveColor() = {
         glm::abs(glm::cos(glfwGetTime() * 2.5)) * 2.5,
         0.0f,
         glm::abs(glm::cos(glfwGetTime() * 2.5)) * 5.0,
