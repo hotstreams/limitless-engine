@@ -177,7 +177,6 @@ void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderType pass,
     }
 
 	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
-    const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
 
     for (auto& [name, mesh] : meshes) {
         mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);

@@ -25,7 +25,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
+    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
     add_compile_definitions(NDEBUG)
 endif()
 
