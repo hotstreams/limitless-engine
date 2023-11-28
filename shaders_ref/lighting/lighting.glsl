@@ -1,5 +1,5 @@
 #include "./lighting_context.glsl"
-#include "../scene.glsl"
+#include "../pipeline/scene.glsl"
 
 #include "../shading/regular.glsl"
 #include "../shading/custom.glsl"
@@ -59,6 +59,10 @@ vec3 computeDirectionalLight(const ShadingContext sctx) {
 
 vec3 computeLights(const ShadingContext sctx) {
     vec3 color = computeDirectionalLight(sctx);
+
+#if defined (ENGINE_SETTINGS_SSR)
+    color += sctx.indirect_lighting;
+#endif
 
     for (uint i = 0u; i < getLightCount(); ++i) {
         Light light = getLight(i);

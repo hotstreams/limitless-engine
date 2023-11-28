@@ -2,15 +2,17 @@
 #include <limitless/instances/effect_instance.hpp>
 
 namespace LimitlessDemo {
-    class EffectsScene : public Limitless::Scene {
+    class EffectsScene {
     private:
-        Limitless::EffectInstance* hurricane {};
+        Limitless::Scene scene;
+        std::shared_ptr<Limitless::EffectInstance> hurricane {};
 
         void addInstances(Limitless::Assets& assets);
     public:
         EffectsScene(Limitless::Context& ctx, Limitless::Assets& assets);
-        ~EffectsScene() override = default;
 
-        void update(Limitless::Context& context, const Limitless::Camera& camera) override;
+        auto& getScene() { return scene; }
+
+        void update(Limitless::Context& context, const Limitless::Camera& camera);
     };
 }

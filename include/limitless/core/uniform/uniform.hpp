@@ -46,6 +46,9 @@ namespace Limitless {
         Uniform(std::string name, UniformType type, UniformValueType value_type) noexcept;
         virtual ~Uniform() = default;
 
+        Uniform(const Uniform&) noexcept;
+        Uniform(Uniform&&) noexcept = default;
+
         /*
          * Makes uniform deep copy
          */

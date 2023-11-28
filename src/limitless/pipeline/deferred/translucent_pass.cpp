@@ -2,7 +2,7 @@
 
 #include <limitless/pipeline/shader_type.hpp>
 #include <limitless/util/sorter.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <limitless/fx/effect_renderer.hpp>
 #include <limitless/assets.hpp>
 #include "limitless/core/uniform/uniform.hpp"

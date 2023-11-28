@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <limitless/instances/mesh_instance.hpp>
 
 namespace Limitless {
@@ -16,7 +16,7 @@ namespace Limitless {
     /**
      * ModelInstance is an instance that contains static model
      */
-    class ModelInstance : public AbstractInstance {
+    class ModelInstance : public Instance {
     protected:
         std::map<std::string, MeshInstance> meshes;
         std::shared_ptr<AbstractModel> model;
@@ -47,7 +47,7 @@ namespace Limitless {
         /**
          * Makes copy
          */
-        std::unique_ptr<AbstractInstance> clone() noexcept override;
+        std::unique_ptr<Instance> clone() noexcept override;
 
         /**
          * Gets used model
@@ -141,7 +141,7 @@ namespace Limitless {
         [[nodiscard]] const auto& getMeshes() const noexcept { return meshes; }
         auto& getMeshes() noexcept { return meshes; }
 
-        using AbstractInstance::draw;
+        using Instance::draw;
         void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

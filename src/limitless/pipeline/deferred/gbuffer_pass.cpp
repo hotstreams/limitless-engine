@@ -1,6 +1,6 @@
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/deferred/gbuffer_pass.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <limitless/pipeline/shader_type.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/ms/blending.hpp>

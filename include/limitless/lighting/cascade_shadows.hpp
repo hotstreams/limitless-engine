@@ -9,7 +9,7 @@ namespace Limitless::fx {
 
 namespace Limitless {
     class Light;
-    class AbstractInstance;
+    class Instance;
     class ShaderProgram;
     class Renderer;
     class Camera;
@@ -26,7 +26,7 @@ namespace Limitless {
         float ratio {};
     };
 
-    using Instances = std::vector<std::reference_wrapper<AbstractInstance>>;
+    using Instances = std::vector<std::reference_wrapper<Instance>>;
 
     class CascadeShadows final {
     private:

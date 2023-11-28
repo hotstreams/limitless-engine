@@ -114,7 +114,7 @@ set(ENGINE_CORE
 )
 
 set(ENGINE_INSTANCES
-    src/limitless/instances/abstract_instance.cpp
+        src/limitless/instances/instance.cpp
     src/limitless/instances/skeletal_instance.cpp
     src/limitless/instances/mesh_instance.cpp
     src/limitless/instances/model_instance.cpp
@@ -349,7 +349,6 @@ add_executable(limitless_demo
     demo/lighting_demoscene.cpp
     demo/effects_demoscene.cpp
     demo/models_demoscene.cpp
-    demo/sponza_demoscene.cpp
     demo/assets.cpp
 )
 

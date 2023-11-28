@@ -1,5 +1,5 @@
 #include "../functions/common.glsl"
-#include "../scene.glsl"
+#include "../pipeline/scene.glsl"
 
 #define ENGINE_SHADING_UNLIT 0u
 #define ENGINE_SHADING_LIT 1u
@@ -22,8 +22,9 @@ struct ShadingContext {
     float ambientOcclusion;
 
     vec3 emissive_color;
-
     float alpha;
+
+    vec3 indirect_lighting;
     uint shading_model;
 };
 
@@ -36,7 +37,8 @@ ShadingContext computeShadingContext(
     const vec3 N,
     float ambientOcclusion,
     vec3 emissive_color,
-    uint shading_model
+    uint shading_model,
+    vec3 indirect_lighting
 ) {
     ShadingContext context;
 
@@ -72,6 +74,8 @@ ShadingContext computeShadingContext(
     pixel.anisotropicT = normalize(shading_tangentToWorld * direction);
     pixel.anisotropicB = normalize(cross(getWorldGeometricNormalVector(), pixel.anisotropicT));
 #endif
+
+    context.indirect_lighting = indirect_lighting;
 
     return context;
 }

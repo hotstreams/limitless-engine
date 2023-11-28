@@ -80,7 +80,7 @@ TEST_CASE("SkeletalInstance clone") {
 
     instance.update(context, camera);
 
-    std::unique_ptr<AbstractInstance> copy = instance.clone();
+    std::unique_ptr<Instance> copy = instance.clone();
 
     REQUIRE(instance.getId() != copy->getId());
     REQUIRE(instance.getFinalMatrix() == copy->getFinalMatrix());

@@ -16,6 +16,7 @@ ShadingContext computeShadingContext(const MaterialContext mctx) {
         normal,
         ao,
         emissive_color,
-        mctx.shading_model
+        mctx.shading_model,
+        vec3(0.0)
     );
 }

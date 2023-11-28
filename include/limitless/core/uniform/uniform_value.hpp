@@ -30,6 +30,8 @@ namespace Limitless {
         UniformValue(std::string name, const T& value) noexcept;
         ~UniformValue() override = default;
 
+
+
         [[nodiscard]] std::unique_ptr<Uniform> clone() noexcept override;
         void set() override;
 

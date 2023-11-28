@@ -1,7 +1,8 @@
 #pragma once
 
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
+#include <limitless/instances/effect_instance.hpp>
 #include <limitless/models/model.hpp>
 
 namespace Limitless {
@@ -10,9 +11,10 @@ namespace Limitless {
         using std::runtime_error::runtime_error;
     };
 
-    class AbstractInstance::Builder {
+    class Instance::Builder {
     private:
-        std::shared_ptr<Model> model_;
+        std::shared_ptr<AbstractModel> model_;
+        std::shared_ptr<EffectInstance> effect_;
 
         glm::quat rotation_ {1.0f, 0.0f, 0.0f, 0.0f};
         glm::vec3 position_ {0.0f};
@@ -29,12 +31,12 @@ namespace Limitless {
 
         std::shared_ptr<ms::Material> global_material;
 
-        std::vector<std::shared_ptr<AbstractInstance>> attachments;
+        std::vector<std::shared_ptr<Instance>> attachments;
 
         class SocketAttachment {
         public:
             std::string bone_name;
-            std::shared_ptr<AbstractInstance> attachment;
+            std::shared_ptr<Instance> attachment;
         };
         std::vector<SocketAttachment> bone_attachments;
 
@@ -45,7 +47,12 @@ namespace Limitless {
         /**
          *  Sets Model to building instance
          */
-        Builder& model(const std::shared_ptr<Model>& model);
+        Builder& model(const std::shared_ptr<AbstractModel>& model);
+
+        /**
+         *  Sets Model to effect instance
+         */
+        Builder& effect(const std::shared_ptr<EffectInstance>& effect);
 
         /**
          *  Sets position to building instance
@@ -85,17 +92,17 @@ namespace Limitless {
         /**
          *  Attaches specified instance to building one
          */
-        Builder& attach(const std::shared_ptr<AbstractInstance>& instance);
+        Builder& attach(const std::shared_ptr<Instance>& instance);
 
         /**
          *  Attaches specified instance to bone
          */
-        Builder& attach(const std::string& bone_name, const std::shared_ptr<AbstractInstance>& instance);
+        Builder& attach(const std::string& bone_name, const std::shared_ptr<Instance>& instance);
 
         /**
          *
          */
-        std::shared_ptr<AbstractInstance> build();
+        std::shared_ptr<Instance> build();
 
         /**
          *
@@ -106,5 +113,10 @@ namespace Limitless {
          *
          */
         std::shared_ptr<SkeletalInstance> asSkeletal();
+
+        /**
+         *
+         */
+        std::shared_ptr<EffectInstance> asEffect();
     };
 }

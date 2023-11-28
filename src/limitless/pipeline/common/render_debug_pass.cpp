@@ -22,6 +22,6 @@ void RenderDebugPass::draw(Instances& instances, Context& ctx, const Assets& ass
 }
 
 void RenderDebugPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
-    lighting = &scene.lighting;
+    lighting = &scene.getLighting();
 }
 

@@ -6,13 +6,15 @@
 #include <limitless/camera.hpp>
 
 namespace LimitlessDemo {
-    class ModelsScene : public Limitless::Scene {
+    class ModelsScene {
     private:
+        Limitless::Scene scene;
         void addInstances(Limitless::Assets& assets);
     public:
         ModelsScene(Limitless::Context& ctx, Limitless::Assets& assets);
-        ~ModelsScene() override = default;
 
-        void update(Limitless::Context& context, const Limitless::Camera& camera) override;
+        auto& getScene() { return scene; }
+
+        void update(Limitless::Context& context, const Limitless::Camera& camera);
     };
 }

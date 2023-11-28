@@ -111,19 +111,18 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
         add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
     }
 
-//TODO: check
-//    if (settings.pipeline == RenderPipeline::Forward) {
-//        add("blur", compiler.compile(shader_dir / "postprocessing/blur"));
-//        add("postprocess", compiler.compile(shader_dir / "postprocessing/postprocess"));
-//    }
-
     if (settings.pipeline == RenderPipeline::Deferred) {
         add("deferred", compiler.compile(shader_dir / "pipeline/deferred"));
         add("composite", compiler.compile(shader_dir / "pipeline/composite"));
-//        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));
-//        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao/ssao_blur"));
+    }
 
-//
+    if (settings.screen_space_ambient_occlusion) {
+        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));
+        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao/ssao_blur"));
+    }
+
+    if (settings.screen_space_reflections) {
+        add("ssr", compiler.compile(shader_dir / "postprocessing/ssr/ssr"));
     }
 
     if (settings.fast_approximate_antialiasing) {
@@ -133,8 +132,6 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
     if (settings.depth_of_field) {
 	    add("dof", compiler.compile(shader_dir / "postprocessing/dof"));
     }
-
-//    add("ssr", compiler.compile(shader_dir / "postprocessing/ssr/ssr"));
 
     add("quad", compiler.compile(shader_dir / "pipeline/quad"));
 

@@ -26,37 +26,37 @@ std::string RenderSettingsShaderDefiner::getDefine(const RenderSettings &setting
         s.append("#define ENGINE_SETTINGS_SSAO\n");
     }
 
-//    if (settings.screen_space_reflections) {
-//        s.append("#define SCREEN_SPACE_REFLECTIONS\n");
-//
-//        if (settings.screen_space_reflections_settings.intersection_distance_attenuation) {
-//            s.append("#define SCREEN_SPACE_REFLECTIONS_INTERSECTION_DISTANCE_ATTENUATION\n");
-//        }
-//
-//        if (settings.screen_space_reflections_settings.iteration_count_attenuation) {
-//            s.append("#define SCREEN_SPACE_REFLECTIONS_ITERATION_COUNT_ATTENUATION\n");
-//        }
-//
-//        if (settings.screen_space_reflections_settings.borders_attenuation) {
-//            s.append("#define SCREEN_SPACE_REFLECTIONS_BORDERS_ATTENUATION\n");
-//        }
-//
-//        if (settings.screen_space_reflections_settings.fresnel_attenuation) {
-//            s.append("#define SCREEN_SPACE_REFLECTIONS_FRESNEL_ATTENUATION\n");
-//        }
-//
-//        if (settings.screen_space_reflections_settings.camera_facing_attenuation) {
-//            s.append("#define SCREEN_SPACE_REFLECTIONS_CAMERA_FACING_ATTENUATION\n");
-//        }
-//
-//        if (settings.screen_space_reflections_settings.clip_to_frustrum) {
-//            s.append("#define SCREEN_SPACE_REFLECTIONS_CLIP_TO_FRUSTRUM\n");
-//        }
-//
-//        if (settings.screen_space_reflections_settings.refiniment) {
-//            s.append("#define SCREEN_SPACE_REFLECTIONS_REFINEMENT\n");
-//        }
-//    }
+    if (settings.screen_space_reflections) {
+        s.append("#define ENGINE_SETTINGS_SSR\n");
+
+        if (settings.screen_space_reflections_settings.intersection_distance_attenuation) {
+            s.append("#define ENGINE_SETTINGS_SSR_INTERSECTION_DISTANCE_ATTENUATION\n");
+        }
+
+        if (settings.screen_space_reflections_settings.iteration_count_attenuation) {
+            s.append("#define ENGINE_SETTINGS_SSR_ITERATION_COUNT_ATTENUATION\n");
+        }
+
+        if (settings.screen_space_reflections_settings.borders_attenuation) {
+            s.append("#define ENGINE_SETTINGS_SSR_BORDERS_ATTENUATION\n");
+        }
+
+        if (settings.screen_space_reflections_settings.fresnel_attenuation) {
+            s.append("#define ENGINE_SETTINGS_SSR_FRESNEL_ATTENUATION\n");
+        }
+
+        if (settings.screen_space_reflections_settings.camera_facing_attenuation) {
+            s.append("#define ENGINE_SETTINGS_SSR_CAMERA_FACING_ATTENUATION\n");
+        }
+
+        if (settings.screen_space_reflections_settings.clip_to_frustrum) {
+            s.append("#define ENGINE_SETTINGS_SSR_CLIP_TO_FRUSTRUM\n");
+        }
+
+        if (settings.screen_space_reflections_settings.refiniment) {
+            s.append("#define ENGINE_SETTINGS_SSR_REFINEMENT\n");
+        }
+    }
 
     if (settings.csm_micro_shadowing) {
         s.append("#define ENGINE_SETTINGS_MICRO_SHADOWING\n");

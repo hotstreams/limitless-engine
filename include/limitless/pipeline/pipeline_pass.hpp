@@ -6,8 +6,8 @@
 #include <glm/vec2.hpp>
 
 namespace Limitless {
-    class AbstractInstance;
-    using Instances = std::vector<std::reference_wrapper<AbstractInstance>>;
+    class Instance;
+    using Instances = std::vector<std::reference_wrapper<Instance>>;
     class RenderTarget;
     class UniformSetter;
     class Context;

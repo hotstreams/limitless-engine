@@ -7,7 +7,7 @@
 #include "limitless/core/uniform/uniform.hpp"
 
 #include <limitless/ms/blending.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 
 #include <limitless/lighting/light.hpp>
 #include <limitless/renderer/renderer.hpp>

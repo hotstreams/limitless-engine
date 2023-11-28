@@ -2,7 +2,7 @@ ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
 #include "../interface_block/fragment.glsl"
-#include "../scene.glsl"
+#include "./scene.glsl"
 #include "../material/material_context.glsl"
 
 layout (location = 0) out vec4 albedo;

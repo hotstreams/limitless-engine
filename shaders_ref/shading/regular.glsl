@@ -1,4 +1,5 @@
 #include "../functions/brdf.glsl"
+#include "../functions/brdf_ctx.glsl"
 
 /**
  *  Computes color for lit material with regular PBR shading model.

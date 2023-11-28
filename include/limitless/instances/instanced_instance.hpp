@@ -6,12 +6,12 @@
 
 namespace Limitless {
     template<typename Instance, typename = void>
-    class InstancedInstance : public AbstractInstance {
+    class InstancedInstance : public Instance {
         static_assert(std::is_same_v<Instance, Instance>, "InstancedInstance for this typename is unimplemented!");
     };
 
     template<>
-    class InstancedInstance<ModelInstance> : public AbstractInstance {
+    class InstancedInstance<ModelInstance> : public Instance {
     protected:
         // contains instanced models
         std::vector<std::unique_ptr<ModelInstance>> instances;
@@ -60,19 +60,19 @@ namespace Limitless {
         }
 
         explicit InstancedInstance(InstanceType shader, const glm::vec3& position, uint32_t count)
-            : AbstractInstance(shader, position) {
+            : Instance(shader, position) {
             initializeBuffer(count);
         }
     public:
         explicit InstancedInstance(const glm::vec3& position, uint32_t count = 4)
-            : AbstractInstance(InstanceType::Instanced, position) {
+            : Instance(InstanceType::Instanced, position) {
             initializeBuffer(count);
         }
 
         ~InstancedInstance() override = default;
 
         InstancedInstance(const InstancedInstance& rhs)
-            : AbstractInstance(rhs.shader_type, rhs.position) {
+            : Instance(rhs.shader_type, rhs.position) {
             initializeBuffer(rhs.instances.size());
             for (const auto& instance : rhs.instances) {
                 instances.emplace_back((ModelInstance*)instance->clone().release());
@@ -80,7 +80,7 @@ namespace Limitless {
         }
         InstancedInstance(InstancedInstance&&) noexcept = default;
 
-        std::unique_ptr<AbstractInstance> clone() noexcept override {
+        std::unique_ptr<Instance> clone() noexcept override {
             return std::make_unique<InstancedInstance>(*this);
         }
 
@@ -106,7 +106,7 @@ namespace Limitless {
                 return;
             }
 
-            AbstractInstance::update(context, camera);
+            Instance::update(context, camera);
 
             updateBuffer(context, camera);
         }

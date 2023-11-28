@@ -1,5 +1,4 @@
-Limitless::GLSL_VERSION
-Limitless::Extensions
+ENGINE::COMMON
 
 in vec2 uv;
 
@@ -7,7 +6,7 @@ in vec2 uv;
 #include "../../functions/reconstruct_position.glsl"
 #include "../../functions/reconstruct_normal.glsl"
 #include "../../functions/random.glsl"
-#include "../../pipeline/shading/common.glsl"
+#include "../../functions/common.glsl"
 
 layout (std140) uniform SSAO_BUFFER {
     vec2 sample_count;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <limitless/pipeline/shader_type.hpp>
 #include <limitless/lighting/lighting.hpp>
 #include <glm/gtx/matrix_decompose.hpp>

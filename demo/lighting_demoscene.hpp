@@ -6,8 +6,10 @@
 #include <limitless/assets.hpp>
 
 namespace LimitlessDemo {
-    class LightingScene : public Limitless::Scene {
+    class LightingScene {
     private:
+        Limitless::Scene scene;
+
         static constexpr auto FLOOR_INSTANCE_COUNT = 64;
         static constexpr auto LIGHT_COUNT = 512;
 
@@ -19,12 +21,13 @@ namespace LimitlessDemo {
 
         void addFloor(const Limitless::Assets& assets);
         void addSpheres(const Limitless::Assets& assets);
-        bool isInsideFloor(const glm::vec3& position);
+        static bool isInsideFloor(const glm::vec3& position);
         void addLights();
     public:
         LightingScene(Limitless::Context& ctx, const Limitless::Assets& assets);
-        ~LightingScene() override = default;
 
-        void update(Limitless::Context& context, const Limitless::Camera& camera) override;
+        auto& getScene() { return scene; }
+
+        void update(Limitless::Context& context, const Limitless::Camera& camera);
     };
 }

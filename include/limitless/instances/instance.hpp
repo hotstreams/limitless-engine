@@ -22,7 +22,7 @@ namespace Limitless {
     /**
      * AbstractInstance is a base class that provides basic functionality for rendering objects
      */
-	class AbstractInstance : public InstanceAttachment {
+	class Instance : public InstanceAttachment {
     private:
         static inline uint64_t next_id {1};
         /**
@@ -102,17 +102,17 @@ namespace Limitless {
 		void updateModelMatrix() noexcept;
 		void updateFinalMatrix() noexcept;
 
-        AbstractInstance(InstanceType shader_type, const glm::vec3& position) noexcept;
+        Instance(InstanceType shader_type, const glm::vec3& position) noexcept;
     public:
-        ~AbstractInstance() override = default;
+        ~Instance() override = default;
 
-        AbstractInstance(const AbstractInstance&);
-        AbstractInstance(AbstractInstance&&) = default;
+        Instance(const Instance&);
+        Instance(Instance&&) = default;
 
         /**
          * Makes instance copy
          */
-        virtual std::unique_ptr<AbstractInstance> clone() noexcept = 0;
+        virtual std::unique_ptr<Instance> clone() noexcept = 0;
 
         [[nodiscard]] auto getInstanceType() const noexcept { return shader_type; }
         [[nodiscard]] auto getId() const noexcept { return id; }
@@ -169,34 +169,34 @@ namespace Limitless {
         /**
          * Sets instance absolute position
          */
-        virtual AbstractInstance& setPosition(const glm::vec3& position) noexcept;
+        virtual Instance& setPosition(const glm::vec3& position) noexcept;
 
         /**
          * Sets instance absolute rotation
          */
-        virtual AbstractInstance& setRotation(const glm::quat& rotation) noexcept;
+        virtual Instance& setRotation(const glm::quat& rotation) noexcept;
 
         /**
          * Rotates instance with specified amount
          */
-        virtual AbstractInstance& rotateBy(const glm::quat& rotation) noexcept;
+        virtual Instance& rotateBy(const glm::quat& rotation) noexcept;
 
         /**
          * Sets instance absolute scale
          */
-        virtual AbstractInstance& setScale(const glm::vec3& scale) noexcept;
+        virtual Instance& setScale(const glm::vec3& scale) noexcept;
 
         /**
          * Sets current instance transformation matrix
          *
          * This is skeletal-transformation matrix used in bone attachments
          */
-        virtual AbstractInstance& setTransformation(const glm::mat4& transformation);
+        virtual Instance& setTransformation(const glm::mat4& transformation);
 
         /**
          * Sets current instance parent matrix
          */
-        virtual AbstractInstance& setParent(const glm::mat4& parent) noexcept;
+        virtual Instance& setParent(const glm::mat4& parent) noexcept;
 
         /**
          * Updates instance

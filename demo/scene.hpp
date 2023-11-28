@@ -5,27 +5,24 @@
 #include "materials_demoscene.hpp"
 #include "effects_demoscene.hpp"
 #include "models_demoscene.hpp"
-#include "sponza_demoscene.hpp"
 
 using namespace Limitless;
 
 namespace LimitlessDemo {
     class DemoScene {
     private:
-        std::map<std::string, std::unique_ptr<Scene>> scenes;
-        decltype(scenes)::iterator current;
+        LightingScene lightingScene;
+        MaterialsScene materialsScene;
+        EffectsScene effectsScene;
+        ModelsScene modelsScene;
+        uint32_t current {0};
     public:
-        DemoScene(Context& ctx, Assets& assets) {
-            scenes.emplace("1. lighting demo", new LightingScene(ctx, assets));
-            scenes.emplace("2. materials demo", new MaterialsScene(ctx, assets));
-            scenes.emplace("3. effects demo", new EffectsScene(ctx, assets));
-            scenes.emplace("4. models demo", new ModelsScene(ctx, assets));
-            scenes.emplace("5. sponza demo", new SponzaScene(ctx, assets));
-
-            current = scenes.begin();
+        DemoScene(Context& ctx, Assets& assets)
+            : lightingScene {ctx, assets}
+            , materialsScene {ctx, assets}
+            , effectsScene {ctx, assets}
+            , modelsScene {ctx, assets} {
         }
-
-        ~DemoScene() = default;
 
         static void setCameraDefault(Camera& camera) {
             camera.setPosition({15.0f, 10.0f, 15.0f});
@@ -34,15 +31,41 @@ namespace LimitlessDemo {
         void next(Camera& camera) {
             ++current;
 
-            if (current == scenes.end()) {
-                current = scenes.begin();
+            if (current > 4 - 1) {
+                current = 0;
             }
 
             setCameraDefault(camera);
         }
 
-        auto getCurrent() noexcept { return current; }
-        auto& getCurrentScene() noexcept { return *current->second; }
-        [[nodiscard]] const auto& getScenes() const noexcept { return scenes; }
+        void update(Context& ctx, Camera& camera) {
+            switch (current) {
+                case 0:
+                    lightingScene.update(ctx, camera);
+                case 1:
+                    materialsScene.update(ctx, camera);
+                case 2:
+                    effectsScene.update(ctx, camera);
+                case 3:
+                    modelsScene.update(ctx, camera);
+                default:
+                    lightingScene.update(ctx, camera);
+            }
+        }
+
+        Limitless::Scene& getCurrentScene() noexcept {
+            switch (current) {
+                case 0:
+                    return lightingScene.getScene();
+                case 1:
+                    return materialsScene.getScene();
+                case 2:
+                    return effectsScene.getScene();
+                case 3:
+                    return modelsScene.getScene();
+                default:
+                    return lightingScene.getScene();
+            }
+        }
     };
 }

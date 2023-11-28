@@ -70,7 +70,7 @@ namespace Limitless {
         /**
          * Makes instance copy
          */
-        std::unique_ptr<AbstractInstance> clone() noexcept override;
+        std::unique_ptr<Instance> clone() noexcept override;
 
         /**
          * Updates current animation, socket attachments data and instance itself
@@ -110,7 +110,7 @@ namespace Limitless {
 
         const auto& getBoneTransform() const noexcept { return bone_transform; }
 
-        using AbstractInstance::draw;
+        using Instance::draw;
         void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

@@ -4,7 +4,7 @@
 #include <limitless/pipeline/shader_type.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/util/sorter.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <stdexcept>
 
 using namespace Limitless;

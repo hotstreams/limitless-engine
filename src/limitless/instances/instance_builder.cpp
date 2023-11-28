@@ -5,7 +5,7 @@
 
 using namespace Limitless;
 
-void AbstractInstance::Builder::initialize(const std::shared_ptr<ModelInstance>& instance) {
+void Instance::Builder::initialize(const std::shared_ptr<ModelInstance>& instance) {
     // apply properties
     instance->setPosition(position_);
     instance->setRotation(rotation_);
@@ -42,58 +42,36 @@ void AbstractInstance::Builder::initialize(const std::shared_ptr<ModelInstance>&
     }
 }
 
-AbstractInstance::Builder& AbstractInstance::Builder::model(const std::shared_ptr<Model>& model) {
+Instance::Builder& Instance::Builder::model(const std::shared_ptr<AbstractModel>& model) {
     model_ = model;
     return *this;
 }
 
-AbstractInstance::Builder &AbstractInstance::Builder::position(const glm::vec3& position) {
+Instance::Builder &Instance::Builder::position(const glm::vec3& position) {
     position_ = position;
     return *this;
 }
 
-AbstractInstance::Builder &AbstractInstance::Builder::rotation(const glm::quat& rotation) {
+Instance::Builder &Instance::Builder::rotation(const glm::quat& rotation) {
     rotation_ = rotation;
     return *this;
 }
 
-AbstractInstance::Builder &AbstractInstance::Builder::scale(const glm::vec3& scale) {
+Instance::Builder &Instance::Builder::scale(const glm::vec3& scale) {
     scale_ = scale;
     return *this;
 }
 
-AbstractInstance::Builder &AbstractInstance::Builder::cast_shadow(bool cast_shadow) {
+Instance::Builder &Instance::Builder::cast_shadow(bool cast_shadow) {
     cast_shadow_ = cast_shadow;
     return *this;
 }
 
-std::shared_ptr<ModelInstance> AbstractInstance::Builder::asModel() {
+std::shared_ptr<ModelInstance> Instance::Builder::asModel() {
     if (dynamic_cast<Model*>(model_.get())) {
         auto instance = std::make_shared<ModelInstance>(model_, position_);
         initialize(instance);
         return instance;
-    } else {
-        throw instance_builder_exception {model_->getName() + " is not Model!"};
-    }
-}
-
-std::shared_ptr<SkeletalInstance> AbstractInstance::Builder::asSkeletal() {
-    if (dynamic_cast<SkeletalModel*>(model_.get())) {
-        auto instance = std::make_shared<SkeletalInstance>(model_, position_);
-        initialize(instance);
-        return instance;
-    } else {
-        throw instance_builder_exception {model_->getName() + " is not SkeletalModel!"};
-    }
-}
-
-std::shared_ptr<AbstractInstance> AbstractInstance::Builder::build() {
-    if (dynamic_cast<SkeletalModel*>(model_.get())) {
-        return asSkeletal();
-    }
-
-    if (dynamic_cast<Model*>(model_.get())) {
-        return asModel();
     }
 
     if (dynamic_cast<ElementaryModel*>(model_.get())) {
@@ -109,28 +87,89 @@ std::shared_ptr<AbstractInstance> AbstractInstance::Builder::build() {
     throw instance_builder_exception {"Invalid parameters for instance builder!"};
 }
 
-AbstractInstance::Builder& AbstractInstance::Builder::material(uint32_t mesh_index, const std::shared_ptr<ms::Material>& material) {
+std::shared_ptr<SkeletalInstance> Instance::Builder::asSkeletal() {
+    if (dynamic_cast<SkeletalModel*>(model_.get())) {
+        auto instance = std::make_shared<SkeletalInstance>(model_, position_);
+        initialize(instance);
+        return instance;
+    } else {
+        throw instance_builder_exception {model_->getName() + " is not SkeletalModel!"};
+    }
+}
+
+std::shared_ptr<Instance> Instance::Builder::build() {
+    if (model_) {
+        if (dynamic_cast<SkeletalModel*>(model_.get())) {
+            return asSkeletal();
+        }
+
+        if (dynamic_cast<Model*>(model_.get())) {
+            return asModel();
+        }
+
+        if (dynamic_cast<ElementaryModel *>(model_.get())) {
+            if (global_material) {
+                auto instance = std::make_shared<ModelInstance>(model_, global_material, position_);
+                initialize(instance);
+                return instance;
+            } else {
+                throw instance_builder_exception {"Material for Elementary model is not set!"};
+            }
+        }
+
+        throw instance_builder_exception {"Invalid parameters for instance builder!"};
+    }
+
+    if (effect_) {
+        auto instance = std::make_shared<EffectInstance>(effect_, position_);
+//        instance->setPosition(position_);
+//        instance->setRotation(rotation_);
+//        instance->setScale(scale_);
+        return instance;
+    }
+
+    throw instance_builder_exception {"Invalid parameters for instance builder!"};
+}
+
+Instance::Builder& Instance::Builder::material(uint32_t mesh_index, const std::shared_ptr<ms::Material>& material) {
     changed_materials.emplace_back(MaterialChange{mesh_index, {}, material});
     return *this;
 }
 
-AbstractInstance::Builder& AbstractInstance::Builder::material(const std::string& mesh_name, const std::shared_ptr<ms::Material>& material) {
+Instance::Builder& Instance::Builder::material(const std::string& mesh_name, const std::shared_ptr<ms::Material>& material) {
     changed_materials.emplace_back(MaterialChange{0, mesh_name, material});
     return *this;
 }
 
 
-AbstractInstance::Builder& AbstractInstance::Builder::material(const std::shared_ptr<ms::Material>& material) {
+Instance::Builder& Instance::Builder::material(const std::shared_ptr<ms::Material>& material) {
     global_material = material;
     return *this;
 }
 
-AbstractInstance::Builder& AbstractInstance::Builder::attach(const std::shared_ptr<AbstractInstance>& instance) {
+Instance::Builder& Instance::Builder::attach(const std::shared_ptr<Instance>& instance) {
     attachments.emplace_back(instance);
     return *this;
 }
 
-AbstractInstance::Builder& AbstractInstance::Builder::attach(const std::string& bone_name, const std::shared_ptr<AbstractInstance>& instance) {
+Instance::Builder& Instance::Builder::attach(const std::string& bone_name, const std::shared_ptr<Instance>& instance) {
     bone_attachments.emplace_back(SocketAttachment{bone_name, instance});
     return *this;
+}
+
+Instance::Builder& Instance::Builder::effect(const std::shared_ptr<EffectInstance>& effect) {
+    effect_ = effect;
+    return *this;
+}
+
+std::shared_ptr<EffectInstance> Instance::Builder::asEffect() {
+    if (effect_) {
+        auto instance = std::make_shared<EffectInstance>(effect_, position_);
+//        instance->setPosition(position_);
+//        instance->setRotation(rotation_);
+//        instance->setScale(scale_);
+        return instance;
+    } else {
+        throw instance_builder_exception {"Instance builder does not have effect to build!"};
+    }
 }

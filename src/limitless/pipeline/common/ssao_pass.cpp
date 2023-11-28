@@ -1,6 +1,6 @@
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/common/ssao_pass.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <limitless/pipeline/shader_type.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/util/sorter.hpp>
@@ -44,7 +44,7 @@ void SSAOPass::update(Scene &scene, Instances &instances, Context &ctx, const Ca
 
 void SSAOPass::addSetter(Limitless::UniformSetter &setter) {
     setter.add([&](ShaderProgram& shader){
-        shader.setUniform("ssao_texture", getResult());
+        shader.setUniform("_ssao_texture", getResult());
     });
 }
 

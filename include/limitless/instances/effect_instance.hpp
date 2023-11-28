@@ -1,12 +1,13 @@
 #pragma once
 
+#include <limitless/instances/instance.hpp>
+#include <limitless/fx/emitters/abstract_emitter.hpp>
+
+#include <unordered_map>
+#include <stdexcept>
 #include <memory>
 #include <string>
 #include <glm/glm.hpp>
-#include <limitless/instances/abstract_instance.hpp>
-#include <unordered_map>
-#include <stdexcept>
-#include <iostream>
 
 namespace Limitless {
     namespace fx {
@@ -26,7 +27,7 @@ namespace Limitless {
     /**
      * EffectInstance is a class that contains emitters describing some effect
      */
-    class EffectInstance : public AbstractInstance {
+    class EffectInstance : public Instance {
     private:
         /**
          * Contains [emitter_name, emitter]
@@ -65,7 +66,7 @@ namespace Limitless {
         /**
          * Makes a copy
          */
-        std::unique_ptr<AbstractInstance> clone() noexcept override;
+        std::unique_ptr<Instance> clone() noexcept override;
 
         /**
          * Updates instance and then emitters

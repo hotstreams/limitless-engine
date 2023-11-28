@@ -8,7 +8,7 @@
 using namespace Limitless;
 
 ModelInstance::ModelInstance(InstanceType shader, decltype(model) _model, const glm::vec3& position)
-    : AbstractInstance(shader, position)
+    : Instance(shader, position)
     , model {std::move(_model)} {
     try {
         auto& simple_model = dynamic_cast<Model&>(*model);
@@ -28,7 +28,7 @@ ModelInstance::ModelInstance(decltype(model) _model, const glm::vec3& _position)
 }
 
 ModelInstance::ModelInstance(decltype(model) _model, std::shared_ptr<ms::Material> material, const glm::vec3& position)
-    : AbstractInstance(InstanceType::Model, position)
+    : Instance(InstanceType::Model, position)
     , model {std::move(_model)} {
     try {
         auto& elementary_model = dynamic_cast<ElementaryModel&>(*model);
@@ -65,7 +65,7 @@ MeshInstance& ModelInstance::operator[](uint32_t index) {
     return std::next(meshes.begin(), index)->second;
 }
 
-std::unique_ptr<AbstractInstance> ModelInstance::clone() noexcept {
+std::unique_ptr<Instance> ModelInstance::clone() noexcept {
     return std::make_unique<ModelInstance>(*this);
 }
 
@@ -75,7 +75,7 @@ void ModelInstance::updateBoundingBox() noexcept {
 }
 
 void ModelInstance::update(Context& context, const Camera& camera) {
-	AbstractInstance::update(context, camera);
+	Instance::update(context, camera);
 
 	for (auto& [_, mesh] : meshes) {
 		mesh.update();

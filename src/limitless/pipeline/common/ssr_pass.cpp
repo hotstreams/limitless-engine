@@ -1,6 +1,6 @@
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/common/ssr_pass.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include <limitless/pipeline/shader_type.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/util/sorter.hpp>
@@ -46,7 +46,8 @@ void SSRPass::onFramebufferChange(glm::uvec2 size) {
 //
 void SSRPass::addSetter(Limitless::UniformSetter &setter) {
     setter.add([&](ShaderProgram& shader){
-        shader.setUniform("ssr_texture", getResult());
+        shader.setUniform("_ssr_texture", getResult());
+        shader.setUniform("_ssr_strength", 1.0f);
     });
 
     ssr.addSetter(setter);

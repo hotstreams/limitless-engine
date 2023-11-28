@@ -2,7 +2,7 @@ ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
 #include "../interface_block/vertex.glsl"
-#include "../scene.glsl"
+#include "./scene.glsl"
 #include "../instance/instance.glsl"
 #include "../material/material.glsl"
 #include "../interface_block/pass_through.glsl"

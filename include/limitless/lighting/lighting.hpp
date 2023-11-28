@@ -6,16 +6,6 @@
 namespace Limitless {
     class Context;
 
-    /**
- *  light = Light::builder()
- *      .pos(p)
- *      .col(l)
- *      .build()
- *
- *   Light& l = scene.add(light)
- *   Light* l = &scene.add(light)
- */
-
     class Lighting final {
     private:
         /**

@@ -1,79 +1,61 @@
 #pragma once
 
 #include <limitless/lighting/lighting.hpp>
+#include <limitless/instances/skeletal_instance.hpp>
+#include <limitless/instances/effect_instance.hpp>
+#include <limitless/instances/instance_builder.hpp>
+#include <limitless/skybox/skybox.hpp>
+#include <limitless/camera.hpp>
 #include <stdexcept>
 #include <unordered_map>
 #include <memory>
 
 namespace Limitless {
-    class AbstractInstance;
-    class Camera;
-    class Skybox;
+    class scene_exception : public std::runtime_error {
+    public:
+        using std::runtime_error::runtime_error;
+    };
 
-    using Instances = std::vector<std::reference_wrapper<AbstractInstance>>;
+    using Instances = std::vector<std::reference_wrapper<Instance>>;
 
     /**
      *
      */
-    class Scene {
-    public:
-        Lighting lighting;
+    class Scene final {
     private:
-        std::unordered_map<uint64_t, std::shared_ptr<AbstractInstance>> instances;
+        Lighting lighting;
+        std::unordered_map<uint64_t, std::shared_ptr<Instance>> instances;
         std::shared_ptr<Skybox> skybox;
 
         void removeDeadInstances() noexcept;
     public:
         explicit Scene(Context& context);
-        virtual ~Scene() = default;
 
         Scene(const Scene&) = delete;
         Scene(Scene&&) = delete;
 
-        /**
-         *  Takes ownership of passed instance and manages it
-         */
-        void add(AbstractInstance* instance);
-
-        template<typename T>
-        T& add(T* instance) noexcept {
-            static_assert(std::is_base_of_v<AbstractInstance, T>, "Typename type must be base of AbstractInstance");
-
-            instances.emplace(instance->getId(), instance);
-            return *instance;
-        }
-
-        template<typename T, typename... Args>
-        T& add(Args&&... args) {
-            static_assert(std::is_base_of_v<AbstractInstance, T>, "Typename type must be base of AbstractInstance");
-
-            T* instance = new T(std::forward<Args>(args)...);
-            instances.emplace(instance->getId(), instance);
-            return *instance;
-        }
-
+        void add(const std::shared_ptr<Instance>& instance);
+        void remove(const std::shared_ptr<Instance>& instance);
         void remove(uint64_t id);
+        void removeAll();
 
-        void clear();
+        std::shared_ptr<Instance> getInstance(uint64_t id);
+        std::shared_ptr<ModelInstance> getModelInstance(uint64_t id);
+        std::shared_ptr<SkeletalInstance> getSkeletalInstance(uint64_t id);
+        std::shared_ptr<EffectInstance> getEffectInstance(uint64_t id);
 
-        AbstractInstance& operator[](uint64_t id) noexcept;
-        AbstractInstance& at(uint64_t id);
+        const Lighting& getLighting() const noexcept;
+        Lighting& getLighting() noexcept;
 
-        auto& getSkybox() noexcept { return skybox; }
-        const auto& getSkybox() const noexcept { return skybox; }
-        void setSkybox(std::shared_ptr<Skybox> skybox);
+        Light& add(Light&& light);
+        Light& add(const Light& light);
 
-        virtual void update(Context& context, const Camera& camera);
+        const std::shared_ptr<Skybox>& getSkybox() const noexcept;
+        std::shared_ptr<Skybox>& getSkybox() noexcept;
+        void setSkybox(const std::shared_ptr<Skybox>& skybox);
 
-        auto begin() noexcept { return instances.begin(); }
-        auto begin() const noexcept { return instances.begin(); }
+        Instances getInstances() const noexcept;
 
-        auto end() noexcept { return instances.end(); }
-        auto end() const noexcept { return instances.end(); }
-
-        auto& getInstances() noexcept { return instances; }
-        Instances getWrappers() noexcept;
-
-        auto size() const noexcept { return instances.size(); }
+        void update(Context& context, const Camera& camera);
     };
 }

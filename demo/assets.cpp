@@ -504,6 +504,7 @@ void DemoAssets::loadEffectsScene() {
     {
         Material::builder()
                 .name("explosion")
+                .shading(Shading::Unlit)
                 .blending(Blending::Additive)
                 .emissive_color(glm::vec4(2.0, 1.0, 0.3, 1.0))
                 .color( glm::vec4(1.0, 1.0, 0.3, 1.0))
@@ -542,6 +543,7 @@ void DemoAssets::loadEffectsScene() {
                                     "mctx.color.rgb = vec3(0.0);")
                 .global("#include \"../functions/circle.glsl\"")
                 .model(InstanceType::Effect)
+                .shading(Shading::Unlit)
                 .build(*this);
     }
 
@@ -632,7 +634,7 @@ void DemoAssets::loadEffectsScene() {
                 .emissive_color( glm::vec4(0.3f, 1.5f, 0.5f, 1.0f))
                 .color(glm::vec4(0.3f, 1.5f, 0.5f, 1.0f))
                 .fragment("mctx.emissive_color *= circle(getVertexUV(), 0.7);"
-                                    "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
+                                 "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
                 .shading(Shading::Unlit)
                 .blending(Blending::Additive)
                 .global("#include \"../functions/circle.glsl\"")
@@ -973,8 +975,8 @@ void DemoAssets::loadModelsScene() {
 }
 
 void DemoAssets::loadSponzaScene() {
-    const fs::path assets_dir {getAssetsDir()};
-    models.add("sponza", ModelLoader::loadModel(*this, assets_dir / "models/sponza/sponza.obj"));
+//    const fs::path assets_dir {getAssetsDir()};
+//    models.add("sponza", ModelLoader::loadModel(*this, assets_dir / "models/sponza/sponza.obj"));
 }
 
 void DemoAssets::loadAssets() {
@@ -982,7 +984,7 @@ void DemoAssets::loadAssets() {
     loadModelsScene();
     loadLightingScene();
     loadEffectsScene();
-    loadSponzaScene();
+//    loadSponzaScene();
 
     {
         const fs::path assets_dir{getAssetsDir()};

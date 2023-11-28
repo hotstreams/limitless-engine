@@ -1,5 +1,4 @@
-Limitless::GLSL_VERSION
-Limitless::Extensions
+ENGINE::COMMON
 
 #include "../../pipeline/scene.glsl"
 #include "../../functions/random.glsl"

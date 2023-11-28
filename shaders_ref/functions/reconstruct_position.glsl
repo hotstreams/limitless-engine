@@ -1,5 +1,5 @@
 #include "./linearize_depth.glsl"
-#include "../scene.glsl"
+#include "../pipeline/scene.glsl"
 
 vec3 reconstructPosition(vec2 uv, float depth) {
    vec4 p = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);

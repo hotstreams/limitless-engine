@@ -128,7 +128,7 @@ SkeletalInstance::SkeletalInstance(const SkeletalInstance& rhs) noexcept
 }
 
 
-std::unique_ptr<AbstractInstance> SkeletalInstance::clone() noexcept {
+std::unique_ptr<Instance> SkeletalInstance::clone() noexcept {
     return std::make_unique<SkeletalInstance>(*this);
 }
 

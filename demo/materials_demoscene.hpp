@@ -5,14 +5,16 @@
 #include <limitless/instances/model_instance.hpp>
 
 namespace LimitlessDemo {
-    class MaterialsScene : public Limitless::Scene {
+    class MaterialsScene {
     private:
-        Limitless::ModelInstance* open;
+        Limitless::Scene scene;
+        std::shared_ptr<Limitless::ModelInstance> open;
         void addModels(const Limitless::Assets& assets);
     public:
         MaterialsScene(Limitless::Context& ctx, Limitless::Assets& assets);
-        ~MaterialsScene() override = default;
 
-        void update(Limitless::Context& context, const Limitless::Camera& camera) override;
+        auto& getScene() { return scene; }
+
+        void update(Limitless::Context& context, const Limitless::Camera& camera);
     };
 }
