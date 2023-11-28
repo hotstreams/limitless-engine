@@ -21,7 +21,7 @@ RendererHelper::RendererHelper(const RenderSettings& _settings)
 }
 
 void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera) {
-    if (lighting.getLights().size() != 0) {
+    if (lighting.getLights().empty()) {
         return;
     }
 
@@ -41,21 +41,22 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
             sphere_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
         }
         if (light.isSpot()) {
-            auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() * std::sin(glm::acos(light.getCone().x)), light.getRadius());
+            auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() / 1.5f * glm::sin(glm::acos(glm::radians(light.getCone().y))), light.getRadius());
             auto cone_instance = ModelInstance(cone, assets.materials.at("default"), glm::vec3(0.0f));
 
             cone_instance.setPosition(light.getPosition());
 
             auto y = glm::vec3{0.0f, 1.0f, 0.0f};
             auto a = glm::cross(y, light.getDirection());
+            if (a == glm::vec3(0.0f)) {
+                a = glm::vec3(1.0f, 0.0f, 0.0f);
+            }
             auto angle = glm::acos(glm::dot(y, light.getDirection()));
 
             cone_instance.setRotation(a * angle);
             cone_instance.update(context, camera);
             cone_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
         }
-
-
     }
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);

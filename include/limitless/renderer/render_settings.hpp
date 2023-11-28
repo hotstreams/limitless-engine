@@ -88,7 +88,7 @@ namespace Limitless {
         /**
          *  Render lights impact area
          */
-        bool light_radius = false;
+        bool light_radius = true;
 
         /**
          * Render System Axes

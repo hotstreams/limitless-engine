@@ -12,18 +12,20 @@ MaterialsScene::MaterialsScene(Limitless::Context& ctx, Limitless::Assets& asset
     : scene(ctx) {
     addModels(assets);
 
+    scene.getLighting().setAmbientColor(glm::vec4(1.0f));
+
     scene.setSkybox(assets.skyboxes.at("skybox"));
 
     scene.add(Light::builder()
          .color(glm::vec4(1.0, 1.0, 1.0, 1.0f))
-         .direction(glm::vec3{-1.0f})
+         .direction(glm::vec3{0.0f, -1.0f, 0.0f})
          .build()
     );
 
     scene.add(Light::builder()
          .position({0.0f, 0.5f, 0.0f})
          .color({1.0f, 0.0f, 0.0f, 2.0f})
-         .radius(2.0f)
+         .radius(1.0f)
          .build()
     );
 
@@ -39,6 +41,15 @@ MaterialsScene::MaterialsScene(Limitless::Context& ctx, Limitless::Assets& asset
                          .color({0.0f, 0.0f, 1.0f, 2.0f})
                          .radius(2.0f)
                          .build()
+    );
+
+    scene.add(Light::builder()
+                      .position({5.0f, 0.5f, 5.0f})
+                      .color({0.0f, 0.0f, 1.0f, 1.0f})
+                      .cone(30.0f, 15.0f)
+                      .direction({0.0f, -1.0f, 0.0f})
+                      .radius(1.0f)
+                      .build()
     );
 }
 

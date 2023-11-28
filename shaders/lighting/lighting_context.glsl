@@ -29,7 +29,7 @@ float getAttenuation(const ShadingContext sctx, const Light light) {
     attenuation = attenuation / max(distanceSquare, 1e-4);
 
     if (light.type == LIGHT_TYPE_SPOT) {
-        float cd = dot(-light.direction.xyz, L);
+        float cd = dot(-light.direction.xyz, normalize(light.position.xyz - sctx.worldPos));
         float att = saturate(cd * light.scale_offset.x + light.scale_offset.y);
         float att2 = att * att;
         attenuation *= att2;

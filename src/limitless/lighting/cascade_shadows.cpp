@@ -15,6 +15,7 @@
 #include <limitless/scene.hpp>
 
 #include <limitless/fx/effect_renderer.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -130,7 +131,13 @@ void CascadeShadows::updateLightMatrices(const Light& light) {
     // clear matrices
     light_space.clear();
 
-    const auto view = glm::lookAt(-light.getDirection(), { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+    auto up = glm::vec3{0.0f, 1.0f, 0.0f};
+
+    if (glm::abs(glm::dot(up, light.getDirection())) > 0.999f) {
+        up = {0.0f, 0.0f, 1.0f};
+    }
+
+    const auto view = glm::lookAt(-light.getDirection(), { 0.0f, 0.0f, 0.0f }, up);
     for (auto& frustum : frustums) {
         glm::vec3 max = {std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), 0.0f};
         glm::vec3 min = {std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), 0.0f};
