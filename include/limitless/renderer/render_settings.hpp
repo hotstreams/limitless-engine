@@ -32,7 +32,7 @@ namespace Limitless {
         /**
          * Screen Space Reflections
          */
-        bool screen_space_reflections {true};
+        bool screen_space_reflections {false};
         SSR::Settings screen_space_reflections_settings;
 
         /**
