@@ -55,7 +55,9 @@ void TranslucentPass::draw(Instances& instances, Context& ctx, const Assets& ass
         sort(instances, camera, blending);
 
         for (auto& instance : instances) {
-            instance.get().draw(ctx, assets, ShaderType::Forward, blending, setter);
+            if (instance.get().getInstanceType() != InstanceType::Decal) {
+                instance.get().draw(ctx, assets, ShaderType::Forward, blending, setter);
+            }
         }
 
         renderer.draw(ctx, assets, ShaderType::Forward, blending, setter);

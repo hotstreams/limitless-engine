@@ -177,6 +177,14 @@ void DemoAssets::loadMaterialsScene() {
             .two_sided(true)
             .build(*this);
 
+    Material::builder().name("decal")
+            .diffuse(TextureLoader::load(*this, assets_dir / "textures/metall_albedo.png"))
+            .normal(TextureLoader::load(*this, assets_dir / "textures/normal_4.png"))
+            .shading(Shading::Lit)
+            .blending(Blending::Translucent)
+            .models({InstanceType::Decal, InstanceType::Model})
+            .build(*this);
+
     Material::builder().name("blending2")
             .color(glm::vec4(0.0f, 2.0f, 0.0f, 0.4f))
             .shading(Shading::Unlit)

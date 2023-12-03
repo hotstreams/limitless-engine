@@ -34,6 +34,7 @@ namespace Limitless {
         RenderTarget() = default;
         virtual ~RenderTarget() = default;
 
+        auto getId() { return id; }
         virtual void unbind() noexcept = 0;
         virtual void bind() noexcept = 0;
         virtual void clear() = 0;

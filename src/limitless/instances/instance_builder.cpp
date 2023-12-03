@@ -2,6 +2,7 @@
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/models/elementary_model.hpp>
+#include <limitless/instances/decal_instance.hpp>
 
 using namespace Limitless;
 
@@ -122,9 +123,9 @@ std::shared_ptr<Instance> Instance::Builder::build() {
 
     if (effect_) {
         auto instance = std::make_shared<EffectInstance>(effect_, position_);
-//        instance->setPosition(position_);
-//        instance->setRotation(rotation_);
-//        instance->setScale(scale_);
+        instance->setPosition(position_);
+        instance->setRotation(rotation_);
+        instance->setScale(scale_);
         return instance;
     }
 
@@ -165,11 +166,23 @@ Instance::Builder& Instance::Builder::effect(const std::shared_ptr<EffectInstanc
 std::shared_ptr<EffectInstance> Instance::Builder::asEffect() {
     if (effect_) {
         auto instance = std::make_shared<EffectInstance>(effect_, position_);
-//        instance->setPosition(position_);
-//        instance->setRotation(rotation_);
-//        instance->setScale(scale_);
+        instance->setPosition(position_);
+        instance->setRotation(rotation_);
+        instance->setScale(scale_);
         return instance;
     } else {
         throw instance_builder_exception {"Instance builder does not have effect to build!"};
     }
+}
+
+std::shared_ptr<DecalInstance> Instance::Builder::asDecal() {
+    if (!global_material) {
+        throw instance_builder_exception {"Material for decal is not set!"};
+    }
+
+    if (dynamic_cast<ElementaryModel*>(model_.get())) {
+        throw instance_builder_exception {"Model for decal is not elementary!"};
+    }
+
+    return std::make_shared<DecalInstance>(model_, global_material, position_);
 }

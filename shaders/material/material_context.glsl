@@ -44,7 +44,7 @@ struct MaterialContext {
     uint shading_model;
 };
 
-MaterialContext computeDefaultMaterialContext() {
+MaterialContext computeDefaultMaterialContext(vec2 uv) {
     MaterialContext mctx;
 
 #if defined (ENGINE_MATERIAL_COLOR)
@@ -56,29 +56,29 @@ MaterialContext computeDefaultMaterialContext() {
 #endif
 
 #if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)
-    mctx.diffuse = getMaterialDiffuse(getVertexUV());
+    mctx.diffuse = getMaterialDiffuse(uv);
 #endif
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
-    mctx.normal = getMaterialNormal(getVertexUV());
+    mctx.normal = getMaterialNormal(uv);
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
-    mctx.emissive_mask = getMaterialEmissiveMask(getVertexUV());
+    mctx.emissive_mask = getMaterialEmissiveMask(uv);
 #endif
 
 #if defined (ENGINE_MATERIAL_BLENDMASK_TEXTURE)
-    mctx.blend_mask = getMaterialBlendMask(getVertexUV());
+    mctx.blend_mask = getMaterialBlendMask(uv);
 #endif
 
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
-    vec3 _orm = getMaterialORM(getVertexUV());
+    vec3 _orm = getMaterialORM(uv);
 #endif
 
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
     mctx.metallic = _orm.b;
 #elif defined (ENGINE_MATERIAL_METALLIC_TEXTURE)
-    mctx.metallic = getMaterialMetallic(getVertexUV());
+    mctx.metallic = getMaterialMetallic(uv);
 #elif defined (ENGINE_MATERIAL_METALLIC)
     mctx.metallic = getMaterialMetallic();
 #else
@@ -88,7 +88,7 @@ MaterialContext computeDefaultMaterialContext() {
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
     mctx.roughness = _orm.g;
 #elif defined (ENGINE_MATERIAL_ROUGHNESS_TEXTURE)
-    mctx.roughness = getMaterialRoughness(getVertexUV());
+    mctx.roughness = getMaterialRoughness(uv);
 #elif defined (ENGINE_MATERIAL_ROUGHNESS)
     mctx.roughness = getMaterialRoughness();
 #else
@@ -98,11 +98,7 @@ MaterialContext computeDefaultMaterialContext() {
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
     mctx.ao = _orm.r;
 #elif defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
-    mctx.ao = getMaterialAmbientOcclusion(getVertexUV());
-#endif
-
-#if defined (ENGINE_MATERIAL_TESSELLATION_FACTOR)
-    mctx.tessellation_factor = getMaterialTesselationFactor();
+    mctx.ao = getMaterialAmbientOcclusion(uv);
 #endif
 
 #if defined (ENGINE_MATERIAL_REFRACTION)
@@ -131,7 +127,13 @@ void customMaterialContext(inout MaterialContext mctx) {
 }
 
 MaterialContext computeMaterialContext() {
-    MaterialContext mctx = computeDefaultMaterialContext();
+    MaterialContext mctx = computeDefaultMaterialContext(getVertexUV());
+    customMaterialContext(mctx);
+    return mctx;
+}
+
+MaterialContext computeMaterialContext(vec2 uv) {
+    MaterialContext mctx = computeDefaultMaterialContext(uv);
     customMaterialContext(mctx);
     return mctx;
 }

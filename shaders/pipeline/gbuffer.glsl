@@ -3,27 +3,31 @@
 /** GBUFFER */
 
 // UNSIGNED NORMALIZED [0; 1]
-// RGBA8 - RGB - base color, A - ao
+// RGB - base color
 
 // SIGNED NORMALIZED [-1; 1]
-// RGB - normal
+// RGB - world space normal
 
 // UNSIGNED NORMALIZED [0; 1]
-// R - roughness, G - metallic, B - shading model (uint)
+// R - roughness, G - metallic, B - ao
 
 // FLOATING POINT
 // RGB - emissive
+
+// UNSIGNED NORMALIZED
+// R - shading model (uint), G - object type
 
 /** */
 
 uniform sampler2D _base_texture;
 uniform sampler2D _normal_texture;
 uniform sampler2D _props_texture;
-uniform sampler2D _depth_texture;
+uniform sampler2D _info_texture;
 uniform sampler2D _emissive_texture;
+uniform sampler2D _depth_texture;
 
-vec4 getGBufferColor(vec2 uv) {
-    return texture(_base_texture, uv);
+vec3 getGBufferColor(vec2 uv) {
+    return texture(_base_texture, uv).rgb;
 }
 
 vec3 getGBufferNormal(vec2 uv) {
@@ -44,4 +48,8 @@ float getGBufferDepth(vec2 uv) {
 
 vec3 getGBufferPosition(vec2 uv) {
     return reconstructPosition(uv, getGBufferDepth(uv));
+}
+
+vec2 getGBufferInfo(vec2 uv) {
+    return texture(_info_texture, uv).rg;
 }

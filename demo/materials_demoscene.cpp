@@ -252,6 +252,13 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
                       .position({14.0f, 1.0f, 23.0f })
                       .build()
     );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("cube"))
+                      .material(assets.materials.at("decal"))
+                      .position({7.0f, 0.5f, 7.0f })
+                      .asDecal()
+    );
 }
 
 void MaterialsScene::update(Limitless::Context& context, const Limitless::Camera& camera) {

@@ -214,7 +214,9 @@ void CascadeShadows::draw(Instances& instances,
                 continue;
             }
 
-            instance.get().draw(ctx, assets, ShaderType::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+            if (instance.get().getInstanceType() != InstanceType::Decal) {
+                instance.get().draw(ctx, assets, ShaderType::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
+            }
         }
 
 //        if (renderer) {

@@ -1,13 +1,14 @@
 #pragma once
 
-#include <functional>
-#include <memory>
-#include <stdexcept>
-#include <glm/vec2.hpp>
+#include <limitless/scene.hpp>
+
+//#include <functional>
+//#include <memory>
+//#include <stdexcept>
+//#include <glm/vec2.hpp>
 
 namespace Limitless {
     class Instance;
-    using Instances = std::vector<std::reference_wrapper<Instance>>;
     class RenderTarget;
     class UniformSetter;
     class Context;

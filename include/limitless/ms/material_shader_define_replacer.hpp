@@ -51,6 +51,7 @@ namespace Limitless {
                 { InstanceType::Instanced, "ENGINE_MATERIAL_INSTANCED_MODEL" },
                 { InstanceType::SkeletalInstanced, "ENGINE_MATERIAL_SKELETAL_INSTANCED_MODEL" },
                 { InstanceType::Effect, "ENGINE_MATERIAL_EFFECT_MODEL" },
+                { InstanceType::Decal, "ENGINE_MATERIAL_DECAL_MODEL" },
             };
 
             enum class SnippetDefineType {

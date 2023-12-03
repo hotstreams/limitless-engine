@@ -33,6 +33,7 @@ void DeferredLightingPass::draw([[maybe_unused]] Instances& instances, Context& 
     shader .setUniform("_base_texture", gbuffer.getAlbedo())
            .setUniform("_normal_texture", gbuffer.getNormal())
            .setUniform("_props_texture", gbuffer.getProperties())
+           .setUniform("_info_texture", gbuffer.getInfo())
            .setUniform("_depth_texture", gbuffer.getDepth())
            .setUniform("_emissive_texture", gbuffer.getEmissive());
 

@@ -40,7 +40,7 @@ void Assets::load([[maybe_unused]] Context& context) {
     ms::Material::builder()
             .name("red")
             .color({1.0f, 0.0f, 0.0f, 1.0f})
-            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced, InstanceType::Decal })
             .two_sided(true)
             .build(*this);
 
@@ -145,6 +145,7 @@ ShaderTypes Assets::getRequiredPassShaders(const RenderSettings& settings) {
         pass_shaders.emplace(ShaderType::GBuffer);
         //for transparent pass?
         pass_shaders.emplace(ShaderType::Forward);
+        pass_shaders.emplace(ShaderType::Decal);
     }
 
     if (settings.cascade_shadow_maps) {

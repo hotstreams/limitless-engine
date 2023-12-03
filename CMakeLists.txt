@@ -114,7 +114,7 @@ set(ENGINE_CORE
 )
 
 set(ENGINE_INSTANCES
-        src/limitless/instances/instance.cpp
+    src/limitless/instances/instance.cpp
     src/limitless/instances/skeletal_instance.cpp
     src/limitless/instances/mesh_instance.cpp
     src/limitless/instances/model_instance.cpp
@@ -122,6 +122,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/instance_attachment.cpp
     src/limitless/instances/socket_attachment.cpp
     src/limitless/instances/instance_builder.cpp
+    src/limitless/instances/decal_instance.cpp
 )
 
 set(ENGINE_LIGHTING
@@ -201,6 +202,8 @@ set(ENGINE_FX
     src/limitless/fx/effect_compiler.cpp
     src/limitless/fx/particle.cpp
     src/limitless/fx/effect_shader_define_replacer.cpp
+
+    src/limitless/decal/decal.cpp
 )
 
 set(ENGINE_PIPELINE
@@ -234,6 +237,7 @@ set(ENGINE_PIPELINE
         src/limitless/pipeline/common/dof_pass.cpp
         src/limitless/pipeline/common/outline_pass.cpp
         src/limitless/pipeline/common/ssr_pass.cpp
+        src/limitless/pipeline/deferred/decal_pass.cpp
         src/limitless/postprocessing/blur.cpp
         src/limitless/postprocessing/bloom.cpp
         src/limitless/postprocessing/ssao.cpp

@@ -25,6 +25,7 @@
 #include <limitless/pipeline/common/ssr_pass.hpp>
 #include <limitless/pipeline/common/outline_pass.hpp>
 #include <iostream>
+#include <limitless/pipeline/deferred/decal_pass.hpp>
 
 using namespace Limitless;
 
@@ -67,6 +68,8 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
      * Fills GBUFFER with opaque objects
      */
     add<GBufferPass>(fx.getRenderer());
+
+    add<DecalPass>();
 
     /*
      * Renders skybox
