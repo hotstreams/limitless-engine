@@ -65,7 +65,13 @@ namespace Limitless {
     protected:
         static std::vector<VertexBoneWeight> loadBoneWeights(aiMesh* mesh, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
         static std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
-        static Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
+
+        static std::vector<Tree<uint32_t>> loadAnimationTree(
+            const aiScene* scene,
+            std::vector<Bone>& bones,
+            std::unordered_map<std::string, uint32_t>& bone_map
+        );
+
         static std::shared_ptr<ms::Material> loadMaterial(Assets& assets, aiMaterial* mat, const fs::path& path, const InstanceTypes& model_shaders);
         static std::vector<std::shared_ptr<ms::Material>> loadMaterials(Assets& assets, const aiScene* scene, const fs::path& path, InstanceType model_shader);
         template<typename T> static std::vector<T> loadVertices(aiMesh* mesh);

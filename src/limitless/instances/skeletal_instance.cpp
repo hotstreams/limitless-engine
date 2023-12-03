@@ -44,32 +44,45 @@ void SkeletalInstance::updateAnimationFrame() {
 
     std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
     node_traversal = [&](const Tree<uint32_t>& node, const glm::mat4& parent_mat) {
-        auto anim_node = findAnimationNode(bones[*node]);
+        const auto bone_indice = *node;
+        auto& bone = bones[bone_indice];
 
-        auto local_transform = !bones[*node].isFake() ? bones[*node].node_transform : glm::mat4(1.f);
+        auto local_transform = [&]() -> glm::mat4 {
+            auto* anim_node = findAnimationNode(bone);
+            if (!anim_node) {
+                return bone.node_transform;
+            }
 
-        if (anim_node) {
-            glm::vec3 scale = anim_node->scalingLerp(animation_time);
-            glm::vec3 position = anim_node->positionLerp(animation_time);
-            auto rotation = anim_node->rotationLerp(animation_time);
+            auto maybe_anim_position = anim_node->positionLerp(animation_time);
+            auto maybe_anim_rotation = anim_node->rotationLerp(animation_time);
+            auto maybe_anim_scale = anim_node->scalingLerp(animation_time);
+
+            auto position = maybe_anim_position? *maybe_anim_position : bone.position;
+            auto rotation = maybe_anim_rotation? *maybe_anim_rotation : bone.rotation;
+            auto scale = maybe_anim_scale? *maybe_anim_scale : bone.scale;
 
             auto translate = glm::translate(glm::mat4(1.f), position);
             auto rotate = glm::mat4_cast(rotation);
             auto scale_mat = glm::scale(glm::mat4(1.f), scale);
 
-            local_transform =  translate * rotate * scale_mat;
+            return translate * rotate * scale_mat;
+        }();
+
+        auto global_transform = parent_mat * local_transform;
+
+        if (bone.joint_index) {
+            bone_transform[*bone.joint_index] = global_transform * bone.offset_matrix;
         }
 
-        auto transform = parent_mat * local_transform;
-        bone_transform[*node] = skeletal.getGlobalInverseMatrix() * transform * bones[*node].offset_matrix;
-
         for (const auto& n : node) {
-            node_traversal(n, transform);
+            node_traversal(n, global_transform);
         }
     };
 
     try {
-        node_traversal(skeletal.getSkeletonTree(), glm::mat4(1.f));
+        for (auto& hierarchy : skeletal.getSkeletonTrees()) {
+            node_traversal(hierarchy, glm::mat4(1.f));
+        }
     } catch (const std::exception& e) {
         throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
     }
@@ -93,8 +106,13 @@ SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::
     : ModelInstance(InstanceType::Skeletal, std::move(m), position) {
     //TODO: check type
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+    auto& bones = skeletal.getBones();
 
-    bone_transform.resize(skeletal.getBones().size(), glm::mat4(1.0f));
+    size_t skinned_bones = std::count_if(bones.begin(), bones.end(), [](const auto& bone) {
+        return bone.joint_index.has_value();
+    });
+
+    bone_transform.resize(skinned_bones, glm::mat4(1.0f));
     initializeBuffer();
 }
 
@@ -160,7 +178,6 @@ void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderType pass,
 
 	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
 
-    // iterates over all meshes
     for (auto& [name, mesh] : meshes) {
         mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
     }
