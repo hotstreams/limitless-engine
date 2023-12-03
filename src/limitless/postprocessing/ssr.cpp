@@ -47,7 +47,7 @@ SSR::SSR(ContextEventObserver &ctx, glm::uvec2 frame_size)
     framebuffer.unbind();
 }
 
-void SSR::draw(Context& ctx, const Assets& assets, const Camera& camera,
+void SSR::draw(Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera,
                const std::shared_ptr<Texture>& depth,
                const std::shared_ptr<Texture>& normal,
                const std::shared_ptr<Texture>& props,

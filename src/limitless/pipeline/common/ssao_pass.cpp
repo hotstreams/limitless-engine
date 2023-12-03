@@ -38,7 +38,7 @@ void SSAOPass::onFramebufferChange(glm::uvec2 size) {
     ssao.onFramebufferChange(size);
 }
 
-void SSAOPass::update(Scene &scene, Instances &instances, Context &ctx, const Camera &camera) {
+void SSAOPass::update([[maybe_unused]] Scene &scene, [[maybe_unused]] Instances &instances, [[maybe_unused]] Context &ctx, const Camera &camera) {
     ssao.update(camera);
 }
 

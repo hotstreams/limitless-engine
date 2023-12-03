@@ -124,7 +124,7 @@ StackTrace Limitless::getStackTrace(size_t frames_to_skip, size_t max_frames) {
 
     for (USHORT i = 0; i < frame_num; ++i) {
         DWORD64 displacement;
-        DWORD disp;
+        //DWORD disp;
         bool has_symbol {false};
         // bool has_line {false};
 
