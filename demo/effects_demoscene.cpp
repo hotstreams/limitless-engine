@@ -55,25 +55,25 @@ void EffectsScene::addInstances(Limitless::Assets& assets) {
                       .build()
     );
 
-    auto bob = Instance::builder()
-                        .model(assets.models.at("bob"))
-                        .position({29.0f, 1.0f, 19.0f})
-                        .rotation(glm::vec3{0.0f, -M_PI_2, M_PI})
-                        .scale(glm::vec3(0.025f))
-                        .asSkeletal();
-    bob->play("");
-    scene.add(bob);
+//    auto bob = Instance::builder()
+//                        .model(assets.models.at("bob"))
+//                        .position({29.0f, 1.0f, 19.0f})
+//                        .rotation(glm::vec3{0.0f, -M_PI_2, M_PI})
+//                        .scale(glm::vec3(0.025f))
+//                        .asSkeletal();
+//    bob->play("");
+//    scene.add(bob);
 
-    auto mod = Instance::builder()
-                        .effect(assets.effects.at("modeldrop"))
-                        .position({0.0f, 0.0f, 0.0f})
-                        .asEffect();
-
-    const auto& module = mod->get<fx::SpriteEmitter>("sparks")
-        .getModule(fx::ModuleType::InitialMeshLocation);
-        dynamic_cast<fx::InitialMeshLocation<fx::SpriteParticle>&>(*module)
-        .attachModelInstance(bob.get());
-    scene.add(mod);
+//    auto mod = Instance::builder()
+//                        .effect(assets.effects.at("modeldrop"))
+//                        .position({0.0f, 0.0f, 0.0f})
+//                        .asEffect();
+//
+//    const auto& module = mod->get<fx::SpriteEmitter>("sparks")
+//        .getModule(fx::ModuleType::InitialMeshLocation);
+//        dynamic_cast<fx::InitialMeshLocation<fx::SpriteParticle>&>(*module)
+//        .attachModelInstance(bob.get());
+//    scene.add(mod);
 
     scene.add(Instance::builder()
                       .effect(assets.effects.at("skeleton"))
