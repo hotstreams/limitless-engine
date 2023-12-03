@@ -12,15 +12,9 @@ namespace Limitless::ms {
      */
     enum class Blending {
         /**
-         * Do not mix, use last
+         * Opaque material
          */
         Opaque,
-
-        //TODO: ?
-        /**
-         *
-         */
-        MultipleOpaque,
 
         /**
          * Mix based on alpha channel
@@ -45,11 +39,9 @@ namespace Limitless::ms {
 
         /**
          * Used for text rendering
-         *
          */
         Text
     };
-
 
     /**
      * Sets context functions to match specified blending state to the current state
@@ -57,11 +49,4 @@ namespace Limitless::ms {
      * @param blending - blending mode
      */
     void setBlendingMode(Blending blending) noexcept;
-
-    /**
-     * Sets context functions to match specified blending state
-     *
-     * @param blending - blending mode
-     */
-    void setBlendingMode(ContextState& ctx, Blending blending, uint32_t opaque_count = 1) noexcept;
 }

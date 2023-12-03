@@ -3,14 +3,13 @@
 
 #include <limitless/core/context_observer.hpp>
 #include <limitless/text/text_instance.hpp>
-#include <limitless/loaders/dds_loader.hpp>
 #include <limitless/util/color_picker.hpp>
-#include <limitless/pipeline/deferred/deferred_framebuffer_pass.hpp>
 #include <iostream>
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 
 using namespace Limitless;
+
 
 class Game : public MouseMoveObserver, public KeyObserver, public FramebufferObserver {
 private:
@@ -110,29 +109,6 @@ public:
         }
     }
 
-    void drawText() {
-        if (hidden_text) {
-            return;
-        }
-
-        auto start = glm::vec2 {0.0f, window_size.y - 20};
-        for (auto it = scene.getScenes().begin(); it != scene.getScenes().end(); ++it) {
-            TextInstance list {it->first, start, assets.fonts.at("nunito")};
-            list.setColor((it == scene.getCurrent()) ? glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) : glm::vec4(1.0f));
-            list.setSize(glm::vec2{0.3f});
-            list.draw(context, assets);
-            start.y -= 20.0f;
-        }
-
-        TextInstance helper {"Use 'WASD' & 'mouse' to look around.\n"
-                             "Press 'TAB' to switch scene.\n"
-                             "Hold 'SPACE' to boost camera speed.\n"
-                             "Press '~' to hide this text.\n"
-                             "Press 'ESC' to quit.", start, assets.fonts.at("nunito")};
-        helper.setSize(glm::vec2{0.3f});
-        helper.draw(context, assets);
-    }
-
     void gameLoop() {
         using namespace std::chrono;
         while (!context.shouldClose() && !done) {
@@ -141,8 +117,8 @@ public:
             auto delta_time = duration_cast<duration<float>>(current_time - last_time).count();
             last_time = current_time;
 
+            scene.update(context, camera);
             render.draw(context, assets, scene.getCurrentScene(), camera);
-            drawText();
 
             context.swapBuffers();
             context.pollEvents();

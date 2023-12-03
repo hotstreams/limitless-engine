@@ -16,7 +16,7 @@ TEST_CASE("MaterialBuilder throw on empty properties") {
 
     MaterialBuilder builder {assets};
 
-    REQUIRE_THROWS_AS(builder.build(), material_builder_error);
+    REQUIRE_THROWS_AS(builder.build(), material_builder_exception);
 
     check_opengl_state();
 }
@@ -28,7 +28,7 @@ TEST_CASE("MaterialBuilder throw on empty name") {
     MaterialBuilder builder {assets};
     builder.setName("material");
 
-    REQUIRE_THROWS_AS(builder.build(), material_builder_error);
+    REQUIRE_THROWS_AS(builder.build(), material_builder_exception);
 
     check_opengl_state();
 }
@@ -41,7 +41,7 @@ TEST_CASE("MaterialBuilder throw on tesselation when factor is not set") {
     builder.setName("material");
     builder.setTessellationSnippet("snippet");
 
-    REQUIRE_THROWS_AS(builder.build(), material_builder_error);
+    REQUIRE_THROWS_AS(builder.build(), material_builder_exception);
 
     check_opengl_state();
 }

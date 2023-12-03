@@ -1,70 +1,61 @@
 #pragma once
 
+#include <map>
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include <limitless/lighting/light.hpp>
 
 namespace Limitless {
     class Buffer;
 
-    template<typename T>
     class LightContainer {
-        /**
-         *      requirement for shader buffer object name in type T
-         **/
-        static_assert(sizeof(T::SHADER_STORAGE_NAME), "value_type must implement static shader_storage_name variable");
     private:
-        std::unordered_map<uint64_t, uint64_t> lights_map;
+        /**
+         * Internal light buffer presentation
+         */
+        class InternalLight {
+        private:
+            glm::vec4 color;
+            glm::vec4 position;
+            glm::vec4 direction;
+            glm::vec2 scale_offset;
+            float falloff;
+            uint32_t type;
+
+            static float radiusToFalloff(float r);
+            static float falloffToRadius(float f);
+            static glm::vec2 anglesToScaleOffset(const glm::vec2& angles);
+            static glm::vec2 scaleOffsetToAngles(const glm::vec2& scale_offset);
+        public:
+            explicit InternalLight(const Light& light) noexcept;
+            InternalLight(const InternalLight& light) noexcept = default;
+
+            void update(const Light& light) noexcept;
+        };
+
+        std::map<uint64_t, Light> lights;
+
+        // corresponding internal presentation
+        std::map<uint64_t, InternalLight> internal_lights;
+
+        // lights to be mapped into the buffer
+        std::vector<InternalLight> visible_lights;
+
+        // visible lights buffer
         std::shared_ptr<Buffer> buffer;
-        std::vector<T> lights;
-        uint64_t next_id {};
-        bool modified {};
     public:
-        explicit LightContainer(uint64_t reserve_count);
         LightContainer();
         ~LightContainer() = default;
 
-        LightContainer(const LightContainer&) = delete;
-        LightContainer& operator=(const LightContainer&) = delete;
+        [[nodiscard]] auto& getLights() noexcept { return lights; }
+        [[nodiscard]] const auto& getLights() const noexcept { return lights; }
+        [[nodiscard]] uint64_t size() const noexcept { return lights.size(); }
+        [[nodiscard]] uint64_t visibleSize() const noexcept { return visible_lights.size(); }
 
-        LightContainer(LightContainer&&) noexcept = default;
-        LightContainer& operator=(LightContainer&&) noexcept = default;
-
-        [[nodiscard]] auto begin() noexcept { modified = true; return lights.begin(); }
-        [[nodiscard]] auto begin() const noexcept { return lights.begin(); }
-
-        [[nodiscard]] auto end() noexcept { modified = true; return lights.end(); }
-        [[nodiscard]] auto end() const noexcept { return lights.end(); }
-
-        [[nodiscard]] auto size() const noexcept { return lights.size(); }
-
-        void reserve(size_t n);
-
-        [[nodiscard]] auto capacity() const noexcept { return lights.capacity(); }
-        [[nodiscard]] auto empty() const noexcept { return lights.begin() == lights.end(); }
-
-        T& operator[](size_t id) noexcept { modified = true; return lights[lights_map[id]]; }
-        [[nodiscard]] const T& operator[](size_t id) const noexcept { return lights[lights_map.at(id)]; }
-
-        T& at(size_t id) {  modified = true; return lights.at(lights_map.at(id)); }
-        [[nodiscard]] const T& at(size_t id) const { return lights.at(lights_map.at(id)); }
-
-        T& back() noexcept { modified = true; return lights.back(); }
-        const T& back() const noexcept { return lights.back(); }
-
-        void erase(uint64_t id);
+        Light& add(Light&& light);
+        Light& add(const Light& light);
 
         void update();
-
-        template<typename... Args>
-        auto emplace_back(Args&&... args) {
-            if (capacity() == size()) {
-                reserve(size() + 1);
-            }
-            lights.emplace_back(std::forward<Args>(args)...);
-            lights_map.emplace(next_id, lights.size() - 1);
-            modified = true;
-            return next_id++;
-        }
     };
 }

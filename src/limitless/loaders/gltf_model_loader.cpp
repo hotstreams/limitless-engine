@@ -655,26 +655,25 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const std::string& model_name,
 	size_t material_index
 ) {
-	ms::MaterialBuilder builder {assets};
+	ms::Material::Builder builder = ms::Material::builder();
 
 	builder
-		.setName(
+		.name(
 			material.name ? std::string(material.name)
 						  : generateMaterialName(model_name, material_index)
 		)
-		.setShading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
-		.setTwoSided(material.double_sided);
+		.shading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
+		.two_sided(material.double_sided);
 
 	switch (material.alpha_mode) {
 	case cgltf_alpha_mode_opaque:
-		builder.setBlending(ms::Blending::Opaque);
+		builder.blending(ms::Blending::Opaque);
 		break;
 	case cgltf_alpha_mode_blend:
-		builder.setBlending(ms::Blending::Translucent);
+		builder.blending(ms::Blending::Translucent);
 		break;
 	default:
-		throw ModelLoadError {
-			"alpha mode " + std::to_string(material.alpha_mode) + " not supported"};
+		throw ModelLoadError {"alpha mode " + std::to_string(material.alpha_mode) + " not supported"};
 	}
 
 	if (!material.has_pbr_metallic_roughness) {
@@ -686,7 +685,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 
 	if (base_color_tex == nullptr) {
 		// no texture, this means that base color factor is the color.
-		builder.add(ms::Property::Color, toVec4(pbr_mr.base_color_factor));
+		builder.color(toVec4(pbr_mr.base_color_factor));
 
 	} else {
 		if (base_color_tex->image == nullptr) {
@@ -700,8 +699,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
 		// TODO: deduce other flags from cgltf sampler.
 
-		builder.add(ms::Property::Diffuse, TextureLoader::load(assets, path, flags));
-		builder.add(ms::Property::Color, toVec4(pbr_mr.base_color_factor));
+		builder.diffuse(TextureLoader::load(assets, path, flags));
+		builder.color(toVec4(pbr_mr.base_color_factor));
 		// TODO: recall why this was here.
 		// builder.setFragmentSnippet(
 		// 	"data.baseColor.rgb = getMaterialDiffuse(getVertexUV()).rrr;"
@@ -715,9 +714,9 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		// These values MUST be encoded with a linear transfer function.
 		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
 
-		builder.add(ms::Property::ORM, TextureLoader::load(assets, path, flags));
-		builder.add(ms::Property::Metallic, pbr_mr.metallic_factor);
-		builder.add(ms::Property::Roughness, pbr_mr.roughness_factor);
+		builder.orm(TextureLoader::load(assets, path, flags));
+		builder.metallic(pbr_mr.metallic_factor);
+		builder.roughness(pbr_mr.roughness_factor);
 	}
 
 	auto* normal_tex = material.normal_texture.texture;
@@ -727,11 +726,12 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		// These values MUST be encoded with a linear transfer function.
 		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
 
-		builder.add(ms::Property::Normal, TextureLoader::load(assets, path, flags));
+		builder.normal(TextureLoader::load(assets, path, flags));
 	}
 
 	if (material.has_ior) {
-		builder.add(ms::Property::IoR, material.ior.ior);
+        builder.refraction(true);
+		builder.ior(material.ior.ior);
 	}
 
 	auto* emissive_tex = material.emissive_texture.texture;
@@ -742,20 +742,20 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		// function
 		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
 
-		builder.add(ms::Property::EmissiveMask, TextureLoader::load(assets, path, flags));
+		builder.emissive_mask(TextureLoader::load(assets, path, flags));
 	}
 
 	glm::vec3 emissive_rgb = toVec3(material.emissive_factor);
 	if (emissive_rgb != glm::vec3(0.f)) {
-		glm::vec4 emissive_color(toVec3(material.emissive_factor), 1.0f);
+		glm::vec3 emissive_color(toVec3(material.emissive_factor));
 		if (material.has_emissive_strength) {
-			emissive_color.w = material.emissive_strength.emissive_strength;
+            emissive_color *= material.emissive_strength.emissive_strength;
 		}
 
-		builder.add(ms::Property::EmissiveColor, emissive_color);
+		builder.emissive_color(emissive_color);
 	}
 
-	return builder.setModelShaders(instance_types).build();
+	return builder.models(instance_types).build(assets);
 }
 
 static std::vector<std::shared_ptr<ms::Material>> loadMaterials(
@@ -780,13 +780,13 @@ static std::vector<std::shared_ptr<ms::Material>> loadMaterials(
 static std::shared_ptr<ms::Material> makeDummyMaterial(
 	Assets& assets, const std::string& model_name, const InstanceTypes& instance_types
 ) {
-	return ms::MaterialBuilder(assets)
-	    .setName(generateMaterialName(model_name, 0))
-	    .setTwoSided(true)
-	    .setShading(ms::Shading::Unlit)
-	    .add(ms::Property::Color, glm::vec4(1.f, 0.f, 1.f, 1.f))
-	    .setModelShaders(instance_types)
-	    .build();
+	return ms::Material::builder()
+	    .name(generateMaterialName(model_name, 0))
+	    .two_sided(true)
+	    .shading(ms::Shading::Unlit)
+	    .color({1.f, 0.f, 1.f, 1.f})
+	    .models(instance_types)
+	    .build(assets);
 }
 
 // Fill in missing mesh materials with a dummy one if required.
@@ -954,7 +954,7 @@ loadModel(Assets& assets, const fs::path& path, const cgltf_data& src) {
 }
 
 std::shared_ptr<AbstractModel>
-GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags) {
+GltfModelLoader::loadModel(Assets& assets, const fs::path& path, [[maybe_unused]] const ModelLoaderFlags& flags) {
 	cgltf_options opts = cgltf_options {
 		cgltf_file_type_invalid, // autodetect
 		0, // auto json token count

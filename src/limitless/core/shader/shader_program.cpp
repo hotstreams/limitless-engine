@@ -123,14 +123,14 @@ ShaderProgram& ShaderProgram::setUniform(const std::string& name, std::shared_pt
 
 ShaderProgram& ShaderProgram::setMaterial(const ms::Material& material) {
     // if not present for whatever reason just return
-    auto found = std::find_if(indexed_binds.begin(), indexed_binds.end(), [] (const auto& buf) { return buf.name == "material_buffer"; });
+    auto found = std::find_if(indexed_binds.begin(), indexed_binds.end(), [] (const auto& buf) { return buf.name == "MATERIAL_BUFFER"; });
     if (found == indexed_binds.end()) {
         return *this;
     }
 
     // bind current material buffer to shader
     // these contain scalar values
-    material.getMaterialBuffer()->bindBase(found->bound_point);
+    material.getBuffer().getBuffer()->bindBase(found->bound_point);
 
     // and we need explicitly set samplers
     for (const auto& [type, uniform] : material.getProperties()) {

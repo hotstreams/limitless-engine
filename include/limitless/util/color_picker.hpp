@@ -7,7 +7,7 @@
 #include <limitless/scene.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 #include <utility>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 #include "limitless/core/uniform/uniform_setter.hpp"
 #include "limitless/core/shader/shader_program.hpp"
 #include <limitless/ms/blending.hpp>

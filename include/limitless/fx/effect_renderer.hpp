@@ -7,12 +7,12 @@
 #include <memory>
 
 namespace Limitless {
-    class AbstractInstance;
+    class Instance;
     class UniformSetter;
     class Context;
     class Assets;
 
-    using Instances = std::vector<std::reference_wrapper<AbstractInstance>>;
+    using Instances = std::vector<std::reference_wrapper<Instance>>;
 
     namespace ms {
         enum class Blending;

@@ -184,16 +184,16 @@ void Framebuffer::unbind() noexcept {
 Framebuffer Framebuffer::asRGB8LinearClampToEdge(glm::vec2 size) {
     Framebuffer framebuffer;
 
-    TextureBuilder builder;
-    auto color = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(size)
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::UnsignedByte)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto color = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(size)
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::UnsignedByte)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -207,16 +207,16 @@ Framebuffer Framebuffer::asRGB8LinearClampToEdge(glm::vec2 size) {
 Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const std::shared_ptr<Texture>& depth) {
     Framebuffer framebuffer;
 
-    TextureBuilder builder;
-    auto color = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(size)
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::UnsignedByte)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto color = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(size)
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::UnsignedByte)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -231,28 +231,29 @@ Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size, const 
 Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size) {
     Framebuffer framebuffer;
 
-    TextureBuilder builder;
-    auto color = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(size)
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::UnsignedByte)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto color = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(size)
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::UnsignedByte)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     //TODO: 32F???? wtf?
-    auto depth = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::Depth32F)
-            .setSize(size)
-            .setFormat(Texture::Format::DepthComponent)
-            .setDataType(Texture::DataType::Float)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto depth = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::Depth32F)
+            .size(size)
+            .format(Texture::Format::DepthComponent)
+            .data_type(Texture::DataType::Float)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -267,16 +268,16 @@ Framebuffer Framebuffer::asRGB8LinearClampToEdgeWithDepth(glm::vec2 size) {
 Framebuffer Framebuffer::asRGB16FLinearClampToEdge(glm::vec2 size) {
     Framebuffer framebuffer;
 
-    TextureBuilder builder;
-    auto color = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16F)
-            .setSize(size)
-            .setFormat(Texture::Format::RGB)
-            .setDataType(Texture::DataType::Float)
-            .setMinFilter(Texture::Filter::Linear)
-            .setMagFilter(Texture::Filter::Linear)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto color = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB16F)
+            .size(size)
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::Float)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -291,8 +292,7 @@ Framebuffer Framebuffer::asRGB16FLinearClampToEdge(glm::vec2 size) {
 Framebuffer Framebuffer::asRGB16FNearestClampToEdge(glm::uvec2 size) {
     Framebuffer framebuffer;
 
-    TextureBuilder builder;
-    auto color = TextureBuilder::asRGB16FNearestClampToEdge(size);
+    auto color = Texture::Builder::asRGB16FNearestClampToEdge(size);
 
     framebuffer.bind();
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
@@ -306,8 +306,7 @@ Framebuffer Framebuffer::asRGB16FNearestClampToEdge(glm::uvec2 size) {
 Framebuffer Framebuffer::asRGB16FNearestClampToEdgeWithDepth(glm::uvec2 size, const std::shared_ptr<Texture>& depth) {
     Framebuffer framebuffer;
 
-    TextureBuilder builder;
-    auto color = TextureBuilder::asRGB16FNearestClampToEdge(size);
+    auto color = Texture::Builder::asRGB16FNearestClampToEdge(size);
 
     framebuffer.bind();
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, color}

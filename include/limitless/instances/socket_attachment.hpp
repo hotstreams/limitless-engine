@@ -14,7 +14,7 @@ namespace Limitless {
 }
 
 namespace Limitless {
-    class AbstractInstance;
+    class Instance;
     /**
      * SocketAttachment is a class that allows you to attach instance to specific bones of SkeletalInstance
      */
@@ -64,7 +64,7 @@ namespace Limitless {
          *
          * throws no_such_bone if not found
          */
-        void attachToBone(std::string bone_name, std::unique_ptr<AbstractInstance> instance);
+        void attachToBone(std::string bone_name, std::shared_ptr<Instance> instance);
 
         /**
          * Detaches instance from bone

@@ -15,24 +15,24 @@ namespace Limitless {
         VertexStreamDraw mode;
 
         void initialize(size_t count) {
-            BufferBuilder builder;
-            builder .setTarget(Buffer::Type::Array)
-                    .setDataSize(count * sizeof(Vertex))
-                    .setData(stream.empty() ? nullptr : stream.data());
+            Buffer::Builder builder = Buffer::builder();
+            builder.target(Buffer::Type::Array)
+                   .size(count * sizeof(Vertex))
+                   .data(stream.empty() ? nullptr : stream.data());
 
             switch (usage) {
                 case VertexStreamUsage::Static:
-                    builder .setUsage(Buffer::Storage::Static)
-                            .setAccess(Buffer::ImmutableAccess::None);
+                    builder.usage(Buffer::Storage::Static)
+                            .access(Buffer::ImmutableAccess::None);
                     break;
                 case VertexStreamUsage::Dynamic:
-                    builder .setUsage(Buffer::Usage::DynamicDraw)
-                            .setAccess(Buffer::MutableAccess::WriteOrphaning);
+                    builder.usage(Buffer::Usage::DynamicDraw)
+                            .access(Buffer::MutableAccess::WriteOrphaning);
                     break;
                 case VertexStreamUsage::Stream:
                     //TODO: should be x3 vertex array && x3 buffer
-                    builder .setUsage(Buffer::Storage::DynamicCoherentWrite)
-                            .setAccess(Buffer::ImmutableAccess::WriteCoherent);
+                    builder.usage(Buffer::Storage::DynamicCoherentWrite)
+                            .access(Buffer::ImmutableAccess::WriteCoherent);
                     break;
             }
 

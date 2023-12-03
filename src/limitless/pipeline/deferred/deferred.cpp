@@ -80,7 +80,9 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
         add<SSAOPass>(ctx, size);
     }
 
-    add<SSRPass>(ctx, size);
+    if (settings.screen_space_reflections) {
+        add<SSRPass>(ctx, size);
+    }
 
     /*
      * Makes lighting calculations (with AO) from GBUFFER and renders result in another framebuffer
@@ -117,4 +119,6 @@ void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) 
 //    }
 
     add<ScreenPass>(*target);
+
+    add<RenderDebugPass>(settings);
 }

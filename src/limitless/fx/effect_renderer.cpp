@@ -17,12 +17,12 @@ void EffectRenderer::visitEmitters(const Instances& instances, EmitterVisitor& e
         }
     };
 
-    std::function<void(const AbstractInstance& instance)> visitor = [&] (const AbstractInstance& instance) {
+    std::function<void(const Instance& instance)> visitor = [&] (const Instance& instance) {
         for (const auto& [_, attachment] : instance.getAttachments()) {
             visitor(*attachment);
         }
 
-        if (instance.getShaderType() == InstanceType::Effect) {
+        if (instance.getInstanceType() == InstanceType::Effect) {
             effect_instance_visitor(static_cast<const EffectInstance&>(instance), emitter_visitor);
         }
     };

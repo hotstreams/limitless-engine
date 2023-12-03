@@ -12,8 +12,6 @@ Shader::Shader(fs::path _path, Type _type, const ShaderAction& action)
     , type {_type} {
     source = getSource(path);
 
-    replaceVersion();
-    replaceExtensions();
     replaceIncludes(path.parent_path());
 
     if (action) {
@@ -73,12 +71,6 @@ void Shader::checkStatus() const {
     throw shader_compilation_error("failed to compile " + path.string() + ": " + log);
 }
 
-void Shader::replaceVersion() noexcept {
-    static const auto version = "#version " + std::to_string(ContextInitializer::major_version) + std::to_string(ContextInitializer::minor_version) + "0 core";
-
-    replaceKey(version_key, version);
-}
-
 void Shader::replaceKey(const std::string& key, const std::string& value) noexcept {
     size_t found = 0;
     for (;;) {
@@ -90,30 +82,6 @@ void Shader::replaceKey(const std::string& key, const std::string& value) noexce
 
         source.replace(found, key.length(), value);
     }
-}
-
-void Shader::replaceExtensions() noexcept {
-    std::string extensions;
-
-    if (ContextInitializer::isExtensionSupported(shader_storage_buffer_object)) {
-        extensions.append(extension_shader_storage_buffer_object);
-    }
-
-    if (ContextInitializer::isExtensionSupported(shading_language_420pack)) {
-        extensions.append(extension_shading_language_420pack);
-    }
-
-    if (ContextInitializer::isExtensionSupported(explicit_uniform_location)) {
-        extensions.append(extension_explicit_uniform_location);
-    }
-
-    if (ContextInitializer::isExtensionSupported(bindless_texture)) {
-        extensions.append(extension_bindless_texture);
-        extensions.append(bindless_texture_define);
-        extensions.append(bindless_samplers);
-    }
-
-    replaceKey(extensions_key, extensions);
 }
 
 std::string Shader::getSource(const fs::path& filepath) {
@@ -153,11 +121,15 @@ void Shader::resolveIncludes(const fs::path& base_dir, std::string& src) {
 
         fs::path file_name = src.substr(beg, name_length);
 
-        auto include_src = getSource(base_dir / file_name);
+        if (!include_entries.count(file_name.stem().string())) {
+            include_entries.emplace(file_name.stem().string());
 
-        resolveIncludes(base_dir / file_name.parent_path(), include_src);
-
-        src.replace(found, include.length() + 3 + name_length, include_src);
+            auto include_src = getSource(base_dir / file_name);
+            resolveIncludes(base_dir / file_name.parent_path(), include_src);
+            src.replace(found, include.length() + 3 + name_length, include_src);
+        } else {
+            src.replace(found, include.length() + 3 + name_length, "");
+        }
     }
 }
 

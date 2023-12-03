@@ -138,25 +138,25 @@ void test_with_type_and_extension_texture(Texture::Type type, ExtensionTextureTy
     {
         TextureBuilder builder {};
 
-        builder.setTarget(type)
-                .setWrapS(Texture::Wrap::ClampToEdge)
-                .setWrapT(Texture::Wrap::ClampToEdge)
-                .setMipMap(false)
-                .setMinFilter(Texture::Filter::Linear)
-                .setMagFilter(Texture::Filter::Linear)
-                .setInternalFormat(Texture::InternalFormat::RGB8)
-                .setFormat(Texture::Format::RGB)
-                .setDataType(Texture::DataType::UnsignedByte);
+        builder.target(type)
+                .wrap_s(Texture::Wrap::ClampToEdge)
+                .wrap_t(Texture::Wrap::ClampToEdge)
+                .mipmap(false)
+                .min_filter(Texture::Filter::Linear)
+                .mag_filter(Texture::Filter::Linear)
+                .internal_format(Texture::InternalFormat::RGB8)
+                .format(Texture::Format::RGB)
+                .data_type(Texture::DataType::UnsignedByte);
 
         switch(type) {
             case Texture::Type::Tex2D:
-                builder.setSize({512, 512});
+                builder.size({512, 512});
                 break;
             case Texture::Type::Tex3D:
-                builder.setSize({512, 512, 512});
+                builder.size({512, 512, 512});
                 break;
             case Texture::Type::Tex2DArray:
-                builder.setSize({512, 512, 512});
+                builder.size({512, 512, 512});
                 break;
             default:
                 throw std::runtime_error("not testable");
@@ -197,25 +197,25 @@ void test_with_type_and_extension_texture(Texture::Type type, ExtensionTextureTy
     {
         TextureBuilder builder {};
 
-        builder.setTarget(type)
-                .setWrapS(Texture::Wrap::ClampToEdge)
-                .setWrapT(Texture::Wrap::ClampToEdge)
-                .setMipMap(true)
-                .setMinFilter(Texture::Filter::Linear)
-                .setMagFilter(Texture::Filter::Linear)
-                .setInternalFormat(Texture::InternalFormat::RGB8)
-                .setFormat(Texture::Format::RGB)
-                .setDataType(Texture::DataType::UnsignedByte);
+        builder.target(type)
+                .wrap_s(Texture::Wrap::ClampToEdge)
+                .wrap_t(Texture::Wrap::ClampToEdge)
+                .mipmap(true)
+                .min_filter(Texture::Filter::Linear)
+                .mag_filter(Texture::Filter::Linear)
+                .internal_format(Texture::InternalFormat::RGB8)
+                .format(Texture::Format::RGB)
+                .data_type(Texture::DataType::UnsignedByte);
 
         switch(type) {
             case Texture::Type::Tex2D:
-                builder.setSize({512, 512});
+                builder.size({512, 512});
                 break;
             case Texture::Type::Tex3D:
-                builder.setSize({512, 512, 512});
+                builder.size({512, 512, 512});
                 break;
             case Texture::Type::Tex2DArray:
-                builder.setSize({512, 512, 512});
+                builder.size({512, 512, 512});
                 break;
             default:
                 throw std::runtime_error("not testable");
@@ -256,25 +256,25 @@ void test_with_type_and_extension_texture(Texture::Type type, ExtensionTextureTy
     {
         TextureBuilder builder {};
 
-        builder.setTarget(type)
-                .setWrapS(Texture::Wrap::ClampToEdge)
-                .setWrapT(Texture::Wrap::ClampToEdge)
-                .setMipMap(true)
-                .setMinFilter(Texture::Filter::Linear)
-                .setMagFilter(Texture::Filter::Linear)
-                .setInternalFormat(Texture::InternalFormat::RGB8)
-                .setFormat(Texture::Format::RGB)
-                .setDataType(Texture::DataType::UnsignedByte);
+        builder.target(type)
+                .wrap_s(Texture::Wrap::ClampToEdge)
+                .wrap_t(Texture::Wrap::ClampToEdge)
+                .mipmap(true)
+                .min_filter(Texture::Filter::Linear)
+                .mag_filter(Texture::Filter::Linear)
+                .internal_format(Texture::InternalFormat::RGB8)
+                .format(Texture::Format::RGB)
+                .data_type(Texture::DataType::UnsignedByte);
 
         switch(type) {
             case Texture::Type::Tex2D:
-                builder.setSize({512, 512});
+                builder.size({512, 512});
                 break;
             case Texture::Type::Tex3D:
-                builder.setSize({512, 512, 512});
+                builder.size({512, 512, 512});
                 break;
             case Texture::Type::Tex2DArray:
-                builder.setSize({512, 512, 512});
+                builder.size({512, 512, 512});
                 break;
             default:
                 throw std::runtime_error("not testable");

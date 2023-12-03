@@ -19,40 +19,93 @@ using namespace Limitless::ms;
 using namespace Limitless::fx;
 
 void EffectsScene::addInstances(Limitless::Assets& assets) {
-    add<EffectInstance>(assets.effects.at("blink"), glm::vec3 {29.0f, 1.0f, 1.0f});
-    add<EffectInstance>(assets.effects.at("shield"), glm::vec3{29.0f, 1.0f, 4.0f});
-    add<EffectInstance>(assets.effects.at("fireball"), glm::vec3{29.0f, 1.0f, 7.0f});
-    add<EffectInstance>(assets.effects.at("explosion"), glm::vec3{29.0f, 1.0f, 10.0f});
-    hurricane = &add<EffectInstance>(assets.effects.at("hurricane"), glm::vec3{29.0f, 1.0f, 13.0f});
-    add<EffectInstance>(assets.effects.at("lightning"), glm::vec3{29.0f, 1.0f, 16.0f});
+    scene.add(Instance::builder()
+        .effect(assets.effects.at("blink"))
+        .position({29.0f, 1.0f, 1.0f})
+        .build()
+    );
 
-    auto& bob = add<SkeletalInstance>(assets.models.at("bob"), glm::vec3(29.0f, 1.0f, 19.0f))
-            .play("")
-            .setScale(glm::vec3(0.025f))
-            .setRotation(glm::vec3{0.0f, -M_PI_2, M_PI});
+    scene.add(Instance::builder()
+        .effect(assets.effects.at("shield"))
+        .position({29.0f, 1.0f, 4.0f})
+        .build()
+    );
 
-    const auto& module = add<EffectInstance>(assets.effects.at("modeldrop"), glm::vec3{0.0f})
-        .get<fx::SpriteEmitter>("sparks")
-        .getModule(fx::ModuleType::InitialMeshLocation);
-        dynamic_cast<fx::InitialMeshLocation<fx::SpriteParticle>&>(*module)
-        .attachModelInstance(dynamic_cast<SkeletalInstance*>(&bob));
+    scene.add(Instance::builder()
+                      .effect(assets.effects.at("fireball"))
+                      .position({29.0f, 1.0f, 7.0f})
+                      .build()
+    );
 
-    add<EffectInstance>(assets.effects.at("skeleton"), glm::vec3{23.0f, 1.0f, 1.0f});
-    add<EffectInstance>(assets.effects.at("aura"), glm::vec3{23.0f, 1.0f, 4.0f});
+    scene.add(Instance::builder()
+                      .effect(assets.effects.at("explosion"))
+                      .position({29.0f, 1.0f, 10.0f})
+                      .build()
+    );
+
+    hurricane = Instance::builder()
+                        .effect(assets.effects.at("hurricane"))
+                        .position({29.0f, 1.0f, 13.0f})
+                        .asEffect();
+    scene.add(hurricane);
+
+    scene.add(Instance::builder()
+                      .effect(assets.effects.at("lightning"))
+                      .position({29.0f, 1.0f, 16.0f})
+                      .build()
+    );
+
+//    auto bob = Instance::builder()
+//                        .model(assets.models.at("bob"))
+//                        .position({29.0f, 1.0f, 19.0f})
+//                        .rotation(glm::vec3{0.0f, -M_PI_2, M_PI})
+//                        .scale(glm::vec3(0.025f))
+//                        .asSkeletal();
+//    bob->play("");
+//    scene.add(bob);
+
+//    auto mod = Instance::builder()
+//                        .effect(assets.effects.at("modeldrop"))
+//                        .position({0.0f, 0.0f, 0.0f})
+//                        .asEffect();
+//
+//    const auto& module = mod->get<fx::SpriteEmitter>("sparks")
+//        .getModule(fx::ModuleType::InitialMeshLocation);
+//        dynamic_cast<fx::InitialMeshLocation<fx::SpriteParticle>&>(*module)
+//        .attachModelInstance(bob.get());
+//    scene.add(mod);
+
+    scene.add(Instance::builder()
+                      .effect(assets.effects.at("skeleton"))
+                      .position({23.0f, 1.0f, 1.0f})
+                      .build()
+    );
+
+    scene.add(Instance::builder()
+                      .effect(assets.effects.at("aura"))
+                      .position({23.0f, 1.0f, 4.0f})
+                      .build()
+    );
 }
 
 EffectsScene::EffectsScene(Limitless::Context& ctx, Limitless::Assets& assets)
-    : Limitless::Scene(ctx) {
+    : scene(ctx) {
     addInstances(assets);
 
-    setSkybox(assets.skyboxes.at("skybox"));
-    lighting.ambient_color *= 0.5;
-    lighting.directional_light = {glm::vec4(2.0, -2.0, 1.5, 1.0f), glm::vec4{1.0f}};
+    scene.setSkybox(assets.skyboxes.at("skybox"));
 
-    auto& floor = add<Limitless::InstancedInstance<Limitless::ModelInstance>>(glm::vec3{0.0f});
+    scene.getLighting().getAmbientColor().a *= 0.5;
+
+    scene.add(Light::builder()
+         .color({0.6, 1.0, 0.3, 1.0f})
+         .direction(glm::vec3{-1.0f})
+         .build()
+    );
+
+    auto floor = std::make_shared<Limitless::InstancedInstance<Limitless::ModelInstance>>(glm::vec3{0.0f});
     for (int i = 0; i < 30; ++i) {
         for (int j = 0; j < 30; ++j) {
-            floor.addInstance(
+            floor->addInstance(
                     std::make_unique<ModelInstance>(
                             assets.models.at("plane"),
                             assets.materials.at("basic4"),
@@ -61,10 +114,11 @@ EffectsScene::EffectsScene(Limitless::Context& ctx, Limitless::Assets& assets)
             );
         }
     }
+    scene.add(floor);
 }
 
 void EffectsScene::update(Context& context, const Camera& camera) {
-    Scene::update(context, camera);
+    scene.update(context, camera);
 
     hurricane->rotateBy(glm::vec3(0.0f, 0.3f, 0.0f));
 }

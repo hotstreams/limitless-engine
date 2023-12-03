@@ -24,9 +24,9 @@ TEST_CASE("InstanceAttachment tests") {
 
     InstanceAttachment attachment = InstanceAttachment();
 
-    std::unique_ptr<AbstractInstance> instance = std::make_unique<ModelInstance>(assets.models.at("backpack"), glm::vec3{0.0f});
+    std::unique_ptr<Instance> instance = std::make_unique<ModelInstance>(assets.models.at("backpack"), glm::vec3{0.0f});
 
-    std::unique_ptr<AbstractInstance> instance1 = std::make_unique<ModelInstance>(assets.models.at("backpack"), glm::vec3{0.0f});
+    std::unique_ptr<Instance> instance1 = std::make_unique<ModelInstance>(assets.models.at("backpack"), glm::vec3{0.0f});
 
     auto id = instance->getId();
     auto id1 = instance1->getId();

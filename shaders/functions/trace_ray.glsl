@@ -60,7 +60,7 @@ bool traceScreenSpaceRay(
     vec2 P0 = H0.xy * k0;
     vec2 P1 = H1.xy * k1;
 
-#ifdef SCREEN_SPACE_REFLECTIONS_CLIP_TO_FRUSTRUM
+#ifdef ENGINE_SETTINGS_SSR_CLIP_TO_FRUSTRUM
     float xMax = texture_resolution.x - 0.5, xMin = 0.5, yMax = texture_resolution.y - 0.5, yMin = 0.5;
     float alpha = 0.0;
 
@@ -175,7 +175,7 @@ bool traceScreenSpaceRay(
         hit = false;
     }
 
-#ifdef SCREEN_SPACE_REFLECTIONS_REFINEMENT
+#ifdef ENGINE_SETTINGS_SSR_REFINEMENT
     if (stride > 1.0 && hit) {
         // Refine the hit point within the last large-stride step
 

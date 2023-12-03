@@ -1,5 +1,4 @@
-Limitless::GLSL_VERSION
-Limitless::Extensions
+ENGINE::COMMON
 
 out vec3 color;
 

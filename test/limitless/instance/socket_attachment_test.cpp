@@ -22,9 +22,9 @@ TEST_CASE("SocketAttachment tests") {
     }}));
 
     SkeletalInstance instance = SkeletalInstance(assets.models.at("boblamp"), glm::vec3{0.0f});
-    std::unique_ptr<AbstractInstance> instance1 = std::make_unique<SkeletalInstance>(assets.models.at("boblamp"), glm::vec3{0.0f});
-    std::unique_ptr<AbstractInstance> instance2 = std::make_unique<SkeletalInstance>(assets.models.at("boblamp"), glm::vec3{0.0f});
-    std::unique_ptr<AbstractInstance> instance3 = std::make_unique<SkeletalInstance>(assets.models.at("boblamp"), glm::vec3{0.0f});
+    std::unique_ptr<Instance> instance1 = std::make_unique<SkeletalInstance>(assets.models.at("boblamp"), glm::vec3{0.0f});
+    std::unique_ptr<Instance> instance2 = std::make_unique<SkeletalInstance>(assets.models.at("boblamp"), glm::vec3{0.0f});
+    std::unique_ptr<Instance> instance3 = std::make_unique<SkeletalInstance>(assets.models.at("boblamp"), glm::vec3{0.0f});
 
     auto id = instance2->getId();
     auto id3 = instance3->getId();

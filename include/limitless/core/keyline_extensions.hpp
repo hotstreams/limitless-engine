@@ -1,11 +1,8 @@
 #pragma once
 
 namespace Limitless {
-    constexpr auto version_key = "Limitless::GLSL_VERSION";
-    constexpr auto extensions_key = "Limitless::Extensions";
-
     constexpr auto bindless_texture = "GL_ARB_bindless_texture";
-    constexpr auto bindless_texture_define = "#define BINDLESS_TEXTURE\n";
+    constexpr auto bindless_texture_define = "#define ENGINE_EXT_BINDLESS_TEXTURE\n";
     constexpr auto extension_bindless_texture = "#extension GL_ARB_bindless_texture : require\n";
     constexpr auto bindless_samplers = "layout(bindless_sampler) uniform;\n";
 

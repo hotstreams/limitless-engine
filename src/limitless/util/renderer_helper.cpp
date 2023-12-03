@@ -21,38 +21,42 @@ RendererHelper::RendererHelper(const RenderSettings& _settings)
 }
 
 void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera) {
-    if (lighting.point_lights.empty() && lighting.spot_lights.empty()) {
+    if (lighting.getLights().empty()) {
         return;
     }
 
     context.enable(Capabilities::DepthTest);
     context.setDepthFunc(DepthFunc::Less);
     context.setDepthMask(DepthMask::False);
-    context.disable(Capabilities::DepthTest);
+//    context.disable(Capabilities::DepthTest);
 
     auto sphere_instance = ModelInstance(assets.models.at("sphere"), assets.materials.at("default"), glm::vec3(0.0f));
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& light : lighting.point_lights) {
-        sphere_instance.setPosition(light.position);
-        sphere_instance.setScale(glm::vec3(light.radius));
-        sphere_instance.update(context, camera);
-        sphere_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
-    }
+    for (const auto& [_, light] : lighting.getLights()) {
+        if (light.isPoint()) {
+            sphere_instance.setPosition(light.getPosition());
+            sphere_instance.setScale(glm::vec3(light.getRadius()));
+            sphere_instance.update(context, camera);
+            sphere_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+        }
+        if (light.isSpot()) {
+            auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() / 1.5f * glm::sin(glm::acos(glm::radians(light.getCone().y))), light.getRadius());
+            auto cone_instance = ModelInstance(cone, assets.materials.at("default"), glm::vec3(0.0f));
 
-    for (const auto& light : lighting.spot_lights) {
-        auto cone = std::make_shared<Cylinder>(0.0f, light.radius * std::sin(glm::acos(light.cutoff)), light.radius);
-        auto cone_instance = ModelInstance(cone, assets.materials.at("default"), glm::vec3(0.0f));
+            cone_instance.setPosition(light.getPosition());
 
-        cone_instance.setPosition(light.position);
+            auto y = glm::vec3{0.0f, 1.0f, 0.0f};
+            auto a = glm::cross(y, light.getDirection());
+            if (a == glm::vec3(0.0f)) {
+                a = glm::vec3(1.0f, 0.0f, 0.0f);
+            }
+            auto angle = glm::acos(glm::dot(y, light.getDirection()));
 
-        auto y = glm::vec3{0.0f, 1.0f, 0.0f};
-        auto a = glm::cross(y, glm::vec3{light.direction});
-        auto angle = glm::acos(glm::dot(y, glm::vec3{light.direction}));
-
-        cone_instance.setRotation(a * angle);
-        cone_instance.update(context, camera);
-        cone_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+            cone_instance.setRotation(a * angle);
+            cone_instance.update(context, camera);
+            cone_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+        }
     }
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
@@ -68,7 +72,7 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
 
     static const auto x = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
     static const auto y = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
-    static const auto z = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f});
+    static const auto z = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -5.0f});
 
     static ModelInstance x_i {x, assets.materials.at("green"), {5.0f, 1.0f, 0.0f}};
     static ModelInstance y_i {y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}};

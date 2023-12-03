@@ -11,24 +11,24 @@ namespace Limitless {
         std::shared_ptr<Buffer> indices_buffer;
 
         void initialize() {
-            BufferBuilder builder;
-            builder.setTarget(Buffer::Type::Element)
-                    .setData(indices.data())
-                    .setDataSize(indices.size() * sizeof(index_type));
+            Buffer::Builder builder = Buffer::builder();
+            builder.target(Buffer::Type::Element)
+                    .data(indices.data())
+                    .size(indices.size() * sizeof(index_type));
 
             switch (this->usage) {
                 case VertexStreamUsage::Static:
-                    builder.setUsage(Buffer::Storage::Static)
-                            .setAccess(Buffer::ImmutableAccess::None);
+                    builder.usage(Buffer::Storage::Static)
+                            .access(Buffer::ImmutableAccess::None);
                     break;
                 case VertexStreamUsage::Dynamic:
-                    builder.setUsage(Buffer::Usage::DynamicDraw)
-                            .setAccess(Buffer::MutableAccess::WriteOrphaning);
+                    builder.usage(Buffer::Usage::DynamicDraw)
+                            .access(Buffer::MutableAccess::WriteOrphaning);
                     break;
                 case VertexStreamUsage::Stream:
                     //TODO: should be x3 vertex array && x3 buffer
-                    builder.setUsage(Buffer::Storage::DynamicCoherentWrite)
-                            .setAccess(Buffer::ImmutableAccess::WriteCoherent);
+                    builder.usage(Buffer::Storage::DynamicCoherentWrite)
+                            .access(Buffer::ImmutableAccess::WriteCoherent);
                     break;
             }
 

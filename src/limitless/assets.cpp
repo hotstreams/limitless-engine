@@ -29,18 +29,34 @@ Assets::Assets(fs::path _base_dir, fs::path _shader_dir) noexcept
 
 void Assets::load([[maybe_unused]] Context& context) {
     // builds default materials for every model type
-    ms::MaterialBuilder builder {*this};
-    InstanceTypes model_types = {InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced };
-    builder.setName("default")
-        .setShading(ms::Shading::Unlit)
-        .add(ms::Property::Color, {0.7f, 0.0f, 0.7f, 1.0f})
-        .setModelShaders(model_types)
-        .setTwoSided(true)
-        .build();
+    ms::Material::builder()
+        .name("default")
+        .shading(ms::Shading::Unlit)
+        .color({0.7f, 0.0f, 0.7f, 1.0f})
+        .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+        .two_sided(true)
+        .build(*this);
 
-    builder.setName("red").add(ms::Property::Color, {1.0f, 0.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
-    builder.setName("blue").add(ms::Property::Color, {0.0f, 0.0f, 1.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
-    builder.setName("green").add(ms::Property::Color, {0.0f, 1.0f, 0.0f, 1.0f}).setModelShaders(model_types).setTwoSided(true).build();
+    ms::Material::builder()
+            .name("red")
+            .color({1.0f, 0.0f, 0.0f, 1.0f})
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+            .two_sided(true)
+            .build(*this);
+
+    ms::Material::builder()
+            .name("blue")
+            .color({0.0f, 0.0f, 1.0f, 1.0f})
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+            .two_sided(true)
+            .build(*this);
+
+    ms::Material::builder()
+            .name("green")
+            .color({0.0f, 1.0f, 0.0f, 1.0f})
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+            .two_sided(true)
+            .build(*this);
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(glm::uvec2{32}));

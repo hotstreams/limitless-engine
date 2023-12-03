@@ -1,9 +1,11 @@
 #pragma once
 
-#include <limitless/instances/material_instance.hpp>
 #include <limitless/models/abstract_mesh.hpp>
 #include <limitless/ms/blending.hpp>
+#include <limitless/ms/material.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
+#include <limitless/core/context.hpp>
+#include <memory>
 
 namespace Limitless {
     class Assets;
@@ -15,23 +17,28 @@ namespace Limitless {
     class MeshInstance final {
     private:
         std::shared_ptr<AbstractMesh> mesh;
-        MaterialInstance material;
-        bool hidden {};
+        std::shared_ptr<ms::Material> material;
+        std::shared_ptr<ms::Material> base;
     public:
         MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept;
         ~MeshInstance() = default;
 
-        MeshInstance(const MeshInstance&) = default;
-        MeshInstance(MeshInstance&&) = default;
+        MeshInstance(const MeshInstance&);
+        MeshInstance(MeshInstance&&) noexcept = default;
 
-        void update();
+        // changes current material
+        void changeMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
+
+        // changes base material
+        void changeBaseMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
+
+        // resets base material to base
+        void reset() noexcept;
 
         [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
         [[nodiscard]] auto& getMaterial() noexcept { return material; }
-        [[nodiscard]] bool isHidden() const noexcept { return hidden; }
 
-        void hide() noexcept;
-        void reveal() noexcept;
+        void update();
 
         void draw(Context& ctx,
                   const Assets& assets,

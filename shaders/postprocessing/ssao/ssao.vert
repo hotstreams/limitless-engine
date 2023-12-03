@@ -1,5 +1,4 @@
-Limitless::GLSL_VERSION
-Limitless::Extensions
+ENGINE::COMMON
 
 layout(location = 0) in vec3 vertex_position;
 layout(location = 1) in vec2 vertex_uv;

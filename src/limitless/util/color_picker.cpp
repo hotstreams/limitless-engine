@@ -7,7 +7,7 @@
 using namespace Limitless;
 
 void ColorPicker::onPick(Context& ctx, Assets& assets, Scene& scene, glm::uvec2 coords, std::function<void(uint32_t id)> callback) {
-    onPick(ctx, assets, scene.getWrappers(), coords, std::move(callback));
+    onPick(ctx, assets, scene.getInstances(), coords, std::move(callback));
 }
 
 void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instances, glm::uvec2 coords, std::function<void(uint32_t)> callback) {

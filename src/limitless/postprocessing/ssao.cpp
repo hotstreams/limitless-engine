@@ -12,23 +12,24 @@ namespace {
 }
 
 SSAO::SSAO(ContextEventObserver& ctx) {
-    TextureBuilder builder;
-    auto ssao = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(ctx.getSize())
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto ssao = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(ctx.getSize())
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
-    auto blurred = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(ctx.getSize())
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto blurred = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(ctx.getSize())
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -37,33 +38,34 @@ SSAO::SSAO(ContextEventObserver& ctx) {
     framebuffer.checkStatus();
     framebuffer.unbind();
 
-    BufferBuilder buffer_builder;
-    buffer = buffer_builder.setTarget(Buffer::Type::Uniform)
-            .setData(&settings)
-            .setDataSize(sizeof(Settings))
-            .setUsage(Buffer::Usage::StaticDraw)
-            .setAccess(Buffer::MutableAccess::WriteOrphaning)
+    buffer = Buffer::builder()
+            .target(Buffer::Type::Uniform)
+            .data(&settings)
+            .size(sizeof(Settings))
+            .usage(Buffer::Usage::StaticDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
             .build(SSAO_BUFFER_NAME, ctx);
 }
 
 SSAO::SSAO(ContextEventObserver &ctx, glm::uvec2 frame_size) {
-    TextureBuilder builder;
-    auto ssao = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto ssao = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(frame_size)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
-    auto blurred = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB8)
-            .setSize(frame_size)
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto blurred = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(frame_size)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -72,12 +74,12 @@ SSAO::SSAO(ContextEventObserver &ctx, glm::uvec2 frame_size) {
     framebuffer.checkStatus();
     framebuffer.unbind();
 
-    BufferBuilder buffer_builder;
-    buffer = buffer_builder.setTarget(Buffer::Type::Uniform)
-            .setData(&settings)
-            .setDataSize(sizeof(Settings))
-            .setUsage(Buffer::Usage::StaticDraw)
-            .setAccess(Buffer::MutableAccess::WriteOrphaning)
+    buffer = Buffer::builder()
+            .target(Buffer::Type::Uniform)
+            .data(&settings)
+            .size(sizeof(Settings))
+            .usage(Buffer::Usage::StaticDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
             .build(SSAO_BUFFER_NAME, ctx);
 }
 

@@ -22,16 +22,16 @@ DoFPass::DoFPass(Pipeline& pipeline, ContextEventObserver& ctx)
 }
 
 void DoFPass::initialize(Context& ctx) {
-	TextureBuilder builder;
-	auto result = builder.setTarget(Texture::Type::Tex2D)
-			.setInternalFormat(Texture::InternalFormat::RGB8)
-			.setSize(ctx.getSize())
-			.setFormat(Texture::Format::RGB)
-			.setDataType(Texture::DataType::UnsignedByte)
-			.setMinFilter(Texture::Filter::Linear)
-			.setMagFilter(Texture::Filter::Linear)
-			.setWrapS(Texture::Wrap::ClampToEdge)
-			.setWrapT(Texture::Wrap::ClampToEdge)
+	auto result = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB8)
+            .size(ctx.getSize())
+            .format(Texture::Format::RGB)
+            .data_type(Texture::DataType::UnsignedByte)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
 			.build();
 
 	framebuffer.bind();

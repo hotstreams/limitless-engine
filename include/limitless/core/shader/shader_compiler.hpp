@@ -46,14 +46,7 @@ namespace Limitless {
          */
         std::optional<RenderSettings> render_settings;
 
-        /**
-         * Sets up ShaderAction to be applied to shader source code
-         *
-         * Replaces key-line with used settings
-         *
-         * @param shader - shader to be applied to
-         */
-        void replaceRenderSettings(Shader& shader) const;
+        void replaceCommonDefines(Shader& shader);
     public:
         /**
          * Shader constructor

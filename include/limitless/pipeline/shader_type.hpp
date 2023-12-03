@@ -63,15 +63,15 @@ namespace Limitless {
     };
 
     inline const std::map<ShaderType, std::string> SHADER_PASS_PATH = {
-        {ShaderType::Forward,           "pipeline"  PATH_SEPARATOR "forward" PATH_SEPARATOR "forward" },
+        {ShaderType::Forward,           "pipeline"  PATH_SEPARATOR "forward" },
 
-        {ShaderType::Depth,             "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "depth" },
-        {ShaderType::GBuffer,           "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "gbuffer" },
-        {ShaderType::Skybox,            "pipeline"  PATH_SEPARATOR "deferred" PATH_SEPARATOR "skybox"},
+        {ShaderType::Depth,             "pipeline"  PATH_SEPARATOR "depth" },
+        {ShaderType::GBuffer,           "pipeline"  PATH_SEPARATOR "gbuffer" },
+        {ShaderType::Skybox,            "pipeline"  PATH_SEPARATOR "skybox" },
 
-        {ShaderType::DirectionalShadow, "pipeline"  PATH_SEPARATOR "lighting" PATH_SEPARATOR "directional_shadows" },
+        {ShaderType::DirectionalShadow, "lighting"  PATH_SEPARATOR "directional_shadows" },
 
-        {ShaderType::ColorPicker,       "pipeline"  PATH_SEPARATOR "util"     PATH_SEPARATOR "color_picker" },
+        {ShaderType::ColorPicker,       "pipeline"  PATH_SEPARATOR "color_picker" },
     };
 
     /**
@@ -83,6 +83,7 @@ namespace Limitless {
         Model,
         Skeletal,
         Instanced,
+        SkeletalInstanced,
         Effect
     };
 

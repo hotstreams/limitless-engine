@@ -1,78 +1,105 @@
 #pragma once
 
 #include <limitless/ms/material.hpp>
-#include <limitless/pipeline/shader_type.hpp>
 #include <limitless/ms/unique_material.hpp>
-#include <functional>
 #include <mutex>
-#include <limitless/renderer/render_settings.hpp>
 
 namespace Limitless {
     class Assets;
 }
 
 namespace Limitless::ms {
-    class material_builder_error : public std::runtime_error {
+    class material_builder_exception : public std::runtime_error {
     public:
         using std::runtime_error::runtime_error;
     };
 
-    class MaterialBuilder {
+    class Material::Builder {
     private:
         static inline std::map<UniqueMaterial, uint64_t> unique_materials;
         static inline uint64_t next_shader_index {};
         static inline std::mutex mutex;
 
-        std::shared_ptr<Material> material;
+        std::map<Property, std::unique_ptr<Uniform>> properties;
+        std::map<std::string, std::unique_ptr<Uniform>> uniforms;
 
-        Assets& assets;
+        Blending _blending {Blending::Opaque};
+        Shading _shading {Shading::Lit};
+        bool _two_sided {false};
+        bool _refraction {false};
+        std::string _name;
+        uint64_t shader_index {};
+        InstanceTypes _model_shaders;
 
-        [[nodiscard]] UniqueMaterial getMaterialType() const noexcept;
-        void initializeMaterialBuffer();
+        std::string vertex_snippet;
+        std::string fragment_snippet;
+        std::string global_snippet;
+        std::string shading_snippet;
+
+        bool _skybox;
+
+        UniqueMaterial getMaterialType() const noexcept;
         void checkRequirements();
         void setMaterialIndex();
         void setModelShaders();
-        void createMaterial();
+
+        friend class Material;
     public:
-        explicit MaterialBuilder(Assets& assets);
-        virtual ~MaterialBuilder() = default;
+        Builder() noexcept = default;
+        virtual ~Builder() = default;
 
-        MaterialBuilder(const MaterialBuilder&) = delete;
-        MaterialBuilder& operator=(const MaterialBuilder&) = delete;
+        Builder(const Builder&) = delete;
+        Builder& operator=(const Builder&) = delete;
 
-        MaterialBuilder(MaterialBuilder&&) = delete;
-        MaterialBuilder& operator=(MaterialBuilder&&) = delete;
+        Builder(Builder&&) = delete;
+        Builder& operator=(Builder&&) = delete;
 
-        MaterialBuilder& add(Property type, std::shared_ptr<Texture> texture);
-        MaterialBuilder& add(Property type, const glm::vec4& value);
-        MaterialBuilder& add(Property type, const glm::vec2& value);
-        MaterialBuilder& add(Property type, float value);
-        MaterialBuilder& remove(Property type);
+        Builder& color(const glm::vec4& color) noexcept;
+        Builder& emissive_color(const glm::vec3& emissive_color) noexcept;
+        Builder& diffuse(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& normal(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& emissive_mask(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& blend_mask(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& metallic(float metallic) noexcept;
+        Builder& metallic(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& roughness(float roughness) noexcept;
+        Builder& roughness(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& ao(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& orm(const std::shared_ptr<Texture>& texture) noexcept;
+        Builder& ior(float ior) noexcept;
+        Builder& absorption(float absorption) noexcept;
+        Builder& microthickness(float microthickness) noexcept;
+        Builder& thickness(float thickness) noexcept;
+        Builder& reflectance(float reflectance) noexcept;
+        Builder& transmission(float transmission) noexcept;
 
-        MaterialBuilder& setBlending(Blending blending) noexcept;
-        MaterialBuilder& setShading(Shading shading) noexcept;
-        MaterialBuilder& setTwoSided(bool two_sided) noexcept;
-        MaterialBuilder& setRefraction(bool refraction) noexcept;
-        MaterialBuilder& setName(std::string name) noexcept;
-        [[nodiscard]] const auto& getName() const noexcept { return material->name; }
+        Builder& blending(Blending blending) noexcept;
+        Builder& shading(Shading shading) noexcept;
+        Builder& two_sided(bool two_sided) noexcept;
+        Builder& refraction(bool refraction) noexcept;
+        Builder& name(const std::string& name) noexcept;
 
-        MaterialBuilder& setFragmentSnippet(std::string fs_code) noexcept;
-        MaterialBuilder& setVertexSnippet(std::string vs_code) noexcept;
-        MaterialBuilder& setTessellationSnippet(std::string tes_code) noexcept;
-        MaterialBuilder& setGlobalSnippet(std::string global_code) noexcept;
+        Builder& vertex(const std::string& snippet) noexcept;
+        Builder& fragment(const std::string& snippet) noexcept;
+        Builder& global(const std::string& snippet) noexcept;
+        Builder& shading(const std::string& snippet) noexcept;
 
-        MaterialBuilder& addUniform(std::unique_ptr<Uniform> uniform);
-        MaterialBuilder& removeUniform(const std::string& name);
+        Builder& model(InstanceType model) noexcept;
+        Builder& models(const InstanceTypes& models) noexcept;
 
-        MaterialBuilder& setModelShaders(const InstanceTypes& shaders) noexcept;
-        MaterialBuilder& addModelShader(InstanceType model) noexcept;
+        Builder& skybox() noexcept;
 
-        MaterialBuilder& set(decltype(material->properties)&& properties);
-        MaterialBuilder& set(decltype(material->uniforms)&& uniforms);
+        Builder& time() noexcept;
+        Builder& custom(const std::string& name, float value) noexcept;
+        Builder& custom(const std::string& name, int32_t value) noexcept;
+        Builder& custom(const std::string& name, uint32_t value) noexcept;
+        Builder& custom(const std::string& name, const glm::vec2& value) noexcept;
+        Builder& custom(const std::string& name, const glm::vec3& value) noexcept;
+        Builder& custom(const std::string& name, const glm::vec4& value) noexcept;
+        Builder& custom(const std::string& name, const glm::mat3& value) noexcept;
+        Builder& custom(const std::string& name, const glm::mat4& value) noexcept;
+        Builder& custom(const std::string& name, const std::shared_ptr<Texture>& value) noexcept;
 
-        void clear();
-        void setTo(const std::shared_ptr<Material>& material);
-        std::shared_ptr<Material> build();
-        std::shared_ptr<Material> buildSkybox();
+        std::shared_ptr<Material> build(Assets& assets);
     };
 }

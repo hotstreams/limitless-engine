@@ -41,11 +41,11 @@ void EffectInstance::updateEmitters(Context& context, const Camera& camera) cons
 }
 
 EffectInstance::EffectInstance() noexcept
-    : AbstractInstance(InstanceType::Effect, glm::vec3{0.0f}) {
+    : Instance(InstanceType::Effect, glm::vec3{0.0f}) {
 }
 
 EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
-    : AbstractInstance(InstanceType::Effect, position) {
+    : Instance(InstanceType::Effect, position) {
     emitters.reserve(effect->emitters.size());
     for (const auto& [emitter_name, emitter] : effect->emitters) {
         emitters.emplace(emitter_name, emitter->clone());
@@ -53,19 +53,19 @@ EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, co
 }
 
 EffectInstance::EffectInstance(const EffectInstance& effect) noexcept
-    : AbstractInstance {effect} {
+    : Instance {effect} {
     emitters.reserve(effect.emitters.size());
     for (const auto& [emitter_name, emitter] : effect.emitters) {
         emitters.emplace(emitter_name, emitter->clone());
     }
 }
 
-std::unique_ptr<AbstractInstance> EffectInstance::clone() noexcept {
+std::unique_ptr<Instance> EffectInstance::clone() noexcept {
     return std::make_unique<EffectInstance>(*this);
 }
 
 void EffectInstance::update(Context& context, const Camera& camera) {
-    AbstractInstance::update(context, camera);
+    Instance::update(context, camera);
 	updateEmitters(context, camera);
 	done = isDone();
 }

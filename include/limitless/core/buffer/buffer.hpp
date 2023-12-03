@@ -203,5 +203,9 @@ namespace Limitless {
         [[nodiscard]] virtual size_t getSize() const noexcept = 0;
         [[nodiscard]] virtual const std::variant<Usage, Storage>& getUsageFlags() const noexcept = 0;
         [[nodiscard]] virtual const std::variant<MutableAccess, ImmutableAccess>& getAccess() const noexcept = 0;
+
+        class Builder;
+
+        static Builder builder();
     };
 }

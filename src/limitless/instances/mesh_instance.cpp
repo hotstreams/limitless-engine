@@ -3,22 +3,34 @@
 #include <limitless/models/mesh.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
-#include "limitless/core/shader/shader_program.hpp"
+#include <limitless/core/shader/shader_program.hpp>
 #include <limitless/core/context.hpp>
 
 using namespace Limitless;
+using namespace Limitless::ms;
 
-MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> _mesh, const std::shared_ptr<ms::Material>& _material) noexcept
-    : mesh {std::move(_mesh)}
-    , material {_material} {
+MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept
+    : mesh {std::move(mesh)}
+    , material {std::make_shared<Material>(*material)} {
 }
 
-void MeshInstance::hide() noexcept {
-    hidden = true;
+MeshInstance::MeshInstance(const MeshInstance& rhs)
+    : mesh {rhs.mesh}
+    , material {std::make_shared<Material>(*rhs.material)}
+    , base {std::make_shared<Material>(*rhs.base)} {
 }
 
-void MeshInstance::reveal() noexcept {
-    hidden = false;
+void MeshInstance::changeBaseMaterial(const std::shared_ptr<ms::Material>& material_) noexcept {
+    base = std::make_shared<Material>(*material_);
+    material = std::make_shared<Material>(*material_);
+}
+
+void MeshInstance::changeMaterial(const std::shared_ptr<Material>& material_) noexcept {
+    material = std::make_shared<Material>(*material_);
+}
+
+void MeshInstance::reset() noexcept {
+    material = base;
 }
 
 void MeshInstance::draw(Context& ctx,
@@ -28,70 +40,40 @@ void MeshInstance::draw(Context& ctx,
                         const glm::mat4& model_matrix,
                         ms::Blending blending,
                         const UniformSetter& uniform_setter) {
-    if (hidden) {
-        return;
-    }
-    //TODO: refactor this shitty unreadable nonhuman orc code
-    if (!material.isLayered()) {
-        const auto& mat = material[0];
 
-        if (mat.getBlending() != blending) {
-            return;
-        }
-
-        // sets state for material
-        material.setMaterialState(ctx, 0, pass);
-
-        // gets required shader from storage
-        auto& shader = assets.shaders.get(pass, model, mat.getShaderIndex());
-
-        // updates model/material uniforms
-        shader.setUniform("_model_transform", model_matrix)
-                .setMaterial(mat);
-
-        // sets custom pass-dependent uniforms
-        uniform_setter(shader);
-
-        shader.use();
-
-        if (mat.contains(ms::Property::TessellationFactor)) {
-            //TODO: move to somewhere else
-            glPatchParameteri(GL_PATCH_VERTICES, 4);
-            mesh->draw(VertexStreamDraw::Patches);
-        } else {
-            mesh->draw();
-        }
+    if (material->getBlending() != blending) {
         return;
     }
 
-    // iterates over material layers
-    for (const auto& [index, mat] : material) {
-        if (mat->getBlending() != blending) {
-            continue;
-        }
+    setBlendingMode(material->getBlending());
 
-        // sets state for material
-        material.setMaterialState(ctx, index, pass);
+    // sets culling based on two-sideness
+    if (material->getTwoSided()) {
+        ctx.disable(Capabilities::CullFace);
+    } else {
+        ctx.enable(Capabilities::CullFace);
 
-        // gets required shader from storage
-        auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());
-
-        // updates model/material uniforms
-        shader.setUniform("_model_transform", model_matrix)
-              .setMaterial(*mat);
-
-        // sets custom pass-dependent uniforms
-        uniform_setter(shader);
-
-        shader.use();
-
-        if (mat->contains(ms::Property::TessellationFactor)) {
-            glPatchParameteri(GL_PATCH_VERTICES, 4);
-            mesh->draw(VertexStreamDraw::Patches);
+        // front cullfacing for shadows helps prevent peter panning
+        if (pass == ShaderType::DirectionalShadow) {
+            ctx.setCullFace(CullFace::Front);
         } else {
-            mesh->draw();
+            ctx.setCullFace(CullFace::Back);
         }
     }
+
+    // gets required shader from storage
+    auto& shader = assets.shaders.get(pass, model, material->getShaderIndex());
+
+    // updates model/material uniforms
+    shader.setUniform("_model_transform", model_matrix)
+          .setMaterial(*material);
+
+    // sets custom pass-dependent uniforms
+    uniform_setter(shader);
+
+    shader.use();
+
+    mesh->draw();
 }
 
 void MeshInstance::draw_instanced(Context& ctx,
@@ -102,42 +84,41 @@ void MeshInstance::draw_instanced(Context& ctx,
                                   ms::Blending blending,
                                   const UniformSetter& uniform_setter,
                                   uint32_t count) {
-    if (hidden) {
+    if (material->getBlending() != blending) {
         return;
     }
 
-    // iterates over material layers
-    for (const auto& [index, mat] : material) {
-        if (mat->getBlending() != blending) {
-            continue;
-        }
+    setBlendingMode(material->getBlending());
 
-        // sets state for material
-        material.setMaterialState(ctx, index, pass);
+    // sets culling based on two-sideness
+    if (material->getTwoSided()) {
+        ctx.disable(Capabilities::CullFace);
+    } else {
+        ctx.enable(Capabilities::CullFace);
 
-        // gets required shader from storage
-        auto& shader = assets.shaders.get(pass, model, mat->getShaderIndex());
-
-        // updates model/material uniforms
-        shader.setUniform("_model_transform", model_matrix)
-              .setMaterial(*mat);
-
-        // sets custom pass-dependent uniforms
-        uniform_setter(shader);
-
-        shader.use();
-
-        if (mat->contains(ms::Property::TessellationFactor)) {
-            glPatchParameteri(GL_PATCH_VERTICES, 4);
-            mesh->draw_instanced(VertexStreamDraw::Patches, count);
+        // front cullfacing for shadows helps prevent peter panning
+        if (pass == ShaderType::DirectionalShadow) {
+            ctx.setCullFace(CullFace::Front);
         } else {
-            mesh->draw_instanced(count);
+            ctx.setCullFace(CullFace::Back);
         }
     }
+
+    // gets required shader from storage
+    auto& shader = assets.shaders.get(pass, model, material->getShaderIndex());
+
+    // updates model/material uniforms
+    shader.setUniform("_model_transform", model_matrix)
+            .setMaterial(*material);
+
+    // sets custom pass-dependent uniforms
+    uniform_setter(shader);
+
+    shader.use();
+
+    mesh->draw_instanced(count);
 }
 
 void MeshInstance::update() {
-	for (const auto& [_, mat] : material) {
-		mat->update();
-	}
+    material->update();
 }

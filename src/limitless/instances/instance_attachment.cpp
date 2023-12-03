@@ -1,5 +1,5 @@
 #include <limitless/instances/instance_attachment.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 
 #include <stdexcept>
 #include <algorithm>
@@ -31,7 +31,7 @@ InstanceAttachment& InstanceAttachment::setAttachmentsParent(const glm::mat4& pa
 	return *this;
 }
 
-void InstanceAttachment::attach(std::unique_ptr<AbstractInstance> attachment) {
+void InstanceAttachment::attach(std::shared_ptr<Instance> attachment) {
 	attachments.emplace(AttachmentID {attachment->getId(), AttachmentType::Basic}, std::move(attachment));
 }
 
@@ -45,7 +45,7 @@ void InstanceAttachment::detach(uint64_t id) {
     }
 }
 
-const AbstractInstance& InstanceAttachment::getAttachment(uint64_t id) const {
+const Instance& InstanceAttachment::getAttachment(uint64_t id) const {
     auto it = std::find_if(attachments.begin(), attachments.end(), [&] (const auto& att) {
         return att.first.id == id;
     });
@@ -57,7 +57,7 @@ const AbstractInstance& InstanceAttachment::getAttachment(uint64_t id) const {
     }
 }
 
-AbstractInstance& InstanceAttachment::getAttachment(uint64_t id) {
+Instance& InstanceAttachment::getAttachment(uint64_t id) {
     auto it = std::find_if(attachments.begin(), attachments.end(), [&] (const auto& att) {
         return att.first.id == id;
     });

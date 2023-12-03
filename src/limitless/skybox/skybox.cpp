@@ -17,16 +17,16 @@ Skybox::Skybox(const std::shared_ptr<Material>& material)
 Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
     const auto& cube_map_texture = TextureLoader::loadCubemap(assets, path, flags);
 
-    MaterialBuilder material_builder {assets};
-    material = material_builder
-                    .setName(path.stem().string())
-                    .addUniform(std::make_unique<UniformSampler>("skybox", cube_map_texture))
-                    .setFragmentSnippet("data.color.rgb = texture(skybox, skybox_uv).rgb;\n")
-                    .add(Property::Color, glm::vec4(1.0f))
-                    .setTwoSided(true)
-                    .setShading(Shading::Unlit)
-                    .setBlending(Blending::Opaque)
-                    .buildSkybox();
+    material = Material::builder()
+                    .name(path.stem().string())
+                    .custom("skybox", cube_map_texture)
+                    .fragment("mctx.color.rgb = texture(skybox, skybox_uv).rgb;\n")
+                    .color(glm::vec4(1.0f))
+                    .two_sided(true)
+                    .shading(Shading::Unlit)
+                    .blending(Blending::Opaque)
+                    .skybox()
+                    .build(assets);
 }
 
 void Skybox::draw(Context& context, const Assets& assets) {

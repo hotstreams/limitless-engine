@@ -55,7 +55,7 @@ namespace Limitless {
 
     class TextureLoader final {
     private:
-        static void setFormat(TextureBuilder& builder, const TextureLoaderFlags& flags, int channels);
+        static void setFormat(Texture::Builder& builder, const TextureLoaderFlags& flags, int channels);
         static void setAnisotropicFilter(const std::shared_ptr<Texture>& texture, const TextureLoaderFlags& flags);
         static void setDownScale(int& width, int& height, int channels, unsigned char*& data, const TextureLoaderFlags& flags);
         static bool isPowerOfTwo(int width, int height);
@@ -63,7 +63,7 @@ namespace Limitless {
         TextureLoader() = delete;
         ~TextureLoader() = delete;
 
-        static void setTextureParameters(TextureBuilder& builder, const TextureLoaderFlags& flags);
+        static void setTextureParameters(Texture::Builder& builder, const TextureLoaderFlags& flags);
         static GLFWimage loadGLFWImage(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
 
         static std::shared_ptr<Texture> load(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});

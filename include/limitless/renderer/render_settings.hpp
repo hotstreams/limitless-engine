@@ -26,7 +26,7 @@ namespace Limitless {
         /**
          * Screen Space Ambient Occlusion
          */
-        bool screen_space_ambient_occlusion {true};
+        bool screen_space_ambient_occlusion {false};
         SSAO::Settings settings;
 
         /**
@@ -64,7 +64,7 @@ namespace Limitless {
         /**
          * Micro-shadowing for CSM
          */
-        bool csm_micro_shadowing = false;
+        bool csm_micro_shadowing = true;
 
         /**
          *
@@ -75,13 +75,20 @@ namespace Limitless {
         uint32_t bloom_blur_iteration_count {8};
 
         /**
+         *
+         */
+         bool specular_aa {true};
+         float specular_aa_threshold {0.1f};
+         float specular_aa_variance {0.2f};
+
+        /**
          * Debug settings
          */
 
         /**
          *  Render lights impact area
          */
-        bool light_radius = true;
+        bool light_radius = false;
 
         /**
          * Render System Axes

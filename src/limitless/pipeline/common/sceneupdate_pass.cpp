@@ -14,7 +14,7 @@ void SceneUpdatePass::update(Scene& scene, Instances& instances, Context& ctx, c
 
     scene_data.update(ctx, camera);
 
-    instances = scene.getWrappers();
+    instances = scene.getInstances();
 }
 
 void SceneUpdatePass::onFramebufferChange(glm::uvec2 size) {

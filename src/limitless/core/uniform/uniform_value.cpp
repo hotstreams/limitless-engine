@@ -102,6 +102,12 @@ const T& UniformValue<T>::getValue() const noexcept {
     return value;
 }
 
+template<typename T>
+T& UniformValue<T>::getValue() noexcept {
+    changed = true;
+    return value;
+}
+
 namespace Limitless {
     template class UniformValue<int32_t>;
     template class UniformValue<float>;

@@ -8,34 +8,6 @@ Scene::Scene(Context& context)
     : lighting {context} {
 }
 
-AbstractInstance& Scene::operator[](uint64_t id) noexcept { return *instances[id]; }
-AbstractInstance& Scene::at(uint64_t id) { return *instances.at(id); }
-
-void Scene::remove(uint64_t id) { instances.erase(id); }
-
-void Scene::setSkybox(std::shared_ptr<Skybox> _skybox) {
-    skybox = std::move(_skybox);
-}
-
-void Scene::update(Context& context, const Camera& camera) {
-    lighting.update();
-
-    removeDeadInstances();
-
-    //TODO: why is here two updates?
-    for (auto& [_, instance] : instances) {
-        if (instance->getShaderType() != InstanceType::Effect) {
-            instance->update(context, camera);
-        }
-    }
-
-    for (auto& [_, instance] : instances) {
-        if (instance->getShaderType() == InstanceType::Effect) {
-            instance->update(context, camera);
-        }
-    }
-}
-
 void Scene::removeDeadInstances() noexcept {
     for (auto it = instances.cbegin(); it != instances.cend(); ) {
         if (it->second->isKilled()) {
@@ -46,11 +18,120 @@ void Scene::removeDeadInstances() noexcept {
     }
 }
 
-Instances Scene::getWrappers() noexcept {
+void Scene::add(const std::shared_ptr<Instance>& instance) {
+    instances.emplace(instance->getId(), instance);
+}
+
+void Scene::remove(const std::shared_ptr<Instance>& instance) {
+    remove(instance->getId());
+}
+
+void Scene::remove(uint64_t id) {
+    instances.erase(id);
+}
+
+void Scene::removeAll() {
+    instances.clear();
+}
+
+std::shared_ptr<Instance> Scene::getInstance(uint64_t id) {
+    try {
+        return instances.at(id);
+    } catch (const std::out_of_range& ex) {
+        throw scene_exception {"Instance with id = " + std::to_string(id) + " not found!"};
+    }
+}
+
+std::shared_ptr<ModelInstance> Scene::getModelInstance(uint64_t id) {
+    try {
+        auto instance = instances.at(id);
+        if (instance->getInstanceType() == InstanceType::Model) {
+            return std::static_pointer_cast<ModelInstance>(instance);
+        } else {
+            throw scene_exception {"Instance with id = " + std::to_string(id) + " is not ModelInstance!"};
+        }
+    } catch (const std::out_of_range& ex) {
+        throw scene_exception {"Instance with id = " + std::to_string(id) + " not found!"};
+    }
+}
+
+std::shared_ptr<SkeletalInstance> Scene::getSkeletalInstance(uint64_t id) {
+    try {
+            auto instance = instances.at(id);
+            if (instance->getInstanceType() == InstanceType::Skeletal) {
+                return std::static_pointer_cast<SkeletalInstance>(instance);
+            } else {
+                throw scene_exception {"Instance with id = " + std::to_string(id) + " is not SkeletalInstance!"};
+            }
+    } catch (const std::out_of_range& ex) {
+        throw scene_exception {"Instance with id = " + std::to_string(id) + " not found!"};
+    }
+}
+
+std::shared_ptr<EffectInstance> Scene::getEffectInstance(uint64_t id) {
+    try {
+        auto instance = instances.at(id);
+        if (instance->getInstanceType() == InstanceType::Effect) {
+            return std::static_pointer_cast<EffectInstance>(instance);
+        } else {
+            throw scene_exception {"Instance with id = " + std::to_string(id) + " is not EffectInstance!"};
+        }
+    } catch (const std::out_of_range& ex) {
+        throw scene_exception {"Instance with id = " + std::to_string(id) + " not found!"};
+    }
+}
+
+const Lighting& Scene::getLighting() const noexcept {
+    return lighting;
+}
+
+Lighting &Scene::getLighting() noexcept {
+    return lighting;
+}
+
+Light& Scene::add(Light&& light) {
+    return lighting.add(std::move(light));
+}
+
+Light& Scene::add(const Light &light) {
+    return lighting.add(light);
+}
+
+const std::shared_ptr<Skybox> &Scene::getSkybox() const noexcept {
+    return skybox;
+}
+
+std::shared_ptr<Skybox> &Scene::getSkybox() noexcept {
+    return skybox;
+}
+
+void Scene::setSkybox(const std::shared_ptr<Skybox>& skybox_) {
+    skybox = skybox_;
+}
+
+void Scene::update(Context& context, const Camera& camera) {
+    lighting.update();
+
+    removeDeadInstances();
+
+    for (auto& [_, instance] : instances) {
+        if (instance->getInstanceType() != InstanceType::Effect) {
+            instance->update(context, camera);
+        }
+    }
+
+    for (auto& [_, instance] : instances) {
+        if (instance->getInstanceType() == InstanceType::Effect) {
+            instance->update(context, camera);
+        }
+    }
+}
+
+Instances Scene::getInstances() const noexcept {
     Instances wrappers;
     wrappers.reserve(instances.size());
 
-    const std::function<void(AbstractInstance&)> visitor = [&] (AbstractInstance& instance) {
+    const std::function<void(Instance&)> visitor = [&] (Instance& instance) {
 	    wrappers.emplace_back(std::ref(instance));
 
 	    for (auto& [_, attachment] : instance.getAttachments()) {
@@ -63,8 +144,4 @@ Instances Scene::getWrappers() noexcept {
 	}
 
     return wrappers;
-}
-
-void Scene::clear() {
-	instances.clear();
 }

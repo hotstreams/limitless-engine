@@ -15,6 +15,9 @@ OPTION(WEBGL_BUILD "Web build" OFF)
 OPTION(CODECOV "Compile with test coverage" OFF)
 OPTION(GLSLANG_SHADER_OUTPUT OFF)
 
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set(CMAKE_ENABLE_EXPORTS ON)
 #########################################
 
 # SETTINGS COMPILE FLAGS AND DEFINITIONS
@@ -25,7 +28,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
+    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
     add_compile_definitions(NDEBUG)
 endif()
 
@@ -97,6 +100,7 @@ set(ENGINE_CORE
     src/limitless/core/shader/shader_program.cpp
     src/limitless/core/shader/shader_program_texture_setter.cpp
     src/limitless/core/shader/shader_compiler.cpp
+    src/limitless/core/shader/shader_define_replacer.cpp
 
     src/limitless/core/vertex_array.cpp
     src/limitless/core/framebuffer.cpp
@@ -110,19 +114,21 @@ set(ENGINE_CORE
 )
 
 set(ENGINE_INSTANCES
-    src/limitless/instances/abstract_instance.cpp
+        src/limitless/instances/instance.cpp
     src/limitless/instances/skeletal_instance.cpp
     src/limitless/instances/mesh_instance.cpp
     src/limitless/instances/model_instance.cpp
     src/limitless/instances/effect_instance.cpp
     src/limitless/instances/instance_attachment.cpp
     src/limitless/instances/socket_attachment.cpp
+    src/limitless/instances/instance_builder.cpp
 )
 
 set(ENGINE_LIGHTING
     src/limitless/lighting/lighting.cpp
     src/limitless/lighting/light_container.cpp
     src/limitless/lighting/cascade_shadows.cpp
+    src/limitless/lighting/light.cpp
 )
 
 set(ENGINE_LOADERS
@@ -164,6 +170,7 @@ set(ENGINE_UTIL
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
     src/limitless/util/color_picker.cpp
+    src/limitless/util/stack_trace.cpp
 )
 
 set(ENGINE_MS
@@ -172,7 +179,8 @@ set(ENGINE_MS
     src/limitless/ms/unique_material.cpp
     src/limitless/ms/material_builder.cpp
     src/limitless/ms/material_compiler.cpp
-    src/limitless/ms/material_instance.cpp
+    src/limitless/ms/material_buffer.cpp
+    src/limitless/ms/material_shader_define_replacer.cpp
 )
 
 set(ENGINE_TEXT
@@ -192,10 +200,11 @@ set(ENGINE_FX
     src/limitless/fx/effect_builder.cpp
     src/limitless/fx/effect_compiler.cpp
     src/limitless/fx/particle.cpp
+    src/limitless/fx/effect_shader_define_replacer.cpp
 )
 
 set(ENGINE_PIPELINE
-    src/limitless/pipeline/pipeline.cpp
+        src/limitless/pipeline/pipeline.cpp
         src/limitless/pipeline/pipeline_pass.cpp
         src/limitless/pipeline/forward/color_pass.cpp
         src/limitless/pipeline/forward/particle_pass.cpp
@@ -207,6 +216,7 @@ set(ENGINE_PIPELINE
         src/limitless/pipeline/forward/forward.cpp
         src/limitless/pipeline/forward/postprocessing.cpp
         src/limitless/renderer/renderer.cpp
+        src/limitless/renderer/render_settings_shader_definer.cpp
         src/limitless/pipeline/common/scene_data.cpp
         src/limitless/pipeline/deferred/effectupdate_pass.cpp
         src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
@@ -237,8 +247,8 @@ set(ENGINE_SRC
     ${ENGINE_INSTANCES}
     ${ENGINE_LIGHTING}
     ${ENGINE_LOADERS}
-    ${ENGINE_MODELS}
     ${ENGINE_SERIALIZATION}
+    ${ENGINE_MODELS}
     ${ENGINE_UTIL}
     ${ENGINE_TEXT}
     ${ENGINE_PIPELINE}
@@ -316,9 +326,9 @@ target_link_libraries(limitless_engine_static PUBLIC glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC freetype)
 target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
+target_link_libraries(limitless_engine_static PUBLIC dbghelp)
 
 target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
-
 #if (CODECOV)
 #    message("shrek1")
 #    target_link_options(limitless_engine_static PUBLIC -lgcov --coverage)
@@ -339,7 +349,6 @@ add_executable(limitless_demo
     demo/lighting_demoscene.cpp
     demo/effects_demoscene.cpp
     demo/models_demoscene.cpp
-    demo/sponza_demoscene.cpp
     demo/assets.cpp
 )
 
@@ -356,6 +365,7 @@ target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_demo freetype)
 target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
+target_link_libraries(limitless_demo dbghelp)
 
 ##############################################
 

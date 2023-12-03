@@ -11,7 +11,7 @@ namespace Limitless {
      * TextureBuilder is class that is used to build Textures
      * with different properties using different OpenGL extensions
      */
-    class TextureBuilder {
+    class Texture::Builder final {
     private:
         [[nodiscard]] static bool isImmutable();
         [[nodiscard]] bool isCompressed() const;
@@ -20,34 +20,28 @@ namespace Limitless {
 
         std::unique_ptr<Texture> texture;
         std::array<void*, 6> cube_data {};
-        const void* data {};
+        const void* data_ {};
         std::size_t byte_count {};
     public:
-        TextureBuilder();
-        ~TextureBuilder() = default;
+        Builder();
 
-        TextureBuilder(const TextureBuilder&) = delete;
-        TextureBuilder(TextureBuilder&&) = delete;
-
-        TextureBuilder& setInternalFormat(Texture::InternalFormat internal);
-        TextureBuilder& setDataType(Texture::DataType data_type);
-        TextureBuilder& setFormat(Texture::Format format);
-        TextureBuilder& setTarget(Texture::Type target);
-        TextureBuilder& setData(const void* data);
-        TextureBuilder& setData(const std::array<void*, 6>& data);
-        TextureBuilder& setCompressedData(const void* data, std::size_t bytes);
-        TextureBuilder& setLevels(uint32_t levels);
-        TextureBuilder& setPath(const fs::path& path);
-        TextureBuilder& setSize(glm::uvec2 size);
-        TextureBuilder& setSize(glm::uvec3 size);
-        TextureBuilder& setMipMap(bool mipmap);
-        TextureBuilder& setMinFilter(Texture::Filter filter);
-        TextureBuilder& setMagFilter(Texture::Filter filter);
-        TextureBuilder& setWrapS(Texture::Wrap wrap);
-        TextureBuilder& setWrapT(Texture::Wrap wrap);
-        TextureBuilder& setWrapR(Texture::Wrap wrap);
-        TextureBuilder& setBorder(bool border);
-        TextureBuilder& setBorderColor(const glm::vec4& color);
+        Builder& internal_format(Texture::InternalFormat internal);
+        Builder& data_type(Texture::DataType data_type);
+        Builder& format(Texture::Format format);
+        Builder& target(Texture::Type target);
+        Builder& data(const void* data);
+        Builder& data(const std::array<void*, 6>& data);
+        Builder& compressed_data(const void* data, std::size_t bytes);
+        Builder& levels(uint32_t levels);
+        Builder& path(const fs::path& path);
+        Builder& size(glm::uvec2 size);
+        Builder& size(glm::uvec3 size);
+        Builder& mipmap(bool mipmap);
+        Builder& min_filter(Texture::Filter filter);
+        Builder& mag_filter(Texture::Filter filter);
+        Builder& wrap_s(Texture::Wrap wrap);
+        Builder& wrap_t(Texture::Wrap wrap);
+        Builder& wrap_r(Texture::Wrap wrap);
 
         void useStateExtensionTexture();
         void useNamedExtensionTexture();

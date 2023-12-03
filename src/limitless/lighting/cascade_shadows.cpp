@@ -7,14 +7,15 @@
 #include "limitless/core/uniform/uniform.hpp"
 
 #include <limitless/ms/blending.hpp>
-#include <limitless/instances/abstract_instance.hpp>
+#include <limitless/instances/instance.hpp>
 
-#include <limitless/lighting/lights.hpp>
+#include <limitless/lighting/light.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/scene.hpp>
 
 #include <limitless/fx/effect_renderer.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -23,25 +24,20 @@ namespace {
 }
 
 void CascadeShadows::initBuffers(Context& context) {
-    TextureBuilder builder;
-    auto depth = builder.setTarget(Texture::Type::Tex2DArray)
-                        .setInternalFormat(Texture::InternalFormat::Depth16)
-                        .setSize(glm::uvec3{shadow_resolution, split_count})
-                        .setFormat(Texture::Format::DepthComponent)
-                        .setDataType(Texture::DataType::Float)
-                        .setMipMap(false)
-//                        .setBorder(true)
-                        .setLevels(1)
-//                        .setBorderColor({ 1.0f, 1.0f, 1.0f, 1.0f })
-                        .setMinFilter(Texture::Filter::Nearest)
-                        .setMagFilter(Texture::Filter::Nearest)
-//                        .setWrapS(Texture::Wrap::ClampToBorder)
-//                        .setWrapT(Texture::Wrap::ClampToBorder)
-//                        .setWrapR(Texture::Wrap::ClampToBorder)
-                        .setWrapS(Texture::Wrap::ClampToEdge)
-                        .setWrapT(Texture::Wrap::ClampToEdge)
-                        .setWrapR(Texture::Wrap::ClampToEdge)
-                        .build();
+    auto depth = Texture::builder()
+            .target(Texture::Type::Tex2DArray)
+            .internal_format(Texture::InternalFormat::Depth16)
+            .size(glm::uvec3{shadow_resolution, split_count})
+            .format(Texture::Format::DepthComponent)
+            .data_type(Texture::DataType::Float)
+            .mipmap(false)
+            .levels(1)
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
+            .wrap_r(Texture::Wrap::ClampToEdge)
+            .build();
 
     framebuffer = std::make_unique<Framebuffer>();
     framebuffer->bind();
@@ -53,12 +49,12 @@ void CascadeShadows::initBuffers(Context& context) {
     framebuffer->unbind();
 
 
-    BufferBuilder buffer_builder;
-    light_buffer = buffer_builder .setTarget(Buffer::Type::ShaderStorage)
-                                  .setUsage(Buffer::Usage::DynamicDraw)
-                                  .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                                  .setDataSize(sizeof(glm::mat4) * split_count)
-                                  .build(DIRECTIONAL_CSM_BUFFER_NAME, context);
+    light_buffer = Buffer::builder()
+          .target(Buffer::Type::ShaderStorage)
+          .usage(Buffer::Usage::DynamicDraw)
+          .access(Buffer::MutableAccess::WriteOrphaning)
+          .size(sizeof(glm::mat4) * split_count)
+          .build(DIRECTIONAL_CSM_BUFFER_NAME, context);
 }
 
 CascadeShadows::CascadeShadows(Context& context, const RenderSettings& settings)
@@ -131,11 +127,17 @@ void CascadeShadows::updateFrustums(Context& ctx, const Camera& camera) {
     }
 }
 
-void CascadeShadows::updateLightMatrices(const DirectionalLight& light) {
+void CascadeShadows::updateLightMatrices(const Light& light) {
     // clear matrices
     light_space.clear();
 
-    const auto view = glm::lookAt(-glm::vec3(light.direction), { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+    auto up = glm::vec3{0.0f, 1.0f, 0.0f};
+
+    if (glm::abs(glm::dot(up, light.getDirection())) > 0.999f) {
+        up = {0.0f, 0.0f, 1.0f};
+    }
+
+    const auto view = glm::lookAt(-light.getDirection(), { 0.0f, 0.0f, 0.0f }, up);
     for (auto& frustum : frustums) {
         glm::vec3 max = {std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), 0.0f};
         glm::vec3 min = {std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), 0.0f};
@@ -184,7 +186,7 @@ void CascadeShadows::updateLightMatrices(const DirectionalLight& light) {
 }
 
 void CascadeShadows::draw(Instances& instances,
-                          const DirectionalLight& light,
+                          const Light& light,
                           Context& ctx, const
                           Assets& assets,
                           const Camera& camera,

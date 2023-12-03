@@ -11,15 +11,15 @@ using namespace Limitless;
 
 SSR::SSR(ContextEventObserver& ctx)
     : blur {ctx.getSize()} {
-    TextureBuilder builder;
-    auto ssr = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16F)
-            .setDataType(Texture::DataType::Float)
-            .setSize(ctx.getSize())
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto ssr = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB16F)
+            .data_type(Texture::DataType::Float)
+            .size(ctx.getSize())
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -30,15 +30,15 @@ SSR::SSR(ContextEventObserver& ctx)
 
 SSR::SSR(ContextEventObserver &ctx, glm::uvec2 frame_size)
     : blur {frame_size} {
-    TextureBuilder builder;
-    auto ssr = builder.setTarget(Texture::Type::Tex2D)
-            .setInternalFormat(Texture::InternalFormat::RGB16F)
-            .setDataType(Texture::DataType::Float)
-            .setSize(ctx.getSize())
-            .setMinFilter(Texture::Filter::Nearest)
-            .setMagFilter(Texture::Filter::Nearest)
-            .setWrapS(Texture::Wrap::ClampToEdge)
-            .setWrapT(Texture::Wrap::ClampToEdge)
+    auto ssr = Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .internal_format(Texture::InternalFormat::RGB16F)
+            .data_type(Texture::DataType::Float)
+            .size(ctx.getSize())
+            .min_filter(Texture::Filter::Nearest)
+            .mag_filter(Texture::Filter::Nearest)
+            .wrap_s(Texture::Wrap::ClampToEdge)
+            .wrap_t(Texture::Wrap::ClampToEdge)
             .build();
 
     framebuffer.bind();
@@ -47,7 +47,7 @@ SSR::SSR(ContextEventObserver &ctx, glm::uvec2 frame_size)
     framebuffer.unbind();
 }
 
-void SSR::draw(Context& ctx, const Assets& assets, const Camera& camera,
+void SSR::draw(Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera,
                const std::shared_ptr<Texture>& depth,
                const std::shared_ptr<Texture>& normal,
                const std::shared_ptr<Texture>& props,

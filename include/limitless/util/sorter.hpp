@@ -3,16 +3,16 @@
 #include <functional>
 
 namespace Limitless {
-    class AbstractInstance;
+    class Instance;
     class Camera;
 
     struct FrontToBackSorter {
         const Camera& camera;
-        bool operator()(const std::reference_wrapper<AbstractInstance>& lhs, const std::reference_wrapper<AbstractInstance>& rhs) const noexcept;
+        bool operator()(const std::reference_wrapper<Instance>& lhs, const std::reference_wrapper<Instance>& rhs) const noexcept;
     };
 
     struct BackToFrontSorter {
         const Camera& camera;
-        bool operator()(const std::reference_wrapper<AbstractInstance>& lhs, const std::reference_wrapper<AbstractInstance>& rhs) const noexcept;
+        bool operator()(const std::reference_wrapper<Instance>& lhs, const std::reference_wrapper<Instance>& rhs) const noexcept;
     };
 }

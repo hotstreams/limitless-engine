@@ -13,8 +13,6 @@ namespace Limitless::fx {
 
     class EffectCompiler : public ms::MaterialCompiler {
     private:
-        static std::string getEmitterDefines(const AbstractEmitter& emitter) noexcept;
-
         template<typename T>
         void compile(ShaderType shader_type, const T& emitter);
     public:

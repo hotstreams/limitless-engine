@@ -93,7 +93,7 @@ TEST_CASE("ModelInstance model copy constructor") {
     REQUIRE(instance.getFinalMatrix() == copy.getFinalMatrix());
     REQUIRE(instance.getModelMatrix() == copy.getModelMatrix());
     REQUIRE(instance.getTransformationMatrix() == copy.getTransformationMatrix());
-    REQUIRE(instance.getShaderType() == copy.getShaderType());
+    REQUIRE(instance.getInstanceType() == copy.getInstanceType());
     REQUIRE(instance.getPosition() == copy.getPosition());
     REQUIRE(instance.getRotation() == copy.getRotation());
     REQUIRE(instance.getScale() == copy.getScale());
@@ -122,13 +122,13 @@ TEST_CASE("ModelInstance clone") {
 
     instance.update(context, camera);
 
-    std::unique_ptr<AbstractInstance> copy = instance.clone();
+    std::unique_ptr<Instance> copy = instance.clone();
 
     REQUIRE(instance.getId() != copy->getId());
     REQUIRE(instance.getFinalMatrix() == copy->getFinalMatrix());
     REQUIRE(instance.getModelMatrix() == copy->getModelMatrix());
     REQUIRE(instance.getTransformationMatrix() == copy->getTransformationMatrix());
-    REQUIRE(instance.getShaderType() == copy->getShaderType());
+    REQUIRE(instance.getInstanceType() == copy->getInstanceType());
     REQUIRE(instance.getPosition() == copy->getPosition());
     REQUIRE(instance.getRotation() == copy->getRotation());
     REQUIRE(instance.getScale() == copy->getScale());

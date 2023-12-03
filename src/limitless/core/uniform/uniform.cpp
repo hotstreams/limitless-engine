@@ -43,6 +43,14 @@ void Uniform::setLocation(GLint loc) noexcept {
     location = loc;
 }
 
+Uniform::Uniform(const Uniform& rhs) noexcept
+    : name {rhs.name}
+    , location {rhs.location}
+    , type {rhs.type}
+    , value_type {rhs.value_type}
+    , changed {true} {
+}
+
 bool Limitless::operator==(const Uniform& lhs, const Uniform& rhs) noexcept {
     return !(lhs < rhs) && !(rhs < lhs);
 }

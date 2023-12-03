@@ -1,63 +1,113 @@
 #include <limitless/lighting/light_container.hpp>
 
 #include <limitless/core/buffer/buffer_builder.hpp>
-#include <limitless/lighting/lights.hpp>
+#include <limitless/lighting/light.hpp>
 #include <limitless/core/context_state.hpp>
 
 using namespace Limitless;
 
-template<typename T>
-LightContainer<T>::LightContainer()
-    : LightContainer {1} {
+static constexpr auto SHADER_STORAGE_NAME = "LIGHTS_BUFFER";
+
+float LightContainer::InternalLight::radiusToFalloff(float r) {
+    return 1.0f / (r * r);
 }
 
-template<typename T>
-LightContainer<T>::LightContainer(uint64_t reserve_count) {
-    reserve(reserve_count);
+float LightContainer::InternalLight::falloffToRadius(float f) {
+    return glm::sqrt(1.0f / f);
 }
 
-template<typename T>
-void LightContainer<T>::reserve(size_t n) {
-    lights.reserve(n);
-    lights_map.reserve(n);
+glm::vec2 LightContainer::InternalLight::anglesToScaleOffset(const glm::vec2& angles) {
+    const auto inner = glm::radians(angles.x);
+    const auto outer = glm::radians(angles.y);
 
-    auto& buffers = ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers();
+    const auto inner_cos = glm::cos(inner);
+    const auto outer_cos = glm::cos(outer);
+    const auto scale = 1.0f / glm::max(1.0f / 1024.0f, inner_cos - outer_cos);
+    const auto offset = -outer_cos * scale;
 
-    buffers.remove(T::SHADER_STORAGE_NAME, buffer);
-
-    BufferBuilder builder;
-    buffer = builder.setTarget(Buffer::Type::ShaderStorage)
-                    .setUsage(Buffer::Usage::DynamicDraw)
-                    .setAccess(Buffer::MutableAccess::WriteOrphaning)
-                    .setDataSize(sizeof(T) * n)
-                    .build(T::SHADER_STORAGE_NAME, *ContextState::getState(glfwGetCurrentContext()));
-
-    modified = true;
+    return { scale, offset };
 }
 
-template<typename T>
-void LightContainer<T>::erase(uint64_t id) {
-    modified = true;
+glm::vec2 LightContainer::InternalLight::scaleOffsetToAngles(const glm::vec2& scale_offset) {
+    const auto outer_cos = -scale_offset.y / scale_offset.x;
+    const auto inner_cos = 1.0f / (scale_offset.x + 1.0f / 1024.0f);
 
-    auto del_index = lights_map.at(id);
+    const auto outer_angle = glm::degrees(glm::acos(outer_cos));
+    const auto inner_angle = glm::degrees(glm::acos(inner_cos));
 
-    lights.erase(lights.begin() + del_index);
-
-    for (auto& [id, index] : lights_map)
-        if (index > del_index) --index;
+    return { inner_angle, outer_angle };
 }
 
-template<typename T>
-void LightContainer<T>::update() {
-    if (modified) {
-        buffer->mapData(lights.data(), sizeof(T) * size());
-        modified = false;
+LightContainer::InternalLight::InternalLight(const Light& light) noexcept
+    : color {light.getColor()}
+    , position {light.getPosition(), 0.0f}
+    , direction {light.getDirection(), 0.0f}
+    , scale_offset {anglesToScaleOffset(light.getCone())}
+    , falloff {radiusToFalloff(light.getRadius())}
+    , type {static_cast<uint32_t>(light.getType())} {
+}
+
+void LightContainer::InternalLight::update(const Light& light) noexcept {
+    color = light.getColor();
+    position = {light.getPosition(), 0.0f};
+    direction = {light.getDirection(), 0.0f};
+    scale_offset = anglesToScaleOffset(light.getCone());
+    falloff = radiusToFalloff(light.getRadius());
+}
+
+LightContainer::LightContainer() {
+    buffer = Buffer::builder()
+            .target(Buffer::Type::ShaderStorage)
+            .usage(Buffer::Usage::DynamicDraw)
+            .access(Buffer::MutableAccess::WriteOrphaning)
+            .size(sizeof(InternalLight) * 1024)
+            .build(SHADER_STORAGE_NAME, *ContextState::getState(glfwGetCurrentContext()));
+}
+
+Light& LightContainer::add(Light&& light) {
+    // add new light to all lights
+    lights.emplace(light.getId(), std::move(light));
+
+    // add corresponding internal presentation
+    internal_lights.emplace(light.getId(), light);
+
+    return lights.at(light.getId());
+}
+
+Light& LightContainer::add(const Light& light) {
+    // add new light to all lights
+    auto copy = light;
+    lights.emplace(light.getId(), std::move(copy));
+
+    // add corresponding internal presentation
+    internal_lights.emplace(copy.getId(), light);
+
+    return lights.at(copy.getId());
+}
+
+void LightContainer::update() {
+    // check if there were an update to lights
+    bool changed {};
+    for (auto& [id, light]: lights) {
+        // if changed since last update
+        if (light.isChanged()) {
+            // update corresponding internal presentation
+            internal_lights.at(id).update(light);
+            changed = true;
+        }
     }
 
-    buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, T::SHADER_STORAGE_NAME));
-}
+    if (changed) {
+        visible_lights.clear();
+        visible_lights.reserve(internal_lights.size());
 
-namespace Limitless {
-    template class LightContainer<PointLight>;
-    template class LightContainer<SpotLight>;
+        for (const auto& [_, light]: internal_lights) {
+            visible_lights.emplace_back(light);
+        }
+
+        buffer->mapData(visible_lights.data(), sizeof(InternalLight) * visible_lights.size());
+    }
+
+
+    buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SHADER_STORAGE_NAME));
 }

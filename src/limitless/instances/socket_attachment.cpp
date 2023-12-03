@@ -44,7 +44,7 @@ void SocketAttachment::updateSocketAttachments() {
     }
 }
 
-void SocketAttachment::attachToBone(std::string bone_name, std::unique_ptr<AbstractInstance> instance) {
+void SocketAttachment::attachToBone(std::string bone_name, std::shared_ptr<Instance> instance) {
     auto& skeletal_instance = static_cast<SkeletalInstance&>(*this); //NOLINT
     const auto& skeletal = static_cast<const SkeletalModel&>(skeletal_instance.getAbstractModel()); //NOLINT
     const auto& bone_map = skeletal.getBoneMap();
