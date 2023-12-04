@@ -398,31 +398,31 @@ target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
 #target_link_libraries(limitless_test glew ${GLEW_LIBRARIES})
 
 ##############################################
-
-add_executable(demo_gltf_viewer
-    $<TARGET_OBJECTS:limitless_engine_static>
-    demo/gltf_viewer/gltf_viewer.cpp
-)
-
-target_compile_options(demo_gltf_viewer PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
-
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
-
-target_link_libraries(demo_gltf_viewer glfw ${GLFW_LIBRARIES})
-target_link_libraries(demo_gltf_viewer assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(demo_gltf_viewer freetype)
-target_link_libraries(demo_gltf_viewer glew ${GLEW_LIBRARIES})
-
-target_link_options(demo_gltf_viewer PUBLIC)
-
-if (UNIX)
-    # Required for OpenGL on X11.
-    target_link_libraries(demo_gltf_viewer GL)
-endif()
+#
+#add_executable(demo_gltf_viewer
+#    $<TARGET_OBJECTS:limitless_engine_static>
+#    demo/gltf_viewer/gltf_viewer.cpp
+#)
+#
+#target_compile_options(demo_gltf_viewer PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
+#
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+#target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
+#
+#target_link_libraries(demo_gltf_viewer glfw ${GLFW_LIBRARIES})
+#target_link_libraries(demo_gltf_viewer assimp ${ASSIMP_LIBRARIES})
+#target_link_libraries(demo_gltf_viewer freetype)
+#target_link_libraries(demo_gltf_viewer glew ${GLEW_LIBRARIES})
+#
+#target_link_options(demo_gltf_viewer PUBLIC)
+#
+#if (UNIX)
+#    # Required for OpenGL on X11.
+#    target_link_libraries(demo_gltf_viewer GL)
+#endif()
