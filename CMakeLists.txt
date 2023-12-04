@@ -171,7 +171,6 @@ set(ENGINE_UTIL
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
     src/limitless/util/color_picker.cpp
-    src/limitless/util/stack_trace.cpp
 )
 
 set(ENGINE_MS
