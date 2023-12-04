@@ -11,8 +11,6 @@ set(CMAKE_CXX_STANDARD 17)
 OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
 OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
-OPTION(WEBGL_BUILD "Web build" OFF)
-OPTION(CODECOV "Compile with test coverage" OFF)
 OPTION(GLSLANG_SHADER_OUTPUT OFF)
 
 
@@ -268,9 +266,8 @@ set(ENGINE_SRC
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-    if (NOT WEBGL_BUILD)
-        add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
-    endif()
+
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
     #####
 
     # ASSIMP
@@ -327,7 +324,6 @@ target_link_libraries(limitless_engine_static PUBLIC glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_engine_static PUBLIC freetype)
 target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
-target_link_libraries(limitless_engine_static PUBLIC dbghelp)
 
 target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
 #if (CODECOV)
@@ -366,7 +362,6 @@ target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
 target_link_libraries(limitless_demo freetype)
 target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
-target_link_libraries(limitless_demo dbghelp)
 
 ##############################################
 
@@ -392,11 +387,6 @@ add_executable(limitless_test
         test/limitless/instance/instance_attachment_test.cpp
         test/limitless/instance/socket_attachment_test.cpp
 )
-
-if (CODECOV)
-    target_link_options(limitless_test PUBLIC -lgcov --coverage)
-    target_link_libraries(limitless_test gcov)
-endif ()
 
 target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
 target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
