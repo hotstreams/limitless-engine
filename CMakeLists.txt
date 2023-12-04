@@ -202,8 +202,6 @@ set(ENGINE_FX
     src/limitless/fx/effect_compiler.cpp
     src/limitless/fx/particle.cpp
     src/limitless/fx/effect_shader_define_replacer.cpp
-
-    src/limitless/decal/decal.cpp
 )
 
 set(ENGINE_PIPELINE

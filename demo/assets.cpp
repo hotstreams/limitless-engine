@@ -91,6 +91,7 @@ void DemoAssets::loadMaterialsScene() {
         .ao(TextureLoader::load(*this, assets_dir / "textures/stonework_ao.png"))
         .normal(TextureLoader::load(*this, assets_dir / "textures/stonework_normal.png"))
         .shading(Shading::Lit)
+        .models({InstanceType::Model, InstanceType::Instanced})
         .build(*this);
 
     Material::builder()
@@ -120,7 +121,7 @@ void DemoAssets::loadMaterialsScene() {
             .diffuse( TextureLoader::load(*this, assets_dir / "textures/charcoal_albedo.png"))
             .normal( TextureLoader::load(*this, assets_dir / "textures/charcoal_normal.png"))
             .shading(Shading::Lit)
-            .two_sided(true)
+//            .two_sided(true)
             .build(*this);
 
     Material::builder()
@@ -178,11 +179,14 @@ void DemoAssets::loadMaterialsScene() {
             .build(*this);
 
     Material::builder().name("decal")
-            .diffuse(TextureLoader::load(*this, assets_dir / "textures/metall_albedo.png"))
-            .normal(TextureLoader::load(*this, assets_dir / "textures/normal_4.png"))
+//            .color({1.0f, 1.0f, 1.0f, 1.0f})
+//            .diffuse(TextureLoader::load(*this, assets_dir / "textures/metall_albedo.png"))
+            .normal(TextureLoader::load(*this, assets_dir / "textures/stonework_normal.png"))
+//            .normal( TextureLoader::load(*this, assets_dir / "textures/charcoal_normal.png"))
+//            .custom("decal_blend", 1.0f)
             .shading(Shading::Lit)
-            .blending(Blending::Translucent)
-            .models({InstanceType::Decal, InstanceType::Model})
+            .blending(Blending::Opaque)
+            .models({InstanceType::Decal})
             .build(*this);
 
     Material::builder().name("blending2")

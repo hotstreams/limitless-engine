@@ -7,8 +7,6 @@ ENGINE::MATERIALDEPENDENT
 #include "../material/material.glsl"
 #include "../interface_block/pass_through.glsl"
 
-out vec3 clip;
-
 void main() {
     #if !defined (SpriteEmitter)
        vec2 uv = getVertexUV();
@@ -25,8 +23,6 @@ void main() {
     vec4 world_position = model_transform * vec4(vertex_position, 1.0);
 
     gl_Position = getViewProjection() * world_position;
-
-    clip = gl_Position.xyw;
 
     InterfaceBlockPassThrough(world_position.xyz, uv, model_transform);
 }

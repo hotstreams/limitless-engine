@@ -105,11 +105,11 @@ bool Framebuffer::hasAttachment(FramebufferAttachment a) const noexcept {
 void Framebuffer::drawBuffers(const std::vector<FramebufferAttachment>& a) noexcept {
     bind();
 
-//    if (draw_state != a) {
+    if (draw_state != a) {
         draw_state = a;
 
         glDrawBuffers(a.size(), reinterpret_cast<const GLenum*>(a.data()));
-//    }
+    }
 }
 
 void Framebuffer::drawBuffer(FramebufferAttachment a) noexcept {

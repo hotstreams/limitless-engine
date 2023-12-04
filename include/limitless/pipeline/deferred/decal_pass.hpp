@@ -5,8 +5,6 @@
 
 namespace Limitless {
     class DecalPass final : public PipelinePass {
-    private:
-        Framebuffer buffer;
     public:
         explicit DecalPass(Pipeline& pipeline);
         ~DecalPass() override = default;

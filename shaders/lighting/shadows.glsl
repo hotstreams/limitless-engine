@@ -32,9 +32,14 @@
 
         mat4 light_space = _dir_light_space[index];
 
+        const float MIN_BIAS = 0.0005;
+        float cosTheta = saturate(dot(normal, -light.direction.xyz));
+        float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+        world_pos += normal * (sinTheta * MIN_BIAS);
+
         // transforming from global space to ndc light space
         vec4 light_pos_space = light_space * vec4(world_pos, 1.0);
-//        vec3 ndc = light_pos_space.xyz / light_pos_space.w; ?????????/
+//        vec3 ndc = light_pos_space.xyz / light_pos_space.w;
         vec3 ndc = light_pos_space.xyz;
         ndc = ndc * 0.5 + 0.5;
 
@@ -46,20 +51,18 @@
         float currentDepth = ndc.z;
 
         float shadow = 0.0;
-        const float MIN_BIAS = 0.0005;
-        float bias = max(0.05 * (1.0 - dot(normal, vec3(-light.direction.xyz))), MIN_BIAS);
 
         #if defined (ENGINE_SETTINGS_PCF)
             vec2 texelSize = 1.0 / textureSize(_dir_shadows, 0).xy;
             for (int x = -1; x <= 1; ++x) {
                 for (int y = -1; y <= 1; ++y) {
                     float pcfDepth = texture(_dir_shadows, vec3(ndc.xy + vec2(x, y) * texelSize, index)).r;
-                    shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+                    shadow += currentDepth > pcfDepth ? 1.0 : 0.0;
                 }
             }
             shadow /= 9.0;
         #else
-            shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+            shadow = currentDepth > closestDepth ? 1.0 : 0.0;
         #endif
 
         return shadow;

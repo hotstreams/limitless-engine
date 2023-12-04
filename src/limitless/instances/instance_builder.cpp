@@ -180,7 +180,7 @@ std::shared_ptr<DecalInstance> Instance::Builder::asDecal() {
         throw instance_builder_exception {"Material for decal is not set!"};
     }
 
-    if (dynamic_cast<ElementaryModel*>(model_.get())) {
+    if (!dynamic_cast<ElementaryModel*>(model_.get())) {
         throw instance_builder_exception {"Model for decal is not elementary!"};
     }
 
