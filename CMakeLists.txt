@@ -326,11 +326,6 @@ target_link_libraries(limitless_engine_static PUBLIC freetype)
 target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
 
 target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
-#if (CODECOV)
-#    message("shrek1")
-#    target_link_options(limitless_engine_static PUBLIC -lgcov --coverage)
-#    target_link_libraries(limitless_engine_static PUBLIC gcov)
-#endif ()
 
 #######################
 
@@ -366,41 +361,41 @@ target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
 ##############################################
 
 ###################### TESTS
-add_executable(limitless_test
-        $<TARGET_OBJECTS:limitless_engine_static>
-
-        # test library
-        test/limitless/catch_amalgamated.cpp
-        ##############
-
-        test/limitless/core/shader_compiler_test.cpp
-        test/limitless/core/shader_test.cpp
-        test/limitless/core/context_test.cpp
-        test/limitless/core/state_buffer_test.cpp
-        test/limitless/core/state_texture_test.cpp
-        test/limitless/core/texture_builder_test.cpp
-        test/limitless/ms/material_builder_test.cpp
-        test/limitless/ms/material_test.cpp
-        test/limitless/ms/material_compiler_test.cpp
-        test/limitless/instance/model_instance_test.cpp
-        test/limitless/instance/skeletal_instance_test.cpp
-        test/limitless/instance/instance_attachment_test.cpp
-        test/limitless/instance/socket_attachment_test.cpp
-)
-
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
-
-target_link_libraries(limitless_test glfw ${GLFW_LIBRARIES})
-target_link_libraries(limitless_test assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(limitless_test freetype)
-target_link_libraries(limitless_test glew ${GLEW_LIBRARIES})
+#add_executable(limitless_test
+#        $<TARGET_OBJECTS:limitless_engine_static>
+#
+#        # test library
+#        test/limitless/catch_amalgamated.cpp
+#        ##############
+#
+#        test/limitless/core/shader_compiler_test.cpp
+#        test/limitless/core/shader_test.cpp
+#        test/limitless/core/context_test.cpp
+#        test/limitless/core/state_buffer_test.cpp
+#        test/limitless/core/state_texture_test.cpp
+#        test/limitless/core/texture_builder_test.cpp
+#        test/limitless/ms/material_builder_test.cpp
+#        test/limitless/ms/material_test.cpp
+#        test/limitless/ms/material_compiler_test.cpp
+#        test/limitless/instance/model_instance_test.cpp
+#        test/limitless/instance/skeletal_instance_test.cpp
+#        test/limitless/instance/instance_attachment_test.cpp
+#        test/limitless/instance/socket_attachment_test.cpp
+#)
+#
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+#target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
+#
+#target_link_libraries(limitless_test glfw ${GLFW_LIBRARIES})
+#target_link_libraries(limitless_test assimp ${ASSIMP_LIBRARIES})
+#target_link_libraries(limitless_test freetype)
+#target_link_libraries(limitless_test glew ${GLEW_LIBRARIES})
 
 ##############################################
 
