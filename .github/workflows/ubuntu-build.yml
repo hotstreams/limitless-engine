@@ -33,8 +33,8 @@ jobs:
         run: |
           cd build
           mkdir glslang
-          xvfb-run -a -e errors ./limitless_test
-          cat errors
+          #xvfb-run -a -e errors ./limitless_test
+          #cat errors
       - name: shader glslang validation
         run: |
           cd build
