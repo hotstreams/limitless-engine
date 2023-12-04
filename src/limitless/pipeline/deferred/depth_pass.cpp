@@ -33,9 +33,10 @@ void DepthPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[mayb
     fb.bind();
 
     for (auto& instance : instances) {
-    	instance.get().isOutlined() ? ctx.setStencilMask(0xFF) : ctx.setStencilMask(0x00);
-
-        instance.get().draw(ctx, assets, ShaderType::Depth, ms::Blending::Opaque, setter);
+        if (instance.get().getInstanceType() != InstanceType::Decal) {
+            instance.get().isOutlined() ? ctx.setStencilMask(0xFF) : ctx.setStencilMask(0x00);
+            instance.get().draw(ctx, assets, ShaderType::Depth, ms::Blending::Opaque, setter);
+        }
     }
 
     renderer.draw(ctx, assets, ShaderType::Depth, ms::Blending::Opaque, setter);

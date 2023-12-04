@@ -18,7 +18,7 @@ MaterialsScene::MaterialsScene(Limitless::Context& ctx, Limitless::Assets& asset
 
     scene.add(Light::builder()
          .color(glm::vec4(1.0, 1.0, 1.0, 1.0f))
-         .direction(glm::vec3{0.0f, -1.0f, 0.0f})
+         .direction(glm::vec3{0.3f, -0.99f, 0.0f})
          .build()
     );
 
@@ -156,7 +156,7 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
             floor->addInstance(
                     std::make_unique<ModelInstance>(
                             assets.models.at("plane"),
-                            assets.materials.at("basic4"),
+                            assets.materials.at("basic1"),
                             glm::vec3{i, 0.0f, j}
                     )
             );
@@ -251,6 +251,21 @@ void MaterialsScene::addModels(const Limitless::Assets& assets) {
                       .material(assets.materials.at("fireball"))
                       .position({14.0f, 1.0f, 23.0f })
                       .build()
+    );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("cube"))
+                      .material(assets.materials.at("decal"))
+                      .position({7.0f, 1.0f, 7.0f })
+                      .asDecal()
+    );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("elemental"))
+                      .position(glm::vec3(7.0f, 1.0f, 7.0f))
+                      .rotation(glm::vec3{-M_PI_2, -M_PI_2, 0.0f})
+                      .scale(glm::vec3(10.0f))
+                      .asModel()
     );
 }
 

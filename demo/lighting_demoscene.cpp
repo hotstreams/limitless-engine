@@ -16,7 +16,7 @@ void LightingScene::addFloor(const Limitless::Assets& assets) {
             floor->addInstance(
                 std::make_unique<ModelInstance>(
                         assets.models.at("plane"),
-                        assets.materials.at("floor"),
+                        assets.materials.at("basic1"),
                         glm::vec3{i, 0.0f, j}
                 )
             );

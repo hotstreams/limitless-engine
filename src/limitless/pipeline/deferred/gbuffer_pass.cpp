@@ -30,7 +30,9 @@ void GBufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[ma
     fb.bind();
 
     for (auto& instance : instances) {
-        instance.get().draw(ctx, assets, ShaderType::GBuffer, ms::Blending::Opaque, setter);
+        if (instance.get().getInstanceType() != InstanceType::Decal) {
+            instance.get().draw(ctx, assets, ShaderType::GBuffer, ms::Blending::Opaque, setter);
+        }
     }
 
     renderer.draw(ctx, assets, ShaderType::GBuffer, ms::Blending::Opaque, setter);

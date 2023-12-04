@@ -59,19 +59,22 @@ namespace Limitless {
         /**
          * ColorPicker shader allows you to get pixel values back from rendered objects for picking objects
          */
-        ColorPicker
+        ColorPicker,
+
+        /**
+         * Decal shader allows you to modify other surfaces with screen space projection without geometry
+         */
+        Decal
     };
 
     inline const std::map<ShaderType, std::string> SHADER_PASS_PATH = {
         {ShaderType::Forward,           "pipeline"  PATH_SEPARATOR "forward" },
-
         {ShaderType::Depth,             "pipeline"  PATH_SEPARATOR "depth" },
         {ShaderType::GBuffer,           "pipeline"  PATH_SEPARATOR "gbuffer" },
         {ShaderType::Skybox,            "pipeline"  PATH_SEPARATOR "skybox" },
-
         {ShaderType::DirectionalShadow, "lighting"  PATH_SEPARATOR "directional_shadows" },
-
         {ShaderType::ColorPicker,       "pipeline"  PATH_SEPARATOR "color_picker" },
+        {ShaderType::Decal,             "pipeline"  PATH_SEPARATOR "decal" },
     };
 
     /**
@@ -84,7 +87,8 @@ namespace Limitless {
         Skeletal,
         Instanced,
         SkeletalInstanced,
-        Effect
+        Effect,
+        Decal
     };
 
     using ShaderTypes = std::set<ShaderType>;

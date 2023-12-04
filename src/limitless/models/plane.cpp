@@ -16,8 +16,8 @@ Plane::Plane() : ElementaryModel("plane") {
     };
 
     std::vector<GLuint> indices = {
-            0, 1, 3,
-            1, 2, 3
+            0, 3, 1,
+            1, 3, 2
     };
 
     calculateTangentSpaceTriangle(vertices, indices);

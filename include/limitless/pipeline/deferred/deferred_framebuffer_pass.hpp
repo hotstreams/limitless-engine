@@ -39,6 +39,7 @@ namespace Limitless {
         auto& getAlbedo() noexcept { return framebuffer.get(FramebufferAttachment::Color0).texture; }
         auto& getNormal() noexcept { return framebuffer.get(FramebufferAttachment::Color1).texture; }
         auto& getProperties() noexcept { return framebuffer.get(FramebufferAttachment::Color2).texture; }
+        auto& getInfo() noexcept { return framebuffer.get(FramebufferAttachment::Color4).texture; }
         auto& getEmissive() noexcept { return framebuffer.get(FramebufferAttachment::Color3).texture; }
         auto& getDepth() noexcept { return framebuffer.get(FramebufferAttachment::Depth).texture; }
 

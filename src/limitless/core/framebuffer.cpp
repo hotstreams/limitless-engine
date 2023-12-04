@@ -10,10 +10,10 @@ Framebuffer::Framebuffer() noexcept {
 
 void Framebuffer::bind() noexcept {
     if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        if (state->framebuffer_id != id) {
+//        if (state->framebuffer_id != id) {
             glBindFramebuffer(GL_FRAMEBUFFER, id);
             state->framebuffer_id = id;
-        }
+//        }
     }
 }
 

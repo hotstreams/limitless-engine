@@ -4,6 +4,7 @@
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/models/model.hpp>
+#include "decal_instance.hpp"
 
 namespace Limitless {
     class instance_builder_exception : public std::runtime_error {
@@ -118,5 +119,10 @@ namespace Limitless {
          *
          */
         std::shared_ptr<EffectInstance> asEffect();
+
+        /**
+         *
+         */
+        std::shared_ptr<DecalInstance> asDecal();
     };
 }

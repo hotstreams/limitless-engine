@@ -7,9 +7,10 @@ using namespace Limitless;
 DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 frame_size)
     : PipelinePass(pipeline)
     , framebuffer {} {
-    auto albedo = Texture::Builder::asRGBA16NearestClampToEdge(frame_size);
+    auto albedo = Texture::Builder::asRGB16NearestClampToEdge(frame_size);
     auto normal = Texture::Builder::asRGB16SNORMNearestClampToEdge(frame_size);
     auto props = Texture::Builder::asRGB16NearestClampToEdge(frame_size);
+    auto info = Texture::Builder::asRGB16NearestClampToEdge(frame_size);
     auto emissive = Texture::Builder::asRGB16FNearestClampToEdge(frame_size);
     auto depth = Texture::Builder::asDepth32F(frame_size);
 
@@ -18,6 +19,7 @@ DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 
                 << TextureAttachment{FramebufferAttachment::Color1, normal}
                 << TextureAttachment{FramebufferAttachment::Color2, props}
                 << TextureAttachment{FramebufferAttachment::Color3, emissive}
+                << TextureAttachment{FramebufferAttachment::Color4, info}
                 << TextureAttachment{FramebufferAttachment::Depth, depth};
     framebuffer.checkStatus();
     framebuffer.unbind();
@@ -36,7 +38,8 @@ void DeferredFramebufferPass::draw([[maybe_unused]] Instances& instances, Contex
         FramebufferAttachment::Color0,
         FramebufferAttachment::Color1,
         FramebufferAttachment::Color2,
-        FramebufferAttachment::Color3
+        FramebufferAttachment::Color3,
+        FramebufferAttachment::Color4
     });
 
     framebuffer.clear();

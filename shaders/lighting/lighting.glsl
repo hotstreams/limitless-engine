@@ -11,10 +11,6 @@ vec3 computeLight(const ShadingContext sctx, const LightingContext lctx, const L
     /* [forward pipeline] */
 #if defined (ENGINE_MATERIAL_SHADING_REGULAR_MODEL)
     return regularShading(sctx, lctx, light);
-#elif defined (ENGINE_MATERIAL_SHADING_CLOTH_MODEL)
-    return clothShading(sctx, lctx, light);
-#elif defined (ENGINE_MATERIAL_SHADING_SUBSURFACE_MODEL)
-    return subsurfaceShading(sctx, lctx, light);
 #elif defined (ENGINE_MATERIAL_SHADING_CUSTOM_MODEL)
     return customShading(sctx, lctx, light);
 #else
@@ -25,7 +21,7 @@ vec3 computeLight(const ShadingContext sctx, const LightingContext lctx, const L
         default:
             // deferred pipeline does not support custom shading
             // and unlit paths calculated before
-            return vec3(10.0);
+            return vec3(322.0, 0.0, 0.0);
     }
 #endif
 }
