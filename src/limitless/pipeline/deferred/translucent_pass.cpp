@@ -47,6 +47,8 @@ void TranslucentPass::draw(Instances& instances, Context& ctx, const Assets& ass
 
     framebuffer.blit(background_fb, Texture::Filter::Nearest);
 
+    framebuffer.bind();
+
     setter.add([&] (ShaderProgram& shader) {
         shader.setUniform("_refraction_texture", getPreviousResult());
     });
