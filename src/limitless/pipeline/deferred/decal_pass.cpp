@@ -10,7 +10,7 @@ DecalPass::DecalPass(Pipeline& pipeline)
     : PipelinePass {pipeline} {
 }
 
-void DecalPass::draw(Instances& instances, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
+void DecalPass::draw(Instances& instances, Context &ctx, const Assets &assets, [[maybe_unused]] const Camera &camera, UniformSetter &setter) {
     auto &gbuffer = pipeline.get<DeferredFramebufferPass>();
 
     setter.add([&](ShaderProgram& shader){

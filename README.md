@@ -53,6 +53,7 @@
 - Gamma correction
 - HDR Bloom
 - FXAA
+- Deferred Decals
 
 https://github.com/hotstreams/limitless-engine/assets/37740577/a10e9994-232e-490c-af86-82356a7106fa 
 
@@ -161,7 +162,6 @@ make -j12 limitless_demo
 - glew
 - OpenGL
 - glm
-- assimp
 - stb_image
 - stb_image_resize
 - freetype

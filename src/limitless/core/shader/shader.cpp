@@ -40,7 +40,7 @@ void Shader::checkStatus() const {
 
     if (log_size == 0) {
 
-#ifdef GLSLANG_SHADER_OUTPUT
+#ifdef LIMITLESS_OPENGL_SHADER_OUTPUT
         static int i = 0;
 
         for (const auto& [ext, t]: shader_file_extensions) {

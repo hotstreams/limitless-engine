@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Limitless {
-    #ifdef GL_DEBUG
+    #ifdef LIMITLESS_OPENGL_DEBUG
         inline uint64_t gl_error_count = 0;
 
         void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);

@@ -1,67 +1,19 @@
+#########################################
 cmake_minimum_required(VERSION 3.10)
-project(limitless_engine)
 
-set(CMAKE_CXX_STANDARD 17)
+#########################################
+project(limitless-engine)
 
-# CONFIGURABLE OPTIONS
+#########################################
 
-# IF YOU CHANGE THESE OPTIONS DO NOT FORGET
-# TO INVALIDATE CMAKE CACHE
-
-OPTION(DEBUG_OPENGL "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_TOSTER_MODE "Disables all extensions" OFF)
+OPTION(BUILD_SAMPLES "Builds samples" OFF)
 OPTION(BUILD_TESTS "Builds tests" OFF)
-OPTION(WEBGL_BUILD "Web build" OFF)
-OPTION(CODECOV "Compile with test coverage" OFF)
-OPTION(GLSLANG_SHADER_OUTPUT OFF)
 
-
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-set(CMAKE_ENABLE_EXPORTS ON)
-#########################################
-
-# SETTINGS COMPILE FLAGS AND DEFINITIONS
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(LIMITLESS_COMPILE_OPTIONS -O0 -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
-    add_compile_definitions(GL_DEBUG LIMITLESS_DEBUG)
-endif()
-
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(LIMITLESS_COMPILE_OPTIONS -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
-    add_compile_definitions(NDEBUG)
-endif()
-
-if (DEBUG_OPENGL)
-    add_compile_definitions(GL_DEBUG)
-endif()
-
-if (OPENGL_TOSTER_MODE)
-    add_compile_definitions(OPENGL_TOSTER)
-endif()
-
-if (GLSLANG_SHADER_OUTPUT)
-    add_compile_definitions(GLSLANG_SHADER_OUTPUT)
-endif()
-
-if (CODECOV)
-    set(LIMITLESS_COMPILE_OPTIONS ${LIMITLESS_COMPILE_OPTIONS} -fprofile-arcs -ftest-coverage)
-endif()
-
-if (NOT LIMITLESS_ASSETS_DIR)
-    set(LIMITLESS_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/")
-endif()
-
-if (NOT LIMITLESS_SHADERS_DIR)
-    set(LIMITLESS_SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders/")
-endif()
-
-add_compile_definitions(ENGINE_ASSETS_DIR="${LIMITLESS_ASSETS_DIR}")
-add_compile_definitions(ENGINE_SHADERS_DIR="${LIMITLESS_SHADERS_DIR}")
+OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" ON)
+OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" OFF)
+OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF)
 
 #########################################
-
-include_directories(include)
 
 set(ENGINE_CORE
     src/limitless/core/context_debug.cpp
@@ -135,9 +87,8 @@ set(ENGINE_LIGHTING
 set(ENGINE_LOADERS
     src/limitless/loaders/material_loader.cpp
     src/limitless/loaders/effect_loader.cpp
-    src/limitless/loaders/model_loader.cpp
-    src/limitless/loaders/asset_manager.cpp
-    src/limitless/loaders/threaded_model_loader.cpp
+#    src/limitless/loaders/asset_manager.cpp
+#    src/limitless/loaders/threaded_model_loader.cpp
     src/limitless/loaders/texture_loader.cpp
     src/limitless/loaders/dds_loader.cpp
     src/limitless/loaders/cgltf.c
@@ -171,7 +122,6 @@ set(ENGINE_UTIL
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
     src/limitless/util/color_picker.cpp
-    src/limitless/util/stack_trace.cpp
 )
 
 set(ENGINE_MS
@@ -205,41 +155,41 @@ set(ENGINE_FX
 )
 
 set(ENGINE_PIPELINE
-        src/limitless/pipeline/pipeline.cpp
-        src/limitless/pipeline/pipeline_pass.cpp
-        src/limitless/pipeline/forward/color_pass.cpp
-        src/limitless/pipeline/forward/particle_pass.cpp
-        src/limitless/pipeline/forward/framebuffer_pass.cpp
-        src/limitless/pipeline/common/shadow_pass.cpp
-        src/limitless/pipeline/common/sceneupdate_pass.cpp
-        src/limitless/pipeline/common/skybox_pass.cpp
-        src/limitless/pipeline/forward/postprocessing_pass.cpp
-        src/limitless/pipeline/forward/forward.cpp
-        src/limitless/pipeline/forward/postprocessing.cpp
-        src/limitless/renderer/renderer.cpp
-        src/limitless/renderer/render_settings_shader_definer.cpp
-        src/limitless/pipeline/common/scene_data.cpp
-        src/limitless/pipeline/deferred/effectupdate_pass.cpp
-        src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
-        src/limitless/pipeline/deferred/gbuffer_pass.cpp
-        src/limitless/pipeline/deferred/deferred_lighting_pass.cpp
-        src/limitless/pipeline/deferred/deferred.cpp
-        src/limitless/pipeline/deferred/depth_pass.cpp
-        src/limitless/pipeline/deferred/translucent_pass.cpp
-        src/limitless/pipeline/common/bloom_pass.cpp
-        src/limitless/pipeline/deferred/composite_pass.cpp
-        src/limitless/pipeline/common/ssao_pass.cpp
-        src/limitless/pipeline/common/fxaa_pass.cpp
-        src/limitless/pipeline/common/quad_pass.cpp
-        src/limitless/pipeline/common/render_debug_pass.cpp
-        src/limitless/pipeline/common/dof_pass.cpp
-        src/limitless/pipeline/common/outline_pass.cpp
-        src/limitless/pipeline/common/ssr_pass.cpp
-        src/limitless/pipeline/deferred/decal_pass.cpp
-        src/limitless/postprocessing/blur.cpp
-        src/limitless/postprocessing/bloom.cpp
-        src/limitless/postprocessing/ssao.cpp
-        src/limitless/postprocessing/ssr.cpp
+    src/limitless/pipeline/pipeline.cpp
+    src/limitless/pipeline/pipeline_pass.cpp
+    src/limitless/pipeline/forward/color_pass.cpp
+    src/limitless/pipeline/forward/particle_pass.cpp
+    src/limitless/pipeline/forward/framebuffer_pass.cpp
+    src/limitless/pipeline/common/shadow_pass.cpp
+    src/limitless/pipeline/common/sceneupdate_pass.cpp
+    src/limitless/pipeline/common/skybox_pass.cpp
+    src/limitless/pipeline/forward/postprocessing_pass.cpp
+    src/limitless/pipeline/forward/forward.cpp
+    src/limitless/pipeline/forward/postprocessing.cpp
+    src/limitless/renderer/renderer.cpp
+    src/limitless/renderer/render_settings_shader_definer.cpp
+    src/limitless/pipeline/common/scene_data.cpp
+    src/limitless/pipeline/deferred/effectupdate_pass.cpp
+    src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
+    src/limitless/pipeline/deferred/gbuffer_pass.cpp
+    src/limitless/pipeline/deferred/deferred_lighting_pass.cpp
+    src/limitless/pipeline/deferred/deferred.cpp
+    src/limitless/pipeline/deferred/depth_pass.cpp
+    src/limitless/pipeline/deferred/translucent_pass.cpp
+    src/limitless/pipeline/common/bloom_pass.cpp
+    src/limitless/pipeline/deferred/composite_pass.cpp
+    src/limitless/pipeline/common/ssao_pass.cpp
+    src/limitless/pipeline/common/fxaa_pass.cpp
+    src/limitless/pipeline/common/quad_pass.cpp
+    src/limitless/pipeline/common/render_debug_pass.cpp
+    src/limitless/pipeline/common/dof_pass.cpp
+    src/limitless/pipeline/common/outline_pass.cpp
+    src/limitless/pipeline/common/ssr_pass.cpp
+    src/limitless/pipeline/deferred/decal_pass.cpp
+    src/limitless/postprocessing/blur.cpp
+    src/limitless/postprocessing/bloom.cpp
+    src/limitless/postprocessing/ssao.cpp
+    src/limitless/postprocessing/ssr.cpp
 )
 
 set(ENGINE_SRC
@@ -263,182 +213,73 @@ set(ENGINE_SRC
     src/limitless/log.cpp
 )
 
-##### CONFIGURE SUBMODULES
-    # GLFW
+#########################################
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-    if (NOT WEBGL_BUILD)
-        add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
-    endif()
-    #####
-
-    # ASSIMP
-    set(BUILD_SHARED_LIBS FALSE CACHE BOOL "x" FORCE)
-    set(ASSIMP_NO_EXPORT TRUE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_TESTS FALSE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE CACHE BOOL "x" FORCE)
-    set(ASSIMP_INSTALL_PDB FALSE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_ZLIB TRUE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_ASSIMP_TOOLS TRUE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_COLLADA_IMPORTER FALSE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_OBJ_IMPORTER TRUE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_FBX_IMPORTER TRUE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_MD5_IMPORTER TRUE CACHE BOOL "x" FORCE)
-    set(ASSIMP_BUILD_BLEND_IMPORTER FALSE CACHE BOOL "x" FORCE)
-
-    add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp")
-    #####
-
-    # FREETYPE
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype")
-    #####
-
-    # GLEW
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/build/cmake")
-    #####
-
-    # PLOG
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/plog")
-    #####
 
-    if (NOT WEBGL_BUILD)
-        target_compile_options(glfw PUBLIC -O3)
-    endif()
-    target_compile_options(assimp PUBLIC -O3)
+    target_compile_options(glfw PUBLIC -O3)
     target_compile_options(freetype PUBLIC -O3)
     target_compile_options(glew PUBLIC -O3)
+
 ##########################################
+add_library(limitless-engine STATIC ${ENGINE_SRC})
 
-################# STATIC
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
 
-add_library(limitless_engine_static STATIC ${ENGINE_SRC})
-
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_engine_static PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
-
-target_link_libraries(limitless_engine_static PUBLIC glfw ${GLFW_LIBRARIES})
-target_link_libraries(limitless_engine_static PUBLIC assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(limitless_engine_static PUBLIC freetype)
-target_link_libraries(limitless_engine_static PUBLIC glew ${GLEW_LIBRARIES})
-target_link_libraries(limitless_engine_static PUBLIC dbghelp)
-
-target_compile_options(limitless_engine_static PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
-#if (CODECOV)
-#    message("shrek1")
-#    target_link_options(limitless_engine_static PUBLIC -lgcov --coverage)
-#    target_link_libraries(limitless_engine_static PUBLIC gcov)
-#endif ()
-
-#######################
-
-##############################################
-
-#                DEMO
-
-add_executable(limitless_demo
-    $<TARGET_OBJECTS:limitless_engine_static>
-
-    demo/demo.cpp
-    demo/materials_demoscene.cpp
-    demo/lighting_demoscene.cpp
-    demo/effects_demoscene.cpp
-    demo/models_demoscene.cpp
-    demo/assets.cpp
-)
-
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_demo PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
-
-target_link_libraries(limitless_demo glfw ${GLFW_LIBRARIES})
-target_link_libraries(limitless_demo assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(limitless_demo freetype)
-target_link_libraries(limitless_demo glew ${GLEW_LIBRARIES})
-target_link_libraries(limitless_demo dbghelp)
-
-##############################################
-
-###################### TESTS
-add_executable(limitless_test
-        $<TARGET_OBJECTS:limitless_engine_static>
-
-        # test library
-        test/limitless/catch_amalgamated.cpp
-        ##############
-
-        test/limitless/core/shader_compiler_test.cpp
-        test/limitless/core/shader_test.cpp
-        test/limitless/core/context_test.cpp
-        test/limitless/core/state_buffer_test.cpp
-        test/limitless/core/state_texture_test.cpp
-        test/limitless/core/texture_builder_test.cpp
-        test/limitless/ms/material_builder_test.cpp
-        test/limitless/ms/material_test.cpp
-        test/limitless/ms/material_compiler_test.cpp
-        test/limitless/instance/model_instance_test.cpp
-        test/limitless/instance/skeletal_instance_test.cpp
-        test/limitless/instance/instance_attachment_test.cpp
-        test/limitless/instance/socket_attachment_test.cpp
-)
-
-if (CODECOV)
-    target_link_options(limitless_test PUBLIC -lgcov --coverage)
-    target_link_libraries(limitless_test gcov)
-endif ()
-
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(limitless_test PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
-
-target_link_libraries(limitless_test glfw ${GLFW_LIBRARIES})
-target_link_libraries(limitless_test assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(limitless_test freetype)
-target_link_libraries(limitless_test glew ${GLEW_LIBRARIES})
-
-##############################################
-
-add_executable(demo_gltf_viewer
-    $<TARGET_OBJECTS:limitless_engine_static>
-    demo/gltf_viewer/gltf_viewer.cpp
-)
-
-target_compile_options(demo_gltf_viewer PUBLIC "${LIMITLESS_COMPILE_OPTIONS}")
-
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glfw/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/assimp/include" "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/assimp/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stbimage")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glm")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
-target_include_directories(demo_gltf_viewer PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
-
-target_link_libraries(demo_gltf_viewer glfw ${GLFW_LIBRARIES})
-target_link_libraries(demo_gltf_viewer assimp ${ASSIMP_LIBRARIES})
-target_link_libraries(demo_gltf_viewer freetype)
-target_link_libraries(demo_gltf_viewer glew ${GLEW_LIBRARIES})
-
-target_link_options(demo_gltf_viewer PUBLIC)
+target_link_libraries(limitless-engine PUBLIC glfw ${GLFW_LIBRARIES})
+target_link_libraries(limitless-engine PUBLIC glew ${GLEW_LIBRARIES})
+target_link_libraries(limitless-engine PUBLIC freetype)
 
 if (UNIX)
-    # Required for OpenGL on X11.
-    target_link_libraries(demo_gltf_viewer GL)
+    target_link_libraries(limitless-engine PUBLIC GL)
 endif()
+
+target_include_directories(limitless-engine PUBLIC include)
+
+target_compile_features(limitless-engine PUBLIC cxx_std_17)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(limitless-engine PUBLIC -O0 -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
+    target_compile_definitions(limitless-engine PUBLIC LIMITLESS_OPENGL_DEBUG)
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(limitless-engine PUBLIC -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -Werror -O3)
+endif()
+
+if (OPENGL_DEBUG)
+    target_compile_definitions(limitless-engine PUBLIC LIMITLESS_OPENGL_DEBUG)
+endif()
+
+if (OPENGL_NO_EXTENSIONS)
+    target_compile_definitions(limitless-engine PUBLIC LIMITLESS_OPENGL_NO_EXTENSIONS)
+endif()
+
+if (OPENGL_SHADER_OUTPUT)
+    target_compile_definitions(limitless-engine PUBLIC LIMITLESS_OPENGL_SHADER_OUTPUT)
+endif()
+
+if (NOT LIMITLESS_ASSETS_DIR)
+    set(LIMITLESS_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+endif()
+
+if (NOT LIMITLESS_SHADERS_DIR)
+    set(LIMITLESS_SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders/")
+endif()
+
+target_compile_definitions(limitless-engine PUBLIC ENGINE_ASSETS_DIR="${LIMITLESS_ASSETS_DIR}")
+target_compile_definitions(limitless-engine PUBLIC ENGINE_SHADERS_DIR="${LIMITLESS_SHADERS_DIR}")
+
+add_subdirectory(samples)
+add_subdirectory(tests)

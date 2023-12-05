@@ -1,4 +1,4 @@
-Limitless::GLSL_VERSION
+ENGINE::COMMON
 Limitless::Extensions
 
 #include "../pipeline/scene.glsl"

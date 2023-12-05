@@ -7,7 +7,6 @@
 #include <limitless/fx/emitters/beam_emitter.hpp>
 #include <limitless/fx/emitters/sprite_emitter.hpp>
 #include <limitless/fx/emitters/mesh_emitter.hpp>
-#include <limitless/loaders/model_loader.hpp>
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/fx/modules/mesh_location_attachment.hpp>

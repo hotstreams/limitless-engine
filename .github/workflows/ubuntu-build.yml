@@ -25,19 +25,18 @@ jobs:
       - name: build
         run: |
           mkdir build
-          cmake -DGLSLANG_SHADER_OUTPUT=ON -S . -B build
+          cmake -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
       - name: test
         continue-on-error: true
         run: |
-          cd build
+          cd build/tests
           mkdir glslang
-          xvfb-run -a -e errors ./limitless_test
+          xvfb-run -a -e errors ./limitless-tests
           cat errors
       - name: shader glslang validation
         run: |
-          cd build
-          cat errors
+          cd build/tests
           cd glslang
           for file in ./*; do glslangValidator -C "$file"; done

@@ -17,7 +17,7 @@ namespace Limitless::ms {
     class Material::Builder {
     private:
         static inline std::map<UniqueMaterial, uint64_t> unique_materials;
-        static inline uint64_t next_shader_index {};
+        static inline uint64_t next_shader_index {1};
         static inline std::mutex mutex;
 
         std::map<Property, std::unique_ptr<Uniform>> properties;
