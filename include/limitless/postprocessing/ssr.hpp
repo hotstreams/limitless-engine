@@ -38,7 +38,7 @@ namespace Limitless {
             uint8_t blur_iteration_count = 4;
             float blur_strength = 1.0f;
         private:
-            float reflections_strength;
+//            float reflections_strength;
         };
     private:
         Framebuffer framebuffer;
