@@ -31,12 +31,12 @@ jobs:
       - name: test
         continue-on-error: true
         run: |
-          cd build
+          cd build/tests
           mkdir glslang
           xvfb-run -a -e errors ./limitless-tests
           cat errors
       - name: shader glslang validation
         run: |
-          cd build
+          cd build/tests
           cd glslang
           for file in ./*; do glslangValidator -C "$file"; done
