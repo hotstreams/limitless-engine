@@ -3,7 +3,6 @@
 #include <limitless/core/context_thread_pool.hpp>
 #include <limitless/models/abstract_model.hpp>
 #include <limitless/util/filesystem.hpp>
-#include <limitless/loaders/model_loader.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 
 namespace Limitless {

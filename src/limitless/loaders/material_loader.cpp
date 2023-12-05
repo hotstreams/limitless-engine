@@ -6,7 +6,6 @@
 #include <limitless/util/bytebuffer.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/serialization/material_serializer.hpp>
-#include <limitless/loaders/asset_manager.hpp>
 
 using namespace Limitless;
 using namespace Limitless::ms;

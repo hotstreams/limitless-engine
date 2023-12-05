@@ -1,10 +1,9 @@
 #include "assets.hpp"
-#include "scene.hpp"
+//#include "scene.hpp"
 
 #include <limitless/core/context_observer.hpp>
 #include <limitless/text/text_instance.hpp>
 #include <limitless/util/color_picker.hpp>
-#include <iostream>
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 
@@ -19,7 +18,7 @@ private:
     Camera camera;
     Renderer render;
     DemoAssets assets;
-    LimitlessDemo::DemoScene scene;
+//    LimitlessDemo::DemoScene scene;
 
     bool done {};
     bool hidden_text {};
@@ -29,7 +28,7 @@ public:
         , camera {window_size}
         , render {context}
         , assets {context, render, ENGINE_ASSETS_DIR}
-        , scene {context, assets}
+//        , scene {context, assets}
     {
         camera.setPosition({-3.0f, 2.0f, 3.0f});
 
@@ -69,7 +68,7 @@ public:
         }
 
         if (key == GLFW_KEY_TAB && state == InputState::Pressed) {
-            scene.next(camera);
+//            scene.next(camera);
         }
 
         if (key == GLFW_KEY_SPACE && state == InputState::Pressed) {
@@ -117,8 +116,8 @@ public:
             auto delta_time = duration_cast<duration<float>>(current_time - last_time).count();
             last_time = current_time;
 
-            scene.update(context, camera);
-            render.draw(context, assets, scene.getCurrentScene(), camera);
+//            scene.update(context, camera);
+//            render.draw(context, assets, scene.getCurrentScene(), camera);
 
             context.swapBuffers();
             context.pollEvents();

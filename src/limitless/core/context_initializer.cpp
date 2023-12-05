@@ -69,7 +69,7 @@ void ContextInitializer::getExtensions() noexcept {
         extensions.emplace_back(name);
     }
 
-	#ifdef OPENGL_TOSTER
+	#ifdef LIMITLESS_OPENGL_NO_EXTENSIONS
         std::cerr << "OpenGL toster mode" << std::endl;
 		extensions.clear();
         extensions.emplace_back("GL_ARB_shader_storage_buffer_object");

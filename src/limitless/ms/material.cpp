@@ -425,9 +425,9 @@ glm::vec4& Material::getColor() {
     }
 }
 
-glm::vec4& Material::getEmissiveColor() {
+glm::vec3& Material::getEmissiveColor() {
     try {
-        return static_cast<UniformValue<glm::vec4>&>(*properties.at(Property::EmissiveColor)).getValue(); //NOLINT
+        return static_cast<UniformValue<glm::vec3>&>(*properties.at(Property::EmissiveColor)).getValue(); //NOLINT
     } catch (const std::out_of_range& e) {
         throw material_exception("Material property not found - EmissiveColor");
     }

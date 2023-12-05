@@ -4,7 +4,7 @@
 
 using namespace Limitless;
 
-#ifdef GL_DEBUG
+#ifdef LIMITLESS_OPENGL_DEBUG
 
 void Limitless::activate_debug() {
 	GLint flags;

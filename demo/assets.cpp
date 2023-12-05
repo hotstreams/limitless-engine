@@ -6,7 +6,6 @@
 #include <limitless/fx/emitters/mesh_emitter.hpp>
 #include <limitless/fx/emitters/beam_emitter.hpp>
 #include <limitless/loaders/texture_loader.hpp>
-#include <limitless/loaders/asset_manager.hpp>
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/skybox/skybox.hpp>
 #include <limitless/text/font_atlas.hpp>
@@ -19,7 +18,7 @@ using namespace Limitless;
 
 void DemoAssets::loadLightingScene() {
     {
-        const fs::path assets_dir {getAssetsDir()};
+        const fs::path assets_dir {ENGINE_ASSETS_DIR};
         Material::builder()
             .name("PBR")
             .metallic(TextureLoader::load(*this, assets_dir / "textures/rustediron2_metallic.png"))
@@ -32,7 +31,7 @@ void DemoAssets::loadLightingScene() {
     }
 
     {
-        const fs::path assets_dir {getAssetsDir()};
+        const fs::path assets_dir {ENGINE_ASSETS_DIR};
         Material::builder()
             .name("floor")
             .shading(Shading::Lit)
@@ -45,7 +44,7 @@ void DemoAssets::loadLightingScene() {
 }
 
 void DemoAssets::loadMaterialsScene() {
-    const fs::path assets_dir {getAssetsDir()};
+    const fs::path assets_dir {ENGINE_ASSETS_DIR};
 
     Material::builder()
         .name("color")
@@ -738,252 +737,252 @@ void DemoAssets::loadEffectsScene() {
 }
 
 void DemoAssets::loadModelsScene() {
-    {
-        const fs::path assets_dir{ENGINE_ASSETS_DIR};
+//    {
+//        const fs::path assets_dir{ENGINE_ASSETS_DIR};
+//
+//        models.add("thanos", ModelLoader::loadModel(*this, assets_dir / "models/thanos/thanos.fbx"));
+//
+//        auto& thanos = dynamic_cast<SkeletalModel&>(*models.at("thanos"));
+//
+//        auto& materials = thanos.getMaterials();
+//
+//        auto yellowenv =
+//                Material::builder()
+//                    .name("yellowenv")
+//                    .color(glm::vec4(0.546171f, 0.532152f, 0.546140f, 1.0f))
+//                    .emissive_color( glm::vec4(0.546171f, 0.532152f, 0.546140f, 1.0f))
+//                    .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/bodyyellow_m.tga"))
+//                    .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
+//                    .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/yellow_env.tga"))
+//                    .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
+//                    .shading(Shading::Lit)
+//                    .model(InstanceType::Skeletal)
+//                    .build(*this);
+//
+//        auto grayenv = Material::builder()
+//                .name("grayenv")
+//                .color(glm::vec4(0.636099f, 0.753402f, 0.750975f, 1.0f))
+//                .emissive_color( glm::vec4(0.636099f, 0.753402f, 0.750975f, 1.0f))
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/bodygray_m.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
+//                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/gray_env.tga"))
+//                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto eyesenv = Material::builder().name("eyesenv")
+//                .color(glm::vec4(0.539415f, 0.560208f, 0.510821f, 1.0f))
+//                .emissive_color( glm::vec4(1.0f))
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
+//                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/eye_env.tga"))
+//                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto blueenv = Material::builder()
+//                .name("blueenv")
+//                .color(glm::vec4(0.576473f, 0.481502f, 0.448319f, 1.0f))
+//                .emissive_color( glm::vec4(1.0f))
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/bodyblue_m.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
+//                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/blue_env.tga"))
+//                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto eyes = Material::builder()
+//                .name("eyes")
+//                .color(glm::vec4(0.551182f, 0.681717f, 0.402268f, 1.0f))
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
+//                .metallic(TextureLoader::load(*this, assets_dir / "models/thanos/body_s.tga"))
+//                .roughness(0.2f)
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto body = Material::builder()
+//                .name("body")
+//                .color(glm::vec4(0.566327f, 0.533939f, 0.783312f, 1.0f))
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
+//                .metallic( TextureLoader::load(*this, assets_dir / "models/thanos/body_s.tga"))
+//                .roughness( 0.2f)
+//                .ao(TextureLoader::load(*this, assets_dir / "models/thanos/body_ao.tga"))
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto skin = Material::builder()
+//                .name("skin")
+//                .diffuse(TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
+//                .metallic( TextureLoader::load(*this, assets_dir / "models/thanos/body_s.tga"))
+//                .roughness( 0.2f)
+//                .ao( TextureLoader::load(*this, assets_dir / "models/thanos/skin_ao.tga"))
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        materials[0] = skin;
+//        materials[1] = body;
+//        materials[2] = eyes;
+//        materials[3] = blueenv;
+//        materials[4] = eyesenv;
+//        materials[5] = grayenv;
+//        materials[6] = skin;
+//    }
 
-        models.add("thanos", ModelLoader::loadModel(*this, assets_dir / "models/thanos/thanos.fbx"));
+//    {
+//        const fs::path assets_dir{ENGINE_ASSETS_DIR};
+//
+//        models.add("daenerys", ModelLoader::loadModel(*this, assets_dir / "models/daenerys/daenerys.fbx"));
+//
+//        auto& daenerys = dynamic_cast<SkeletalModel&>(*models.at("daenerys"));
+//
+//        auto& materials = daenerys.getMaterials();
+//
+//        auto head = Material::builder()
+//                .name("dae_head")
+//                .color( glm::vec4(0.657693f, 0.475201f, 0.647254f, 1.0f))
+//                .diffuse(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_d.png"))
+//                .normal(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_n.png"))
+//                .metallic(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_m.png"))
+//                .roughness( 0.2f)
+//                .ao(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_L.png"))
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto cloth = Material::builder()
+//                .name("dae_cloth")
+//                .diffuse(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_d.png"))
+//                .normal(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_ns.png"))
+//                .metallic(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_m.png"))
+//                .roughness( 0.2f)
+//                .ao(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_L.png"))
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto hair = Material::builder()
+//                .name("dae_hair")
+//                .color( glm::vec4(0.657236f, 0.567879f, 0.703609f, 1.0f))
+//                .diffuse(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_hair_d.png"))
+//                .normal(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_hair_n.png"))
+//                .metallic(TextureLoader::load(*this, assets_dir / "models/daenerys/jitter2.png"))
+//                .roughness( 0.2f)
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        materials[0] = hair;
+//        materials[1] = cloth;
+//        materials[2] = head;
+//    }
 
-        auto& thanos = dynamic_cast<SkeletalModel&>(*models.at("thanos"));
+//    {
+//        const fs::path assets_dir{ENGINE_ASSETS_DIR};
+//
+//        models.add("skeleton", ModelLoader::loadModel(*this, assets_dir / "models/skeleton/skeleton.fbx", {{
+//           ModelLoaderOption::NoMaterials
+//       }}));
+//
+//        auto& materials = dynamic_cast<SkeletalModel&>(*models.at("skeleton")).getMaterials();
+//        materials.resize(1);
+//
+//        auto skin = Material::builder()
+//                .name("skeleton")
+//                .diffuse(TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body.png"))
+//                .ao(TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body_OcclusionRoughnessMetallic.png"))
+//                .custom("ao_r_m", TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body_OcclusionRoughnessMetallic.png"))
+//                .fragment("vec3 skin = texture(ao_r_m, getVertexUV()).rgb;"
+//                                    "mctx.ao = skin.r;"
+//                                    "mctx.roughness = skin.g;"
+//                                    "mctx.metallic = skin.b;")
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        materials[0] = skin;
+//    }
 
-        auto& materials = thanos.getMaterials();
+//    {
+//        const fs::path assets_dir{ENGINE_ASSETS_DIR};
+//        models.add("taskmaster", ModelLoader::loadModel(*this, assets_dir / "models/taskmaster/Taskmaster.fbx"));
+//    }
 
-        auto yellowenv = 
-                Material::builder()
-                    .name("yellowenv")
-                    .color(glm::vec4(0.546171f, 0.532152f, 0.546140f, 1.0f))
-                    .emissive_color( glm::vec4(0.546171f, 0.532152f, 0.546140f, 1.0f))
-                    .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/bodyyellow_m.tga"))
-                    .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
-                    .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/yellow_env.tga"))
-                    .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
-                    .shading(Shading::Lit)
-                    .model(InstanceType::Skeletal)
-                    .build(*this);
+//    {
+//        const fs::path assets_dir{ENGINE_ASSETS_DIR};
+//
+//        models.add("k2", ModelLoader::loadModel(*this, assets_dir / "models/k2/k2.fbx"));
+//
+//        auto& k2 = dynamic_cast<SkeletalModel&>(*models.at("k2"));
+//
+//        auto& materials = k2.getMaterials();
+//
+//        auto body = Material::builder()
+//                .name("k2_body")
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/k2/K2_D.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/k2/K2_D.tga"))
+//                .metallic( TextureLoader::load(*this, assets_dir / "models/k2/K2_S.tga"))
+//                .roughness( 0.2f)
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        auto head = Material::builder()
+//                .name("k2_head")
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/k2/K2_Head_D.tga"))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/k2/K2_Head_N.tga"))
+//                .metallic( TextureLoader::load(*this, assets_dir / "models/k2/K2_Head_S.tga"))
+//                .roughness( 0.2f)
+//                .shading(Shading::Lit)
+//                .model(InstanceType::Skeletal)
+//                .build(*this);
+//
+//        materials[0] = head;
+//        materials[1] = body;
+//    }
 
-        auto grayenv = Material::builder()
-                .name("grayenv")
-                .color(glm::vec4(0.636099f, 0.753402f, 0.750975f, 1.0f))
-                .emissive_color( glm::vec4(0.636099f, 0.753402f, 0.750975f, 1.0f))
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/bodygray_m.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
-                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/gray_env.tga"))
-                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto eyesenv = Material::builder().name("eyesenv")
-                .color(glm::vec4(0.539415f, 0.560208f, 0.510821f, 1.0f))
-                .emissive_color( glm::vec4(1.0f))
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
-                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/eye_env.tga"))
-                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto blueenv = Material::builder()
-                .name("blueenv")
-                .color(glm::vec4(0.576473f, 0.481502f, 0.448319f, 1.0f))
-                .emissive_color( glm::vec4(1.0f))
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/bodyblue_m.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
-                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/thanos/blue_env.tga"))
-                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto eyes = Material::builder()
-                .name("eyes")
-                .color(glm::vec4(0.551182f, 0.681717f, 0.402268f, 1.0f))
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
-                .metallic(TextureLoader::load(*this, assets_dir / "models/thanos/body_s.tga"))
-                .roughness(0.2f)
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto body = Material::builder()
-                .name("body")
-                .color(glm::vec4(0.566327f, 0.533939f, 0.783312f, 1.0f))
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
-                .metallic( TextureLoader::load(*this, assets_dir / "models/thanos/body_s.tga"))
-                .roughness( 0.2f)
-                .ao(TextureLoader::load(*this, assets_dir / "models/thanos/body_ao.tga"))
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto skin = Material::builder()
-                .name("skin")
-                .diffuse(TextureLoader::load(*this, assets_dir / "models/thanos/body_d.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/thanos/body_n.tga"))
-                .metallic( TextureLoader::load(*this, assets_dir / "models/thanos/body_s.tga"))
-                .roughness( 0.2f)
-                .ao( TextureLoader::load(*this, assets_dir / "models/thanos/skin_ao.tga"))
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        materials[0] = skin;
-        materials[1] = body;
-        materials[2] = eyes;
-        materials[3] = blueenv;
-        materials[4] = eyesenv;
-        materials[5] = grayenv;
-        materials[6] = skin;
-    }
-
-    {
-        const fs::path assets_dir{ENGINE_ASSETS_DIR};
-
-        models.add("daenerys", ModelLoader::loadModel(*this, assets_dir / "models/daenerys/daenerys.fbx"));
-
-        auto& daenerys = dynamic_cast<SkeletalModel&>(*models.at("daenerys"));
-
-        auto& materials = daenerys.getMaterials();
-
-        auto head = Material::builder()
-                .name("dae_head")
-                .color( glm::vec4(0.657693f, 0.475201f, 0.647254f, 1.0f))
-                .diffuse(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_d.png"))
-                .normal(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_n.png"))
-                .metallic(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_m.png"))
-                .roughness( 0.2f)
-                .ao(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_face_L.png"))
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto cloth = Material::builder()
-                .name("dae_cloth")
-                .diffuse(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_d.png"))
-                .normal(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_ns.png"))
-                .metallic(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_m.png"))
-                .roughness( 0.2f)
-                .ao(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_cloth_L.png"))
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto hair = Material::builder()
-                .name("dae_hair")
-                .color( glm::vec4(0.657236f, 0.567879f, 0.703609f, 1.0f))
-                .diffuse(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_hair_d.png"))
-                .normal(TextureLoader::load(*this, assets_dir / "models/daenerys/tex_commander1_daenerys_hair_n.png"))
-                .metallic(TextureLoader::load(*this, assets_dir / "models/daenerys/jitter2.png"))
-                .roughness( 0.2f)
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        materials[0] = hair;
-        materials[1] = cloth;
-        materials[2] = head;
-    }
-
-    {
-        const fs::path assets_dir{ENGINE_ASSETS_DIR};
-
-        models.add("skeleton", ModelLoader::loadModel(*this, assets_dir / "models/skeleton/skeleton.fbx", {{
-           ModelLoaderOption::NoMaterials
-       }}));
-
-        auto& materials = dynamic_cast<SkeletalModel&>(*models.at("skeleton")).getMaterials();
-        materials.resize(1);
-
-        auto skin = Material::builder()
-                .name("skeleton")
-                .diffuse(TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body.png"))
-                .ao(TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body_OcclusionRoughnessMetallic.png"))
-                .custom("ao_r_m", TextureLoader::load(*this, assets_dir / "models/skeleton/Skeleton_Body_OcclusionRoughnessMetallic.png"))
-                .fragment("vec3 skin = texture(ao_r_m, getVertexUV()).rgb;"
-                                    "mctx.ao = skin.r;"
-                                    "mctx.roughness = skin.g;"
-                                    "mctx.metallic = skin.b;")
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        materials[0] = skin;
-    }
-
-    {
-        const fs::path assets_dir{ENGINE_ASSETS_DIR};
-        models.add("taskmaster", ModelLoader::loadModel(*this, assets_dir / "models/taskmaster/Taskmaster.fbx"));
-    }
-
-    {
-        const fs::path assets_dir{ENGINE_ASSETS_DIR};
-
-        models.add("k2", ModelLoader::loadModel(*this, assets_dir / "models/k2/k2.fbx"));
-
-        auto& k2 = dynamic_cast<SkeletalModel&>(*models.at("k2"));
-
-        auto& materials = k2.getMaterials();
-
-        auto body = Material::builder()
-                .name("k2_body")
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/k2/K2_D.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/k2/K2_D.tga"))
-                .metallic( TextureLoader::load(*this, assets_dir / "models/k2/K2_S.tga"))
-                .roughness( 0.2f)
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        auto head = Material::builder()
-                .name("k2_head")
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/k2/K2_Head_D.tga"))
-                .normal( TextureLoader::load(*this, assets_dir / "models/k2/K2_Head_N.tga"))
-                .metallic( TextureLoader::load(*this, assets_dir / "models/k2/K2_Head_S.tga"))
-                .roughness( 0.2f)
-                .shading(Shading::Lit)
-                .model(InstanceType::Skeletal)
-                .build(*this);
-
-        materials[0] = head;
-        materials[1] = body;
-    }
-
-    {
-        const fs::path assets_dir{ENGINE_ASSETS_DIR};
-
-        models.add("elemental", ModelLoader::loadModel(*this, assets_dir / "models/elemental/elemental.fbx"));
-
-        auto& elemental = dynamic_cast<SkeletalModel&>(*models.at("elemental"));
-
-        auto& materials = elemental.getMaterials();
-
-        auto body = Material::builder()
-                .name("elemental_body")
-                .diffuse( TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Albedo FireElemental.png"))
-                .emissive_color(glm::vec4(1.0f))
-                .normal( TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Normal FireElemental.png"))
-                .roughness(TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Rougness FireElemental.png"))
-                .metallic(0.1f)
-                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Emission FireElemental.png"))
-                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
-                .shading(Shading::Lit)
-                .build(*this);
-
-        materials[0] = body;
-    }
-    
-    {
-        const fs::path assets_dir {getAssetsDir()};
-
-        models.add("bob", ModelLoader::loadModel(*this, assets_dir / "models/boblamp/boblampclean.md5mesh"));
-        models.add("backpack", ModelLoader::loadModel(*this, assets_dir / "models/backpack/backpack.obj", {{
-               ::ModelLoaderOption::FlipUV
-       }}));
-        models.add("cyborg", ModelLoader::loadModel(*this, assets_dir / "models/cyborg/cyborg.obj"));
-        models.add("drone", ModelLoader::loadModel(*this, assets_dir / "models/drone/model/BusterDrone.fbx"));
-    }
+//    {
+//        const fs::path assets_dir{ENGINE_ASSETS_DIR};
+//
+//        models.add("elemental", ModelLoader::loadModel(*this, assets_dir / "models/elemental/elemental.fbx"));
+//
+//        auto& elemental = dynamic_cast<SkeletalModel&>(*models.at("elemental"));
+//
+//        auto& materials = elemental.getMaterials();
+//
+//        auto body = Material::builder()
+//                .name("elemental_body")
+//                .diffuse( TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Albedo FireElemental.png"))
+//                .emissive_color(glm::vec4(1.0f))
+//                .normal( TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Normal FireElemental.png"))
+//                .roughness(TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Rougness FireElemental.png"))
+//                .metallic(0.1f)
+//                .custom("emissive_map", TextureLoader::load(*this, assets_dir / "models/elemental/Textures/Emission FireElemental.png"))
+//                .fragment("mctx.emissive_color = texture(emissive_map, getVertexUV()).rgb;")
+//                .shading(Shading::Lit)
+//                .build(*this);
+//
+//        materials[0] = body;
+//    }
+//
+//    {
+//        const fs::path assets_dir {ENGINE_ASSETS_DIR};
+//
+//        models.add("bob", ModelLoader::loadModel(*this, assets_dir / "models/boblamp/boblampclean.md5mesh"));
+//        models.add("backpack", ModelLoader::loadModel(*this, assets_dir / "models/backpack/backpack.obj", {{
+//               ::ModelLoaderOption::FlipUV
+//       }}));
+//        models.add("cyborg", ModelLoader::loadModel(*this, assets_dir / "models/cyborg/cyborg.obj"));
+//        models.add("drone", ModelLoader::loadModel(*this, assets_dir / "models/drone/model/BusterDrone.fbx"));
+//    }
 }
 
 void DemoAssets::loadSponzaScene() {
@@ -999,7 +998,7 @@ void DemoAssets::loadAssets() {
 //    loadSponzaScene();
 
     {
-        const fs::path assets_dir{getAssetsDir()};
+        const fs::path assets_dir{ENGINE_ASSETS_DIR};
 
         skyboxes.add("skybox", std::make_shared<Skybox>(*this, assets_dir / "skyboxes/sky/sky.png", TextureLoaderFlags {
             TextureLoaderFlags::Origin::TopLeft,
@@ -1014,7 +1013,7 @@ DemoAssets::DemoAssets(::Context& ctx, ::Renderer& renderer, const fs::path& pat
     ::Assets::load(ctx);
 
     {
-        const fs::path assets_dir{getAssetsDir()};
+        const fs::path assets_dir{ENGINE_ASSETS_DIR};
 
         ctx.setWindowIcon(TextureLoader::loadGLFWImage(*this, assets_dir / "icons/demo.png"));
 

@@ -210,7 +210,7 @@ namespace Limitless::ms {
          * Mutable property getters for primitives
          */
         glm::vec4& getColor();
-        glm::vec4& getEmissiveColor();
+        glm::vec3& getEmissiveColor();
         float& getMetallic();
         float& getRoughness();
         float& getIoR();

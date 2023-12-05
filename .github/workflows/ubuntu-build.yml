@@ -25,7 +25,7 @@ jobs:
       - name: build
         run: |
           mkdir build
-          cmake -DGLSLANG_SHADER_OUTPUT=ON -S . -B build
+          cmake -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
       - name: test
