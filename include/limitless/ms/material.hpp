@@ -9,6 +9,12 @@
 #include <glm/glm.hpp>
 #include <stdexcept>
 #include <map>
+#include <unordered_map>
+#include <memory>
+#include <string>
+#include <cstdint>
+#include <cstddef>
+#include <vector>
 
 namespace Limitless {
     class Buffer;
