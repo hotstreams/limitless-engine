@@ -255,7 +255,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(limitless-engine PUBLIC -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -Werror -O3)
+    target_compile_options(limitless-engine PRIVATE -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -Werror -O3)
+#    target_compile_options(limitless-engine PUBLIC -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
 endif()
 
 if (OPENGL_DEBUG)
