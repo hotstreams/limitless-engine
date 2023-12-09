@@ -148,3 +148,6 @@ void Camera::setFov(glm::uvec2 size, float _fov) noexcept {
 	updateProjection(size);
 }
 
+void Camera::setMode(CameraMode new_mode) noexcept {
+    mode = new_mode;
+}
