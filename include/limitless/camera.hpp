@@ -50,6 +50,7 @@ namespace Limitless {
         void setPosition(const glm::vec3& position) noexcept;
         void setFront(const glm::vec3& front) noexcept;
         void setFov(glm::uvec2 size, float fov) noexcept;
+        void setMode(CameraMode mode) noexcept;
 
         void mouseMove(glm::dvec2 offset) noexcept;
         void mouseScroll(float yoffset) noexcept;
