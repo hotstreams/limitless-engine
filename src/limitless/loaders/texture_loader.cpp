@@ -278,12 +278,14 @@ void TextureLoader::setTextureParameters(Texture::Builder& builder, const Textur
     switch (flags.filter) {
         case TextureLoaderFlags::Filter::Linear:
             builder.mag_filter(Texture::Filter::Linear);
+            builder.min_filter(Texture::Filter::Linear);
             if (flags.mipmap) {
                 builder.min_filter(Texture::Filter::LinearMipmapLinear);
             }
             break;
         case TextureLoaderFlags::Filter::Nearest:
             builder.mag_filter(Texture::Filter::Nearest);
+            builder.min_filter(Texture::Filter::Nearest);
             if (flags.mipmap) {
                 builder.min_filter(Texture::Filter::NearestMipmapNearest);
             }
