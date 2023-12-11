@@ -250,7 +250,7 @@ target_include_directories(limitless-engine PUBLIC include)
 target_compile_features(limitless-engine PUBLIC cxx_std_17)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(limitless-engine PUBLIC -O0 -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
+    target_compile_options(limitless-engine PRIVATE -O0 -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
     target_compile_definitions(limitless-engine PUBLIC LIMITLESS_OPENGL_DEBUG)
 endif()
 
