@@ -10,7 +10,7 @@ OPTION(BUILD_SAMPLES "Builds samples" OFF)
 OPTION(BUILD_TESTS "Builds tests" ON)
 
 OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" OFF)
+OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" ON)
 OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF)
 
 #########################################
@@ -256,6 +256,7 @@ endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(limitless-engine PRIVATE -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -Werror -O3)
+#    target_compile_options(limitless-engine PUBLIC -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
 endif()
 
 if (OPENGL_DEBUG)

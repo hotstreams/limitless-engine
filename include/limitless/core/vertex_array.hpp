@@ -55,6 +55,8 @@ namespace Limitless {
                 setAttribute(index, 1, GL_FLOAT, normalized, stride, pointer, buffer);
             } else if constexpr (std::is_same_v<Attribute, int>) {
                 setAttribute(index, 1, GL_INT, normalized, stride, pointer, buffer);
+            } else if constexpr (std::is_same_v<Attribute, uint32_t>) {
+                setAttribute(index, 1, GL_UNSIGNED_INT, normalized, stride, pointer, buffer);
             } else if constexpr (std::is_same_v<Attribute, glm::ivec4>) {
 	            setAttribute(index, 4, GL_INT, normalized, stride, pointer, buffer);
             } else if constexpr (std::is_same_v<Attribute, glm::vec4>) {
@@ -72,6 +74,7 @@ namespace Limitless {
         VertexArray& operator<<(const std::pair<Vertex, const std::shared_ptr<Buffer>&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<TextVertex, const std::shared_ptr<Buffer>&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexNormalTangent, const std::shared_ptr<Buffer>&>& attribute) noexcept;
+        VertexArray& operator<<(const std::pair<VertexTerrain, const std::shared_ptr<Buffer>&>& attribute) noexcept;
     };
 
     void swap(VertexArray& lhs, VertexArray& rhs);
