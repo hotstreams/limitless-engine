@@ -55,6 +55,20 @@ VertexArray& VertexArray::operator<<(const std::pair<VertexNormalTangent, const 
     return *this;
 }
 
+VertexArray& VertexArray::operator<<(const std::pair<VertexTerrain, const std::shared_ptr<Buffer>&>& attribute) noexcept {
+    setAttribute<glm::vec3>(0, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, position), attribute.second);
+    setAttribute<glm::vec3>(1, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, normal), attribute.second);
+    setAttribute<glm::vec3>(2, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, tangent), attribute.second);
+    setAttribute<glm::vec2>(3, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, uv), attribute.second);
+    setAttribute<glm::vec2>(4, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, uv1), attribute.second);
+    setAttribute<glm::vec2>(5, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, uv2), attribute.second);
+    setAttribute<glm::vec2>(6, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, uv3), attribute.second);
+    setAttribute<uint32_t>(7, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, current), attribute.second);
+    setAttribute<uint32_t>(8, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, mask), attribute.second);
+    setAttribute<uint32_t>(9, false, sizeof(VertexTerrain), (GLvoid*)offsetof(VertexTerrain, types), attribute.second);
+    return *this;
+}
+
 VertexArray::VertexArray(VertexArray&& rhs) noexcept {
     swap(*this, rhs);
 }
@@ -89,7 +103,7 @@ void VertexArray::setAttribute(GLuint index, GLint size, GLenum type, GLboolean 
 
     enable(index);
 
-    if (type == GL_INT) {
+    if (type == GL_INT || type == GL_UNSIGNED_INT) {
         glVertexAttribIPointer(index, size, type, stride, pointer);
     } else {
         glVertexAttribPointer(index, size, type, normalized, stride, pointer);

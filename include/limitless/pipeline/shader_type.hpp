@@ -88,7 +88,8 @@ namespace Limitless {
         Instanced,
         SkeletalInstanced,
         Effect,
-        Decal
+        Decal,
+        Terrain
     };
 
     using ShaderTypes = std::set<ShaderType>;

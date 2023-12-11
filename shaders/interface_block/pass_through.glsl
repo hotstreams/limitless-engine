@@ -71,5 +71,14 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
 
         _out_data.world_position = world_position;
         _out_data.uv = uv;
+
+        #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
+            _out_data.uv1 = getVertexUV1();
+            _out_data.uv2 = getVertexUV2();
+            _out_data.uv3 = getVertexUV3();
+            _out_data.mask = getVertexColor();
+            _out_data.current = getVertexTileCurrent();
+            _out_data.types = getVertexTileType();
+        #endif
     #endif
 }

@@ -4,7 +4,8 @@
 #include <vector>
 
 namespace Limitless {
-    inline void calculateTangentSpace(VertexNormalTangent& vertex0, VertexNormalTangent& vertex1, VertexNormalTangent& vertex2) noexcept {
+    template<typename Vertex>
+    inline void calculateTangentSpace(Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) noexcept {
         const auto& v0 = vertex0.position;
         const auto& v1 = vertex1.position;
         const auto& v2 = vertex2.position;
@@ -27,8 +28,8 @@ namespace Limitless {
         vertex2.tangent = tangent;
     }
 
-    template<typename I>
-    inline void calculateTangentSpaceTriangle(std::vector<VertexNormalTangent>& vertices, const std::vector<I>& indices) {
+    template<typename Vertex, typename I>
+    inline void calculateTangentSpaceTriangle(std::vector<Vertex>& vertices, const std::vector<I>& indices) {
         for (size_t i = 0; i < indices.size(); i += 3) {
             calculateTangentSpace(vertices.at(indices.at(i)), vertices.at(indices.at(i + 1)), vertices.at(indices.at(i + 2)));
         }
