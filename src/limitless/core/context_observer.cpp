@@ -53,8 +53,6 @@ void ContextEventObserver::charCallback(GLFWwindow* win, uint32_t utf) {
 void ContextEventObserver::onFramebufferChange(glm::uvec2 s) {
     size = s;
 
-    setWindowSize(size);
-
     for (auto* obs : framebuffer_observers) {
         obs->onFramebufferChange(size);
     }
