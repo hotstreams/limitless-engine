@@ -963,14 +963,16 @@ GltfModelLoader::loadModel(Assets& assets, const fs::path& path, [[maybe_unused]
     };
 	cgltf_data* out_data = nullptr;
 
-	cgltf_result gltf = cgltf_parse_file(&opts, reinterpret_cast<const char *>(path.c_str()), &out_data);
+    const auto path_str = path.string();
+
+	cgltf_result gltf = cgltf_parse_file(&opts, path_str.c_str(), &out_data);
 	if (gltf != cgltf_result_success) {
 		throw ModelLoadError {
 			"failed to parse GLTF model file " + path.string() + ": "
 			+ std::to_string(static_cast<int>(gltf))};
 	}
 
-	auto result = cgltf_load_buffers(&opts, out_data, reinterpret_cast<const char *>(path.c_str()));
+	auto result = cgltf_load_buffers(&opts, out_data, path_str.c_str());
 	if (result != cgltf_result_success) {
 		throw ModelLoadError {
 			"failed to load buffers: " + std::to_string(static_cast<int>(result))};

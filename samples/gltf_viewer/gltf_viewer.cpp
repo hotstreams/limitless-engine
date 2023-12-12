@@ -70,23 +70,25 @@ int main(int argc, char* argv[]) {
 	Renderer renderer {ctx};
 
 	Scene scene {ctx};
-	scene.lighting.ambient_color.a   = 1.0f;
-	scene.lighting.directional_light = {
-		glm::vec4(1.0, -1.0, 1.5, 1.0f),
-		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-	};
+
+    scene.add(Light::builder()
+        .color({1.0, -1.0, 1.5, 1.0f})
+        .direction({0.7f, -1.0f, 0.0f})
+        .build()
+    );
 
 	if (auto* skeletal_model = dynamic_cast<SkeletalModel*>(model.get()); skeletal_model) {
 		std::cerr << "loaded skeletal model" << std::endl;
-		auto& inst = scene.add<SkeletalInstance>(model, glm::vec3(0.f));
+		auto inst = Instance::builder().model(model).asSkeletal();
+        scene.add(inst);
 
 		auto anims = skeletal_model->getAnimations();
 		if (!anims.empty()) {
-			inst.play(anims[0].name);
+			inst->play(anims[0].name);
 		}
 	} else if (auto* plain_model = dynamic_cast<Model*>(model.get()); plain_model) {
 		std::cerr << "loaded plain model" << std::endl;
-		scene.add<ModelInstance>(model, glm::vec3(0.f));
+        scene.add(Instance::builder().model(model).build());
 	} else {
 		throw std::runtime_error("unknown model type");
 	}
