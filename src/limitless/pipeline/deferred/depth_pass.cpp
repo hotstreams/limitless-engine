@@ -29,7 +29,6 @@ void DepthPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[mayb
 	ctx.setStencilFunc(StencilFunc::Always, 1, 0xFF);
 
 	auto& fb = pipeline.get<DeferredFramebufferPass>().getFramebuffer();
-
     fb.bind();
 
     for (auto& instance : instances) {
