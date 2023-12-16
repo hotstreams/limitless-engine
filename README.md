@@ -1,12 +1,9 @@
-![me](content/logo.jpg)
+![me](docs/preview/logo.jpg)
 
 ## Limitless Engine is a 3D graphics engine, focused on high-performance, low-overhead rendering with modern OpenGL & C++17.
 
 [![Linux Build Status](https://github.com/hotstreams/limitless-engine/workflows/Linux/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3ALinux)
 [![Windows Build Status](https://github.com/hotstreams/limitless-engine/workflows/Windows/badge.svg)](https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWindows)
-
-[//]: # ([![MacOS Build Status]&#40;https://github.com/hotstreams/limitless-engine/workflows/MacOS/badge.svg&#41;]&#40;https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AMac&#41;)
-[//]: # ([![Web Build Status]&#40;https://github.com/hotstreams/limitless-engine/workflows/Web/badge.svg&#41;]&#40;https://github.com/hotstreams/limitless-engine/actions?query=workflow%3AWeb&#41;)
 
 ### Core Features
 - OpenGL state caching for reducing driver overhead
@@ -33,6 +30,10 @@
     - [x] GL_ARB_texture_compression_rgtc
 ---
 
+https://github.com/hotstreams/limitless-engine/assets/37740577/89b6e76b-e033-4644-829c-9abc744a2341
+
+https://github.com/hotstreams/limitless-engine/assets/37740577/e8ac6aed-a6f1-4125-b2bc-b67584bbaf93
+
 ### Rendering
 
 - Forward & Deferred rendering
@@ -54,10 +55,7 @@
 - HDR Bloom
 - FXAA
 - Deferred Decals
-
-https://github.com/hotstreams/limitless-engine/assets/37740577/a10e9994-232e-490c-af86-82356a7106fa 
-
-https://github.com/hotstreams/limitless-engine/assets/37740577/7f862e5c-b2ee-4d0f-8d51-4c03b028906a
+- Instancing
 
 ---
 
@@ -101,14 +99,14 @@ https://github.com/hotstreams/limitless-engine/assets/37740577/7f862e5c-b2ee-4d0
     - Beam targets, speed, offset, rebuild, displacement
 
 <div style="padding: 5px">
-    <img src="content/smoke.gif" width="250" />
-    <img src="content/shield.gif" width="250" />
-    <img src="content/explosion.gif" width="250" />
-    <img src="content/ball.gif" width="250" />
-    <img src="content/lightning_effect.gif" width="250" />
-    <img src="content/attachment.gif" width="250" />
-    <img src="content/skeleton_spawn_effect.gif" width="250" />
-    <img src="content/aura_effect.gif" width="250" />
+    <img src="docs/preview/smoke.gif" width="250" />
+    <img src="docs/preview/shield.gif" width="250" />
+    <img src="docs/preview/explosion.gif" width="250" />
+    <img src="docs/preview/ball.gif" width="250" />
+    <img src="docs/preview/lightning_effect.gif" width="250" />
+    <img src="docs/preview/attachment.gif" width="250" />
+    <img src="docs/preview/skeleton_spawn_effect.gif" width="250" />
+    <img src="docs/preview/aura_effect.gif" width="250" />
 </div>
 
 ---
@@ -116,26 +114,26 @@ https://github.com/hotstreams/limitless-engine/assets/37740577/7f862e5c-b2ee-4d0
 ### Examples
 
 <div style="padding: 5px">
-    <img src="content/bistro.png" width="250" />
-    <img src="content/scene.png" width="250" />
-    <img src="content/sponza1.png" width="250" />
-    <img src="content/alienhelmet.png" width="250" />
-    <img src="content/boombox.png" width="250" />
-    <img src="content/damagedhelmet.png" width="250" />
-    <img src="content/helmet.png" width="250" />
-    <img src="content/bottle.png" width="250" />
-    <img src="content/sponza.png" width="250" />
-    <img src="content/warlocks.png" width="250" />
-    <img src="content/thanos.png" width="250" />
-    <img src="content/daenerys.png" width="250" />
-    <img src="content/taskmaster.png" width="250" />
-    <img src="content/k2.png" width="250" />
-    <img src="content/skeleton.png" width="250" />
-    <img src="content/skeletal_model.gif" width="250" />
-    <img src="content/backpack.png" width="250" />
-    <img src="content/cyborg.png" width="250" />
-    <img src="content/drone.png" width="250" />
-    <img src="content/elemental.png" width="250" />
+    <img src="docs/preview/bistro.png" width="250" />
+    <img src="docs/preview/scene.png" width="250" />
+    <img src="docs/preview/sponza1.png" width="250" />
+    <img src="docs/preview/alienhelmet.png" width="250" />
+    <img src="docs/preview/boombox.png" width="250" />
+    <img src="docs/preview/damagedhelmet.png" width="250" />
+    <img src="docs/preview/helmet.png" width="250" />
+    <img src="docs/preview/bottle.png" width="250" />
+    <img src="docs/preview/sponza.png" width="250" />
+    <img src="docs/preview/warlocks.png" width="250" />
+    <img src="docs/preview/thanos.png" width="250" />
+    <img src="docs/preview/daenerys.png" width="250" />
+    <img src="docs/preview/taskmaster.png" width="250" />
+    <img src="docs/preview/k2.png" width="250" />
+    <img src="docs/preview/skeleton.png" width="250" />
+    <img src="docs/preview/skeletal_model.gif" width="250" />
+    <img src="docs/preview/backpack.png" width="250" />
+    <img src="docs/preview/cyborg.png" width="250" />
+    <img src="docs/preview/drone.png" width="250" />
+    <img src="docs/preview/elemental.png" width="250" />
 </div>
 
 # Build
