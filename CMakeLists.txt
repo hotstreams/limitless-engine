@@ -9,8 +9,8 @@ project(limitless-engine)
 OPTION(BUILD_SAMPLES "Builds samples" OFF)
 OPTION(BUILD_TESTS "Builds tests" ON)
 
-OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" ON)
+OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" OFF)
+OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" OFF)
 OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF)
 
 #########################################
@@ -75,6 +75,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/socket_attachment.cpp
     src/limitless/instances/instance_builder.cpp
     src/limitless/instances/decal_instance.cpp
+    src/limitless/instances/instanced_instance.cpp
 )
 
 set(ENGINE_LIGHTING

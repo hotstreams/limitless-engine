@@ -73,6 +73,18 @@ void Texture::image(const std::array<void*, 6>& data) {
     }
 }
 
+void Texture::image(const std::vector<const void*>& layers) {
+    setParameters();
+
+    for (uint32_t i = 0; i < layers.size(); ++i) {
+        texture->texImage3D(static_cast<GLenum>(target), 0, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), {size.x, size.y, i}, false, layers.at(i));
+    }
+
+    if (mipmap) {
+        generateMipMap();
+    }
+}
+
 void Texture::image(uint32_t level, glm::uvec2 _size, const void* data) {
     setParameters();
     texture->texImage2D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), _size, false, data);

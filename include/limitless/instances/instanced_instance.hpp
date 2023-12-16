@@ -5,123 +5,31 @@
 #include <limitless/core/context.hpp>
 
 namespace Limitless {
-    template<typename Instance, typename = void>
     class InstancedInstance : public Instance {
-        static_assert(std::is_same_v<Instance, Instance>, "InstancedInstance for this typename is unimplemented!");
-    };
-
-    template<>
-    class InstancedInstance<ModelInstance> : public Instance {
     protected:
         // contains instanced models
-        std::vector<std::unique_ptr<ModelInstance>> instances;
+        std::vector<std::shared_ptr<ModelInstance>> instances;
 
         // contains model matrices for each ModelInstance
         std::shared_ptr<Buffer> buffer;
 
-        void initializeBuffer(uint32_t count) {
-            buffer = Buffer::builder()
-                    .target(Buffer::Type::ShaderStorage)
-                    .usage(Buffer::Usage::DynamicDraw)
-                    .access(Buffer::MutableAccess::WriteOrphaning)
-                    .data(nullptr)
-                    .size(sizeof(glm::mat4) * count)
-                    .build("model_buffer", *ContextState::getState(glfwGetCurrentContext()));
-        }
+        std::vector<glm::mat4> current_data;
 
-        virtual void checkSize() {
-            if (buffer->getSize() < sizeof(glm::mat4) * instances.size()) {
-                buffer->resize(sizeof(glm::mat4) * instances.size());
-            }
-        }
-
-        void updateBoundingBox() noexcept override {
-            assert("RIP");
-        }
-
-        void updateBuffer(Context& context, const Camera& camera) {
-            checkSize();
-
-            std::vector<glm::mat4> data;
-            data.reserve(instances.size());
-
-            for (const auto& instance : instances) {
-                //TODO
-//                if (instance->isHidden()) {
-//                    continue;
-//                }
-
-                instance->update(context, camera);
-
-                data.emplace_back(instance->getModelMatrix());
-            }
-
-            buffer->mapData(data.data(), data.size() * sizeof(glm::mat4));
-        }
-
-        explicit InstancedInstance(InstanceType shader, const glm::vec3& position, uint32_t count)
-            : Instance(shader, position) {
-            initializeBuffer(count);
-        }
+        void updateBoundingBox() noexcept override;
+        void updateBuffer();
     public:
-        explicit InstancedInstance(const glm::vec3& position, uint32_t count = 4)
-            : Instance(InstanceType::Instanced, position) {
-            initializeBuffer(count);
-        }
-
+        InstancedInstance();
         ~InstancedInstance() override = default;
 
-        InstancedInstance(const InstancedInstance& rhs)
-            : Instance(rhs.shader_type, rhs.position) {
-            initializeBuffer(rhs.instances.size());
-            for (const auto& instance : rhs.instances) {
-                instances.emplace_back((ModelInstance*)instance->clone().release());
-            }
-        }
+        InstancedInstance(const InstancedInstance& rhs);
         InstancedInstance(InstancedInstance&&) noexcept = default;
 
-        std::unique_ptr<Instance> clone() noexcept override {
-            return std::make_unique<InstancedInstance>(*this);
-        }
+        std::unique_ptr<Instance> clone() noexcept override;
 
-        void addInstance(std::unique_ptr<ModelInstance> instance) {
-            instances.emplace_back(std::move(instance));
-        }
+        void add(const std::shared_ptr<ModelInstance>& instance);
+        void remove(uint64_t id);
 
-        void removeInstance(size_t index) {
-            instances.erase(instances.begin() + index);
-        }
-
-        auto& getInstances() noexcept { return instances; }
-        [[nodiscard]] const auto& getInstances() const noexcept { return instances; }
-
-        ModelInstance& operator[](size_t index) { return *instances[index]; }
-        const ModelInstance& operator[](size_t index) const { return *instances[index]; }
-
-        ModelInstance& at(size_t index) { return *instances.at(index); }
-        [[nodiscard]] const ModelInstance& at(size_t index) const { return *instances.at(index); }
-
-        void update(Context& context, const Camera& camera) override {
-            if (instances.empty()) {
-                return;
-            }
-
-            Instance::update(context, camera);
-
-            updateBuffer(context, camera);
-        }
-
-        void draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_set) override {
-            if (hidden || instances.empty()) {
-                return;
-            }
-
-            buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
-
-            // iterates over all meshes
-            for (auto& [name, mesh] : instances[0]->getMeshes()) {
-                mesh.draw_instanced(ctx, assets, pass, shader_type, model_matrix, blending, uniform_set, instances.size());
-            }
-        }
+        void update(Context& context, const Camera& camera) override;
+        void draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_set) override;
     };
 }
