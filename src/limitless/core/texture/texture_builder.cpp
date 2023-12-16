@@ -57,6 +57,11 @@ Texture::Builder& Texture::Builder::data(const void* _data) {
     return *this;
 }
 
+Texture::Builder & Texture::Builder::layer_data(const void *data) {
+    layers_data.emplace_back(data);
+    return *this;
+}
+
 Texture::Builder& Texture::Builder::data(const std::array<void *, 6>& _data) {
     cube_data = _data;
     return *this;
@@ -121,7 +126,11 @@ std::shared_ptr<Texture> Texture::Builder::buildMutable() {
     if (isCompressed()) {
         texture->compressedImage(data_, byte_count);
     } else {
-        isCubeMap() ? texture->image(cube_data) : texture->image(data_);
+        if (!layers_data.empty()) {
+            texture->image(layers_data);
+        } else {
+            isCubeMap() ? texture->image(cube_data) : texture->image(data_);
+        }
     }
 
     auto tex = std::move(texture);

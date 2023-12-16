@@ -21,6 +21,7 @@ namespace Limitless {
         std::unique_ptr<Texture> texture;
         std::array<void*, 6> cube_data {};
         const void* data_ {};
+        std::vector<const void*> layers_data;
         std::size_t byte_count {};
     public:
         Builder();
@@ -30,6 +31,7 @@ namespace Limitless {
         Builder& format(Texture::Format format);
         Builder& target(Texture::Type target);
         Builder& data(const void* data);
+        Builder& layer_data(const void* data);
         Builder& data(const std::array<void*, 6>& data);
         Builder& compressed_data(const void* data, std::size_t bytes);
         Builder& levels(uint32_t levels);

@@ -179,6 +179,7 @@ namespace Limitless {
         // allocates mutable storage
         void image(const void* data = nullptr);
         void image(const std::array<void*, 6>& data);
+        void image(const std::vector<const void*>& layers);
         void image(uint32_t level, glm::uvec2 size, const void* data = nullptr);
         void image(uint32_t level, glm::uvec3 size, const void* data = nullptr);
 
@@ -190,7 +191,6 @@ namespace Limitless {
         void compressedImage(const void* data, std::size_t byte_count);
         void compressedImage(uint32_t level, glm::uvec2 size, const void* data, std::size_t byte_count);
         void compressedImage(uint32_t level, glm::uvec3 size, const void* data, std::size_t byte_count);
-
 
         /* UPLOADING FUNCTIONS */
 
