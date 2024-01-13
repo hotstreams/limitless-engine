@@ -16,6 +16,8 @@ namespace Limitless {
          */
         Framebuffer framebuffer;
     public:
+        float tone_mapping_exposure = 1.0f;
+
         explicit CompositePass(Pipeline& pipeline, glm::uvec2 size);
 
         std::shared_ptr<Texture> getResult() override;

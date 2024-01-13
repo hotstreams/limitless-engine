@@ -39,7 +39,8 @@ void CompositePass::draw([[maybe_unused]] Instances& instances, Context& ctx, co
             const auto bloom_strength = bloom_pass.getBloom().strength / static_cast<float>(bloom_pass.getBloom().blur.getIterationCount());
             //TODO: what if there is no bloom ?
             shader.setUniform("bloom", bloom_pass.getResult())
-                  .setUniform("bloom_strength", bloom_strength);
+                  .setUniform("bloom_strength", bloom_strength)
+                  .setUniform("tone_mapping_exposure", tone_mapping_exposure);
         }
 
         shader.use();
