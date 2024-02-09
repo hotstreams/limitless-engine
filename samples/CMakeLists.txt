@@ -2,23 +2,30 @@
 cmake_minimum_required(VERSION 3.10)
 
 #########################################
-project(limitless-engine-samples)
+project(limitless-samples)
 
-#if (NOT BUILD_SAMPLES)
-#    return()
-#endif()
+if (NOT BUILD_SAMPLES)
+    return()
+endif()
 
-#add_executable(limitless-demo
-#    demo/demo.cpp
-#    #    demo/materials_demoscene.cpp
-#    #    demo/lighting_demoscene.cpp
-#    #    demo/effects_demoscene.cpp
-#    #    demo/models_demoscene.cpp
-#    demo/assets.cpp
-#)
-#target_link_libraries(limitless-demo PRIVATE limitless-engine)
-
+# gltf model viewer
 add_executable(limitless-gltf-viewer
     gltf_viewer/gltf_viewer.cpp
 )
-target_link_libraries(limitless-gltf-viewer PUBLIC limitless-engine)
+target_link_libraries(limitless-gltf-viewer PRIVATE limitless-engine)
+
+# test materials scene
+add_executable(limitless-materials
+    materials/main.cpp
+    materials/assets.cpp
+    materials/scene.cpp
+)
+target_link_libraries(limitless-materials PRIVATE limitless-engine)
+
+# test effects scene
+add_executable(limitless-effects
+    effects/main.cpp
+    effects/assets.cpp
+    effects/scene.cpp
+)
+target_link_libraries(limitless-effects PRIVATE limitless-engine)

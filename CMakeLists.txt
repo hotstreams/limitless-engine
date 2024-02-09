@@ -6,7 +6,7 @@ project(limitless-engine)
 
 #########################################
 
-OPTION(BUILD_SAMPLES "Builds samples" OFF)
+OPTION(BUILD_SAMPLES "Builds samples" ON)
 OPTION(BUILD_TESTS "Builds tests" ON)
 
 OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" OFF)

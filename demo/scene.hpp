@@ -2,7 +2,7 @@
 
 #include <limitless/scene.hpp>
 #include "lighting_demoscene.hpp"
-#include "materials_demoscene.hpp"
+#include "../samples/materials_scene/scene.hpp"
 #include "effects_demoscene.hpp"
 #include "models_demoscene.hpp"
 

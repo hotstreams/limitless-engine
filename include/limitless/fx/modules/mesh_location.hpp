@@ -5,6 +5,7 @@
 #include <limitless/instances/skeletal_instance.hpp>
 #include <variant>
 #include <limitless/models/mesh.hpp>
+#include <random>
 
 namespace Limitless::fx {
     //TODO: move generation interface to utils
