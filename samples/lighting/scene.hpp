@@ -1,13 +1,13 @@
 #pragma once
 
 #include <limitless/scene.hpp>
-#include <limitless/core/context.hpp>
-#include <limitless/camera.hpp>
 #include <limitless/assets.hpp>
+#include <limitless/instances/model_instance.hpp>
 
-namespace LimitlessDemo {
-    class LightingScene {
+namespace LimitlessMaterials {
+    class Scene {
     private:
+        Limitless::Assets& assets;
         Limitless::Scene scene;
 
         static constexpr auto FLOOR_INSTANCE_COUNT = 64;
@@ -17,14 +17,13 @@ namespace LimitlessDemo {
             glm::vec3 direction {};
             float duration {};
         };
-        std::array<light_data, LIGHT_COUNT> data;
+        std::array<light_data, 512> data;
 
-        void addFloor(const Limitless::Assets& assets);
-        void addSpheres(const Limitless::Assets& assets);
-        static bool isInsideFloor(const glm::vec3& position);
-        void addLights();
+        void setUpModels();
+        void setUpLighting();
+        bool isInsideFloor(const glm::vec3& position);
     public:
-        LightingScene(Limitless::Context& ctx, const Limitless::Assets& assets);
+        Scene(Limitless::Context& ctx, Limitless::Assets& assets);
 
         auto& getScene() { return scene; }
 

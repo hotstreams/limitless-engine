@@ -29,3 +29,11 @@ add_executable(limitless-effects
     effects/scene.cpp
 )
 target_link_libraries(limitless-effects PRIVATE limitless-engine)
+
+# test lighting scene
+add_executable(limitless-lighting
+    lighting/main.cpp
+    lighting/assets.cpp
+    lighting/scene.cpp
+)
+target_link_libraries(limitless-lighting PRIVATE limitless-engine)

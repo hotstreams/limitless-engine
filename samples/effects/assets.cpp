@@ -231,7 +231,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
     {
         Material::builder().name("hurricane")
                 .blending(Blending::Additive)
-                .emissive_color(glm::vec4(5.0, 0.0, 5.0, 1.0))
+                .emissive_color(glm::vec4(50.0, 0.0, 50.0, 1.0))
                 .color(glm::vec4(0.0))
                 .fragment("mctx.emissive_color *= circle(getVertexUV(), 0.5);")
                 .global("#include \"../functions/circle.glsl\"")
