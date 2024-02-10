@@ -152,7 +152,6 @@ make extensions
 mkdir build && cd build
 cmake ..
 make -j12 limitless-materials limitless-effects limitless-lighting
-./limitless-material
 ```
 
 # Dependencies
