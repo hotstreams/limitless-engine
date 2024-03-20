@@ -1,0 +1,42 @@
+name: Archlinux
+
+on:
+  push:
+    branches:
+      - '*'
+      
+jobs:
+  build-linux:
+    name: build-linux
+    runs-on: archlinux:latest
+    steps:
+      # - name: setup
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
+      #     #xvfb-run glxinfo
+      - uses: actions/checkout@v3
+      - name: set up engine dependencies
+        run: |
+          git submodule init
+          git submodule update
+          #cd thirdparty/glew
+          #make extensions
+      # - name: build
+      #   run: |
+      #     mkdir build
+      #     cmake -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
+      #     cd build
+      #     make
+      # - name: test
+      #   continue-on-error: true
+      #   run: |
+      #     cd build/tests
+      #     mkdir glslang
+      #     xvfb-run -a -e errors ./limitless-tests
+      #     cat errors
+      # - name: shader glslang validation
+      #   run: |
+      #     cd build/tests
+      #     cd glslang
+      #     for file in ./*; do glslangValidator -C "$file"; done
