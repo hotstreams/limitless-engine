@@ -7,6 +7,6 @@ ENGINE::MATERIALDEPENDENT
 out vec4 color;
 
 void main() {
-    const MaterialContext mctx = computeMaterialContext();
+    MaterialContext mctx = computeMaterialContext();
     color = shadeFragment(mctx);
 }

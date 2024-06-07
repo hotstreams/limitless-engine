@@ -57,7 +57,7 @@ void CascadeShadows::initBuffers(Context& context) {
           .build(DIRECTIONAL_CSM_BUFFER_NAME, context);
 }
 
-CascadeShadows::CascadeShadows(Context& context, const RenderSettings& settings)
+CascadeShadows::CascadeShadows(Context& context, const RendererSettings& settings)
     : shadow_resolution {settings.csm_resolution}
     , split_count {settings.csm_split_count} {
     initBuffers(context);
@@ -228,7 +228,7 @@ void CascadeShadows::draw(Instances& instances,
 }
 
 void CascadeShadows::setUniform(ShaderProgram& shader) const {
-	if (auto* ctx = ContextState::getState(glfwGetCurrentContext()); ctx) {
+	if (auto* ctx = Context::getCurrentContext(); ctx) {
 		light_buffer->bindBase(ctx->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, DIRECTIONAL_CSM_BUFFER_NAME));
 	}
 
@@ -247,7 +247,7 @@ void CascadeShadows::mapData() const {
     light_buffer->mapData(light_space.data(), light_space.size() * sizeof(glm::mat4));
 }
 
-void CascadeShadows::update(Context& ctx, const RenderSettings& settings) {
+void CascadeShadows::update(Context& ctx, const RendererSettings& settings) {
     shadow_resolution = settings.csm_resolution;
     split_count = settings.csm_split_count;
 
@@ -258,7 +258,7 @@ void CascadeShadows::update(Context& ctx, const RenderSettings& settings) {
 }
 
 CascadeShadows::~CascadeShadows() {
-    if (auto* ctx = ContextState::getState(glfwGetCurrentContext()); ctx) {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
         ctx->getIndexedBuffers().remove(DIRECTIONAL_CSM_BUFFER_NAME, light_buffer);
     }
 }

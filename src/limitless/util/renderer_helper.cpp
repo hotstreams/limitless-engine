@@ -1,7 +1,7 @@
 #include <cmath>
 #include <limitless/util/renderer_helper.hpp>
 
-#include <limitless/renderer/render_settings.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/scene.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/context.hpp>
@@ -16,7 +16,7 @@
 using namespace Limitless;
 using namespace Limitless::ms;
 
-RendererHelper::RendererHelper(const RenderSettings& _settings)
+RendererHelper::RendererHelper(const RendererSettings& _settings)
     : settings {_settings} {
 }
 

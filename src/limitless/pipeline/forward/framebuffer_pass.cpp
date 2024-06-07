@@ -9,7 +9,7 @@ FramebufferPass::FramebufferPass(Pipeline& pipeline, RenderTarget& _target)
     , target {_target} {
 }
 
-FramebufferPass::FramebufferPass(Pipeline& pipeline, ContextEventObserver& ctx)
+FramebufferPass::FramebufferPass(Pipeline& pipeline, Context& ctx)
     : PipelinePass(pipeline)
     , target {framebuffer} {
 

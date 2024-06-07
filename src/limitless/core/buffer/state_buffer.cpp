@@ -1,5 +1,5 @@
 #include <limitless/core/buffer/state_buffer.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <stdexcept>
 #include <algorithm>
 #include <cstring>
@@ -25,9 +25,9 @@ StateBuffer::StateBuffer(Type target, size_t size, const void* data, Storage usa
 
 StateBuffer::~StateBuffer() {
     if (id != 0) {
-        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-            auto& target_map = state->buffer_target;
-            auto& point_map = state->buffer_point;
+        if (auto* ctx = Context::getCurrentContext(); ctx) {
+            auto& target_map = ctx->buffer_target;
+            auto& point_map = ctx->buffer_point;
 
             // if buffer is bound to any target we should reset it to zero
             std::for_each(target_map.begin(), target_map.end(), [&] (auto& state_target) {
@@ -84,27 +84,27 @@ StateBuffer& StateBuffer::operator=(StateBuffer&& rhs) noexcept {
 }
 
 void StateBuffer::bind() const noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        if (state->buffer_target[target] != id) {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
+        if (ctx->buffer_target[target] != id) {
             glBindBuffer(static_cast<GLenum>(target), id);
-            state->buffer_target[target] = id;
+            ctx->buffer_target[target] = id;
         }
     }
 }
 
 void StateBuffer::bindAs(Type _target) const noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        if (state->buffer_target[_target] != id) {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
+        if (ctx->buffer_target[_target] != id) {
             glBindBuffer(static_cast<GLenum>(_target), id);
-            state->buffer_target[_target] = id;
+            ctx->buffer_target[_target] = id;
         }
     }
 }
 
 void StateBuffer::bindBaseAs(Type _target, GLuint index) const noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        auto& point_map = state->buffer_point;
-        auto& target_map = state->buffer_target;
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
+        auto& point_map = ctx->buffer_point;
+        auto& target_map = ctx->buffer_target;
         if (point_map[{_target, index}] != id) {
             glBindBufferBase(static_cast<GLenum>(_target), index, id);
             point_map[{_target, index}] = id;
@@ -114,9 +114,9 @@ void StateBuffer::bindBaseAs(Type _target, GLuint index) const noexcept {
 }
 
 void StateBuffer::bindBase(GLuint index) const noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        auto& point_map = state->buffer_point;
-        auto& target_map = state->buffer_target;
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
+        auto& point_map = ctx->buffer_point;
+        auto& target_map = ctx->buffer_target;
         if (point_map[{target, index}] != id) {
             glBindBufferBase(static_cast<GLenum>(target), index, id);
             point_map[{target, index}] = id;
@@ -252,7 +252,7 @@ void StateBuffer::fence() noexcept {
 }
 
 void StateBuffer::bindBufferRangeAs(Buffer::Type _target, GLuint index, GLintptr offset) const noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
         if (auto& point_map = state->buffer_point; point_map[{_target, index}] != id) {
             glBindBufferRange(static_cast<GLenum>(_target), index, id, offset, size);
             point_map[{_target, index}] = id;
@@ -262,7 +262,7 @@ void StateBuffer::bindBufferRangeAs(Buffer::Type _target, GLuint index, GLintptr
 }
 
 void StateBuffer::bindBufferRange(GLuint index, GLintptr offset) const noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
         if (auto& point_map = state->buffer_point; point_map[{target, index}] != id) {
             glBindBufferRange(static_cast<GLenum>(target), index, id, offset, size);
             point_map[{target, index}] = id;

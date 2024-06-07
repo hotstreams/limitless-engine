@@ -1,13 +1,13 @@
 #include <limitless/ms/material_compiler.hpp>
 
-#include <limitless/renderer/render_settings.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/ms/material_shader_define_replacer.hpp>
 
 using namespace Limitless::ms;
 
-MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets, const RenderSettings& settings) noexcept
+MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets, const RendererSettings& settings) noexcept
     : ShaderCompiler {context, settings}
     , assets {_assets} {
 }

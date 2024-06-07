@@ -1,11 +1,11 @@
 #include <limitless/ms/blending.hpp>
 
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 
 using namespace Limitless::ms;
 
 void Limitless::ms::setBlendingMode(Blending blending) noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
         switch (blending) {
             case Blending::Opaque:
 //            state->enable(Capabilities::DepthTest);

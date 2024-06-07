@@ -216,34 +216,6 @@ namespace Limitless {
          */
         void init() noexcept;
 
-        /**
-         * Current states of whole application
-         *
-         * Binds ContextState to GLFWWindow state
-         *
-         * Used to fetch current ContextState class pointer based on glfwGetCurrentState (this call is almost free)
-         */
-        static inline std::unordered_map<GLFWwindow*, ContextState*> state_map;
-        /**
-         * Mutex to protect concurrent map access
-         */
-        static inline std::mutex mutex;
-
-        /**
-         * Swaps ContextState pointers in the map to link to the right pointer of GLFWWindow state
-         *
-         * Used by move semantics
-         */
-        static void swap_state_map(Context& lhs, Context& rhs) noexcept;
-
-        /**
-         * Registers/Unregisters context in the static state map
-         *
-         * @param window - windows to register/unregister
-         */
-        void unregisterState(GLFWwindow* window) noexcept;
-        void registerState(GLFWwindow* window) noexcept;
-
         friend class StateBuffer;
         friend class NamedBuffer;
         friend class ShaderProgram;
@@ -262,9 +234,6 @@ namespace Limitless {
 
         ContextState(ContextState&&) noexcept = default;
         ContextState& operator=(ContextState&&) noexcept = default;
-
-        static bool hasState(GLFWwindow* window) noexcept;
-        static ContextState* getState(GLFWwindow* window) noexcept;
 
         void setViewPort(glm::uvec2 size) noexcept;
         void setViewPort(glm::uvec4 new_viewport) noexcept;

@@ -9,7 +9,7 @@
 #include <map>
 
 namespace Limitless {
-    class RenderSettings;
+    class RendererSettings;
     class ShaderProgram;
     class Context;
 
@@ -27,7 +27,7 @@ namespace Limitless {
 
         std::mutex mutex;
     public:
-        void initialize(Context& ctx, const RenderSettings& settings, const fs::path& shader_dir);
+        void initialize(Context& ctx, const RendererSettings& settings, const fs::path& shader_dir);
 
         ShaderProgram& get(const std::string& name) const;
         ShaderProgram& get(ShaderType material_type, InstanceType model_type, uint64_t material_index) const;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/renderer/render_settings.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <memory>
 
@@ -9,7 +9,7 @@ namespace Limitless::ms {
 }
 
 namespace Limitless {
-    class ContextEventObserver;
+    class Context;
     class Scene;
     class Context;
     class Assets;
@@ -17,12 +17,12 @@ namespace Limitless {
 
     class Renderer final {
     private:
-        RenderSettings settings;
+        RendererSettings settings;
         std::unique_ptr<Pipeline> pipeline;
     public:
-        Renderer(std::unique_ptr<Pipeline> pipeline, const RenderSettings& settings);
-        Renderer(ContextEventObserver& ctx, const RenderSettings& settings);
-        explicit Renderer(ContextEventObserver& ctx);
+        Renderer(std::unique_ptr<Pipeline> pipeline, const RendererSettings& settings);
+        Renderer(Context& ctx, const RendererSettings& settings);
+        explicit Renderer(Context& ctx);
 
         ~Renderer() = default;
 
@@ -31,8 +31,8 @@ namespace Limitless {
         auto& getSettings() noexcept { return settings; }
         [[nodiscard]] const auto& getSettings() const noexcept { return settings; }
 
-        void update(ContextEventObserver& ctx, Assets& assets);
-        void updatePipeline(ContextEventObserver& ctx);
+        void update(Context& ctx, Assets& assets);
+        void updatePipeline(Context& ctx);
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
     };
 }

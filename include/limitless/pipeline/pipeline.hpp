@@ -8,8 +8,8 @@
 #include <stdexcept>
 
 namespace Limitless {
-    class RenderSettings;
-    class ContextEventObserver;
+    class RendererSettings;
+    class Context;
 
     class pipeline_pass_not_found final : public std::logic_error {
     public:
@@ -52,7 +52,7 @@ namespace Limitless {
         /**
          * Updates pipeline with specified settings
          */
-        virtual void update(ContextEventObserver& ctx, const RenderSettings& settings) = 0;
+        virtual void update(Context& ctx, const RendererSettings& settings) = 0;
 
         /**
          * Framebuffer size callback

@@ -67,6 +67,7 @@ namespace Limitless {
         static GLFWimage loadGLFWImage(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
 
         static std::shared_ptr<Texture> load(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
+        static std::shared_ptr<Texture> load(Assets& assets, const std::vector<fs::path>& paths, const TextureLoaderFlags& flags = {});
         static std::shared_ptr<Texture> loadCubemap(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
     };
 }

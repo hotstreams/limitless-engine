@@ -20,12 +20,12 @@
 
 using namespace Limitless;
 
-SSAOPass::SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx)
+SSAOPass::SSAOPass(Pipeline& pipeline, Context& ctx)
     : PipelinePass(pipeline)
     , ssao {ctx} {
 }
 
-SSAOPass::SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx, glm::uvec2 frame_size)
+SSAOPass::SSAOPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size)
     : PipelinePass(pipeline)
     , ssao {ctx, frame_size} {
 }

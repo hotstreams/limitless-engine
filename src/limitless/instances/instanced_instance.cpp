@@ -10,7 +10,7 @@ InstancedInstance::InstancedInstance()
         .access(Buffer::MutableAccess::WriteOrphaning)
         .data(nullptr)
         .size(sizeof(glm::mat4) * 1)
-        .build("model_buffer", *ContextState::getState(glfwGetCurrentContext()))} {
+        .build("model_buffer", *Context::getCurrentContext())} {
 }
 
 InstancedInstance::InstancedInstance(const InstancedInstance& rhs)
@@ -21,7 +21,7 @@ InstancedInstance::InstancedInstance(const InstancedInstance& rhs)
         .access(Buffer::MutableAccess::WriteOrphaning)
         .data(nullptr)
         .size(sizeof(glm::mat4) * 1)
-        .build("model_buffer", *ContextState::getState(glfwGetCurrentContext()))} {
+        .build("model_buffer", *Context::getCurrentContext())} {
     for (const auto& instance : rhs.instances) {
         instances.emplace_back((ModelInstance*)instance->clone().release());
     }

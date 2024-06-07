@@ -12,7 +12,7 @@ using namespace Limitless;
 using namespace Limitless::ms;
 using namespace LimitlessTest;
 
-void test_MaterialCompiler_compiles_material_with_color(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_color(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -27,7 +27,7 @@ void test_MaterialCompiler_compiles_material_with_color(RenderSettings& settings
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_emissive(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_emissive(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -44,7 +44,7 @@ void test_MaterialCompiler_compiles_material_with_emissive(RenderSettings& setti
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_metalic(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_metalic(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -61,7 +61,7 @@ void test_MaterialCompiler_compiles_material_with_metalic(RenderSettings& settin
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_roughness(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_roughness(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -78,7 +78,7 @@ void test_MaterialCompiler_compiles_material_with_roughness(RenderSettings& sett
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_refraction_ior(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_refraction_ior(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -96,7 +96,7 @@ void test_MaterialCompiler_compiles_material_with_refraction_ior(RenderSettings&
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_refration_abs(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_refration_abs(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -114,7 +114,7 @@ void test_MaterialCompiler_compiles_material_with_refration_abs(RenderSettings& 
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_diffuse(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_diffuse(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -132,7 +132,7 @@ void test_MaterialCompiler_compiles_material_with_diffuse(RenderSettings& settin
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_normal(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_normal(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -150,7 +150,7 @@ void test_MaterialCompiler_compiles_material_with_normal(RenderSettings& setting
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_emissivemask(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_emissivemask(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -168,7 +168,7 @@ void test_MaterialCompiler_compiles_material_with_emissivemask(RenderSettings& s
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_blendmask(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_blendmask(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -186,7 +186,7 @@ void test_MaterialCompiler_compiles_material_with_blendmask(RenderSettings& sett
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_mettalictexture(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_mettalictexture(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -204,7 +204,7 @@ void test_MaterialCompiler_compiles_material_with_mettalictexture(RenderSettings
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_roughnesstexture(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_roughnesstexture(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -222,7 +222,7 @@ void test_MaterialCompiler_compiles_material_with_roughnesstexture(RenderSetting
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_ao(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_ao(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -240,7 +240,7 @@ void test_MaterialCompiler_compiles_material_with_ao(RenderSettings& settings) {
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_orm(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_orm(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -258,7 +258,7 @@ void test_MaterialCompiler_compiles_material_with_orm(RenderSettings& settings) 
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_unlit(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_unlit(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -276,7 +276,7 @@ void test_MaterialCompiler_compiles_material_with_unlit(RenderSettings& settings
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_lit(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_lit(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -294,7 +294,7 @@ void test_MaterialCompiler_compiles_material_with_lit(RenderSettings& settings) 
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_custom_fragment(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_custom_fragment(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -312,7 +312,7 @@ void test_MaterialCompiler_compiles_material_with_custom_fragment(RenderSettings
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_custom_vertex(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_custom_vertex(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -330,7 +330,7 @@ void test_MaterialCompiler_compiles_material_with_custom_vertex(RenderSettings& 
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_custom_global(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_custom_global(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -348,7 +348,7 @@ void test_MaterialCompiler_compiles_material_with_custom_global(RenderSettings& 
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_custom_uniform_value(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_custom_uniform_value(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
 
@@ -366,7 +366,7 @@ void test_MaterialCompiler_compiles_material_with_custom_uniform_value(RenderSet
     check_opengl_state();
 }
 
-void test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(RenderSettings& settings) {
+void test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(RendererSettings& settings) {
     Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
@@ -385,85 +385,85 @@ void test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(RenderS
     check_opengl_state();
 }
 
-std::vector<RenderSettings> generateSettings() {
-    RenderSettings s1 {};
+std::vector<RendererSettings> generateSettings() {
+    RendererSettings s1 {};
     s1.normal_mapping = true;
     s1.screen_space_ambient_occlusion = false;
     s1.cascade_shadow_maps = false;
     s1.csm_pcf = false;
     s1.csm_micro_shadowing = false;
 
-    RenderSettings s2 {};
+    RendererSettings s2 {};
     s2.normal_mapping = true;
     s2.screen_space_ambient_occlusion = true;
     s2.cascade_shadow_maps = false;
     s2.csm_pcf = false;
     s2.csm_micro_shadowing = false;
 
-    RenderSettings s3 {};
+    RendererSettings s3 {};
     s3.normal_mapping = true;
     s3.screen_space_ambient_occlusion = true;
     s3.cascade_shadow_maps = true;
     s3.csm_pcf = false;
     s3.csm_micro_shadowing = false;
 
-    RenderSettings s4 {};
+    RendererSettings s4 {};
     s4.normal_mapping = true;
     s4.screen_space_ambient_occlusion = true;
     s4.cascade_shadow_maps = true;
     s4.csm_pcf = true;
     s4.csm_micro_shadowing = false;
 
-    RenderSettings s5 {};
+    RendererSettings s5 {};
     s5.normal_mapping = true;
     s5.screen_space_ambient_occlusion = true;
     s5.cascade_shadow_maps = true;
     s5.csm_pcf = false;
     s5.csm_micro_shadowing = true;
 
-    RenderSettings s6 {};
+    RendererSettings s6 {};
     s6.normal_mapping = true;
     s6.screen_space_ambient_occlusion = true;
     s6.cascade_shadow_maps = true;
     s6.csm_pcf = true;
     s6.csm_micro_shadowing = true;
 
-    RenderSettings s7 {};
+    RendererSettings s7 {};
     s7.normal_mapping = false;
     s7.screen_space_ambient_occlusion = false;
     s7.cascade_shadow_maps = false;
     s7.csm_pcf = false;
     s7.csm_micro_shadowing = false;
 
-    RenderSettings s8 {};
+    RendererSettings s8 {};
     s8.normal_mapping = false;
     s8.screen_space_ambient_occlusion = true;
     s8.cascade_shadow_maps = false;
     s8.csm_pcf = false;
     s8.csm_micro_shadowing = false;
 
-    RenderSettings s9 {};
+    RendererSettings s9 {};
     s9.normal_mapping = false;
     s9.screen_space_ambient_occlusion = true;
     s9.cascade_shadow_maps = true;
     s9.csm_pcf = false;
     s9.csm_micro_shadowing = false;
 
-    RenderSettings s10 {};
+    RendererSettings s10 {};
     s10.normal_mapping = false;
     s10.screen_space_ambient_occlusion = true;
     s10.cascade_shadow_maps = true;
     s10.csm_pcf = true;
     s10.csm_micro_shadowing = false;
 
-    RenderSettings s11 {};
+    RendererSettings s11 {};
     s11.normal_mapping = false;
     s11.screen_space_ambient_occlusion = true;
     s11.cascade_shadow_maps = true;
     s11.csm_pcf = false;
     s11.csm_micro_shadowing = true;
 
-    RenderSettings s12 {};
+    RendererSettings s12 {};
     s12.normal_mapping = false;
     s12.screen_space_ambient_occlusion = true;
     s12.cascade_shadow_maps = true;
@@ -736,7 +736,7 @@ TEST_CASE("MaterialCompiler throws") {
             .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build(assets);
 
-    RenderSettings settings {};
+    RendererSettings settings {};
     REQUIRE_THROWS_AS(assets.compileMaterial(context, settings, material), material_compilation_error);
 
     // we should reset state because shader compilation got an error

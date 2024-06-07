@@ -45,8 +45,8 @@ namespace Limitless {
         Settings settings;
         Blur blur;
     public:
-        SSR(ContextEventObserver &ctx, glm::uvec2 frame_size);
-        explicit SSR(ContextEventObserver &ctx);
+        SSR(Context &ctx, glm::uvec2 frame_size);
+        explicit SSR(Context &ctx);
 
         std::shared_ptr<Texture> getResult();
 

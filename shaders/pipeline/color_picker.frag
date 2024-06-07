@@ -9,7 +9,7 @@ out vec3 color;
 uniform vec3 color_id;
 
 void main() {
-    const MaterialContext mctx = computeMaterialContext();
+    MaterialContext mctx = computeMaterialContext();
     shadeFragment(mctx);
 
     color = color_id;

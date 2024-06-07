@@ -7,7 +7,7 @@
 namespace Limitless {
     class Assets;
     class Context;
-    class RenderSettings;
+    class RendererSettings;
 
     template<typename T>
     struct AssetDeserializer {

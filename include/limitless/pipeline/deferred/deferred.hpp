@@ -4,15 +4,15 @@
 #include <limitless/core/framebuffer.hpp>
 
 namespace Limitless {
-    class ContextEventObserver;
-    class RenderSettings;
+    class Context;
+    class RendererSettings;
 
     class Deferred final : public Pipeline {
     private:
-        void build(ContextEventObserver& ctx, const RenderSettings& settings);
+        void build(Context& ctx, const RendererSettings& settings);
     public:
-        Deferred(ContextEventObserver& ctx, glm::uvec2 size, const RenderSettings& settings, RenderTarget& target = default_framebuffer);
+        Deferred(Context& ctx, glm::uvec2 size, const RendererSettings& settings, RenderTarget& target = default_framebuffer);
 
-	    void update(ContextEventObserver& ctx, const RenderSettings& settings) override;
+	    void update(Context& ctx, const RendererSettings& settings) override;
     };
 }

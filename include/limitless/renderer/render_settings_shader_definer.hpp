@@ -3,11 +3,11 @@
 #include <string>
 
 namespace Limitless {
-    class RenderSettings;
+    class RendererSettings;
     class Shader;
 
     class RenderSettingsShaderDefiner {
     public:
-        static std::string getDefine(const RenderSettings& settings);
+        static std::string getDefine(const RendererSettings& settings);
     };
 }

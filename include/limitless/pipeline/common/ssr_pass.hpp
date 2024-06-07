@@ -9,8 +9,8 @@ namespace Limitless {
     private:
         SSR ssr;
     public:
-        SSRPass(Pipeline& pipeline, ContextEventObserver& ctx);
-        SSRPass(Pipeline& pipeline, ContextEventObserver& ctx, glm::uvec2 frame_size);
+        SSRPass(Pipeline& pipeline, Context& ctx);
+        SSRPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size);
 
         std::shared_ptr<Texture> getResult() override { return ssr.getResult(); }
 

@@ -20,12 +20,12 @@
 
 using namespace Limitless;
 
-SSRPass::SSRPass(Pipeline& pipeline, ContextEventObserver& ctx)
+SSRPass::SSRPass(Pipeline& pipeline, Context& ctx)
     : PipelinePass(pipeline)
     , ssr {ctx} {
 }
 
-SSRPass::SSRPass(Pipeline& pipeline, ContextEventObserver& ctx, glm::uvec2 frame_size)
+SSRPass::SSRPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size)
     : PipelinePass(pipeline)
     , ssr {ctx, frame_size} {
 }

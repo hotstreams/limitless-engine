@@ -30,44 +30,6 @@ void ContextState::init() noexcept {
     buffer_target.emplace(Buffer::Type::Uniform, 0);
 }
 
-void ContextState::registerState(GLFWwindow* window) noexcept {
-    std::unique_lock lock{mutex};
-
-    state_map.emplace(window, this);
-}
-
-void ContextState::unregisterState(GLFWwindow* window) noexcept {
-    std::unique_lock lock{mutex};
-
-    state_map.erase(window);
-}
-
-void ContextState::swap_state_map(Context& lhs, Context& rhs) noexcept {
-    std::unique_lock lock{mutex};
-
-    /*
-     * we do NOT register nullptr GLFWWindow at Context default constructor (it is private, so GLFWWindow pointer gets nullptr)
-     * so have to check that it is present here
-     */
-
-    // love implicit casts btw ;)
-
-    if (lhs && rhs) {
-        std::swap(state_map[lhs], state_map[rhs]);
-        return;
-    }
-
-    if (lhs && !rhs) {
-        state_map[lhs] = &rhs;
-        return;
-    }
-
-    if (!lhs && rhs) {
-        state_map[rhs] = &lhs;
-        return;
-    }
-}
-
 void ContextState::clearColor(const glm::vec4& color) noexcept {
     if (clear_color != color) {
         clear_color = color;
@@ -191,24 +153,12 @@ void ContextState::setFrontFace(FrontFace mode) noexcept {
     }
 }
 
-ContextState* ContextState::getState(GLFWwindow* window) noexcept {
-    try {
-        return state_map.at(window);
-    } catch (...) {
-        return nullptr;
-    }
-}
-
 void ContextState::setPolygonMode(CullFace face, PolygonMode mode) noexcept {
     if (face != polygon_face || polygon_mode != mode) {
         glPolygonMode(static_cast<GLenum>(face), static_cast<GLenum>(mode));
         polygon_face = face;
         polygon_mode = mode;
     }
-}
-
-bool ContextState::hasState(GLFWwindow* window) noexcept {
-    return window ? state_map.find(window) != state_map.end() : false;
 }
 
 void ContextState::setScissorTest(glm::uvec2 origin, glm::uvec2 size) noexcept {

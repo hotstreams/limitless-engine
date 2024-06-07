@@ -296,3 +296,60 @@ void TextureLoader::setTextureParameters(Texture::Builder& builder, const Textur
 bool TextureLoader::isPowerOfTwo(int width, int height) {
 	return ((width != 0) && !(width & (width - 1))) && ((height != 0) && !(height & (height - 1)));
 }
+
+std::shared_ptr<Texture> TextureLoader::load(Assets &assets, const std::vector<fs::path> &paths, const TextureLoaderFlags &flags) {
+    //TODO: size equality check
+    Texture::Builder builder = Texture::builder();
+
+    for (const auto& _path: paths) {
+        auto path = convertPathSeparators(_path);
+
+//        if (assets.textures.contains(path.stem().string())) {
+//            return assets.textures[path.stem().string()];
+//        }
+
+//        if (path.extension().string() == ".dds") {
+//            return DDSLoader::load(assets, path, flags);
+//        }
+
+        stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
+
+        int width = 0, height = 0, channels = 0;
+        unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
+
+        if (!data) {
+            throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
+        }
+
+        #if GL_DEBUG
+                if (!isPowerOfTwo(width, height)) {
+                    std::cerr << path.string() << " has not 2^n size, its not recommended to have it!" << std::endl;
+                }
+        #endif
+
+        setDownScale(width, height, channels, data, flags);
+
+        builder.target(Texture::Type::Tex2D)
+                .levels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
+                .size({width, height})
+                .data_type(Texture::DataType::UnsignedByte)
+                .layer_data(data)
+                .path(path);
+
+        setFormat(builder, flags, channels);
+        setTextureParameters(builder, flags);
+    }
+
+    auto texture = builder.build();
+    setAnisotropicFilter(texture, flags);
+
+    //TODO: restore leak
+//    if (flags.downscale != TextureLoaderFlags::DownScale::None) {
+//        delete data;
+//    } else {
+//        stbi_image_free(data);
+//    }
+
+//    assets.textures.add(path.stem().string(), texture);
+    return texture;
+}

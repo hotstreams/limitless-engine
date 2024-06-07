@@ -9,7 +9,7 @@ Framebuffer::Framebuffer() noexcept {
 }
 
 void Framebuffer::bind() noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
 //        if (state->framebuffer_id != id) {
             glBindFramebuffer(GL_FRAMEBUFFER, id);
             state->framebuffer_id = id;
@@ -19,7 +19,7 @@ void Framebuffer::bind() noexcept {
 
 Framebuffer::~Framebuffer() {
     if (id != 0) {
-        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (auto* state = Context::getCurrentContext(); state) {
             if (state->framebuffer_id == id) {
                 state->framebuffer_id = 0;
             }
@@ -173,7 +173,7 @@ const TextureAttachment& Framebuffer::get(FramebufferAttachment attachment) cons
 }
 
 void Framebuffer::unbind() noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
         if (state->framebuffer_id != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             state->framebuffer_id = 0;
@@ -351,7 +351,7 @@ void Framebuffer::blit(Framebuffer& source, Texture::Filter filter, FramebufferB
 }
 
 void DefaultFramebuffer::unbind() noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
         if (state->framebuffer_id != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             state->framebuffer_id = 0;
@@ -360,7 +360,7 @@ void DefaultFramebuffer::unbind() noexcept {
 }
 
 void DefaultFramebuffer::bind() noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
         if (state->framebuffer_id != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             state->framebuffer_id = 0;

@@ -3,7 +3,7 @@
 #include <limitless/core/shader/shader_program_introspection.hpp>
 #include <limitless/core/shader/shader_program_texture_setter.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/ms/material.hpp>
 #include <algorithm>
 
@@ -30,10 +30,10 @@ void ShaderProgram::bindIndexedBuffers() {
             connected = true;
         }
 
-        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (auto* ctx = Context::getCurrentContext(); ctx) {
             // binds buffer to state binding point
             try {
-                auto buffer = state->getIndexedBuffers().get(name);
+                auto buffer = ctx->getIndexedBuffers().get(name);
 
                 Buffer::Type program_target {};
                 switch (target) {
@@ -60,7 +60,7 @@ void ShaderProgram::bindResources() {
 
 ShaderProgram::~ShaderProgram() {
     if (id != 0) {
-        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+        if (auto* state = Context::getCurrentContext(); state) {
             if (state->shader_id == id) {
                 state->shader_id = 0;
             }
@@ -70,7 +70,7 @@ ShaderProgram::~ShaderProgram() {
 }
 
 void ShaderProgram::use() {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* state = Context::getCurrentContext(); state) {
         if (state->shader_id != id) {
             state->shader_id = id;
             glUseProgram(id);

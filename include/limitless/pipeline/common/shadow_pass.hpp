@@ -30,8 +30,8 @@ namespace Limitless {
          */
         fx::EffectRenderer* effect_renderer {};
     public:
-        DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings);
-        DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RenderSettings& settings, fx::EffectRenderer& renderer);
+        DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RendererSettings& settings);
+        DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RendererSettings& settings, fx::EffectRenderer& renderer);
 
         /**
          * Adds shadow-specific uniforms to setter

@@ -1,6 +1,5 @@
 #include <limitless/core/texture/named_texture.hpp>
-#include <limitless/core/context_state.hpp>
-#include <limitless/core/context_initializer.hpp>
+#include <limitless/core/context.hpp>
 #include <algorithm>
 
 using namespace Limitless;
@@ -14,8 +13,8 @@ void NamedTexture::generateId() noexcept {
 
 NamedTexture::~NamedTexture() {
     if (id != 0) {
-        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-            auto& target_map = state->texture_bound;
+        Context::apply([this] (Context& ctx) {
+            auto& target_map = ctx.texture_bound;
 
             std::for_each(target_map.begin(), target_map.end(), [&] (auto& state) {
                 auto& [s_unit, s_id] = state;
@@ -23,7 +22,7 @@ NamedTexture::~NamedTexture() {
             });
 
             glDeleteTextures(1, &id);
-        }
+        });
     }
 }
 
@@ -44,16 +43,16 @@ void NamedTexture::texSubImage3D([[maybe_unused]] GLenum _target, GLint level, G
 }
 
 void NamedTexture::bind([[maybe_unused]] GLenum _target, GLuint index) const {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    Context::apply([this, &index] (Context& ctx) {
         if (index >= static_cast<GLuint>(ContextInitializer::limits.max_texture_units)) {
-            throw std::logic_error{"Failed to bind texture to unit greater than accessible"};
+            throw std::logic_error {"Failed to bind texture to unit greater than accessible"};
         }
 
-        if (state->texture_bound[index] != id) {
+        if (ctx.texture_bound[index] != id) {
             glBindTextureUnit(index, id);
-            state->texture_bound[index] = id;
+            ctx.texture_bound[index] = id;
         }
-    }
+    });
 }
 
 void NamedTexture::generateMipMap([[maybe_unused]] GLenum _target) noexcept {

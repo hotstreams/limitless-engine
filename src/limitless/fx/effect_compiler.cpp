@@ -11,7 +11,7 @@
 using namespace Limitless::fx;
 using namespace Limitless;
 
-EffectCompiler::EffectCompiler(Context& context, Assets& assets, const RenderSettings& settings)
+EffectCompiler::EffectCompiler(Context& context, Assets& assets, const RendererSettings& settings)
     : MaterialCompiler(context, assets, settings) {
 }
 

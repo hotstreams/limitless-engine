@@ -3,7 +3,7 @@
 #include <limitless/core/keyline_extensions.hpp>
 #include <limitless/renderer/render_settings_shader_definer.hpp>
 #include <limitless/core/shader/shader.hpp>
-#include <limitless/renderer/render_settings.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 
 using namespace Limitless;
 
@@ -35,18 +35,18 @@ std::string ShaderDefineReplacer::getExtensionDefine() {
     return extensions;
 }
 
-std::string ShaderDefineReplacer::getSettingsDefine(std::optional<RenderSettings> settings) {
+std::string ShaderDefineReplacer::getSettingsDefine(std::optional<RendererSettings> settings) {
     return settings ? RenderSettingsShaderDefiner::getDefine(*settings) : std::string {};
 }
 
-std::string ShaderDefineReplacer::getCommonDefine(std::optional<RenderSettings> settings) {
+std::string ShaderDefineReplacer::getCommonDefine(std::optional<RendererSettings> settings) {
     std::string define = getVersionDefine();
     define.append(getExtensionDefine());
     define.append(getSettingsDefine(settings));
     return define;
 }
 
-void ShaderDefineReplacer::replaceCommon(Shader& shader, std::optional<RenderSettings> settings) {
+void ShaderDefineReplacer::replaceCommon(Shader& shader, std::optional<RendererSettings> settings) {
     shader.replaceKey(DEFINE_NAMES.at(Define::GLSLVersion), getVersionDefine());
     shader.replaceKey(DEFINE_NAMES.at(Define::Extensions), getExtensionDefine());
     shader.replaceKey(DEFINE_NAMES.at(Define::Settings), getExtensionDefine());

@@ -4,7 +4,7 @@
 #include <limitless/assets.hpp>
 
 #include <limitless/ms/material_compiler.hpp>
-#include <limitless/core/context_observer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/pipeline/forward/forward.hpp>
@@ -14,17 +14,17 @@
 
 using namespace Limitless;
 
-Renderer::Renderer(std::unique_ptr<Pipeline> _pipeline, const RenderSettings& _settings)
+Renderer::Renderer(std::unique_ptr<Pipeline> _pipeline, const RendererSettings& _settings)
     : settings {_settings}
     , pipeline {std::move(_pipeline)} {
 }
 
-Renderer::Renderer(ContextEventObserver& ctx, const RenderSettings& _settings)
+Renderer::Renderer(Context& ctx, const RendererSettings& _settings)
 	: settings {_settings}
 	, pipeline {std::make_unique<Deferred>(ctx, ctx.getSize(), settings)} {
 }
 
-Renderer::Renderer(ContextEventObserver& ctx)
+Renderer::Renderer(Context& ctx)
     : settings {}
     , pipeline {std::make_unique<Deferred>(ctx, ctx.getSize(), settings)} {
 }
@@ -35,11 +35,11 @@ void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera
     //profiler.draw(context, assets);
 }
 
-void Renderer::updatePipeline(ContextEventObserver& ctx) {
+void Renderer::updatePipeline(Context& ctx) {
     pipeline->update(ctx, settings);
 }
 
-void Renderer::update(ContextEventObserver& ctx, Assets& assets) {
+void Renderer::update(Context& ctx, Assets& assets) {
     assets.recompileAssets(ctx, settings);
 	updatePipeline(ctx);
 }

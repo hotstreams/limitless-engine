@@ -11,7 +11,7 @@ namespace {
     constexpr auto SSAO_BUFFER_NAME = "SSAO_BUFFER";
 }
 
-SSAO::SSAO(ContextEventObserver& ctx) {
+SSAO::SSAO(Context& ctx) {
     auto ssao = Texture::builder()
             .target(Texture::Type::Tex2D)
             .internal_format(Texture::InternalFormat::RGB8)
@@ -47,7 +47,7 @@ SSAO::SSAO(ContextEventObserver& ctx) {
             .build(SSAO_BUFFER_NAME, ctx);
 }
 
-SSAO::SSAO(ContextEventObserver &ctx, glm::uvec2 frame_size) {
+SSAO::SSAO(Context &ctx, glm::uvec2 frame_size) {
     auto ssao = Texture::builder()
             .target(Texture::Type::Tex2D)
             .internal_format(Texture::InternalFormat::RGB8)

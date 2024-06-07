@@ -5,7 +5,14 @@ using namespace Limitless;
 ContextThreadPool::ContextThreadPool(Context& shared, uint32_t pool_size)
     : ThreadPool() {
     for (uint32_t i = 0; i < pool_size; ++i) {
-        context_workers.emplace_back("thread_worker", glm::uvec2{1, 1}, shared, WindowHints{{WindowHint::Visible, false}});
+        context_workers.emplace_back(
+            Context::builder()
+                    .title("thread_worker")
+                    .size(glm::uvec2{1, 1})
+                    .not_visible()
+                    .shared(&shared)
+                    .build()
+        );
 
         auto lambda = [this, i] {
             context_workers[i].makeCurrent();
