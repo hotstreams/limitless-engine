@@ -329,7 +329,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets &assets, const std::vector<f
 
         setDownScale(width, height, channels, data, flags);
 
-        builder.target(Texture::Type::Tex2D)
+        builder.target(Texture::Type::Tex2DArray)
                 .levels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
                 .size({width, height})
                 .data_type(Texture::DataType::UnsignedByte)
@@ -340,7 +340,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets &assets, const std::vector<f
         setTextureParameters(builder, flags);
     }
 
-    auto texture = builder.build();
+    auto texture = builder.buildMutable();
     setAnisotropicFilter(texture, flags);
 
     //TODO: restore leak

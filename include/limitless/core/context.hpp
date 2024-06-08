@@ -45,7 +45,7 @@ namespace Limitless {
         static void keyboardCallback(GLFWwindow* win, int key, int scancode, int action, int modifiers);
         static void scrollCallback(GLFWwindow* win, double x, double y);
         static void charCallback(GLFWwindow* win, uint32_t utf);
-
+    public:
         Context(const std::string& title, glm::uvec2 size, const Context* shared, const WindowHints& hints);
 
         friend void swap(Context& lhs, Context& rhs) noexcept;
