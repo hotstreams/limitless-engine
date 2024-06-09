@@ -1,5 +1,5 @@
 #include <limitless/core/texture/texture_binder.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/context_initializer.hpp>
 #include <algorithm>
 #include <stdexcept>
@@ -37,7 +37,7 @@ std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
     }
 
     using IndexMap = std::map<uint32_t, const Texture*>;
-    auto& texture_bound = ContextState::getState(glfwGetCurrentContext())->texture_bound;
+    auto& texture_bound = Context::getCurrentContext()->texture_bound;
     std::vector<GLint> indices(textures.size(), -1);
 
     IndexMap bind_map;

@@ -1,6 +1,6 @@
 #include <limitless/pipeline/deferred/deferred.hpp>
 
-#include <limitless/core/context_observer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/ms/blending.hpp>
 
 #include <limitless/pipeline/common/sceneupdate_pass.hpp>
@@ -29,17 +29,17 @@
 
 using namespace Limitless;
 
-Deferred::Deferred(ContextEventObserver& ctx, glm::uvec2 size, const RenderSettings& settings, RenderTarget& _target)
+Deferred::Deferred(Context& ctx, glm::uvec2 size, const RendererSettings& settings, RenderTarget& _target)
     : Pipeline {size, _target} {
     build(ctx, settings);
 }
 
-void Deferred::update(ContextEventObserver& ctx, const RenderSettings& settings) {
+void Deferred::update(Context& ctx, const RendererSettings& settings) {
     clear();
     build(ctx, settings);
 }
 
-void Deferred::build(ContextEventObserver& ctx, const RenderSettings& settings) {
+void Deferred::build(Context& ctx, const RendererSettings& settings) {
     /*
      * Updates scene and GPU scene buffer
      */

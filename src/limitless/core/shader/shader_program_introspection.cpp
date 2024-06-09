@@ -51,7 +51,7 @@ std::vector<IndexedBufferData> ShaderProgramIntrospection::getIndexedBufferBound
 
             const auto index = glGetProgramResourceIndex(id, static_cast<GLenum>(type), name.data());
 
-            if (auto *ctx = ContextState::getState(glfwGetCurrentContext()); ctx) {
+            if (auto *ctx = Context::getCurrentContext(); ctx) {
                 indexed_binds.emplace_back(type, name, index, ctx->getIndexedBuffers().getBindingPoint(type, name));
             }
         }

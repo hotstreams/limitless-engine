@@ -13,7 +13,7 @@ layout (location = 3) out vec3 emissive;
 layout (location = 4) out vec3 info;
 
 void main() {
-    const MaterialContext mctx = computeMaterialContext();
+    MaterialContext mctx = computeMaterialContext();
 
     albedo = computeMaterialColor(mctx).rgb;
 

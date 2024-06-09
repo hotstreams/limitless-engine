@@ -14,7 +14,7 @@ ShaderCompiler::ShaderCompiler(Context& _context)
     : context {_context} {
 }
 
-ShaderCompiler::ShaderCompiler(Context& _context, const RenderSettings& _settings)
+ShaderCompiler::ShaderCompiler(Context& _context, const RendererSettings& _settings)
     : context {_context}
     , render_settings {_settings} {
 }

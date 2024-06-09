@@ -2,7 +2,7 @@
 
 using namespace Limitless;
 
-PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context)
+PostEffectsPass::PostEffectsPass(Pipeline& pipeline, Context& context)
     : PipelinePass(pipeline)
     , postprocess {context.getSize()} {
 }
@@ -12,7 +12,7 @@ void PostEffectsPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused
     //    postprocess.process(ctx, assets, dynamic_cast<const Framebuffer&>(prev_pass->getTarget()));
 }
 
-PostEffectsPass::PostEffectsPass(Pipeline& pipeline, ContextEventObserver& context, RenderTarget& target)
+PostEffectsPass::PostEffectsPass(Pipeline& pipeline, Context& context, RenderTarget& target)
 	: PipelinePass(pipeline)
 	, postprocess {context.getSize(), target} {
 

@@ -6,7 +6,7 @@
 
 /* [forward pipeline] */
 vec4 shadeFragment(const MaterialContext mctx) {
-    const ShadingContext sctx = computeShadingContext(mctx);
+    ShadingContext sctx = computeShadingContext(mctx);
 
 #if defined (ENGINE_MATERIAL_SHADING_CUSTOM_MODEL)
     return customShading(sctx);

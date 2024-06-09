@@ -7,7 +7,7 @@ namespace Limitless {
     class EffectInstance;
     class Assets;
     class Context;
-    class RenderSettings;
+    class RendererSettings;
 
     class EffectLoader {
     public:

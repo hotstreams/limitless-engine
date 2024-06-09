@@ -1,7 +1,6 @@
 #include <limitless/core/texture/state_texture.hpp>
 #include <limitless/core/texture/texture_binder.hpp>
-#include <limitless/core/context_initializer.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <algorithm>
 
 using namespace Limitless;
@@ -12,16 +11,14 @@ void StateTexture::generateId() noexcept {
 
 StateTexture::~StateTexture() {
     if (id != 0) {
-        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-            auto& target_map = state->texture_bound;
-
+        Context::apply([this] (Context& ctx) {
+            auto& target_map = ctx.texture_bound;
             std::for_each(target_map.begin(), target_map.end(), [&] (auto& state) {
                 auto& [s_unit, s_id] = state;
                 if (s_id == id) s_id = 0;
             });
-
             glDeleteTextures(1, &id);
-        }
+        });
     }
 }
 
@@ -68,28 +65,28 @@ void StateTexture::generateMipMap(GLenum target) noexcept {
 }
 
 void StateTexture::activate(GLuint index) {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
         if (index >= static_cast<GLuint>(ContextInitializer::limits.max_texture_units)) {
             throw std::logic_error{"Failed to activate texture unit greater than accessible"};
         }
 
-        if (state->active_texture != index) {
+        if (ctx->active_texture != index) {
             glActiveTexture(GL_TEXTURE0 + index);
-            state->active_texture = index;
+            ctx->active_texture = index;
         }
     }
 }
 
 void StateTexture::bind(GLenum target, GLuint index) const {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
         if (index >= static_cast<GLuint>(ContextInitializer::limits.max_texture_units)) {
             throw std::logic_error{"Failed to bind texture to unit greater than accessible"};
         }
 
-        if (state->texture_bound[index] != id) {
+        if (ctx->texture_bound[index] != id) {
             activate(index);
             glBindTexture(target, id);
-            state->texture_bound[index] = id;
+            ctx->texture_bound[index] = id;
         }
     }
 }

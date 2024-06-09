@@ -5,11 +5,11 @@
 #include <optional>
 
 #include <limitless/core/shader/shader.hpp>
-#include <limitless/renderer/render_settings.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 
 namespace Limitless {
     class ShaderProgram;
-    class RenderSettings;
+    class RendererSettings;
     class Context;
 
     class shader_linking_error : public std::runtime_error {
@@ -44,7 +44,7 @@ namespace Limitless {
         /**
          * RenderSettings to compile shader with
          */
-        std::optional<RenderSettings> render_settings;
+        std::optional<RendererSettings> render_settings;
 
         void replaceCommonDefines(Shader& shader);
     public:
@@ -58,7 +58,7 @@ namespace Limitless {
          * @param ctx
          * @param settings
          */
-        ShaderCompiler(Context& ctx, const RenderSettings& settings);
+        ShaderCompiler(Context& ctx, const RendererSettings& settings);
         explicit ShaderCompiler(Context& ctx);
         virtual ~ShaderCompiler() = default;
 

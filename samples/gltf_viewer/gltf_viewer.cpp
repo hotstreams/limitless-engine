@@ -3,7 +3,7 @@
 #include <limitless/assets.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/core/context.hpp>
-#include <limitless/core/context_observer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/indexed_stream.hpp>
 #include <limitless/core/skeletal_stream.hpp>
 #include <limitless/core/vertex.hpp>
@@ -30,12 +30,12 @@
 using namespace Limitless;
 using namespace std::chrono;
 
-class CameraMouseHandler : public MouseMoveObserver {
+class CameraMouseHandler {
 public:
 	CameraMouseHandler(Camera& _camera)
 		: camera {_camera} {}
 
-	void onMouseMove(glm::dvec2 mouse_pos) override {
+	void onMouseMove(glm::dvec2 mouse_pos) {
 		auto offset = glm::vec2 {
 			mouse_pos.x - last_mouse_pos.x,
 			last_mouse_pos.y - mouse_pos.y
@@ -57,16 +57,26 @@ int main(int argc, char* argv[]) {
 	}
 
 	glm::uvec2 window_size {1080, 720};
-	ContextEventObserver ctx {
-		"GLTF viewer", window_size, {{WindowHint::Resizable, false}}};
+    Camera camera {window_size};
+    CameraMouseHandler mousemouse {camera};
+    Context ctx = Limitless::Context::builder()
+            .title("GLTF viewer")
+            .size(window_size)
+            .not_resizeable()
+            .cursor(Limitless::CursorMode::Normal)
+            .swap_interval(1)
+            .sticky_keys()
+            .on_mouse_move([&](glm::dvec2 pos) {
+                mousemouse.onMouseMove(pos);
+            })
+            .build();
+
 	ctx.clearColor(glm::vec4{0.0f, 0.0f, 0.1f, 1.f});
 
 	Assets assets {ENGINE_ASSETS_DIR};
 	assets.load(ctx);
 	auto model = GltfModelLoader::loadModel(assets, fs::path(argv[1]), {});
 
-	Camera camera {window_size};
-	CameraMouseHandler mousemouse {camera};
 	Renderer renderer {ctx};
 
 	Scene scene {ctx};
@@ -104,7 +114,6 @@ int main(int argc, char* argv[]) {
 	ctx.setCursorMode(CursorMode::Normal);
 	ctx.setSwapInterval(1);
 	ctx.setStickyKeys(true);
-	ctx.registerObserver(&mousemouse);
 
 	assets.recompileAssets(ctx, renderer.getSettings());
 

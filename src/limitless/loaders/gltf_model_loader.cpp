@@ -6,7 +6,7 @@
 #include <limitless/assets.hpp>
 #include <limitless/camera.hpp>
 #include <limitless/core/context.hpp>
-#include <limitless/core/context_observer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/indexed_stream.hpp>
 #include <limitless/core/skeletal_stream.hpp>
 #include <limitless/core/vertex.hpp>

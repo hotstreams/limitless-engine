@@ -5,6 +5,6 @@ ENGINE::MATERIALDEPENDENT
 #include "../shading/shading_mctx.glsl"
 
 void main() {
-    const MaterialContext mctx = computeMaterialContext();
+    MaterialContext mctx = computeMaterialContext();
     shadeFragment(mctx);
 }

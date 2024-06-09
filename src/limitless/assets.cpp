@@ -80,7 +80,7 @@ void Assets::load([[maybe_unused]] Context& context) {
     models.add("cylinder", std::make_shared<Cylinder>());
 }
 
-void Assets::initialize(Context& ctx, const RenderSettings& settings) {
+void Assets::initialize(Context& ctx, const RendererSettings& settings) {
 	shaders.initialize(ctx, settings, shader_dir);
 }
 
@@ -95,7 +95,7 @@ void Assets::add(const Assets& other) {
     fonts.add(other.fonts);
 }
 
-void Assets::compileAssets(Context& ctx, const RenderSettings& settings) {
+void Assets::compileAssets(Context& ctx, const RendererSettings& settings) {
 	initialize(ctx, settings);
 
     for (const auto& [_, material] : materials) {
@@ -111,12 +111,12 @@ void Assets::compileAssets(Context& ctx, const RenderSettings& settings) {
     }
 }
 
-void Assets::recompileAssets(Context& ctx, const RenderSettings& settings) {
+void Assets::recompileAssets(Context& ctx, const RendererSettings& settings) {
     shaders.clear();
     compileAssets(ctx, settings);
 }
 
-void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material) {
+void Assets::compileMaterial(Context& ctx, const RendererSettings& settings, const std::shared_ptr<ms::Material>& material) {
     ms::MaterialCompiler compiler {ctx, *this, settings};
 
     for (const auto& model_shader_type : material->getModelShaders()) {
@@ -133,20 +133,13 @@ void Assets::compileMaterial(Context& ctx, const RenderSettings& settings, const
     }
 }
 
-ShaderTypes Assets::getRequiredPassShaders(const RenderSettings& settings) {
+ShaderTypes Assets::getRequiredPassShaders(const RendererSettings& settings) {
     ShaderTypes pass_shaders;
 
-    if (settings.pipeline == RenderPipeline::Forward) {
-        pass_shaders.emplace(ShaderType::Forward);
-    }
-
-    if (settings.pipeline == RenderPipeline::Deferred) {
-        pass_shaders.emplace(ShaderType::Depth);
-        pass_shaders.emplace(ShaderType::GBuffer);
-        //for transparent pass?
-        pass_shaders.emplace(ShaderType::Forward);
-        pass_shaders.emplace(ShaderType::Decal);
-    }
+    pass_shaders.emplace(ShaderType::Depth);
+    pass_shaders.emplace(ShaderType::GBuffer);
+    pass_shaders.emplace(ShaderType::Forward);
+    pass_shaders.emplace(ShaderType::Decal);
 
     if (settings.cascade_shadow_maps) {
         pass_shaders.emplace(ShaderType::DirectionalShadow);
@@ -157,7 +150,7 @@ ShaderTypes Assets::getRequiredPassShaders(const RenderSettings& settings) {
     return pass_shaders;
 }
 
-void Assets::compileEffect(Context& ctx, const RenderSettings& settings, const std::shared_ptr<EffectInstance>& effect) {
+void Assets::compileEffect(Context& ctx, const RendererSettings& settings, const std::shared_ptr<EffectInstance>& effect) {
     fx::EffectCompiler compiler {ctx, *this, settings};
 
     for (const auto& pass_shader : getRequiredPassShaders(settings)) {
@@ -165,7 +158,7 @@ void Assets::compileEffect(Context& ctx, const RenderSettings& settings, const s
     }
 }
 
-void Assets::compileSkybox(Context& ctx, const RenderSettings& settings, const std::shared_ptr<Skybox>& skybox) {
+void Assets::compileSkybox(Context& ctx, const RendererSettings& settings, const std::shared_ptr<Skybox>& skybox) {
     ms::MaterialCompiler compiler {ctx, *this, settings};
 
     if (!shaders.contains(ShaderType::Skybox, InstanceType::Model, skybox->getMaterial().getShaderIndex())) {
@@ -184,7 +177,7 @@ void Assets::reloadTextures(const TextureLoaderFlags& settings) {
 	}
 }
 
-void Assets::recompileMaterial(Context& ctx, const RenderSettings& settings, const std::shared_ptr<ms::Material>& material) {
+void Assets::recompileMaterial(Context& ctx, const RendererSettings& settings, const std::shared_ptr<ms::Material>& material) {
     ms::MaterialCompiler compiler {ctx, *this, settings};
 
     for (const auto& model_shader_type : material->getModelShaders()) {

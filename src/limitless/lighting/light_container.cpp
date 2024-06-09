@@ -2,7 +2,7 @@
 
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/lighting/light.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 
 using namespace Limitless;
 
@@ -61,7 +61,7 @@ LightContainer::LightContainer() {
             .usage(Buffer::Usage::DynamicDraw)
             .access(Buffer::MutableAccess::WriteOrphaning)
             .size(sizeof(InternalLight) * 1024)
-            .build(SHADER_STORAGE_NAME, *ContextState::getState(glfwGetCurrentContext()));
+            .build(SHADER_STORAGE_NAME, *Context::getCurrentContext());
 }
 
 Light& LightContainer::add(Light&& light) {
@@ -108,6 +108,7 @@ void LightContainer::update() {
         buffer->mapData(visible_lights.data(), sizeof(InternalLight) * visible_lights.size());
     }
 
-
-    buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SHADER_STORAGE_NAME));
+    Context::apply([this] (Context& ctx) {
+        buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SHADER_STORAGE_NAME));
+    });
 }

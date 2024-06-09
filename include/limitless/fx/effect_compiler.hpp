@@ -16,7 +16,7 @@ namespace Limitless::fx {
         template<typename T>
         void compile(ShaderType shader_type, const T& emitter);
     public:
-        explicit EffectCompiler(Context& context, Assets& assets, const RenderSettings& settings);
+        explicit EffectCompiler(Context& context, Assets& assets, const RendererSettings& settings);
 
         using ShaderCompiler::compile;
         void compile(const EffectInstance& instance, ShaderType material_shader);

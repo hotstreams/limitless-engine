@@ -20,6 +20,7 @@ set(ENGINE_CORE
     src/limitless/core/context_initializer.cpp
     src/limitless/core/context_state.cpp
     src/limitless/core/context.cpp
+    src/limitless/core/window_hints.cpp
     src/limitless/core/context_observer.cpp
     src/limitless/core/state_query.cpp
     src/limitless/core/profiler.cpp
@@ -76,6 +77,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/instance_builder.cpp
     src/limitless/instances/decal_instance.cpp
     src/limitless/instances/instanced_instance.cpp
+    src/limitless/instances/terrain_instance.cpp
 )
 
 set(ENGINE_LIGHTING
@@ -169,6 +171,7 @@ set(ENGINE_PIPELINE
     src/limitless/pipeline/forward/postprocessing.cpp
     src/limitless/renderer/renderer.cpp
     src/limitless/renderer/render_settings_shader_definer.cpp
+    src/limitless/renderer/renderer_settings.cpp
     src/limitless/pipeline/common/scene_data.cpp
     src/limitless/pipeline/deferred/effectupdate_pass.cpp
     src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
@@ -256,8 +259,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(limitless-engine PRIVATE -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -Werror -O3)
-#    target_compile_options(limitless-engine PUBLIC -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
+#    target_compile_options(limitless-engine PRIVATE -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -Werror -O3)
+    target_compile_options(limitless-engine PRIVATE -Wpedantic -Wextra -Wall -Wunused -Wno-attributes -O3)
 endif()
 
 if (OPENGL_DEBUG)

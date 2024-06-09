@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/core/framebuffer.hpp>
-#include <limitless/renderer/render_settings.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 
 namespace Limitless::fx {
     class EffectRenderer;
@@ -46,10 +46,10 @@ namespace Limitless {
         void updateFrustums(Context& ctx, const Camera& camera);
         void updateLightMatrices(const Light& light);
     public:
-        explicit CascadeShadows(Context& context, const RenderSettings& settings);
+        explicit CascadeShadows(Context& context, const RendererSettings& settings);
         ~CascadeShadows();
 
-        void update(Context& ctx, const RenderSettings& settings);
+        void update(Context& ctx, const RendererSettings& settings);
 
         void draw(Instances& instances,
                   const Light& light,

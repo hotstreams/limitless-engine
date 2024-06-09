@@ -17,7 +17,7 @@ SceneDataStorage::SceneDataStorage(Context& ctx) {
 }
 
 SceneDataStorage::~SceneDataStorage() {
-    if (auto* ctx = ContextState::getState(glfwGetCurrentContext()); ctx) {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
         ctx->getIndexedBuffers().remove(PipelineShaderBuffers::SCENE_DATA_BUFFER_NAME, buffer);
     }
 }

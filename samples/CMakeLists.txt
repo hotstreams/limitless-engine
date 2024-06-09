@@ -37,3 +37,11 @@ add_executable(limitless-lighting
     lighting/scene.cpp
 )
 target_link_libraries(limitless-lighting PRIVATE limitless-engine)
+
+# test terrain scene
+add_executable(limitless-terrain
+        terrain/main.cpp
+        terrain/assets.cpp
+        terrain/scene.cpp
+        )
+target_link_libraries(limitless-terrain PRIVATE limitless-engine)

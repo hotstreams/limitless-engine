@@ -11,7 +11,7 @@ TEST_CASE("Manual shader program compilation") {
     Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
 
     {
-        RenderSettings settings;
+        RendererSettings settings;
 
         ShaderCompiler shader_compiler = ShaderCompiler(context, settings);
 
@@ -30,7 +30,7 @@ TEST_CASE("Auto shader program compilation") {
     Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
 
     {
-        RenderSettings settings;
+        RendererSettings settings;
 
         ShaderCompiler shader_compiler = ShaderCompiler(context, settings);
 
@@ -46,7 +46,7 @@ TEST_CASE("Auto shader program compilation with specified actions") {
     Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
 
     {
-        RenderSettings settings;
+        RendererSettings settings;
 
         ShaderCompiler shader_compiler = ShaderCompiler(context, settings);
 
@@ -66,7 +66,7 @@ TEST_CASE("Throw on not existing path") {
     Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
 
     {
-        RenderSettings settings;
+        RendererSettings settings;
 
         ShaderCompiler shader_compiler = ShaderCompiler(context, settings);
 

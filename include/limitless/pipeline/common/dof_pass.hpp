@@ -14,8 +14,8 @@ namespace Limitless {
 		glm::vec2 distance {0.3f, 0.55f};
 		void initialize(Context& ctx);
 	public:
-		DoFPass(Pipeline& pipeline, ContextEventObserver& ctx, RenderTarget& target);
-		DoFPass(Pipeline& pipeline, ContextEventObserver& ctx);
+		DoFPass(Pipeline& pipeline, Context& ctx, RenderTarget& target);
+		DoFPass(Pipeline& pipeline, Context& ctx);
 		~DoFPass() override = default;
 
 		auto& getFocus() noexcept { return focus; }

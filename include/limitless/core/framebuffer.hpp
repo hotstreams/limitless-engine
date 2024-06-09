@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/context_observer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/texture/texture.hpp>
 #include <memory>
 #include <stdexcept>

@@ -1,6 +1,6 @@
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader/shader_compiler.hpp>
-#include <limitless/renderer/render_settings.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 
 using namespace Limitless;
 
@@ -102,7 +102,7 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
     }
 }
 
-void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, const fs::path& shader_dir) {
+void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, const fs::path& shader_dir) {
     ShaderCompiler compiler {ctx, settings};
 
     if (settings.bloom) {
@@ -111,10 +111,8 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
         add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
     }
 
-    if (settings.pipeline == RenderPipeline::Deferred) {
-        add("deferred", compiler.compile(shader_dir / "pipeline/deferred"));
-        add("composite", compiler.compile(shader_dir / "pipeline/composite"));
-    }
+    add("deferred", compiler.compile(shader_dir / "pipeline/deferred"));
+    add("composite", compiler.compile(shader_dir / "pipeline/composite"));
 
     if (settings.screen_space_ambient_occlusion) {
         add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));
@@ -129,9 +127,9 @@ void ShaderStorage::initialize(Context& ctx, const RenderSettings& settings, con
         add("fxaa", compiler.compile(shader_dir / "postprocessing/fxaa"));
     }
 
-    if (settings.depth_of_field) {
-	    add("dof", compiler.compile(shader_dir / "postprocessing/dof"));
-    }
+//    if (settings.depth_of_field) {
+//	    add("dof", compiler.compile(shader_dir / "postprocessing/dof"));
+//    }
 
     add("quad", compiler.compile(shader_dir / "pipeline/quad"));
 

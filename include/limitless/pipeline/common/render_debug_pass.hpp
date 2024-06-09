@@ -10,7 +10,7 @@ namespace Limitless {
         RendererHelper helper;
         Lighting* lighting {};
     public:
-        explicit RenderDebugPass(Pipeline& pipeline, const RenderSettings& settings);
+        explicit RenderDebugPass(Pipeline& pipeline, const RendererSettings& settings);
         ~RenderDebugPass() override = default;
 
         void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;

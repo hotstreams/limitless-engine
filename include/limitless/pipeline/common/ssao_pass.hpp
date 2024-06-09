@@ -9,8 +9,8 @@ namespace Limitless {
     private:
         SSAO ssao;
     public:
-        SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx);
-        SSAOPass(Pipeline& pipeline, ContextEventObserver& ctx, glm::uvec2 frame_size);
+        SSAOPass(Pipeline& pipeline, Context& ctx);
+        SSAOPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size);
 
         std::shared_ptr<Texture> getResult() override { return ssao.getFramebuffer().get(FramebufferAttachment::Color0).texture; }
 

@@ -69,7 +69,9 @@ namespace Limitless::fx {
 
             setter(shader);
 
-            buffer->bindBase(ContextState::getState(glfwGetCurrentContext())->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SHADER_MESH_BUFFER_NAME));
+            Context::apply([this] (Context& ctx) {
+                buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SHADER_MESH_BUFFER_NAME));
+            });
 
             shader.use();
 

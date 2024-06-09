@@ -1,5 +1,5 @@
 #include <limitless/core/vertex_array.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/buffer/buffer.hpp>
 #include <utility>
 
@@ -19,22 +19,22 @@ VertexArray::VertexArray() noexcept {
 
 VertexArray::~VertexArray() {
     if (id != 0) {
-        if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-            if (state->vertex_array_id == id) {
-                state->vertex_array_id = 0;
+        Context::apply([this] (Context& ctx) {
+            if (ctx.vertex_array_id == id) {
+                ctx.vertex_array_id = 0;
             }
             glDeleteVertexArrays(1, &id);
-        }
+        });
     }
 }
 
 void VertexArray::bind() const noexcept {
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        if (state->vertex_array_id != id) {
+    Context::apply([this] (Context& ctx) {
+        if (ctx.vertex_array_id != id) {
             glBindVertexArray(id);
-            state->vertex_array_id = id;
+            ctx.vertex_array_id = id;
         }
-    }
+    });
 }
 
 void VertexArray::enable(GLuint index) const noexcept {

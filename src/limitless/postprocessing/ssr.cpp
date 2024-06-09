@@ -9,7 +9,7 @@
 
 using namespace Limitless;
 
-SSR::SSR(ContextEventObserver& ctx)
+SSR::SSR(Context& ctx)
     : blur {ctx.getSize()} {
     auto ssr = Texture::builder()
             .target(Texture::Type::Tex2D)
@@ -28,7 +28,7 @@ SSR::SSR(ContextEventObserver& ctx)
     framebuffer.unbind();
 }
 
-SSR::SSR(ContextEventObserver &ctx, glm::uvec2 frame_size)
+SSR::SSR(Context &ctx, glm::uvec2 frame_size)
     : blur {frame_size} {
     auto ssr = Texture::builder()
             .target(Texture::Type::Tex2D)

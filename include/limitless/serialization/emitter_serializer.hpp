@@ -7,7 +7,7 @@ namespace Limitless {
     class ByteBuffer;
     class Assets;
     class Context;
-    class RenderSettings;
+    class RendererSettings;
 
     namespace fx {
         class AbstractEmitter;

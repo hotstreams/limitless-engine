@@ -1,6 +1,6 @@
 #include <limitless/pipeline/forward/forward.hpp>
 
-#include <limitless/core/context_observer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/ms/blending.hpp>
 
 #include <limitless/pipeline/common/sceneupdate_pass.hpp>
@@ -15,16 +15,16 @@
 
 using namespace Limitless;
 
-//Forward::Forward(ContextEventObserver& ctx, const RenderSettings& settings) {
+//Forward::Forward(Context& ctx, const RenderSettings& settings) {
 //    create(ctx, settings);
 //}
 //
-//void Forward::update(ContextEventObserver& ctx, const RenderSettings& settings) {
+//void Forward::update(Context& ctx, const RenderSettings& settings) {
 //    clear();
 //    create(ctx, settings);
 //}
 //
-//void Forward::create(ContextEventObserver& ctx, const RenderSettings& settings) {
+//void Forward::create(Context& ctx, const RenderSettings& settings) {
 //    add<SceneUpdatePass>(ctx);
 //    auto& fx = add<EffectUpdatePass>(ctx);
 //

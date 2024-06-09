@@ -1,5 +1,5 @@
 #include <limitless/core/texture/bindless_texture.hpp>
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 
 using namespace Limitless;
 
@@ -21,30 +21,33 @@ BindlessTexture::~BindlessTexture() {
     makeNonResident();
 
     if (handle) {
-        if (auto *state = ContextState::getState(glfwGetCurrentContext()); state) {
-            state->texture_resident.erase(handle);
-        }
+        Context::apply([this] (Context& ctx) {
+            ctx.texture_resident.erase(handle);
+        });
     }
 }
 
 void BindlessTexture::makeResident() noexcept {
     makeBindless();
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        if (!state->texture_resident[handle]) {
+    Context::apply([this] (Context& ctx) {
+        if (!ctx.texture_resident[handle]) {
             glMakeTextureHandleResidentARB(glGetTextureHandleARB(texture->getId()));
-            state->texture_resident[handle] = true;
+            ctx.texture_resident[handle] = true;
         }
-    }
+    });
 }
 
 void BindlessTexture::makeNonResident() noexcept {
-    if (!handle) return;
-    if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
-        if (state->texture_resident[handle]) {
-            glMakeTextureHandleNonResidentARB(handle);
-            state->texture_resident[handle] = false;
-        }
+    if (!handle) {
+        return;
     }
+
+    Context::apply([this] (Context& ctx) {
+        if (ctx.texture_resident[handle]) {
+            glMakeTextureHandleNonResidentARB(handle);
+            ctx.texture_resident[handle] = false;
+        }
+    });
 }
 
 BindlessTexture *BindlessTexture::clone() const {

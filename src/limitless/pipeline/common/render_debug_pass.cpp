@@ -10,7 +10,7 @@
 #include <limitless/scene.hpp>
 using namespace Limitless;
 
-RenderDebugPass::RenderDebugPass(Pipeline& pipeline, const RenderSettings& settings)
+RenderDebugPass::RenderDebugPass(Pipeline& pipeline, const RendererSettings& settings)
     : PipelinePass(pipeline)
     , helper {settings} {
 }

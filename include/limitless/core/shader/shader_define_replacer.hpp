@@ -5,7 +5,7 @@
 #include <optional>
 
 namespace Limitless {
-    class RenderSettings;
+    class RendererSettings;
     class Shader;
 
     class ShaderDefineReplacer {
@@ -31,9 +31,9 @@ namespace Limitless {
 
         static std::string getVersionDefine();
         static std::string getExtensionDefine();
-        static std::string getSettingsDefine(std::optional<RenderSettings> settings);
-        static std::string getCommonDefine(std::optional<RenderSettings> settings);
+        static std::string getSettingsDefine(std::optional<RendererSettings> settings);
+        static std::string getCommonDefine(std::optional<RendererSettings> settings);
     public:
-        static void replaceCommon(Shader& shader, std::optional<RenderSettings> settings);
+        static void replaceCommon(Shader& shader, std::optional<RendererSettings> settings);
     };
 }

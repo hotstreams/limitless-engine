@@ -5,7 +5,7 @@
 
 /* [deferred pipeline] */
 vec3 shadeFragment(const GBufferContext gctx) {
-    const ShadingContext sctx = computeShadingContext(gctx);
+    ShadingContext sctx = computeShadingContext(gctx);
 
     vec3 color = computeAmbientLighting(sctx.diffuseColor, sctx.ambientOcclusion);
 

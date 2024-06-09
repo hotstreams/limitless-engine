@@ -1,7 +1,7 @@
 #include "scene.hpp"
 #include "assets.hpp"
 
-#include <limitless/core/context_observer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/text/text_instance.hpp>
 #include <limitless/util/color_picker.hpp>
 #include <limitless/core/state_query.hpp>
@@ -9,14 +9,11 @@
 #include <limitless/renderer/renderer.hpp>
 
 namespace LimitlessMaterials {
-    class MaterialsScene
-        : public Limitless::MouseMoveObserver,
-          public Limitless::KeyObserver,
-          public Limitless::FramebufferObserver {
+    class MaterialsScene {
     private:
         glm::uvec2 window_size {1080, 720};
 
-        Limitless::ContextEventObserver context;
+        Limitless::Context context;
         Limitless::Camera camera;
         Limitless::Renderer render;
         Assets assets;
@@ -26,35 +23,35 @@ namespace LimitlessMaterials {
         bool hidden_text{};
     public:
         MaterialsScene()
-            : context {"Limitless-demo", window_size, {{Limitless::WindowHint::Resizable, false}}}
+            : context {
+                Limitless::Context::builder()
+                    .title("material-demo")
+                    .size(window_size)
+//                    .not_resizeable()
+                    .cursor(Limitless::CursorMode::Normal)
+                    .swap_interval(1)
+                    .sticky_keys()
+                    .on_framebuffer_change([&] (glm::uvec2 size) {
+                        onFramebufferChange(size);
+                    })
+                    .on_mouse_move([&](glm::dvec2 pos) {
+                        onMouseMove(pos);
+                    })
+                    .on_key_press([&](int key, int scancode, Limitless::InputState state, Limitless::Modifier modifier) {
+                        onKey(key, scancode, state, modifier);
+                    })
+                    .build()
+             }
             , camera {window_size}
             , render {context}
             , assets {context, render, ENGINE_ASSETS_DIR}
             , scene {context, assets} {
             camera.setPosition({-3.0f, 2.0f, 3.0f});
 
-            if (!Limitless::ContextInitializer::checkMinimumRequirements()) {
-                throw std::runtime_error("Minimum requirements are not met!");
-            }
-
-            context.setCursorMode(Limitless::CursorMode::Normal);
-            context.setSwapInterval(1);
-            context.setStickyKeys(true);
-
-            context.registerObserver(static_cast<KeyObserver *>(this));
-            context.registerObserver(static_cast<MouseMoveObserver *>(this));
-            context.registerObserver(static_cast<FramebufferObserver *>(this));
-
             assets.recompileAssets(context, render.getSettings());
         }
 
-        ~MaterialsScene() override {
-            context.unregisterObserver(static_cast<KeyObserver *>(this));
-            context.unregisterObserver(static_cast<MouseMoveObserver *>(this));
-            context.unregisterObserver(static_cast<FramebufferObserver *>(this));
-        }
-
-        void onMouseMove(glm::dvec2 pos) override {
+        void onMouseMove(glm::dvec2 pos) {
             static glm::dvec2 last_move = {0, 0};
 
             auto offset = glm::vec2{pos.x - last_move.x, last_move.y - pos.y};
@@ -63,7 +60,7 @@ namespace LimitlessMaterials {
             camera.mouseMove(offset);
         }
 
-        void onKey(int key, [[maybe_unused]] int scancode, Limitless::InputState state, [[maybe_unused]] Limitless::Modifier modifier) override {
+        void onKey(int key, [[maybe_unused]] int scancode, Limitless::InputState state, [[maybe_unused]] Limitless::Modifier modifier) {
             using namespace Limitless;
             if (key == GLFW_KEY_ESCAPE && state == Limitless::InputState::Pressed) {
                 done = true;
@@ -82,10 +79,10 @@ namespace LimitlessMaterials {
             }
         }
 
-        void onFramebufferChange(glm::uvec2 size) override {
+        void onFramebufferChange(glm::uvec2 size) {
             camera.updateProjection(size);
             window_size = size;
-
+            render.getPipeline().onFramebufferChange(size);
         }
 
         void handleInput(float delta) noexcept {

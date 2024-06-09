@@ -27,7 +27,7 @@ vec3 computeLight(const ShadingContext sctx, const LightingContext lctx, const L
 }
 
 vec3 computeDirectionalLight(const ShadingContext sctx) {
-    const Light light = getDirectionalLight();
+    Light light = getDirectionalLight();
     LightingContext lctx = computeLightingContext(sctx, light);
     lctx.attenuation = 1.0;
 

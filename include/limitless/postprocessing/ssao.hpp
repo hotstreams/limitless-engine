@@ -37,8 +37,8 @@ namespace Limitless {
 
         void updateSettings(const Camera& camera);
     public:
-        SSAO(ContextEventObserver &ctx, glm::uvec2 frame_size);
-        explicit SSAO(ContextEventObserver &ctx);
+        SSAO(Context &ctx, glm::uvec2 frame_size);
+        explicit SSAO(Context &ctx);
 
         const auto& getFramebuffer() const noexcept { return framebuffer; }
 

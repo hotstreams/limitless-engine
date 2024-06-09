@@ -6,7 +6,7 @@ namespace Limitless {
     enum class ShaderType;
     enum class InstanceType;
     class Assets;
-    class RenderSettings;
+    class RendererSettings;
 }
 
 namespace Limitless::ms {
@@ -23,7 +23,7 @@ namespace Limitless::ms {
 
         static void replaceMaterialSettings(Shader& shader, const Material& material, InstanceType model_shader) noexcept;
     public:
-        MaterialCompiler(Context& context, Assets& assets, const RenderSettings& settings) noexcept;
+        MaterialCompiler(Context& context, Assets& assets, const RendererSettings& settings) noexcept;
         ~MaterialCompiler() override = default;
 
         using ShaderCompiler::compile;

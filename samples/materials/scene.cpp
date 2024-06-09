@@ -223,6 +223,14 @@ void LimitlessMaterials::Scene::setUpModels() {
                       .position({14.0f, 1.0f, 23.0f })
                       .build()
     );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("cube"))
+                      .material(assets.materials.at("red"))
+                      .position({0.0f, 0.0f, 0.0f })
+                      .scale({5.0f, 5.0f, 5.0f })
+                      .asDecal()
+    );
 }
 
 void LimitlessMaterials::Scene::setUpLighting() {

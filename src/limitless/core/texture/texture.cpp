@@ -76,8 +76,10 @@ void Texture::image(const std::array<void*, 6>& data) {
 void Texture::image(const std::vector<const void*>& layers) {
     setParameters();
 
+    texture->texImage3D(static_cast<GLenum>(target), 0, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), {size.x, size.y, layers.size()}, false,nullptr);
+
     for (uint32_t i = 0; i < layers.size(); ++i) {
-        texture->texImage3D(static_cast<GLenum>(target), 0, static_cast<GLenum>(internal_format), static_cast<GLenum>(format), static_cast<GLenum>(data_type), {size.x, size.y, i}, false, layers.at(i));
+        texture->texSubImage3D(static_cast<GLenum>(target), 0, 0, 0, i, {size.x, size.y, 1}, static_cast<GLenum>(format), static_cast<GLenum>(data_type), layers.at(i));
     }
 
     if (mipmap) {

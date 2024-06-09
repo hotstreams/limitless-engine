@@ -8,13 +8,13 @@
 
 using namespace Limitless;
 
-DoFPass::DoFPass(Pipeline& pipeline, ContextEventObserver& ctx, RenderTarget& _target)
+DoFPass::DoFPass(Pipeline& pipeline, Context& ctx, RenderTarget& _target)
 	: PipelinePass {pipeline}
 	, blur {ctx.getSize()}
 	, target {_target} {
 }
 
-DoFPass::DoFPass(Pipeline& pipeline, ContextEventObserver& ctx)
+DoFPass::DoFPass(Pipeline& pipeline, Context& ctx)
 	: PipelinePass {pipeline}
 	, blur {ctx.getSize()}
 	, target {framebuffer} {

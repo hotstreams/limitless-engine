@@ -1,4 +1,4 @@
-ENGINE::COMMON
+    ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
 #include "../interface_block/vertex.glsl"
