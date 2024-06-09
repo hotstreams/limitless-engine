@@ -10,7 +10,7 @@
 #include <limitless/assets.hpp>
 #include <limitless/loaders/dds_loader.hpp>
 
-#if GL_DEBUG
+#if LIMITLESS_OPENGL_DEBUG
 	#include <iostream>
 #endif
 
@@ -154,7 +154,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
 	    throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
     }
 
-	#if GL_DEBUG
+	#if LIMITLESS_OPENGL_DEBUG
         if (!isPowerOfTwo(width, height)) {
         	std::cerr << path.string() << " has not 2^n size, its not recommended to have it!" << std::endl;
         }
@@ -184,6 +184,44 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
     }
 
     assets.textures.add(path.stem().string(), texture);
+    return texture;
+}
+
+std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const std::string& name, const uint8_t* buffer, size_t size, const TextureLoaderFlags& flags) {
+    stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
+
+    int width = 0;
+    int height = 0;
+    int channels = 0;
+    unsigned char* data = stbi_load_from_memory(buffer, size, &width, &height, &channels, 0);
+
+    if (!data) {
+        throw std::runtime_error("Failed to load texture " + name + " from memory: " + stbi_failure_reason());
+    }
+
+    setDownScale(width, height, channels, data, flags);
+
+    Texture::Builder builder = Texture::builder();
+
+    builder.target(Texture::Type::Tex2D)
+            .levels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
+            .size({width, height})
+            .data_type(Texture::DataType::UnsignedByte)
+            .data(data);
+
+    setFormat(builder, flags, channels);
+    setTextureParameters(builder, flags);
+
+    auto texture = builder.build();
+    setAnisotropicFilter(texture, flags);
+
+    if (flags.downscale != TextureLoaderFlags::DownScale::None) {
+        delete data;
+    } else {
+        stbi_image_free(data);
+    }
+
+    assets.textures.add(name, texture);
     return texture;
 }
 

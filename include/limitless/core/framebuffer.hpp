@@ -34,7 +34,10 @@ namespace Limitless {
         RenderTarget() = default;
         virtual ~RenderTarget() = default;
 
-        auto getId() { return id; }
+        RenderTarget(const RenderTarget&) = default;
+        RenderTarget(RenderTarget&&) = default;
+
+        auto getId() const { return id; }
         virtual void unbind() noexcept = 0;
         virtual void bind() noexcept = 0;
         virtual void clear() = 0;
@@ -82,7 +85,6 @@ namespace Limitless {
 
         void blit(Framebuffer& source, Texture::Filter filter, FramebufferBlit blit = FramebufferBlit::Color);
 
-        void reattach();
         Framebuffer& operator<<(const TextureAttachment &attachment) noexcept;
 
         void onFramebufferChange(glm::uvec2 size) override;

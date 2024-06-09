@@ -11,14 +11,14 @@ void ContextInitializer::initializeGLEW() {
         throw std::runtime_error("Failed to initialize GLEW.");
     }
 
-#ifdef GL_DEBUG
+#ifdef LIMITLESS_OPENGL_DEBUG
     activate_debug();
 #endif
 
     getExtensions();
     getLimits();
 
-#ifdef GL_DEBUG
+#ifdef LIMITLESS_OPENGL_DEBUG
     printExtensions();
 #endif
 
@@ -36,7 +36,7 @@ void ContextInitializer::initializeGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor_version);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef GL_DEBUG
+#ifdef LIMITLESS_OPENGL_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
