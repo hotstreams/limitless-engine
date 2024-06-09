@@ -184,5 +184,9 @@ std::shared_ptr<DecalInstance> Instance::Builder::asDecal() {
         throw instance_builder_exception {"Model for decal is not elementary!"};
     }
 
-    return std::make_shared<DecalInstance>(model_, global_material, position_);
+    auto instance = std::make_shared<DecalInstance>(model_, global_material, position_);
+    instance->setPosition(position_);
+    instance->setRotation(rotation_);
+    instance->setScale(scale_);
+    return instance;
 }

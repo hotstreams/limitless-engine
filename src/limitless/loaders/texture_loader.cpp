@@ -10,7 +10,7 @@
 #include <limitless/assets.hpp>
 #include <limitless/loaders/dds_loader.hpp>
 
-#if GL_DEBUG
+#if LIMITLESS_OPENGL_DEBUG
 	#include <iostream>
 #endif
 
@@ -154,7 +154,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
 	    throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
     }
 
-	#if GL_DEBUG
+	#if LIMITLESS_OPENGL_DEBUG
         if (!isPowerOfTwo(width, height)) {
         	std::cerr << path.string() << " has not 2^n size, its not recommended to have it!" << std::endl;
         }

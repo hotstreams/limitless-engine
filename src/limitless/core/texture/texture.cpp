@@ -140,6 +140,44 @@ void Texture::bind(GLuint index) const {
     texture->bind(static_cast<GLenum>(target), index);
 }
 
+std::shared_ptr<Texture> Texture::clone() {
+    return clone(size);
+}
+
+std::shared_ptr<Texture> Texture::clone(glm::uvec3 s) {
+    auto clone = std::shared_ptr<Texture>(new Texture());
+
+    clone->texture = std::unique_ptr<ExtensionTexture>(texture->clone());
+    clone->texture->generateId();
+
+    clone->path = path;
+    clone->size = s;
+    clone->internal_format = internal_format;
+    clone->data_type = data_type;
+    clone->format = format;
+    clone->target = target;
+    clone->min = min;
+    clone->mag = mag;
+    clone->wrap_r = wrap_r;
+    clone->wrap_s = wrap_s;
+    clone->wrap_t = wrap_t;
+    clone->levels = levels;
+    clone->anisotropic = anisotropic;
+    clone->mipmap = mipmap;
+    clone->compressed = compressed;
+    clone->immutable = immutable;
+
+    if (isMutable()) {
+        clone->image();
+    }
+
+    if (isImmutable()) {
+        clone->storage();
+    }
+
+    return clone;
+}
+
 void Texture::resize(glm::uvec3 _size) {
     size = _size;
 
@@ -152,6 +190,10 @@ void Texture::resize(glm::uvec3 _size) {
         texture->generateId();
         storage();
     }
+}
+
+std::shared_ptr<Texture> Texture::clone(glm::uvec2 s) {
+    return clone(glm::uvec3{s, 1});
 }
 
 void Texture::accept(TextureVisitor& visitor) {
