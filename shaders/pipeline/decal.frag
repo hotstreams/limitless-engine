@@ -70,7 +70,7 @@ void main() {
 
     // ao
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE) || defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
-    properties.g = computeMaterialAO(ctx);
+    properties.b = computeMaterialAO(ctx);
     properties.a = decal_blend;
 #endif
 

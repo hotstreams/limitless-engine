@@ -27,7 +27,7 @@ namespace LimitlessMaterials {
                 Limitless::Context::builder()
                     .title("material-demo")
                     .size(window_size)
-                    .not_resizeable()
+//                    .not_resizeable()
                     .cursor(Limitless::CursorMode::Normal)
                     .swap_interval(1)
                     .sticky_keys()
@@ -82,6 +82,7 @@ namespace LimitlessMaterials {
         void onFramebufferChange(glm::uvec2 size) {
             camera.updateProjection(size);
             window_size = size;
+            render.getPipeline().onFramebufferChange(size);
         }
 
         void handleInput(float delta) noexcept {
