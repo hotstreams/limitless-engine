@@ -28,18 +28,11 @@ Framebuffer::~Framebuffer() {
     }
 }
 
-void Framebuffer::Framebuffer::reattach() {
-    for (const auto& [type, attachment] : attachments) {
-        *this << attachment;
-    }
-}
-
 void Framebuffer::onFramebufferChange(glm::uvec2 size) {
     for (auto& [type, attachment] : attachments) {
-        attachment.texture->resize({ size, attachment.texture->getSize().z });
+        attachment.texture = attachment.texture->clone(size);
+        *this << attachment;
     }
-
-    reattach();
 }
 
 void Framebuffer::checkStatus() {
@@ -319,15 +312,15 @@ Framebuffer Framebuffer::asRGB16FNearestClampToEdgeWithDepth(glm::uvec2 size, co
 }
 
 Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept
-    : attachments {std::move(rhs.attachments)}
+    : RenderTarget(std::move(rhs))
+    , attachments {std::move(rhs.attachments)}
     , draw_state {std::move(rhs.draw_state)} {
-    reattach();
 }
 
 Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept {
+    id = rhs.id;
     attachments = std::move(rhs.attachments);
     draw_state = std::move(rhs.draw_state);
-    reattach();
     return *this;
 }
 

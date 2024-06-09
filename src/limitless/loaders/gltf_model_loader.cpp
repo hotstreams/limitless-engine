@@ -26,8 +26,10 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/scene.hpp>
 #include <memory>
+#include <cstring>
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace Limitless;
 
@@ -656,12 +658,12 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	size_t material_index
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
+	const auto material_name = model_name + (material.name
+		? std::string(material.name)
+		: generateMaterialName(model_name, material_index));
 
 	builder
-		.name(
-			material.name ? std::string(material.name)
-						  : generateMaterialName(model_name, material_index)
-		)
+		.name(material_name)
 		.shading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
 		.two_sided(material.double_sided);
 
@@ -680,6 +682,160 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		throw ModelLoadError {"missing PBR metallic roughness"};
 	}
 
+	auto bytesFromBase64 = [](const char* cstr) -> std::vector<uint8_t> {    
+	    auto decode_base64_char = [](char c) -> uint8_t {
+	        if (c >= 'A' && c <= 'Z') return c - 'A';
+	        if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+	        if (c >= '0' && c <= '9') return c - '0' + 52;
+	        if (c == '+') return 62;
+	        if (c == '/') return 63;
+	        if (c == '=') return 64;
+	        throw ModelLoadError(std::string("Invalid base64 character ") + c + " aka " + std::to_string(static_cast<int>(c)));
+	    };
+    
+	    std::vector<uint8_t> output;
+    
+	    while (*cstr) {
+	        uint8_t sextet_a = *cstr ? decode_base64_char(*cstr++) : 0;
+	        uint8_t sextet_b = *cstr ? decode_base64_char(*cstr++) : 0;
+	        uint8_t sextet_c = *cstr ? decode_base64_char(*cstr++) : 0;
+	        uint8_t sextet_d = *cstr ? decode_base64_char(*cstr++) : 0;
+
+	        uint32_t triple = (static_cast<uint32_t>(sextet_a) << 18) |
+	                          (static_cast<uint32_t>(sextet_b) << 12) |
+	                          (static_cast<uint32_t>(sextet_c) << 6) |
+	                          static_cast<uint32_t>(sextet_d);
+	        
+	        if (sextet_c == 64) {
+	            output.push_back(static_cast<uint8_t>((triple >> 16) & 0xFF));
+	        } else if (sextet_d == 64) {
+	            output.push_back(static_cast<uint8_t>((triple >> 16) & 0xFF));
+	            output.push_back(static_cast<uint8_t>((triple >> 8) & 0xFF));
+	        } else {
+	            output.push_back(static_cast<uint8_t>((triple >> 16) & 0xFF));
+	            output.push_back(static_cast<uint8_t>((triple >> 8) & 0xFF));
+	            output.push_back(static_cast<uint8_t>(triple & 0xFF));
+	        }
+	    }
+	    
+	    return output;
+	};
+
+	auto loadTextureFrom = [&](cgltf_texture& tex, std::string name, TextureLoaderFlags flags) -> std::optional<std::shared_ptr<Texture>> {
+		if (!tex.image) {
+			return std::nullopt;
+		}
+		auto& img = *tex.image;
+
+		if (!tex.sampler) {
+			return std::nullopt;
+		}
+		auto& sampler = *tex.sampler;
+
+		constexpr int GLTF_SAMPLER_FILTER_NEAREST = 9728;
+		constexpr int GLTF_SAMPLER_FILTER_LINEAR = 9279;
+		constexpr int GLTF_SAMPLER_FILTER_NEAREST_MIPMAP_NEAREST = 9984;
+		constexpr int GLTF_SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST = 9985;
+		constexpr int GLTF_SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR = 9986;
+		constexpr int GLTF_SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR = 9987;
+
+		auto limitlessTexLoaderFilterModeFrom = [](cgltf_int filter_mode) -> std::optional<TextureLoaderFlags::Filter> {
+			switch (filter_mode) {
+				case GLTF_SAMPLER_FILTER_NEAREST:
+				case GLTF_SAMPLER_FILTER_NEAREST_MIPMAP_NEAREST:
+				case GLTF_SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR:
+					return TextureLoaderFlags::Filter::Nearest;
+
+				case GLTF_SAMPLER_FILTER_LINEAR:
+				case GLTF_SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST:
+				case GLTF_SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR:
+					return TextureLoaderFlags::Filter::Linear;
+
+				default:
+					return std::nullopt;
+			}
+		};
+
+		auto mag_filter_mode = limitlessTexLoaderFilterModeFrom(sampler.mag_filter);
+		if (mag_filter_mode) {
+			flags.filter = *mag_filter_mode;
+		}
+
+		// TODO: support separate magnification/minification filtering in the engine.
+		auto min_filter_mode = limitlessTexLoaderFilterModeFrom(sampler.min_filter);
+		if (min_filter_mode) {
+			flags.filter = *min_filter_mode;
+		}
+
+		auto hasMipmap = [](cgltf_int filter_mode) -> bool {
+			switch (filter_mode) {
+				case GLTF_SAMPLER_FILTER_NEAREST_MIPMAP_NEAREST:
+				case GLTF_SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST:
+				case GLTF_SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR:
+				case GLTF_SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR:
+					return true;
+
+				default:
+					return false;
+			}
+		};
+
+		flags.mipmap = hasMipmap(sampler.min_filter);
+
+		auto limitlessTexWrapModeFrom = [](cgltf_int wrapping_mode_enum) -> std::optional<Texture::Wrap> {
+			constexpr int GLTF_SAMPLER_WRAP_CLAMP_TO_EDGE = 33071;
+			constexpr int GLTF_SAMPLER_WRAP_MIRRORED_REPEAT = 33648;
+			constexpr int GLTF_SAMPLER_WRAP_REPEAT = 10497;
+
+			switch (wrapping_mode_enum) {
+				case GLTF_SAMPLER_WRAP_CLAMP_TO_EDGE:
+					return Texture::Wrap::ClampToEdge;
+
+				case GLTF_SAMPLER_WRAP_MIRRORED_REPEAT:
+					return Texture::Wrap::MirroredRepeat;
+
+				case GLTF_SAMPLER_WRAP_REPEAT:
+					return Texture::Wrap::Repeat;
+
+				default:
+					return std::nullopt;
+			}
+		};
+
+		auto wrap_s_mode = limitlessTexWrapModeFrom(sampler.wrap_s);
+		if (wrap_s_mode) {
+			flags.wrapping = *wrap_s_mode;
+		}
+
+		// TODO: support separate S/T wrapping mode in the engine.
+		auto wrap_t_mode = limitlessTexWrapModeFrom(sampler.wrap_t);
+		if (wrap_t_mode) {
+			flags.wrapping = *wrap_t_mode;
+		}
+
+		if (strncmp(img.uri, "data:", 5) == 0) {
+			const char* comma = strchr(img.uri, ',');
+
+			if (comma && comma - img.uri >= 7 && strncmp(comma - 7, ";base64", 7) == 0) {
+				auto buffer = bytesFromBase64(comma + 1);
+
+				return TextureLoader::load(
+					assets,
+					name,
+					buffer.data(),
+					buffer.size(),
+					flags
+				);
+			} else {
+				throw ModelLoadError {"unknown data uri"};
+			}
+
+		} else {
+			const auto path = base_path / fs::path(img.uri);
+			return TextureLoader::load(assets, path, flags);
+		}
+	};
+
 	const auto& pbr_mr   = material.pbr_metallic_roughness;
 	auto* base_color_tex = pbr_mr.base_color_texture.texture;
 
@@ -692,41 +848,31 @@ static std::shared_ptr<ms::Material> loadMaterial(
 			throw ModelLoadError {"material has no base color texture image despite having PBR"};
 		}
 
-		const auto path = base_path / fs::path(base_color_tex->image->uri);
-
 		// The base color texture MUST contain 8-bit values encoded with the
 		// sRGB opto-electronic transfer function.
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
 		// TODO: deduce other flags from cgltf sampler.
+		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
 
-		builder.diffuse(TextureLoader::load(assets, path, flags));
+		builder.diffuse(*loadTextureFrom(*base_color_tex, material_name + "_base_color", flags));
 		builder.color(toVec4(pbr_mr.base_color_factor));
-		// TODO: recall why this was here.
-		// builder.setFragmentSnippet(
-		// 	"data.baseColor.rgb = getMaterialDiffuse(getVertexUV()).rrr;"
-		// );
 	}
 
 	auto* mr_tex = pbr_mr.metallic_roughness_texture.texture;
 	if (mr_tex && mr_tex->image) {
-		const auto path = base_path / fs::path(mr_tex->image->uri);
-
 		// These values MUST be encoded with a linear transfer function.
 		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
 
-		builder.orm(TextureLoader::load(assets, path, flags));
+		builder.orm(*loadTextureFrom(*mr_tex, material_name + "_orm", flags));
 		builder.metallic(pbr_mr.metallic_factor);
 		builder.roughness(pbr_mr.roughness_factor);
 	}
 
 	auto* normal_tex = material.normal_texture.texture;
 	if (normal_tex && normal_tex->image) {
-		const auto path = base_path / fs::path(normal_tex->image->uri);
-
 		// These values MUST be encoded with a linear transfer function.
 		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
 
-		builder.normal(TextureLoader::load(assets, path, flags));
+		builder.normal(*loadTextureFrom(*normal_tex, material_name + "_normal", flags));
 	}
 
 	if (material.has_ior) {
@@ -736,13 +882,11 @@ static std::shared_ptr<ms::Material> loadMaterial(
 
 	auto* emissive_tex = material.emissive_texture.texture;
 	if (emissive_tex && emissive_tex->image) {
-		const auto path = base_path / fs::path(emissive_tex->image->uri);
-
 		// This texture contains RGB components encoded with the sRGB transfer
 		// function
 		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
 
-		builder.emissive_mask(TextureLoader::load(assets, path, flags));
+		builder.emissive_mask(*loadTextureFrom(*emissive_tex, material_name + "_emissive_mask", flags));
 	}
 
 	glm::vec3 emissive_rgb = toVec3(material.emissive_factor);

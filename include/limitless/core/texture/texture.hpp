@@ -207,7 +207,13 @@ namespace Limitless {
         void bind(GLuint index) const;
 
         // resizes texture; content becomes empty
+        // TODO: check some strange behavior with framebuffer found: resize + immutable attached textures
         void resize(glm::uvec3 size);
+
+        // copy
+        std::shared_ptr<Texture> clone();
+        std::shared_ptr<Texture> clone(glm::uvec3 size);
+        std::shared_ptr<Texture> clone(glm::uvec2 size);
 
         void accept(TextureVisitor& visitor);
 
