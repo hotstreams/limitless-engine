@@ -17,6 +17,8 @@ namespace Limitless {
         void updateBoundingBox() noexcept override;
         std::unique_ptr<Instance> clone() noexcept override;
 
+        void setMaterial(std::shared_ptr<ms::Material> new_material);
+
         void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
     };
 }
