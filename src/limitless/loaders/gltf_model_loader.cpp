@@ -389,8 +389,8 @@ loadMeshes(
 				break;
 
 			default:
-				throw ModelLoadError {
-					"unsupported attribute type " + std::to_string(attribute.type)};
+//				throw ModelLoadError {
+//					"unsupported attribute type " + std::to_string(attribute.type)};
 				break;
 			}
 		}

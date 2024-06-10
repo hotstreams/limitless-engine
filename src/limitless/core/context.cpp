@@ -57,7 +57,6 @@ void Context::unregisterContext() noexcept {
 
 void Limitless::swap(Context& lhs, Context& rhs) noexcept {
     using std::swap;
-
     /*
      * we do NOT register nullptr GLFWWindow at Context default constructor (it is private, so GLFWWindow pointer gets nullptr)
      * so have to check that it is present here
@@ -80,6 +79,13 @@ void Limitless::swap(Context& lhs, Context& rhs) noexcept {
     swap(lhs.window, rhs.window);
     swap(lhs.monitor, rhs.monitor);
     swap(lhs.size, rhs.size);
+
+    swap(lhs.framebuffer_callback, rhs.framebuffer_callback);
+    swap(lhs.mouseclick_callback, rhs.mouseclick_callback);
+    swap(lhs.mousemove_callback, rhs.mousemove_callback);
+    swap(lhs.scroll_callback, rhs.scroll_callback);
+    swap(lhs.char_callback, rhs.char_callback);
+    swap(lhs.key_callback, rhs.key_callback);
 }
 
 Context::Context(Context&& rhs) noexcept : ContextState(std::move(rhs)) {
