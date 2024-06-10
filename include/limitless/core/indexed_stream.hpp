@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/core/vertex_stream.hpp>
+#include <algorithm>
 
 namespace Limitless {
     template <typename Vertex>
