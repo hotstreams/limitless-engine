@@ -81,14 +81,14 @@ void calculateTerrain(inout MaterialContext mctx) {
     vec2 uv = getVertexUV();
 
     float vectors[8] = {
-        smoothstep(0.0, 1.0, length(uv)),
-        smoothstep(0.0, 1.0, uv.y),
-        smoothstep(0.0, 1.0, length(vec2(1.0 - uv.x, uv.y))),
-        smoothstep(0.0, 1.0, uv.x),
-        smoothstep(0.0, 1.0, 1.0 - uv.x),
-        smoothstep(0.0, 1.0, length(vec2(uv.x, 1.0 - uv.y))),
-        smoothstep(0.0, 1.0, 1.0 - uv.y),
-        smoothstep(0.0, 1.0, length(vec2(1.0 - uv.x, 1.0 - uv.y)))
+    smoothstep(0.0, 1.0, length(uv)),
+    smoothstep(0.0, 1.0, uv.y),
+    smoothstep(0.0, 1.0, length(vec2(1.0 - uv.x, uv.y))),
+    smoothstep(0.0, 1.0, uv.x),
+    smoothstep(0.0, 1.0, 1.0 - uv.x),
+    smoothstep(0.0, 1.0, length(vec2(uv.x, 1.0 - uv.y))),
+    smoothstep(0.0, 1.0, 1.0 - uv.y),
+    smoothstep(0.0, 1.0, length(vec2(1.0 - uv.x, 1.0 - uv.y)))
     };
 
     uint mask[8];

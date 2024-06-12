@@ -39,6 +39,10 @@ void DecalInstance::draw(Context &ctx, const Assets &assets, ShaderType shader_t
     model->getMeshes()[0]->draw();
 }
 
+void DecalInstance::setMaterial(std::shared_ptr<ms::Material> new_material) {
+    material = std::make_shared<ms::Material>(*new_material);
+}
+
 void DecalInstance::updateBoundingBox() noexcept {
 
 }
