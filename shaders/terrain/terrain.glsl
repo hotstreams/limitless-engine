@@ -72,7 +72,7 @@ vec3 StochasticTexture(vec2 uv, float index, sampler2DArray s)
 void calculateTerrain(inout MaterialContext mctx) {
     vec2 terrain_uv = (getVertexPosition().xz / 25.6) * 256.0;
 
-    vec3 variation = MacroContrast(MacroVariation());
+//    vec3 variation = MacroContrast(MacroVariation());
 
     vec3 diffuse = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_diffuse_texture);
     vec3 normal = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_normal_texture);

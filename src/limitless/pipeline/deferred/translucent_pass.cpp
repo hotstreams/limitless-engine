@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <limitless/pipeline/pipeline.hpp>
 #include <limitless/pipeline/deferred/deferred_lighting_pass.hpp>
+#include <limitless/pipeline/deferred/deferred_framebuffer_pass.hpp>
 
 using namespace Limitless;
 
@@ -72,4 +73,6 @@ std::shared_ptr<Texture> TranslucentPass::getResult() {
 
 void TranslucentPass::onFramebufferChange(glm::uvec2 size) {
     framebuffer.onFramebufferChange(size);
+
+    framebuffer << TextureAttachment{FramebufferAttachment::Depth, pipeline.get<DeferredFramebufferPass>().getDepth()};
 }

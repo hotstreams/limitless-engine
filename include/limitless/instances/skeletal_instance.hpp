@@ -83,6 +83,7 @@ namespace Limitless {
          * throws no_such_animation if not found
          */
         SkeletalInstance& play(const std::string& name);
+        SkeletalInstance& play(uint32_t index);
 
         /**
          * Pauses current animation
