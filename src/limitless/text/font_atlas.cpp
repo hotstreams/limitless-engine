@@ -1,10 +1,15 @@
 #include <limitless/text/font_atlas.hpp>
 
+#define STB_RECT_PACK_IMPLEMENTATION
+#include <stb_rect_pack.h>
+
+#include <iostream>
+
 using namespace Limitless;
 using namespace std::literals::string_literals;
 
-FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
-    : font_size{size} {
+FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
+    : font_size {pixel_size} {
     static FT_Library ft {nullptr};
 
     if (!ft) {
@@ -19,63 +24,102 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
 
     FT_Set_Pixel_Sizes(face, 0, size);
 
-    uint32_t max_width {0};
-    uint32_t max_height {0};
-    uint64_t total_area {0};
+    struct GlyphInfo {
+        glm::ivec2 bearing;
+        uint32_t advance;
+        std::vector<std::byte> bitmap;
+    };
 
-    for (char c = 0; c < 127; ++c) {
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-            throw font_error{"Failed to load glyph"};
+    std::unordered_map<uint32_t, GlyphInfo> glyph_for_char;
+
+    stbrp_context context;
+    std::vector<stbrp_rect> packer_rects;
+    std::vector<stbrp_node> packer_nodes;
+
+    FT_ULong char_code;
+    FT_UInt glyph_index;
+
+    size_t char_count = 0;
+    for (
+        char_code = FT_Get_First_Char(face, &glyph_index);
+        glyph_index != 0;
+        char_code = FT_Get_Next_Char(face, char_code, &glyph_index)
+    ) {
+        if (FT_Load_Char(face, char_code, FT_LOAD_RENDER) != 0) {
+            throw font_error {"Failed to load char with code " + std::to_string(char_code)};
         }
 
-        max_width = std::max(max_width, (uint32_t)face->glyph->bitmap.width);
-        max_height = std::max(max_height, (uint32_t)face->glyph->bitmap.rows);
-
-        total_area += face->glyph->bitmap.rows * face->glyph->bitmap.width;
-    }
-
-    const glm::uvec2 side_size {512, 512};
-    //const glm::uvec2 side_size = {max_width * size, max_height * size};
-
-    std::vector<std::byte> data(side_size.x * side_size.y);
-
-    uint32_t x {};
-    uint32_t y {};
-    for (char c = 0; c < 127; ++c) {
-        if (isSynthetizedGlyph(c)) {
-            continue;
+        const auto& glyph_bitmap = face->glyph->bitmap;
+        if (glyph_bitmap.pitch < 0) {
+            throw font_error {"font has negative glyph bitmap pitch, which is not supported"};
         }
 
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-            throw font_error{"Failed to load character "s + c + " (code " + std::to_string((int)c) + ")"};
-        }
-
-        const auto glyph_w = face->glyph->bitmap.width;
-        const auto glyph_h = face->glyph->bitmap.rows;
-        const auto glyph_pitch = face->glyph->bitmap.pitch;
-
-        if (x + glyph_w >= side_size.x) {
-            x = 0;
-            y += max_height;
-        }
-
-        for (uint32_t i = 0; i < glyph_h; ++i) {
-            memcpy(data.data() + side_size.x * (i + y) + x, face->glyph->bitmap.buffer + glyph_pitch * i, glyph_w);
-        }
-
-        chars.emplace(c, FontCharacter{
-            {glyph_w, glyph_h},
+        auto char_bitmap = std::vector<std::byte>(glyph_bitmap.pitch * glyph_bitmap.rows);
+        memcpy(char_bitmap.data(), glyph_bitmap.buffer, char_bitmap.size());
+        glyph_for_char.emplace(char_code, GlyphInfo {
             {face->glyph->bitmap_left, face->glyph->bitmap_top},
             static_cast<uint32_t>(face->glyph->advance.x),
+            std::move(char_bitmap)
+        });
+
+        ++char_count;
+        packer_rects.emplace_back(stbrp_rect{char_code, glyph_bitmap.width, glyph_bitmap.rows, 0, 0, 0});
+    }
+    packer_nodes.resize(packer_rects.size());
+
+    // TODO: pass atlas size as parameter.
+    constexpr const size_t atlas_dim_size = 4096;
+    const glm::uvec2 atlas_size = glm::uvec2(atlas_dim_size);
+
+    stbrp_init_target(&context, atlas_size.x, atlas_size.y, packer_nodes.data(), packer_nodes.size());
+    stbrp_pack_rects(&context, packer_rects.data(), packer_rects.size());
+
+    std::vector<std::byte> data(atlas_size.x * atlas_size.y);
+
+    for (const auto& rect : packer_rects) {
+        if (!rect.was_packed) {
+            // TODO: better to try again with larger size.
+            throw font_error {"failed to pack chars into atlas"};
+        }
+
+        uint32_t char_code = *(reinterpret_cast<const uint32_t*>(&rect.id));
+        auto it = glyph_for_char.find(char_code);
+        if (it == glyph_for_char.end()) {
+            throw font_error {"failed to find glyph for char " + std::to_string(char_code)};
+        }
+
+        const auto& glyph_info = it->second;
+
+        for (size_t row = 0; row < rect.h; ++row) {
+            const auto& char_bitmap = glyph_info.bitmap;
+            const size_t glyph_pitch = char_bitmap.size() / rect.h; // because bitmap size = pitch * rows
+            const ptrdiff_t input_offset = glyph_pitch * row;
+            const ptrdiff_t output_offset = (rect.y + row)*atlas_size.y + rect.x;
+
+            memcpy(data.data() + output_offset, char_bitmap.data() + input_offset, rect.w);
+        }
+
+        const glm::vec2 atlas_rect_tl_pos = {
+            static_cast<float>(rect.x) / static_cast<float>(atlas_size.x),
+            static_cast<float>(rect.y) / static_cast<float>(atlas_size.y)
+        };
+
+        const glm::vec2 atlas_rect_br_pos = {
+            static_cast<float>(rect.x + rect.w) / static_cast<float>(atlas_size.x),
+            static_cast<float>(rect.y + rect.h) / static_cast<float>(atlas_size.y)
+        };
+
+        chars.emplace(char_code, FontCharacter{
+            {rect.w, rect.h},
+            glyph_info.bearing,
+            glyph_info.advance,
             {
-               glm::vec2{ (float)x / (float)side_size.x, (float)(y + glyph_h) / (float)side_size.y},
-               glm::vec2{(float)(x + glyph_w) / (float)side_size.x, (float)(y + glyph_h) / (float)side_size.y},
-               glm::vec2{(float)x / (float)side_size.x, (float)y / (float)side_size.y},
-               glm::vec2{(float)(x + glyph_w) / (float)side_size.x, (float)y / (float)side_size.y}
+                glm::vec2 { atlas_rect_tl_pos.x, atlas_rect_br_pos.y},
+                glm::vec2 { atlas_rect_br_pos.x, atlas_rect_br_pos.y},
+                glm::vec2 { atlas_rect_tl_pos.x, atlas_rect_tl_pos.y},
+                glm::vec2 { atlas_rect_br_pos.x, atlas_rect_tl_pos.y}
             }}
         );
-
-        x += glyph_w;
     }
 
     chars.emplace('\t', chars.at(' '));
@@ -85,7 +129,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
     texture = Texture::builder()
             .target(Texture::Type::Tex2D)
             .internal_format(Texture::InternalFormat::R)
-            .size(side_size)
+            .size(atlas_size)
             .format(Texture::Format::Red)
             .data_type(Texture::DataType::UnsignedByte)
             .data(data.data())
@@ -94,7 +138,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
             .min_filter(Texture::Filter::Linear)
             .mag_filter(Texture::Filter::Linear)
             .mipmap(false)
-                     .buildMutable();
+            .buildMutable();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
@@ -104,19 +148,63 @@ FontAtlas::~FontAtlas() {
     }
 }
 
+static size_t utf8CharLength(char c) {
+    if ((c & 0x80) == 0) {
+        return 1;
+
+    } else if ((c & 0xE0) == 0xC0) {
+        return 2;
+
+    } else if ((c & 0xF0) == 0xE0) {
+        return 3;
+
+    } else if ((c & 0xF8) == 0xF0) {
+        return 4;
+    }
+
+    return 0;
+}
+
+// Invokes void(uint32_t) function for each unicode code point of a UTF-8 encoded string.
+template <typename T>
+static void forEachUnicodeCodepoint(const std::string& str, T&& func) {
+    size_t i = 0;
+    while (i < str.size()) {
+        size_t char_len = utf8CharLength(str[i]);
+        if (char_len == 0) {
+            throw font_error {"invalid UTF-8 char"};
+        }
+
+        uint32_t codepoint = str[i] & (0xFF >> char_len);
+        for (int j = 1; j < char_len; ++j) {
+            char continuation_byte = str[i + j];
+
+            if ((continuation_byte & 0xC0) != 0x80) {
+                throw font_error {"invalid UTF-8 byte sequence at " + std::to_string(i + j)};
+            }
+            codepoint = (codepoint << 6) | (continuation_byte & 0x3F);
+        }
+
+        func(codepoint);
+
+        i += char_len;
+    }
+}
+
 std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
     std::vector<TextVertex> vertices;
     vertices.reserve(text.size());
 
     glm::vec2 offset {0.f, 0.f};
-    for (const auto c : text) {
-        auto& fc = chars.at(c);
 
-        if (c == '\n') {
+    forEachUnicodeCodepoint(text, [&](uint32_t cp) {
+        if (cp == '\n') {
             offset.y -= font_size;
             offset.x = 0;
-            continue;
+            return;
         }
+
+        auto& fc = chars.at(cp);
 
         float x = offset.x + fc.bearing.x;
         float y = offset.y + fc.bearing.y - fc.size.y;
@@ -130,7 +218,7 @@ std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
         vertices.emplace_back(glm::vec2{x + fc.size.x, y + fc.size.y}, fc.uvs[3]);
 
         offset.x += (fc.advance >> 6);
-    }
+    });
 
     return vertices;
 }
@@ -138,18 +226,19 @@ std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
 glm::vec2 FontAtlas::getTextSize(const std::string& text) const {
 	glm::vec2 max_size {0, font_size};
 	float size {};
-	for (const auto c : text) {
-		auto& fc = chars.at(c);
 
-		size += (fc.advance >> 6);
+    forEachUnicodeCodepoint(text, [&](uint32_t cp) {
+        auto& fc = chars.at(cp);
 
-		if (c == '\n') {
-			max_size.y += font_size;
-			size = 0;
-		}
+        size += (fc.advance >> 6);
 
-		max_size.x = std::max(max_size.x, size);
-	}
+        if (cp == '\n') {
+            max_size.y += font_size;
+            size = 0;
+        }
+
+        max_size.x = std::max(max_size.x, size);
+    });
 
 	return max_size;
 }
