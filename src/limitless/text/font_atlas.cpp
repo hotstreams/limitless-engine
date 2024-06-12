@@ -8,8 +8,8 @@
 using namespace Limitless;
 using namespace std::literals::string_literals;
 
-FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
-    : font_size{size} {
+FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
+    : font_size {pixel_size} {
     static FT_Library ft {nullptr};
 
     if (!ft) {
@@ -49,7 +49,6 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
             throw font_error {"Failed to load char with code " + std::to_string(char_code)};
         }
 
-        // FT_GlyphSlotRec
         const auto& glyph_bitmap = face->glyph->bitmap;
         if (glyph_bitmap.pitch < 0) {
             throw font_error {"font has negative glyph bitmap pitch, which is not supported"};
@@ -68,6 +67,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
     }
     packer_nodes.resize(packer_rects.size());
 
+    // TODO: pass atlas size as parameter.
     constexpr const size_t atlas_dim_size = 4096;
     const glm::uvec2 atlas_size = glm::uvec2(atlas_dim_size);
 
@@ -97,7 +97,6 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t size)
             const ptrdiff_t output_offset = (rect.y + row)*atlas_size.y + rect.x;
 
             memcpy(data.data() + output_offset, char_bitmap.data() + input_offset, rect.w);
-            // memcpy(data.data() + side_size.x * (i + y) + x, face->glyph->bitmap.buffer + glyph_pitch * i, glyph_w);
         }
 
         const glm::vec2 atlas_rect_tl_pos = {
