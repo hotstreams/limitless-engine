@@ -250,7 +250,8 @@ loadMeshes(
 	const std::string& model_name,
 	size_t mesh_index,
 	const std::vector<std::shared_ptr<ms::Material>>& materials,
-	const cgltf_data& data
+	const cgltf_data& data,
+    const ModelLoaderFlags& flags
 ) {
 	auto base_mesh_name =
 		std::string(mesh.name ? mesh.name : generateMeshName(model_name, mesh_index));
@@ -387,10 +388,12 @@ loadMeshes(
 						+ std::to_string(attribute.data->component_type) + " for bone weights"};
 				}
 				break;
-
+            case cgltf_attribute_type_color: {
+//                copyFromAccessor<glm::vec4>(*attribute.data);
+                break;
+            }
 			default:
-//				throw ModelLoadError {
-//					"unsupported attribute type " + std::to_string(attribute.type)};
+				throw ModelLoadError {"unsupported attribute type " + std::to_string(attribute.type)};
 				break;
 			}
 		}
@@ -419,13 +422,18 @@ loadMeshes(
 				+ " and UVs"};
 		}
 
+
 		vertices.reserve(positions.size());
 		for (size_t i = 0; i < positions.size(); ++i) {
+            auto uv = flags.isPresent(Limitless::ModelLoaderOption::FlipUV) ? uvs[i] : glm::vec2(uvs[i].x, 1.0 - uvs[i].y);
+
 			vertices.emplace_back(VertexNormalTangent {
 				positions[i],
 				normals[i],
 				glm::vec3 {tangents[i]}, // TODO: handle tangent basis handedness in W.
-				uvs[i]});
+                // gltf 2.0 spec: uv origin in top left corner
+                // OpenGL uv origin in bottom left
+				uv});
 		}
 
 		if (!skin) {
@@ -655,7 +663,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const fs::path& base_path,
 	const cgltf_material& material,
 	const std::string& model_name,
-	size_t material_index
+	size_t material_index,
+    const ModelLoaderFlags& flags
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
 	const auto material_name = model_name + (material.name
@@ -674,13 +683,19 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	case cgltf_alpha_mode_blend:
 		builder.blending(ms::Blending::Translucent);
 		break;
+    case cgltf_alpha_mode_mask:
+        builder.blending(ms::Blending::Opaque);
+        //TODO: add to material built-in
+        builder.custom("alpha_cutoff", material.alpha_cutoff);
+        builder.fragment("if (mctx.diffuse.a <= alpha_cutoff) discard;");
+        break;
 	default:
 		throw ModelLoadError {"alpha mode " + std::to_string(material.alpha_mode) + " not supported"};
 	}
 
-	if (!material.has_pbr_metallic_roughness) {
-		throw ModelLoadError {"missing PBR metallic roughness"};
-	}
+//	if (!material.has_pbr_metallic_roughness) {
+//		throw ModelLoadError {"missing PBR metallic roughness"};
+//	}
 
 	auto bytesFromBase64 = [](const char* cstr) -> std::vector<uint8_t> {    
 	    auto decode_base64_char = [](char c) -> uint8_t {
@@ -907,13 +922,14 @@ static std::vector<std::shared_ptr<ms::Material>> loadMaterials(
 	Assets& assets,
 	const InstanceTypes& instance_types,
 	const fs::path& path,
-	const cgltf_data& src
+	const cgltf_data& src,
+    const ModelLoaderFlags& flags
 ) {
 	std::vector<std::shared_ptr<ms::Material>> materials;
 
 	for (size_t i = 0; i < src.materials_count; ++i) {
 		materials.emplace_back(loadMaterial(
-			assets, instance_types, path.parent_path(), src.materials[i], model_name, i
+			assets, instance_types, path.parent_path(), src.materials[i], model_name, i, flags
 		));
 	}
 
@@ -958,7 +974,7 @@ static void fixMissingMaterials(
 }
 
 static SkeletalModel* loadSkeletalModel(
-	Assets& assets, const fs::path& path, const cgltf_data& src, const std::string& model_name
+	Assets& assets, const fs::path& path, const cgltf_data& src, const std::string& model_name, const ModelLoaderFlags& flags
 ) {
 	std::vector<Bone> bones;
 	std::unordered_map<const cgltf_node*, size_t> bone_indice_map;
@@ -1021,7 +1037,7 @@ static SkeletalModel* loadSkeletalModel(
 	auto bone_indices_tree = makeBoneIndiceTrees(root_nodes, bone_map);
 
 	const InstanceTypes instance_types {InstanceType::Skeletal};
-	auto loaded_materials = loadMaterials(model_name, assets, instance_types, path, src);
+	auto loaded_materials = loadMaterials(model_name, assets, instance_types, path, src, flags);
 
 	std::vector<std::shared_ptr<AbstractMesh>> meshes;
 	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
@@ -1031,7 +1047,7 @@ static SkeletalModel* loadSkeletalModel(
 
 		if (node.mesh) {
 			auto [more_meshes, more_mesh_materials] = loadMeshes(
-				node, *node.mesh, node.skin, model_name, meshes.size(), loaded_materials, src
+				node, *node.mesh, node.skin, model_name, meshes.size(), loaded_materials, src, flags
 			);
 			meshes.insert(meshes.end(), more_meshes.begin(), more_meshes.end());
 			mesh_materials.insert(
@@ -1059,20 +1075,20 @@ static SkeletalModel* loadSkeletalModel(
 }
 
 static Model* loadPlainModel(
-	Assets& assets, const fs::path& path, const cgltf_data& src, const std::string& model_name
+	Assets& assets, const fs::path& path, const cgltf_data& src, const std::string& model_name, const ModelLoaderFlags& flags
 ) {
 	std::vector<std::shared_ptr<AbstractMesh>> meshes;
 	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
 	const InstanceTypes instance_types {InstanceType::Model};
 
-	auto loaded_materials = loadMaterials(model_name, assets, instance_types, path, src);
+	auto loaded_materials = loadMaterials(model_name, assets, instance_types, path, src, flags);
 
 	for (size_t i = 0; i < src.nodes_count; ++i) {
 		const cgltf_node& node = src.nodes[i];
 
 		if (node.mesh) {
 			auto [more_meshes, more_mesh_materials] = loadMeshes(
-				node, *node.mesh, nullptr, model_name, meshes.size(), loaded_materials, src
+				node, *node.mesh, nullptr, model_name, meshes.size(), loaded_materials, src, flags
 			);
 			meshes.insert(meshes.end(), more_meshes.begin(), more_meshes.end());
 			mesh_materials.insert(
@@ -1087,18 +1103,18 @@ static Model* loadPlainModel(
 }
 
 static std::shared_ptr<AbstractModel>
-loadModel(Assets& assets, const fs::path& path, const cgltf_data& src) {
+loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const ModelLoaderFlags& flags) {
 	auto model_name = path.stem().string();
 
 	if (src.skins_count > 0) {
-		return std::shared_ptr<AbstractModel>(loadSkeletalModel(assets, path, src, model_name));
+		return std::shared_ptr<AbstractModel>(loadSkeletalModel(assets, path, src, model_name, flags));
 	} else {
-		return std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name));
+		return std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name, flags));
 	}
 }
 
 std::shared_ptr<AbstractModel>
-GltfModelLoader::loadModel(Assets& assets, const fs::path& path, [[maybe_unused]] const ModelLoaderFlags& flags) {
+GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags) {
 	cgltf_options opts = cgltf_options {
 		cgltf_file_type_invalid, // autodetect
 		0, // auto json token count
@@ -1126,5 +1142,5 @@ GltfModelLoader::loadModel(Assets& assets, const fs::path& path, [[maybe_unused]
 		throw ModelLoadError {"no scene"};
 	}
 
-	return ::loadModel(assets, path, *out_data);
+	return ::loadModel(assets, path, *out_data, flags);
 }

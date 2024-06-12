@@ -17,4 +17,7 @@ void main() {
     color = texture(lightened, uv).rgb + bloom_color;
 
     color = toneMapping(color, tone_mapping_exposure);
+//
+//    float gamma = 2.2;
+//    color = pow(color, vec3(1.0 / gamma));
 }

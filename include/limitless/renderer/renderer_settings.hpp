@@ -42,7 +42,7 @@ namespace Limitless {
         /**
          * Cascade shadow maps
          */
-        bool cascade_shadow_maps = false;
+        bool cascade_shadow_maps = true;
         glm::uvec2 csm_resolution = {1024 * 4, 1024 * 4 };
         uint8_t csm_split_count = 3; // [2; 4]
 

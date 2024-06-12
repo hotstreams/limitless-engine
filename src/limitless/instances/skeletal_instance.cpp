@@ -140,6 +140,17 @@ void SkeletalInstance::update(Context& context, const Camera& camera) {
     ModelInstance::update(context, camera);
 }
 
+SkeletalInstance &SkeletalInstance::play(uint32_t index) {
+    const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+    const auto& animations = skeletal.getAnimations();
+
+    animation = &animations.at(index);
+    animation_duration = std::chrono::seconds(0);
+    last_time = std::chrono::time_point<std::chrono::steady_clock>();
+
+    return *this;
+}
+
 SkeletalInstance& SkeletalInstance::play(const std::string& name) {
     const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
     const auto& animations = skeletal.getAnimations();
@@ -213,5 +224,3 @@ const std::vector<Bone>& SkeletalInstance::getAllBones() const noexcept {
     const auto& bones = skeletal.getBones();
     return bones;
 }
-
-
