@@ -84,11 +84,5 @@ namespace Limitless {
         uint32_t font_size;
 
         static constexpr auto TAB_WIDTH_IN_SPACES = 4;
-
-        /**
-         * Return font character for given Unicode codepoint.
-         * If font does not have it, then "missing/tofu" font character is returned.
-         */
-        FontChar& fontCharFor(uint32_t utf32_codepoint) noexcept;
     };
 }

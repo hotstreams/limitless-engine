@@ -328,15 +328,6 @@ std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, s
     return vertices;
 }
 
-FontChar& FontAtlas::fontCharFor(uint32_t utf32_codepoint) noexcept {
-    auto it = chars.find(utf32_codepoint);
-    if (it == chars.end()) {
-        return chars.at(UNDEFINED_GLYPH_CHAR_CODE);
-    }
-
-    return it->second;
-}
-
 const FontChar& FontAtlas::getFontChar(uint32_t utf32_codepoint) const noexcept {
     auto it = chars.find(utf32_codepoint);
     if (it == chars.end()) {
