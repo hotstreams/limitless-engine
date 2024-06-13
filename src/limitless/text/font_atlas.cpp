@@ -8,6 +8,9 @@
 using namespace Limitless;
 using namespace std::literals::string_literals;
 
+static constexpr const uint32_t UNDEFINED_GLYPH_INDEX = 0;
+static constexpr const uint32_t UNDEFINED_GLYPH_CHAR_CODE = 0;
+
 FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
     : font_size {pixel_size} {
     static FT_Library ft {nullptr};
@@ -22,7 +25,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
         throw font_error{"Failed to load the font at path"s + path.string()};
     }
 
-    FT_Set_Pixel_Sizes(face, 0, size);
+    FT_Set_Pixel_Sizes(face, 0, font_size);
 
     struct GlyphInfo {
         glm::ivec2 bearing;
@@ -39,7 +42,34 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
     FT_ULong char_code;
     FT_UInt glyph_index;
 
-    size_t char_count = 0;
+    auto loadGlyphFrom = [&](const FT_GlyphSlot ft_glyph, uint32_t char_code){
+        const auto& glyph_bitmap = ft_glyph->bitmap;
+        if (glyph_bitmap.pitch < 0) {
+            throw font_error {"font has negative glyph bitmap pitch, which is not supported"};
+        }
+
+        auto char_bitmap = std::vector<std::byte>(glyph_bitmap.pitch * glyph_bitmap.rows);
+        memcpy(char_bitmap.data(), glyph_bitmap.buffer, char_bitmap.size());
+
+        auto [_, emplaced] = glyph_for_char.emplace(char_code, GlyphInfo {
+            {ft_glyph->bitmap_left, ft_glyph->bitmap_top},
+            static_cast<uint32_t>(ft_glyph->advance.x),
+            std::move(char_bitmap)
+        });
+
+        // TODO: support char glyph variants?
+        if (emplaced) {
+            packer_rects.emplace_back(stbrp_rect{char_code, glyph_bitmap.width, glyph_bitmap.rows, 0, 0, 0});
+        }
+    };
+
+    if (FT_Load_Glyph(face, UNDEFINED_GLYPH_INDEX, FT_LOAD_RENDER) != 0) {
+        throw font_error {"Failed to load tofu (missing) glyph"};
+    }
+
+    // Put "tofu" as 0 char code glyph -- null terminators (\0) are not normally rendered anyway.
+    loadGlyphFrom(face->glyph, UNDEFINED_GLYPH_CHAR_CODE);
+
     for (
         char_code = FT_Get_First_Char(face, &glyph_index);
         glyph_index != 0;
@@ -49,21 +79,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
             throw font_error {"Failed to load char with code " + std::to_string(char_code)};
         }
 
-        const auto& glyph_bitmap = face->glyph->bitmap;
-        if (glyph_bitmap.pitch < 0) {
-            throw font_error {"font has negative glyph bitmap pitch, which is not supported"};
-        }
-
-        auto char_bitmap = std::vector<std::byte>(glyph_bitmap.pitch * glyph_bitmap.rows);
-        memcpy(char_bitmap.data(), glyph_bitmap.buffer, char_bitmap.size());
-        glyph_for_char.emplace(char_code, GlyphInfo {
-            {face->glyph->bitmap_left, face->glyph->bitmap_top},
-            static_cast<uint32_t>(face->glyph->advance.x),
-            std::move(char_bitmap)
-        });
-
-        ++char_count;
-        packer_rects.emplace_back(stbrp_rect{char_code, glyph_bitmap.width, glyph_bitmap.rows, 0, 0, 0});
+        loadGlyphFrom(face->glyph, char_code);
     }
     packer_nodes.resize(packer_rects.size());
 
@@ -109,7 +125,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
             static_cast<float>(rect.y + rect.h) / static_cast<float>(atlas_size.y)
         };
 
-        chars.emplace(char_code, FontCharacter{
+        chars.emplace(char_code, FontChar{
             {rect.w, rect.h},
             glyph_info.bearing,
             glyph_info.advance,
@@ -165,9 +181,12 @@ static size_t utf8CharLength(char c) {
     return 0;
 }
 
-// Invokes void(uint32_t) function for each unicode code point of a UTF-8 encoded string.
+/**
+ * Invokes bool(uint32_t) function for each Unicode codepoint of a UTF-8 encoded string.
+ * If that function returns false, then iteration is stopped.
+ */
 template <typename T>
-static void forEachUnicodeCodepoint(const std::string& str, T&& func) {
+static void forEachUnicodeCodepoint(std::string_view str, T&& func) {
     size_t i = 0;
     while (i < str.size()) {
         size_t char_len = utf8CharLength(str[i]);
@@ -185,7 +204,9 @@ static void forEachUnicodeCodepoint(const std::string& str, T&& func) {
             codepoint = (codepoint << 6) | (continuation_byte & 0x3F);
         }
 
-        func(codepoint);
+        if (!func(codepoint)) {
+            return;
+        }
 
         i += char_len;
     }
@@ -201,10 +222,10 @@ std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
         if (cp == '\n') {
             offset.y -= font_size;
             offset.x = 0;
-            return;
+            return true;
         }
 
-        auto& fc = chars.at(cp);
+        const auto& fc = getFontChar(cp);
 
         float x = offset.x + fc.bearing.x;
         float y = offset.y + fc.bearing.y - fc.size.y;
@@ -218,6 +239,7 @@ std::vector<TextVertex> FontAtlas::generate(const std::string& text) const {
         vertices.emplace_back(glm::vec2{x + fc.size.x, y + fc.size.y}, fc.uvs[3]);
 
         offset.x += (fc.advance >> 6);
+        return true;
     });
 
     return vertices;
@@ -228,7 +250,7 @@ glm::vec2 FontAtlas::getTextSize(const std::string& text) const {
 	float size {};
 
     forEachUnicodeCodepoint(text, [&](uint32_t cp) {
-        auto& fc = chars.at(cp);
+        const auto& fc = getFontChar(cp);
 
         size += (fc.advance >> 6);
 
@@ -238,16 +260,16 @@ glm::vec2 FontAtlas::getTextSize(const std::string& text) const {
         }
 
         max_size.x = std::max(max_size.x, size);
+        return true;
     });
 
 	return max_size;
 }
 
-std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, size_t begin, size_t end) {
+std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, size_t begin, size_t end) const {
     std::vector<TextVertex> vertices;
 
-    // adding rect function
-    auto add_rect = [&] (glm::vec2 pos, glm::vec2 size) {
+    auto addRect = [&] (glm::vec2 pos, glm::vec2 size) {
         vertices.emplace_back(glm::vec2{pos.x, -pos.y + size.y}, glm::vec2{});
         vertices.emplace_back(glm::vec2{pos.x, -pos.y}, glm::vec2{});
         vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y}, glm::vec2{});
@@ -257,7 +279,6 @@ std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, s
         vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y + size.y}, glm::vec2{});
     };
 
-
     glm::ivec2 offset{};
 
     // finds character max y value
@@ -265,43 +286,62 @@ std::vector<TextVertex> FontAtlas::getSelectionGeometry(std::string_view text, s
         offset.y = std::max(offset.y, fc.size.y - fc.bearing.y);
     }
 
-    // finds first offset
-    for (size_t i = 0; i < begin; ++i) {
-        offset.x += (chars.at(text[i]).advance >> 6);
-        if (text[i] == '\n') {
-            offset.x = 0;
-            offset.y += font_size;
-        }
-    }
+    size_t pos = 0;
+    size_t size = 0;
 
-    size_t size{};
-    for (size_t i = begin; i < end; ++i) {
-        if (text[i] == '\n') {
-            add_rect({offset.x, offset.y}, glm::vec2{size, font_size});
-            size = 0;
-            offset.x = 0;
-            offset.y += font_size;
-
-            if (i != end - 1) {
-                if (text[i + 1] == '\n') {
-                    size += chars.at(' ').advance >> 6;
-                }
+    forEachUnicodeCodepoint(text, [&](uint32_t cp) {
+        if (pos < begin) {
+            // Skip until selection range starts.
+            offset.x += getFontChar(cp).advance >> 6;
+            if (cp == '\n') {
+                offset.x = 0;
+                offset.y += font_size;
             }
-        } else {
-            size += chars.at(text[i]).advance >> 6;
-        }
-    }
+            ++pos;
+            return true;
 
-    add_rect({offset.x, offset.y}, glm::vec2{size, font_size});
+        } else if (pos < end) {
+            if (cp == '\n') {
+                if (size != 0) {
+                    // Finish this selection line.
+                    addRect({offset.x, offset.y}, glm::vec2{size, font_size});
+                    size = 0;
+                    offset.x = 0;
+                    offset.y += font_size;
+                } else {
+                    // An empty line, still add small selection geometry for it.
+                    size = getFontChar(' ').advance >> 6;
+                }
+            } else {
+                size += getFontChar(cp).advance >> 6;
+            }
+            ++pos;
+            return true;
+
+        } else {
+            return false;
+        }
+    });
+
+    addRect({offset.x, offset.y}, glm::vec2{size, font_size});
 
     return vertices;
 }
 
-bool FontAtlas::isSynthetizedGlyph(uint32_t utf32_codepoint) const noexcept {
-    switch (utf32_codepoint) {
-        case '\t':
-            return true;
-        default:
-            return false;
+FontChar& FontAtlas::fontCharFor(uint32_t utf32_codepoint) noexcept {
+    auto it = chars.find(utf32_codepoint);
+    if (it == chars.end()) {
+        return chars.at(UNDEFINED_GLYPH_CHAR_CODE);
     }
+
+    return it->second;
+}
+
+const FontChar& FontAtlas::getFontChar(uint32_t utf32_codepoint) const noexcept {
+    auto it = chars.find(utf32_codepoint);
+    if (it == chars.end()) {
+        return chars.at(UNDEFINED_GLYPH_CHAR_CODE);
+    }
+
+    return it->second;
 }
