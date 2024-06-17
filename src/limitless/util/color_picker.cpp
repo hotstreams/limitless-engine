@@ -11,15 +11,18 @@ void ColorPicker::onPick(Context& ctx, Assets& assets, Scene& scene, glm::uvec2 
 }
 
 void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instances, glm::uvec2 coords, std::function<void(uint32_t)> callback) {
+    coords.y = ctx.getSize().y - coords.y;
     auto& pick = data.emplace_back(PickData{std::move(callback), coords});
 
     framebuffer.bind();
-    //TODO: fixme
-    ctx.clearColor(glm::vec4{0.0f});
-    ctx.clear(Clear::ColorDepth);
+
     ctx.enable(Capabilities::DepthTest);
     ctx.setDepthFunc(DepthFunc::Less);
     ctx.setDepthMask(DepthMask::True);
+
+    ctx.clearColor(glm::vec4{0.0f, 0.0f, 0.f, 1.f});
+
+    framebuffer.clear();
 
     for (auto& wrapper : instances) {
         auto& instance = wrapper.get();
@@ -48,9 +51,9 @@ void ColorPicker::process(Context& ctx) {
 
         framebuffer.unbind();
 
-        data.pop_front();
-
         info.callback(convert(color));
+
+        data.pop_front();
     }
 }
 
