@@ -113,6 +113,8 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
 
     add("deferred", compiler.compile(shader_dir / "pipeline/deferred"));
     add("composite", compiler.compile(shader_dir / "pipeline/composite"));
+    add("outline", compiler.compile(shader_dir / "pipeline/outline"));
+
 
     if (settings.screen_space_ambient_occlusion) {
         add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));

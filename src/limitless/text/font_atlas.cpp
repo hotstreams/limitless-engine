@@ -59,7 +59,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
 
         // TODO: support char glyph variants?
         if (emplaced) {
-            packer_rects.emplace_back(stbrp_rect{char_code, glyph_bitmap.width, glyph_bitmap.rows, 0, 0, 0});
+            packer_rects.emplace_back(stbrp_rect{(int)char_code, (int)glyph_bitmap.width, (int)glyph_bitmap.rows, 0, 0, 0});
         }
     };
 

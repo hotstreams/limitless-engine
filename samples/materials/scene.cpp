@@ -123,6 +123,7 @@ void LimitlessMaterials::Scene::setUpModels() {
     );
 
     auto floor = std::make_shared<InstancedInstance>();
+    floor->makeOutlined();
     for (int i = 0; i < 30; ++i) {
         for (int j = 0; j < 30; ++j) {
             floor->add(Instance::builder()

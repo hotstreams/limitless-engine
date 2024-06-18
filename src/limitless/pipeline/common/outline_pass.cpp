@@ -1,45 +1,45 @@
 #include <limitless/pipeline/common/outline_pass.hpp>
-//#include <limitless/instances/abstract_instance.hpp>
-//#include <limitless/pipeline/shader_pass_types.hpp>
-//#include <limitless/ms/blending.hpp>
-//#include <limitless/instances/model_instance.hpp>
-//#include <limitless/assets.hpp>
-//
-//using namespace Limitless;
-//
-//OutlinePass::OutlinePass(Pipeline& pipeline)
-//	: PipelinePass(pipeline) {
-//
-//}
-//
-//void OutlinePass::draw(Instances& instances, Limitless::Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) {
-//	ctx.disable(Capabilities::DepthTest);
-//	ctx.enable(Capabilities::StencilTest);
-//
-//	ctx.setStencilFunc(StencilFunc::Nequal, 1, 0xFF);
-//	ctx.setStencilMask(0x00);
-//
-//	for (const auto& instance : instances) {
-//		if (instance.get().isOutlined()) {
-//			if (instance.get().getShaderType() == ModelShader::Model ||
-//				instance.get().getShaderType() == ModelShader::Skeletal) {
-//				auto& model_instance = static_cast<ModelInstance&>(instance.get());
-//
-//				for (auto&[_, mesh] : model_instance.getMeshes()) {
-//					mesh.getMaterial().changeMaterial(assets.materials.at("outline"));
-//				}
-//
-//				const auto scale = instance.get().getScale();
-//				instance.get().setScale(scale * 1.05f);
-//				instance.get().updateModelMatrix();
-//				instance.get().updateFinalMatrix();
-//				instance.get().draw(ctx, assets, ShaderPass::Forward, ms::Blending::Opaque);
-//				instance.get().setScale(scale);
-//
-//				for (auto&[_, mesh] : model_instance.getMeshes()) {
-//					mesh.getMaterial().reset();
-//				}
-//			}
-//		}
-//	}
-//}
+#include <limitless/ms/blending.hpp>
+#include <limitless/instances/model_instance.hpp>
+#include <limitless/assets.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
+#include <limitless/core/shader/shader_program.hpp>
+#include <limitless/pipeline/pipeline.hpp>
+#include <limitless/pipeline/deferred/deferred_framebuffer_pass.hpp>
+
+using namespace Limitless;
+
+OutlinePass::OutlinePass(Pipeline& pipeline, glm::uvec2 size)
+	: PipelinePass(pipeline) {
+    auto albedo = Texture::Builder::asRGB16NearestClampToEdge(size);
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, albedo};
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+}
+
+void OutlinePass::draw(Instances& instances, Limitless::Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) {
+    ctx.disable(Capabilities::DepthTest);
+    ctx.disable(Capabilities::Blending);
+
+    framebuffer.clear();
+
+    auto& shader = assets.shaders.get("outline");
+
+    shader
+        .setUniform("mask_texture", pipeline.get<DeferredFramebufferPass>().getInfo())
+        .setUniform("outline_color", outline_color)
+        .setUniform("width", width)
+        .use();
+
+    assets.meshes.at("quad")->draw();
+}
+
+std::shared_ptr<Texture> OutlinePass::getResult() {
+    return framebuffer.get(FramebufferAttachment::Color0).texture;
+}
+
+void OutlinePass::onFramebufferChange(glm::uvec2 size) {
+    framebuffer.onFramebufferChange(size);
+}

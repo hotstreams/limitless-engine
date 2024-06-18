@@ -9,6 +9,7 @@
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/pipeline/deferred/translucent_pass.hpp>
 #include <limitless/pipeline/deferred/deferred_lighting_pass.hpp>
+#include <limitless/pipeline/common/outline_pass.hpp>
 
 using namespace Limitless;
 
@@ -39,6 +40,7 @@ void CompositePass::draw([[maybe_unused]] Instances& instances, Context& ctx, co
             const auto bloom_strength = bloom_pass.getBloom().strength / static_cast<float>(bloom_pass.getBloom().blur.getIterationCount());
             //TODO: what if there is no bloom ?
             shader.setUniform("bloom", bloom_pass.getResult())
+                  .setUniform("outline", pipeline.get<OutlinePass>().getResult())
                   .setUniform("bloom_strength", bloom_strength)
                   .setUniform("tone_mapping_exposure", tone_mapping_exposure);
         }

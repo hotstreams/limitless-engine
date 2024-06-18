@@ -15,7 +15,7 @@
 // RGB - emissive
 
 // UNSIGNED NORMALIZED
-// R - shading model (uint), G - object type
+// R - shading model (uint), G - object type, B - outline
 
 /** */
 

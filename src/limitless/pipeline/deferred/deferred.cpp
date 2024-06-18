@@ -105,12 +105,14 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     }
 
     /*
+     * Draws outline for objects
+     */
+    add<OutlinePass>(size);
+
+    /*
      *  Combines shaded translucent result and bloom
      */
     add<CompositePass>(size);
-
-    //TODO: restore
-//    add<OutlinePass>();
 
 //    if (settings.fast_approximate_antialiasing) {
 //        add<FXAAPass>(size);

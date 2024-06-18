@@ -28,7 +28,7 @@ void ScreenPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const
 	    target->clear();
         auto& shader = assets.shaders.get("quad");
 
-        shader.setUniform("screen_texture", getPreviousResult());
+        shader.setUniform("screen_texture", pipeline.get<CompositePass>().getResult());
 
         shader.use();
 
