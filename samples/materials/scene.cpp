@@ -115,12 +115,15 @@ void LimitlessMaterials::Scene::setUpModels() {
                       .build()
     );
 
-    scene.add(Instance::builder()
-                      .model(assets.models.at("sphere"))
-                      .material(assets.materials.at("basic8"))
-                      .position({24.0f, 1.0f, 19.0f })
-                      .build()
-    );
+
+
+    auto sphere = Instance::builder()
+            .model(assets.models.at("sphere"))
+            .material(assets.materials.at("basic8"))
+            .position({24.0f, 1.0f, 19.0f })
+            .build();
+    sphere->makeOutlined();
+    scene.add(sphere);
 
     auto floor = std::make_shared<InstancedInstance>();
     floor->makeOutlined();

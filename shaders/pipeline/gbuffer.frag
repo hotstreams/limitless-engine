@@ -26,7 +26,7 @@ void main() {
 
     info.r = float(mctx.shading_model) / 255.0;
 //    info.g = object type ?;
-    info.b = 1.0;
+    info.b = outline;
 
     emissive = computeMaterialEmissiveColor(mctx);
 }

@@ -2,6 +2,7 @@
 
 #include <limitless/models/model.hpp>
 #include <limitless/models/elementary_model.hpp>
+#include <limitless/core/shader/shader_program.hpp>
 #include <stdexcept>
 #include <utility>
 
@@ -43,6 +44,10 @@ void ModelInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms
     if (hidden) {
         return;
     }
+
+    const_cast<UniformSetter&>(uniform_setter).add([&] (ShaderProgram& shader) {
+       shader.setUniform("outline", outlined ? 1.0f : 0.0f);
+    });
 
     for (auto& [name, mesh] : meshes) {
         mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
