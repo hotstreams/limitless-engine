@@ -54,6 +54,9 @@ namespace Limitless {
         std::shared_ptr<Skybox>& getSkybox() noexcept;
         void setSkybox(const std::shared_ptr<Skybox>& skybox);
 
+        /**
+         * Return visible scene instances.
+         */
         Instances getInstances() const noexcept;
 
         void update(Context& context, const Camera& camera);
