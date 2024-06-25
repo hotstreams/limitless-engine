@@ -36,7 +36,7 @@ namespace Limitless::ms {
         std::string global_snippet;
         std::string shading_snippet;
 
-        bool _skybox;
+        bool _skybox {false};
 
         UniqueMaterial getMaterialType() const noexcept;
         void checkRequirements();
