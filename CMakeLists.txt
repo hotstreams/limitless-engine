@@ -125,6 +125,7 @@ set(ENGINE_UTIL
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
     src/limitless/util/color_picker.cpp
+    src/limitless/util/frustum.cpp
 )
 
 set(ENGINE_MS
@@ -189,6 +190,7 @@ set(ENGINE_PIPELINE
     src/limitless/pipeline/common/dof_pass.cpp
     src/limitless/pipeline/common/outline_pass.cpp
     src/limitless/pipeline/common/ssr_pass.cpp
+    src/limitless/pipeline/common/frustum_culling_pass.cpp
     src/limitless/pipeline/deferred/decal_pass.cpp
     src/limitless/postprocessing/blur.cpp
     src/limitless/postprocessing/bloom.cpp

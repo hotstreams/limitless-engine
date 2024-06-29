@@ -10,7 +10,7 @@ namespace Limitless {
         Framebuffer framebuffer;
 	public:
         glm::vec3 outline_color = glm::vec3(1.0, 0.0, 0.0);
-        int32_t width = 5;
+        int32_t width = 2;
 
 		explicit OutlinePass(Pipeline& pipeline, glm::uvec2 size);
 

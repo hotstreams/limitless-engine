@@ -13,7 +13,7 @@ namespace Limitless {
         const RendererSettings& settings;
         void renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera);
         void renderCoordinateSystemAxes(Context& context, const Assets& assets);
-        void renderBoundingBoxes(Context& context, const Assets& assets, Instances& instances);
+        void renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Instances& instances);
     public:
         explicit RendererHelper(const RendererSettings& settings);
 

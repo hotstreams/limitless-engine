@@ -1,8 +1,9 @@
 #pragma once
 
-#include <limitless/util/bounding_box.hpp>
+#include <limitless/util/box.hpp>
 #include <limitless/instances/instance_attachment.hpp>
 #include <limitless/util/matrix_stack.hpp>
+#include <limitless/util/frustum.hpp>
 
 namespace Limitless {
     enum class ShaderType;
@@ -76,7 +77,7 @@ namespace Limitless {
          */
 		glm::vec3 scale {1.0f};
 
-		BoundingBox bounding_box {};
+		Box bounding_box {};
 
         /**
          * Does instance cast shadow
@@ -199,9 +200,14 @@ namespace Limitless {
         virtual Instance& setParent(const glm::mat4& parent) noexcept;
 
         /**
-         * Updates instance
+         * Updates instance data
          */
 		virtual void update(Context& context, const Camera& camera);
+
+        /**
+         * Prepare instance for frustum culling
+         */
+        virtual void map();
 
         // draws instance with no extra uniform setting
         void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending);

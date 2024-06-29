@@ -130,6 +130,10 @@ void Instance::update(Context& context, const Camera& camera) {
     InstanceAttachment::updateAttachments(context, camera);
 }
 
+//void Instance::prepareForFrustumCulling(const Frustum& frustum) {
+//
+//}
+
 void Instance::removeOutline() noexcept {
 	outlined = false;
     for (const auto& [_, attachment]: getAttachments()) {
@@ -151,5 +155,3 @@ bool Instance::isOutlined() const noexcept {
 Instance::Builder Instance::builder() noexcept {
     return {};
 }
-
-

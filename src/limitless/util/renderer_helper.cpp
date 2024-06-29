@@ -83,7 +83,7 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
     z_i.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
 }
 
-void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, Instances& instances) {
+void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Instances& instances) {
     auto box = ModelInstance{assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
 
     context.setLineWidth(2.5f);
@@ -91,7 +91,10 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
     for (const auto& instance : instances) {
         auto& bounding_box = instance.get().getBoundingBox();
 
-        box.setPosition(bounding_box.center).setScale(bounding_box.size);
+        box
+            .setPosition(bounding_box.center)
+            .setScale(bounding_box.size)
+            .update(context, camera);
 
         box.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
     }
@@ -100,7 +103,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 
 void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Instances& instances) {
     if (settings.bounding_box) {
-        renderBoundingBoxes(context, assets, instances);
+        renderBoundingBoxes(context, assets, camera, instances);
     }
 
     if (settings.coordinate_system_axes) {

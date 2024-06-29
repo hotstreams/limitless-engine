@@ -5,13 +5,14 @@
 #include <vector>
 
 namespace Limitless {
-    struct BoundingBox {
+    class Box {
+    public:
         glm::vec3 center;
         glm::vec3 size;
     };
 
     template<typename V>
-    inline BoundingBox calculateBoundingBox(const std::vector<V>& vertices) {
+    inline Box calculateBoundingBox(const std::vector<V>& vertices) {
         auto min = glm::vec3{ std::numeric_limits<float>::max() };
         auto max = glm::vec3{ std::numeric_limits<float>::min() };
 
@@ -27,7 +28,7 @@ namespace Limitless {
         return { center, size };
     }
 
-    inline BoundingBox mergeBoundingBox(const BoundingBox& b1, const BoundingBox& b2) {
+    inline Box mergeBoundingBox(const Box& b1, const Box& b2) {
         auto min = glm::min(b1.center - b1.size / 2.0f, b2.center - b2.size / 2.0f);
         auto max = glm::max(b1.center + b1.size / 2.0f, b2.center + b2.size / 2.0f);
 

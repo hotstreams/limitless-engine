@@ -26,6 +26,7 @@
 #include <limitless/pipeline/common/outline_pass.hpp>
 #include <iostream>
 #include <limitless/pipeline/deferred/decal_pass.hpp>
+#include <limitless/pipeline/common/frustum_culling_pass.hpp>
 
 using namespace Limitless;
 
@@ -44,6 +45,11 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
      * Updates scene and GPU scene buffer
      */
     add<SceneUpdatePass>(ctx);
+
+    /*
+     * Frustum culling
+     */
+    add<FrustumCullingPass>();
 
     auto& fx = add<EffectUpdatePass>(ctx);
 

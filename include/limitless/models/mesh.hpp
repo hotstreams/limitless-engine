@@ -9,10 +9,12 @@ namespace Limitless {
     private:
         std::unique_ptr<AbstractVertexStream> stream;
         std::string name;
-        BoundingBox bounding_box {};
+        Box bounding_box {};
 
         void calculateBoundingBox() {
-//            bounding_box = Limitless::calculateBoundingBox(stream.getVertices());
+            if (auto vnt = dynamic_cast<VertexStream<VertexNormalTangent>*>(stream.get()); vnt) {
+                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
+            }
         }
     public:
 //        Mesh(std::vector<Vertex>&& vertices, VertexStreamUsage usage, VertexStreamDraw draw, std::string _name)
@@ -41,7 +43,7 @@ namespace Limitless {
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(Mesh&&) noexcept = default;
 
-        [[nodiscard]] const BoundingBox& getBoundingBox() noexcept override { return bounding_box; }
+        [[nodiscard]] const Box& getBoundingBox() noexcept override { return bounding_box; }
         [[nodiscard]] const std::string& getName() const noexcept override { return name; }
         [[nodiscard]] std::string& getName() noexcept override { return name; }
 

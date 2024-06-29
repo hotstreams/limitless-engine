@@ -187,6 +187,10 @@ void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderType pass,
         return;
     }
 
+    const_cast<UniformSetter&>(uniform_setter).add([&] (ShaderProgram& shader) {
+        shader.setUniform("outline", outlined ? 1.0f : 0.0f);
+    });
+
 	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
 
     for (auto& [name, mesh] : meshes) {
