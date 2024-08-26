@@ -10,6 +10,22 @@ jobs:
     name: build-linux
     runs-on: ubuntu-latest
     steps:
+      - name: Install prerequisites
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy$LLVM_TAG main"
+          sudo apt update
+          # Remove any base dist LLVM/Clang installations
+          sudo apt remove -y \
+               "libclang*" \
+               "clang*" \
+               "llvm*"
+          # Reinstall tagged versions
+          sudo apt install -y \
+               ninja-build \
+               llvm$LLVM_TAG-dev \
+               libclang$LLVM_TAG-dev \
+               clang$LLVM_TAG
       - name: setup
         run: |
           sudo apt-get update
