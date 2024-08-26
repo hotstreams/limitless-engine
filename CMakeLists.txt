@@ -15,8 +15,6 @@ OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF
 
 #########################################
 
-set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE include-what-you-use)
-
 set(ENGINE_CORE
     src/limitless/core/context_debug.cpp
     src/limitless/core/context_initializer.cpp

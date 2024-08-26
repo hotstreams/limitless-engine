@@ -75,7 +75,7 @@ jobs:
       - name: build
         run: |
           mkdir build
-          cmake -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
+          cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="/home/runner/work/limitless-engine/limitless-engine/build/bin/include-what-you-use" -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
       - name: test
