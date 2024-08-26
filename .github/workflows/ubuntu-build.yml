@@ -50,8 +50,7 @@ jobs:
 
       - name: Build include-what-you-use
         run: |
-          ls -l
-          ls -l iwyu
+          cd iwyu
           mkdir build
           cd ./build
           cmake -G Ninja \
@@ -78,12 +77,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
 
-      # - uses: actions/checkout@v3
-      #   with:
-      #     clean: false
-
       - name: set up engine dependencies
         run: |
+          cd ../main
           pwd
           ls -l
           git submodule init
