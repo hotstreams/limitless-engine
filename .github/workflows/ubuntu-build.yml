@@ -62,6 +62,7 @@ jobs:
           cmake --install .
           pwd
           ls -l
+          ls -l ..
 
       - name: setup
         run: |
@@ -70,9 +71,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
 
-      - uses: actions/checkout@v3
-        with:
-          clean: false
+      # - uses: actions/checkout@v3
+      #   with:
+      #     clean: false
 
       - name: set up engine dependencies
         run: |
