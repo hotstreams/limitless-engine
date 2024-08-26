@@ -30,10 +30,10 @@ jobs:
         run: |
           mkdir build
           cd ./build
-          cmake -G Unix Makefiles \
+          cmake -G "Unix Makefiles" \
                 -DCMAKE_EXPORT_COMPILE_COMMANDS=on \
                 -DCMAKE_C_COMPILER=clang$LLVM_TAG \
-                -DCMAKE_CXX_COMPILER=clang++$LLVM_TAG \
+                -DCMAKE_CXX_COMPILER=clang++ \
                 -DCMAKE_INSTALL_PREFIX=./ \
                 -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=on \
                 ../
