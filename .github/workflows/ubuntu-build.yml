@@ -37,14 +37,21 @@ jobs:
         run: |
           sudo touch /usr/lib/llvm-$LLVM_MAJOR/lib/libclang-$LLVM_MAJOR.so.1
 
-      - name: Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: main
+      
+      - name: Checkout tools repo
         uses: actions/checkout@v4
         with:
           repository: include-what-you-use/include-what-you-use
-          path: .
+          path: iwyu
 
       - name: Build include-what-you-use
         run: |
+          ls -l
+          ls -l iwyu
           mkdir build
           cd ./build
           cmake -G Ninja \
