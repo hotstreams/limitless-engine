@@ -14,7 +14,31 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
-          #xvfb-run glxinfo
+      - name: Capture LLVM major version
+        run: |
+          echo "LLVM_MAJOR=$(ls -1d /usr/lib/llvm-* | sort | tail -n1 | sed 's/.*llvm-//')" >> $GITHUB_ENV
+      - name: Work around broken packaging
+        run: |
+          sudo touch /usr/lib/llvm-$LLVM_MAJOR/lib/libclang-$LLVM_MAJOR.so.1
+
+      - name: Work around broken packaging
+        run: |
+          git clone git@github.com:include-what-you-use/include-what-you-use.git
+          cd include-what-you-use.git
+      - name: Build include-what-you-use
+        run: |
+          mkdir build
+          cd ./build
+          cmake -G Ninja \
+                -DCMAKE_EXPORT_COMPILE_COMMANDS=on \
+                -DCMAKE_C_COMPILER=clang$LLVM_TAG \
+                -DCMAKE_CXX_COMPILER=clang++$LLVM_TAG \
+                -DCMAKE_INSTALL_PREFIX=./ \
+                -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=on \
+                ../
+          ninja
+          
+
       - uses: actions/checkout@v3
       - name: set up engine dependencies
         run: |
