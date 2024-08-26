@@ -64,7 +64,9 @@ jobs:
 
       - name: Test install
         run: |
-          cd ./build
+          pwd
+          ls -l
+          cd ./iwyu/build
           cmake --install .
           pwd
           ls -l
