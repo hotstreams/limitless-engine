@@ -44,7 +44,6 @@ jobs:
           path: .
 
       - name: Build include-what-you-use
-        working-directory: build
         run: |
           mkdir build
           cd ./build
@@ -58,7 +57,6 @@ jobs:
           ninja
 
       - name: Test install
-        working-directory: build
         run: |
           cd ./build
           cmake --install .
@@ -72,17 +70,15 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          path: .
+          clean: false
 
       - name: set up engine dependencies
-        working-directory: build
         run: |
           git submodule init
           git submodule update
           #cd thirdparty/glew
           #make extensions
       - name: build
-        working-directory: build
         run: |
           pwd
           ls -l
