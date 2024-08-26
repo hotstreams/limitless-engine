@@ -55,6 +55,11 @@ jobs:
                 ../
           ninja
 
+      - name: Test install
+        run: |
+          cd ./build
+          cmake --install .
+
       - name: setup
         run: |
           sudo apt-get update
