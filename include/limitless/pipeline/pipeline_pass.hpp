@@ -48,7 +48,7 @@ namespace Limitless {
         virtual void addSetter(UniformSetter& setter);
 
         /**
-         * Render curent pass
+         * Render current pass
          */
         virtual void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter);
 

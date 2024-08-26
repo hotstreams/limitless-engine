@@ -18,6 +18,8 @@ namespace Limitless {
         std::unique_ptr<Instance> clone() noexcept override;
 
         void setMaterial(std::shared_ptr<ms::Material> new_material);
+        auto& getMaterial() noexcept { return material; }
+        auto& getModel() noexcept { return model; }
 
         void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
     };

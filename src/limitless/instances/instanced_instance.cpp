@@ -1,5 +1,6 @@
 #include <limitless/instances/instanced_instance.hpp>
 #include <limitless/core/shader/shader_program.hpp>
+#include <limitless/scene.hpp>
 
 using namespace Limitless;
 
@@ -46,9 +47,9 @@ void InstancedInstance::remove(uint64_t id){
 
 void InstancedInstance::updateInstanceBuffer() {
     std::vector<glm::mat4> new_data;
-    new_data.reserve(instances.size());
+    new_data.reserve(visible_instances.size());
 
-    for (const auto& instance : instances) {
+    for (const auto& instance : visible_instances) {
         if (instance->isHidden()) {
             continue;
         }
@@ -57,7 +58,7 @@ void InstancedInstance::updateInstanceBuffer() {
     }
 
     // if update is needed
-//    if (new_data != current_data) {
+    if (new_data != current_data) {
         // ensure buffer size
         auto size = sizeof(glm::mat4) * new_data.size();
         if (buffer->getSize() < size) {
@@ -67,7 +68,7 @@ void InstancedInstance::updateInstanceBuffer() {
         buffer->mapData(new_data.data(), size);
 
         current_data = new_data;
-//    }
+    }
 }
 
 void InstancedInstance::update(Context& context, const Camera& camera) {
@@ -97,14 +98,11 @@ void InstancedInstance::draw(Context& ctx, const Assets& assets, ShaderType pass
 
     // iterates over all meshes
     for (auto& [name, mesh] : instances[0]->getMeshes()) {
-        mesh.draw_instanced(ctx, assets, pass, shader_type, model_matrix, blending, uniform_setter, instances.size());
+        mesh.draw_instanced(ctx, assets, pass, shader_type, model_matrix, blending, uniform_setter, visible_instances.size());
     }
 }
 
-//void InstancedInstance::prepareForFrustumCulling(const Frustum& frustum) {
-////    for (const auto& instance: instances) {
-////        if (frustum.intersects(instance->getBoundingBox())) {
-////
-////        }
-////    }
-//}
+void InstancedInstance::setVisible(const std::vector<std::shared_ptr<ModelInstance>> &visible) {
+    visible_instances = visible;
+    //TODO: update buffer?
+}

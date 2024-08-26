@@ -131,16 +131,16 @@ Instances Scene::getInstances() const noexcept {
     Instances wrappers;
     wrappers.reserve(instances.size());
 
-    const std::function<void(Instance&)> visitor = [&] (Instance& instance) {
-	    wrappers.emplace_back(std::ref(instance));
+    const std::function<void(const std::shared_ptr<Instance>&)> visitor = [&] (const std::shared_ptr<Instance>& instance) {
+	    wrappers.emplace_back(instance);
 
-	    for (auto& [_, attachment] : instance.getAttachments()) {
-	    	visitor(*attachment);
+	    for (auto& [_, attachment] : instance->getAttachments()) {
+	    	visitor(attachment);
 	    }
     };
 
 	for (const auto& [_, instance] : instances) {
-		visitor(*instance);
+		visitor(instance);
 	}
 
     return wrappers;

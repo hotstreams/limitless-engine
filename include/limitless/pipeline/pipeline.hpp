@@ -103,4 +103,39 @@ namespace Limitless {
          */
         std::unique_ptr<PipelinePass>& getPrevious(PipelinePass* curr);
     };
+
+    using PipeLinePassFunction = std::function<void()>;
+
+    class RendererPipeline {
+    private:
+
+    public:
+        class Builder {
+        private:
+            std::vector<std::unique_ptr<PipelinePass>> passes;
+        public:
+            Builder add(std::unique_ptr<PipelinePass> pass) { return *this; }
+            Builder add(PipeLinePassFunction) { return *this; }
+
+            Builder addSceneUpdatePass();
+            Builder addDirectionalShadowPass();
+            Builder addDeferredFramebufferPass();
+            Builder addDepthPass();
+            Builder addGBufferPass();
+            Builder addDecalPass();
+            Builder addSkyboxPass();
+            Builder addSSAOPass();
+            Builder addSSRPass();
+            Builder addDeferredLightingPass();
+            Builder addTranslucentPass();
+            Builder addBloomPass();
+            Builder addOutlinePass();
+            Builder addCompositePass();
+            Builder addFXAAPass();
+            Builder addScreenPass();
+            Builder addRenderDebugPass();
+        };
+
+        static Builder builder() { return {}; }
+    };
 }
