@@ -44,6 +44,7 @@ jobs:
           path: .
 
       - name: Build include-what-you-use
+        working-directory: build
         run: |
           mkdir build
           cd ./build
@@ -57,6 +58,7 @@ jobs:
           ninja
 
       - name: Test install
+        working-directory: build
         run: |
           cd ./build
           cmake --install .
@@ -73,15 +75,17 @@ jobs:
           path: .
 
       - name: set up engine dependencies
+        working-directory: build
         run: |
           git submodule init
           git submodule update
           #cd thirdparty/glew
           #make extensions
       - name: build
+        working-directory: build
         run: |
           pwd
-          ls -l ./build
+          ls -l
           mkdir build
           cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="./build/include-what-you-use" -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
           cd build
