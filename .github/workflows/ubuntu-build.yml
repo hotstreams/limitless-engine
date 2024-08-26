@@ -83,10 +83,8 @@ jobs:
         run: |
           cd main
           mkdir build
-          ls ../iwyu/build/bin/include-what-you-use
-          echo test
-          ls ../iwyu/build/bin
-          cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="../iwyu/build/bin/include-what-you-use" -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
+          ls ../iwyu/build
+          cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="../iwyu/build" -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
       - name: test
