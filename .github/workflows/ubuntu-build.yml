@@ -20,11 +20,10 @@ jobs:
       - name: Work around broken packaging
         run: |
           sudo touch /usr/lib/llvm-$LLVM_MAJOR/lib/libclang-$LLVM_MAJOR.so.1
-
-      - name: Work around broken packaging
-        run: |
-          git clone git@github.com:include-what-you-use/include-what-you-use.git
-          cd include-what-you-use.git
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: include-what-you-use/include-what-you-use
       - name: Build include-what-you-use
         run: |
           mkdir build
