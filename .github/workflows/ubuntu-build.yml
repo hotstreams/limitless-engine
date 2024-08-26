@@ -61,7 +61,7 @@ jobs:
           cd ./build
           cmake --install .
           pwd
-          ls -l ./build
+          ls -l
 
       - name: setup
         run: |
