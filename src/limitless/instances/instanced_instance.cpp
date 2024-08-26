@@ -85,24 +85,8 @@ void InstancedInstance::update(Context& context, const Camera& camera) {
     updateInstanceBuffer();
 }
 
-void InstancedInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_setter) {
-    if (hidden || instances.empty()) {
-        return;
-    }
-
-    const_cast<UniformSetter&>(uniform_setter).add([&] (ShaderProgram& shader) {
-        shader.setUniform("outline", 0.0f);
-    });
-
-    buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
-
-    // iterates over all meshes
-    for (auto& [name, mesh] : instances[0]->getMeshes()) {
-        mesh.draw_instanced(ctx, assets, pass, shader_type, model_matrix, blending, uniform_setter, visible_instances.size());
-    }
-}
-
 void InstancedInstance::setVisible(const std::vector<std::shared_ptr<ModelInstance>> &visible) {
     visible_instances = visible;
-    //TODO: update buffer?
+
+    updateInstanceBuffer();
 }

@@ -16,28 +16,29 @@
 
 using namespace Limitless;
 
-TranslucentPass::TranslucentPass(Pipeline& pipeline, fx::EffectRenderer& _renderer, glm::uvec2 frame_size, std::shared_ptr<Texture> depth)
+TranslucentPass::TranslucentPass(Pipeline& pipeline, glm::uvec2 frame_size, std::shared_ptr<Texture> depth)
     : PipelinePass(pipeline)
-    , framebuffer {Framebuffer::asRGB16FNearestClampToEdgeWithDepth(frame_size, depth)}
-    , renderer {_renderer} {
+    , framebuffer {Framebuffer::asRGB16FNearestClampToEdgeWithDepth(frame_size, depth)} {
 }
 
 void TranslucentPass::sort(Instances& instances, const Camera& camera, ms::Blending blending) {
-    switch (blending) {
-        case ms::Blending::Opaque:
-            std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});
-            break;
-        case ms::Blending::Translucent:
-        case ms::Blending::Additive:
-        case ms::Blending::Modulate:
-            std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
-            break;
-        case ms::Blending::Text:
-            throw std::logic_error("This type of blending cannot be used as ColorPass value");
-    }
+//    switch (blending) {
+//        case ms::Blending::Opaque:
+//            std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});
+//            break;
+//        case ms::Blending::Translucent:
+//        case ms::Blending::Additive:
+//        case ms::Blending::Modulate:
+//            std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
+//            break;
+//        case ms::Blending::Text:
+//            throw std::logic_error("This type of blending cannot be used as ColorPass value");
+//    }
 }
 
-void TranslucentPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) {
+void TranslucentPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets,
+                           const Camera &camera,
+                           UniformSetter &setter) {
     std::array transparent = {
         ms::Blending::Additive,
         ms::Blending::Modulate,
@@ -55,15 +56,8 @@ void TranslucentPass::draw(Instances& instances, Context& ctx, const Assets& ass
     });
 
     for (const auto& blending : transparent) {
-        sort(instances, camera, blending);
-
-        for (auto& instance : instances) {
-            if (instance.get().getInstanceType() != InstanceType::Decal) {
-                instance.get().draw(ctx, assets, ShaderType::Forward, blending, setter);
-            }
-        }
-
-        renderer.draw(ctx, assets, ShaderType::Forward, blending, setter);
+//        sort(instances, camera, blending);
+        renderer.renderScene({ctx, assets, ShaderType::Forward, blending, setter});
     }
 }
 

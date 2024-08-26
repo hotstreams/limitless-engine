@@ -22,6 +22,10 @@ Renderer::Renderer(std::unique_ptr<Pipeline> _pipeline, const RendererSettings& 
 Renderer::Renderer(Context& ctx, const RendererSettings& _settings)
 	: settings {_settings}
 	, pipeline {std::make_unique<Deferred>(ctx, ctx.getSize(), settings)} {
+    ///////////////
+    //TODO: ?? move to somewhere else?
+    ctx.enable(Capabilities::ProgramPointSize);
+    ///////////////
 }
 
 Renderer::Renderer(Context& ctx)
@@ -30,7 +34,7 @@ Renderer::Renderer(Context& ctx)
 }
 
 void Renderer::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
-    pipeline->draw(context, assets, scene, camera);
+    pipeline->draw(renderer, context, assets, scene, camera);
 
     //profiler.draw(context, assets);
 }

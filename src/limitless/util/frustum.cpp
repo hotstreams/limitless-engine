@@ -92,24 +92,6 @@ Frustum Frustum::fromCamera(const Camera& camera) {
     return Frustum {camera.getProjection() * camera.getView()};
 }
 
-bool Frustum::intersects(Instance& instance) {
-    switch (instance.getInstanceType()) {
-        case InstanceType::Model:
-        case InstanceType::Skeletal:
-
-            break;
-        case InstanceType::Instanced:
-            break;
-        case InstanceType::SkeletalInstanced:
-            break;
-        case InstanceType::Effect:
-            break;
-        case InstanceType::Decal:
-            break;
-        case InstanceType::Terrain:
-            break;
-    }
-
-
-    return false;
+bool Frustum::intersects(Instance& instance) const {
+    return intersects(instance.getBoundingBox());
 }

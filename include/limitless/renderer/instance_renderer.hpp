@@ -1,19 +1,20 @@
 #pragma once
 
 #include <limitless/pipeline/shader_type.hpp>
-#include <limitless/instances/instance.hpp>
-#include <limitless/instances/model_instance.hpp>
+
 #include <limitless/instances/instanced_instance.hpp>
 #include <limitless/scene.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/shader/shader_program.hpp>
 #include <limitless/instances/terrain_instance.hpp>
+#include <limitless/fx/effect_renderer.hpp>
+#include <limitless/util/frustum_culling.hpp>
 
 namespace Limitless {
     class DrawParameters {
     public:
         Context& ctx;
-        Assets& assets;
+        const Assets& assets;
         ShaderType type;
         ms::Blending blending;
         UniformSetter setter;
@@ -27,34 +28,8 @@ namespace Limitless {
 
     class InstanceRenderer {
     private:
-        std::vector<std::shared_ptr<Instance>> visible;
-        std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instanced;
-
-        static bool isInFrustum(const Frustum& frustum, Instance& instance) {
-            return frustum.intersects(instance.getBoundingBox());
-        }
-
-        void frustumCulling(Scene& scene, Camera& camera) {
-            const auto frustum = Frustum::fromCamera(camera);
-
-            for (auto& instance : scene.getInstances()) {
-                if (instance->getInstanceType() == InstanceType::Instanced) {
-                    visible.emplace_back(instance);
-
-                    auto& instanced = static_cast<InstancedInstance&>(*instance); //NOLINT
-
-                    for (auto& i: instanced.getInstances()) {
-                        if (isInFrustum(frustum, *i)) {
-                            visible_instanced[instance->getId()].emplace_back(i);
-                        }
-                    }
-                } else {
-                    if (isInFrustum(frustum, *instance)) {
-                        visible.emplace_back(instance);
-                    }
-                }
-            }
-        }
+        FrustumCulling frustum_culling;
+        fx::EffectRenderer effect_renderer;
 
         static void setShaderTypeSettings(const DrawParameters& drawp) {
             // front cullfacing for shadows helps prevent peter panning
@@ -70,45 +45,35 @@ namespace Limitless {
             setBlendingMode(blending);
         }
     public:
-        void prepare(Scene& scene, Camera& camera) {
-            visible.clear();
-            visible_instanced.clear();
-            frustumCulling(scene, camera);
+        void update(Scene& scene, Camera& camera) {
+            frustum_culling.update(scene, camera);
+            effect_renderer.update(frustum_culling.getVisibleInstances());
         }
 
-        void render(Scene& scene, const DrawParameters& drawp) {
-            for (const auto& instance: visible) {
+        /**
+         * Renders scene instances
+         *
+         * DecalInstances are not rendered
+         */
+        void renderScene(const DrawParameters& drawp) {
+            // renders common instances except decals
+            for (const auto& instance: frustum_culling.getVisibleInstances()) {
                 render(*instance, drawp);
             }
+
+            // renders batched effect instances
+            effect_renderer.draw(drawp.ctx, drawp.assets, drawp.type, drawp.blending, drawp.setter);
         }
 
-        void render(Instance& instance, DrawParameters drawp) {
-            switch (instance.getInstanceType()) {
-                case InstanceType::Model:
-                    render(static_cast<ModelInstance&>(instance), drawp);
-                    break;
-                case InstanceType::Skeletal:
-                    render(static_cast<SkeletalInstance&>(instance), drawp);
-                    break;
-                case InstanceType::Instanced:
-                    render(static_cast<InstancedInstance&>(instance), drawp);
-                    break;
-                case InstanceType::SkeletalInstanced:
-//                    render(static_cast<SkeletalInstancedInstance&>(*instance), drawp);
-                    break;
-                case InstanceType::Effect:
-                    render(static_cast<EffectInstance&>(instance), drawp);
-                    break;
-                case InstanceType::Decal:
-                    render(static_cast<DecalInstance&>(instance), drawp);
-                    break;
-                case InstanceType::Terrain:
-                    render(static_cast<TerrainInstance&>(instance), drawp);
-                    break;
+        void renderDecals(const DrawParameters& drawp) {
+            for (const auto& instance: frustum_culling.getVisibleInstances()) {
+                if (instance->getInstanceType() == InstanceType::Decal) {
+                    render(static_cast<DecalInstance&>(*instance), drawp);
+                }
             }
         }
 
-        void render(ModelInstance& instance, const DrawParameters& drawp) {
+        static void render(ModelInstance& instance, const DrawParameters& drawp) {
             if (instance.isHidden()) {
                 return;
             }
@@ -127,13 +92,51 @@ namespace Limitless {
             }
         }
 
-        void render(InstancedInstance& instance, const DrawParameters& drawp) {
-            if (instance.isHidden() || instance.getInstances().empty()) {
+        static void render(SkeletalInstance& instance, const DrawParameters& drawp) {
+            if (instance.isHidden()) {
                 return;
             }
 
-            // set instanced subset (visible for current frame)
-            instance.setVisible(visible_instanced.at(instance.getId()));
+            for (const auto& [_, mesh]: instance.getMeshes()) {
+                // skip mesh if blending is different
+                if (mesh.getMaterial()->getBlending() != drawp.blending) {
+                    return;
+                }
+
+                // set render state: shaders, material, blending, etc
+                setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix()});
+
+                // draw vertices
+                mesh.getMesh()->draw();
+            }
+
+            instance.getBoneBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "bone_buffer"));
+
+            for (const auto& [_, mesh]: instance.getMeshes()) {
+                // skip mesh if blending is different
+                if (mesh.getMaterial()->getBlending() != drawp.blending) {
+                    return;
+                }
+
+                // set render state: shaders, material, blending, etc
+                setRenderState(mesh, drawp, {InstanceType::Skeletal, instance.getFinalMatrix()});
+
+                // draw vertices
+                mesh.getMesh()->draw();
+            }
+
+            instance.getBoneBuffer()->fence();
+        }
+
+        void render(InstancedInstance& instance, const DrawParameters& drawp) {
+            if (instance.isHidden()) {
+                return;
+            }
+
+            // we should take shadow influencers from shadowmap too
+            // if drawp.type != Shadows
+            // set instanced subset (visible for current frame path)
+            instance.setVisible(frustum_culling.getVisibleModelInstanced(instance));
 
             // bind buffer for instanced data
             instance.getBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
@@ -148,15 +151,11 @@ namespace Limitless {
                 setRenderState(mesh, drawp, {InstanceType::Instanced, instance.getFinalMatrix()});
 
                 // draw vertices
-                mesh.getMesh()->draw_instanced(instance.getInstances().size());
+                mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
             }
         }
 
-        void render(EffectInstance& instance, const DrawParameters& parameters) {
-
-        }
-
-        void render(DecalInstance& instance, const DrawParameters& drawp) {
+        static void render(DecalInstance& instance, const DrawParameters& drawp) {
             if (instance.isHidden() || instance.getMaterial()->getBlending() != drawp.blending) {
                 return;
             }
@@ -170,7 +169,8 @@ namespace Limitless {
             auto& shader = drawp.assets.shaders.get(drawp.type, InstanceType::Decal, instance.getMaterial()->getShaderIndex());
 
             // updates model/material uniforms
-            shader.setUniform("_model_transform", instance.getFinalMatrix())
+            shader  .setUniform("_model_transform", instance.getFinalMatrix())
+                    .setUniform("decal_VP", glm::inverse(instance.getFinalMatrix()))
                     .setMaterial(*instance.getMaterial());
 
             // sets custom pass-dependent uniforms
@@ -204,6 +204,32 @@ namespace Limitless {
             drawp.setter(shader);
 
             shader.use();
+        }
+
+        void render(Instance& instance, DrawParameters drawp) {
+            switch (instance.getInstanceType()) {
+                case InstanceType::Model:
+                    render(static_cast<ModelInstance&>(instance), drawp);
+                    break;
+                case InstanceType::Skeletal:
+                    render(static_cast<SkeletalInstance&>(instance), drawp);
+                    break;
+                case InstanceType::Instanced:
+                    render(static_cast<InstancedInstance&>(instance), drawp);
+                    break;
+                case InstanceType::SkeletalInstanced:
+//                    render(static_cast<SkeletalInstancedInstance&>(*instance), drawp);
+                    break;
+                case InstanceType::Effect:
+//                    render(static_cast<EffectInstance&>(instance), drawp);
+                    break;
+                case InstanceType::Decal:
+//                    render(static_cast<DecalInstance&>(instance), drawp);
+                    break;
+                case InstanceType::Terrain:
+                    render(static_cast<TerrainInstance&>(instance), drawp);
+                    break;
+            }
         }
     };
 }

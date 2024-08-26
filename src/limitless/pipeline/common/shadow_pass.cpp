@@ -2,6 +2,7 @@
 
 #include <limitless/scene.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 using namespace Limitless;
 
@@ -10,15 +11,9 @@ DirectionalShadowPass::DirectionalShadowPass(Pipeline& pipeline, Context& ctx, c
     , shadows {ctx, settings} {
 }
 
-DirectionalShadowPass::DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RendererSettings& settings, fx::EffectRenderer& renderer)
-    : PipelinePass(pipeline)
-    , shadows {ctx, settings}
-    , effect_renderer {&renderer} {
-}
-
-void DirectionalShadowPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void DirectionalShadowPass::draw(InstanceRenderer &renderer, Scene& scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
     if (light) {
-        shadows.draw(instances, *light, ctx, assets, camera, effect_renderer);
+        shadows.draw(renderer, scene, *light, ctx, assets, camera);
         shadows.mapData();
     }
 }

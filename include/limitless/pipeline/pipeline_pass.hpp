@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/scene.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 //#include <functional>
 //#include <memory>
@@ -50,7 +51,7 @@ namespace Limitless {
         /**
          * Render current pass
          */
-        virtual void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter);
+        virtual void draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter);
 
         /**
          * Update current pass

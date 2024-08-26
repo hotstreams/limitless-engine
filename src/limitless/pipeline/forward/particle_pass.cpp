@@ -10,6 +10,8 @@ ParticlePass::ParticlePass(Pipeline& pipeline, fx::EffectRenderer& _renderer, ms
     , blending {_blending} {
 }
 
-void ParticlePass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, UniformSetter& setter) {
-    renderer.get().draw(ctx, assets, ShaderType::Forward, blending, setter);
+void
+ParticlePass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                   UniformSetter &setter) {
+//    renderer.get().draw(ctx, ShaderType::Forward, blending, setter, <#initializer#>);
 }

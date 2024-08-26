@@ -182,24 +182,6 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
-void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_setter) {
-    if (hidden) {
-        return;
-    }
-
-    const_cast<UniformSetter&>(uniform_setter).add([&] (ShaderProgram& shader) {
-        shader.setUniform("outline", outlined ? 1.0f : 0.0f);
-    });
-
-	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
-
-    for (auto& [name, mesh] : meshes) {
-        mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
-    }
-
-    bone_buffer->fence();
-}
-
 glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const {
     const auto& skinned_mesh = dynamic_cast<SkinnedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*mesh).getVertexStream());
 

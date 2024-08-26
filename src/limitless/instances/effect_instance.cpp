@@ -69,12 +69,3 @@ void EffectInstance::update(Context& context, const Camera& camera) {
 	updateEmitters(context, camera);
 	done = isDone();
 }
-
-void EffectInstance::draw([[maybe_unused]] Limitless::Context& ctx,
-                          [[maybe_unused]] const Assets& assets,
-                          [[maybe_unused]] ShaderType shader_type,
-                          [[maybe_unused]] ms::Blending blending,
-                          [[maybe_unused]] const UniformSetter& uniform_set) {
-    // One does not simply render effect instance!
-    // use EffectRenderer
-}

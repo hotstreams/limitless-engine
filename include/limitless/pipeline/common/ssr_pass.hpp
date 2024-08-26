@@ -3,6 +3,7 @@
 #include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/postprocessing/ssr.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 namespace Limitless {
     class SSRPass final : public PipelinePass {
@@ -18,7 +19,9 @@ namespace Limitless {
 
 //        void update(Limitless::Scene &scene, Limitless::Instances &instances, Limitless::Context &ctx, const Limitless::Camera &camera) override;
 
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void
+        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+             UniformSetter &setter) override;
 
         void onFramebufferChange(glm::uvec2 size) override;
     };

@@ -5,8 +5,6 @@
 #include <limitless/core/context.hpp>
 
 namespace Limitless {
-    class Scene;
-
     class InstancedInstance : public Instance {
     protected:
         // contains all instanced models
@@ -37,13 +35,12 @@ namespace Limitless {
         void update(Context& context, const Camera& camera) override;
 
         auto& getInstances() noexcept { return instances; }
+        auto& getVisibleInstances() noexcept { return visible_instances; }
         auto& getBuffer() noexcept { return buffer ; }
 
         /**
          *  Sets visible instances to specified subset
          */
         void setVisible(const std::vector<std::shared_ptr<ModelInstance>>& visible);
-
-        void draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_set) override;
     };
 }

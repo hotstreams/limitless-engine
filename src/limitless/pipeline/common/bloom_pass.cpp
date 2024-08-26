@@ -10,7 +10,8 @@ BloomPass::BloomPass(Pipeline& pipeline, glm::uvec2 frame_size)
     , bloom {frame_size} {
 }
 
-void BloomPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void BloomPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                     UniformSetter &setter) {
     bloom.process(ctx, assets, getPreviousResult());
 }
 

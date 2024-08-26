@@ -4,6 +4,8 @@
 #include <utility>
 #include <iostream>
 #include <limitless/core/uniform/uniform_sampler.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
+
 using namespace Limitless;
 
 void ColorPicker::onPick(Context& ctx, Assets& assets, Scene& scene, glm::uvec2 coords, std::function<void(uint32_t id)> callback) {
@@ -25,12 +27,16 @@ void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instance
     framebuffer.clear();
 
     for (auto& wrapper : instances) {
-        auto& instance = wrapper.get();
+        auto& instance = *wrapper;
         const auto id = instance.getId();
         const auto setter = UniformSetter([color_id = convert(id)](ShaderProgram& shader) {
             shader.setUniform("color_id", color_id);
         });
-        instance.draw(ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter);
+        //TODO: restore
+        // instanced picker?
+        // terrain picker?
+        // specify behavior
+//        InstanceRenderer::render(instance, {ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter});
     }
 
     pick.sync.place();

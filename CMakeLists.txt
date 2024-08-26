@@ -175,7 +175,6 @@ set(ENGINE_PIPELINE
     src/limitless/renderer/renderer_settings.cpp
     src/limitless/renderer/scene_renderer.cpp
     src/limitless/pipeline/common/scene_data.cpp
-    src/limitless/pipeline/deferred/effectupdate_pass.cpp
     src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
     src/limitless/pipeline/deferred/gbuffer_pass.cpp
     src/limitless/pipeline/deferred/deferred_lighting_pass.cpp
@@ -191,7 +190,6 @@ set(ENGINE_PIPELINE
     src/limitless/pipeline/common/dof_pass.cpp
     src/limitless/pipeline/common/outline_pass.cpp
     src/limitless/pipeline/common/ssr_pass.cpp
-    src/limitless/pipeline/common/frustum_culling_pass.cpp
     src/limitless/pipeline/deferred/decal_pass.cpp
     src/limitless/postprocessing/blur.cpp
     src/limitless/postprocessing/bloom.cpp

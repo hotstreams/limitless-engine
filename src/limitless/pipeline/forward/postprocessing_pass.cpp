@@ -1,4 +1,5 @@
 #include <limitless/pipeline/forward/postprocessing_pass.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 using namespace Limitless;
 
@@ -7,7 +8,9 @@ PostEffectsPass::PostEffectsPass(Pipeline& pipeline, Context& context)
     , postprocess {context.getSize()} {
 }
 
-void PostEffectsPass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void PostEffectsPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets,
+                           const Camera &camera,
+                           UniformSetter &setter) {
     //TODO:
     //    postprocess.process(ctx, assets, dynamic_cast<const Framebuffer&>(prev_pass->getTarget()));
 }

@@ -12,8 +12,10 @@ Pipeline::Pipeline(glm::uvec2 size, RenderTarget& target) noexcept
     , size {size} {
 }
 
-void Pipeline::draw(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
+void Pipeline::draw(InstanceRenderer& renderer, Context& context, const Assets& assets, Scene& scene, Camera& camera) {
     Instances instances;
+
+    renderer.update(scene, camera);
 
     for (const auto& pass : passes) {
         pass->update(scene, instances, context, camera);
@@ -21,7 +23,7 @@ void Pipeline::draw(Context& context, const Assets& assets, Scene& scene, Camera
 
     UniformSetter setter;
     for (const auto& pass : passes) {
-        pass->draw(instances, context, assets, camera, setter);
+        pass->draw(renderer, scene, context, assets, camera, setter);
         pass->addSetter(setter);
     }
 }

@@ -20,7 +20,9 @@ std::shared_ptr<Texture> DeferredLightingPass::getResult() {
     return framebuffer.get(FramebufferAttachment::Color0).texture;
 }
 
-void DeferredLightingPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, UniformSetter& setter) {
+void DeferredLightingPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets,
+                                const Camera &camera,
+                                UniformSetter &setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 

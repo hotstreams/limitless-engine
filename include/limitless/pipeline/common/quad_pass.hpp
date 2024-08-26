@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/pipeline/pipeline_pass.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 namespace Limitless {
 	class Framebuffer;
@@ -36,6 +37,8 @@ namespace Limitless {
         /**
          * Renders image to render target
          */
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void
+        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+             UniformSetter &setter) override;
     };
 }

@@ -13,15 +13,10 @@ namespace Limitless {
      * so we can discard useless fragments later and restore positions from depth for postprocessing effects
      */
     class DepthPass final : public PipelinePass {
-    private:
-        fx::EffectRenderer& renderer;
     public:
-        DepthPass(Pipeline& pipeline, fx::EffectRenderer& renderer);
+        DepthPass(Pipeline& pipeline);
         ~DepthPass() override = default;
 
-        /**
-         * Sorts instances, renders opaque objects
-         */
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
     };
 }

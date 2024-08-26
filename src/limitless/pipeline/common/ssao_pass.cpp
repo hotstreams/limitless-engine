@@ -30,7 +30,8 @@ SSAOPass::SSAOPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size)
     , ssao {ctx, frame_size} {
 }
 
-void SSAOPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void SSAOPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                    UniformSetter &setter) {
     ssao.draw(ctx, assets, pipeline.get<DeferredFramebufferPass>().getDepth());
 }
 

@@ -30,7 +30,8 @@ SSRPass::SSRPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size)
     , ssr {ctx, frame_size} {
 }
 
-void SSRPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void SSRPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                   UniformSetter &setter) {
     auto& gbuffer = pipeline.get<DeferredFramebufferPass>();
 
     ssr.draw(ctx, assets, camera, gbuffer.getDepth(), gbuffer.getNormal(), gbuffer.getProperties(), gbuffer.getAlbedo());

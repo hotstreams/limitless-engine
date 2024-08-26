@@ -10,17 +10,15 @@ namespace Limitless {
         std::shared_ptr<AbstractModel> model;
         std::shared_ptr<ms::Material> material;
     public:
-        DecalInstance(std::shared_ptr<AbstractModel> model, std::shared_ptr<ms::Material> material, const glm::vec3& position);
+        DecalInstance(std::shared_ptr<AbstractModel> model, const std::shared_ptr<ms::Material>& material, const glm::vec3& position);
 
         DecalInstance(const DecalInstance&);
 
         void updateBoundingBox() noexcept override;
         std::unique_ptr<Instance> clone() noexcept override;
 
-        void setMaterial(std::shared_ptr<ms::Material> new_material);
+        void setMaterial(const std::shared_ptr<ms::Material>& new_material);
         auto& getMaterial() noexcept { return material; }
         auto& getModel() noexcept { return model; }
-
-        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
     };
 }

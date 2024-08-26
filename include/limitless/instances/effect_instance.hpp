@@ -73,17 +73,9 @@ namespace Limitless {
          */
         void update(Context& context, const Camera& camera) override;
 
-        /**
-         * Does NOT draw effect
-         *
-         * use EffectRenderer instead
-         */
-        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
-
         const auto& getEmitters() const noexcept { return emitters; }
         auto& getEmitters() noexcept { return emitters; }
         const auto& getName() const noexcept { return name; }
-
 
         /**
          * Gets emitter with specified name and type

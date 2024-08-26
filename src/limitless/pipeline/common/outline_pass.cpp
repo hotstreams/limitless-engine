@@ -19,7 +19,9 @@ OutlinePass::OutlinePass(Pipeline& pipeline, glm::uvec2 size)
     framebuffer.unbind();
 }
 
-void OutlinePass::draw(Instances& instances, Limitless::Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) {
+void
+OutlinePass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                  UniformSetter &setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 

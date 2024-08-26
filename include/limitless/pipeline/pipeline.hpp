@@ -9,6 +9,7 @@
 
 namespace Limitless {
     class RendererSettings;
+    class InstanceRenderer;
     class Context;
 
     class pipeline_pass_not_found final : public std::logic_error {
@@ -62,7 +63,7 @@ namespace Limitless {
         /**
          * Updates all passes and sequentially invokes them
          */
-        void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
+        void draw(InstanceRenderer& renderer, Context& context, const Assets& assets, Scene& scene, Camera& camera);
 
         /**
          * Clears passes
@@ -105,37 +106,37 @@ namespace Limitless {
     };
 
     using PipeLinePassFunction = std::function<void()>;
-
-    class RendererPipeline {
-    private:
-
-    public:
-        class Builder {
-        private:
-            std::vector<std::unique_ptr<PipelinePass>> passes;
-        public:
-            Builder add(std::unique_ptr<PipelinePass> pass) { return *this; }
-            Builder add(PipeLinePassFunction) { return *this; }
-
-            Builder addSceneUpdatePass();
-            Builder addDirectionalShadowPass();
-            Builder addDeferredFramebufferPass();
-            Builder addDepthPass();
-            Builder addGBufferPass();
-            Builder addDecalPass();
-            Builder addSkyboxPass();
-            Builder addSSAOPass();
-            Builder addSSRPass();
-            Builder addDeferredLightingPass();
-            Builder addTranslucentPass();
-            Builder addBloomPass();
-            Builder addOutlinePass();
-            Builder addCompositePass();
-            Builder addFXAAPass();
-            Builder addScreenPass();
-            Builder addRenderDebugPass();
-        };
-
-        static Builder builder() { return {}; }
-    };
+//
+//    class RendererPipeline {
+//    private:
+//
+//    public:
+//        class Builder {
+//        private:
+//            std::vector<std::unique_ptr<PipelinePass>> passes;
+//        public:
+//            Builder add(std::unique_ptr<PipelinePass> pass) { return *this; }
+//            Builder add(PipeLinePassFunction) { return *this; }
+//
+//            Builder addSceneUpdatePass();
+//            Builder addDirectionalShadowPass();
+//            Builder addDeferredFramebufferPass();
+//            Builder addDepthPass();
+//            Builder addGBufferPass();
+//            Builder addDecalPass();
+//            Builder addSkyboxPass();
+//            Builder addSSAOPass();
+//            Builder addSSRPass();
+//            Builder addDeferredLightingPass();
+//            Builder addTranslucentPass();
+//            Builder addBloomPass();
+//            Builder addOutlinePass();
+//            Builder addCompositePass();
+//            Builder addFXAAPass();
+//            Builder addScreenPass();
+//            Builder addRenderDebugPass();
+//        };
+//
+//        static Builder builder() { return {}; }
+//    };
 }

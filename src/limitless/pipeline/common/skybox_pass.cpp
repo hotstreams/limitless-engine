@@ -10,7 +10,7 @@ SkyboxPass::SkyboxPass(Pipeline& pipeline)
     : PipelinePass(pipeline) {
 }
 
-void SkyboxPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void SkyboxPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
     if (skybox) {
     	skybox->getMaterial().update();
         skybox->draw(ctx, assets);

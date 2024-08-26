@@ -2,6 +2,7 @@
 
 #include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/core/framebuffer.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 namespace Limitless {
     /**
@@ -23,7 +24,9 @@ namespace Limitless {
         /**
          * Renders lighting to framebuffer
          */
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void
+        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+             UniformSetter &setter) override;
 
         /**
          * Updates framebuffer size

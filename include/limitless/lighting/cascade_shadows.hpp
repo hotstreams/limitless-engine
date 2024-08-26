@@ -15,6 +15,7 @@ namespace Limitless {
     class Camera;
     class Assets;
     class Scene;
+    class InstanceRenderer;
 
     class ShadowFrustum {
     public:
@@ -26,7 +27,7 @@ namespace Limitless {
         float ratio {};
     };
 
-    using Instances = std::vector<std::reference_wrapper<Instance>>;
+    using Instances = std::vector<std::shared_ptr<Instance>>;
 
     class CascadeShadows final {
     private:
@@ -51,12 +52,12 @@ namespace Limitless {
 
         void update(Context& ctx, const RendererSettings& settings);
 
-        void draw(Instances& instances,
+        void draw(InstanceRenderer& renderer,
+                  Scene& scene,
                   const Light& light,
                   Context& ctx, const
                   Assets& assets,
-                  const Camera& camera,
-                  fx::EffectRenderer* renderer);
+                  const Camera& camera);
         void setUniform(ShaderProgram& sh) const;
         void mapData() const;
     };

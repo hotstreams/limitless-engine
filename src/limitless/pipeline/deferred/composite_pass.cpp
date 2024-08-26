@@ -22,7 +22,9 @@ std::shared_ptr<Texture> CompositePass::getResult() {
 	return framebuffer.get(FramebufferAttachment::Color0).texture;
 }
 
-void CompositePass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void
+CompositePass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                    UniformSetter &setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 

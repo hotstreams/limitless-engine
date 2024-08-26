@@ -46,7 +46,9 @@ FramebufferPass::FramebufferPass(Pipeline& pipeline, Context& ctx)
     framebuffer.unbind();
 }
 
-void FramebufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void FramebufferPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets,
+                           const Camera &camera,
+                           UniformSetter &setter) {
     ctx.setViewPort(ctx.getSize());
     target.clear();
 }

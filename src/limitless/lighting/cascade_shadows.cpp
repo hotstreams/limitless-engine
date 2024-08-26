@@ -185,12 +185,12 @@ void CascadeShadows::updateLightMatrices(const Light& light) {
     }
 }
 
-void CascadeShadows::draw(Instances& instances,
+void CascadeShadows::draw(InstanceRenderer& renderer,
+                          Scene& scene,
                           const Light& light,
                           Context& ctx, const
                           Assets& assets,
-                          const Camera& camera,
-                          [[maybe_unused]] fx::EffectRenderer* renderer) {
+                          const Camera& camera) {
     updateFrustums(ctx, camera);
     updateLightMatrices(light);
 
@@ -209,19 +209,7 @@ void CascadeShadows::draw(Instances& instances,
             shader.setUniform("light_space", frustums[i].crop);
         };
 
-        for (const auto& instance : instances) {
-            if (!instance.get().doesCastShadow()) {
-                continue;
-            }
-
-            if (instance.get().getInstanceType() != InstanceType::Decal) {
-                instance.get().draw(ctx, assets, ShaderType::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
-            }
-        }
-
-//        if (renderer) {
-//            renderer->draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
-//        }
+        renderer.renderScene({ctx, assets, ShaderType::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set} });
     }
 
     framebuffer->unbind();

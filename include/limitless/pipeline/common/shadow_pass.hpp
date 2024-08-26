@@ -2,6 +2,7 @@
 
 #include <limitless/pipeline/pipeline_pass.hpp>
 #include <limitless/lighting/cascade_shadows.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 namespace Limitless::fx {
     class EffectRenderer;
@@ -22,16 +23,8 @@ namespace Limitless {
          * Current direction light used to shadow cast
          */
         Light* light {};
-
-        /**
-         * EffectRenderer
-         *
-         * to cast shadow from effects
-         */
-        fx::EffectRenderer* effect_renderer {};
     public:
         DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RendererSettings& settings);
-        DirectionalShadowPass(Pipeline& pipeline, Context& ctx, const RendererSettings& settings, fx::EffectRenderer& renderer);
 
         /**
          * Adds shadow-specific uniforms to setter
@@ -48,6 +41,6 @@ namespace Limitless {
         /**
          * Draws shadow
          */
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void draw(InstanceRenderer &renderer, Scene& scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
     };
 }

@@ -4,7 +4,6 @@
 #include <limitless/ms/blending.hpp>
 
 #include <limitless/pipeline/common/sceneupdate_pass.hpp>
-#include <limitless/pipeline/deferred/effectupdate_pass.hpp>
 #include <limitless/pipeline/common/shadow_pass.hpp>
 #include <limitless/pipeline/forward/framebuffer_pass.hpp>
 #include <limitless/pipeline/forward/color_pass.hpp>

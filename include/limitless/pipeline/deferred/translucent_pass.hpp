@@ -26,20 +26,18 @@ namespace Limitless {
          */
         Framebuffer framebuffer;
 
-        /**
-         * EffectRenderer to draw translucent effects
-         */
-        fx::EffectRenderer& renderer;
         void sort(Instances& instances, const Camera& camera, ms::Blending blending);
     public:
-        explicit TranslucentPass(Pipeline& pipeline, fx::EffectRenderer& renderer, glm::uvec2 frame_size, std::shared_ptr<Texture> depth);
+        explicit TranslucentPass(Pipeline& pipeline, glm::uvec2 frame_size, std::shared_ptr<Texture> depth);
 
         std::shared_ptr<Texture> getResult() override;
 
         /**
          * Copies lighting result to result framebuffer and renders transparent objects for all blending states on top of it
          */
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void
+        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+             UniformSetter &setter) override;
 
         /**
          * Updates framebuffer size

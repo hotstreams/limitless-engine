@@ -15,10 +15,12 @@ RenderDebugPass::RenderDebugPass(Pipeline& pipeline, const RendererSettings& set
     , helper {settings} {
 }
 
-void RenderDebugPass::draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
-    if (lighting) {
-        helper.render(ctx, assets, camera, *lighting, instances);
-    }
+void RenderDebugPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets,
+                           const Camera &camera,
+                           UniformSetter &setter) {
+//    if (lighting) {
+//        helper.render(ctx, assets, camera, *lighting, instances);
+//    }
 }
 
 void RenderDebugPass::update(Scene& scene, [[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {

@@ -4,7 +4,6 @@
 #include <limitless/ms/blending.hpp>
 
 #include <limitless/pipeline/common/sceneupdate_pass.hpp>
-#include <limitless/pipeline/deferred/effectupdate_pass.hpp>
 #include <limitless/pipeline/common/shadow_pass.hpp>
 #include <limitless/pipeline/common/skybox_pass.hpp>
 #include <limitless/pipeline/forward/postprocessing_pass.hpp>
@@ -26,7 +25,6 @@
 #include <limitless/pipeline/common/outline_pass.hpp>
 #include <iostream>
 #include <limitless/pipeline/deferred/decal_pass.hpp>
-#include <limitless/pipeline/common/frustum_culling_pass.hpp>
 
 using namespace Limitless;
 
@@ -47,17 +45,10 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     add<SceneUpdatePass>(ctx);
 
     /*
-     * Frustum culling
-     */
-    add<FrustumCullingPass>();
-
-    auto& fx = add<EffectUpdatePass>(ctx);
-
-    /*
      * Fills shadow maps
      */
     if (settings.cascade_shadow_maps) {
-        add<DirectionalShadowPass>(ctx, settings, fx.getRenderer());
+        add<DirectionalShadowPass>(ctx, settings);
     }
 
     /*
@@ -68,12 +59,12 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     /*
      * Renders opaque objects to DeferredFramebufferPass's depth buffer
      */
-    add<DepthPass>(fx.getRenderer());
+    add<DepthPass>();
 
     /*
      * Fills GBUFFER with opaque objects
      */
-    add<GBufferPass>(fx.getRenderer());
+    add<GBufferPass>();
 
     add<DecalPass>();
 
@@ -101,7 +92,7 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     /*
      * Copies lighting result and renders translucent objects on-top of it
      */
-    add<TranslucentPass>(fx.getRenderer(), size, get<DeferredFramebufferPass>().getDepth());
+    add<TranslucentPass>(size, get<DeferredFramebufferPass>().getDepth());
 
     /*
      *  Applies bloom to previous result image

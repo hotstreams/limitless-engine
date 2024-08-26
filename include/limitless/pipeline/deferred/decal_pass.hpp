@@ -12,6 +12,6 @@ namespace Limitless {
         /**
          * Fills GBUFFER with opaque objects and effects data
          */
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
     };
 }

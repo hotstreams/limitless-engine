@@ -1,6 +1,7 @@
 #include <limitless/pipeline/deferred/deferred_framebuffer_pass.hpp>
 
 #include <limitless/core/texture/texture_builder.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
 
 using namespace Limitless;
 
@@ -25,7 +26,9 @@ DeferredFramebufferPass::DeferredFramebufferPass(Pipeline& pipeline, glm::uvec2 
     framebuffer.unbind();
 }
 
-void DeferredFramebufferPass::draw([[maybe_unused]] Instances& instances, Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void DeferredFramebufferPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets,
+                                   const Camera &camera,
+                                   UniformSetter &setter) {
     ctx.setViewPort(framebuffer.get(FramebufferAttachment::Color0).texture->getSize());
     ctx.setDepthMask(DepthMask::True);
     ctx.disable(Capabilities::Blending);

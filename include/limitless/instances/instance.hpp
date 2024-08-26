@@ -205,16 +205,6 @@ namespace Limitless {
 		virtual void update(Context& context, const Camera& camera);
 
         /**
-         * Prepare instance for frustum culling
-         */
-        virtual void map();
-
-        // draws instance with no extra uniform setting
-        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending);
-
-        virtual void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) = 0;
-
-        /**
          *  Instance builder
          */
         class Builder;

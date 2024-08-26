@@ -28,7 +28,6 @@ Instance::Instance(const Instance& rhs)
     , done {rhs.done} {
 }
 
-
 void Instance::updateModelMatrix() noexcept {
     const auto translation_matrix = glm::translate(glm::mat4{1.0f}, position);
     const auto rotation_matrix = glm::toMat4(rotation);
@@ -115,10 +114,6 @@ Instance& Instance::setParent(const glm::mat4& _parent) noexcept {
 	return *this;
 }
 
-void Instance::draw(Context& ctx, const Assets& assets, ShaderType material_shader_type, ms::Blending blending) {
-    draw(ctx, assets, material_shader_type, blending, UniformSetter {});
-}
-
 void Instance::update(Context& context, const Camera& camera) {
 	// updates current model matrices
 	updateModelMatrix();
@@ -129,10 +124,6 @@ void Instance::update(Context& context, const Camera& camera) {
     InstanceAttachment::setAttachmentsParent(final_matrix);
     InstanceAttachment::updateAttachments(context, camera);
 }
-
-//void Instance::prepareForFrustumCulling(const Frustum& frustum) {
-//
-//}
 
 void Instance::removeOutline() noexcept {
 	outlined = false;

@@ -14,6 +14,8 @@ namespace Limitless {
         ~RenderDebugPass() override = default;
 
         void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;
-        void draw(Instances& instances, Context& ctx, const Assets& assets, const Camera& camera, UniformSetter& setter) override;
+        void
+        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+             UniformSetter &setter) override;
     };
 }

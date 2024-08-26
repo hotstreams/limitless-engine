@@ -2,8 +2,8 @@
 
 #include <limitless/util/box.hpp>
 #include <limitless/camera.hpp>
-#include <array>
 #include <limitless/instances/instance.hpp>
+#include <array>
 
 namespace Limitless {
     class Frustum {
@@ -29,7 +29,7 @@ namespace Limitless {
         /**
          * Checks frustum intersection with an instance and prepares it for rendering in frustum
          */
-        bool intersects(Instance& instance);
+        bool intersects(Instance& instance) const;
 
         /**
          * Creates Frustum from Camera

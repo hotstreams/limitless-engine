@@ -27,7 +27,9 @@ void PipelinePass::update([[maybe_unused]] Scene& scene, [[maybe_unused]] Instan
 
 }
 
-void PipelinePass::draw([[maybe_unused]] Instances& instances, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void
+PipelinePass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                   UniformSetter &setter) {
 
 }
 

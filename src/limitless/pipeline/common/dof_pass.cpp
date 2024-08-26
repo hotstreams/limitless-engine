@@ -40,7 +40,8 @@ void DoFPass::initialize(Context& ctx) {
 	framebuffer.unbind();
 }
 
-void DoFPass::draw([[maybe_unused]] Instances& instances, Context& ctx, const Assets& assets, [[maybe_unused]] const Camera& camera, [[maybe_unused]] UniformSetter& setter) {
+void DoFPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
+                   UniformSetter &setter) {
 	{
 		blur.process(ctx, assets, getPreviousResult());
 	}
