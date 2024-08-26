@@ -87,7 +87,7 @@ jobs:
           cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_SAMPLES=OFF -DBUILD_TESTS=OFF -DOPENGL_SHADER_OUTPUT=OFF -S . -B build
           cd build
           make
-          ../iwyu/build/bin/iwyu_tool.py -p .
+          ../../iwyu/build/bin/iwyu_tool.py -p .
       - name: test
         continue-on-error: true
         run: |
