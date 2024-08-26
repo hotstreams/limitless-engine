@@ -64,24 +64,17 @@ jobs:
 
       - name: Test install
         run: |
-          pwd
-          ls -l
           cd ./iwyu/build
           cmake --install .
-          pwd
-          ls -l
-          ls -l ..
 
       - name: setup
         run: |
-         pwd
-          ls -l
           sudo apt-get update
           sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
 
       - name: set up engine dependencies
         run: |
-          cd ../main
+          cd main
           pwd
           ls -l
           git submodule init
@@ -90,10 +83,8 @@ jobs:
           #make extensions
       - name: build
         run: |
-          pwd
-          ls -l
           mkdir build
-          cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="./build/include-what-you-use" -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
+          cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="../iwyu/build/bin" -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
       - name: test
