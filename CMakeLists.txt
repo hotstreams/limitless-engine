@@ -15,6 +15,10 @@ OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF
 
 #########################################
 
+find_program(iwyu_path NAMES include-what-you-use iwyu REQUIRED)
+set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
+set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
+
 set(ENGINE_CORE
     src/limitless/core/context_debug.cpp
     src/limitless/core/context_initializer.cpp
