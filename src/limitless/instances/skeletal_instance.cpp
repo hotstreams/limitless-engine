@@ -12,7 +12,7 @@
 
 using namespace Limitless;
 
-constexpr auto SKELETAL_BUFFER_NAME = "bone_buffer";
+[[maybe_unused]] constexpr auto SKELETAL_BUFFER_NAME = "bone_buffer";
 
 void SkeletalInstance::initializeBuffer() {
     bone_buffer = Buffer::builder()

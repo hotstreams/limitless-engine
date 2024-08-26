@@ -105,38 +105,60 @@ namespace Limitless {
         std::unique_ptr<PipelinePass>& getPrevious(PipelinePass* curr);
     };
 
-    using PipeLinePassFunction = std::function<void()>;
-//
-//    class RendererPipeline {
-//    private:
-//
-//    public:
-//        class Builder {
-//        private:
-//            std::vector<std::unique_ptr<PipelinePass>> passes;
-//        public:
-//            Builder add(std::unique_ptr<PipelinePass> pass) { return *this; }
-//            Builder add(PipeLinePassFunction) { return *this; }
-//
-//            Builder addSceneUpdatePass();
-//            Builder addDirectionalShadowPass();
-//            Builder addDeferredFramebufferPass();
-//            Builder addDepthPass();
-//            Builder addGBufferPass();
-//            Builder addDecalPass();
-//            Builder addSkyboxPass();
-//            Builder addSSAOPass();
-//            Builder addSSRPass();
-//            Builder addDeferredLightingPass();
-//            Builder addTranslucentPass();
-//            Builder addBloomPass();
-//            Builder addOutlinePass();
-//            Builder addCompositePass();
-//            Builder addFXAAPass();
-//            Builder addScreenPass();
-//            Builder addRenderDebugPass();
-//        };
-//
-//        static Builder builder() { return {}; }
-//    };
+    class RendererPipeline {
+    private:
+        std::vector<std::unique_ptr<PipelinePass>> passes;
+        glm::uvec2 resolution;
+    public:
+        /**
+         * Updates pipeline with specified settings
+         */
+        void update(Context& ctx, const RendererSettings& settings);
+
+        /**
+         * Updates all passes and sequentially invokes them
+         */
+        void draw(InstanceRenderer& renderer, Context& context, const Assets& assets, Scene& scene, Camera& camera);
+
+        /**
+         * Framebuffer size callback
+         */
+        void onFramebufferChange(glm::uvec2 size);
+
+        class Builder {
+        private:
+            std::vector<std::unique_ptr<PipelinePass>> passes;
+        public:
+            Builder add(std::unique_ptr<PipelinePass> pass) { return *this; }
+            Builder add(PipelinePassFunction) { return *this; }
+
+            Builder& addSceneUpdatePass();
+            Builder& addDirectionalShadowPass();
+            Builder& addDeferredFramebufferPass();
+            Builder& addDepthPass();
+            Builder& addGBufferPass();
+            Builder& addDecalPass();
+            Builder& addSkyboxPass();
+            Builder& addSSAOPass();
+            Builder& addSSRPass();
+            Builder& addDeferredLightingPass();
+            Builder& addTranslucentPass();
+            Builder& addBloomPass();
+            Builder& addOutlinePass();
+            Builder& addCompositePass();
+            Builder& addFXAAPass();
+            Builder& addScreenPass();
+            Builder& addRenderDebugPass();
+
+            Builder& addBefore();
+            Builder& addAfter();
+            Builder& addAt();
+
+            Builder& deferred();
+
+            RendererPipeline build();
+        };
+
+        static Builder builder() { return {}; }
+    };
 }

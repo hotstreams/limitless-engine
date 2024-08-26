@@ -186,7 +186,7 @@ void CascadeShadows::updateLightMatrices(const Light& light) {
 }
 
 void CascadeShadows::draw(InstanceRenderer& renderer,
-                          Scene& scene,
+                          [[maybe_unused]] Scene& scene,
                           const Light& light,
                           Context& ctx, const
                           Assets& assets,

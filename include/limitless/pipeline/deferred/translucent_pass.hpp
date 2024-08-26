@@ -21,12 +21,7 @@ namespace Limitless {
      */
     class TranslucentPass final : public PipelinePass {
     private:
-        /**
-         * Result framebuffer
-         */
         Framebuffer framebuffer;
-
-        void sort(Instances& instances, const Camera& camera, ms::Blending blending);
     public:
         explicit TranslucentPass(Pipeline& pipeline, glm::uvec2 frame_size, std::shared_ptr<Texture> depth);
 

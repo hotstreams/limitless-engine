@@ -21,21 +21,6 @@ TranslucentPass::TranslucentPass(Pipeline& pipeline, glm::uvec2 frame_size, std:
     , framebuffer {Framebuffer::asRGB16FNearestClampToEdgeWithDepth(frame_size, depth)} {
 }
 
-void TranslucentPass::sort(Instances& instances, const Camera& camera, ms::Blending blending) {
-//    switch (blending) {
-//        case ms::Blending::Opaque:
-//            std::sort(instances.begin(), instances.end(), FrontToBackSorter{camera});
-//            break;
-//        case ms::Blending::Translucent:
-//        case ms::Blending::Additive:
-//        case ms::Blending::Modulate:
-//            std::sort(instances.begin(), instances.end(), BackToFrontSorter{camera});
-//            break;
-//        case ms::Blending::Text:
-//            throw std::logic_error("This type of blending cannot be used as ColorPass value");
-//    }
-}
-
 void TranslucentPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets,
                            const Camera &camera,
                            UniformSetter &setter) {
@@ -56,7 +41,6 @@ void TranslucentPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ct
     });
 
     for (const auto& blending : transparent) {
-//        sort(instances, camera, blending);
         renderer.renderScene({ctx, assets, ShaderType::Forward, blending, setter});
     }
 }

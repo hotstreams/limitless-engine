@@ -171,9 +171,9 @@ set(ENGINE_PIPELINE
     src/limitless/pipeline/forward/forward.cpp
     src/limitless/pipeline/forward/postprocessing.cpp
     src/limitless/renderer/renderer.cpp
+    src/limitless/renderer/instance_renderer.cpp
     src/limitless/renderer/render_settings_shader_definer.cpp
     src/limitless/renderer/renderer_settings.cpp
-    src/limitless/renderer/scene_renderer.cpp
     src/limitless/pipeline/common/scene_data.cpp
     src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
     src/limitless/pipeline/deferred/gbuffer_pass.cpp

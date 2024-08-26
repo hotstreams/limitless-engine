@@ -3,7 +3,6 @@
 #include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/pipeline/pipeline.hpp>
 #include <memory>
-#include "instance_renderer.hpp"
 
 namespace Limitless::ms {
     enum class Blending;
@@ -26,15 +25,20 @@ namespace Limitless {
         Renderer(Context& ctx, const RendererSettings& settings);
         explicit Renderer(Context& ctx);
 
-        ~Renderer() = default;
+//        const RendererSettings& getRendererSettings() const noexcept { return settings; }
+//        void updateRendererSettings();
 
-        auto& getPipeline() noexcept { return *pipeline; }
 
-        auto& getSettings() noexcept { return settings; }
-        [[nodiscard]] const auto& getSettings() const noexcept { return settings; }
 
         void update(Context& ctx, Assets& assets);
+
         void updatePipeline(Context& ctx);
+
+
         void draw(Context& context, const Assets& assets, Scene& scene, Camera& camera);
+
+        class Builder {
+
+        };
     };
 }

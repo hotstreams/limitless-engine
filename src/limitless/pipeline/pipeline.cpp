@@ -66,4 +66,91 @@ std::unique_ptr<PipelinePass>& Pipeline::getPrevious(PipelinePass* curr) {
     throw pipeline_pass_not_found {"There is no previous pass!"};
 }
 
+RendererPipeline::Builder& RendererPipeline::Builder::addSceneUpdatePass() {
 
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addDirectionalShadowPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addDeferredFramebufferPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addDepthPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addGBufferPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addDecalPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addSkyboxPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addSSAOPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addSSRPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addDeferredLightingPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addTranslucentPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addBloomPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addOutlinePass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addCompositePass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addFXAAPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addScreenPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addRenderDebugPass() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addBefore() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addAfter() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::addAt() {
+    return <#initializer#>;
+}
+
+RendererPipeline::Builder &RendererPipeline::Builder::deferred() {
+    return <#initializer#>;
+}
+
+RendererPipeline RendererPipeline::Builder::build() {
+    return RendererPipeline();
+}
