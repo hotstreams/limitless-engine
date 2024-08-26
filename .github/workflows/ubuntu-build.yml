@@ -41,6 +41,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: include-what-you-use/include-what-you-use
+          path: .
 
       - name: Build include-what-you-use
         run: |
@@ -66,6 +67,9 @@ jobs:
           sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
 
       - uses: actions/checkout@v3
+        with:
+          path: .
+
       - name: set up engine dependencies
         run: |
           git submodule init
