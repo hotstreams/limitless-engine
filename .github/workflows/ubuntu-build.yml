@@ -9,36 +9,56 @@ jobs:
   build-linux:
     name: build-linux
     runs-on: ubuntu-latest
+    env:
+      LLVM_TAG:
     steps:
-      - name: setup
+      - name: Install prerequisites
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy$LLVM_TAG main"
+          sudo apt update
+          # Remove any base dist LLVM/Clang installations
+          sudo apt remove -y \
+               "libclang*" \
+               "clang*" \
+               "llvm*"
+          # Reinstall tagged versions
+          sudo apt install -y \
+               ninja-build \
+               llvm$LLVM_TAG-dev \
+               libclang$LLVM_TAG-dev \
+               clang$LLVM_TAG
+
       - name: Capture LLVM major version
         run: |
           echo "LLVM_MAJOR=$(ls -1d /usr/lib/llvm-* | sort | tail -n1 | sed 's/.*llvm-//')" >> $GITHUB_ENV
+
       - name: Work around broken packaging
         run: |
           sudo touch /usr/lib/llvm-$LLVM_MAJOR/lib/libclang-$LLVM_MAJOR.so.1
+
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           repository: include-what-you-use/include-what-you-use
-      - name: Install ninja-build tool
-        uses: seanmiddleditch/gha-setup-ninja@v5
+
       - name: Build include-what-you-use
         run: |
           mkdir build
           cd ./build
-          cmake -G "Unix Makefiles" \
+          cmake -G Ninja \
                 -DCMAKE_EXPORT_COMPILE_COMMANDS=on \
                 -DCMAKE_C_COMPILER=clang$LLVM_TAG \
-                -DCMAKE_CXX_COMPILER=clang++ \
+                -DCMAKE_CXX_COMPILER=clang++$LLVM_TAG \
                 -DCMAKE_INSTALL_PREFIX=./ \
                 -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=on \
                 ../
           ninja
-          
+
+      - name: setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
 
       - uses: actions/checkout@v3
       - name: set up engine dependencies
