@@ -81,6 +81,7 @@ jobs:
         run: |
           pwd
           mkdir build
+          ls build
           cmake -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="./build/include-what-you-use" -DBUILD_SAMPLES=OFF -DBUILD_TESTS=ON -DOPENGL_SHADER_OUTPUT=ON -S . -B build
           cd build
           make
