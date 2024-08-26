@@ -65,6 +65,8 @@ jobs:
 
       - name: setup
         run: |
+         pwd
+          ls -l
           sudo apt-get update
           sudo apt-get install -y mesa-utils xvfb xorg-dev libglu1-mesa-dev glslang-dev glslang-tools
 
@@ -74,6 +76,8 @@ jobs:
 
       - name: set up engine dependencies
         run: |
+           pwd
+          ls -l
           git submodule init
           git submodule update
           #cd thirdparty/glew
