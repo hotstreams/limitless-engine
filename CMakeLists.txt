@@ -125,6 +125,7 @@ set(ENGINE_UTIL
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
     src/limitless/util/color_picker.cpp
+    src/limitless/util/frustum.cpp
 )
 
 set(ENGINE_MS
@@ -157,39 +158,31 @@ set(ENGINE_FX
     src/limitless/fx/effect_shader_define_replacer.cpp
 )
 
-set(ENGINE_PIPELINE
-    src/limitless/pipeline/pipeline.cpp
-    src/limitless/pipeline/pipeline_pass.cpp
-    src/limitless/pipeline/forward/color_pass.cpp
-    src/limitless/pipeline/forward/particle_pass.cpp
-    src/limitless/pipeline/forward/framebuffer_pass.cpp
-    src/limitless/pipeline/common/shadow_pass.cpp
-    src/limitless/pipeline/common/sceneupdate_pass.cpp
-    src/limitless/pipeline/common/skybox_pass.cpp
-    src/limitless/pipeline/forward/postprocessing_pass.cpp
-    src/limitless/pipeline/forward/forward.cpp
-    src/limitless/pipeline/forward/postprocessing.cpp
+set(ENGINE_RENDERER
+    src/limitless/renderer/renderer_pass.cpp
+    src/limitless/renderer/shadow_pass.cpp
+    src/limitless/renderer/sceneupdate_pass.cpp
+    src/limitless/renderer/skybox_pass.cpp
     src/limitless/renderer/renderer.cpp
+    src/limitless/renderer/instance_renderer.cpp
     src/limitless/renderer/render_settings_shader_definer.cpp
     src/limitless/renderer/renderer_settings.cpp
-    src/limitless/pipeline/common/scene_data.cpp
-    src/limitless/pipeline/deferred/effectupdate_pass.cpp
-    src/limitless/pipeline/deferred/deferred_framebuffer_pass.cpp
-    src/limitless/pipeline/deferred/gbuffer_pass.cpp
-    src/limitless/pipeline/deferred/deferred_lighting_pass.cpp
-    src/limitless/pipeline/deferred/deferred.cpp
-    src/limitless/pipeline/deferred/depth_pass.cpp
-    src/limitless/pipeline/deferred/translucent_pass.cpp
-    src/limitless/pipeline/common/bloom_pass.cpp
-    src/limitless/pipeline/deferred/composite_pass.cpp
-    src/limitless/pipeline/common/ssao_pass.cpp
-    src/limitless/pipeline/common/fxaa_pass.cpp
-    src/limitless/pipeline/common/quad_pass.cpp
-    src/limitless/pipeline/common/render_debug_pass.cpp
-    src/limitless/pipeline/common/dof_pass.cpp
-    src/limitless/pipeline/common/outline_pass.cpp
-    src/limitless/pipeline/common/ssr_pass.cpp
-    src/limitless/pipeline/deferred/decal_pass.cpp
+    src/limitless/renderer/scene_data.cpp
+    src/limitless/renderer/deferred_framebuffer_pass.cpp
+    src/limitless/renderer/gbuffer_pass.cpp
+    src/limitless/renderer/deferred_lighting_pass.cpp
+    src/limitless/renderer/depth_pass.cpp
+    src/limitless/renderer/translucent_pass.cpp
+    src/limitless/renderer/bloom_pass.cpp
+    src/limitless/renderer/composite_pass.cpp
+#    src/limitless/pipeline/common/ssao_pass.cpp
+#    src/limitless/pipeline/common/fxaa_pass.cpp
+    src/limitless/renderer/screen_pass.cpp
+    src/limitless/renderer/render_debug_pass.cpp
+#    src/limitless/pipeline/common/dof_pass.cpp
+    src/limitless/renderer/outline_pass.cpp
+#    src/limitless/pipeline/common/ssr_pass.cpp
+    src/limitless/renderer/decal_pass.cpp
     src/limitless/postprocessing/blur.cpp
     src/limitless/postprocessing/bloom.cpp
     src/limitless/postprocessing/ssao.cpp
@@ -207,7 +200,7 @@ set(ENGINE_SRC
     ${ENGINE_MODELS}
     ${ENGINE_UTIL}
     ${ENGINE_TEXT}
-    ${ENGINE_PIPELINE}
+    ${ENGINE_RENDERER}
 
     src/limitless/camera.cpp
     src/limitless/shader_storage.cpp

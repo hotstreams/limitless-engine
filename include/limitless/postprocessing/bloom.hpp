@@ -4,6 +4,8 @@
 #include <limitless/postprocessing/blur.hpp>
 
 namespace Limitless {
+    class RendererSettings;
+
     class Bloom final {
     public:
         Blur blur;
@@ -15,7 +17,7 @@ namespace Limitless {
 
         void extractBrightness(const Assets& ctx, const std::shared_ptr<Texture>& image);
     public:
-        explicit Bloom(glm::uvec2 frame_size);
+        explicit Bloom(const RendererSettings& settings, glm::uvec2 resolution);
 
         void process(Context& ctx, const Assets& assets, const std::shared_ptr<Texture>& image);
         [[nodiscard]] const std::shared_ptr<Texture>& getResult() const noexcept;

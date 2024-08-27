@@ -18,7 +18,7 @@ namespace Limitless::fx {
             : Module<Particle>(module.type)
             , distribution {module.distribution->clone()} {}
 
-        void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
+        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, float dt, [[maybe_unused]] const Camera &camera) noexcept override {
             for (auto& particle : particles) {
                 const auto tick = particle.lifetime / dt;
                 const auto tick_color = (distribution->get() - particle.color) / tick;

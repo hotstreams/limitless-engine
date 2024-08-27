@@ -42,7 +42,7 @@ namespace Limitless {
         /**
          * Updates instance and meshes
          */
-        void update(Context &context, const Camera &camera) override;
+        void update(const Camera &camera) override;
 
         /**
          * Makes copy
@@ -140,8 +140,5 @@ namespace Limitless {
 
         [[nodiscard]] const auto& getMeshes() const noexcept { return meshes; }
         auto& getMeshes() noexcept { return meshes; }
-
-        using Instance::draw;
-        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

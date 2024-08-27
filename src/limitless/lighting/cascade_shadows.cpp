@@ -23,7 +23,7 @@ namespace {
     constexpr auto DIRECTIONAL_CSM_BUFFER_NAME = "directional_shadows";
 }
 
-void CascadeShadows::initBuffers(Context& context) {
+void CascadeShadows::initBuffers() {
     auto depth = Texture::builder()
             .target(Texture::Type::Tex2DArray)
             .internal_format(Texture::InternalFormat::Depth16)
@@ -48,19 +48,18 @@ void CascadeShadows::initBuffers(Context& context) {
     framebuffer->checkStatus();
     framebuffer->unbind();
 
-
     light_buffer = Buffer::builder()
           .target(Buffer::Type::ShaderStorage)
           .usage(Buffer::Usage::DynamicDraw)
           .access(Buffer::MutableAccess::WriteOrphaning)
           .size(sizeof(glm::mat4) * split_count)
-          .build(DIRECTIONAL_CSM_BUFFER_NAME, context);
+          .build(DIRECTIONAL_CSM_BUFFER_NAME, *Context::getCurrentContext());
 }
 
-CascadeShadows::CascadeShadows(Context& context, const RendererSettings& settings)
+CascadeShadows::CascadeShadows(const RendererSettings& settings)
     : shadow_resolution {settings.csm_resolution}
     , split_count {settings.csm_split_count} {
-    initBuffers(context);
+    initBuffers();
     frustums.resize(split_count);
     far_bounds.resize(split_count);
     light_space.reserve(split_count);
@@ -185,14 +184,13 @@ void CascadeShadows::updateLightMatrices(const Light& light) {
     }
 }
 
-void CascadeShadows::draw(Instances& instances,
-                          const Light& light,
-                          Context& ctx, const
-                          Assets& assets,
-                          const Camera& camera,
-                          [[maybe_unused]] fx::EffectRenderer* renderer) {
+void CascadeShadows::draw(InstanceRenderer& renderer,
+                          Scene& scene,
+                          Context& ctx,
+                          const Assets& assets,
+                          const Camera& camera) {
     updateFrustums(ctx, camera);
-    updateLightMatrices(light);
+    updateLightMatrices(scene.getLighting().getDirectionalLight());
 
     framebuffer->bind();
 
@@ -209,19 +207,7 @@ void CascadeShadows::draw(Instances& instances,
             shader.setUniform("light_space", frustums[i].crop);
         };
 
-        for (const auto& instance : instances) {
-            if (!instance.get().doesCastShadow()) {
-                continue;
-            }
-
-            if (instance.get().getInstanceType() != InstanceType::Decal) {
-                instance.get().draw(ctx, assets, ShaderType::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
-            }
-        }
-
-//        if (renderer) {
-//            renderer->draw(ctx, assets, ShaderPass::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set});
-//        }
+        renderer.renderScene({ctx, assets, ShaderType::DirectionalShadow, ms::Blending::Opaque, UniformSetter{uniform_set} });
     }
 
     framebuffer->unbind();
@@ -247,11 +233,11 @@ void CascadeShadows::mapData() const {
     light_buffer->mapData(light_space.data(), light_space.size() * sizeof(glm::mat4));
 }
 
-void CascadeShadows::update(Context& ctx, const RendererSettings& settings) {
+void CascadeShadows::update(const RendererSettings& settings) {
     shadow_resolution = settings.csm_resolution;
     split_count = settings.csm_split_count;
 
-    initBuffers(ctx);
+    initBuffers();
 
     frustums.resize(split_count);
     far_bounds.resize(split_count);

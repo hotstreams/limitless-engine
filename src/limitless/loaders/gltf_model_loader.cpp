@@ -22,7 +22,7 @@
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/ms/material_builder.hpp>
 #include <limitless/ms/property.hpp>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/scene.hpp>
 #include <memory>
@@ -664,7 +664,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const cgltf_material& material,
 	const std::string& model_name,
 	size_t material_index,
-    const ModelLoaderFlags& flags
+    [[maybe_unused]] const ModelLoaderFlags& flags
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
 	const auto material_name = model_name + (material.name

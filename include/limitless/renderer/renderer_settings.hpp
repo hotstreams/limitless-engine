@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <glm/vec2.hpp>
 #include <limitless/postprocessing/ssr.hpp>
 #include <limitless/postprocessing/ssao.hpp>
@@ -88,7 +88,7 @@ namespace Limitless {
         /**
          * Render bounding boxes
          */
-        bool bounding_box = false;
+        bool bounding_box = true;
 
         class Builder {
         private:
@@ -136,16 +136,16 @@ namespace Limitless {
              *
              */
             bool bloom {true};
-            float bloom_extract_threshold {1.0f};
-            float bloom_strength {1.0f};
-            uint32_t bloom_blur_iteration_count {8};
+            float bloom_ex_threshold {1.0f};
+            float bloom_str {1.0f};
+            uint32_t bloom_blur_it_count {8};
 
             /**
              *
              */
             bool specular_aa {true};
-            float specular_aa_threshold {0.1f};
-            float specular_aa_variance {0.2f};
+            float specular_threshold {0.1f};
+            float specular_variance {0.2f};
 
             /**
              * Debug settings
@@ -172,6 +172,10 @@ namespace Limitless {
             Builder& enable_ssao();
             Builder& disable_ssao();
             Builder& ssao_settings(SSAO::Settings settings);
+            Builder& ssao_sample_count(glm::vec2 count);
+            Builder& ssao_spiral_turns(float turns);
+            Builder& ssao_power(float power);
+            Builder& ssao_bias(float bias);
 
             Builder& enable_ssr();
             Builder& disable_ssr();
@@ -182,13 +186,31 @@ namespace Limitless {
 
             Builder& enable_csm();
             Builder& disable_csm();
-            Builder& csm_settings();
+            Builder& csm_texture_resolution(glm::uvec2 resolution);
+            Builder& csm_count(uint32_t count);
+            Builder& csm_enable_pcf();
+            Builder& csm_disable_pcf();
+            Builder& csm_enable_micro_shadowing();
+            Builder& csm_disable_micro_shadowing();
+
+            Builder& enable_bloom();
+            Builder& disable_bloom();
+            Builder& bloom_extract_threshold(float threshold);
+            Builder& bloom_strength(float strength);
+            Builder& bloom_blur_iteration_count(uint32_t count);
+
+            Builder& enable_specular_aa();
+            Builder& disable_specular_aa();
+            Builder& specular_aa_threshold(float threshold);
+            Builder& specular_aa_variance(float variance);
+
+            Builder& debug_light_radius();
+            Builder& debug_coordinate_system_axes();
+            Builder& debug_bounding_box();
 
             RendererSettings build();
         };
 
-        static Builder builder() {
-            return {};
-        }
+        static Builder builder() { return {}; }
     };
 }

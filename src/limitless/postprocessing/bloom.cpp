@@ -18,9 +18,9 @@ void Bloom::extractBrightness(const Assets& assets, const std::shared_ptr<Textur
     assets.meshes.at("quad")->draw();
 }
 
-Bloom::Bloom(glm::uvec2 frame_size)
-    : blur {frame_size}
-    , brightness {Framebuffer::asRGB16FNearestClampToEdge(frame_size)} {
+Bloom::Bloom([[maybe_unused]] const RendererSettings& settings, glm::uvec2 resolution)
+    : blur {resolution}
+    , brightness {Framebuffer::asRGB16FNearestClampToEdge(resolution)} {
 }
 
 void Bloom::process(Context& ctx, const Assets& assets, const std::shared_ptr<Texture>& image) {

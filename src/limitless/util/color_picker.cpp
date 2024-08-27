@@ -1,16 +1,18 @@
 #include <limitless/util/color_picker.hpp>
 
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <utility>
 #include <iostream>
 #include <limitless/core/uniform/uniform_sampler.hpp>
+#include <limitless/renderer/instance_renderer.hpp>
+
 using namespace Limitless;
 
 void ColorPicker::onPick(Context& ctx, Assets& assets, Scene& scene, glm::uvec2 coords, std::function<void(uint32_t id)> callback) {
     onPick(ctx, assets, scene.getInstances(), coords, std::move(callback));
 }
 
-void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instances, glm::uvec2 coords, std::function<void(uint32_t)> callback) {
+void ColorPicker::onPick(Context& ctx, [[maybe_unused]] Assets& assets, const Instances& instances, glm::uvec2 coords, std::function<void(uint32_t)> callback) {
     coords.y = ctx.getSize().y - coords.y;
     auto& pick = data.emplace_back(PickData{std::move(callback), coords});
 
@@ -25,12 +27,16 @@ void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instance
     framebuffer.clear();
 
     for (auto& wrapper : instances) {
-        auto& instance = wrapper.get();
+        auto& instance = *wrapper;
         const auto id = instance.getId();
         const auto setter = UniformSetter([color_id = convert(id)](ShaderProgram& shader) {
             shader.setUniform("color_id", color_id);
         });
-        instance.draw(ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter);
+        //TODO: restore
+        // instanced picker?
+        // terrain picker?
+        // specify behavior
+//        InstanceRenderer::render(instance, {ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter});
     }
 
     pick.sync.place();

@@ -44,8 +44,7 @@ namespace Limitless {
          */
         bool isDone() const noexcept;
 
-        void updateBoundingBox() noexcept override;
-        void updateEmitters(Context& context, const Camera& camera) const noexcept;
+        void updateEmitters(const Camera& camera) const noexcept;
 
         friend class fx::EffectBuilder;
         friend class EffectSerializer;
@@ -71,19 +70,11 @@ namespace Limitless {
         /**
          * Updates instance and then emitters
          */
-        void update(Context& context, const Camera& camera) override;
-
-        /**
-         * Does NOT draw effect
-         *
-         * use EffectRenderer instead
-         */
-        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) override;
+        void update(const Camera &camera) override;
 
         const auto& getEmitters() const noexcept { return emitters; }
         auto& getEmitters() noexcept { return emitters; }
         const auto& getName() const noexcept { return name; }
-
 
         /**
          * Gets emitter with specified name and type

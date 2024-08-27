@@ -38,6 +38,8 @@ namespace Limitless {
         [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
         [[nodiscard]] auto& getMaterial() noexcept { return material; }
 
+        [[nodiscard]] const std::shared_ptr<AbstractMesh>& getMesh() const noexcept { return mesh; }
+
         void update();
 
         void draw(Context& ctx,

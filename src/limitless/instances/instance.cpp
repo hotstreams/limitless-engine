@@ -22,12 +22,13 @@ Instance::Instance(const Instance& rhs)
     , position {rhs.position}
     , scale {rhs.scale}
     , bounding_box {rhs.bounding_box}
+    , custom_bounding_box {rhs.custom_bounding_box}
+    , decal_mask {rhs.decal_mask}
     , shadow_cast {rhs.shadow_cast}
     , outlined {rhs.outlined}
     , hidden {rhs.hidden}
     , done {rhs.done} {
 }
-
 
 void Instance::updateModelMatrix() noexcept {
     const auto translation_matrix = glm::translate(glm::mat4{1.0f}, position);
@@ -115,11 +116,12 @@ Instance& Instance::setParent(const glm::mat4& _parent) noexcept {
 	return *this;
 }
 
-void Instance::draw(Context& ctx, const Assets& assets, ShaderType material_shader_type, ms::Blending blending) {
-    draw(ctx, assets, material_shader_type, blending, UniformSetter {});
+Instance& Instance::setBoundingBox(const Box& box) noexcept {
+    custom_bounding_box = box;
+    return *this;
 }
 
-void Instance::update(Context& context, const Camera& camera) {
+void Instance::update(const Camera &camera) {
 	// updates current model matrices
 	updateModelMatrix();
 	updateFinalMatrix();
@@ -127,7 +129,7 @@ void Instance::update(Context& context, const Camera& camera) {
 
 	// propagates current instance values to attachments
     InstanceAttachment::setAttachmentsParent(final_matrix);
-    InstanceAttachment::updateAttachments(context, camera);
+    InstanceAttachment::updateAttachments(camera);
 }
 
 void Instance::removeOutline() noexcept {
@@ -152,4 +154,14 @@ Instance::Builder Instance::builder() noexcept {
     return {};
 }
 
+void Instance::updateBoundingBox() noexcept {
+    if (custom_bounding_box) {
+        bounding_box.center = glm::vec4{position, 1.0f} + glm::vec4{custom_bounding_box->center, 1.0f} * final_matrix;
+        bounding_box.size = glm::vec4{custom_bounding_box->size, 1.0f} * final_matrix;
+    }
+}
 
+Instance &Instance::setDecalMask(uint8_t mask) noexcept {
+    decal_mask = mask;
+    return *this;
+}

@@ -6,12 +6,11 @@
 #include <limitless/assets.hpp>
 #include <limitless/core/context.hpp>
 
-#include <limitless/ms/property.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/models/line.hpp>
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/cylinder.hpp>
-#include <iostream>
+#include <limitless/renderer/instance_renderer.hpp>
 
 using namespace Limitless;
 using namespace Limitless::ms;
@@ -37,8 +36,9 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
         if (light.isPoint()) {
             sphere_instance.setPosition(light.getPosition());
             sphere_instance.setScale(glm::vec3(light.getRadius()));
-            sphere_instance.update(context, camera);
-            sphere_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+            sphere_instance.update(camera);
+
+            InstanceRenderer::render(sphere_instance, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
         }
         if (light.isSpot()) {
             auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() / 1.5f * glm::sin(glm::acos(glm::radians(light.getCone().y))), light.getRadius());
@@ -54,8 +54,10 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
             auto angle = glm::acos(glm::dot(y, light.getDirection()));
 
             cone_instance.setRotation(a * angle);
-            cone_instance.update(context, camera);
-            cone_instance.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+            cone_instance.update(camera);
+
+            InstanceRenderer::render(cone_instance, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+
         }
     }
 
@@ -78,29 +80,31 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
     static ModelInstance y_i {y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}};
     static ModelInstance z_i {z, assets.materials.at("red"), {5.0f, 1.0f, 0.0f}};
 
-    x_i.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
-    y_i.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
-    z_i.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+    InstanceRenderer::render(x_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+    InstanceRenderer::render(y_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+    InstanceRenderer::render(z_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
 }
 
-void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, Instances& instances) {
-    auto box = ModelInstance{assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
+void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Scene& scene) {
+    auto box = ModelInstance {assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
 
     context.setLineWidth(2.5f);
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& instance : instances) {
-        auto& bounding_box = instance.get().getBoundingBox();
+    for (const auto& instance : scene.getInstances()) {
+        auto& bounding_box = instance->getBoundingBox();
 
-        box.setPosition(bounding_box.center).setScale(bounding_box.size);
+        box .setPosition(bounding_box.center)
+            .setScale(bounding_box.size)
+            .update(camera);
 
-        box.draw(context, assets, ShaderType::Forward, ms::Blending::Opaque);
+        InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
-void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Instances& instances) {
+void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {
     if (settings.bounding_box) {
-        renderBoundingBoxes(context, assets, instances);
+        renderBoundingBoxes(context, assets, camera, scene);
     }
 
     if (settings.coordinate_system_axes) {

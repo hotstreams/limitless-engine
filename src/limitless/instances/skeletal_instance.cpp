@@ -12,7 +12,7 @@
 
 using namespace Limitless;
 
-constexpr auto SKELETAL_BUFFER_NAME = "bone_buffer";
+[[maybe_unused]] constexpr auto SKELETAL_BUFFER_NAME = "bone_buffer";
 
 void SkeletalInstance::initializeBuffer() {
     bone_buffer = Buffer::builder()
@@ -132,12 +132,12 @@ std::unique_ptr<Instance> SkeletalInstance::clone() noexcept {
     return std::make_unique<SkeletalInstance>(*this);
 }
 
-void SkeletalInstance::update(Context& context, const Camera& camera) {
+void SkeletalInstance::update(const Camera &camera) {
     updateAnimationFrame();
 
     SocketAttachment::updateSocketAttachments();
 
-    ModelInstance::update(context, camera);
+    ModelInstance::update(camera);
 }
 
 SkeletalInstance &SkeletalInstance::play(uint32_t index) {
@@ -180,20 +180,6 @@ SkeletalInstance& SkeletalInstance::resume() noexcept {
 SkeletalInstance& SkeletalInstance::stop() noexcept {
     animation = nullptr;
     return *this;
-}
-
-void SkeletalInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_setter) {
-    if (hidden) {
-        return;
-    }
-
-	bone_buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SKELETAL_BUFFER_NAME));
-
-    for (auto& [name, mesh] : meshes) {
-        mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
-    }
-
-    bone_buffer->fence();
 }
 
 glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const {

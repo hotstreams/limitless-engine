@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/fx/emitters/unique_emitter.hpp>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 
 #include <unordered_map>
 #include <memory>

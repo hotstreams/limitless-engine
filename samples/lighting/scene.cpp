@@ -29,7 +29,7 @@ bool LimitlessMaterials::Scene::isInsideFloor(const glm::vec3& position) {
 }
 
 void LimitlessMaterials::Scene::update(Limitless::Context& context, const Limitless::Camera& camera) {
-    scene.update(context, camera);
+    scene.update(camera);
 
     using namespace std::chrono;
     auto current_time = steady_clock::now();

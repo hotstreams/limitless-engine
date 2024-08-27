@@ -6,29 +6,39 @@
 
 using namespace Limitless;
 
-void Instance::Builder::initialize(const std::shared_ptr<ModelInstance>& instance) {
+void Instance::Builder::initialize(Instance& instance) {
     // apply properties
-    instance->setPosition(position_);
-    instance->setRotation(rotation_);
-    instance->setScale(scale_);
+
+    instance.setPosition(position_);
+    instance.setRotation(rotation_);
+    instance.setScale(scale_);
+
     if (cast_shadow_) {
-        instance->castShadow();
+        instance.castShadow();
     }
+
+    if (bounding_box_) {
+        instance.setBoundingBox(*bounding_box_);
+    }
+
+    instance.setDecalMask(decal_mask);
 
     // add instance attachments
     for (const auto &attachment: attachments) {
-        instance->attach(attachment);
+        instance.attach(attachment);
     }
 
     // add bone attachments
-    if (instance->getInstanceType() == InstanceType::Skeletal) {
-        auto &skeletal = static_cast<SkeletalInstance &>(*instance);
+    if (instance.getInstanceType() == InstanceType::Skeletal) {
+        auto& skeletal = static_cast<SkeletalInstance&>(instance);
 
         for (const auto &[bone, attachment]: bone_attachments) {
             skeletal.attachToBone(bone, attachment);
         }
     }
+}
 
+void Instance::Builder::initialize(const std::shared_ptr<ModelInstance>& instance) {
     // change materials
     if (global_material) {
         instance->changeMaterials(global_material);
@@ -68,6 +78,11 @@ Instance::Builder &Instance::Builder::cast_shadow(bool cast_shadow) {
     return *this;
 }
 
+Instance::Builder& Instance::Builder::bounding_box(const Box& box) {
+    bounding_box_ = box;
+    return *this;
+}
+
 std::shared_ptr<ModelInstance> Instance::Builder::asModel() {
     if (dynamic_cast<Model*>(model_.get())) {
         auto instance = std::make_shared<ModelInstance>(model_, position_);
@@ -78,6 +93,7 @@ std::shared_ptr<ModelInstance> Instance::Builder::asModel() {
     if (dynamic_cast<ElementaryModel*>(model_.get())) {
         if (global_material) {
             auto instance = std::make_shared<ModelInstance>(model_, global_material, position_);
+            initialize(*instance);
             initialize(instance);
             return instance;
         } else {
@@ -91,6 +107,7 @@ std::shared_ptr<ModelInstance> Instance::Builder::asModel() {
 std::shared_ptr<SkeletalInstance> Instance::Builder::asSkeletal() {
     if (dynamic_cast<SkeletalModel*>(model_.get())) {
         auto instance = std::make_shared<SkeletalInstance>(model_, position_);
+        initialize(*instance);
         initialize(instance);
         return instance;
     } else {
@@ -111,6 +128,7 @@ std::shared_ptr<Instance> Instance::Builder::build() {
         if (dynamic_cast<ElementaryModel *>(model_.get())) {
             if (global_material) {
                 auto instance = std::make_shared<ModelInstance>(model_, global_material, position_);
+                initialize(*instance);
                 initialize(instance);
                 return instance;
             } else {
@@ -123,9 +141,7 @@ std::shared_ptr<Instance> Instance::Builder::build() {
 
     if (effect_) {
         auto instance = std::make_shared<EffectInstance>(effect_, position_);
-        instance->setPosition(position_);
-        instance->setRotation(rotation_);
-        instance->setScale(scale_);
+        initialize(*instance);
         return instance;
     }
 
@@ -166,9 +182,7 @@ Instance::Builder& Instance::Builder::effect(const std::shared_ptr<EffectInstanc
 std::shared_ptr<EffectInstance> Instance::Builder::asEffect() {
     if (effect_) {
         auto instance = std::make_shared<EffectInstance>(effect_, position_);
-        instance->setPosition(position_);
-        instance->setRotation(rotation_);
-        instance->setScale(scale_);
+        initialize(*instance);
         return instance;
     } else {
         throw instance_builder_exception {"Instance builder does not have effect to build!"};
@@ -185,8 +199,17 @@ std::shared_ptr<DecalInstance> Instance::Builder::asDecal() {
     }
 
     auto instance = std::make_shared<DecalInstance>(model_, global_material, position_);
-    instance->setPosition(position_);
-    instance->setRotation(rotation_);
-    instance->setScale(scale_);
+    initialize(*instance);
+    instance->getProjectionMask() = decal_proj_mask;
     return instance;
+}
+
+Instance::Builder &Instance::Builder::decal_receipt_mask(uint8_t mask) {
+    decal_mask = mask;
+    return *this;
+}
+
+Instance::Builder &Instance::Builder::decal_projection_mask(uint8_t mask) {
+    decal_proj_mask = mask;
+    return *this;
 }

@@ -1,4 +1,6 @@
 #include <limitless/instances/instanced_instance.hpp>
+#include <limitless/core/shader/shader_program.hpp>
+#include <limitless/scene.hpp>
 
 using namespace Limitless;
 
@@ -27,10 +29,6 @@ InstancedInstance::InstancedInstance(const InstancedInstance& rhs)
     }
 }
 
-void InstancedInstance::updateBoundingBox() noexcept {
-
-}
-
 std::unique_ptr<Instance> InstancedInstance::clone() noexcept {
     return std::make_unique<InstancedInstance>(*this);
 }
@@ -44,11 +42,11 @@ void InstancedInstance::remove(uint64_t id){
     instances.erase(it, instances.end());
 }
 
-void InstancedInstance::updateBuffer() {
+void InstancedInstance::updateInstanceBuffer() {
     std::vector<glm::mat4> new_data;
-    new_data.reserve(instances.size());
+    new_data.reserve(visible_instances.size());
 
-    for (const auto& instance : instances) {
+    for (const auto& instance : visible_instances) {
         if (instance->isHidden()) {
             continue;
         }
@@ -70,29 +68,22 @@ void InstancedInstance::updateBuffer() {
     }
 }
 
-void InstancedInstance::update(Context& context, const Camera& camera) {
+void InstancedInstance::update(const Camera &camera) {
     if (instances.empty()) {
         return;
     }
 
-    Instance::update(context, camera);
+    Instance::update(camera);
 
     for (const auto& instance : instances) {
-        instance->update(context, camera);
+        instance->update(camera);
     }
 
-    updateBuffer();
+    updateInstanceBuffer();
 }
 
-void InstancedInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_set) {
-    if (hidden || instances.empty()) {
-        return;
-    }
+void InstancedInstance::setVisible(const std::vector<std::shared_ptr<ModelInstance>> &visible) {
+    visible_instances = visible;
 
-    buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
-
-    // iterates over all meshes
-    for (auto& [name, mesh] : instances[0]->getMeshes()) {
-        mesh.draw_instanced(ctx, assets, pass, shader_type, model_matrix, blending, uniform_set, instances.size());
-    }
+    updateInstanceBuffer();
 }

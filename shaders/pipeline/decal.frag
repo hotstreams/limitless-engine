@@ -13,12 +13,21 @@ layout (location = 3) out vec4 emissive;
 layout (location = 4) out vec4 info;
 
 uniform sampler2D depth_texture;
+uniform sampler2D info_texture;
+
 uniform mat4 decal_VP;
+uniform uint projection_mask;
 
 uniform float decal_blend = 1.0;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / getResolution();
+
+    // check instance mask
+    uint mask = uint(texture(info_texture, uv).g * 255.0);
+    if ((mask & projection_mask) == 0u) {
+        discard;
+    }
 
     // sample depth from gbuffer
     float depth = texture(depth_texture, uv).r;

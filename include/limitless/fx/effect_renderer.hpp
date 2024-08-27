@@ -12,7 +12,7 @@ namespace Limitless {
     class Context;
     class Assets;
 
-    using Instances = std::vector<std::reference_wrapper<Instance>>;
+    using Instances = std::vector<std::shared_ptr<Instance>>;
 
     namespace ms {
         enum class Blending;
@@ -29,7 +29,6 @@ namespace Limitless::fx {
         void updateRenderers(const Instances& instances) noexcept;
         static void visitEmitters(const Instances& instances, EmitterVisitor& visitor) noexcept;
     public:
-        explicit EffectRenderer(Context& context) noexcept;
         ~EffectRenderer() = default;
 
         void update(const Instances& instances);

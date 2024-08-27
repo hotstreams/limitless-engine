@@ -28,7 +28,7 @@ void EffectRenderer::visitEmitters(const Instances& instances, EmitterVisitor& e
     };
 
     for (const auto& instance : instances) {
-        visitor(instance);
+        visitor(*instance);
     }
 }
 
@@ -86,8 +86,4 @@ void EffectRenderer::draw(Context& ctx, const Assets& assets, ShaderType shader,
             }
         }
     }
-}
-
-EffectRenderer::EffectRenderer(Context& context) noexcept {
-    context.enable(Capabilities::ProgramPointSize);
 }

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <limitless/util/bounding_box.hpp>
+#include <limitless/util/box.hpp>
 #include <limitless/instances/instance_attachment.hpp>
 #include <limitless/util/matrix_stack.hpp>
+#include <limitless/util/frustum.hpp>
+#include <optional>
 
 namespace Limitless {
     enum class ShaderType;
@@ -76,7 +78,20 @@ namespace Limitless {
          */
 		glm::vec3 scale {1.0f};
 
-		BoundingBox bounding_box {};
+        /**
+         * Final bounding box
+         */
+		Box bounding_box {};
+
+        /**
+         * User-set bounding box
+         */
+        std::optional<Box> custom_bounding_box {};
+
+        /**
+         * Instance decal mask
+         */
+        uint8_t decal_mask {0x00};
 
         /**
          * Does instance cast shadow
@@ -98,7 +113,11 @@ namespace Limitless {
          */
         bool done {};
 
-		virtual void updateBoundingBox() noexcept = 0;
+        /**
+         * Default implementation of bounding box updates sets custom user box if present
+         */
+		virtual void updateBoundingBox() noexcept;
+
 		void updateModelMatrix() noexcept;
 		void updateFinalMatrix() noexcept;
 
@@ -125,6 +144,8 @@ namespace Limitless {
         [[nodiscard]] const auto& getBoundingBox() noexcept { updateBoundingBox(); return bounding_box; }
         [[nodiscard]] const auto& getFinalMatrix() const noexcept { return final_matrix; }
         [[nodiscard]] const auto& getModelMatrix() const noexcept { return model_matrix; }
+
+        [[nodiscard]] const auto& getDecalMask() const noexcept { return decal_mask; }
 
         /**
          * Instance outlined
@@ -199,14 +220,19 @@ namespace Limitless {
         virtual Instance& setParent(const glm::mat4& parent) noexcept;
 
         /**
-         * Updates instance
+         * Sets custom bounding box
          */
-		virtual void update(Context& context, const Camera& camera);
+        virtual Instance& setBoundingBox(const Box& box) noexcept;
 
-        // draws instance with no extra uniform setting
-        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending);
+        /**
+         * Sets decal mask
+         */
+        virtual Instance& setDecalMask(uint8_t mask) noexcept;
 
-        virtual void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_set) = 0;
+        /**
+         * Updates instance data
+         */
+		virtual void update(const Camera &camera);
 
         /**
          *  Instance builder

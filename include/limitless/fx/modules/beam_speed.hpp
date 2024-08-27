@@ -30,7 +30,7 @@ namespace Limitless::fx {
             return new BeamSpeed(*this);
         }
 
-        void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, [[maybe_unused]] float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
+        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, [[maybe_unused]] float dt, [[maybe_unused]] const Camera &camera) noexcept override {
             using namespace std::chrono;
             for (auto& particle : particles) {
                 const auto current_time = steady_clock::now();

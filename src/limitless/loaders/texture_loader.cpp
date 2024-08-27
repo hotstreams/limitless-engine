@@ -335,7 +335,7 @@ bool TextureLoader::isPowerOfTwo(int width, int height) {
 	return ((width != 0) && !(width & (width - 1))) && ((height != 0) && !(height & (height - 1)));
 }
 
-std::shared_ptr<Texture> TextureLoader::load(Assets &assets, const std::vector<fs::path> &paths, const TextureLoaderFlags &flags) {
+std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, const std::vector<fs::path> &paths, const TextureLoaderFlags &flags) {
     //TODO: size equality check
     Texture::Builder builder = Texture::builder();
 

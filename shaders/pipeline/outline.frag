@@ -6,8 +6,8 @@ in vec2 uv;
 
 out vec3 color;
 
-uniform int width = 5;
-uniform vec3 outline_color = vec3(1.0, 0.0, 0.0);
+uniform int width;
+uniform vec3 outline_color;
 uniform sampler2D mask_texture;
 
 void main() {

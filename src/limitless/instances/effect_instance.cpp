@@ -1,6 +1,5 @@
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/fx/emitters/mesh_emitter.hpp>
-#include <limitless/pipeline/forward/postprocessing.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
 using namespace Limitless;
@@ -13,11 +12,7 @@ bool EffectInstance::isDone() const noexcept {
     return done;
 }
 
-void EffectInstance::updateBoundingBox() noexcept {
-    //TODO:
-}
-
-void EffectInstance::updateEmitters(Context& context, const Camera& camera) const noexcept {
+void EffectInstance::updateEmitters(const Camera& camera) const noexcept {
 	// because we do not use final_matrix in emitter shaders explicitly
 	// we should decompose it to parameters
 	// and set it to emitters
@@ -36,7 +31,7 @@ void EffectInstance::updateEmitters(Context& context, const Camera& camera) cons
 		emitter->setRotation(rotation);
 		//TODO
 		//emitter->setScale(scale);
-        emitter->update(context, camera);
+        emitter->update(camera);
 	}
 }
 
@@ -64,17 +59,8 @@ std::unique_ptr<Instance> EffectInstance::clone() noexcept {
     return std::make_unique<EffectInstance>(*this);
 }
 
-void EffectInstance::update(Context& context, const Camera& camera) {
-    Instance::update(context, camera);
-	updateEmitters(context, camera);
+void EffectInstance::update(const Camera &camera) {
+    Instance::update(camera);
+	updateEmitters(camera);
 	done = isDone();
-}
-
-void EffectInstance::draw([[maybe_unused]] Limitless::Context& ctx,
-                          [[maybe_unused]] const Assets& assets,
-                          [[maybe_unused]] ShaderType shader_type,
-                          [[maybe_unused]] ms::Blending blending,
-                          [[maybe_unused]] const UniformSetter& uniform_set) {
-    // One does not simply render effect instance!
-    // use EffectRenderer
 }

@@ -19,7 +19,7 @@
 #include <limitless/loaders/gltf_model_loader.hpp>
 #include <limitless/ms/material_builder.hpp>
 #include <limitless/ms/property.hpp>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/scene.hpp>
 #include <memory>
@@ -77,7 +77,10 @@ int main(int argc, char* argv[]) {
 	assets.load(ctx);
 	auto model = GltfModelLoader::loadModel(assets, fs::path(argv[1]), {});
 
-	Renderer renderer {ctx};
+	auto renderer = Renderer::builder()
+            .resolution(window_size)
+            .deferred()
+            .build();
 
 	Scene scene {ctx};
 
@@ -115,7 +118,7 @@ int main(int argc, char* argv[]) {
 	ctx.setSwapInterval(1);
 	ctx.setStickyKeys(true);
 
-	assets.recompileAssets(ctx, renderer.getSettings());
+	assets.recompileAssets(ctx, renderer->getSettings());
 
 	while (!ctx.shouldClose()) {
 		auto current_time     = steady_clock::now();
@@ -125,37 +128,11 @@ int main(int argc, char* argv[]) {
 				.count();
 		last_time = current_time;
 
-		renderer.draw(ctx, assets, scene, camera);
+		renderer->render(ctx, assets, scene, camera);
 
 		ctx.setDepthFunc(DepthFunc::Less);
 		ctx.setDepthMask(DepthMask::True);
 
-		ctx.setLineWidth(2.5f);
-
-		static const auto x = std::make_shared<Line>(
-			glm::vec3 {0.0f, 0.0f, 0.0f}, glm::vec3 {1.0f, 0.0f, 0.0f}
-		);
-		static const auto y = std::make_shared<Line>(
-			glm::vec3 {0.0f, 0.0f, 0.0f}, glm::vec3 {0.0f, 1.0f, 0.0f}
-		);
-		static const auto z = std::make_shared<Line>(
-			glm::vec3 {0.0f, 0.0f, 0.0f}, glm::vec3 {0.0f, 0.0f, 1.0f}
-		);
-
-		static ModelInstance x_i {
-			x, assets.materials.at("green"), {5.0f, 1.0f, 0.0f}
-		};
-		static ModelInstance y_i {
-			y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}
-		};
-		static ModelInstance z_i {
-			z, assets.materials.at("red"), {5.0f, 1.0f, 0.0f}
-		};
-
-		ctx.disable(Capabilities::DepthTest);
-		x_i.draw(ctx, assets, ShaderType::Forward, ms::Blending::Opaque);
-		y_i.draw(ctx, assets, ShaderType::Forward, ms::Blending::Opaque);
-		z_i.draw(ctx, assets, ShaderType::Forward, ms::Blending::Opaque);
 		ctx.enable(Capabilities::DepthTest);
 
 		ctx.swapBuffers();

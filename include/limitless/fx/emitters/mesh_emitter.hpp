@@ -39,7 +39,7 @@ namespace Limitless::fx {
 
         [[nodiscard]] MeshEmitter* clone() const override;
 
-        void update(Context& context, const Camera& camera) override;
+        void update(const Camera &camera) override;
         void accept(EmitterVisitor& visitor) noexcept override;
     };
 }

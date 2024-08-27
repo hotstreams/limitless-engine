@@ -56,7 +56,7 @@ namespace Limitless {
          * Updates bone transformation for current animation frame
          */
         void updateAnimationFrame();
-        const AnimationNode* findAnimationNode(const Bone& bone) const noexcept;
+        [[nodiscard]] const AnimationNode* findAnimationNode(const Bone& bone) const noexcept;
     public:
         /**
          * Creates instance with SkeletalModel
@@ -75,7 +75,7 @@ namespace Limitless {
         /**
          * Updates current animation, socket attachments data and instance itself
          */
-	    void update(Context& context, const Camera& camera) override;
+        void update(const Camera &camera) override;
 
         /**
          * Plays animation with name
@@ -100,18 +100,17 @@ namespace Limitless {
          */
         SkeletalInstance& stop() noexcept;
 
-        auto isPaused() const noexcept { return paused; }
-        const auto& getCurrentAnimation() const noexcept { return animation; }
-        const std::vector<Animation>& getAllAnimations() const noexcept;
+        [[nodiscard]] auto isPaused() const noexcept { return paused; }
+        [[nodiscard]] const auto& getCurrentAnimation() const noexcept { return animation; }
+        [[nodiscard]] const std::vector<Animation>& getAllAnimations() const noexcept;
         const std::vector<Bone>& getAllBones() const noexcept;
+        const auto& getBoneBuffer() const noexcept { return bone_buffer; }
+
         /**
          * Calculates transformed vertex position on specified instance mesh for specified vertex
          */
-        glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const;
+        [[nodiscard]] glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const;
 
         const auto& getBoneTransform() const noexcept { return bone_transform; }
-
-        using Instance::draw;
-        void draw(Context& ctx, const Assets& assets, ShaderType shader_type, ms::Blending blending, const UniformSetter& uniform_setter) override;
     };
 }

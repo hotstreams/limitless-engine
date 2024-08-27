@@ -57,7 +57,7 @@ namespace Limitless::fx {
             return new MeshLocationAttachment<Particle>(*this);
         }
 
-        void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, [[maybe_unused]] float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
+        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, [[maybe_unused]] float dt, [[maybe_unused]] const Camera &camera) noexcept override {
             for (size_t i = 0; i < particles.size(); ++i) {
                 auto& [selected_mesh, vertex_index, triangle, last_position] = cache[i];
                 const auto mesh_position = this->getPositionOnMesh(selected_mesh, vertex_index, triangle.first, triangle.second);

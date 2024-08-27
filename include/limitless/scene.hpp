@@ -16,7 +16,7 @@ namespace Limitless {
         using std::runtime_error::runtime_error;
     };
 
-    using Instances = std::vector<std::reference_wrapper<Instance>>;
+    using Instances = std::vector<std::shared_ptr<Instance>>;
 
     /**
      *
@@ -26,7 +26,6 @@ namespace Limitless {
         Lighting lighting;
         std::unordered_map<uint64_t, std::shared_ptr<Instance>> instances;
         std::shared_ptr<Skybox> skybox;
-
         void removeDeadInstances() noexcept;
     public:
         explicit Scene(Context& context);
@@ -59,6 +58,6 @@ namespace Limitless {
          */
         Instances getInstances() const noexcept;
 
-        void update(Context& context, const Camera& camera);
+        void update(const Camera& camera);
     };
 }

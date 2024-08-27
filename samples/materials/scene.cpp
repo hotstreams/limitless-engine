@@ -16,7 +16,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
 }
 
 void LimitlessMaterials::Scene::update(Limitless::Context& context, const Limitless::Camera& camera) {
-    scene.update(context, camera);
+    scene.update(camera);
 
     open_model->getMaterial(0)->getEmissiveColor() = {
         glm::abs(glm::cos(glfwGetTime() * 2.5)) * 2.5,

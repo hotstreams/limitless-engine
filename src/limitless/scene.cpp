@@ -109,20 +109,20 @@ void Scene::setSkybox(const std::shared_ptr<Skybox>& skybox_) {
     skybox = skybox_;
 }
 
-void Scene::update(Context& context, const Camera& camera) {
+void Scene::update(const Camera& camera) {
     lighting.update();
 
     removeDeadInstances();
 
     for (auto& [_, instance] : instances) {
         if (instance->getInstanceType() != InstanceType::Effect) {
-            instance->update(context, camera);
+            instance->update(camera);
         }
     }
 
     for (auto& [_, instance] : instances) {
         if (instance->getInstanceType() == InstanceType::Effect) {
-            instance->update(context, camera);
+            instance->update(camera);
         }
     }
 }
@@ -131,19 +131,20 @@ Instances Scene::getInstances() const noexcept {
     Instances wrappers;
     wrappers.reserve(instances.size());
 
-    const std::function<void(Instance&)> visitor = [&] (Instance& instance) {
-	    wrappers.emplace_back(std::ref(instance));
+    const std::function<void(const std::shared_ptr<Instance>&)> visitor = [&] (const std::shared_ptr<Instance>& instance) {
+	    wrappers.emplace_back(instance);
 
-	    for (auto& [_, attachment] : instance.getAttachments()) {
-	    	visitor(*attachment);
+	    for (auto& [_, attachment] : instance->getAttachments()) {
+	    	visitor(attachment);
 	    }
     };
 
 	for (const auto& [_, instance] : instances) {
+		visitor(instance);
         if (instance->isHidden()) {
             continue;
         }
-		visitor(*instance);
+		visitor(instance);
 	}
 
     return wrappers;

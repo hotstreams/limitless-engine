@@ -79,7 +79,7 @@ namespace Limitless::fx {
         [[nodiscard]] UniqueEmitterRenderer getUniqueRendererType() const noexcept override { return { type, std::nullopt, nullptr }; }
 
         [[nodiscard]] Emitter* clone() const override;
-        void update(Context& ctx, const Camera& camera) override;
+        void update(const Camera &camera) override;
         void accept(EmitterVisitor& visitor) noexcept override;
 
         bool& getLocalSpace() noexcept override;

@@ -21,6 +21,9 @@ namespace Limitless {
         glm::vec3 position_ {0.0f};
         glm::vec3 scale_ {1.0f};
         bool cast_shadow_ {true};
+        std::optional<Box> bounding_box_ {};
+        uint8_t decal_mask {0xFF};
+        uint8_t decal_proj_mask {0xFF};
 
         class MaterialChange {
         public:
@@ -41,6 +44,7 @@ namespace Limitless {
         };
         std::vector<SocketAttachment> bone_attachments;
 
+        void initialize(Instance& instance);
         void initialize(const std::shared_ptr<ModelInstance>& instance);
     public:
         Builder() noexcept = default;
@@ -74,6 +78,32 @@ namespace Limitless {
          *  Sets whether instance should cast shadow
          */
         Builder& cast_shadow(bool cast_shadow);
+
+        /**
+         *  Sets custom bounding box
+         *
+         *  note: MUST BE SET for EffectInstance
+         *  note: overrides calculated one from underlying model (but takes into consideration instance transformation)
+         *  note: does not work for InstancedInstance (should be set on particular instance of InstancedInstance)
+         */
+        Builder& bounding_box(const Box& box);
+
+        /**
+         *  Sets decal receipt mask
+         *
+         *  8 unique bits for each 'type collection'
+         *
+         *  0xFF - for receiving all decals
+         *  0x00 - for not receiving
+         */
+        Builder& decal_receipt_mask(uint8_t mask);
+
+        /**
+         *  Sets decal projection mask for DecalInstance
+         *
+         *  Projects on Instances when [receipt mask & projection mask != 0]
+         */
+        Builder& decal_projection_mask(uint8_t mask);
 
         /**
          *  Replaces default mesh material with specified one

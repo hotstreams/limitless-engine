@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <limitless/ms/property.hpp>
 #include <limitless/ms/shading.hpp>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <limitless/core/shader/shader_define_replacer.hpp>
 
 namespace Limitless {

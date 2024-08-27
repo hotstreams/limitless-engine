@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/util/bounding_box.hpp>
+#include <limitless/util/box.hpp>
 #include <string>
 #include <memory>
 
@@ -11,7 +11,7 @@ namespace Limitless {
     protected:
         std::string name;
         std::vector<std::shared_ptr<AbstractMesh>> meshes;
-        BoundingBox bounding_box {};
+        Box bounding_box {};
 
         void calculateBoundingBox();
     public:

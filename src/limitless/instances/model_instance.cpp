@@ -40,20 +40,6 @@ ModelInstance::ModelInstance(decltype(model) _model, std::shared_ptr<ms::Materia
     }
 }
 
-void ModelInstance::draw(Context& ctx, const Assets& assets, ShaderType pass, ms::Blending blending, const UniformSetter& uniform_setter) {
-    if (hidden) {
-        return;
-    }
-
-    const_cast<UniformSetter&>(uniform_setter).add([&] (ShaderProgram& shader) {
-       shader.setUniform("outline", outlined ? 1.0f : 0.0f);
-    });
-
-    for (auto& [name, mesh] : meshes) {
-        mesh.draw(ctx, assets, pass, shader_type, final_matrix, blending, uniform_setter);
-    }
-}
-
 MeshInstance& ModelInstance::operator[](const std::string& mesh) {
     try {
         return meshes.at(mesh);
@@ -79,8 +65,8 @@ void ModelInstance::updateBoundingBox() noexcept {
     bounding_box.size = glm::vec4{model->getBoundingBox().size, 1.0f} * final_matrix;
 }
 
-void ModelInstance::update(Context& context, const Camera& camera) {
-	Instance::update(context, camera);
+void ModelInstance::update(const Camera &camera) {
+    Instance::update(camera);
 
 	for (auto& [_, mesh] : meshes) {
 		mesh.update();
