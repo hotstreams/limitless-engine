@@ -38,7 +38,8 @@ void InstancedInstance::add(const std::shared_ptr<ModelInstance>& instance) {
 }
 
 void InstancedInstance::remove(uint64_t id){
-    [[maybe_unused]] auto res = std::remove_if(instances.begin(), instances.end(), [&] (auto& i) { return i->getId() == id; });
+    auto it = std::remove_if(instances.begin(), instances.end(), [&] (auto& i) { return i->getId() == id; });
+    instances.erase(it, instances.end());
 }
 
 void InstancedInstance::updateInstanceBuffer() {

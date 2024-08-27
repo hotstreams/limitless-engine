@@ -872,15 +872,16 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		builder.color(toVec4(pbr_mr.base_color_factor));
 	}
 
-	auto* mr_tex = pbr_mr.metallic_roughness_texture.texture;
-	if (mr_tex && mr_tex->image) {
-		// These values MUST be encoded with a linear transfer function.
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
+	// TODO: load as metallic-roughness texture.
+	// auto* mr_tex = pbr_mr.metallic_roughness_texture.texture;
+	// if (mr_tex && mr_tex->image) {
+	// 	// These values MUST be encoded with a linear transfer function.
+	// 	const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
 
-		builder.orm(*loadTextureFrom(*mr_tex, material_name + "_orm", flags));
-		builder.metallic(pbr_mr.metallic_factor);
-		builder.roughness(pbr_mr.roughness_factor);
-	}
+	// 	builder.orm(*loadTextureFrom(*mr_tex, material_name + "_orm", flags));
+	// 	builder.metallic(pbr_mr.metallic_factor);
+	// 	builder.roughness(pbr_mr.roughness_factor);
+	// }
 
 	auto* normal_tex = material.normal_texture.texture;
 	if (normal_tex && normal_tex->image) {
@@ -1036,7 +1037,8 @@ static SkeletalModel* loadSkeletalModel(
 
 	auto bone_indices_tree = makeBoneIndiceTrees(root_nodes, bone_map);
 
-	const InstanceTypes instance_types {InstanceType::Skeletal};
+	InstanceTypes instance_types = flags.additional_instance_types;
+	instance_types.emplace(InstanceType::Skeletal);
 	auto loaded_materials = loadMaterials(model_name, assets, instance_types, path, src, flags);
 
 	std::vector<std::shared_ptr<AbstractMesh>> meshes;
@@ -1079,7 +1081,8 @@ static Model* loadPlainModel(
 ) {
 	std::vector<std::shared_ptr<AbstractMesh>> meshes;
 	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
-	const InstanceTypes instance_types {InstanceType::Model};
+	InstanceTypes instance_types = flags.additional_instance_types;
+	instance_types.emplace(InstanceType::Model);
 
 	auto loaded_materials = loadMaterials(model_name, assets, instance_types, path, src, flags);
 
