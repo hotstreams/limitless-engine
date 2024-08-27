@@ -106,7 +106,7 @@ FontAtlas::FontAtlas(const fs::path& path, uint32_t pixel_size)
 
         const auto& glyph_info = it->second;
 
-        for (size_t row = 0; row < rect.h; ++row) {
+        for (size_t row = 0; row < static_cast<size_t>(rect.h); ++row) {
             const auto& char_bitmap = glyph_info.bitmap;
             const size_t glyph_pitch = char_bitmap.size() / rect.h; // because bitmap size = pitch * rows
             const ptrdiff_t input_offset = glyph_pitch * row;
@@ -195,7 +195,7 @@ static void forEachUnicodeCodepoint(std::string_view str, T&& func) {
         }
 
         uint32_t codepoint = str[i] & (0xFF >> char_len);
-        for (int j = 1; j < char_len; ++j) {
+        for (size_t j = 1; j < char_len; ++j) {
             char continuation_byte = str[i + j];
 
             if ((continuation_byte & 0xC0) != 0x80) {

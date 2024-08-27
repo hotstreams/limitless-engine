@@ -18,7 +18,7 @@ namespace Limitless::fx {
             : Module<Particle>(module.type)
             , distribution {module.distribution->clone()} {}
 
-        void update(AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
+        void update(AbstractEmitter &emitter, std::vector<Particle> &particles, float dt, [[maybe_unused]] const Camera &camera) noexcept override {
             const auto rot = emitter.getRotation() * emitter.getLocalRotation();
             for (auto& particle : particles) {
                 const auto tick = particle.lifetime / dt;

@@ -54,7 +54,7 @@ namespace Limitless {
         /**
          * Updates attached instances
          */
-        void updateAttachments(Context& context, const Camera& camera);
+        void updateAttachments(const Camera& camera);
 	public:
 		InstanceAttachment() = default;
 		virtual ~InstanceAttachment() = default;

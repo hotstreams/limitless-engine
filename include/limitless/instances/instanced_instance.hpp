@@ -18,7 +18,6 @@ namespace Limitless {
 
         std::vector<glm::mat4> current_data;
 
-        void updateBoundingBox() noexcept override;
         void updateInstanceBuffer();
     public:
         InstancedInstance();
@@ -32,7 +31,7 @@ namespace Limitless {
         void add(const std::shared_ptr<ModelInstance>& instance);
         void remove(uint64_t id);
 
-        void update(Context& context, const Camera& camera) override;
+        void update(const Camera &camera) override;
 
         auto& getInstances() noexcept { return instances; }
         auto& getVisibleInstances() noexcept { return visible_instances; }

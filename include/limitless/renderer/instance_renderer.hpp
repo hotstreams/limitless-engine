@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 
 #include <limitless/instances/instanced_instance.hpp>
 #include <limitless/scene.hpp>
@@ -24,6 +24,7 @@ namespace Limitless {
     public:
         InstanceType type;
         glm::mat4 model_matrix;
+        uint8_t decal_mask;
     };
 
     class InstanceRenderer {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/core/uniform/uniform.hpp>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <limitless/ms/property.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/ms/shading.hpp>

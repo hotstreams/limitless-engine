@@ -55,6 +55,6 @@ namespace Limitless {
 
         Instances getInstances() const noexcept;
 
-        void update(Context& context, const Camera& camera);
+        void update(const Camera& camera);
     };
 }

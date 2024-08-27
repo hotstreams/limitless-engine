@@ -60,10 +60,6 @@ namespace Limitless::fx {
 
         virtual void deinitialize([[maybe_unused]] const std::vector<size_t>& indices) {}
 
-        virtual void update([[maybe_unused]] AbstractEmitter& emitter,
-                            [[maybe_unused]] std::vector<Particle>& particles,
-                            [[maybe_unused]] float dt,
-                            [[maybe_unused]] Context& ctx,
-                            [[maybe_unused]] const Camera& camera) noexcept {}
+        virtual void update([[maybe_unused]] AbstractEmitter &emitter, [[maybe_unused]] std::vector<Particle> &particles, [[maybe_unused]] float dt, [[maybe_unused]] const Camera &camera) noexcept {}
     };
 }

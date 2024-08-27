@@ -28,6 +28,8 @@ void ContextState::init() noexcept {
     buffer_target.emplace(Buffer::Type::Array, 0);
     buffer_target.emplace(Buffer::Type::ShaderStorage, 0);
     buffer_target.emplace(Buffer::Type::Uniform, 0);
+
+    enable(Capabilities::ProgramPointSize);
 }
 
 void ContextState::clearColor(const glm::vec4& color) noexcept {

@@ -12,6 +12,7 @@ layout (location = 3) out vec3 emissive;
 layout (location = 4) out vec3 info;
 
 uniform float outline = 0.0;
+uniform uint _decal_mask;
 
 void main() {
     MaterialContext mctx = computeMaterialContext();
@@ -25,7 +26,7 @@ void main() {
     properties.b = computeMaterialAO(mctx);
 
     info.r = float(mctx.shading_model) / 255.0;
-//    info.g = object type ?;
+    info.g = float(_decal_mask) / 255.0;
     info.b = outline;
 
     emissive = computeMaterialEmissiveColor(mctx);

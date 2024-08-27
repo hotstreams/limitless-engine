@@ -8,6 +8,7 @@
 
 namespace Limitless {
     class Assets;
+    class Renderer;
     /**
      * Screen Space Ambient Occlusion
      */
@@ -37,8 +38,7 @@ namespace Limitless {
 
         void updateSettings(const Camera& camera);
     public:
-        SSAO(Context &ctx, glm::uvec2 frame_size);
-        explicit SSAO(Context &ctx);
+        explicit SSAO(Renderer& renderer);
 
         const auto& getFramebuffer() const noexcept { return framebuffer; }
 

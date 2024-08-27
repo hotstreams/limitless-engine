@@ -75,7 +75,7 @@ namespace Limitless {
         /**
          * Updates current animation, socket attachments data and instance itself
          */
-	    void update(Context& context, const Camera& camera) override;
+        void update(const Camera &camera) override;
 
         /**
          * Plays animation with name

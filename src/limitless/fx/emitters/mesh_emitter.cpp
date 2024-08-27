@@ -21,8 +21,8 @@ MeshEmitter* MeshEmitter::clone() const {
     return new MeshEmitter(*this);
 }
 
-void MeshEmitter::update(Context& context, const Camera& camera) {
-    Emitter::update(context, camera);
+void MeshEmitter::update(const Camera &camera) {
+    Emitter::update(camera);
 
     for (auto& particle : particles) {
         auto model = glm::translate(glm::mat4(1.0f), particle.position);

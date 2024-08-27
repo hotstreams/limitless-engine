@@ -27,8 +27,6 @@ namespace Limitless {
         float ratio {};
     };
 
-    using Instances = std::vector<std::shared_ptr<Instance>>;
-
     class CascadeShadows final {
     private:
         static constexpr auto SPLIT_WEIGHT {0.75f};
@@ -43,21 +41,17 @@ namespace Limitless {
         std::shared_ptr<Buffer> light_buffer;
         std::vector<glm::mat4> light_space;
 
-        void initBuffers(Context& context);
+        void initBuffers();
         void updateFrustums(Context& ctx, const Camera& camera);
         void updateLightMatrices(const Light& light);
     public:
-        explicit CascadeShadows(Context& context, const RendererSettings& settings);
+        explicit CascadeShadows(const RendererSettings& settings);
         ~CascadeShadows();
 
-        void update(Context& ctx, const RendererSettings& settings);
+        void update(const RendererSettings& settings);
 
-        void draw(InstanceRenderer& renderer,
-                  Scene& scene,
-                  const Light& light,
-                  Context& ctx, const
-                  Assets& assets,
-                  const Camera& camera);
+        void draw(InstanceRenderer& renderer, Scene& scene, Context& ctx, const Assets& assets, const Camera& camera);
+
         void setUniform(ShaderProgram& sh) const;
         void mapData() const;
     };

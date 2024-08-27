@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <set>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <optional>
 
 namespace Limitless::ms {

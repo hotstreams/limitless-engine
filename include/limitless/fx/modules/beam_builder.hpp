@@ -13,9 +13,10 @@ namespace Limitless::fx {
     private:
         std::vector<BeamParticleMapping> beam_particles;
 
-        void generate(BeamParticle& particle, Context& ctx, const Camera& camera) {
+        void generate(BeamParticle& particle, const Camera& camera) {
             constexpr auto DOT_PRODUCT_RANGE = glm::vec2(0.2f, 0.8f);
-            const auto resolution = glm::vec2(ctx.getSize().x, ctx.getSize().y);
+            auto size = Context::getCurrentContext()->getSize();
+            const auto resolution = glm::vec2(size.x, size.y);
             const auto& line = particle.derivative_line;
 
             for (uint32_t i = 0; i < 6 * (line.size() - 2 - 1); ++i) {
@@ -143,7 +144,7 @@ namespace Limitless::fx {
             return beam_particles;
         }
 
-        void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, [[maybe_unused]] float dt, Context& ctx, const Camera& camera) noexcept override {
+        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, [[maybe_unused]] float dt, const Camera &camera) noexcept override {
             beam_particles.clear();
 
             for (auto& particle : particles) {
@@ -169,7 +170,7 @@ namespace Limitless::fx {
                     particle.last_rebuild = current;
                 }
 
-                generate(particle, ctx, camera);
+                generate(particle, camera);
             }
         }
 

@@ -16,7 +16,7 @@ void InstanceRenderer::renderScene(const DrawParameters& drawp) {
 void InstanceRenderer::renderDecals(const DrawParameters& drawp) {
     for (const auto& instance: frustum_culling.getVisibleInstances()) {
         if (instance->getInstanceType() == InstanceType::Decal) {
-            render(static_cast<DecalInstance&>(*instance), drawp);
+            render(static_cast<DecalInstance&>(*instance), drawp); //NOLINT
         }
     }
 }
@@ -33,7 +33,7 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix()});
+        setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix(), instance.getDecalMask()});
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -52,7 +52,7 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix()});
+        setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix(), instance.getDecalMask()});
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -67,7 +67,7 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Skeletal, instance.getFinalMatrix()});
+        setRenderState(mesh, drawp, {InstanceType::Skeletal, instance.getFinalMatrix(), instance.getDecalMask()});
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -92,6 +92,7 @@ void InstanceRenderer::render(DecalInstance& instance, const DrawParameters& dra
     // updates model/material uniforms
     shader  .setUniform("_model_transform", instance.getFinalMatrix())
             .setUniform("decal_VP", glm::inverse(instance.getFinalMatrix()))
+            .setUniform<uint32_t>("projection_mask", instance.getProjectionMask())
             .setMaterial(*instance.getMaterial());
 
     // sets custom pass-dependent uniforms
@@ -104,13 +105,13 @@ void InstanceRenderer::render(DecalInstance& instance, const DrawParameters& dra
 
 void InstanceRenderer::render(Instance& instance, const DrawParameters& drawp) {
     switch (instance.getInstanceType()) {
-        case InstanceType::Model: render(static_cast<ModelInstance&>(instance), drawp); break;
-        case InstanceType::Skeletal: render(static_cast<SkeletalInstance&>(instance), drawp); break;
-        case InstanceType::Instanced: render(static_cast<InstancedInstance&>(instance), drawp); break;
-        case InstanceType::SkeletalInstanced: break;
-        case InstanceType::Effect: break;
-        case InstanceType::Decal: render(static_cast<DecalInstance&>(instance), drawp); break;
-        case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break;
+        case InstanceType::Model: render(static_cast<ModelInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::Skeletal: render(static_cast<SkeletalInstance&>(instance), drawp); break;//NOLINT
+        case InstanceType::Instanced: render(static_cast<InstancedInstance&>(instance), drawp); break;//NOLINT
+        case InstanceType::SkeletalInstanced: break; //NOLINT
+        case InstanceType::Effect: break; //NOLINT
+        case InstanceType::Decal: render(static_cast<DecalInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
     }
 }
 
@@ -142,7 +143,7 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Instanced, instance.getFinalMatrix()});
+        setRenderState(mesh, drawp, {InstanceType::Instanced, instance.getFinalMatrix(), instance.getDecalMask()});
 
         // draw vertices
         mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
@@ -155,13 +156,13 @@ void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &d
 
 void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &drawp) {
     switch (instance.getInstanceType()) {
-        case InstanceType::Model: render(static_cast<ModelInstance&>(instance), drawp); break;
-        case InstanceType::Skeletal: render(static_cast<SkeletalInstance&>(instance), drawp); break;
-        case InstanceType::Instanced: renderVisibleInstancedInstance(static_cast<InstancedInstance&>(instance), drawp); break;
-        case InstanceType::SkeletalInstanced: break;
-        case InstanceType::Effect: break;
-        case InstanceType::Decal: break;
-        case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break;
+        case InstanceType::Model: render(static_cast<ModelInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::Skeletal: render(static_cast<SkeletalInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::Instanced: renderVisibleInstancedInstance(static_cast<InstancedInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::SkeletalInstanced: break; //NOLINT
+        case InstanceType::Effect: break; //NOLINT
+        case InstanceType::Decal: break; //NOLINT
+        case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
     }
 }
 
@@ -187,6 +188,7 @@ void InstanceRenderer::setRenderState(const MeshInstance& mesh, const DrawParame
 
     // updates model/material uniforms
     shader  .setUniform("_model_transform", instp.model_matrix)
+            .setUniform<uint32_t>("_decal_mask", instp.decal_mask)
             .setMaterial(*mesh.getMaterial());
 
     // sets custom pass-dependent uniforms

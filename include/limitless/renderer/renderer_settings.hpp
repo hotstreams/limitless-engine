@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <glm/vec2.hpp>
 #include <limitless/postprocessing/ssr.hpp>
 #include <limitless/postprocessing/ssao.hpp>

@@ -1,6 +1,6 @@
 #include <limitless/util/color_picker.hpp>
 
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <utility>
 #include <iostream>
 #include <limitless/core/uniform/uniform_sampler.hpp>
@@ -12,7 +12,7 @@ void ColorPicker::onPick(Context& ctx, Assets& assets, Scene& scene, glm::uvec2 
     onPick(ctx, assets, scene.getInstances(), coords, std::move(callback));
 }
 
-void ColorPicker::onPick(Context& ctx, Assets& assets, const Instances& instances, glm::uvec2 coords, std::function<void(uint32_t)> callback) {
+void ColorPicker::onPick(Context& ctx, [[maybe_unused]] Assets& assets, const Instances& instances, glm::uvec2 coords, std::function<void(uint32_t)> callback) {
     coords.y = ctx.getSize().y - coords.y;
     auto& pick = data.emplace_back(PickData{std::move(callback), coords});
 

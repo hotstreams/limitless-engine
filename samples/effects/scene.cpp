@@ -19,7 +19,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
 }
 
 void LimitlessMaterials::Scene::update(Limitless::Context& context, const Limitless::Camera& camera) {
-    scene.update(context, camera);
+    scene.update(camera);
     hurricane->rotateBy(glm::vec3(0.0f, 0.3f, 0.0f));
 }
 

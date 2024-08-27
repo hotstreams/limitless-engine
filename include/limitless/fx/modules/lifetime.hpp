@@ -22,7 +22,7 @@ namespace Limitless::fx {
             particle.lifetime = distribution->get();
         }
 
-        void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
+        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, float dt, [[maybe_unused]] const Camera &camera) noexcept override {
             for (auto& particle : particles) {
                 particle.lifetime -= dt;
             }

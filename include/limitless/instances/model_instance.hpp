@@ -42,7 +42,7 @@ namespace Limitless {
         /**
          * Updates instance and meshes
          */
-        void update(Context &context, const Camera &camera) override;
+        void update(const Camera &camera) override;
 
         /**
          * Makes copy

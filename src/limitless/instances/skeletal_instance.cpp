@@ -132,12 +132,12 @@ std::unique_ptr<Instance> SkeletalInstance::clone() noexcept {
     return std::make_unique<SkeletalInstance>(*this);
 }
 
-void SkeletalInstance::update(Context& context, const Camera& camera) {
+void SkeletalInstance::update(const Camera &camera) {
     updateAnimationFrame();
 
     SocketAttachment::updateSocketAttachments();
 
-    ModelInstance::update(context, camera);
+    ModelInstance::update(camera);
 }
 
 SkeletalInstance &SkeletalInstance::play(uint32_t index) {

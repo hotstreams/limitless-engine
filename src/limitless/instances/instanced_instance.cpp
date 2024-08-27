@@ -29,10 +29,6 @@ InstancedInstance::InstancedInstance(const InstancedInstance& rhs)
     }
 }
 
-void InstancedInstance::updateBoundingBox() noexcept {
-
-}
-
 std::unique_ptr<Instance> InstancedInstance::clone() noexcept {
     return std::make_unique<InstancedInstance>(*this);
 }
@@ -42,7 +38,7 @@ void InstancedInstance::add(const std::shared_ptr<ModelInstance>& instance) {
 }
 
 void InstancedInstance::remove(uint64_t id){
-    auto res = std::remove_if(instances.begin(), instances.end(), [&] (auto& i) { return i->getId() == id; });
+    [[maybe_unused]] auto res = std::remove_if(instances.begin(), instances.end(), [&] (auto& i) { return i->getId() == id; });
 }
 
 void InstancedInstance::updateInstanceBuffer() {
@@ -71,15 +67,15 @@ void InstancedInstance::updateInstanceBuffer() {
     }
 }
 
-void InstancedInstance::update(Context& context, const Camera& camera) {
+void InstancedInstance::update(const Camera &camera) {
     if (instances.empty()) {
         return;
     }
 
-    Instance::update(context, camera);
+    Instance::update(camera);
 
     for (const auto& instance : instances) {
-        instance->update(context, camera);
+        instance->update(camera);
     }
 
     updateInstanceBuffer();

@@ -4,6 +4,7 @@
 #include <limitless/core/shader/shader_program.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/camera.hpp>
+#include <limitless/renderer/renderer.hpp>
 
 using namespace Limitless;
 
@@ -11,11 +12,11 @@ namespace {
     constexpr auto SSAO_BUFFER_NAME = "SSAO_BUFFER";
 }
 
-SSAO::SSAO(Context& ctx) {
+SSAO::SSAO(Renderer& renderer) {
     auto ssao = Texture::builder()
             .target(Texture::Type::Tex2D)
             .internal_format(Texture::InternalFormat::RGB8)
-            .size(ctx.getSize())
+            .size(renderer.getResolution())
             .min_filter(Texture::Filter::Nearest)
             .mag_filter(Texture::Filter::Nearest)
             .wrap_s(Texture::Wrap::ClampToEdge)
@@ -25,7 +26,7 @@ SSAO::SSAO(Context& ctx) {
     auto blurred = Texture::builder()
             .target(Texture::Type::Tex2D)
             .internal_format(Texture::InternalFormat::RGB8)
-            .size(ctx.getSize())
+            .size(renderer.getResolution())
             .min_filter(Texture::Filter::Nearest)
             .mag_filter(Texture::Filter::Nearest)
             .wrap_s(Texture::Wrap::ClampToEdge)
@@ -44,43 +45,7 @@ SSAO::SSAO(Context& ctx) {
             .size(sizeof(Settings))
             .usage(Buffer::Usage::StaticDraw)
             .access(Buffer::MutableAccess::WriteOrphaning)
-            .build(SSAO_BUFFER_NAME, ctx);
-}
-
-SSAO::SSAO(Context &ctx, glm::uvec2 frame_size) {
-    auto ssao = Texture::builder()
-            .target(Texture::Type::Tex2D)
-            .internal_format(Texture::InternalFormat::RGB8)
-            .size(frame_size)
-            .min_filter(Texture::Filter::Nearest)
-            .mag_filter(Texture::Filter::Nearest)
-            .wrap_s(Texture::Wrap::ClampToEdge)
-            .wrap_t(Texture::Wrap::ClampToEdge)
-            .build();
-
-    auto blurred = Texture::builder()
-            .target(Texture::Type::Tex2D)
-            .internal_format(Texture::InternalFormat::RGB8)
-            .size(frame_size)
-            .min_filter(Texture::Filter::Nearest)
-            .mag_filter(Texture::Filter::Nearest)
-            .wrap_s(Texture::Wrap::ClampToEdge)
-            .wrap_t(Texture::Wrap::ClampToEdge)
-            .build();
-
-    framebuffer.bind();
-    framebuffer << TextureAttachment{FramebufferAttachment::Color0, ssao}
-                << TextureAttachment{FramebufferAttachment::Color1, blurred};
-    framebuffer.checkStatus();
-    framebuffer.unbind();
-
-    buffer = Buffer::builder()
-            .target(Buffer::Type::Uniform)
-            .data(&settings)
-            .size(sizeof(Settings))
-            .usage(Buffer::Usage::StaticDraw)
-            .access(Buffer::MutableAccess::WriteOrphaning)
-            .build(SSAO_BUFFER_NAME, ctx);
+            .build(SSAO_BUFFER_NAME, *Context::getCurrentContext());
 }
 
 void SSAO::draw(Context& ctx, const Assets& assets, const std::shared_ptr<Texture>& depth) {

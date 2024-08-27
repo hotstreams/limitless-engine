@@ -109,20 +109,20 @@ void Scene::setSkybox(const std::shared_ptr<Skybox>& skybox_) {
     skybox = skybox_;
 }
 
-void Scene::update(Context& context, const Camera& camera) {
+void Scene::update(const Camera& camera) {
     lighting.update();
 
     removeDeadInstances();
 
     for (auto& [_, instance] : instances) {
         if (instance->getInstanceType() != InstanceType::Effect) {
-            instance->update(context, camera);
+            instance->update(camera);
         }
     }
 
     for (auto& [_, instance] : instances) {
         if (instance->getInstanceType() == InstanceType::Effect) {
-            instance->update(context, camera);
+            instance->update(camera);
         }
     }
 }

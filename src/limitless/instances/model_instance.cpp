@@ -65,8 +65,8 @@ void ModelInstance::updateBoundingBox() noexcept {
     bounding_box.size = glm::vec4{model->getBoundingBox().size, 1.0f} * final_matrix;
 }
 
-void ModelInstance::update(Context& context, const Camera& camera) {
-	Instance::update(context, camera);
+void ModelInstance::update(const Camera &camera) {
+    Instance::update(camera);
 
 	for (auto& [_, mesh] : meshes) {
 		mesh.update();

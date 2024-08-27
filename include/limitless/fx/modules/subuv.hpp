@@ -59,7 +59,7 @@ namespace Limitless::fx {
             particle.subUV.w = frames[0].y;
         }
 
-        void update([[maybe_unused]] AbstractEmitter& emitter, std::vector<Particle>& particles, [[maybe_unused]] float dt, [[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) noexcept override {
+        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, [[maybe_unused]] float dt, [[maybe_unused]] const Camera &camera) noexcept override {
             if (first_update) {
                 last_time = std::chrono::steady_clock::now();
                 first_update = false;

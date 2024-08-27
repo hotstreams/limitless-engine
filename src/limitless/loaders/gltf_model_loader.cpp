@@ -22,7 +22,7 @@
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/ms/material_builder.hpp>
 #include <limitless/ms/property.hpp>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/scene.hpp>
 #include <memory>

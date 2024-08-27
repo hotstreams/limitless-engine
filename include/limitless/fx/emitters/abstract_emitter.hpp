@@ -47,7 +47,7 @@ namespace Limitless::fx {
         virtual void ressurect() noexcept = 0;
 
         [[nodiscard]] virtual AbstractEmitter* clone() const = 0;
-        virtual void update(Context& ctx, const Camera& camera) = 0;
+        virtual void update(const Camera &camera) = 0;
         virtual void accept(EmitterVisitor& visitor) noexcept = 0;
 
         virtual bool& getLocalSpace() noexcept = 0;

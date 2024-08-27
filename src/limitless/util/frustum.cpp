@@ -1,5 +1,5 @@
 #include <limitless/util/frustum.hpp>
-#include <limitless/pipeline/shader_type.hpp>
+#include <limitless/renderer/shader_type.hpp>
 
 using namespace Limitless;
 

@@ -204,7 +204,7 @@ void Emitter<P>::killParticles() noexcept {
 }
 
 template<typename P>
-void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Camera& camera) {
+void Emitter<P>::update(const Camera &camera) {
     using namespace std::chrono;
 
     const auto current_time = steady_clock::now();
@@ -219,7 +219,7 @@ void Emitter<P>::update([[maybe_unused]] Context& ctx, [[maybe_unused]] const Ca
 
     {
         for (auto& module : modules) {
-            module->update(*this, particles, delta_time.count(), ctx, camera);
+            module->update(*this, particles, delta_time.count(), camera);
         }
 
         for (auto& particle : particles) {

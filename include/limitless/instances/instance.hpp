@@ -4,6 +4,7 @@
 #include <limitless/instances/instance_attachment.hpp>
 #include <limitless/util/matrix_stack.hpp>
 #include <limitless/util/frustum.hpp>
+#include <optional>
 
 namespace Limitless {
     enum class ShaderType;
@@ -77,7 +78,20 @@ namespace Limitless {
          */
 		glm::vec3 scale {1.0f};
 
+        /**
+         * Final bounding box
+         */
 		Box bounding_box {};
+
+        /**
+         * User-set bounding box
+         */
+        std::optional<Box> custom_bounding_box {};
+
+        /**
+         * Instance decal mask
+         */
+        uint8_t decal_mask {0x00};
 
         /**
          * Does instance cast shadow
@@ -99,7 +113,11 @@ namespace Limitless {
          */
         bool done {};
 
-		virtual void updateBoundingBox() noexcept = 0;
+        /**
+         * Default implementation of bounding box updates sets custom user box if present
+         */
+		virtual void updateBoundingBox() noexcept;
+
 		void updateModelMatrix() noexcept;
 		void updateFinalMatrix() noexcept;
 
@@ -126,6 +144,8 @@ namespace Limitless {
         [[nodiscard]] const auto& getBoundingBox() noexcept { updateBoundingBox(); return bounding_box; }
         [[nodiscard]] const auto& getFinalMatrix() const noexcept { return final_matrix; }
         [[nodiscard]] const auto& getModelMatrix() const noexcept { return model_matrix; }
+
+        [[nodiscard]] const auto& getDecalMask() const noexcept { return decal_mask; }
 
         /**
          * Instance outlined
@@ -200,9 +220,19 @@ namespace Limitless {
         virtual Instance& setParent(const glm::mat4& parent) noexcept;
 
         /**
+         * Sets custom bounding box
+         */
+        virtual Instance& setBoundingBox(const Box& box) noexcept;
+
+        /**
+         * Sets decal mask
+         */
+        virtual Instance& setDecalMask(uint8_t mask) noexcept;
+
+        /**
          * Updates instance data
          */
-		virtual void update(Context& context, const Camera& camera);
+		virtual void update(const Camera &camera);
 
         /**
          *  Instance builder
