@@ -20,6 +20,7 @@
 #include <limitless/renderer/screen_pass.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/outline_pass.hpp>
+#include <limitless/renderer/render_debug_pass.hpp>
 
 using namespace Limitless;
 
@@ -138,7 +139,7 @@ Renderer::Builder &Renderer::Builder::addScreenPass() {
 }
 
 Renderer::Builder &Renderer::Builder::addRenderDebugPass() {
-//    renderer->passes.emplace_back(std::make_unique<RenderDebugPass>(renderer));
+    renderer->passes.emplace_back(std::make_unique<RenderDebugPass>(*renderer));
     return *this;
 }
 
@@ -169,6 +170,9 @@ Renderer::Builder &Renderer::Builder::deferred() {
         addFXAAPass();
     }
     addScreenPass();
+    if (renderer->settings.bounding_box || renderer->settings.light_radius || renderer->settings.coordinate_system_axes) {
+        addRenderDebugPass();
+    }
     return *this;
 }
 
@@ -236,6 +240,17 @@ Renderer::Builder & Renderer::Builder::update() {
 //    } else {
 //        remove<FXAAPass>();
 //    }
+
+    if (settings.bounding_box || settings.light_radius || settings.coordinate_system_axes) {
+        if (!renderer->isPresent<RenderDebugPass>()) {
+            addRenderDebugPass();
+        }
+    }
+    if (!settings.bounding_box && !settings.light_radius && !settings.coordinate_system_axes) {
+        if (renderer->isPresent<RenderDebugPass>()) {
+            remove<RenderDebugPass>();
+        }
+    }
 
     return *this;
 }

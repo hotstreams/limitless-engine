@@ -8,14 +8,9 @@ namespace Limitless {
     class RenderDebugPass final : public RendererPass {
     private:
         RendererHelper helper;
-        Lighting* lighting {};
     public:
-        explicit RenderDebugPass(Pipeline& pipeline, const RendererSettings& settings);
-        ~RenderDebugPass() override = default;
+        explicit RenderDebugPass(Renderer& renderer);
 
-        void update(Scene& scene, Instances& instances, Context& ctx, const Camera& camera) override;
-        void
-        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
-             UniformSetter &setter) override;
+        void render(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
     };
 }

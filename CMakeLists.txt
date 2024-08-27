@@ -178,7 +178,7 @@ set(ENGINE_RENDERER
 #    src/limitless/pipeline/common/ssao_pass.cpp
 #    src/limitless/pipeline/common/fxaa_pass.cpp
     src/limitless/renderer/screen_pass.cpp
-#    src/limitless/pipeline/common/render_debug_pass.cpp
+    src/limitless/renderer/render_debug_pass.cpp
 #    src/limitless/pipeline/common/dof_pass.cpp
     src/limitless/renderer/outline_pass.cpp
 #    src/limitless/pipeline/common/ssr_pass.cpp
