@@ -140,7 +140,6 @@ Instances Scene::getInstances() const noexcept {
     };
 
 	for (const auto& [_, instance] : instances) {
-		visitor(instance);
         if (instance->isHidden()) {
             continue;
         }
