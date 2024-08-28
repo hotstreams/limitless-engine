@@ -12,7 +12,11 @@ namespace Limitless {
         Box bounding_box {};
 
         void calculateBoundingBox() {
+            //TODO: dispatch?
             if (auto vnt = dynamic_cast<VertexStream<VertexNormalTangent>*>(stream.get()); vnt) {
+                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
+            }
+            if (auto vnt = dynamic_cast<VertexStream<VertexTerrain>*>(stream.get()); vnt) {
                 bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
             }
         }

@@ -88,6 +88,7 @@ Instance::Builder& Instance::Builder::bounding_box(const Box& box) {
 std::shared_ptr<ModelInstance> Instance::Builder::asModel() {
     if (dynamic_cast<Model*>(model_.get())) {
         auto instance = std::make_shared<ModelInstance>(model_, position_);
+        initialize(*instance);
         initialize(instance);
         return instance;
     }
