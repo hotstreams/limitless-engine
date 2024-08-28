@@ -5,14 +5,25 @@
 namespace Limitless {
     class FrustumCulling {
     private:
-        // contains visible array of instances
+        /**
+         * Contains visible array of simple instances
+         */
         std::vector<std::shared_ptr<Instance>> visible;
-        // contains visible array of model instances for each instanced instance
-        std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_model_instanced;
+
+        /**
+         * Contains visible array of model instances for each instanced instance
+         */
+        std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instances_of_instanced_instances;
+
+        /**
+         * Contains visible MeshInstances of TerrainInstance
+         */
+        std::map<uint64_t, std::vector<std::reference_wrapper<MeshInstance>>> visible_meshes_of_terrain_instances;
     public:
         void update(Scene& scene, Camera& camera) {
             visible.clear();
-            visible_model_instanced.clear();
+            visible_instances_of_instanced_instances.clear();
+            visible_meshes_of_terrain_instances.clear();
 
             const auto frustum = Frustum::fromCamera(camera);
 
@@ -22,11 +33,23 @@ namespace Limitless {
 
                     for (auto& i: instanced.getInstances()) {
                         if (frustum.intersects(*i)) {
-                            visible_model_instanced[instance->getId()].emplace_back(i);
+                            visible_instances_of_instanced_instances[instance->getId()].emplace_back(i);
                         }
                     }
 
-                    if (visible_model_instanced.count(instance->getId()) != 0) {
+                    if (visible_instances_of_instanced_instances.count(instance->getId()) != 0) {
+                        visible.emplace_back(instance);
+                    }
+                } else if (instance->getInstanceType() == InstanceType::Terrain) {
+                    auto& terrain = static_cast<TerrainInstance&>(*instance); //NOLINT
+
+                    for (auto& [_, mesh_instance] : terrain.getMeshes()) {
+                        if (frustum.intersects(mesh_instance.getMesh()->getBoundingBox())) {
+                            visible_meshes_of_terrain_instances[instance->getId()].emplace_back(mesh_instance);
+                        }
+                    }
+
+                    if (visible_meshes_of_terrain_instances.count(instance->getId()) != 0) {
                         visible.emplace_back(instance);
                     }
                 } else {
@@ -37,7 +60,8 @@ namespace Limitless {
             }
         }
 
-        const Instances& getVisibleInstances() const noexcept { return visible; }
-        const std::vector<std::shared_ptr<ModelInstance>>& getVisibleModelInstanced(const InstancedInstance& instance) const noexcept { return visible_model_instanced.at(instance.getId()); }
+        [[nodiscard]] const Instances& getVisibleInstances() const noexcept { return visible; }
+        [[nodiscard]] const std::vector<std::shared_ptr<ModelInstance>>& getVisibleModelInstanced(const InstancedInstance& instance) const noexcept { return visible_instances_of_instanced_instances.at(instance.getId()); }
+        const std::vector<std::reference_wrapper<MeshInstance>>& getVisibleTerrainMeshes(const TerrainInstance& instance) const noexcept { return visible_meshes_of_terrain_instances.at(instance.getId()); }
     };
 }
