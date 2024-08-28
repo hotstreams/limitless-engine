@@ -159,7 +159,22 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
 }
 
 void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &drawp) {
-    render(static_cast<ModelInstance&>(instance), drawp);
+    if (instance.isHidden()) {
+        return;
+    }
+
+    for (const auto& [_, mesh]: instance.getMeshes()) {
+        // skip mesh if blending is different
+        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+            return;
+        }
+
+        // set render state: shaders, material, blending, etc
+        setRenderState(mesh, drawp, {InstanceType::Terrain, instance.getFinalMatrix(), instance.getDecalMask()});
+
+        // draw vertices
+        mesh.getMesh()->draw();
+    }
 }
 
 void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &drawp) {
