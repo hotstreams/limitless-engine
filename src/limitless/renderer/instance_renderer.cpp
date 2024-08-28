@@ -45,19 +45,6 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
         return;
     }
 
-    for (const auto& [_, mesh]: instance.getMeshes()) {
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
-        }
-
-        // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix(), instance.getDecalMask()});
-
-        // draw vertices
-        mesh.getMesh()->draw();
-    }
-
     instance.getBoneBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "bone_buffer"));
 
     for (const auto& [_, mesh]: instance.getMeshes()) {
@@ -128,6 +115,27 @@ void InstanceRenderer::renderVisibleInstancedInstance(InstancedInstance& instanc
     render(instance, drawp);
 }
 
+void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const DrawParameters &drawp) {
+    if (instance.isHidden()) {
+        return;
+    }
+
+    for (const auto& mref: frustum_culling.getVisibleTerrainMeshes(instance)) {
+        auto& mesh = mref.get();
+
+        // skip mesh if blending is different
+        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+            return;
+        }
+
+        // set render state: shaders, material, blending, etc
+        setRenderState(mesh, drawp, {InstanceType::Terrain, instance.getFinalMatrix(), instance.getDecalMask()});
+
+        // draw vertices
+        mesh.getMesh()->draw();
+    }
+}
+
 void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters &drawp) {
     if (instance.isHidden()) {
         return;
@@ -162,7 +170,7 @@ void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &d
         case InstanceType::SkeletalInstanced: break; //NOLINT
         case InstanceType::Effect: break; //NOLINT
         case InstanceType::Decal: break; //NOLINT
-        case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::Terrain: renderVisibleTerrain(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
     }
 }
 

@@ -3,6 +3,8 @@
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/models/elementary_model.hpp>
 #include <limitless/instances/decal_instance.hpp>
+#include <limitless/models/mesh.hpp>
+#include <limitless/core/indexed_stream.hpp>
 
 using namespace Limitless;
 
@@ -212,4 +214,8 @@ Instance::Builder &Instance::Builder::decal_receipt_mask(uint8_t mask) {
 Instance::Builder &Instance::Builder::decal_projection_mask(uint8_t mask) {
     decal_proj_mask = mask;
     return *this;
+}
+
+std::shared_ptr<DecalInstance> Instance::Builder::asTerrain() {
+    return std::shared_ptr<DecalInstance>();
 }

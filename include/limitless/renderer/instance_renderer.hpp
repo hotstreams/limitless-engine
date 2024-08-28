@@ -41,6 +41,10 @@ namespace Limitless {
          * Renders only visible subset of InstancedInstance instances from frustum culling
          */
         void renderVisibleInstancedInstance(InstancedInstance& instance, const DrawParameters& drawp);
+        /**
+         * Renders only visible MeshInstances of terrain
+         */
+        void renderVisibleTerrain(TerrainInstance& instance, const DrawParameters& drawp);
         void renderVisible(Instance& instance, const DrawParameters& drawp);
     public:
         void update(Scene& scene, Camera& camera);

@@ -3,8 +3,8 @@
 #include <limitless/instances/instance.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/instances/effect_instance.hpp>
+#include <limitless/instances/decal_instance.hpp>
 #include <limitless/models/model.hpp>
-#include "decal_instance.hpp"
 
 namespace Limitless {
     class instance_builder_exception : public std::runtime_error {
@@ -12,18 +12,25 @@ namespace Limitless {
         using std::runtime_error::runtime_error;
     };
 
+    /**
+     *
+     */
     class Instance::Builder {
     private:
-        std::shared_ptr<AbstractModel> model_;
-        std::shared_ptr<EffectInstance> effect_;
-
+        /**
+         * Instance data
+         */
         glm::quat rotation_ {1.0f, 0.0f, 0.0f, 0.0f};
         glm::vec3 position_ {0.0f};
         glm::vec3 scale_ {1.0f};
         bool cast_shadow_ {true};
         std::optional<Box> bounding_box_ {};
         uint8_t decal_mask {0xFF};
-        uint8_t decal_proj_mask {0xFF};
+
+        /**
+         * Model data
+         */
+        std::shared_ptr<AbstractModel> model_;
 
         class MaterialChange {
         public:
@@ -37,12 +44,25 @@ namespace Limitless {
 
         std::vector<std::shared_ptr<Instance>> attachments;
 
+        /**
+         * Skeletal data
+         */
         class SocketAttachment {
         public:
             std::string bone_name;
             std::shared_ptr<Instance> attachment;
         };
         std::vector<SocketAttachment> bone_attachments;
+
+        /**
+         * Effect data
+         */
+        std::shared_ptr<EffectInstance> effect_;
+
+        /**
+         * Decal
+         */
+        uint8_t decal_proj_mask {0xFF};
 
         void initialize(Instance& instance);
         void initialize(const std::shared_ptr<ModelInstance>& instance);
@@ -154,5 +174,10 @@ namespace Limitless {
          *
          */
         std::shared_ptr<DecalInstance> asDecal();
+
+        /**
+         *
+         */
+        std::shared_ptr<DecalInstance> asTerrain();
     };
 }
