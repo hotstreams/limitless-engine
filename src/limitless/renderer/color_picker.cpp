@@ -91,8 +91,8 @@ void ColorPicker::render(InstanceRenderer& renderer, [[maybe_unused]] Scene &sce
     framebuffer.bind();
 
     ctx.enable(Capabilities::DepthTest);
-    ctx.setDepthFunc(DepthFunc::Less);
-    ctx.setDepthMask(DepthMask::True);
+    ctx.setDepthFunc(DepthFunc::Equal);
+    ctx.setDepthMask(DepthMask::False);
 
     ctx.clearColor(glm::vec4{0.0f, 0.0f, 0.f, 1.f});
 
