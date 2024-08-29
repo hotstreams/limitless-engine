@@ -5,7 +5,7 @@
 using namespace Limitless;
 
 UniformSetter::UniformSetter(std::function<void(ShaderProgram&)>&& f)
-    : setters {f} {
+    : setters {std::move(f)} {
 }
 
 void UniformSetter::operator()(ShaderProgram& shader) const {
@@ -18,4 +18,21 @@ void UniformSetter::operator()(ShaderProgram& shader) const {
 
 void UniformSetter::add(std::function<void(ShaderProgram&)>&& f) {
     setters.emplace_back(std::move(f));
+}
+
+UniformInstanceSetter::UniformInstanceSetter(std::function<void(ShaderProgram &, const Instance &)>&& f)
+    : setters {std::move(f)} {
+
+}
+
+void UniformInstanceSetter::add(std::function<void(ShaderProgram &, const Instance &)> &&f) {
+    setters.emplace_back(std::move(f));
+}
+
+void UniformInstanceSetter::operator()(ShaderProgram &shader, const Instance &instance) const {
+    for (auto& setter : setters) {
+        if (setter) {
+            setter(shader, instance);
+        }
+    }
 }

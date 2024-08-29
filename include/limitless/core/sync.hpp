@@ -33,6 +33,8 @@ namespace Limitless {
         void place();
         void remove();
 
+        bool isAlreadyPlaced();
+
         bool isDone();
         State waitUntil(std::chrono::nanoseconds timeout);
     };

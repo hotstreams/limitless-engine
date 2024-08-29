@@ -44,6 +44,7 @@ namespace Limitless {
 
         [[nodiscard]] const RendererSettings& getSettings() const noexcept { return settings; }
         [[nodiscard]] const glm::uvec2& getResolution() const noexcept { return resolution; }
+        [[nodiscard]] const InstanceRenderer& getInstanceRenderer() const noexcept { return instance_renderer; }
 
         /**
          * Sets of methods to handle RendererPasses
@@ -113,6 +114,7 @@ namespace Limitless {
             Builder& addDirectionalShadowPass();
             Builder& addDeferredFramebufferPass();
             Builder& addDepthPass();
+            Builder& addColorPicker();
             Builder& addGBufferPass();
             Builder& addDecalPass();
             Builder& addSkyboxPass();

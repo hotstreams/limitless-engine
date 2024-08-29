@@ -124,7 +124,7 @@ set(ENGINE_UTIL
     src/limitless/util/thread_pool.cpp
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
-    src/limitless/util/color_picker.cpp
+        src/limitless/renderer/color_picker.cpp
     src/limitless/util/frustum.cpp
 )
 

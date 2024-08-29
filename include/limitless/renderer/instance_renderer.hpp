@@ -17,14 +17,8 @@ namespace Limitless {
         const Assets& assets;
         ShaderType type;
         ms::Blending blending;
-        UniformSetter setter;
-    };
-
-    class InstanceParameters {
-    public:
-        InstanceType type;
-        glm::mat4 model_matrix;
-        uint8_t decal_mask;
+        UniformSetter setter {};
+        UniformInstanceSetter isetter {};
     };
 
     class InstanceRenderer {
@@ -35,7 +29,7 @@ namespace Limitless {
         /**
          * Sets shader and context state according to parameters
          */
-        static void setRenderState(const MeshInstance& mesh, const DrawParameters& drawp, const InstanceParameters& instp);
+        static void setRenderState(const Instance& instance, const MeshInstance& mesh, const DrawParameters& drawp);
 
         /**
          * Renders only visible subset of InstancedInstance instances from frustum culling
@@ -74,5 +68,7 @@ namespace Limitless {
         static void render(InstancedInstance& instance, const DrawParameters& drawp);
         static void render(TerrainInstance& instance, const DrawParameters& drawp);
         static void render(DecalInstance& instance, const DrawParameters& drawp);
+
+        [[nodiscard]] const FrustumCulling& getFrustumCulling() const noexcept { return frustum_culling; }
     };
 }

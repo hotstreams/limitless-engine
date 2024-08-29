@@ -33,7 +33,7 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -54,7 +54,7 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Skeletal, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -129,7 +129,7 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Terrain, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -151,7 +151,7 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Instanced, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
@@ -170,7 +170,7 @@ void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &d
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Terrain, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -189,7 +189,7 @@ void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &d
     }
 }
 
-void InstanceRenderer::setRenderState(const MeshInstance& mesh, const DrawParameters& drawp, const InstanceParameters& instp) {
+void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstance& mesh, const DrawParameters& drawp) {
     // sets culling based on two-sideness
     if (mesh.getMaterial()->getTwoSided()) {
         drawp.ctx.disable(Capabilities::CullFace);
@@ -207,15 +207,18 @@ void InstanceRenderer::setRenderState(const MeshInstance& mesh, const DrawParame
     setBlendingMode(mesh.getMaterial()->getBlending());
 
     // gets required shader from storage
-    auto& shader = drawp.assets.shaders.get(drawp.type, instp.type, mesh.getMaterial()->getShaderIndex());
+    auto& shader = drawp.assets.shaders.get(drawp.type, instance.getInstanceType(), mesh.getMaterial()->getShaderIndex());
 
     // updates model/material uniforms
-    shader  .setUniform("_model_transform", instp.model_matrix)
-            .setUniform<uint32_t>("_decal_mask", instp.decal_mask)
+    shader  .setUniform("_model_transform", instance.getFinalMatrix())
+            .setUniform<uint32_t>("_decal_mask", instance.getDecalMask())
             .setMaterial(*mesh.getMaterial());
 
     // sets custom pass-dependent uniforms
     drawp.setter(shader);
+
+    // sets custom instance-dependent uniforms
+    drawp.isetter(shader, instance);
 
     shader.use();
 }

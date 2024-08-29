@@ -16,4 +16,8 @@ out _vertex_data {
         flat uint current;
         flat uint types;
     #endif
+
+    #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
+        flat int instance_id;
+    #endif
 } _out_data;
