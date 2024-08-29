@@ -30,3 +30,7 @@ void Sync::remove() {
         glDeleteSync(sync);
     }
 }
+
+bool Sync::isAlreadyPlaced() {
+    return sync != nullptr;
+}

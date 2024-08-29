@@ -21,6 +21,7 @@
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/outline_pass.hpp>
 #include <limitless/renderer/render_debug_pass.hpp>
+#include <limitless/renderer/color_picker.hpp>
 
 using namespace Limitless;
 
@@ -75,6 +76,11 @@ Renderer::Builder &Renderer::Builder::addDeferredFramebufferPass() {
 
 Renderer::Builder &Renderer::Builder::addDepthPass() {
     renderer->passes.emplace_back(std::make_unique<DepthPass>(*renderer));
+    return *this;
+}
+
+Renderer::Builder &Renderer::Builder::addColorPicker() {
+    renderer->passes.emplace_back(std::make_unique<ColorPicker>(*renderer));
     return *this;
 }
 
@@ -150,6 +156,7 @@ Renderer::Builder &Renderer::Builder::deferred() {
     }
     addDeferredFramebufferPass();
     addDepthPass();
+    addColorPicker();
     addGBufferPass();
     addDecalPass();
     addSkyboxPass();

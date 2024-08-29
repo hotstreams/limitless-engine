@@ -2,6 +2,60 @@
 
 using namespace Limitless;
 
+void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstance& mesh, const DrawParameters& drawp) {
+    // sets culling based on two-sideness
+    if (mesh.getMaterial()->getTwoSided()) {
+        drawp.ctx.disable(Capabilities::CullFace);
+    } else {
+        drawp.ctx.enable(Capabilities::CullFace);
+    }
+
+    // front cullfacing for shadows helps prevent peter panning
+    if (drawp.type == ShaderType::DirectionalShadow) {
+        drawp.ctx.setCullFace(CullFace::Front);
+    } else {
+        drawp.ctx.setCullFace(CullFace::Back);
+    }
+
+    setBlendingMode(mesh.getMaterial()->getBlending());
+
+    // gets required shader from storage
+    auto& shader = drawp.assets.shaders.get(drawp.type, instance.getInstanceType(), mesh.getMaterial()->getShaderIndex());
+
+    // updates model/material uniforms
+    shader  .setUniform("_model_transform", instance.getFinalMatrix())
+            .setUniform<uint32_t>("_decal_mask", instance.getDecalMask())
+            .setMaterial(*mesh.getMaterial());
+
+    // sets custom pass-dependent uniforms
+    drawp.setter(shader);
+
+    // sets custom instance-dependent uniforms
+    drawp.isetter(shader, instance);
+
+    shader.use();
+}
+
+bool InstanceRenderer::shouldBeRendered(const Instance &instance, const DrawParameters& drawp) {
+    if (instance.isHidden()) {
+        return false;
+    }
+
+    if (instance.getInstanceType() == InstanceType::Decal && static_cast<const DecalInstance&>(instance).getMaterial()->getBlending() != drawp.blending) { //NOLINT
+        return false;
+    }
+
+    if (drawp.type == ShaderType::DirectionalShadow && !instance.doesCastShadow()) {
+        return false;
+    }
+
+    if (drawp.type == ShaderType::ColorPicker && !instance.isPickable()) {
+        return false;
+    }
+
+    return true;
+}
+
 void InstanceRenderer::renderScene(const DrawParameters& drawp) {
     // renders common instances except decals
     // because decals rendered projected on everything else
@@ -22,7 +76,7 @@ void InstanceRenderer::renderDecals(const DrawParameters& drawp) {
 }
 
 void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& drawp) {
-    if (instance.isHidden()) {
+    if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
@@ -33,7 +87,7 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Model, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -41,7 +95,7 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
 }
 
 void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& drawp) {
-    if (instance.isHidden()) {
+    if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
@@ -54,7 +108,7 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Skeletal, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -64,7 +118,7 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
 }
 
 void InstanceRenderer::render(DecalInstance& instance, const DrawParameters& drawp) {
-    if (instance.isHidden() || instance.getMaterial()->getBlending() != drawp.blending) {
+    if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
@@ -103,7 +157,7 @@ void InstanceRenderer::render(Instance& instance, const DrawParameters& drawp) {
 }
 
 void InstanceRenderer::renderVisibleInstancedInstance(InstancedInstance& instance, const DrawParameters& drawp) {
-    if (instance.isHidden()) {
+    if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
@@ -116,7 +170,7 @@ void InstanceRenderer::renderVisibleInstancedInstance(InstancedInstance& instanc
 }
 
 void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const DrawParameters &drawp) {
-    if (instance.isHidden()) {
+    if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
@@ -129,7 +183,7 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Terrain, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -137,7 +191,7 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
 }
 
 void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters &drawp) {
-    if (instance.isHidden()) {
+    if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
@@ -151,7 +205,7 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Instanced, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
@@ -159,7 +213,7 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
 }
 
 void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &drawp) {
-    if (instance.isHidden()) {
+    if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
@@ -170,7 +224,7 @@ void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &d
         }
 
         // set render state: shaders, material, blending, etc
-        setRenderState(mesh, drawp, {InstanceType::Terrain, instance.getFinalMatrix(), instance.getDecalMask()});
+        setRenderState(instance, mesh, drawp);
 
         // draw vertices
         mesh.getMesh()->draw();
@@ -187,37 +241,6 @@ void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &d
         case InstanceType::Decal: break; //NOLINT
         case InstanceType::Terrain: renderVisibleTerrain(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
     }
-}
-
-void InstanceRenderer::setRenderState(const MeshInstance& mesh, const DrawParameters& drawp, const InstanceParameters& instp) {
-    // sets culling based on two-sideness
-    if (mesh.getMaterial()->getTwoSided()) {
-        drawp.ctx.disable(Capabilities::CullFace);
-    } else {
-        drawp.ctx.enable(Capabilities::CullFace);
-    }
-
-    // front cullfacing for shadows helps prevent peter panning
-    if (drawp.type == ShaderType::DirectionalShadow) {
-        drawp.ctx.setCullFace(CullFace::Front);
-    } else {
-        drawp.ctx.setCullFace(CullFace::Back);
-    }
-
-    setBlendingMode(mesh.getMaterial()->getBlending());
-
-    // gets required shader from storage
-    auto& shader = drawp.assets.shaders.get(drawp.type, instp.type, mesh.getMaterial()->getShaderIndex());
-
-    // updates model/material uniforms
-    shader  .setUniform("_model_transform", instp.model_matrix)
-            .setUniform<uint32_t>("_decal_mask", instp.decal_mask)
-            .setMaterial(*mesh.getMaterial());
-
-    // sets custom pass-dependent uniforms
-    drawp.setter(shader);
-
-    shader.use();
 }
 
 void InstanceRenderer::update(Scene& scene, Camera& camera) {

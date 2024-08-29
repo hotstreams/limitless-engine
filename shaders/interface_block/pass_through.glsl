@@ -80,5 +80,9 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
             _out_data.current = getVertexTileCurrent();
             _out_data.types = getVertexTileType();
         #endif
+
+        #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
+           _out_data.instance_id = gl_InstanceID;
+        #endif
     #endif
 }

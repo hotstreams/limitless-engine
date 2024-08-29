@@ -16,6 +16,10 @@ in _vertex_data {
         flat uint current;
         flat uint types;
     #endif
+
+    #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
+        flat int instance_id;
+    #endif
 } _in_data;
 
 vec3 getVertexPosition() {
@@ -59,5 +63,11 @@ vec2 getVertexUV() {
 
     uint getVertexTileType() {
         return _in_data.types;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
+    int getInstanceId() {
+        return _in_data.instance_id;
     }
 #endif
