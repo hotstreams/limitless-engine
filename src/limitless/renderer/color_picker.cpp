@@ -50,7 +50,7 @@ void ColorPicker::process(Context& ctx) {
     }
 }
 
-void ColorPicker::update(Scene& scene, const Camera &camera) {
+void ColorPicker::update([[maybe_unused]] Scene& scene, [[maybe_unused]] const Camera &camera) {
     auto& frustum_culling = renderer.getInstanceRenderer().getFrustumCulling();
     //TODO: buffer changed check?
     // remove old (removed from scene) buffers
@@ -83,7 +83,7 @@ void ColorPicker::update(Scene& scene, const Camera &camera) {
     }
 }
 
-void ColorPicker::render(InstanceRenderer& renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
+void ColorPicker::render(InstanceRenderer& renderer, [[maybe_unused]] Scene &scene, Context &ctx, const Assets &assets, [[maybe_unused]] const Camera &camera, UniformSetter &setter) {
     if (data.empty()) {
         return;
     }

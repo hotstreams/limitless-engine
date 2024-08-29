@@ -114,6 +114,11 @@ namespace Limitless {
         bool done {};
 
         /**
+         * Whether instance can be pickable from ColorPicker
+         */
+        bool pickable {};
+
+        /**
          * Default implementation of bounding box updates sets custom user box if present
          */
 		virtual void updateBoundingBox() noexcept;
@@ -182,10 +187,21 @@ namespace Limitless {
          */
 		void kill() noexcept;
 
+        /**
+         * Makes instance pickable for ColorPicker
+         */
+        void makePickable() noexcept;
+
+        /**
+         * Removes picking from ColorPicker
+         */
+        void removePicking() noexcept;
+
 		[[nodiscard]] bool doesCastShadow() const noexcept;
 		[[nodiscard]] bool isOutlined() const noexcept;
 		[[nodiscard]] bool isHidden() const noexcept;
 		[[nodiscard]] bool isKilled() const noexcept;
+		[[nodiscard]] bool isPickable() const noexcept;
 
         /**
          * Sets instance absolute position

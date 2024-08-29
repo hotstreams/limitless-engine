@@ -23,5 +23,7 @@ namespace Limitless {
         auto& getMaterial() noexcept { return material; }
         auto& getModel() noexcept { return model; }
         auto& getProjectionMask() noexcept { return projection_mask; }
+
+        const auto& getMaterial() const noexcept { return material; }
     };
 }

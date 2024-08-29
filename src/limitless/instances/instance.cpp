@@ -86,6 +86,24 @@ bool Instance::doesCastShadow() const noexcept {
 	return shadow_cast;
 }
 
+void Instance::makePickable() noexcept {
+    pickable = true;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->makePickable();
+    }
+}
+
+void Instance::removePicking() noexcept {
+    pickable = false;
+    for (const auto& [_, attachment]: getAttachments()) {
+        attachment->removePicking();
+    }
+}
+
+bool Instance::isPickable() const noexcept {
+    return pickable;
+}
+
 Instance& Instance::setPosition(const glm::vec3& _position) noexcept {
     position = _position;
     return *this;

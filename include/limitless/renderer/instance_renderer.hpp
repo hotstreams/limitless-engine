@@ -32,6 +32,11 @@ namespace Limitless {
         static void setRenderState(const Instance& instance, const MeshInstance& mesh, const DrawParameters& drawp);
 
         /**
+         * Checks whether instance should be rendered for specified parameters
+         */
+        static bool shouldBeRendered(const Instance& instance, const DrawParameters& drawp);
+
+        /**
          * Renders only visible subset of InstancedInstance instances from frustum culling
          */
         void renderVisibleInstancedInstance(InstancedInstance& instance, const DrawParameters& drawp);
@@ -40,6 +45,7 @@ namespace Limitless {
          */
         void renderVisibleTerrain(TerrainInstance& instance, const DrawParameters& drawp);
         void renderVisible(Instance& instance, const DrawParameters& drawp);
+
     public:
         void update(Scene& scene, Camera& camera);
 
