@@ -183,3 +183,8 @@ Instance &Instance::setDecalMask(uint8_t mask) noexcept {
     decal_mask = mask;
     return *this;
 }
+
+Instance &Instance::setOutlineColor(glm::vec3 color) noexcept {
+    outline_color = color;
+    return *this;
+}

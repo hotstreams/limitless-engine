@@ -9,11 +9,15 @@ using namespace Limitless;
 DeferredFramebufferPass::DeferredFramebufferPass(Renderer& renderer)
     : RendererPass(renderer)
     , framebuffer {} {
+    //TODO: revisit format
+    // R11G11B10?
     auto albedo = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
     auto normal = Texture::Builder::asRGB16SNORMNearestClampToEdge(renderer.getResolution());
     auto props = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
-    auto info = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
     auto emissive = Texture::Builder::asRGB16FNearestClampToEdge(renderer.getResolution());
+    auto info = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
+    auto outline = Texture::Builder::asRGBA16NearestClampToEdge(renderer.getResolution());
+
     auto depth = Texture::Builder::asDepth32F(renderer.getResolution());
 
     framebuffer.bind();
@@ -22,6 +26,7 @@ DeferredFramebufferPass::DeferredFramebufferPass(Renderer& renderer)
                 << TextureAttachment{FramebufferAttachment::Color2, props}
                 << TextureAttachment{FramebufferAttachment::Color3, emissive}
                 << TextureAttachment{FramebufferAttachment::Color4, info}
+                << TextureAttachment{FramebufferAttachment::Color5, outline}
                 << TextureAttachment{FramebufferAttachment::Depth, depth};
     framebuffer.checkStatus();
     framebuffer.unbind();
@@ -47,7 +52,8 @@ void DeferredFramebufferPass::render(
         FramebufferAttachment::Color1,
         FramebufferAttachment::Color2,
         FramebufferAttachment::Color3,
-        FramebufferAttachment::Color4
+        FramebufferAttachment::Color4,
+        FramebufferAttachment::Color5
     });
 
     framebuffer.clear();

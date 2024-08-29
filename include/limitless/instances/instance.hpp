@@ -79,6 +79,12 @@ namespace Limitless {
 		glm::vec3 scale {1.0f};
 
         /**
+         * Instance outline color
+         */
+
+        glm::vec3 outline_color {};
+
+        /**
          * Final bounding box
          */
 		Box bounding_box {};
@@ -151,6 +157,7 @@ namespace Limitless {
         [[nodiscard]] const auto& getModelMatrix() const noexcept { return model_matrix; }
 
         [[nodiscard]] const auto& getDecalMask() const noexcept { return decal_mask; }
+        [[nodiscard]] const auto& getOutlineColor() const noexcept { return outline_color; }
 
         /**
          * Instance outlined
@@ -244,6 +251,11 @@ namespace Limitless {
          * Sets decal mask
          */
         virtual Instance& setDecalMask(uint8_t mask) noexcept;
+
+        /**
+         * Sets outline color
+         */
+         virtual Instance& setOutlineColor(glm::vec3 color) noexcept;
 
         /**
          * Updates instance data

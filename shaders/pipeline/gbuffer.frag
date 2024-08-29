@@ -10,8 +10,10 @@ layout (location = 1) out vec3 normal;
 layout (location = 2) out vec3 properties;
 layout (location = 3) out vec3 emissive;
 layout (location = 4) out vec3 info;
+layout (location = 5) out vec4 outline;
 
-uniform float outline = 0.0;
+uniform uint _outline;
+uniform vec3 outline_color;
 uniform uint _decal_mask;
 
 void main() {
@@ -27,7 +29,9 @@ void main() {
 
     info.r = float(mctx.shading_model) / 255.0;
     info.g = float(_decal_mask) / 255.0;
-    info.b = outline;
+
+    outline.rgb = outline_color;
+    outline.a = _outline / 65535.0;
 
     emissive = computeMaterialEmissiveColor(mctx);
 }

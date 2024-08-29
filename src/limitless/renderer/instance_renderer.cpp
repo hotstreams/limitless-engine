@@ -25,6 +25,8 @@ void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstan
     // updates model/material uniforms
     shader  .setUniform("_model_transform", instance.getFinalMatrix())
             .setUniform<uint32_t>("_decal_mask", instance.getDecalMask())
+            .setUniform<uint32_t>("_outline", instance.isOutlined() ? instance.getId() : 0)
+            .setUniform("outline_color", instance.getOutlineColor())
             .setMaterial(*mesh.getMaterial());
 
     // sets custom pass-dependent uniforms

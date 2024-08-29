@@ -17,6 +17,8 @@ OutlinePass::OutlinePass(Renderer& renderer)
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, albedo};
     framebuffer.checkStatus();
     framebuffer.unbind();
+    std::srand(std::time(nullptr)); // use current time as seed for random generator
+
 }
 
 void OutlinePass::render(
@@ -35,8 +37,7 @@ void OutlinePass::render(
     auto& shader = assets.shaders.get("outline");
 
     shader
-        .setUniform("mask_texture", renderer.getPass<DeferredFramebufferPass>().getInfo())
-        .setUniform("outline_color", outline_color)
+        .setUniform("outline_texture", renderer.getPass<DeferredFramebufferPass>().getOutline())
         .setUniform("width", width)
         .use();
 
