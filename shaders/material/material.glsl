@@ -4,7 +4,7 @@ layout (std140) uniform MATERIAL_BUFFER {
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVE_COLOR)
-    vec4 _material_emissive_color;
+    vec3 _material_emissive_color;
 #endif
 
 #if defined (ENGINE_EXT_BINDLESS_TEXTURE)
