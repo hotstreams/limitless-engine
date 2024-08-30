@@ -24,13 +24,13 @@ namespace Limitless {
         /**
          * Screen Space Ambient Occlusion
          */
-        bool screen_space_ambient_occlusion {false};
+        bool screen_space_ambient_occlusion {true};
         SSAO::Settings ssao_settings;
 
         /**
          * Screen Space Reflections
          */
-        bool screen_space_reflections {false};
+        bool screen_space_reflections {true};
         SSR::Settings ssr_settings;
 
         /**

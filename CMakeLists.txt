@@ -10,7 +10,7 @@ OPTION(BUILD_SAMPLES "Builds samples" ON)
 OPTION(BUILD_TESTS "Builds tests" ON)
 
 OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" OFF)
+OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" ON)
 OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF)
 
 #########################################
@@ -175,13 +175,13 @@ set(ENGINE_RENDERER
     src/limitless/renderer/translucent_pass.cpp
     src/limitless/renderer/bloom_pass.cpp
     src/limitless/renderer/composite_pass.cpp
-#    src/limitless/pipeline/common/ssao_pass.cpp
+    src/limitless/renderer/ssao_pass.cpp
 #    src/limitless/pipeline/common/fxaa_pass.cpp
     src/limitless/renderer/screen_pass.cpp
     src/limitless/renderer/render_debug_pass.cpp
 #    src/limitless/pipeline/common/dof_pass.cpp
     src/limitless/renderer/outline_pass.cpp
-#    src/limitless/pipeline/common/ssr_pass.cpp
+    src/limitless/renderer/ssr_pass.cpp
     src/limitless/renderer/decal_pass.cpp
     src/limitless/postprocessing/blur.cpp
     src/limitless/postprocessing/bloom.cpp

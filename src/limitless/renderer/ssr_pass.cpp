@@ -10,29 +10,22 @@
 #include "limitless/core/uniform/uniform.hpp"
 #include "limitless/core/shader/shader_program.hpp"
 #include <random>
-#include <iostream>
 #include <limitless/camera.hpp>
 #include <limitless/renderer/gbuffer_pass.hpp>
-#include <limitless/pipeline/pipeline.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
+#include <limitless/renderer/renderer.hpp>
 
 using namespace Limitless;
 
-SSRPass::SSRPass(Pipeline& pipeline, Context& ctx)
-    : RendererPass(pipeline)
-    , ssr {ctx} {
+SSRPass::SSRPass(Renderer& renderer)
+    : RendererPass(renderer)
+    , ssr {renderer} {
 }
 
-SSRPass::SSRPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size)
-    : RendererPass(pipeline)
-    , ssr {ctx, frame_size} {
-}
-
-void SSRPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
-                   UniformSetter &setter) {
-    auto& gbuffer = pipeline.get<DeferredFramebufferPass>();
+void SSRPass::render(InstanceRenderer &instance_renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
+    auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
     ssr.draw(ctx, assets, camera, gbuffer.getDepth(), gbuffer.getNormal(), gbuffer.getProperties(), gbuffer.getAlbedo());
 }

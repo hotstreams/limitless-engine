@@ -7,6 +7,7 @@ namespace Limitless {
     class UniformSetter;
     class Assets;
     class Camera;
+    class Renderer;
 
     class SSR {
     public:
@@ -45,8 +46,7 @@ namespace Limitless {
         Settings settings;
         Blur blur;
     public:
-        SSR(Context &ctx, glm::uvec2 frame_size);
-        explicit SSR(Context &ctx);
+        SSR(Renderer& renderer);
 
         std::shared_ptr<Texture> getResult();
 

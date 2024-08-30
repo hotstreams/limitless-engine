@@ -44,9 +44,9 @@ void ColorPicker::process(Context& ctx) {
 }
 
 void ColorPicker::render(InstanceRenderer& renderer, [[maybe_unused]] Scene &scene, Context &ctx, const Assets &assets, [[maybe_unused]] const Camera &camera, UniformSetter &setter) {
-//    if (data.empty()) {
-//        return;
-//    }
+    if (data.empty()) {
+        return;
+    }
 
     framebuffer.bind();
 

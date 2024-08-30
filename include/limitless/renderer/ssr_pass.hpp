@@ -10,18 +10,15 @@ namespace Limitless {
     private:
         SSR ssr;
     public:
-        SSRPass(Pipeline& pipeline, Context& ctx);
-        SSRPass(Pipeline& pipeline, Context& ctx, glm::uvec2 frame_size);
+        SSRPass(Renderer& renderer);
 
-        std::shared_ptr<Texture> getResult() override { return ssr.getResult(); }
+        std::shared_ptr<Texture> getResult() { return ssr.getResult(); }
 
         void addUniformSetter(UniformSetter &setter) override;
 
 //        void update(Limitless::Scene &scene, Limitless::Instances &instances, Limitless::Context &ctx, const Limitless::Camera &camera) override;
 
-        void
-        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
-             UniformSetter &setter) override;
+        void render(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
 
         void onFramebufferChange(glm::uvec2 size) override;
     };

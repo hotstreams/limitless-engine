@@ -6,35 +6,17 @@
 #include <limitless/core/uniform/uniform_setter.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/camera.hpp>
+#include <limitless/renderer/renderer.hpp>
 
 using namespace Limitless;
 
-SSR::SSR(Context& ctx)
-    : blur {ctx.getSize()} {
+SSR::SSR(Renderer& renderer)
+    : blur {renderer.getResolution()} {
     auto ssr = Texture::builder()
             .target(Texture::Type::Tex2D)
             .internal_format(Texture::InternalFormat::RGB16F)
             .data_type(Texture::DataType::Float)
-            .size(ctx.getSize())
-            .min_filter(Texture::Filter::Nearest)
-            .mag_filter(Texture::Filter::Nearest)
-            .wrap_s(Texture::Wrap::ClampToEdge)
-            .wrap_t(Texture::Wrap::ClampToEdge)
-            .build();
-
-    framebuffer.bind();
-    framebuffer << TextureAttachment{FramebufferAttachment::Color0, ssr};
-    framebuffer.checkStatus();
-    framebuffer.unbind();
-}
-
-SSR::SSR(Context &ctx, glm::uvec2 frame_size)
-    : blur {frame_size} {
-    auto ssr = Texture::builder()
-            .target(Texture::Type::Tex2D)
-            .internal_format(Texture::InternalFormat::RGB16F)
-            .data_type(Texture::DataType::Float)
-            .size(ctx.getSize())
+            .size(renderer.getResolution())
             .min_filter(Texture::Filter::Nearest)
             .mag_filter(Texture::Filter::Nearest)
             .wrap_s(Texture::Wrap::ClampToEdge)

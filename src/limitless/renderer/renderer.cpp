@@ -22,6 +22,8 @@
 #include <limitless/renderer/outline_pass.hpp>
 #include <limitless/renderer/render_debug_pass.hpp>
 #include <limitless/renderer/color_picker.hpp>
+#include <limitless/renderer/ssao_pass.hpp>
+#include <limitless/renderer/ssr_pass.hpp>
 
 using namespace Limitless;
 
@@ -100,12 +102,12 @@ Renderer::Builder &Renderer::Builder::addSkyboxPass() {
 }
 
 Renderer::Builder &Renderer::Builder::addSSAOPass() {
-//    renderer->passes.emplace_back(std::make_unique<SSAOPass>(*renderer));
+    renderer->passes.emplace_back(std::make_unique<SSAOPass>(*renderer));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addSSRPass() {
-//    renderer->passes.emplace_back(std::make_unique<SSRPass>(renderer));
+    renderer->passes.emplace_back(std::make_unique<SSRPass>(*renderer));
     return *this;
 }
 
