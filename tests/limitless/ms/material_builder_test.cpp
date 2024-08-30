@@ -11,7 +11,7 @@ using namespace Limitless::ms;
 using namespace LimitlessTest;
 
 TEST_CASE("Material::Builder throw on empty properties") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -22,7 +22,7 @@ TEST_CASE("Material::Builder throw on empty properties") {
 }
 
 TEST_CASE("Material::Builder throw on empty name") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -35,7 +35,7 @@ TEST_CASE("Material::Builder throw on empty name") {
 
 
 TEST_CASE("Material::Builder successfully build material with color") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -53,7 +53,7 @@ TEST_CASE("Material::Builder successfully build material with color") {
 }
 
 TEST_CASE("Material::Builder successfully build material with color and not default model shader") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -73,7 +73,7 @@ TEST_CASE("Material::Builder successfully build material with color and not defa
 }
 
 TEST_CASE("Material::Builder assigns different material index") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -96,7 +96,7 @@ TEST_CASE("Material::Builder assigns different material index") {
 }
 
 TEST_CASE("Material::Builder reuses shader index if material types are equal") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -119,7 +119,7 @@ TEST_CASE("Material::Builder reuses shader index if material types are equal") {
 }
 
 TEST_CASE("Material::Builder assigns new index if material is custom") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -143,7 +143,7 @@ TEST_CASE("Material::Builder assigns new index if material is custom") {
 }
 
 TEST_CASE("Material::Builder builds material with emissive color") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -161,7 +161,7 @@ TEST_CASE("Material::Builder builds material with emissive color") {
 }
 
 TEST_CASE("Material::Builder builds material with metallic") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -179,7 +179,7 @@ TEST_CASE("Material::Builder builds material with metallic") {
 }
 
 TEST_CASE("Material::Builder builds material with roughness") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -197,7 +197,7 @@ TEST_CASE("Material::Builder builds material with roughness") {
 }
 
 TEST_CASE("Material::Builder builds material with index of refraction") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -216,7 +216,7 @@ TEST_CASE("Material::Builder builds material with index of refraction") {
 }
 
 TEST_CASE("Material::Builder builds material with absorption") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -234,7 +234,7 @@ TEST_CASE("Material::Builder builds material with absorption") {
 }
 
 TEST_CASE("Material::Builder builds material with diffuse") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -253,7 +253,7 @@ TEST_CASE("Material::Builder builds material with diffuse") {
 }
 
 TEST_CASE("Material::Builder builds material with normal") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -272,7 +272,7 @@ TEST_CASE("Material::Builder builds material with normal") {
 }
 
 TEST_CASE("Material::Builder builds material with EmissiveMask") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -291,7 +291,7 @@ TEST_CASE("Material::Builder builds material with EmissiveMask") {
 }
 
 TEST_CASE("Material::Builder builds material with BlendMask") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -310,7 +310,7 @@ TEST_CASE("Material::Builder builds material with BlendMask") {
 }
 
 TEST_CASE("Material::Builder builds material with MetallicTexture") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -329,7 +329,7 @@ TEST_CASE("Material::Builder builds material with MetallicTexture") {
 }
 
 TEST_CASE("Material::Builder builds material with RoughnessTexture") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -348,7 +348,7 @@ TEST_CASE("Material::Builder builds material with RoughnessTexture") {
 }
 
 TEST_CASE("Material::Builder builds material with AmbientOcclusionTexture") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -367,7 +367,7 @@ TEST_CASE("Material::Builder builds material with AmbientOcclusionTexture") {
 }
 
 TEST_CASE("Material::Builder builds material with ORM") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -386,7 +386,7 @@ TEST_CASE("Material::Builder builds material with ORM") {
 }
 
 TEST_CASE("Material::Builder builds material with blending") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -406,7 +406,7 @@ TEST_CASE("Material::Builder builds material with blending") {
 }
 
 TEST_CASE("Material::Builder builds material with shading") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -426,7 +426,7 @@ TEST_CASE("Material::Builder builds material with shading") {
 }
 
 TEST_CASE("Material::Builder builds material with two sided") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -446,7 +446,7 @@ TEST_CASE("Material::Builder builds material with two sided") {
 }
 
 TEST_CASE("Material::Builder builds material with refraction") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -466,7 +466,7 @@ TEST_CASE("Material::Builder builds material with refraction") {
 }
 
 TEST_CASE("Material::Builder builds material with fragment snippet") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -486,7 +486,7 @@ TEST_CASE("Material::Builder builds material with fragment snippet") {
 }
 
 TEST_CASE("Material::Builder builds material with vertex snippet") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -506,7 +506,7 @@ TEST_CASE("Material::Builder builds material with vertex snippet") {
 }
 
 TEST_CASE("Material::Builder builds material with global snippet") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -526,7 +526,7 @@ TEST_CASE("Material::Builder builds material with global snippet") {
 }
 
 //TEST_CASE("Material::Builder builds material with custom uniform") {
-//    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+//    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 //    Assets assets {"../assets"};
 //
 //    Material::Builder builder {};
@@ -547,7 +547,7 @@ TEST_CASE("Material::Builder builds material with global snippet") {
 //}
 
 TEST_CASE("Material::Builder builds material with model shaders") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -569,7 +569,7 @@ TEST_CASE("Material::Builder builds material with model shaders") {
 }
 
 TEST_CASE("Material::Builder builds skybox material") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder {};
@@ -591,7 +591,7 @@ TEST_CASE("Material::Builder builds skybox material") {
 }
 
 //TEST_CASE("Material::Builder builds with specified properties") {
-//    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+//    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 //    Assets assets {"../assets"};
 //
 //    std::map<Property, std::unique_ptr<Uniform>> properties;
@@ -612,7 +612,7 @@ TEST_CASE("Material::Builder builds skybox material") {
 //}
 //
 //TEST_CASE("Material::Builder builds with specified uniforms") {
-//    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+//    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 //    Assets assets {"../assets"};
 //
 //    std::map<std::string, std::unique_ptr<Uniform>> uniforms;

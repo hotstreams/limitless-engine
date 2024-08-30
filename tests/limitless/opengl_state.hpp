@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/core/context_state.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 
@@ -15,7 +15,7 @@ namespace LimitlessTest {
         }
 
         SECTION("checking state") {
-            if (auto* state = ContextState::getState(glfwGetCurrentContext()); state) {
+            if (auto* state = Context::getCurrentContext(); state) {
                 StateQuery query;
 
                 REQUIRE(state->getCapabilities().at(Capabilities::Blending) == query.getb(QueryState::Blend));

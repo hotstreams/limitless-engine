@@ -13,7 +13,7 @@ using namespace Limitless::ms;
 using namespace LimitlessTest;
 
 void test_MaterialCompiler_compiles_material_with_color(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -28,7 +28,7 @@ void test_MaterialCompiler_compiles_material_with_color(RendererSettings& settin
 }
 
 void test_MaterialCompiler_compiles_material_with_emissive(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -45,7 +45,7 @@ void test_MaterialCompiler_compiles_material_with_emissive(RendererSettings& set
 }
 
 void test_MaterialCompiler_compiles_material_with_metalic(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -62,7 +62,7 @@ void test_MaterialCompiler_compiles_material_with_metalic(RendererSettings& sett
 }
 
 void test_MaterialCompiler_compiles_material_with_roughness(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -79,7 +79,7 @@ void test_MaterialCompiler_compiles_material_with_roughness(RendererSettings& se
 }
 
 void test_MaterialCompiler_compiles_material_with_refraction_ior(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -97,7 +97,7 @@ void test_MaterialCompiler_compiles_material_with_refraction_ior(RendererSetting
 }
 
 void test_MaterialCompiler_compiles_material_with_refration_abs(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -115,7 +115,7 @@ void test_MaterialCompiler_compiles_material_with_refration_abs(RendererSettings
 }
 
 void test_MaterialCompiler_compiles_material_with_diffuse(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -133,7 +133,7 @@ void test_MaterialCompiler_compiles_material_with_diffuse(RendererSettings& sett
 }
 
 void test_MaterialCompiler_compiles_material_with_normal(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -151,7 +151,7 @@ void test_MaterialCompiler_compiles_material_with_normal(RendererSettings& setti
 }
 
 void test_MaterialCompiler_compiles_material_with_emissivemask(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -169,7 +169,7 @@ void test_MaterialCompiler_compiles_material_with_emissivemask(RendererSettings&
 }
 
 void test_MaterialCompiler_compiles_material_with_blendmask(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -187,7 +187,7 @@ void test_MaterialCompiler_compiles_material_with_blendmask(RendererSettings& se
 }
 
 void test_MaterialCompiler_compiles_material_with_mettalictexture(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -205,7 +205,7 @@ void test_MaterialCompiler_compiles_material_with_mettalictexture(RendererSettin
 }
 
 void test_MaterialCompiler_compiles_material_with_roughnesstexture(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -223,7 +223,7 @@ void test_MaterialCompiler_compiles_material_with_roughnesstexture(RendererSetti
 }
 
 void test_MaterialCompiler_compiles_material_with_ao(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -241,7 +241,7 @@ void test_MaterialCompiler_compiles_material_with_ao(RendererSettings& settings)
 }
 
 void test_MaterialCompiler_compiles_material_with_orm(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -259,7 +259,7 @@ void test_MaterialCompiler_compiles_material_with_orm(RendererSettings& settings
 }
 
 void test_MaterialCompiler_compiles_material_with_unlit(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -277,7 +277,7 @@ void test_MaterialCompiler_compiles_material_with_unlit(RendererSettings& settin
 }
 
 void test_MaterialCompiler_compiles_material_with_lit(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -295,7 +295,7 @@ void test_MaterialCompiler_compiles_material_with_lit(RendererSettings& settings
 }
 
 void test_MaterialCompiler_compiles_material_with_custom_fragment(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -313,7 +313,7 @@ void test_MaterialCompiler_compiles_material_with_custom_fragment(RendererSettin
 }
 
 void test_MaterialCompiler_compiles_material_with_custom_vertex(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -331,7 +331,7 @@ void test_MaterialCompiler_compiles_material_with_custom_vertex(RendererSettings
 }
 
 void test_MaterialCompiler_compiles_material_with_custom_global(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -349,7 +349,7 @@ void test_MaterialCompiler_compiles_material_with_custom_global(RendererSettings
 }
 
 void test_MaterialCompiler_compiles_material_with_custom_uniform_value(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};
@@ -367,7 +367,7 @@ void test_MaterialCompiler_compiles_material_with_custom_uniform_value(RendererS
 }
 
 void test_MaterialCompiler_compiles_material_with_custom_uniform_sampler(RendererSettings& settings) {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
     assets.textures.add("fake", Textures::fake());
 
@@ -726,7 +726,7 @@ TEST_CASE("test_MaterialCompiler_compiles_material_with_custom_uniform_sampler f
 }
 
 TEST_CASE("MaterialCompiler throws") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../../assets"};
 
     Material::Builder builder {};

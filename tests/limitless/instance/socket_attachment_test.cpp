@@ -14,7 +14,7 @@ using namespace Limitless;
 using namespace LimitlessTest;
 
 TEST_CASE("SocketAttachment tests") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     assets.models.add("boblamp", ModelLoader::loadModel(assets, "../assets/models/boblamp/boblampclean.md5mesh", {{

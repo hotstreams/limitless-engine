@@ -15,7 +15,7 @@ using namespace Limitless;
 using namespace LimitlessTest;
 
 TEST_CASE("InstanceAttachment tests") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     assets.models.add("backpack", ModelLoader::loadModel(assets, "../assets/models/backpack/backpack.obj", {{

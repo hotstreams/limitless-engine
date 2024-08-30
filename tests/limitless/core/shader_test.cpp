@@ -8,7 +8,7 @@ using namespace Limitless;
 using namespace LimitlessTest;
 
 TEST_CASE("Loads simple shader without error") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         Shader shader = Shader{"../../tests/limitless/assets/shader1.vert", Shader::Type::Vertex};
@@ -22,7 +22,7 @@ TEST_CASE("Loads simple shader without error") {
 }
 
 TEST_CASE("Replaces version in shader") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         Shader shader = Shader{"../../tests/limitless/assets/shader2.vert", Shader::Type::Vertex};
@@ -36,7 +36,7 @@ TEST_CASE("Replaces version in shader") {
 }
 
 TEST_CASE("Resolves include in shader") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         Shader shader = Shader{"../../tests/limitless/assets/shader4.vert", Shader::Type::Vertex};
@@ -50,7 +50,7 @@ TEST_CASE("Resolves include in shader") {
 }
 
 TEST_CASE("Replaces key-line in shader") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         Shader shader = Shader{"../../tests/limitless/assets/shader6.vert", Shader::Type::Vertex};
@@ -66,7 +66,7 @@ TEST_CASE("Replaces key-line in shader") {
 }
 
 TEST_CASE("Throw file not found") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         REQUIRE_THROWS_AS(Shader("../../tests/limitless/assets/3228.vert", Shader::Type::Vertex), shader_file_not_found);
@@ -78,7 +78,7 @@ TEST_CASE("Throw file not found") {
 }
 
 TEST_CASE("Throw include not found") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         REQUIRE_THROWS_AS(Shader("../../tests/limitless/assets/shader7.vert", Shader::Type::Vertex), shader_include_not_found);
@@ -90,7 +90,7 @@ TEST_CASE("Throw include not found") {
 }
 
 TEST_CASE("Throw shader_compilation_error") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         Shader shader = Shader{"../../tests/limitless/assets/shader8.vert", Shader::Type::Vertex};
@@ -103,7 +103,7 @@ TEST_CASE("Throw shader_compilation_error") {
 }
 
 TEST_CASE("Compiles simple shader") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         Shader shader = Shader{"../../tests/limitless/assets/shader1.vert", Shader::Type::Vertex};
@@ -117,7 +117,7 @@ TEST_CASE("Compiles simple shader") {
 }
 
 TEST_CASE("Shader move ctor") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         Shader shader1 = Shader{"../../tests/limitless/assets/shader1.vert", Shader::Type::Vertex};
