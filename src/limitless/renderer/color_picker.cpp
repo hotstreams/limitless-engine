@@ -10,13 +10,6 @@
 
 using namespace Limitless;
 
-glm::vec3 ColorPicker::convert(uint32_t id) noexcept {
-    const auto r = (id & 0x000000FF) >> 0;
-    const auto g = (id & 0x0000FF00) >> 8;
-    const auto b = (id & 0x00FF0000) >> 16;
-    return glm::vec3{r, g, b} / 255.0f;
-}
-
 uint32_t ColorPicker::convert(glm::uvec3 color) noexcept {
     return color.r + color.g * 256 + color.b * 256 * 256;
 }
@@ -39,47 +32,14 @@ void ColorPicker::process(Context& ctx) {
 
         ctx.setPixelStore(PixelStore::UnpackAlignment, 1);
 
-        glm::uvec3 color {};
-        glReadPixels(info.coords.x, info.coords.y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &color[0]);
+        uint8_t color[3];
+        glReadPixels(info.coords.x, info.coords.y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, color);
 
         framebuffer.unbind();
 
-        info.callback(convert(color));
+        info.callback(convert({color[0], color[1], color[2]}));
 
         data.pop_front();
-    }
-}
-
-void ColorPicker::update([[maybe_unused]] Scene& scene, [[maybe_unused]] const Camera &camera) {
-    auto& frustum_culling = renderer.getInstanceRenderer().getFrustumCulling();
-    //TODO: buffer changed check?
-    // remove old (removed from scene) buffers
-    for (const auto& instance: frustum_culling.getVisibleInstances()) {
-        if (instance->getInstanceType() == InstanceType::Instanced) {
-            if (instanced_buffers.count(instance->getId()) == 0) {
-                instanced_buffers[instance->getId()] = Buffer::builder()
-                    .target(Buffer::Type::ShaderStorage)
-                    .usage(Buffer::Usage::DynamicDraw)
-                    .access(Buffer::MutableAccess::WriteOrphaning)
-                    .data(nullptr)
-                    .size(sizeof(glm::vec3))
-                    .build("color_buffer", *Context::getCurrentContext());
-            } else {
-                auto instances = frustum_culling.getVisibleModelInstanced(static_cast<InstancedInstance&>(*instance));
-                std::vector<glm::vec3> colors;
-                colors.reserve(instances.size());
-                for (const auto& inst: instances) {
-                    colors.emplace_back(convert(inst->getId()));
-                }
-                // ensure buffer size
-                auto& buffer = instanced_buffers[instance->getId()];
-                auto size = sizeof(glm::vec3) * colors.size();
-                if (buffer->getSize() < size) {
-                    buffer->resize(size);
-                }
-                buffer->mapData(colors.data(), size);
-            }
-        }
     }
 }
 
@@ -98,16 +58,7 @@ void ColorPicker::render(InstanceRenderer& renderer, [[maybe_unused]] Scene &sce
 
     framebuffer.clear();
 
-    auto isetter = [&](ShaderProgram& shader, const Instance& instance) {
-        if (instance.getInstanceType() == InstanceType::Instanced) {
-            instanced_buffers[instance.getId()]->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "color_buffer"));
-            return;
-        }
-
-        shader.setUniform("color_id", convert(instance.getId()));
-    };
-
-    renderer.renderScene({ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter, {isetter}});
+    renderer.renderScene({ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter});
 
     for (auto& pick: data) {
         if (!pick.sync.isAlreadyPlaced()) {

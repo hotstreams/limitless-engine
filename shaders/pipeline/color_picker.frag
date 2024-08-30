@@ -3,25 +3,16 @@ ENGINE::MATERIALDEPENDENT
 
 #include "../interface_block/fragment.glsl"
 #include "../shading/shading_mctx.glsl"
+#include "../instance/instance_fs.glsl"
 
 out vec3 color;
 
-uniform vec3 color_id;
-
-// INSTANCED MODEL
-#if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
-    layout (std430) buffer color_buffer {
-        vec3 _colors[];
-    };
-#endif
-//
-
 vec3 getColorId() {
-    #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
-        return _colors[getInstanceId()];
-    #else
-        return color_id;
-    #endif
+    uint id = getId();
+    uint r = (id & 0x000000FF) >> 0;
+    uint g = (id & 0x0000FF00) >> 8;
+    uint b = (id & 0x00FF0000) >> 16;
+    return vec3(r, g, b) / 255.0;
 }
 
 void main() {

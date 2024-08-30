@@ -24,20 +24,15 @@ namespace Limitless {
         };
         std::list<PickData> data;
 
-        std::unordered_map<uint64_t, std::shared_ptr<Buffer>> instanced_buffers;
-
         Framebuffer framebuffer;
 
         static uint32_t convert(glm::uvec3 color) noexcept;
-        static glm::vec3 convert(uint32_t id) noexcept;
 
         void process(Context& ctx);
     public:
         explicit ColorPicker(Renderer& renderer);
 
         void onPick(Context& ctx, glm::uvec2 coords, std::function<void(uint32_t)> callback);
-
-        void update(Scene &scene, const Camera &camera) override;
 
         void render(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
 
