@@ -176,7 +176,7 @@ set(ENGINE_RENDERER
     src/limitless/renderer/bloom_pass.cpp
     src/limitless/renderer/composite_pass.cpp
     src/limitless/renderer/ssao_pass.cpp
-#    src/limitless/pipeline/common/fxaa_pass.cpp
+    src/limitless/renderer/fxaa_pass.cpp
     src/limitless/renderer/screen_pass.cpp
     src/limitless/renderer/render_debug_pass.cpp
 #    src/limitless/pipeline/common/dof_pass.cpp

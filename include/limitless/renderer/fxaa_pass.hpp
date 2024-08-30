@@ -17,16 +17,14 @@ namespace Limitless {
          */
     	Framebuffer framebuffer;
     public:
-        explicit FXAAPass(Pipeline& pipeline, glm::uvec2 frame_size);
+        explicit FXAAPass(Renderer& renderer);
 
-        std::shared_ptr<Texture> getResult() override;
+        std::shared_ptr<Texture> getResult();
 
         /**
          *  Applies FXAA
          */
-        void
-        draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
-             UniformSetter &setter) override;
+        void render(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
 
         /**
          * Updates framebuffer size

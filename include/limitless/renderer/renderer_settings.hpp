@@ -36,7 +36,7 @@ namespace Limitless {
         /**
          * FXAA Fast Approximate Antialiasing
          */
-        bool fast_approximate_antialiasing {false};
+        bool fast_approximate_antialiasing {true};
         //TODO: refactor shaders
 
         /**
@@ -100,25 +100,24 @@ namespace Limitless {
             /**
              * Screen Space Ambient Occlusion
              */
-            bool screen_space_ambient_occlusion {false};
+            bool screen_space_ambient_occlusion {true};
             SSAO::Settings ssao_cfg;
 
             /**
              * Screen Space Reflections
              */
-            bool screen_space_reflections {false};
+            bool screen_space_reflections {true};
             SSR::Settings ssr_cfg;
 
             /**
              * FXAA Fast Approximate Antialiasing
              */
-            bool fast_approximate_antialiasing {false};
-            //TODO: refactor shaders
+            bool fast_approximate_antialiasing {true};
 
             /**
              * Cascade shadow maps
              */
-            bool cascade_shadow_maps = false;
+            bool cascade_shadow_maps = true;
             glm::uvec2 csm_resolution = {1024 * 4, 1024 * 4 };
             uint8_t csm_split_count = 3; // [2; 4]
 

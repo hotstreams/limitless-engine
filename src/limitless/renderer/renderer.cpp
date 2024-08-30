@@ -24,6 +24,7 @@
 #include <limitless/renderer/color_picker.hpp>
 #include <limitless/renderer/ssao_pass.hpp>
 #include <limitless/renderer/ssr_pass.hpp>
+#include <limitless/renderer/fxaa_pass.hpp>
 
 using namespace Limitless;
 
@@ -137,7 +138,7 @@ Renderer::Builder &Renderer::Builder::addCompositePass() {
 }
 
 Renderer::Builder &Renderer::Builder::addFXAAPass() {
-//    renderer->passes.emplace_back(std::make_unique<FXAAPass>(r*enderer));
+    renderer->passes.emplace_back(std::make_unique<FXAAPass>(*renderer));
     return *this;
 }
 

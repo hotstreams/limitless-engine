@@ -4,24 +4,23 @@
 #include "limitless/core/uniform/uniform.hpp"
 #include <limitless/assets.hpp>
 #include "limitless/core/shader/shader_program.hpp"
-#include <limitless/pipeline/pipeline.hpp>
 #include <limitless/renderer/composite_pass.hpp>
+#include <limitless/renderer/renderer.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 
 using namespace Limitless;
 
-FXAAPass::FXAAPass(Pipeline& pipeline, glm::uvec2 frame_size)
-    : RendererPass(pipeline)
-    , framebuffer {Framebuffer::asRGB8LinearClampToEdge(frame_size)} {
+FXAAPass::FXAAPass(Renderer& renderer)
+    : RendererPass(renderer)
+    , framebuffer {Framebuffer::asRGB8LinearClampToEdge(renderer.getResolution())} {
 }
 
 std::shared_ptr<Texture> FXAAPass::getResult() {
     return framebuffer.get(FramebufferAttachment::Color0).texture;
 }
 
-void FXAAPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera,
-                    UniformSetter &setter) {
+void FXAAPass::render(InstanceRenderer &instance_renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 
@@ -29,7 +28,7 @@ void FXAAPass::draw(InstanceRenderer &renderer, Scene &scene, Context &ctx, cons
         framebuffer.clear();
         auto& shader = assets.shaders.get("fxaa");
 
-        shader.setUniform("scene", getPreviousResult());
+        shader.setUniform("scene", renderer.getPass<CompositePass>().getResult());
 
         shader.use();
 
