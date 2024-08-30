@@ -20,14 +20,14 @@ void DecalPass::render(
 
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
+    gbuffer.getFramebuffer().readBuffer(FramebufferAttachment::None);
+
     gbuffer.getFramebuffer().drawBuffers({
         FramebufferAttachment::Color0,
         FramebufferAttachment::Color1,
         FramebufferAttachment::Color2,
         FramebufferAttachment::Color3
     });
-
-    gbuffer.getFramebuffer().readBuffer(FramebufferAttachment::None);
 
     setter.add([&](ShaderProgram& shader){
         shader.setUniform("depth_texture", gbuffer.getDepth());

@@ -137,6 +137,7 @@ void LimitlessMaterials::Scene::setUpModels() {
             );
         }
     }
+
     scene.add(floor);
 
     scene.add(Instance::builder()
