@@ -15,7 +15,7 @@ using namespace Limitless;
 using namespace LimitlessTest;
 
 TEST_CASE("ModelInstance model constructor") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     assets.models.add("backpack", ModelLoader::loadModel(assets, "../assets/models/backpack/backpack.obj", {{
@@ -30,7 +30,7 @@ TEST_CASE("ModelInstance model constructor") {
 }
 
 TEST_CASE("ModelInstance model constructor with element model") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
 
@@ -42,7 +42,7 @@ TEST_CASE("ModelInstance model constructor with element model") {
 }
 
 TEST_CASE("ModelInstance elementary model constructor") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
 
@@ -54,7 +54,7 @@ TEST_CASE("ModelInstance elementary model constructor") {
 }
 
 TEST_CASE("ModelInstance elementary model constructor with model") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
 
@@ -70,7 +70,7 @@ TEST_CASE("ModelInstance elementary model constructor with model") {
 }
 
 TEST_CASE("ModelInstance model copy constructor") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
     Camera camera {{1, 1}};
@@ -106,7 +106,7 @@ TEST_CASE("ModelInstance model copy constructor") {
 }
 
 TEST_CASE("ModelInstance clone") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
     Camera camera {{1, 1}};
@@ -141,7 +141,7 @@ TEST_CASE("ModelInstance clone") {
 }
 
 TEST_CASE("ModelInstance get meshes") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
     Camera camera {{1, 1}};

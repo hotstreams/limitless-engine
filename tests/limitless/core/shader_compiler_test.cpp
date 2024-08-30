@@ -8,7 +8,7 @@ using namespace Limitless;
 using namespace LimitlessTest;
 
 TEST_CASE("Manual shader program compilation") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         RendererSettings settings;
@@ -27,7 +27,7 @@ TEST_CASE("Manual shader program compilation") {
 }
 
 TEST_CASE("Auto shader program compilation") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         RendererSettings settings;
@@ -43,7 +43,7 @@ TEST_CASE("Auto shader program compilation") {
 }
 
 TEST_CASE("Auto shader program compilation with specified actions") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         RendererSettings settings;
@@ -63,7 +63,7 @@ TEST_CASE("Auto shader program compilation with specified actions") {
 }
 
 TEST_CASE("Throw on not existing path") {
-    Context context = Context{"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         RendererSettings settings;

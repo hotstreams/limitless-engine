@@ -65,7 +65,7 @@ public:
 };
 
 TEST_CASE("Buffer mutable constructor") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Array, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -81,7 +81,7 @@ TEST_CASE("Buffer mutable constructor") {
 }
 
 TEST_CASE("Buffer immutable constructor") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Array, 1024, nullptr, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
@@ -97,7 +97,7 @@ TEST_CASE("Buffer immutable constructor") {
 }
 
 TEST_CASE("Buffer bind function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Array, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -111,7 +111,7 @@ TEST_CASE("Buffer bind function changes state correctly") {
 }
 
 TEST_CASE("Buffer bindAs function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Array, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -125,7 +125,7 @@ TEST_CASE("Buffer bindAs function changes state correctly") {
 }
 
 TEST_CASE("Buffer bindBase function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -139,7 +139,7 @@ TEST_CASE("Buffer bindBase function changes state correctly") {
 }
 
 TEST_CASE("Buffer bindBaseAs function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -153,7 +153,7 @@ TEST_CASE("Buffer bindBaseAs function changes state correctly") {
 }
 
 TEST_CASE("Buffer bindBufferRange function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -167,7 +167,7 @@ TEST_CASE("Buffer bindBufferRange function changes state correctly") {
 }
 
 TEST_CASE("Buffer bindBufferRangeAs function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -181,7 +181,7 @@ TEST_CASE("Buffer bindBufferRangeAs function changes state correctly") {
 }
 
 TEST_CASE("Buffer mutable mapData function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::Write);
@@ -223,7 +223,7 @@ TEST_CASE("Buffer mutable mapData function changes state correctly") {
 }
 
 TEST_CASE("Buffer immutable mapData function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         unsigned char data[1024] = {1};
@@ -263,7 +263,7 @@ TEST_CASE("Buffer immutable mapData function changes state correctly") {
 }
 
 TEST_CASE("Buffer bufferSubData function changes state correctly") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateBuffer buffer = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Usage::StaticDraw, Buffer::MutableAccess::None);
@@ -277,7 +277,7 @@ TEST_CASE("Buffer bufferSubData function changes state correctly") {
 }
 
 TEST_CASE("Buffer clone function changes state correctly for mutable buffer") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         unsigned char data[1024] = {42};
@@ -298,7 +298,7 @@ TEST_CASE("Buffer clone function changes state correctly for mutable buffer") {
 }
 
 TEST_CASE("Buffer clone function changes state correctly for immutable buffer") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         unsigned char data[1024] = {42};
@@ -319,7 +319,7 @@ TEST_CASE("Buffer clone function changes state correctly for immutable buffer") 
 }
 
 TEST_CASE("Buffer resize function changes state correctly for mutable buffer") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         unsigned char data[1024] = {42};
@@ -336,7 +336,7 @@ TEST_CASE("Buffer resize function changes state correctly for mutable buffer") {
 }
 
 TEST_CASE("Buffer resize function changes state correctly for immutable buffer") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         unsigned char data[1024] = {42};
@@ -353,7 +353,7 @@ TEST_CASE("Buffer resize function changes state correctly for immutable buffer")
 }
 
 TEST_CASE("Buffer resize function changes state correctly for immutable buffer with immutable buffers bound") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     StateBuffer fake1 = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
     StateBuffer fake2 = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
@@ -378,7 +378,7 @@ TEST_CASE("Buffer resize function changes state correctly for immutable buffer w
 }
 
 TEST_CASE("Buffer clone function changes state correctly for immutable buffer with immutable buffers bound") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     StateBuffer fake1 = StateBuffer(Buffer::Type::Uniform, 1024, nullptr, Buffer::Storage::Static, Buffer::ImmutableAccess::None);
     StateBuffer fake2 = StateBuffer(Buffer::Type::ShaderStorage, 1024, nullptr, Buffer::Storage::Static, Buffer::ImmutableAccess::None);

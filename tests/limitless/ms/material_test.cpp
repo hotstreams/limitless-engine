@@ -11,7 +11,7 @@ using namespace Limitless::ms;
 using namespace LimitlessTest;
 
 TEST_CASE("Material copy constructor makes deep copy") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder = Material::builder();
@@ -31,7 +31,7 @@ TEST_CASE("Material copy constructor makes deep copy") {
 }
 //
 //TEST_CASE("Material update resets uniforms") {
-//    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+//    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 //    Assets assets {"../assets"};
 //
 //    Material::Builder builder = Material::builder();
@@ -51,7 +51,7 @@ TEST_CASE("Material copy constructor makes deep copy") {
 //}
 //
 //TEST_CASE("Material update does not updates uniforms") {
-//    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+//    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 //    Assets assets {"../assets"};
 //
 //    Material::Builder builder = Material::builder();
@@ -74,7 +74,7 @@ TEST_CASE("Material copy constructor makes deep copy") {
 //}
 
 //TEST_CASE("Material contains works") {
-//    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+//    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 //    Assets assets {"../assets"};
 //
 //    Material::Builder builder = Material::builder();
@@ -92,7 +92,7 @@ TEST_CASE("Material copy constructor makes deep copy") {
 //}
 
 TEST_CASE("Material equality operator works") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     Material::Builder builder = Material::builder();

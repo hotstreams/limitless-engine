@@ -15,7 +15,7 @@ using namespace Limitless;
 using namespace LimitlessTest;
 
 TEST_CASE("SkeletalInstance constructor") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     assets.models.add("boblamp", ModelLoader::loadModel(assets, "../assets/models/boblamp/boblampclean.md5mesh", {{
@@ -28,7 +28,7 @@ TEST_CASE("SkeletalInstance constructor") {
 }
 
 TEST_CASE("SkeletalInstance copy constructor") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
     Camera camera {{1, 1}};
@@ -64,7 +64,7 @@ TEST_CASE("SkeletalInstance copy constructor") {
 }
 
 TEST_CASE("SkeletalInstance clone") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
     assets.load(context);
     Camera camera {{1, 1}};
@@ -99,7 +99,7 @@ TEST_CASE("SkeletalInstance clone") {
 }
 
 TEST_CASE("SkeletalInstance animation") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};
 
     assets.models.add("boblamp", ModelLoader::loadModel(assets, "../assets/models/boblamp/boblampclean.md5mesh", {{

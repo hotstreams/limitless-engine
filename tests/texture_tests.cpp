@@ -7,7 +7,7 @@
 using namespace Limitless;
 
 TEST_CASE("StateTexture id generation") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     StateTexture texture;
     REQUIRE(texture.getId() != 0);
@@ -16,7 +16,7 @@ TEST_CASE("StateTexture id generation") {
 }
 
 TEST_CASE("StateTexture cleaning up ContextState") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     constexpr auto bind_index = 3;
     {
@@ -30,7 +30,7 @@ TEST_CASE("StateTexture cleaning up ContextState") {
 }
 
 TEST_CASE("StateTexture move constructor") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     StateTexture texture;
     const auto id = texture.getId();
@@ -44,7 +44,7 @@ TEST_CASE("StateTexture move constructor") {
 }
 
 TEST_CASE("StateTexture move operator") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     StateTexture texture;
     const auto id = texture.getId();
@@ -60,7 +60,7 @@ TEST_CASE("StateTexture move operator") {
 }
 
 TEST_CASE("StateTexture clone function") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     auto texture = std::unique_ptr<ExtensionTexture>(new StateTexture());
 
@@ -73,7 +73,7 @@ TEST_CASE("StateTexture clone function") {
 }
 
 TEST_CASE("StateTexture activate") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     constexpr auto active_index = 5;
     StateTexture::activate(active_index);
@@ -85,7 +85,7 @@ TEST_CASE("StateTexture activate") {
 }
 
 TEST_CASE("StateTexture bind") {
-    Context context = {"Title", {1, 1}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     StateTexture texture;
 

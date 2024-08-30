@@ -83,7 +83,7 @@ public:
 };
 
 TEST_CASE("Texture constructor") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateTexture tex = StateTexture();
@@ -98,7 +98,7 @@ TEST_CASE("Texture constructor") {
 }
 
 TEST_CASE("Texture activate function") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateTexture tex = StateTexture();
@@ -112,7 +112,7 @@ TEST_CASE("Texture activate function") {
 }
 
 TEST_CASE("Texture bind function") {
-    Context context = {"Title", {512, 512}, {{WindowHint::Visible, false}}};
+    Context context = {"Title", {512, 512}, nullptr, {{WindowHint::Hint::Visible, false}}};
 
     {
         StateTexture tex = StateTexture();
