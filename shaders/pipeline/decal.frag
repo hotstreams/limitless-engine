@@ -10,7 +10,6 @@ layout (location = 0) out vec4 albedo;
 layout (location = 1) out vec4 normal;
 layout (location = 2) out vec4 properties;
 layout (location = 3) out vec4 emissive;
-layout (location = 4) out vec4 info;
 
 uniform sampler2D depth_texture;
 uniform sampler2D info_texture;
@@ -18,7 +17,7 @@ uniform sampler2D info_texture;
 uniform mat4 decal_VP;
 uniform uint projection_mask;
 
-uniform float decal_blend = 1.0;
+uniform float decal_blend = 0.5;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / getResolution();
@@ -53,6 +52,8 @@ void main() {
 #if defined (ENGINE_MATERIAL_COLOR) || defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE) || defined (ENGINE_MATERIAL_BLENDMASK_TEXTURE)
     albedo = computeMaterialColor(ctx);
     albedo.a = decal_blend;
+#else
+    albedo = vec4(0.0);
 #endif
 
     // normal
@@ -63,32 +64,32 @@ void main() {
     nn = normalize(TBN * nn);
 
     normal = vec4(nn, decal_blend);
+#else
+    normal = vec4(0.0);
 #endif
 
-    // roughness
+// roughness
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE) || defined (ENGINE_MATERIAL_ROUGHNESS_TEXTURE) || defined (ENGINE_MATERIAL_ROUGHNESS)
     properties.r = ctx.roughness;
     properties.a = decal_blend;
 #endif
 
-    // metallic
+// metallic
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE) || defined (ENGINE_MATERIAL_METALLIC_TEXTURE) || defined (ENGINE_MATERIAL_METALLIC)
     properties.g = ctx.metallic;
     properties.a = decal_blend;
 #endif
 
-    // ao
+// ao
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE) || defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
     properties.b = computeMaterialAO(ctx);
     properties.a = decal_blend;
 #endif
 
-    // emissive
+// emissive
 #if defined (ENGINE_MATERIAL_EMISSIVE_COLOR) || defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
     emissive = vec4(computeMaterialEmissiveColor(ctx), decal_blend);
+#else
+    emissive = vec4(0.0);
 #endif
-
-    // always overrides shading model
-    info.r = float(ctx.shading_model) / 255.0;
-    info.a = 1.0;
 }

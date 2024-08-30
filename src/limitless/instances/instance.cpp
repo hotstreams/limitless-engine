@@ -1,13 +1,20 @@
 #include <limitless/instances/instance.hpp>
-#include <limitless/core/uniform/uniform_setter.hpp>
 #include <limitless/instances/instance_builder.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 
 using namespace Limitless;
 
 Instance::Instance(InstanceType _shader_type, const glm::vec3& _position) noexcept
 	: id {next_id++}
 	, shader_type {_shader_type}
-	, position {_position} {
+	, position {_position}
+    , instance_buffer {Buffer::builder()
+          .target(Buffer::Type::Uniform)
+          .usage(Buffer::Usage::DynamicDraw)
+          .access(Buffer::MutableAccess::WriteOrphaning)
+          .data(nullptr)
+          .size(sizeof(Data))
+          .build("model_buffer", *Context::getCurrentContext())} {
 }
 
 Instance::Instance(const Instance& rhs)
@@ -27,7 +34,15 @@ Instance::Instance(const Instance& rhs)
     , shadow_cast {rhs.shadow_cast}
     , outlined {rhs.outlined}
     , hidden {rhs.hidden}
-    , done {rhs.done} {
+    , done {rhs.done}
+    , pickable {rhs.pickable}
+    , instance_buffer {Buffer::builder()
+         .target(Buffer::Type::Uniform)
+         .usage(Buffer::Usage::DynamicDraw)
+         .access(Buffer::MutableAccess::WriteOrphaning)
+         .data(nullptr)
+         .size(sizeof(Data))
+         .build("model_buffer", *Context::getCurrentContext())} {
 }
 
 void Instance::updateModelMatrix() noexcept {
@@ -144,6 +159,7 @@ void Instance::update(const Camera &camera) {
 	updateModelMatrix();
 	updateFinalMatrix();
 	updateBoundingBox();
+    updateInstanceBuffer();
 
 	// propagates current instance values to attachments
     InstanceAttachment::setAttachmentsParent(final_matrix);
@@ -182,4 +198,24 @@ void Instance::updateBoundingBox() noexcept {
 Instance &Instance::setDecalMask(uint8_t mask) noexcept {
     decal_mask = mask;
     return *this;
+}
+
+Instance &Instance::setOutlineColor(glm::vec3 color) noexcept {
+    outline_color = color;
+    return *this;
+}
+
+void Instance::updateInstanceBuffer() noexcept {
+    Data data {
+        final_matrix,
+        glm::vec4(outline_color, 1.0f),
+        static_cast<uint32_t>(id),
+        outlined,
+        decal_mask
+    };
+
+    if (data != current_data) {
+        instance_buffer->mapData(&data, sizeof(Data));
+        current_data = data;
+    }
 }

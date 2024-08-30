@@ -7,8 +7,8 @@ in vec2 uv;
 out vec3 color;
 
 uniform int width;
-uniform vec3 outline_color;
-uniform sampler2D mask_texture;
+
+uniform sampler2D outline_texture;
 
 void main() {
     bool inside = false;
@@ -16,9 +16,13 @@ void main() {
     float coverage;
     float dist = 1e6;
 
+    uint origin_mask = uint(texture(outline_texture, uv).a * 65535.0);
+
     for (int y = -width; y <= width; ++y) {
         for (int x = -width; x <= width; ++x) {
-            float mask = texture(mask_texture, uv + vec2(x, y) * 1.0 / getResolution()).b;
+            uint umask = uint(texture(outline_texture, uv + vec2(x, y) * 1.0 / getResolution()).a * 65535.0);
+            float mask = umask != origin_mask ? 0.0 : 1.0;
+
             coverage += mask;
             if (mask >= 0.5) {
                 dist = min(dist, sqrt(x * x + y * y));
@@ -41,5 +45,5 @@ void main() {
         a = 1.0 - min(1.0, max(0.0, dist - solid) / fuzzy);
     }
 
-    color = outline_color * a;
+    color = texture(outline_texture, uv).rgb * a;
 }

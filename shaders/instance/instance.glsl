@@ -1,24 +1,67 @@
 #include "../vertex_streams/vertex_stream.glsl"
 
-// REGULAR MODEL OR SKELETAL MODEL
-#if defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)
-uniform mat4 _model_transform;
+struct InstanceData {
+    mat4 model_transform;
+    vec4 outline_color;
+    uint id;
+    uint is_outlined;
+    uint decal_mask;
+    uint pad;
+};
 
-mat4 getModelMatrix() {
-    return _model_transform;
-}
+// REGULAR MODEL
+#if defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)
+    layout (std140) uniform INSTANCE_BUFFER {
+        InstanceData _instance_data;
+    };
+
+    mat4 getModelMatrix() {
+        return _instance_data.model_transform;
+    }
+
+    vec3 getOutlineColor() {
+        return _instance_data.outline_color.rgb;
+    }
+
+    uint getId() {
+        return _instance_data.id;
+    }
+
+    uint getIsOutlined() {
+        return _instance_data.is_outlined;
+    }
+
+    uint getDecalMask() {
+        return _instance_data.decal_mask;
+    }
 #endif
 //
 
 // INSTANCED MODEL
 #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
-layout (std430) buffer model_buffer {
-    mat4 _models[];
-};
+    layout (std430) buffer model_buffer {
+        InstanceData _instances[];
+    };
 
-mat4 getModelMatrix() {
-    return _models[gl_InstanceID];
-}
+    mat4 getModelMatrix() {
+        return _instances[gl_InstanceID].model_transform;
+    }
+
+    vec3 getOutlineColor() {
+        return _instances[gl_InstanceID].outline_color.rgb;
+    }
+
+    uint getId() {
+        return _instances[gl_InstanceID].id;
+    }
+
+    uint getIsOutlined() {
+        return _instances[gl_InstanceID].is_outlined;
+    }
+
+    uint getDecalMask() {
+        return _instances[gl_InstanceID].decal_mask;
+    }
 #endif
 //
 

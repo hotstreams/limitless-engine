@@ -16,7 +16,7 @@ namespace Limitless {
         // contains model matrices for each ModelInstance
         std::shared_ptr<Buffer> buffer;
 
-        std::vector<glm::mat4> current_data;
+        std::vector<Data> current_instance_data;
 
         void updateInstanceBuffer();
     public:
