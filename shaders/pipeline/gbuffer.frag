@@ -27,6 +27,7 @@ void main() {
 
     info.r = float(mctx.shading_model) / 255.0;
     info.g = float(getDecalMask()) / 255.0;
+    info.b = 0.0;
 
     outline.rgb = getOutlineColor();
     outline.a = getIsOutlined() == 1u ? getId() / 65535.0 : 0.0;

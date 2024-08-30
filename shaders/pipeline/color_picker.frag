@@ -9,9 +9,9 @@ out vec3 color;
 
 vec3 getColorId() {
     uint id = getId();
-    uint r = (id & 0x000000FF) >> 0;
-    uint g = (id & 0x0000FF00) >> 8;
-    uint b = (id & 0x00FF0000) >> 16;
+    uint r = (id & 0x000000FFu) >> 0;
+    uint g = (id & 0x0000FF00u) >> 8;
+    uint b = (id & 0x00FF0000u) >> 16;
     return vec3(r, g, b) / 255.0;
 }
 

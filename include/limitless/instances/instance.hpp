@@ -83,7 +83,7 @@ namespace Limitless {
          * Instance outline color
          */
 
-        glm::vec3 outline_color {};
+        glm::vec3 outline_color {1.0f};
 
         /**
          * Final bounding box
@@ -123,7 +123,7 @@ namespace Limitless {
         /**
          * Whether instance can be pickable from ColorPicker
          */
-        bool pickable {};
+        bool pickable {true};
 
         /**
          * Instance data structure to GPU map

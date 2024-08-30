@@ -21,7 +21,8 @@ void SkyboxPass::render([[maybe_unused]] InstanceRenderer &instance_renderer, Sc
          FramebufferAttachment::Color1,
          FramebufferAttachment::Color2,
          FramebufferAttachment::Color3,
-         FramebufferAttachment::Color4
+         FramebufferAttachment::Color4,
+         FramebufferAttachment::Color5
     });
 
     if (auto skybox = scene.getSkybox(); skybox) {
