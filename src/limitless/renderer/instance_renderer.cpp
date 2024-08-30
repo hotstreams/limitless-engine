@@ -22,11 +22,9 @@ void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstan
     // gets required shader from storage
     auto& shader = drawp.assets.shaders.get(drawp.type, instance.getInstanceType(), mesh.getMaterial()->getShaderIndex());
 
-    // updates model/material uniforms
-    shader  .setUniform("_model_transform", instance.getFinalMatrix())
-            .setUniform<uint32_t>("_decal_mask", instance.getDecalMask())
-            .setUniform<uint32_t>("_outline", instance.isOutlined() ? instance.getId() : 0)
-            .setUniform("outline_color", instance.getOutlineColor())
+    instance.getInstanceBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::UniformBuffer, "INSTANCE_BUFFER"));
+
+    shader
             .setMaterial(*mesh.getMaterial());
 
     // sets custom pass-dependent uniforms
@@ -132,8 +130,10 @@ void InstanceRenderer::render(DecalInstance& instance, const DrawParameters& dra
 
     auto& shader = drawp.assets.shaders.get(drawp.type, InstanceType::Decal, instance.getMaterial()->getShaderIndex());
 
+    instance.getInstanceBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::UniformBuffer, "INSTANCE_BUFFER"));
+
     // updates model/material uniforms
-    shader  .setUniform("_model_transform", instance.getFinalMatrix())
+    shader
             .setUniform("decal_VP", glm::inverse(instance.getFinalMatrix()))
             .setUniform<uint32_t>("projection_mask", instance.getProjectionMask())
             .setMaterial(*instance.getMaterial());

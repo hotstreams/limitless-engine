@@ -5,6 +5,7 @@
 #include <limitless/util/matrix_stack.hpp>
 #include <limitless/util/frustum.hpp>
 #include <optional>
+#include <limitless/core/buffer/buffer.hpp>
 
 namespace Limitless {
     enum class ShaderType;
@@ -125,12 +126,45 @@ namespace Limitless {
         bool pickable {};
 
         /**
+         * Instance data structure to GPU map
+         */
+         class Data {
+         public:
+             glm::mat4 model_matrix;
+             glm::vec4 outline_color;
+             uint32_t id;
+             uint32_t is_outlined;
+             uint32_t decal_mask;
+             uint32_t pad {};
+
+             bool operator!=(const Data& rhs) const noexcept {
+                 return std::tie(model_matrix, outline_color, id, is_outlined, decal_mask) !=
+                        std::tie(rhs.model_matrix, rhs.outline_color, rhs.id, rhs.is_outlined, rhs.decal_mask);
+             }
+
+             bool operator==(const Data& rhs) const noexcept {
+                 return !(*this != rhs);
+             }
+         };
+
+         /**
+          * Instance buffer on GPU
+          */
+         std::shared_ptr<Buffer> instance_buffer;
+
+         /**
+          * Current buffer data
+          */
+         Data current_data {};
+
+        /**
          * Default implementation of bounding box updates sets custom user box if present
          */
 		virtual void updateBoundingBox() noexcept;
 
 		void updateModelMatrix() noexcept;
 		void updateFinalMatrix() noexcept;
+        void updateInstanceBuffer() noexcept;
 
         Instance(InstanceType shader_type, const glm::vec3& position) noexcept;
     public:
@@ -158,6 +192,8 @@ namespace Limitless {
 
         [[nodiscard]] const auto& getDecalMask() const noexcept { return decal_mask; }
         [[nodiscard]] const auto& getOutlineColor() const noexcept { return outline_color; }
+        [[nodiscard]] const auto& getCurrentData() const noexcept { return current_data; }
+        [[nodiscard]] const auto& getInstanceBuffer() const noexcept { return instance_buffer; }
 
         /**
          * Instance outlined

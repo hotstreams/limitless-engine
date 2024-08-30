@@ -4,6 +4,8 @@ ENGINE::MATERIALDEPENDENT
 #include "../interface_block/fragment.glsl"
 #include "./scene.glsl"
 #include "../material/material_context.glsl"
+#include "../material/material_context.glsl"
+#include "../instance/instance_fs.glsl"
 
 layout (location = 0) out vec3 albedo;
 layout (location = 1) out vec3 normal;
@@ -11,10 +13,6 @@ layout (location = 2) out vec3 properties;
 layout (location = 3) out vec3 emissive;
 layout (location = 4) out vec3 info;
 layout (location = 5) out vec4 outline;
-
-uniform uint _outline;
-uniform vec3 outline_color;
-uniform uint _decal_mask;
 
 void main() {
     MaterialContext mctx = computeMaterialContext();
@@ -28,10 +26,10 @@ void main() {
     properties.b = computeMaterialAO(mctx);
 
     info.r = float(mctx.shading_model) / 255.0;
-    info.g = float(_decal_mask) / 255.0;
+    info.g = float(getDecalMask()) / 255.0;
 
-    outline.rgb = outline_color;
-    outline.a = _outline / 65535.0;
+    outline.rgb = getOutlineColor();
+    outline.a = getIsOutlined() == 1u ? getId() / 65535.0 : 0.0;
 
     emissive = computeMaterialEmissiveColor(mctx);
 }

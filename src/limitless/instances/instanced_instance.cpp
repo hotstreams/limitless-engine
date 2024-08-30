@@ -11,7 +11,7 @@ InstancedInstance::InstancedInstance()
         .usage(Buffer::Usage::DynamicDraw)
         .access(Buffer::MutableAccess::WriteOrphaning)
         .data(nullptr)
-        .size(sizeof(glm::mat4) * 1)
+        .size(sizeof(Data))
         .build("model_buffer", *Context::getCurrentContext())} {
 }
 
@@ -22,7 +22,7 @@ InstancedInstance::InstancedInstance(const InstancedInstance& rhs)
         .usage(Buffer::Usage::DynamicDraw)
         .access(Buffer::MutableAccess::WriteOrphaning)
         .data(nullptr)
-        .size(sizeof(glm::mat4) * 1)
+        .size(sizeof(Data))
         .build("model_buffer", *Context::getCurrentContext())} {
     for (const auto& instance : rhs.instances) {
         instances.emplace_back((ModelInstance*)instance->clone().release());
@@ -43,28 +43,24 @@ void InstancedInstance::remove(uint64_t id){
 }
 
 void InstancedInstance::updateInstanceBuffer() {
-    std::vector<glm::mat4> new_data;
+    std::vector<Data> new_data;
     new_data.reserve(visible_instances.size());
 
     for (const auto& instance : visible_instances) {
-        if (instance->isHidden()) {
-            continue;
-        }
-
-        new_data.emplace_back(instance->getFinalMatrix());
+        new_data.emplace_back(instance->getCurrentData());
     }
 
     // if update is needed
-    if (new_data != current_data) {
+    if (new_data != current_instance_data) {
         // ensure buffer size
-        auto size = sizeof(glm::mat4) * new_data.size();
+        auto size = sizeof(Data) * new_data.size();
         if (buffer->getSize() < size) {
             buffer->resize(size);
         }
 
         buffer->mapData(new_data.data(), size);
 
-        current_data = new_data;
+        current_instance_data = new_data;
     }
 }
 

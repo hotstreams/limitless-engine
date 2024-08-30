@@ -10,7 +10,7 @@ layout (location = 0) out vec4 albedo;
 layout (location = 1) out vec4 normal;
 layout (location = 2) out vec4 properties;
 layout (location = 3) out vec4 emissive;
-layout (location = 4) out vec4 info;
+//layout (location = 4) out vec4 info;
 
 uniform sampler2D depth_texture;
 uniform sampler2D info_texture;
@@ -88,7 +88,7 @@ void main() {
     emissive = vec4(computeMaterialEmissiveColor(ctx), decal_blend);
 #endif
 
-    // always overrides shading model
-    info.r = float(ctx.shading_model) / 255.0;
-    info.a = 1.0;
+//    // always overrides shading model
+//    info.r = float(ctx.shading_model) / 255.0;
+//    info.a = 1.0;
 }
