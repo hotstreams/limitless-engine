@@ -7,6 +7,7 @@
 #include <limitless/renderer/composite_pass.hpp>
 #include <limitless/renderer/deferred_lighting_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/renderer/fxaa_pass.hpp>
 
 using namespace Limitless;
 
@@ -34,7 +35,14 @@ void ScreenPass::render(
 	    target->clear();
         auto& shader = assets.shaders.get("quad");
 
-        shader.setUniform("screen_texture", renderer.getPass<CompositePass>().getResult());
+        std::shared_ptr<Texture> screen;
+        if (renderer.isPresent<FXAAPass>()) {
+            screen = renderer.getPass<FXAAPass>().getResult();
+        } else {
+            screen = renderer.getPass<CompositePass>().getResult();;
+        }
+
+        shader.setUniform("screen_texture", screen);
 
         shader.use();
 

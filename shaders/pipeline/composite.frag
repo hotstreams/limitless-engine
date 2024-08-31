@@ -21,8 +21,8 @@ void main() {
     color = toneMapping(color, tone_mapping_exposure);
 
     // apply gamma correction
-//    float gamma = 2.2;
-//    color = pow(color, vec3(1.0 / gamma));
+    float gamma = 2.2;
+    color = pow(color, vec3(1.0 / gamma));
 
     // add objects outlining
     color += texture(outline, uv).rgb;
