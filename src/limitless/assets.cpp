@@ -39,8 +39,9 @@ void Assets::load([[maybe_unused]] Context& context) {
 
     ms::Material::builder()
             .name("red")
+            .shading(ms::Shading::Unlit)
             .color({1.0f, 0.0f, 0.0f, 1.0f})
-            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced, InstanceType::Decal })
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced, InstanceType::Decal, InstanceType::Terrain })
             .two_sided(true)
             .build(*this);
 

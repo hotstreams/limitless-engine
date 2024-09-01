@@ -41,17 +41,17 @@ namespace Limitless {
                         visible.emplace_back(instance);
                     }
                 } else if (instance->getInstanceType() == InstanceType::Terrain) {
-                    auto& terrain = static_cast<TerrainInstance&>(*instance); //NOLINT
+//                    auto& terrain = static_cast<TerrainInstance&>(*instance); //NOLINT
+//
+//                    for (auto& [_, mesh_instance] : terrain.getMeshes()) {
+//                        if (frustum.intersects(mesh_instance.getMesh()->getBoundingBox())) {
+//                            visible_meshes_of_terrain_instances[instance->getId()].emplace_back(mesh_instance);
+//                        }
+//                    }
 
-                    for (auto& [_, mesh_instance] : terrain.getMeshes()) {
-                        if (frustum.intersects(mesh_instance.getMesh()->getBoundingBox())) {
-                            visible_meshes_of_terrain_instances[instance->getId()].emplace_back(mesh_instance);
-                        }
-                    }
-
-                    if (visible_meshes_of_terrain_instances.count(instance->getId()) != 0) {
+//                    if (visible_meshes_of_terrain_instances.count(instance->getId()) != 0) {
                         visible.emplace_back(instance);
-                    }
+//                    }
                 } else {
                     if (frustum.intersects(*instance)) {
                         visible.emplace_back(instance);

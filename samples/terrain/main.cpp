@@ -15,7 +15,7 @@ namespace LimitlessMaterials {
 
         Limitless::Context context;
         Limitless::Camera camera;
-        Limitless::Renderer render;
+        std::unique_ptr<Limitless::Renderer> render;
         Assets assets;
         Scene scene;
 
@@ -27,7 +27,6 @@ namespace LimitlessMaterials {
                 Limitless::Context::builder()
                         .title("material-demo")
                         .size(window_size)
-                        .not_resizeable()
                         .cursor(Limitless::CursorMode::Normal)
                         .swap_interval(1)
                         .sticky_keys()
@@ -43,11 +42,14 @@ namespace LimitlessMaterials {
                         .build()
             }
             , camera {window_size}
-            , render {context}
-            , assets {context, render, ENGINE_ASSETS_DIR}
+            , render {Limitless::Renderer::builder()
+            .resolution(window_size)
+                .deferred()
+                .build()}
+            , assets {context, *render, ENGINE_ASSETS_DIR}
             , scene {context, assets} {
             camera.setPosition({-3.0f, 2.0f, 3.0f});
-            assets.recompileAssets(context, render.getSettings());
+            assets.recompileAssets(context, render->getSettings());
         }
 
         void onMouseMove(glm::dvec2 pos) {
@@ -81,6 +83,7 @@ namespace LimitlessMaterials {
         void onFramebufferChange(glm::uvec2 size) {
             camera.updateProjection(size);
             window_size = size;
+            render->onFramebufferChange(size);
         }
 
         void handleInput(float delta) noexcept {
@@ -112,7 +115,7 @@ namespace LimitlessMaterials {
                 last_time = current_time;
 
                 scene.update(context, camera);
-                render.draw(context, assets, scene.getScene(), camera);
+                render->render(context, assets, scene.getScene(), camera);
 
                 context.swapBuffers();
                 context.pollEvents();

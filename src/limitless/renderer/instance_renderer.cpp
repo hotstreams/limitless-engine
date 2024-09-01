@@ -176,20 +176,47 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
         return;
     }
 
-    for (const auto& mref: frustum_culling.getVisibleTerrainMeshes(instance)) {
-        auto& mesh = mref.get();
+    drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
 
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
-        }
+//    for (const auto& mref: frustum_culling.getVisibleTerrainMeshes(instance)) {
+//    for (auto& instance: instance.instances) {
+//            render(instance, drawp);
+//
+////        auto& mesh = mref.get();
+////
+////        // skip mesh if blending is different
+////        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+////            return;
+////        }
+////
+////        // set render state: shaders, material, blending, etc
+////        setRenderState(instance, mesh, drawp);
+////
+////        // draw vertices
+////        mesh.getMesh()->draw();
+//    }
 
-        // set render state: shaders, material, blending, etc
-        setRenderState(instance, mesh, drawp);
+    render(*instance._data.cross, drawp);
 
-        // draw vertices
-        mesh.getMesh()->draw();
+    for (auto &item: instance._data.seams) {
+        render(*item, drawp);
     }
+
+    for (auto &item: instance._data.trims) {
+        render(*item, drawp);
+    }
+
+    for (auto &item: instance._data.fillers) {
+        render(*item, drawp);
+    }
+
+    for (auto &item: instance._data.tiles) {
+        render(*item, drawp);
+    }
+
+
+    drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+
 }
 
 void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters &drawp) {
