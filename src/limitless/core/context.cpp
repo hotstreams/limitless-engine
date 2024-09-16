@@ -134,7 +134,7 @@ void Context::setFullscreen(bool value) noexcept {
 
         const auto* mode = glfwGetVideoMode(monitor.value());
         monitor = std::nullopt;
-        glfwSetWindowMonitor(window, monitor.value(), 0, 0, mode->width, mode->height, mode->refreshRate);
+        glfwSetWindowMonitor(window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
     }
 }
 
