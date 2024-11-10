@@ -45,7 +45,7 @@ std::shared_ptr<Material> Material::Builder::build(Assets& assets) {
         setModelShaders();
     }
 
-    auto material = std::shared_ptr<Material>(new Material(*this));
+    auto material = std::shared_ptr<Material>(new Material(*this));;
 
     assets.materials.add(material->name, material);
 

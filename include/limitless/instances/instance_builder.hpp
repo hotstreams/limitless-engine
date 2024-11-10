@@ -4,6 +4,7 @@
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/instances/effect_instance.hpp>
 #include <limitless/instances/decal_instance.hpp>
+#include <limitless/instances/terrain_instance.hpp>
 #include <limitless/models/model.hpp>
 
 namespace Limitless {
@@ -60,9 +61,31 @@ namespace Limitless {
         std::shared_ptr<EffectInstance> effect_;
 
         /**
-         * Decal
+         * Decal data
          */
         uint8_t decal_proj_mask {0xFF};
+
+        /**
+         * Terrain data
+         */
+        float chunk_size_ {1024.0f};
+        float vertex_spacing_ {0.1f};
+        float height_scale_ {10.0f};
+        float noise1_scale_ {0.225f};
+        float noise2_scale_ {0.04f};
+        float noise2_angle_ {0.0f};
+        float noise2_offset_ {0.5f};
+        float noise3_scale_ {0.076f};
+        glm::vec3 macro_variation1_ = glm::vec3(0.5f);
+        glm::vec3 macro_variation2_ = glm::vec3(0.33f);
+        uint32_t mesh_size {64};
+        uint32_t mesh_lod_count {6};
+        std::shared_ptr<Texture> height_map_;
+        std::shared_ptr<Texture> control_map_;
+        std::shared_ptr<Texture> albedo_map_;
+        std::shared_ptr<Texture> normal_map_;
+        std::shared_ptr<Texture> orm_map_;
+        std::shared_ptr<Texture> noise_;
 
         void initialize(Instance& instance);
         void initialize(const std::shared_ptr<ModelInstance>& instance);
@@ -125,6 +148,36 @@ namespace Limitless {
          */
         Builder& decal_projection_mask(uint8_t mask);
 
+        Builder& chunk_size(float chunk_size);
+
+        Builder& vertex_spacing(float vertex_spacing);
+
+        Builder& height_scale(float height_scale);
+
+        Builder& noise1_scale(float noise1_scale);
+
+        Builder& noise2_scale(float noise2_scale);
+
+        Builder& noise2_angle(float noise2_angle);
+
+        Builder& noise2_offset(float noise2_offset);
+
+        Builder& noise3_scale(float noise3_scale);
+
+        Builder& macro_variation1(const glm::vec3& macro_variation1);
+
+        Builder& macro_variation2(const glm::vec3& macro_variation2);
+
+        Builder& height_map(const std::shared_ptr<Texture>& height_map);
+        Builder& control_map(const std::shared_ptr<Texture>& control_map);
+        Builder& albedo_map(const std::shared_ptr<Texture>& albedo_map);
+        Builder& normal_map(const std::shared_ptr<Texture>& normal_map);
+        Builder& orm_map(const std::shared_ptr<Texture>& orm_map);
+        Builder& noise(const std::shared_ptr<Texture>& noise);
+
+        Builder& height(const float* data);
+        Builder& control(const TerrainInstance::control_value* data);
+
         /**
          *  Replaces default mesh material with specified one
          */
@@ -178,6 +231,6 @@ namespace Limitless {
         /**
          *
          */
-        std::shared_ptr<DecalInstance> asTerrain();
+        std::shared_ptr<TerrainInstance> asTerrain(Assets& assets);
     };
 }

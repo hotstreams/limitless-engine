@@ -13,6 +13,7 @@ void main() {
     vec2 uv = vec2(0.0);
 
     vec3 vertex_position = getVertexPosition();
+    vec3 normal = getVertexNormal();
 
     ENGINE_MATERIAL_VERTEX_SNIPPET
 
@@ -21,5 +22,5 @@ void main() {
     vec4 pos = getProjection() * mat4(mat3(getView())) * vec4(vertex_position, 1.0);
     gl_Position = pos.xyww;
 
-    InterfaceBlockPassThrough(pos.xyw, uv, getModelTransform());
+    InterfaceBlockPassThrough(pos.xyw, uv, getModelTransform(), normal);
 }

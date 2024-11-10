@@ -24,8 +24,7 @@ void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstan
 
     instance.getInstanceBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::UniformBuffer, "INSTANCE_BUFFER"));
 
-    shader
-            .setMaterial(*mesh.getMaterial());
+    shader.setMaterial(*mesh.getMaterial());
 
     // sets custom pass-dependent uniforms
     drawp.setter(shader);
@@ -176,7 +175,7 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
         return;
     }
 
-    drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
+   // drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
 
 //    for (const auto& mref: frustum_culling.getVisibleTerrainMeshes(instance)) {
 //    for (auto& instance: instance.instances) {
@@ -196,27 +195,25 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
 ////        mesh.getMesh()->draw();
 //    }
 
-    render(*instance._data.cross, drawp);
+    render(*instance.getMesh().cross, drawp);
 
-    for (auto &item: instance._data.seams) {
+    for (auto &item: instance.getMesh().seams) {
         render(*item, drawp);
     }
 
-    for (auto &item: instance._data.trims) {
+    for (auto &item: instance.getMesh().trims) {
         render(*item, drawp);
     }
 
-    for (auto &item: instance._data.fillers) {
+    for (auto &item: instance.getMesh().fillers) {
         render(*item, drawp);
     }
 
-    for (auto &item: instance._data.tiles) {
+    for (auto &item: instance.getMesh().tiles) {
         render(*item, drawp);
     }
 
-
-    drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
-
+    //drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
 void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters &drawp) {
@@ -242,22 +239,22 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
 }
 
 void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &drawp) {
-    if (!shouldBeRendered(instance, drawp)) {
-        return;
-    }
-
-    for (const auto& [_, mesh]: instance.getMeshes()) {
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
-        }
-
-        // set render state: shaders, material, blending, etc
-        setRenderState(instance, mesh, drawp);
-
-        // draw vertices
-        mesh.getMesh()->draw();
-    }
+//    if (!shouldBeRendered(instance, drawp)) {
+//        return;
+//    }
+//
+//    for (const auto& [_, mesh]: instance.getMeshes()) {
+//        // skip mesh if blending is different
+//        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+//            return;
+//        }
+//
+//        // set render state: shaders, material, blending, etc
+//        setRenderState(instance, mesh, drawp);
+//
+//        // draw vertices
+//        mesh.getMesh()->draw();
+//    }
 }
 
 void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &drawp) {

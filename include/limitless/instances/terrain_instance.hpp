@@ -7,205 +7,164 @@
 
 #include <limitless/assets.hpp>
 #include <limitless/ms/material.hpp>
-#include <iostream>
+#include <limitless/core/texture/texture_builder.hpp>
+
+#include <limitless/util/brush.hpp>
 
 namespace Limitless {
-    class TerrainInstance : public ModelInstance {
+    class Assets;
+
+    class TerrainInstance : public Instance {
     public:
-        struct data {
+        struct control_value final {
+            uint32_t base_id    : 6;
+            uint32_t extra_id   : 6;
+            uint32_t blend      : 8;
+            uint32_t reserved   : 12;
+
+            static uint32_t encode(struct control_value ctrl) {
+                uint32_t result = 0;
+                result |= (ctrl.base_id & 0x3F);
+                result |= (ctrl.extra_id & 0x3F) << 6;
+                result |= (ctrl.blend & 0xFF) << 12;
+                result |= (ctrl.reserved & 0xFFF) << 20;
+                return result;
+            }
+
+            static control_value decode(uint32_t value) {
+                control_value ctrl {};
+                ctrl.base_id = value & 0x3F;
+                ctrl.extra_id = (value >> 6) & 0x3F;
+                ctrl.blend = (value >> 12) & 0xFF;
+                ctrl.reserved = (value >> 20) & 0xFFF;
+                return ctrl;
+            }
+        };
+    private:
+        // size of terrain
+        float chunk_size = 1024.0f;
+
+        //
+        float chunk_texel_size = 1.0f / chunk_size;
+
+        //
+        float vertex_spacing = 0.1f;
+
+        //
+        float vertex_density = 1.0f / vertex_spacing;
+
+        //
+        float height_scale = 10.0f;
+
+        //
+        float noise1_scale = 0.225f;
+        float noise2_scale = 0.04f;
+        float noise2_angle = 0.0f;
+        float noise2_offset = 0.5f;
+        float noise3_scale = 0.076f;
+
+        glm::vec3 macro_variation1 = glm::vec3(0.5f);
+        glm::vec3 macro_variation2 = glm::vec3(0.33f);
+
+        bool show_tiles = false;
+
+        int mesh_size = 64;
+
+        int mesh_lod_count = 6;
+
+        struct Mesh {
             std::shared_ptr<ModelInstance> cross;
             std::vector<std::shared_ptr<ModelInstance>> tiles;
             std::vector<std::shared_ptr<ModelInstance>> fillers;
             std::vector<std::shared_ptr<ModelInstance>> trims;
             std::vector<std::shared_ptr<ModelInstance>> seams;
-        } _data;
+        } mesh;
 
-//        std::shared_ptr<AbstractMesh> tile_mesh;  0
-//        std::shared_ptr<AbstractMesh> filler_mesh;    1
-//        std::shared_ptr<AbstractMesh> trim_mesh;  2
-//        std::shared_ptr<AbstractMesh> cross_mesh; 3
-//        std::shared_ptr<AbstractMesh> seam_mesh;  4
-//        std::shared_ptr<AbstractMesh> skirt_mesh; 5
+        std::shared_ptr<Texture> height_map;
+        std::shared_ptr<Texture> control;
+        std::shared_ptr<Texture> albedo;
+        std::shared_ptr<Texture> normal;
+        std::shared_ptr<Texture> orm;
+        std::shared_ptr<Texture> noise;
 
-        TerrainInstance(decltype(model) model, const glm::vec3& position, data&& instances)
-            : ModelInstance {InstanceType::Terrain, std::move(model), position}
-            , _data {std::move(instances)} {
-        }
+        void snap(const Camera& p_cam_pos);
+    public:
+        TerrainInstance(
+            std::shared_ptr<Texture> height_map,
+            std::shared_ptr<Texture> control_map,
+            std::shared_ptr<Texture> albedo_map,
+            std::shared_ptr<Texture> normal_map,
+            std::shared_ptr<Texture> orm_map,
+            std::shared_ptr<Texture> noise
+        );
 
-        static constexpr int _mesh_size = 64;
-        static constexpr int _mesh_lods = 7;
-        static constexpr float _mesh_vertex_spacing = 1.0f;
+        void initializeMesh(Assets& assets);
 
-        static std::shared_ptr<TerrainInstance> create(Assets& assets) {
-            std::vector<std::shared_ptr<AbstractMesh>> meshes = GeoClipMap::generate(_mesh_size, _mesh_lods);
+        void setHeightMap(const std::shared_ptr<Texture>& height_map);
+        void setControlMap(const std::shared_ptr<Texture>& control_map);
+        void setNoise(const std::shared_ptr<Texture>& noise);
+        void setAlbedoMap(const std::shared_ptr<Texture>& albedo_map);
+        void setNormalMap(const std::shared_ptr<Texture>& normal_map);
+        void setOrmMap(const std::shared_ptr<Texture>& orm_map);
 
-            std::vector<std::shared_ptr<ms::Material>> materials;
-            for (const auto &item: meshes) {
-                materials.emplace_back(assets.materials.at("red"));
-            }
+        void setChunkSize(float chunkSize);
 
-            data data;
+        void setVertexSpacing(float vertexSpacing);
 
-//            _data.cross = RS->instance_create2(_meshes[GeoClipMap::CROSS], scenario);
-//            RS->instance_geometry_set_cast_shadows_setting(_data.cross, RenderingServer::ShadowCastingSetting(_cast_shadows));
-//            RS->instance_set_layer_mask(_data.cross, _render_layers);
+        void setHeightScale(float heightScale);
 
-            auto tile_model = std::make_shared<Model>(std::vector{meshes[0]}, std::vector{materials[0]}, "map");
-            auto filler_model = std::make_shared<Model>(std::vector{meshes[1]}, std::vector{materials[1]}, "map");
-            auto trim_model = std::make_shared<Model>(std::vector{meshes[2]}, std::vector{materials[2]}, "map");
-            auto cross_model = std::make_shared<Model>(std::vector{meshes[3]}, std::vector{materials[3]}, "map");
-            auto seam_model = std::make_shared<Model>(std::vector{meshes[4]}, std::vector{materials[4]}, "map");
+        void setNoise1Scale(float noise1Scale);
 
-            data.cross = std::make_shared<ModelInstance>(std::move(cross_model), glm::vec3(0.0f));
+        void setNoise2Scale(float noise2Scale);
 
-            for (int l = 0; l < _mesh_lods; l++) {
-                for (int x = 0; x < 4; x++) {
-                    for (int y = 0; y < 4; y++) {
-                        if (l != 0 && (x == 1 || x == 2) && (y == 1 || y == 2)) {
-                            continue;
-                        }
+        void setNoise2Angle(float noise2Angle);
 
-//                        RID tile = RS->instance_create2(_meshes[GeoClipMap::TILE], scenario);
-//                        RS->instance_geometry_set_cast_shadows_setting(tile, RenderingServer::ShadowCastingSetting(_cast_shadows));
-//                        RS->instance_set_layer_mask(tile, _render_layers);
-//                        _data.tiles.push_back(tile);
-                        data.tiles.emplace_back(std::make_shared<ModelInstance>(tile_model, glm::vec3(0.0f)));
-                    }
-                }
+        void setNoise2Offset(float noise2Offset);
 
-//                RID filler = RS->instance_create2(_meshes[GeoClipMap::FILLER], scenario);
-//                RS->instance_geometry_set_cast_shadows_setting(filler, RenderingServer::ShadowCastingSetting(_cast_shadows));
-//                RS->instance_set_layer_mask(filler, _render_layers);
-//                _data.fillers.push_back(filler);
+        void setNoise3Scale(float noise3Scale);
 
-                data.fillers.emplace_back(std::make_shared<ModelInstance>(filler_model, glm::vec3(0.0f)));
+        void setMacroVariation1(const glm::vec3 &macroVariation1);
 
-                if (l != _mesh_lods - 1) {
-//                    RID trim = RS->instance_create2(_meshes[GeoClipMap::TRIM], scenario);
-//                    RS->instance_geometry_set_cast_shadows_setting(trim, RenderingServer::ShadowCastingSetting(_cast_shadows));
-//                    RS->instance_set_layer_mask(trim, _render_layers);
-//                    _data.trims.push_back(trim);
-                    data.trims.emplace_back(std::make_shared<ModelInstance>(trim_model, glm::vec3(0.0f)));
+        void setMacroVariation2(const glm::vec3 &macroVariation2);
 
-//                    RID seam = RS->instance_create2(_meshes[GeoClipMap::SEAM], scenario);
-//                    RS->instance_geometry_set_cast_shadows_setting(seam, RenderingServer::ShadowCastingSetting(_cast_shadows));
-//                    RS->instance_set_layer_mask(seam, _render_layers);
-//                    _data.seams.push_back(seam);
-                    data.seams.emplace_back(std::make_shared<ModelInstance>(seam_model, glm::vec3(0.0f)));
-                }
-            }
+        void setMeshSize(int meshSize);
 
-//            std::vector<ModelInstance> instances;
-//            for (int i = 0; i < meshes.size(); ++i) {
-//                auto model = std::make_shared<Model>(std::vector{meshes[i]}, std::vector{materials[i]}, "map");
-//                instances.emplace_back(model, glm::vec3{0.0f});
-//            }
+        void setMeshLodCount(int meshLodCount);
 
-            auto model = std::make_shared<Model>(std::move(meshes), std::move(materials), "map");
-            return std::make_shared<TerrainInstance>(std::move(model), glm::vec3(0.0f), std::move(data));
-        }
+        /**
+         * Updates full height map from data
+         *
+         * expects pointer to UNSIGNED CHAR / std::byte
+         *
+         * you should convert your normalized floats in range [0, 1] to unsigned bytes [0, 255]
+         *
+         * to get height more than 1.0 set height_scale
+         */
+        void updateHeight(const void* data);
+
+        /**
+         * Updates part of height map with offset and size
+         */
+        void updateHeight(glm::uvec2 offset, glm::uvec2 size, const void* data);
+
+        /**
+         * Updates full control map from data
+         *
+         * expects pointer to TerrainInstance::control_value / uint32_t
+         */
+        void updateControl(const void* data);
+
+        /**
+         * Updates part of control map with offset and size
+         */
+        void updateControl(glm::uvec2 offset, glm::uvec2 size, const void* data);
+
+        [[nodiscard]] const auto& getMesh() const noexcept { return mesh; }
 
         void update(const Limitless::Camera &camera) override;
 
-        void snap(const Camera& p_cam_pos) {
-            std::cout << "snap" << std::endl;
-            glm::vec3 cam_pos = p_cam_pos.getPosition();
-            cam_pos.y = 0;
-
-//            tile_mesh,    0
-//            filler_mesh,  1
-//            trim_mesh,    2
-//            cross_mesh,   3
-//            seam_mesh,    4
-
-            glm::vec3 snapped_pos = glm::floor(cam_pos / _mesh_vertex_spacing) * _mesh_vertex_spacing;
-//            Transform3D t = Transform3D().scaled(glm::vec3(_mesh_vertex_spacing, 1, _mesh_vertex_spacing));
-//            t.origin = snapped_pos;
-//            RS->instance_set_transform(_data.cross, t);
-
-            _data.cross->setPosition(snapped_pos);
-            _data.cross->setScale(glm::vec3(_mesh_vertex_spacing, 1, _mesh_vertex_spacing));
-
-            int edge = 0;
-            int tile = 0;
-
-            for (int l = 0; l < _mesh_lods; l++) {
-                float scale = float(1 << l) * _mesh_vertex_spacing;
-                snapped_pos = glm::floor(cam_pos / scale) * scale;
-                glm::vec3 tile_size = glm::vec3(float(_mesh_size << l), 0, float(_mesh_size << l)) * _mesh_vertex_spacing;
-                glm::vec3 base = snapped_pos - glm::vec3(float(_mesh_size << (l + 1)), 0.f, float(_mesh_size << (l + 1))) * _mesh_vertex_spacing;
-
-                // Position tiles
-                for (int x = 0; x < 4; x++) {
-                    for (int y = 0; y < 4; y++) {
-                        if (l != 0 && (x == 1 || x == 2) && (y == 1 || y == 2)) {
-                            continue;
-                        }
-
-                        glm::vec3 fill = glm::vec3(x >= 2 ? 1.f : 0.f, 0.f, y >= 2 ? 1.f : 0.f) * scale;
-                        glm::vec3 tile_tl = base + glm::vec3(x, 0.f, y) * tile_size + fill;
-                        glm::vec3 tile_br = tile_tl + tile_size;
-
-//                        Transform3D t = Transform3D().scaled(glm::vec3(scale, 1.f, scale));
-//                        t.origin = tile_tl;
-//
-//                        RS->instance_set_transform(_data.tiles[tile], t);
-
-                        _data.tiles[tile]->setPosition(tile_tl);
-                        _data.tiles[tile]->setScale(glm::vec3(scale, 1.f, scale));
-
-                        tile++;
-                    }
-                }
-
-                {
-//                    Transform3D t = Transform3D().scaled(glm::vec3(scale, 1.f, scale));
-//                    t.origin = snapped_pos;
-//                    RS->instance_set_transform(_data.fillers[l], t);
-
-                    _data.fillers[l]->setPosition(snapped_pos);
-                    _data.fillers[l]->setScale(glm::vec3(scale, 1.f, scale));
-                }
-
-                if (l != _mesh_lods - 1) {
-                    float next_scale = scale * 2.0f;
-                    glm::vec3 next_snapped_pos = glm::floor(cam_pos / next_scale) * next_scale;
-
-                    // Position trims
-                    {
-                        glm::vec3 tile_center = snapped_pos + (glm::vec3(scale, 0.f, scale) * 0.5f);
-                        glm::vec3 d = cam_pos - next_snapped_pos;
-
-                        int r = 0;
-                        r |= d.x >= scale ? 0 : 2;
-                        r |= d.z >= scale ? 0 : 1;
-
-                        float rotations[4] = { 0.f, 270.f, 90.f, 180.f };
-
-                        float angle = glm::radians(rotations[r]);
-//                        Transform3D t = Transform3D().rotated(glm::vec3(0.f, 1.f, 0.f), -angle);
-//                        t = t.scaled(glm::vec3(scale, 1.f, scale));
-//                        t.origin = tile_center;
-//                        RS->instance_set_transform(_data.trims[edge], t);
-
-                        _data.trims[edge]->setPosition(tile_center);
-                        _data.trims[edge]->setScale(glm::vec3(scale, 1.f, scale));
-                        _data.trims[edge]->setRotation(glm::vec3(0.f, -angle, 0.f));
-                    }
-
-                    // Position seams
-                    {
-                        glm::vec3 next_base = next_snapped_pos - glm::vec3(float(_mesh_size << (l + 1)), 0.f, float(_mesh_size << (l + 1))) * _mesh_vertex_spacing;
-//                        Transform3D t = Transform3D().scaled(glm::vec3(scale, 1.f, scale));
-//                        t.origin = next_base;
-//                        RS->instance_set_transform(_data.seams[edge], t);
-
-                        _data.seams[edge]->setPosition(next_base);
-                        _data.seams[edge]->setScale(glm::vec3(scale, 1.f, scale));
-                    }
-                    edge++;
-                }
-            }
+        std::unique_ptr<Instance> clone() noexcept override {
+            return std::make_unique<TerrainInstance>(*this);
         }
     };
 }

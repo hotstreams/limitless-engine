@@ -28,6 +28,7 @@ namespace Limitless {
             Depth32F = GL_DEPTH_COMPONENT32F,
             Depth24Stencil8 = GL_DEPTH24_STENCIL8,
             R = GL_RED,
+            R32UI = GL_R32UI,
             R8 = GL_R8,
             RG8 = GL_RG8,
             RGB8 = GL_RGB8,

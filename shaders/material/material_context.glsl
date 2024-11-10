@@ -15,6 +15,10 @@ struct MaterialContext {
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
     vec3 normal;
+
+    vec3 tbn_t;
+    vec3 tbn_b;
+    vec3 tbn_n;
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
@@ -61,6 +65,9 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
     mctx.normal = getMaterialNormal(uv);
+    mctx.tbn_t = getVertexTBN()[0];
+    mctx.tbn_b = getVertexTBN()[1];
+    mctx.tbn_n = getVertexTBN()[2];
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
@@ -197,7 +204,7 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #endif
     normal = normalize(normal * 2.0 - 1.0);
 
-    mat3 TBN = getVertexTBN();
+    mat3 TBN = mat3(mctx.tbn_t, mctx.tbn_b, mctx.tbn_n);
 #if defined (ENGINE_MATERIAL_TWO_SIDED)
     TBN[0] = gl_FrontFacing ? TBN[0] : -TBN[0];
     TBN[1] = gl_FrontFacing ? TBN[1] : -TBN[1];

@@ -1,123 +1,183 @@
-float MacroVariation() {
-    vec2 uv = getVertexPosition().xz;
-    vec2 uv1 = uv * variation1;
-    vec2 uv2 = uv * variation2;
-    vec2 uv3 = uv * variation3;
-    float r1 = texture(_terrain_variation, uv1).r + 0.5;
-    float r2 = texture(_terrain_variation, uv2).r + 0.5;
-    float r3 = texture(_terrain_variation, uv3).r + 0.5;
-    return r1 * r2 * r3;
+#include "../functions/is_on_tile_border.glsl"
+#include "../functions/stochastic.glsl"
+#include "./terrain_control.glsl"
+
+vec2 get_region_uv(const vec2 uv) {
+    return vec2(mod(uv, terrain_size));
 }
 
-vec3 MacroContrast(float variation) {
-    return mix(variation_contrast, vec3(1.0), vec3(variation));
+uint getTerrainControl(vec2 uv) {
+    return texelFetch(terrain_control_texture, ivec2(uv), 0).r;
 }
 
-#define _2xSqrt3 3.46410161514
-
-vec2 hashUv( vec2 p)
-{
-    return fract ( sin (( p ) * mat2 (127.1 , 311.7 , 269.5 , 183.3))
-                   *43758.5453) ;
+vec3 getTerrainAlbedo(vec3 uv) {
+    return texture(terrain_albedo_texture, uv).rgb;
 }
 
-void triangleGrid(vec2 uv,
-out float w1, out float w2, out float w3,
-out ivec2 v1, out ivec2 v2, out ivec2 v3)
-{
-    const mat2 skewedGridTransform = mat2(1.0, 0.0, -0.57735027, 1.15470054);
-    vec2 skewedUv = skewedGridTransform * uv * _2xSqrt3;
+float blend_weights(float weight, float detail) {
+    weight = smoothstep(0.0, 1.0, weight);
+    weight = sqrt(weight * 0.5);
+    float result = max(0.1 * weight, 10.0 * (weight + detail) + 1.0f - (detail + 10.0));
+    return result;
+}
 
-    ivec2 vBase = ivec2(floor(skewedUv));
-    vec3 temp = vec3(fract(skewedUv), 0);
-    temp.z = 1.0 - temp.x - temp.y;
-    if (temp.z > 0.0) {
-        w1 = temp.z;
-        w2 = temp.y;
-        w3 = temp.x;
-        v1 = vBase;
-        v2 = vBase + ivec2(0, 1);
-        v3 = vBase + ivec2(1, 0);
-    } else {
-        w1 = -temp.z;
-        w2 = 1.0 - temp.y;
-        w3 = 1.0 - temp.x;
-        v1 = vBase + ivec2(1, 1);
-        v2 = vBase + ivec2(1, 0);
-        v3 = vBase + ivec2(0, 1);
+vec2 rotate(vec2 v, float cosa, float sina) {
+    return vec2(cosa * v.x - sina * v.y, sina * v.x + cosa * v.y);
+}
+
+uniform float blend_sharpness = 0.87;
+
+vec3 height_blend(vec3 a_value, float a_height, vec3 b_value, float b_height, float blend) {
+    float ma = max(a_height + (1.0 - blend), b_height + blend) - (1.001 - blend_sharpness);
+    float b1 = max(a_height + (1.0 - blend) - ma, 0.0);
+    float b2 = max(b_height + blend - ma, 0.0);
+    return (a_value * b1 + b_value * b2) / (b1 + b2);
+}
+
+struct terrain_data {
+    vec3 albedo;
+    vec3 normal;
+    vec3 orm;
+};
+
+terrain_data getTerrainData(vec2 uv, const terrain_control tctrl) {
+    terrain_data data;
+
+    data.albedo = stochastic_texture(uv, tctrl.base_id, terrain_albedo_texture);
+    data.normal = stochastic_texture(uv, tctrl.base_id, terrain_normal_texture);
+    data.orm = stochastic_texture(uv, tctrl.base_id, terrain_orm_texture);
+
+    if (tctrl.blend > 0.0) {
+        vec3 extra = stochastic_texture(uv, tctrl.extra_id, terrain_albedo_texture);
+
+        data.albedo = height_blend(data.albedo, 1.0, extra, 1.0, tctrl.blend);
+        data.normal = height_blend(data.normal, 1.0, extra, 1.0, tctrl.blend);
+        data.orm = height_blend(data.orm, 1.0, extra, 1.0, tctrl.blend);
     }
-}
 
-vec3 StochasticTexture(vec2 uv, float index, sampler2DArray s)
-{
-    float w1 = 0, w2 = 0, w3 = 0;
-    ivec2 v1, v2, v3;
-    triangleGrid(uv, w1, w2, w3, v1, v2, v3);
-
-    vec2 uv1 = uv + hashUv(v1);
-    vec2 uv2 = uv + hashUv(v2);
-    vec2 uv3 = uv + hashUv(v3);
-
-    vec2 duvdx = dFdx(uv);
-    vec2 duvdy = dFdy(uv);
-
-    vec3 T1 = textureGrad(s, vec3(uv1, index), duvdx, duvdy).rgb;
-    vec3 T2 = textureGrad(s, vec3(uv2, index), duvdx, duvdy).rgb;
-    vec3 T3 = textureGrad(s, vec3(uv3, index), duvdx, duvdy).rgb;
-
-    vec3 col = w1 * T1 + w2 * T2 + w3 * T3;
-    return col;
+    return data;
 }
 
 void calculateTerrain(inout MaterialContext mctx) {
-    vec2 terrain_uv = (getVertexPosition().xz / 25.6) * 256.0;
+    vec3 v_vertex = getVertexPosition();
 
-//    vec3 variation = MacroContrast(MacroVariation());
+    vec2 texel_uv = get_region_uv(v_vertex.xz * terrain_vertex_density);
+    vec2 uv = texel_uv / terrain_size * terrain_texture_scale;
 
-    vec3 diffuse = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_diffuse_texture);
-    vec3 normal = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_normal_texture);
-    vec3 orm = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_orm_texture);
+    vec2 texel_pos_floor = floor(texel_uv);
 
-    vec2 uv = getVertexUV();
+    vec4 mirror = vec4(fract(texel_pos_floor * 0.5) * 2.0, 1.0, 1.0);
+    mirror.zw = vec2(1.0) - mirror.xy;
 
-    float vectors[8] = {
-    smoothstep(0.0, 1.0, length(uv)),
-    smoothstep(0.0, 1.0, uv.y),
-    smoothstep(0.0, 1.0, length(vec2(1.0 - uv.x, uv.y))),
-    smoothstep(0.0, 1.0, uv.x),
-    smoothstep(0.0, 1.0, 1.0 - uv.x),
-    smoothstep(0.0, 1.0, length(vec2(uv.x, 1.0 - uv.y))),
-    smoothstep(0.0, 1.0, 1.0 - uv.y),
-    smoothstep(0.0, 1.0, length(vec2(1.0 - uv.x, 1.0 - uv.y)))
+    vec2 indexUV[4] = {
+        get_region_uv(texel_pos_floor + mirror.xy),
+        get_region_uv(texel_pos_floor + mirror.xw),
+        get_region_uv(texel_pos_floor + mirror.zy),
+        get_region_uv(texel_pos_floor + mirror.zw)
     };
 
-    uint mask[8];
-    unpack8x4(getVertexColor(), mask);
+    vec2 indexUV1[4] = {
+        uv + mirror.xy / terrain_size,
+        uv + mirror.xw / terrain_size,
+        uv + mirror.zy / terrain_size,
+        uv + mirror.zw / terrain_size
+    };
 
-    uint types[8];
-    unpack8x4(getVertexTileType(), types);
+    uint control[4] = {
+        getTerrainControl(indexUV[0]),
+        getTerrainControl(indexUV[1]),
+        getTerrainControl(indexUV[2]),
+        getTerrainControl(indexUV[3])
+    };
 
-    // iterate for all adjacent tiles
-    for (uint i = 0u; i < 8u; ++i) {
-        // shoud we blend
-        if (mask[i] == 1u) {
-            // fetch adjacent type
-            vec3 adjacent_diffuse = StochasticTexture(terrain_uv, types[i], _terrain_diffuse_texture).rgb;
-            vec3 adjacent_normal = StochasticTexture(terrain_uv, types[i], _terrain_normal_texture).xyz;
-            vec3 adjacent_orm = StochasticTexture(terrain_uv, types[i], _terrain_orm_texture).rgb;
+    terrain_control tctrl[4] = {
+        decode(control[0]),
+        decode(control[1]),
+        decode(control[2]),
+        decode(control[3])
+    };
 
-            // mix
-            diffuse = mix(diffuse, adjacent_diffuse, (1.0 - vectors[i]));
-            normal = mix(normal, adjacent_normal, (1.0 - vectors[i]));
-            orm = mix(orm, adjacent_orm, (1.0 - vectors[i]));
-        }
-    }
+    terrain_data data[4] = {
+        getTerrainData(indexUV1[0], tctrl[0]),
+        getTerrainData(indexUV1[1], tctrl[1]),
+        getTerrainData(indexUV1[2], tctrl[2]),
+        getTerrainData(indexUV1[3], tctrl[3]),
+    };
 
-//    diffuse *= variation;
+    // Calculate weight for the pixel position between the vertices
+    // Bilinear interpolation of difference of uv and floor(uv)
+    vec2 weights1 = clamp(texel_uv - texel_pos_floor, 0, 1);
+    weights1 = mix(weights1, vec2(1.0) - weights1, mirror.xy);
+    vec2 weights0 = vec2(1.0) - weights1;
 
-    // store result
-    mctx.color.rgb = diffuse;
-    mctx.normal = normalize(normal);
+    // Adjust final weights by texture's height/depth + noise. 1 lookup
+    float noise3 = texture(terrain_noise_texture, uv * terrain_noise1_scale).r;
+    vec4 weights = vec4(
+        blend_weights(weights0.x * weights0.y, clamp(/*mat[0].alb_ht.a*/ + noise3, 0.0, 1.0)),
+        blend_weights(weights0.x * weights1.y, clamp(/*mat[1].alb_ht.a*/ + noise3, 0.0, 1.0)),
+        blend_weights(weights1.x * weights0.y, clamp(/*mat[2].alb_ht.a*/ + noise3, 0.0, 1.0)),
+        blend_weights(weights1.x * weights1.y, clamp(/*mat[3].alb_ht.a*/ + noise3, 0.0, 1.0))
+    );
+
+    float weight_sum = dot(weights, vec4(1.0));
+    float weight_inv = 1.0 / weight_sum;
+
+    vec3 albedo = weight_inv * (
+        data[0].albedo * weights.x +
+        data[1].albedo * weights.y +
+        data[2].albedo * weights.z +
+        data[3].albedo * weights.w
+    );
+
+    vec3 normal = weight_inv * (
+        data[0].normal * weights.x +
+        data[1].normal * weights.y +
+        data[2].normal * weights.z +
+        data[3].normal * weights.w
+    );
+
+    vec3 orm = weight_inv * (
+        data[0].orm * weights.x +
+        data[1].orm * weights.y +
+        data[2].orm * weights.z +
+        data[3].orm * weights.w
+    );
+
+    float v_vertex_xz_dist = length(v_vertex.xz - getCameraPosition().xz);
+
+	float noise1 = texture(terrain_noise_texture,
+                           rotate(uv * terrain_noise2_scale * .1, cos(terrain_noise2_angle), sin(terrain_noise2_angle)) +
+                           terrain_noise2_offset).r;
+	float noise2 = texture(terrain_noise_texture, uv * terrain_noise3_scale * .1).r;
+	vec3 macrov = mix(terrain_macro_variation1, vec3(1.0), clamp(noise1 + v_vertex_xz_dist * 0.0002, 0.0, 1.0));
+	macrov *= mix(terrain_macro_variation2, vec3(1.0), clamp(noise2 + v_vertex_xz_dist * 0.0002, 0.0, 1.0));
+
+    mctx.color.xyz = albedo * macrov;
+
+    float hL = texture(terrain_height_texture, uv + vec2(-terrain_texel_size, 0.0)).r * terrain_height_scale;
+    float hR = texture(terrain_height_texture, uv + vec2(terrain_texel_size, 0.0)).r * terrain_height_scale;
+    float hD = texture(terrain_height_texture, uv + vec2(0.0, -terrain_texel_size)).r * terrain_height_scale;
+    float hU = texture(terrain_height_texture, uv + vec2(0.0, terrain_texel_size)).r * terrain_height_scale;
+
+    float dX = hR - hL;
+    float dZ = hU - hD;
+
+    mctx.normal = normal;
+
+
+    normal = normalize(vec3(-dX, terrain_vertex_spacing, -dZ));
+
+    vec3 tangent;
+
+    if (abs(normal.x) > abs(normal.z))
+        tangent = vec3(-normal.y, normal.x, 0.0);
+    else
+        tangent = vec3(0.0, -normal.z, normal.y);
+
+    mctx.tbn_t = normalize(tangent - dot(tangent, normal) * normal);
+    mctx.tbn_b = normalize(cross(normal, tangent));
+    mctx.tbn_n = normal;
+
     mctx.ao = orm.r;
     mctx.roughness = orm.g;
     mctx.metallic = orm.b;

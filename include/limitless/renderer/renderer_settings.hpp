@@ -83,7 +83,7 @@ namespace Limitless {
         /**
          * Render System Axes
          */
-        bool coordinate_system_axes = false;
+        bool coordinate_system_axes = true;
 
         /**
          * Render bounding boxes

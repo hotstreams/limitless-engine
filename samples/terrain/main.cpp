@@ -68,11 +68,11 @@ namespace LimitlessMaterials {
             }
 
             if (key == GLFW_KEY_SPACE && state == Limitless::InputState::Pressed) {
-                camera.getMoveSpeed() *= 5.0f;
+                camera.getMoveSpeed() *= 10.0f;
             }
 
             if (key == GLFW_KEY_SPACE && state == Limitless::InputState::Released) {
-                camera.getMoveSpeed() /= 5.0f;
+                camera.getMoveSpeed() /= 10.0f;
             }
 
             if (key == GLFW_KEY_GRAVE_ACCENT && state == Limitless::InputState::Released) {

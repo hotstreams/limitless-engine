@@ -1,4 +1,4 @@
-void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transform) {
+void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transform, vec3 normal) {
     #if defined (ENGINE_MATERIAL_EFFECT_MODEL)
         _out_data.world_position = world_position;
 
@@ -64,22 +64,21 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
         #endif
     #else
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-            _out_data.TBN = getModelTBN(model_transform);
+            #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
+                _out_data.TBN = getModelTBN(model_transform, normal, computeTangent(normal));
+            #else
+                _out_data.TBN = getModelTBN(model_transform);
+            #endif
         #else
-            _out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
+            #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
+                _out_data.normal = transpose(inverse(mat3(model_transform))) * normal;
+            #else
+                _out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
+            #endif
         #endif
 
         _out_data.world_position = world_position;
         _out_data.uv = uv;
-
-        #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
-            _out_data.uv1 = getVertexUV1();
-            _out_data.uv2 = getVertexUV2();
-            _out_data.uv3 = getVertexUV3();
-            _out_data.mask = getVertexColor();
-            _out_data.current = getVertexTileCurrent();
-            _out_data.types = getVertexTileType();
-        #endif
 
         #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
            _out_data.instance_id = gl_InstanceID;

@@ -1,5 +1,6 @@
 ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
+#extension GL_ARB_gpu_shader5 : enable
 
 #include "../interface_block/vertex.glsl"
 #include "./scene.glsl"
@@ -15,6 +16,7 @@ void main() {
     #endif
 
     vec3 vertex_position = getVertexPosition();
+    vec3 normal = getVertexNormal();
 
     ENGINE_MATERIAL_VERTEX_SNIPPET
 
@@ -26,5 +28,5 @@ void main() {
         gl_Position = getViewProjection() * world_position;
     #endif
 
-    InterfaceBlockPassThrough(world_position.xyz, uv, model_transform);
+    InterfaceBlockPassThrough(world_position.xyz, uv, model_transform, normal);
 }

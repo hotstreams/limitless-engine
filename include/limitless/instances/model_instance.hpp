@@ -22,8 +22,10 @@ namespace Limitless {
         std::shared_ptr<AbstractModel> model;
 
         void updateBoundingBox() noexcept override;
-        ModelInstance(InstanceType shader, decltype(model) model, const glm::vec3& position);
+        //ModelInstance(InstanceType shader, decltype(model) model, const glm::vec3& position);
     public:
+        ModelInstance(InstanceType shader, decltype(model) model, const glm::vec3& position);
+
         /**
          * Creates static model with specified loaded Model
          */

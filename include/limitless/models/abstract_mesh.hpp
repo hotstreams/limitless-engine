@@ -6,6 +6,48 @@
 #include <limitless/core/abstract_vertex_stream.hpp>
 
 namespace Limitless {
+    /**
+     *      mesh
+     *
+     *
+     *      set lod level for shadow?
+     *
+     *      lods
+     *
+     *      DrawElements
+     *      MultiDrawElements
+     *      MultiDrawElementsIndirect
+     *
+     *
+     *      batched_mesh
+     *
+     *
+     *      indirect batched mesh ?
+     *
+     *      indirect mesh ?
+     *
+     *      batched instance ?
+     *
+     *      indirect batched instance ?
+     *
+     *      batched level ? instance/mesh
+     *
+     *
+     *
+     *      vertex stream
+     *
+     *      stream[STREAM.POSITION]
+     *      stream[STREAM.NORMAL]
+     *      stream[STREAM.UV]
+     *      stream[STREAM.COLOR]
+     *      stream[STREAM.BONES]
+     *      stream[STREAM.WEIGHTS]
+     *      stream[STREAM.TANGENT]
+     *
+     *      stream[STREAM.INDEX]
+     *
+     */
+
     class AbstractMesh : public AbstractVertexStream {
     public:
         AbstractMesh() = default;

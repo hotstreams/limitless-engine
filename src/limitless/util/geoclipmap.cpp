@@ -22,12 +22,7 @@ std::shared_ptr<AbstractMesh> GeoClipMap::_create_mesh(
 	return mesh;
 }
 
-/* Generate clipmap meshes originally by Mike J Savage
- * Article https://mikejsavage.co.uk/blog/geometry-clipmaps.html
- * Code http://git.mikejsavage.co.uk/medfall/file/clipmap.cc.html#l197
- * In email communication with Cory, Mike clarified that the code in his
- * repo can be considered either MIT or public domain.
- */
+// Generate clipmap meshes originally by Mike J Savage
 std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size, const int p_levels) {
 //	LOG(DEBUG, "Generating meshes of size: ", p_size, " levels: ", p_levels);
 
