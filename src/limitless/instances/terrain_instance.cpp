@@ -119,7 +119,7 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             .model(Limitless::InstanceType::Terrain)
 
             .normal(noise)
-            .orm(noise)
+//            .orm(noise)
 
             // textures
             .custom("terrain_control_texture", control)
@@ -158,25 +158,15 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
                 vertex_position.y += texture(terrain_height_texture, UV).r * terrain_height_scale;
 
-
                 float hL = texture(terrain_height_texture, UV + vec2(-terrain_texel_size, 0.0)).r * terrain_height_scale;
                 float hR = texture(terrain_height_texture, UV + vec2(terrain_texel_size, 0.0)).r * terrain_height_scale;
                 float hD = texture(terrain_height_texture, UV + vec2(0.0, -terrain_texel_size)).r * terrain_height_scale;
                 float hU = texture(terrain_height_texture, UV + vec2(0.0, terrain_texel_size)).r * terrain_height_scale;
 
-                // Вычисление производных по x и z
                 float dX = hR - hL;
                 float dZ = hU - hD;
 
-                // Определение нормали
-                normal = normalize(vec3(-dX, terrain_vertex_spacing, -dZ));
-
-                //normal = vec3(
-                //    vertex_position.y - texture(terrain_height_texture, UV + vec2(terrain_texel_size, 0)).r * terrain_height_scale,
-                //    terrain_vertex_spacing,
-                //    vertex_position.y - texture(terrain_height_texture, UV + vec2(0, terrain_texel_size)).r * terrain_height_scale
-                //);
-                //normal = normalize(normal);
+                normal = normalize(vec3(-dX, 1.0, -dZ));
             )")
 
             // custom fragment shader

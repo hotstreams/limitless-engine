@@ -2,10 +2,9 @@ ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
 #include "../interface_block/fragment.glsl"
+#include "../instance/instance_fs.glsl"
 #include "./scene.glsl"
 #include "../material/material_context.glsl"
-#include "../material/material_context.glsl"
-#include "../instance/instance_fs.glsl"
 
 layout (location = 0) out vec3 albedo;
 layout (location = 1) out vec3 normal;

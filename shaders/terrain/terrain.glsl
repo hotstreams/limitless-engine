@@ -1,6 +1,7 @@
 #include "../functions/is_on_tile_border.glsl"
 #include "../functions/stochastic.glsl"
 #include "./terrain_control.glsl"
+#include "../instance/instance_fs.glsl"
 
 vec2 get_region_uv(const vec2 uv) {
     return vec2(mod(uv, terrain_size));
@@ -152,33 +153,13 @@ void calculateTerrain(inout MaterialContext mctx) {
 	vec3 macrov = mix(terrain_macro_variation1, vec3(1.0), clamp(noise1 + v_vertex_xz_dist * 0.0002, 0.0, 1.0));
 	macrov *= mix(terrain_macro_variation2, vec3(1.0), clamp(noise2 + v_vertex_xz_dist * 0.0002, 0.0, 1.0));
 
-    mctx.color.xyz = albedo * macrov;
-
-    float hL = texture(terrain_height_texture, uv + vec2(-terrain_texel_size, 0.0)).r * terrain_height_scale;
-    float hR = texture(terrain_height_texture, uv + vec2(terrain_texel_size, 0.0)).r * terrain_height_scale;
-    float hD = texture(terrain_height_texture, uv + vec2(0.0, -terrain_texel_size)).r * terrain_height_scale;
-    float hU = texture(terrain_height_texture, uv + vec2(0.0, terrain_texel_size)).r * terrain_height_scale;
-
-    float dX = hR - hL;
-    float dZ = hU - hD;
-
+    mctx.color.xyz = albedo;// * macrov;
     mctx.normal = normal;
-
-
-    normal = normalize(vec3(-dX, terrain_vertex_spacing, -dZ));
-
-    vec3 tangent;
-
-    if (abs(normal.x) > abs(normal.z))
-        tangent = vec3(-normal.y, normal.x, 0.0);
-    else
-        tangent = vec3(0.0, -normal.z, normal.y);
-
-    mctx.tbn_t = normalize(tangent - dot(tangent, normal) * normal);
-    mctx.tbn_b = normalize(cross(normal, tangent));
-    mctx.tbn_n = normal;
-
     mctx.ao = orm.r;
     mctx.roughness = orm.g;
     mctx.metallic = orm.b;
+
+//    if (is_on_tile_border(v_vertex, vec3(64.0), 0.1)) {
+//        mctx.color.xyz = vec3(1.0, 0.0, 0.0);
+//    }
 }

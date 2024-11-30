@@ -53,7 +53,7 @@ void Shader::checkStatus() const {
         }
 #endif
 
-        return;
+//        return;
     }
 
     std::string log;
@@ -61,12 +61,15 @@ void Shader::checkStatus() const {
     glGetShaderInfoLog(id, log_size, &log_size, log.data());
 
     {
-        std::ofstream file("shader_compilation_error");
+        static int counter = 0;
+        std::ofstream file("shader_compilation_error_" + path.stem().string() + std::to_string(counter++));
         file << path << std::endl;
         file << log << std::endl;
         file << "-------------" << std::endl;
         file << "Shader source:" << source << std::endl;
     }
+
+    return;
 
     throw shader_compilation_error("failed to compile " + path.string() + ": " + log);
 }

@@ -1,6 +1,10 @@
 #include "./material.glsl"
 
 struct MaterialContext {
+    // vertex parameters
+    vec3 vertex_position;
+    vec3 vertex_normal;
+
 #if defined (ENGINE_MATERIAL_COLOR)
     vec4 color;
 #endif
@@ -13,13 +17,13 @@ struct MaterialContext {
     vec4 diffuse;
 #endif
 
-#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
+//#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
     vec3 normal;
 
     vec3 tbn_t;
     vec3 tbn_b;
     vec3 tbn_n;
-#endif
+//#endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
     vec3 emissive_mask;
@@ -32,9 +36,9 @@ struct MaterialContext {
     float metallic;
     float roughness;
 
-#if defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE)
+//#if defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE)
     float ao;
-#endif
+//#endif
 
 #if defined (ENGINE_MATERIAL_TESSELLATION_FACTOR)
     vec2 tessellation_factor;
@@ -50,6 +54,12 @@ struct MaterialContext {
 
 MaterialContext computeDefaultMaterialContext(vec2 uv) {
     MaterialContext mctx;
+
+    mctx.vertex_position = getVertexPosition();
+
+#if !defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && !defined (ENGINE_SETTINGS_NORMAL_MAPPING)
+    mctx.vertex_normal = getVertexNormal();
+#endif
 
 #if defined (ENGINE_MATERIAL_COLOR)
     mctx.color = getMaterialColor();
@@ -212,7 +222,7 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #endif
     normal = normalize(TBN * normal);
 #else
-    vec3 normal = normalize(getVertexNormal());
+    vec3 normal = normalize(mctx.vertex_normal);
 #endif
     return normal;
 #endif

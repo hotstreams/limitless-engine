@@ -4,6 +4,7 @@
 #include <limitless/core/uniform/uniform_sampler.hpp>
 #include <limitless/core/texture/texture_binder.hpp>
 #include <limitless/core/texture/extension_texture.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -32,6 +33,10 @@ void ShaderProgramTextureSetter::bindTextures(const std::map<std::string, std::u
         }));
     }
     const auto units = TextureBinder::bind(se_samplers);
+
+
+    //TODO: fix
+    // same textures with same id  - gets bound only first
 
     // then we update unit values in uniforms and set them in shader
     std::vector<Uniform*> bound;
