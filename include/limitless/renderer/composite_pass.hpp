@@ -18,7 +18,7 @@ namespace Limitless {
         Framebuffer framebuffer;
     public:
         float tone_mapping_exposure = 1.0f;
-        float gamma = 1.f;
+        float gamma = 2.2f;
 
         explicit CompositePass(Renderer& renderer);
 
