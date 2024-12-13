@@ -12,6 +12,7 @@ uniform sampler2D bloom;
 uniform sampler2D outline;
 uniform float bloom_strength;
 uniform float tone_mapping_exposure;
+uniform float gamma;
 
 void main() {
     vec3 bloom_color = texture(bloom, uv).rgb * bloom_strength;
@@ -21,7 +22,6 @@ void main() {
     color = toneMapping(color, tone_mapping_exposure);
 
     // apply gamma correction
-    float gamma = 2.2;
     color = pow(color, vec3(1.0 / gamma));
 
     // add objects outlining
