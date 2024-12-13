@@ -46,7 +46,8 @@ void CompositePass::render(
             shader.setUniform("bloom", bloom_pass.getResult())
                   .setUniform("outline", renderer.getPass<OutlinePass>().getResult())
                   .setUniform("bloom_strength", bloom_strength)
-                  .setUniform("tone_mapping_exposure", tone_mapping_exposure);
+                  .setUniform("tone_mapping_exposure", tone_mapping_exposure)
+                  .setUniform("gamma", gamma);
         }
 
         shader.use();
