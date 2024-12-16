@@ -39,6 +39,7 @@ namespace Limitless {
             RGBA16F = GL_RGBA16F,
             RGB32F = GL_RGB32F,
 
+            R16 = GL_R16,
             RG8_SNORM = GL_RG8_SNORM,
 
             RGB8_SNORM = GL_RGB8_SNORM,

@@ -29,16 +29,11 @@ void LimitlessMaterials::Assets::setUpMaterials() {
 //            "grass_orm.png"
 //    });
 //
-//    Material::builder()
-//            .name("terrain")
-//            .shading(Shading::Lit)
-//            .global("#include \"../functions/unpack8x4.glsl\""
-//                    "#include \"../terrain/terrain.glsl\"")
-//            .custom("_terrain_diffuse_texture", terrain_diffuse)
-//            .custom("_terrain_normal_texture", terrain_normal)
-//            .custom("_terrain_orm_texture", terrain_orm)
-//            .fragment("calculateTerrain(mctx);")
-//            .build(*this);
+    Material::builder()
+            .name("test")
+            .shading(Shading::Lit)
+            .color(glm::vec4(1.0f))
+            .build(*this);
 }
 
 LimitlessMaterials::Assets::Assets(Limitless::Context &ctx, Limitless::Renderer &renderer, const fs::path &path)

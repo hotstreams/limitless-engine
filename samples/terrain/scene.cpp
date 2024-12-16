@@ -18,10 +18,18 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
 
     scene.add(Instance::builder()
         .model(assets.models.at("cube"))
-        .position({0.0f, 0.0f, 0.0f})
+        .position({0.0f, 10.0f, 0.0f})
         .scale(glm::vec3{1.0f})
-        .material(assets.materials.at("red"))
+        .material(assets.materials.at("test"))
         .build()
+    );
+
+    scene.getLighting().setAmbientColor(glm::vec4(1.0f));
+
+    scene.add(Light::builder()
+      .color(glm::vec4(1.0, 1.0, 1.0, 1.0f))
+      .direction(glm::vec3{0.3f, -1.0f, 0.0f})
+      .build()
     );
 
     std::mt19937 rng;
@@ -64,7 +72,10 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
 
     scene.add(
         Instance::builder()
+            .chunk_size(chunk_size)
+            .vertex_spacing(0.5f)
             .height(elevations)
+            .height_scale(10.0f)
             .control(controls)
             .noise(TextureLoader::load(assets, "../../assets/textures/noise.png"))
             .albedo_map(Limitless::TextureLoader::load(

@@ -69,7 +69,7 @@ namespace Limitless {
          * Terrain data
          */
         float chunk_size_ {1024.0f};
-        float vertex_spacing_ {0.1f};
+        float vertex_spacing_ {0.5f};
         float height_scale_ {10.0f};
         float noise1_scale_ {0.225f};
         float noise2_scale_ {0.04f};
@@ -81,6 +81,7 @@ namespace Limitless {
         uint32_t mesh_size {64};
         uint32_t mesh_lod_count {6};
         std::shared_ptr<Texture> height_map_;
+        std::shared_ptr<Texture> generated_normal_map_;
         std::shared_ptr<Texture> control_map_;
         std::shared_ptr<Texture> albedo_map_;
         std::shared_ptr<Texture> normal_map_;

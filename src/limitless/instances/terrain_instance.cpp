@@ -114,11 +114,12 @@ void TerrainInstance::initializeMesh(Assets& assets) {
     auto terrain_material = Limitless::ms::Material::builder()
             .name("terrain")
             .color(glm::vec4(1.0))
-            .two_sided(true)
-            .shading(Limitless::ms::Shading::Unlit)
+//            .two_sided(true)
+            .shading(Limitless::ms::Shading::Lit)
+//            .shading(Limitless::ms::Shading::Unlit)
             .model(Limitless::InstanceType::Terrain)
 
-            .normal(noise)
+            .normal(orm)
 //            .orm(noise)
 
             // textures
@@ -130,8 +131,8 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             .custom("terrain_height_texture", height_map)
 
             // scalars
-            .custom("terrain_size", chunk_size)
-            .custom("terrain_texel_size", chunk_texel_size)
+            .custom("terrain_size", terrain_size)
+            .custom("terrain_texel_size", terrain_texel_size)
             .custom("terrain_texture_scale", 64.0f)
             .custom("terrain_vertex_spacing", vertex_spacing)
             .custom("terrain_vertex_density", vertex_density)
@@ -153,20 +154,15 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             .vertex(R"(
                 vec3 v_vertex = (getModelTransform() * vec4(vertex_position, 1.0)).xyz;
 
-                vec2 UV = mod(v_vertex.xz * terrain_vertex_density, terrain_size);
-                UV /= terrain_size;
+                vec2 UV = mod(v_vertex.xz, (terrain_size * terrain_vertex_spacing));
+                UV = UV / (terrain_size * terrain_vertex_spacing);
 
-                vertex_position.y += texture(terrain_height_texture, UV).r * terrain_height_scale;
+                vertex_position.y = texture(terrain_height_texture, UV).r * terrain_height_scale;
 
-                float hL = texture(terrain_height_texture, UV + vec2(-terrain_texel_size, 0.0)).r * terrain_height_scale;
-                float hR = texture(terrain_height_texture, UV + vec2(terrain_texel_size, 0.0)).r * terrain_height_scale;
-                float hD = texture(terrain_height_texture, UV + vec2(0.0, -terrain_texel_size)).r * terrain_height_scale;
-                float hU = texture(terrain_height_texture, UV + vec2(0.0, terrain_texel_size)).r * terrain_height_scale;
+                float u = texture(terrain_height_texture,UV + vec2(terrain_texel_size, 0)).r * terrain_height_scale - texture(terrain_height_texture,UV - vec2(terrain_texel_size, 0)).r * terrain_height_scale;
+                float v = texture(terrain_height_texture,UV + vec2(0, terrain_texel_size)).r * terrain_height_scale - texture(terrain_height_texture,UV - vec2(0, terrain_texel_size)).r * terrain_height_scale;
 
-                float dX = hR - hL;
-                float dZ = hU - hD;
-
-                normal = normalize(vec3(-dX, 1.0, -dZ));
+                normal = normalize(vec3(u, 2.0 * terrain_vertex_spacing, v));
             )")
 
             // custom fragment shader
@@ -251,7 +247,7 @@ void TerrainInstance::setOrmMap(const std::shared_ptr<Texture>& texture) {
 }
 
 void TerrainInstance::updateHeight(const void* data) {
-    height_map->subImage(0, glm::uvec2{0}, glm::uvec2(chunk_size), data);
+    height_map->subImage(0, glm::uvec2{0}, glm::uvec2(terrain_size), data);
 }
 
 void TerrainInstance::updateHeight(glm::uvec2 offset, glm::uvec2 size, const void* data) {
@@ -259,7 +255,7 @@ void TerrainInstance::updateHeight(glm::uvec2 offset, glm::uvec2 size, const voi
 }
 
 void TerrainInstance::updateControl(const void *data) {
-    control->subImage(0, glm::uvec2{0}, glm::uvec2(chunk_size), data);
+    control->subImage(0, glm::uvec2{0}, glm::uvec2(terrain_size), data);
 }
 
 void TerrainInstance::updateControl(glm::uvec2 offset, glm::uvec2 size, const void *data) {
@@ -267,7 +263,7 @@ void TerrainInstance::updateControl(glm::uvec2 offset, glm::uvec2 size, const vo
 }
 
 void TerrainInstance::setChunkSize(float chunkSize) {
-    chunk_size = chunkSize;
+    terrain_size = chunkSize;
 }
 
 void TerrainInstance::setVertexSpacing(float vertexSpacing) {
@@ -314,3 +310,10 @@ void TerrainInstance::setMeshLodCount(int meshLodCount) {
     mesh_lod_count = meshLodCount;
 }
 
+std::shared_ptr<Texture> TerrainInstance::generateNormalMap() {
+    return std::shared_ptr<Texture>();
+}
+
+void TerrainInstance::setGeneratedNormalMap(const std::shared_ptr<Texture>& normal_map) {
+    generated_normal_map = normal_map;
+}

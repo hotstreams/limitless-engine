@@ -8,7 +8,7 @@ std::shared_ptr<AbstractMesh> GeoClipMap::_create_mesh(
         std::vector<uint32_t>&& p_indices,
         std::string name
 ) {
-    static int i = 0;
+//    static int i = 0;
     auto mesh = std::make_shared<Limitless::Mesh>(
             std::make_unique<Limitless::IndexedVertexStream<Limitless::VertexNormalTangent>>(
                     std::move(p_vertices),
@@ -64,13 +64,13 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 
 		for (int y = 0; y < TILE_RESOLUTION; y++) {
 			for (int x = 0; x < TILE_RESOLUTION; x++) {
-				indices[n++] = _patch_2d(x, y, PATCH_VERT_RESOLUTION);
-				indices[n++] = _patch_2d(x + 1, y + 1, PATCH_VERT_RESOLUTION);
-				indices[n++] = _patch_2d(x, y + 1, PATCH_VERT_RESOLUTION);
+                indices[n++] = _patch_2d(x, y, PATCH_VERT_RESOLUTION);
+                indices[n++] = _patch_2d(x, y + 1, PATCH_VERT_RESOLUTION);
+                indices[n++] = _patch_2d(x + 1, y + 1, PATCH_VERT_RESOLUTION);
 
-				indices[n++] = _patch_2d(x, y, PATCH_VERT_RESOLUTION);
-				indices[n++] = _patch_2d(x + 1, y, PATCH_VERT_RESOLUTION);
-				indices[n++] = _patch_2d(x + 1, y + 1, PATCH_VERT_RESOLUTION);
+                indices[n++] = _patch_2d(x, y, PATCH_VERT_RESOLUTION);
+                indices[n++] = _patch_2d(x + 1, y + 1, PATCH_VERT_RESOLUTION);
+                indices[n++] = _patch_2d(x + 1, y, PATCH_VERT_RESOLUTION);
 			}
 		}
 
@@ -139,21 +139,21 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 			int tl = (arm + i) * 2 + 2;
 			int tr = (arm + i) * 2 + 3;
 
-			if (arm % 2 == 0) {
-				indices[n++] = br;
-				indices[n++] = bl;
-				indices[n++] = tr;
-				indices[n++] = bl;
-				indices[n++] = tl;
-				indices[n++] = tr;
-			} else {
-				indices[n++] = br;
-				indices[n++] = bl;
-				indices[n++] = tl;
-				indices[n++] = br;
-				indices[n++] = tl;
-				indices[n++] = tr;
-			}
+            if (arm % 2 == 0) {
+                indices[n++] = tr; // изменено
+                indices[n++] = bl; // изменено
+                indices[n++] = br; // изменено
+                indices[n++] = tr; // изменено
+                indices[n++] = tl; // изменено
+                indices[n++] = bl; // изменено
+            } else {
+                indices[n++] = tl; // изменено
+                indices[n++] = bl; // изменено
+                indices[n++] = br; // изменено
+                indices[n++] = tl; // изменено
+                indices[n++] = br; // изменено
+                indices[n++] = tr; // изменено
+            }
 		}
 
 		filler_mesh = _create_mesh(std::move(vertices), std::move(indices), "filler");
@@ -196,23 +196,23 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 		n = 0;
 
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION; i++) {
-			indices[n++] = (i + 0) * 2 + 1;
-			indices[n++] = (i + 0) * 2 + 0;
-			indices[n++] = (i + 1) * 2 + 0;
+            indices[n++] = (i + 1) * 2 + 0; // изменено
+            indices[n++] = (i + 0) * 2 + 0; // изменено
+            indices[n++] = (i + 0) * 2 + 1; // изменено
 
-			indices[n++] = (i + 1) * 2 + 1;
-			indices[n++] = (i + 0) * 2 + 1;
-			indices[n++] = (i + 1) * 2 + 0;
+            indices[n++] = (i + 1) * 2 + 0; // изменено
+            indices[n++] = (i + 0) * 2 + 1; // изменено
+            indices[n++] = (i + 1) * 2 + 1; // изменено
 		}
 
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION - 1; i++) {
-			indices[n++] = start_of_horizontal + (i + 0) * 2 + 1;
-			indices[n++] = start_of_horizontal + (i + 0) * 2 + 0;
-			indices[n++] = start_of_horizontal + (i + 1) * 2 + 0;
+            indices[n++] = start_of_horizontal + (i + 1) * 2 + 0; // изменено
+            indices[n++] = start_of_horizontal + (i + 0) * 2 + 0; // изменено
+            indices[n++] = start_of_horizontal + (i + 0) * 2 + 1; // изменено
 
-			indices[n++] = start_of_horizontal + (i + 1) * 2 + 1;
-			indices[n++] = start_of_horizontal + (i + 0) * 2 + 1;
-			indices[n++] = start_of_horizontal + (i + 1) * 2 + 0;
+            indices[n++] = start_of_horizontal + (i + 1) * 2 + 0; // изменено
+            indices[n++] = start_of_horizontal + (i + 0) * 2 + 1; // изменено
+            indices[n++] = start_of_horizontal + (i + 1) * 2 + 1; // изменено
 		}
 
 		trim_mesh = _create_mesh(std::move(vertices), std::move(indices), "trim");
@@ -259,12 +259,12 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 			int tl = i * 2 + 2;
 			int tr = i * 2 + 3;
 
-			indices[n++] = br;
-			indices[n++] = bl;
-			indices[n++] = tr;
-			indices[n++] = bl;
-			indices[n++] = tl;
-			indices[n++] = tr;
+            indices[n++] = tr; // изменено
+            indices[n++] = bl; // изменено
+            indices[n++] = br; // изменено
+            indices[n++] = tl; // изменено
+            indices[n++] = bl; // изменено
+            indices[n++] = tr; // изменено
 		}
 
 		for (int i = 0; i < TILE_RESOLUTION * 2 + 1; i++) {
@@ -277,12 +277,12 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 			int tl = i * 2 + 2;
 			int tr = i * 2 + 3;
 
-			indices[n++] = start_of_vertical + br;
-			indices[n++] = start_of_vertical + tr;
-			indices[n++] = start_of_vertical + bl;
-			indices[n++] = start_of_vertical + bl;
-			indices[n++] = start_of_vertical + tr;
-			indices[n++] = start_of_vertical + tl;
+            indices[n++] = start_of_vertical + bl; // изменено
+            indices[n++] = start_of_vertical + tr; // изменено
+            indices[n++] = start_of_vertical + br; // изменено
+            indices[n++] = start_of_vertical + tl; // изменено
+            indices[n++] = start_of_vertical + tr; // изменено
+            indices[n++] = start_of_vertical + bl; // изменено
 		}
 
 		cross_mesh = _create_mesh(std::move(vertices), std::move(indices), "cross");
@@ -320,10 +320,10 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 		n = 0;
 
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION * 4; i += 2) {
-			indices[n++] = i + 1;
-			indices[n++] = i;
-			indices[n++] = i + 2;
-		}
+            indices[n++] = i;     // изменено
+            indices[n++] = i + 1; // изменено
+            indices[n++] = i + 2; // изменено
+        }
 
 		indices[indices.size() - 1] = 0;
 

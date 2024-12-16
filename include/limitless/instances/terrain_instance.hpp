@@ -41,20 +41,21 @@ namespace Limitless {
             }
         };
     private:
-        // size of terrain
-        float chunk_size = 1024.0f;
+        // terrain size in world units
+        float terrain_size = 128.0f;
 
         //
-        float chunk_texel_size = 1.0f / chunk_size;
+        float terrain_texel_size = 1.0f / terrain_size;
 
-        //
-        float vertex_spacing = 0.1f;
+        // spacing between vertices
+        // does not affect terrain size
+        float vertex_spacing = 1.0f;
 
         //
         float vertex_density = 1.0f / vertex_spacing;
 
         //
-        float height_scale = 10.0f;
+        float height_scale = 1.0f;
 
         //
         float noise1_scale = 0.225f;
@@ -68,7 +69,7 @@ namespace Limitless {
 
         bool show_tiles = false;
 
-        int mesh_size = 64;
+        int mesh_size = 32;
 
         int mesh_lod_count = 6;
 
@@ -81,6 +82,7 @@ namespace Limitless {
         } mesh;
 
         std::shared_ptr<Texture> height_map;
+        std::shared_ptr<Texture> generated_normal_map;
         std::shared_ptr<Texture> control;
         std::shared_ptr<Texture> albedo;
         std::shared_ptr<Texture> normal;
@@ -88,6 +90,8 @@ namespace Limitless {
         std::shared_ptr<Texture> noise;
 
         void snap(const Camera& p_cam_pos);
+
+        std::shared_ptr<Texture> generateNormalMap();
     public:
         TerrainInstance(
             std::shared_ptr<Texture> height_map,
@@ -101,6 +105,7 @@ namespace Limitless {
         void initializeMesh(Assets& assets);
 
         void setHeightMap(const std::shared_ptr<Texture>& height_map);
+        void setGeneratedNormalMap(const std::shared_ptr<Texture>& normal_map);
         void setControlMap(const std::shared_ptr<Texture>& control_map);
         void setNoise(const std::shared_ptr<Texture>& noise);
         void setAlbedoMap(const std::shared_ptr<Texture>& albedo_map);
