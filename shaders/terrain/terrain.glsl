@@ -16,11 +16,25 @@ vec3 getTerrainAlbedo(vec3 uv) {
     return texture(terrain_albedo_texture, uv).rgb;
 }
 
+//float blend_weights(float weight, float detail) {
+//    weight = smoothstep(0.0, 1.0, weight);
+//    weight = sqrt(weight * 0.5);
+//    return weight;
+//}
+
 float blend_weights(float weight, float detail) {
+    // Нормализуем вес через плавное сглаживание
     weight = smoothstep(0.0, 1.0, weight);
-    weight = sqrt(weight * 0.5);
-    float result = max(0.1 * weight, 10.0 * (weight + detail) + 1.0f - (detail + 10.0));
-    return result;
+
+    // Лёгкое усиление деталей через шум (уменьшено влияние шума)
+    detail = clamp(detail, 0.0, 1.0);
+    weight += 0.3 * detail; // Умеренная добавка шума
+
+    // Нелинейное усиление весов, но без агрессивного роста
+    weight = pow(weight, 0.8); // Используем более мягкий показатель
+
+    // Ограничиваем итоговый вес в разумных пределах
+    return clamp(weight, 0.0, 1.0);
 }
 
 vec2 rotate(vec2 v, float cosa, float sina) {
@@ -53,13 +67,13 @@ terrain_data getTerrainData(vec2 uv, const terrain_control tctrl) {
 //    data.normal = texture(terrain_normal_texture, vec3(uv, tctrl.base_id)).rgb;
 //    data.orm = texture(terrain_orm_texture, vec3(uv, tctrl.base_id)).rgb;
 
-    if (tctrl.blend > 0.0) {
-        vec3 extra = stochastic_texture(uv, tctrl.extra_id, terrain_albedo_texture);
-
-        data.albedo = height_blend(data.albedo, 1.0, extra, 1.0, tctrl.blend);
-        data.normal = height_blend(data.normal, 1.0, extra, 1.0, tctrl.blend);
-        data.orm = height_blend(data.orm, 1.0, extra, 1.0, tctrl.blend);
-    }
+//    if (tctrl.blend > 0.0) {
+//        vec3 extra = stochastic_texture(uv, tctrl.extra_id, terrain_albedo_texture);
+//
+//        data.albedo = height_blend(data.albedo, 1.0, extra, 1.0, tctrl.blend);
+//        data.normal = height_blend(data.normal, 1.0, extra, 1.0, tctrl.blend);
+//        data.orm = height_blend(data.orm, 1.0, extra, 1.0, tctrl.blend);
+//    }
 
     return data;
 }
@@ -93,48 +107,41 @@ mat3 getTerrainTBN(vec3 normal) {
 
 // returns texel UV [0, world space terrain size] in terrain space
 vec2 getTerrainTexelUV(vec2 vertex_position) {
-    return mod(vertex_position, terrain_size * terrain_vertex_spacing);
+//    return mod(vertex_position, terrain_size * terrain_vertex_spacing);
+    return mod(vertex_position, terrain_size);
 }
 
 // returns UV [0, 1] in terrain space
 vec2 getTerrainUV(vec2 texel_uv) {
-    return texel_uv / (terrain_size * terrain_vertex_spacing);
+//    return texel_uv / (terrain_size * terrain_vertex_spacing);
+    return texel_uv / (terrain_size);
 }
 
 // returns UV [0, 1] in chunk space
 vec2 getChunkUV(vec2 uv) {
-    return uv * terrain_texture_scale;
+    return fract(uv * terrain_texture_scale);
 }
 
 void calculateTerrain(inout MaterialContext mctx) {
-    vec3 vertex_position = getVertexPosition();
+    vec3 vertex_position = getVertexPosition() * terrain_vertex_spacing;
     vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position.xz);
     vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
     vec2 chunk_uv = getChunkUV(terrain_uv);
 
-    vec2 texel_pos_floor = floor(terrain_texel_uv);
-    vec4 mirror = vec4(fract(texel_pos_floor * 0.5) * 2.0, 1.0, 1.0);
-    mirror.zw = vec2(1.0) - mirror.xy;
+    vec2 terrain_texel_base = floor(terrain_texel_uv * 1.0 / terrain_vertex_spacing);
 
-    vec2 indexUV[4] = {
-        get_region_uv(texel_pos_floor + mirror.xy),
-        get_region_uv(texel_pos_floor + mirror.xw),
-        get_region_uv(texel_pos_floor + mirror.zy),
-        get_region_uv(texel_pos_floor + mirror.zw)
-    };
-
-    vec2 indexUV1[4] = {
-        chunk_uv + mirror.xy / (terrain_size * terrain_vertex_spacing),
-        chunk_uv + mirror.xw / (terrain_size * terrain_vertex_spacing),
-        chunk_uv + mirror.zy / (terrain_size * terrain_vertex_spacing),
-        chunk_uv + mirror.zw / (terrain_size * terrain_vertex_spacing)
+    vec2 terrain_adjacent_texel_uv[4] = {
+        getTerrainTexelUV(terrain_texel_base),
+        getTerrainTexelUV(terrain_texel_base + vec2(1.0, 0.0)),
+        getTerrainTexelUV(terrain_texel_base + vec2(0.0, 1.0)),
+        getTerrainTexelUV(terrain_texel_base + vec2(1.0, 1.0))
     };
 
     uint control[4] = {
-        getTerrainControl(indexUV[0]),
-        getTerrainControl(indexUV[1]),
-        getTerrainControl(indexUV[2]),
-        getTerrainControl(indexUV[3])
+        getTerrainControl(terrain_adjacent_texel_uv[0]),
+        getTerrainControl(terrain_adjacent_texel_uv[1]),
+        getTerrainControl(terrain_adjacent_texel_uv[2]),
+        getTerrainControl(terrain_adjacent_texel_uv[3])
     };
 
     terrain_control tctrl[4] = {
@@ -145,25 +152,22 @@ void calculateTerrain(inout MaterialContext mctx) {
     };
 
     terrain_data data[4] = {
-        getTerrainData(indexUV1[0], tctrl[0]),
-        getTerrainData(indexUV1[1], tctrl[1]),
-        getTerrainData(indexUV1[2], tctrl[2]),
-        getTerrainData(indexUV1[3], tctrl[3]),
+        getTerrainData(chunk_uv, tctrl[0]),
+        getTerrainData(chunk_uv, tctrl[1]),
+        getTerrainData(chunk_uv, tctrl[2]),
+        getTerrainData(chunk_uv, tctrl[3]),
     };
 
-    // Calculate weight for the pixel position between the vertices
-    // Bilinear interpolation of difference of uv and floor(uv)
-    vec2 weights1 = clamp(terrain_texel_uv - texel_pos_floor, 0, 1);
-    weights1 = mix(weights1, vec2(1.0) - weights1, mirror.xy);
+    vec2 weights1 = clamp(fract(terrain_texel_uv * 2.0), 0, 1);
     vec2 weights0 = vec2(1.0) - weights1;
 
     // Adjust final weights by texture's height/depth + noise. 1 lookup
-    float noise3 = texture(terrain_noise_texture, chunk_uv * terrain_noise1_scale).r;
+    float noise3 = texture(terrain_noise_texture, terrain_uv * terrain_noise1_scale).r;
 
     vec4 weights = vec4(
         blend_weights(weights0.x * weights0.y, clamp(/*mat[0].alb_ht.a*/ noise3, 0.0, 1.0)),
-        blend_weights(weights0.x * weights1.y, clamp(/*mat[1].alb_ht.a*/ noise3, 0.0, 1.0)),
-        blend_weights(weights1.x * weights0.y, clamp(/*mat[2].alb_ht.a*/ noise3, 0.0, 1.0)),
+        blend_weights(weights1.x * weights0.y, clamp(/*mat[1].alb_ht.a*/ noise3, 0.0, 1.0)),
+        blend_weights(weights0.x * weights1.y, clamp(/*mat[2].alb_ht.a*/ noise3, 0.0, 1.0)),
         blend_weights(weights1.x * weights1.y, clamp(/*mat[3].alb_ht.a*/ noise3, 0.0, 1.0))
     );
 
@@ -201,7 +205,9 @@ void calculateTerrain(inout MaterialContext mctx) {
 	vec3 macrov = mix(terrain_macro_variation1, vec3(1.0), clamp(noise1 + v_vertex_xz_dist * 0.0002, 0.0, 1.0));
 	macrov *= mix(terrain_macro_variation2, vec3(1.0), clamp(noise2 + v_vertex_xz_dist * 0.0002, 0.0, 1.0));
 
-    mctx.color.xyz = albedo * macrov;
+    mctx.color.xyz = albedo;// * macrov;
+//    mctx.color.xyz = vec3(weights);//, 0.0);// * macrov;
+//    mctx.color.xyz = vec3(chunk_uv, 0.0);//, 0.0);// * macrov;
 
     {
         //TODO: based on distance to camera
@@ -220,7 +226,7 @@ void calculateTerrain(inout MaterialContext mctx) {
 //        mctx.color.xyz = vec3(1.0, 0.0, 0.0);
 //    }
 
-//    if (is_on_tile_border(v_vertex, vec3(terrain_vertex_spacing), 0.01)) {
+//    if (is_on_tile_border(vertex_position, vec3(terrain_vertex_spacing), 0.01)) {
 //        mctx.color.xyz = vec3(0.0, 0.0, 0.0);
 //    }
 }
