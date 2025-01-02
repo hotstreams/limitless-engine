@@ -90,7 +90,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
     auto box = ModelInstance {assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
 
     context.setLineWidth(2.5f);
-    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
+//    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
     for (const auto& instance : scene.getInstances()) {
 //        auto& bounding_box = instance->getBoundingBox();
 //
@@ -116,11 +116,11 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 //            for (auto &item: terrain.mesh.seams) {
 //                show(item);
 //            }
-//            const auto frustum = Frustum::fromCamera(camera);
+            const auto frustum = Frustum::fromCamera(camera);
 //
-//            for (auto &item: terrain.mesh.trims) {
-//                if (frustum.intersects(*item)) {
-//                    show(item);
+//            for (auto &item : terrain.mesh.trims->getInstances()[0]) {
+//                if (frustum.intersects(*terrain.mesh.trims->getInstances()[0])) {
+                    show(terrain.mesh.trims->getInstances()[0]);
 //                }
 //            }
 
@@ -133,7 +133,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 //            }
         }
     }
-    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+//    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
 void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {

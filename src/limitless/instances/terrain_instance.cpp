@@ -26,10 +26,11 @@ void TerrainInstance::update(const Camera &camera) {
 
 
     const auto range = glm::vec2(height_scale * 0.5f, height_scale);
-    const auto margin = 0.1f;
+    const auto margin = 0.0f;
 
     mesh.cross->bounding_box.center.y = mesh.cross->bounding_box.center.y + range.x - margin;
     mesh.cross->bounding_box.size.y = range.y + margin * 2.0f;
+
 
     for (const auto &item: mesh.seams->getInstances()) {
         item->bounding_box.center =
@@ -44,6 +45,11 @@ void TerrainInstance::update(const Camera &camera) {
     }
 
     for (const auto &item: mesh.trims->getInstances()) {
+        const auto translation_matrix = glm::translate(glm::mat4{1.0f}, position);
+        const auto rotation_matrix = glm::toMat4(rotation);
+        const auto scale_matrix = glm::scale(glm::mat4{1.0f}, scale);
+        auto model_matrix = translation_matrix * rotation_matrix * scale_matrix;
+
         item->bounding_box.center =
                 glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
                 glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
