@@ -92,6 +92,81 @@ Frustum Frustum::fromCamera(const Camera& camera) {
     return Frustum {camera.getProjection() * camera.getView()};
 }
 
+
+bool test(const Frustum& frustum, const Box& box) {
+    // The main intersection routine assumes multiples of 8 items
+    static constexpr size_t MODULO = 4u;
+    glm::vec3 centers[MODULO] = {};
+    glm::vec3 extents[MODULO] = {};
+    uint16_t results[MODULO];
+
+    centers[0] = box.center;
+    extents[0] = box.size * 0.5f;
+
+    size_t count = MODULO;
+
+    for (size_t i = 0; i < count; i++) {
+        int visible = ~0;
+        for (size_t j = 0; j < 6; j++) {
+            const float dot =
+                    frustum.planes[j].x * centers[i].x - std::abs(frustum.planes[j].x) * extents[i].x +
+                    frustum.planes[j].y * centers[i].y - std::abs(frustum.planes[j].y) * extents[i].y +
+                    frustum.planes[j].z * centers[i].z - std::abs(frustum.planes[j].z) * extents[i].z +
+                    frustum.planes[j].w;
+
+            visible &= std::signbit(dot);
+        }
+
+        auto r = results[i];
+        r &= ~uint16_t(1u);
+        r |= uint16_t(visible);
+        results[i] = r;
+    }
+
+    return bool(results[0] & 1);
+}
+
+bool intersectsFrustumAABB(const Frustum& frustum, const Box& box) {
+    // Calculate the min and max corners of the AABB
+    glm::vec3 halfSize = box.size * 0.5f;
+    glm::vec3 minCorner = box.center - halfSize;
+    glm::vec3 maxCorner = box.center + halfSize;
+
+    // Check each plane of the frustum
+    for (const auto& plane : frustum.planes) {
+        glm::vec3 planeNormal(plane.x, plane.y, plane.z);
+        float planeOffset = plane.w;
+
+        // Test all 8 corners of the AABB against this plane
+        bool isOutside = true;
+
+        // Loop through all 8 corners
+        for (int i = 0; i < 8; ++i) {
+            glm::vec3 corner = glm::vec3(
+                    (i & 1) ? maxCorner.x : minCorner.x,
+                    (i & 2) ? maxCorner.y : minCorner.y,
+                    (i & 4) ? maxCorner.z : minCorner.z
+            );
+
+            // If at least one corner is inside the plane, the box is not fully outside
+            if (glm::dot(planeNormal, corner) + planeOffset >= 0) {
+                isOutside = false;
+                break;
+            }
+        }
+
+        // If all corners are outside this plane, the box is completely outside the frustum
+        if (isOutside) {
+            return false;
+        }
+    }
+
+    // If no plane fully excludes the box, it intersects or is inside the frustum
+    return true;
+}
+
+
 bool Frustum::intersects(Instance& instance) const {
-    return intersects(instance.getBoundingBox());
+//    return intersects(instance.getBoundingBox());
+    return intersectsFrustumAABB(*this, instance.getBoundingBox());
 }

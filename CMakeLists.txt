@@ -78,7 +78,6 @@ set(ENGINE_INSTANCES
     src/limitless/instances/decal_instance.cpp
     src/limitless/instances/instanced_instance.cpp
     src/limitless/instances/terrain_instance.cpp
-    src/limitless/instances/terrain_region.cpp
 )
 
 set(ENGINE_LIGHTING

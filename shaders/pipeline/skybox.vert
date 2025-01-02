@@ -7,6 +7,8 @@ ENGINE::MATERIALDEPENDENT
 #include "../material/material.glsl"
 #include "../interface_block/pass_through.glsl"
 
+ENGINE_MATERIAL_GLOBAL_VERTEX_DEFINITIONS
+
 out vec3 skybox_uv;
 
 void main() {

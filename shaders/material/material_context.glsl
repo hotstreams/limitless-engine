@@ -17,7 +17,7 @@ struct MaterialContext {
     vec4 diffuse;
 #endif
 
-#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
+#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)
     vec3 normal;
     vec3 tbn_t;
     vec3 tbn_b;
@@ -35,9 +35,9 @@ struct MaterialContext {
     float metallic;
     float roughness;
 
-//#if defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE)
+#if defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE) || defined(ENGINE_MATERIAL_ORM_MAP)
     float ao;
-//#endif
+#endif
 
 #if defined (ENGINE_MATERIAL_TESSELLATION_FACTOR)
     vec2 tessellation_factor;
@@ -137,7 +137,7 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
     return mctx;
 }
 
-ENGINE_MATERIAL_GLOBAL_DEFINITIONS
+ENGINE_MATERIAL_GLOBAL_FRAGMENT_DEFINITIONS
 
 void customMaterialContext(inout MaterialContext mctx) {
     ENGINE_MATERIAL_FRAGMENT_SNIPPET

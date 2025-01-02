@@ -48,7 +48,7 @@ namespace LimitlessMaterials {
                 .build()}
             , assets {context, *render, ENGINE_ASSETS_DIR}
             , scene {context, assets} {
-            camera.setPosition({-3.0f, 2.0f, 3.0f});
+            camera.setPosition({256.0f, 10.0f, 256.0f});
             assets.recompileAssets(context, render->getSettings());
         }
 

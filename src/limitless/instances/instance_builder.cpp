@@ -268,9 +268,8 @@ std::shared_ptr<TerrainInstance> Instance::Builder::asTerrain(Assets& assets) {
     instance->setNoise3Scale(noise3_scale_);
     instance->setMacroVariation1(macro_variation1_);
     instance->setMacroVariation2(macro_variation2_);
-    instance->setMeshSize(mesh_size);
-    instance->setMeshLodCount(mesh_lod_count);
-    instance->setGeneratedNormalMap(generated_normal_map_);
+    instance->setMeshSize(mesh_size_);
+    instance->setMeshLodCount(mesh_lod_count_);
 
     instance->initializeMesh(assets);
 
@@ -327,6 +326,16 @@ Instance::Builder& Instance::Builder::macro_variation2(const glm::vec3 &macroVar
     return *this;
 }
 
+Instance::Builder& Instance::Builder::mesh_size(float mesh_size) {
+    mesh_size_ = mesh_size;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::mesh_lod_count(float mesh_lod_count) {
+    mesh_lod_count_ = mesh_lod_count;
+    return *this;
+}
+
 Instance::Builder& Instance::Builder::height_map(const std::shared_ptr<Texture>& height_map) {
     height_map_ = height_map;
     return *this;
@@ -357,66 +366,6 @@ Instance::Builder& Instance::Builder::noise(const std::shared_ptr<Texture>& nois
     return *this;
 }
 
-#include <vector>
-#include <glm/glm.hpp>
-#include <glm/geometric.hpp> // Для glm::normalize
-#include <iostream>
-
-std::vector<glm::vec3> computeVertexNormals(
-        const float* height_map,
-        int width,
-        int height,
-        float terrain_vertex_spacing
-) {
-    std::vector<glm::vec3> normals(width * height, glm::vec3(0.0f));
-
-    for (int z = 0; z < height; ++z) {
-        for (int x = 0; x < width; ++x) {
-            glm::vec3 normal(0.0f);
-            glm::vec3 current(x * terrain_vertex_spacing, height_map[z * width + x], z * terrain_vertex_spacing);
-
-            // Вычисление нормалей для соседних вершин
-            if (x > 0 && z > 0) {
-                glm::vec3 left(x * terrain_vertex_spacing - terrain_vertex_spacing, height_map[z * width + (x - 1)], z * terrain_vertex_spacing);
-                glm::vec3 up(x * terrain_vertex_spacing, height_map[(z - 1) * width + x], (z - 1) * terrain_vertex_spacing);
-
-                glm::vec3 edge1 = left - current;
-                glm::vec3 edge2 = up - current;
-                normal += glm::normalize(glm::cross(edge2, edge1));
-            }
-            if (x < width - 1 && z > 0) {
-                glm::vec3 right(x * terrain_vertex_spacing + terrain_vertex_spacing, height_map[z * width + (x + 1)], z * terrain_vertex_spacing);
-                glm::vec3 up(x * terrain_vertex_spacing, height_map[(z - 1) * width + x], (z - 1) * terrain_vertex_spacing);
-
-                glm::vec3 edge1 = up - current;
-                glm::vec3 edge2 = right - current;
-                normal += glm::normalize(glm::cross(edge2, edge1));
-            }
-            if (x < width - 1 && z < height - 1) {
-                glm::vec3 right(x * terrain_vertex_spacing + terrain_vertex_spacing, height_map[z * width + (x + 1)], z * terrain_vertex_spacing);
-                glm::vec3 down(x * terrain_vertex_spacing, height_map[(z + 1) * width + x], (z + 1) * terrain_vertex_spacing);
-
-                glm::vec3 edge1 = right - current;
-                glm::vec3 edge2 = down - current;
-                normal += glm::normalize(glm::cross(edge2, edge1));
-            }
-            if (x > 0 && z < height - 1) {
-                glm::vec3 left(x * terrain_vertex_spacing - terrain_vertex_spacing, height_map[z * width + (x - 1)], z * terrain_vertex_spacing);
-                glm::vec3 down(x * terrain_vertex_spacing, height_map[(z + 1) * width + x], (z + 1) * terrain_vertex_spacing);
-
-                glm::vec3 edge1 = down - current;
-                glm::vec3 edge2 = left - current;
-                normal += glm::normalize(glm::cross(edge2, edge1));
-            }
-
-            // Нормализуем финальную нормаль
-            normals[z * width + x] = glm::normalize(normal);
-        }
-    }
-
-    return normals;
-}
-
 Instance::Builder &Instance::Builder::height(const float* data) {
     std::vector<uint16_t> el;
     el.resize(chunk_size_ * chunk_size_);
@@ -441,26 +390,6 @@ Instance::Builder &Instance::Builder::height(const float* data) {
             .data(el.data())
             .build();
 
-    auto normals = computeVertexNormals(data, chunk_size_, chunk_size_, vertex_spacing_);
-
-//    for (const auto &item: normals) {
-//        std::cout << item.x << " " << item.y << " " << item.z << std::endl;
-//    }
-    generated_normal_map_ =
-        Texture::builder()
-            .target(Texture::Type::Tex2D)
-            .mipmap(false)
-            .internal_format(Texture::InternalFormat::RGB32F)
-            .size(glm::uvec2{chunk_size_, chunk_size_})
-            .format(Texture::Format::RGB)
-            .data_type(Texture::DataType::Float)
-            .wrap_r(Texture::Wrap::Repeat)
-            .wrap_s(Texture::Wrap::Repeat)
-            .wrap_t(Texture::Wrap::Repeat)
-            .min_filter(Texture::Filter::Linear)
-            .mag_filter(Texture::Filter::Linear)
-            .data(normals.data())
-            .build();
     return *this;
 }
 

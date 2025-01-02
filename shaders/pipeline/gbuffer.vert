@@ -7,6 +7,8 @@ ENGINE::MATERIALDEPENDENT
 #include "../material/material.glsl"
 #include "../interface_block/pass_through.glsl"
 
+ENGINE_MATERIAL_GLOBAL_VERTEX_DEFINITIONS
+
 void main() {
     #if !defined (SpriteEmitter)
        vec2 uv = getVertexUV();

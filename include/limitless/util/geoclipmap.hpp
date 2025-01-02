@@ -16,7 +16,7 @@ namespace Limitless {
             FILLER,
             TRIM,
             CROSS,
-            SEAM,
+            SEAM
         };
 
         static std::vector<std::shared_ptr<AbstractMesh>> generate(const int p_resolution, const int p_clipmap_levels);

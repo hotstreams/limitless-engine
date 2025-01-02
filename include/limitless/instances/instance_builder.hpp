@@ -78,10 +78,9 @@ namespace Limitless {
         float noise3_scale_ {0.076f};
         glm::vec3 macro_variation1_ = glm::vec3(0.5f);
         glm::vec3 macro_variation2_ = glm::vec3(0.33f);
-        uint32_t mesh_size {64};
-        uint32_t mesh_lod_count {6};
+        uint32_t mesh_size_ {64};
+        uint32_t mesh_lod_count_ {6};
         std::shared_ptr<Texture> height_map_;
-        std::shared_ptr<Texture> generated_normal_map_;
         std::shared_ptr<Texture> control_map_;
         std::shared_ptr<Texture> albedo_map_;
         std::shared_ptr<Texture> normal_map_;
@@ -168,6 +167,9 @@ namespace Limitless {
         Builder& macro_variation1(const glm::vec3& macro_variation1);
 
         Builder& macro_variation2(const glm::vec3& macro_variation2);
+
+        Builder& mesh_size(float mesh_size);
+        Builder& mesh_lod_count(float mesh_lod_count);
 
         Builder& height_map(const std::shared_ptr<Texture>& height_map);
         Builder& control_map(const std::shared_ptr<Texture>& control_map);

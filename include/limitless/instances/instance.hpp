@@ -32,7 +32,7 @@ namespace Limitless {
          * Unique instance identifier
          */
         uint64_t id;
-    protected:
+    public:
         /**
          * Instance type
          */
@@ -186,7 +186,8 @@ namespace Limitless {
         [[nodiscard]] const auto& getScale() const noexcept { return scale; }
 
         [[nodiscard]] const auto& getTransformationMatrix() const noexcept { return transformation_matrix; }
-        [[nodiscard]] const auto& getBoundingBox() noexcept { updateBoundingBox(); return bounding_box; }
+//        [[nodiscard]] const auto& getBoundingBox() noexcept { updateBoundingBox(); return bounding_box; }
+        [[nodiscard]] const auto& getBoundingBox() noexcept { return bounding_box; }
         [[nodiscard]] const auto& getFinalMatrix() const noexcept { return final_matrix; }
         [[nodiscard]] const auto& getModelMatrix() const noexcept { return model_matrix; }
 

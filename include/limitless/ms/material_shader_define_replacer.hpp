@@ -58,7 +58,8 @@ namespace Limitless {
             enum class SnippetDefineType {
                 Vertex,
                 Fragment,
-                Global,
+                GlobalVertex,
+                GlobalFragment,
                 CustomScalar,
                 CustomSamplers,
                 CustomShading
@@ -68,7 +69,8 @@ namespace Limitless {
             {
                 { SnippetDefineType::Vertex, "ENGINE_MATERIAL_VERTEX_SNIPPET" },
                 { SnippetDefineType::Fragment, "ENGINE_MATERIAL_FRAGMENT_SNIPPET" },
-                { SnippetDefineType::Global, "ENGINE_MATERIAL_GLOBAL_DEFINITIONS" },
+                { SnippetDefineType::GlobalVertex, "ENGINE_MATERIAL_GLOBAL_VERTEX_DEFINITIONS" },
+                { SnippetDefineType::GlobalFragment, "ENGINE_MATERIAL_GLOBAL_FRAGMENT_DEFINITIONS" },
                 { SnippetDefineType::CustomScalar, "ENGINE_MATERIAL_CUSTOM_SCALARS" },
                 { SnippetDefineType::CustomSamplers, "ENGINE_MATERIAL_CUSTOM_SAMPLERS" },
                 { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_SHADING_CUSTOM_SNIPPET" },

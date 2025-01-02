@@ -1,5 +1,5 @@
 #include <limitless/core/indexed_stream.hpp>
-#include "geoclipmap.h"
+#include "limitless/util/geoclipmap.hpp"
 
 using namespace Limitless;
 
@@ -8,25 +8,20 @@ std::shared_ptr<AbstractMesh> GeoClipMap::_create_mesh(
         std::vector<uint32_t>&& p_indices,
         std::string name
 ) {
-//    static int i = 0;
     auto mesh = std::make_shared<Limitless::Mesh>(
-            std::make_unique<Limitless::IndexedVertexStream<Limitless::VertexNormalTangent>>(
-                    std::move(p_vertices),
-                    std::move(p_indices),
-                    Limitless::VertexStreamUsage::Dynamic,
-                    Limitless::VertexStreamDraw::Triangles
-            ),
-            name
+        std::make_unique<Limitless::IndexedVertexStream<Limitless::VertexNormalTangent>>(
+                std::move(p_vertices),
+                std::move(p_indices),
+                Limitless::VertexStreamUsage::Dynamic,
+                Limitless::VertexStreamDraw::Triangles
+        ),
+        name
     );
 
 	return mesh;
 }
 
-// Generate clipmap meshes originally by Mike J Savage
 std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size, const int p_levels) {
-//	LOG(DEBUG, "Generating meshes of size: ", p_size, " levels: ", p_levels);
-
-	// TODO bit of a mess here. someone care to clean up?
     std::shared_ptr<AbstractMesh> tile_mesh;
     std::shared_ptr<AbstractMesh> filler_mesh;
     std::shared_ptr<AbstractMesh> trim_mesh;
@@ -38,7 +33,6 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 	int PATCH_VERT_RESOLUTION = TILE_RESOLUTION + 1;
 	int CLIPMAP_RESOLUTION = TILE_RESOLUTION * 4 + 1;
 	int CLIPMAP_VERT_RESOLUTION = CLIPMAP_RESOLUTION + 1;
-	int NUM_CLIPMAP_LEVELS = p_levels;
 
 	int n = 0;
 
@@ -74,7 +68,6 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 			}
 		}
 
-//		aabb = AABB(glm::vec3(0.f, 0.f, 0.f), glm::vec3(PATCH_VERT_RESOLUTION, 0.1f, PATCH_VERT_RESOLUTION));
 		tile_mesh = _create_mesh(std::move(vertices), std::move(indices), "tile");
 	}
 
@@ -92,41 +85,33 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 
 		for (int i = 0; i < PATCH_VERT_RESOLUTION; i++) {
 			vertices[n].position = glm::vec3(offset + i + 1.f, 0.f, 0.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(offset + i + 1.f, 0.f, 1.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
 		for (int i = 0; i < PATCH_VERT_RESOLUTION; i++) {
 			vertices[n].position = glm::vec3(1.f, 0.f, offset + i + 1.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(0.f, 0.f, offset + i + 1.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
 		for (int i = 0; i < PATCH_VERT_RESOLUTION; i++) {
 			vertices[n].position = glm::vec3(-float(offset + i), 0.f, 1.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(-float(offset + i), 0.f, 0.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
 		for (int i = 0; i < PATCH_VERT_RESOLUTION; i++) {
 			vertices[n].position = glm::vec3(0.f, 0.f, -float(offset + i));
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(1.f, 0.f, -float(offset + i));
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
@@ -140,19 +125,19 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 			int tr = (arm + i) * 2 + 3;
 
             if (arm % 2 == 0) {
-                indices[n++] = tr; // изменено
-                indices[n++] = bl; // изменено
-                indices[n++] = br; // изменено
-                indices[n++] = tr; // изменено
-                indices[n++] = tl; // изменено
-                indices[n++] = bl; // изменено
+                indices[n++] = tr;
+                indices[n++] = bl;
+                indices[n++] = br;
+                indices[n++] = tr;
+                indices[n++] = tl;
+                indices[n++] = bl;
             } else {
-                indices[n++] = tl; // изменено
-                indices[n++] = bl; // изменено
-                indices[n++] = br; // изменено
-                indices[n++] = tl; // изменено
-                indices[n++] = br; // изменено
-                indices[n++] = tr; // изменено
+                indices[n++] = tl;
+                indices[n++] = bl;
+                indices[n++] = br;
+                indices[n++] = tl;
+                indices[n++] = br;
+                indices[n++] = tr;
             }
 		}
 
@@ -173,11 +158,9 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION + 1; i++) {
 			vertices[n].position = glm::vec3(0.f, 0.f, CLIPMAP_VERT_RESOLUTION - i) - offset;
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(1.f, 0.f, CLIPMAP_VERT_RESOLUTION - i) - offset;
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
@@ -185,34 +168,32 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION; i++) {
 			vertices[n].position = glm::vec3(i + 1.f, 0.f, 0.f) - offset;
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(i + 1.f, 0.f, 1.f) - offset;
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
 		n = 0;
 
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION; i++) {
-            indices[n++] = (i + 1) * 2 + 0; // изменено
-            indices[n++] = (i + 0) * 2 + 0; // изменено
-            indices[n++] = (i + 0) * 2 + 1; // изменено
+            indices[n++] = (i + 1) * 2 + 0;
+            indices[n++] = (i + 0) * 2 + 0;
+            indices[n++] = (i + 0) * 2 + 1;
 
-            indices[n++] = (i + 1) * 2 + 0; // изменено
-            indices[n++] = (i + 0) * 2 + 1; // изменено
-            indices[n++] = (i + 1) * 2 + 1; // изменено
+            indices[n++] = (i + 1) * 2 + 0;
+            indices[n++] = (i + 0) * 2 + 1;
+            indices[n++] = (i + 1) * 2 + 1;
 		}
 
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION - 1; i++) {
-            indices[n++] = start_of_horizontal + (i + 1) * 2 + 0; // изменено
-            indices[n++] = start_of_horizontal + (i + 0) * 2 + 0; // изменено
-            indices[n++] = start_of_horizontal + (i + 0) * 2 + 1; // изменено
+            indices[n++] = start_of_horizontal + (i + 1) * 2 + 0;
+            indices[n++] = start_of_horizontal + (i + 0) * 2 + 0;
+            indices[n++] = start_of_horizontal + (i + 0) * 2 + 1;
 
-            indices[n++] = start_of_horizontal + (i + 1) * 2 + 0; // изменено
-            indices[n++] = start_of_horizontal + (i + 0) * 2 + 1; // изменено
-            indices[n++] = start_of_horizontal + (i + 1) * 2 + 1; // изменено
+            indices[n++] = start_of_horizontal + (i + 1) * 2 + 0;
+            indices[n++] = start_of_horizontal + (i + 0) * 2 + 1;
+            indices[n++] = start_of_horizontal + (i + 1) * 2 + 1;
 		}
 
 		trim_mesh = _create_mesh(std::move(vertices), std::move(indices), "trim");
@@ -231,11 +212,9 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 
 		for (int i = 0; i < PATCH_VERT_RESOLUTION * 2; i++) {
 			vertices[n].position = glm::vec3(float(i - TILE_RESOLUTION), 0.f, 0.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(float(i - TILE_RESOLUTION), 0.f, 1.f);
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
@@ -243,11 +222,9 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 
 		for (int i = 0; i < PATCH_VERT_RESOLUTION * 2; i++) {
 			vertices[n].position = glm::vec3(0.f, 0.f, float(i - TILE_RESOLUTION));
-//			aabb.expand_to(vertices[n]);
 			n++;
 
 			vertices[n].position = glm::vec3(1.f, 0.f, float(i - TILE_RESOLUTION));
-//			aabb.expand_to(vertices[n]);
 			n++;
 		}
 
@@ -259,12 +236,12 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 			int tl = i * 2 + 2;
 			int tr = i * 2 + 3;
 
-            indices[n++] = tr; // изменено
-            indices[n++] = bl; // изменено
-            indices[n++] = br; // изменено
-            indices[n++] = tl; // изменено
-            indices[n++] = bl; // изменено
-            indices[n++] = tr; // изменено
+            indices[n++] = tr;
+            indices[n++] = bl;
+            indices[n++] = br;
+            indices[n++] = tl;
+            indices[n++] = bl;
+            indices[n++] = tr;
 		}
 
 		for (int i = 0; i < TILE_RESOLUTION * 2 + 1; i++) {
@@ -277,12 +254,12 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 			int tl = i * 2 + 2;
 			int tr = i * 2 + 3;
 
-            indices[n++] = start_of_vertical + bl; // изменено
-            indices[n++] = start_of_vertical + tr; // изменено
-            indices[n++] = start_of_vertical + br; // изменено
-            indices[n++] = start_of_vertical + tl; // изменено
-            indices[n++] = start_of_vertical + tr; // изменено
-            indices[n++] = start_of_vertical + bl; // изменено
+            indices[n++] = start_of_vertical + bl;
+            indices[n++] = start_of_vertical + tr;
+            indices[n++] = start_of_vertical + br;
+            indices[n++] = start_of_vertical + tl;
+            indices[n++] = start_of_vertical + tr;
+            indices[n++] = start_of_vertical + bl;
 		}
 
 		cross_mesh = _create_mesh(std::move(vertices), std::move(indices), "cross");
@@ -302,19 +279,15 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 		for (int i = 0; i < CLIPMAP_VERT_RESOLUTION; i++) {
 			n = CLIPMAP_VERT_RESOLUTION * 0 + i;
 			vertices[n].position = glm::vec3(i, 0.f, 0.f);
-//			aabb.expand_to(vertices[n]);
 
 			n = CLIPMAP_VERT_RESOLUTION * 1 + i;
 			vertices[n].position = glm::vec3(CLIPMAP_VERT_RESOLUTION, 0.f, i);
-//			aabb.expand_to(vertices[n]);
 
 			n = CLIPMAP_VERT_RESOLUTION * 2 + i;
 			vertices[n].position = glm::vec3(CLIPMAP_VERT_RESOLUTION - i, 0.f, CLIPMAP_VERT_RESOLUTION);
-//			aabb.expand_to(vertices[n]);
 
 			n = CLIPMAP_VERT_RESOLUTION * 3 + i;
 			vertices[n].position = glm::vec3(0.f, 0.f, CLIPMAP_VERT_RESOLUTION - i);
-//			aabb.expand_to(vertices[n]);
 		}
 
 		n = 0;
@@ -330,44 +303,11 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 		seam_mesh = _create_mesh(std::move(vertices), std::move(indices), "seam");
 	}
 
-//	// skirt mesh
-//    {
-//		float scale = float(1 << (NUM_CLIPMAP_LEVELS - 1));
-//		float fbase = float(TILE_RESOLUTION << NUM_CLIPMAP_LEVELS);
-//		glm::vec2 base = -glm::vec2(fbase, fbase);
-//
-//        std::vector<VertexNormalTangent> vertices;
-//
-//		glm::vec2 clipmap_tl = base;
-//		glm::vec2 clipmap_br = clipmap_tl + (glm::vec2(CLIPMAP_RESOLUTION, CLIPMAP_RESOLUTION) * scale);
-//
-//		float big = 10000000.0;
-//
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(-1, 0, -1) * big});
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(+1, 0, -1) * big});
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(-1, 0, +1) * big});
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(+1, 0, +1) * big});
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(clipmap_tl.x, 0, clipmap_tl.y)});
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(clipmap_br.x, 0, clipmap_tl.y)});
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(clipmap_tl.x, 0, clipmap_br.y)});
-//        vertices.emplace_back(VertexNormalTangent{glm::vec3(clipmap_br.x, 0, clipmap_br.y)});
-//
-//        std::vector<uint32_t> indices{
-//                0, 1, 4, 4, 1, 5,
-//                1, 3, 5, 5, 3, 7,
-//                3, 2, 7, 7, 2, 6,
-//                4, 6, 0, 0, 6, 2
-//        };
-//
-//        skirt_mesh = _create_mesh(std::move(vertices), std::move(indices), "skirt");
-//    }
-
 	return {
 		tile_mesh,
 		filler_mesh,
 		trim_mesh,
 		cross_mesh,
-		seam_mesh,
-//        skirt_mesh
+		seam_mesh
 	};
 }

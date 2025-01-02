@@ -1,32 +1,108 @@
 #include <limitless/instances/terrain_instance.hpp>
 #include <limitless/ms/material_builder.hpp>
+#include <limitless/util/geoclipmap.hpp>
+
 #include <random>
 
-#include <limitless/util/noise.hpp>
 #include <utility>
 
 using namespace Limitless;
 using namespace Limitless::ms;
 
 void TerrainInstance::update(const Camera &camera) {
-    snap(camera);
-    
-    mesh.cross->update(camera);
+    static bool first = false;
 
-    for (auto &item: mesh.seams) {
-        item->update(camera);
-    }
+    if (!first) {
+        snap(camera);
 
-    for (auto &item: mesh.trims) {
-        item->update(camera);
-    }
+        mesh.cross->update(camera);
 
-    for (auto &item: mesh.fillers) {
-        item->update(camera);
-    }
+//        for (auto &item: mesh.seams) {
+//            item->update(camera);
+//        }
+//
+//        for (auto &item: mesh.trims) {
+//            item->update(camera);
+//        }
+//
+//        for (auto &item: mesh.fillers) {
+//            item->update(camera);
+//        }
+//
+//        for (auto &item: mesh.tiles) {
+//            item->update(camera);
+//        }
 
-    for (auto &item: mesh.tiles) {
-        item->update(camera);
+
+
+
+
+        const auto range = glm::vec2(height_scale * 0.5f, height_scale);
+        const auto margin = 0.0f;
+
+        mesh.cross->bounding_box.center.y = mesh.cross->bounding_box.center.y + range.x - margin;
+        mesh.cross->bounding_box.size.y = range.y + margin * 2.0f;
+
+        for (auto &item: mesh.seams) {
+            item->bounding_box.center =
+                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
+
+            item->bounding_box.size =
+                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
+                              range.y + margin * 2.0f,
+                              item->getAbstractModel().getBoundingBox().size.z,
+                              1.0f} * item->getFinalMatrix();
+
+
+//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
+//        item->bounding_box.size.y = range.y + margin * 2.0f;
+        }
+
+        for (auto &item: mesh.trims) {
+            item->bounding_box.center =
+                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
+
+            item->bounding_box.size =
+                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x + margin * 2.0f,
+                              range.y + margin * 2.0f,
+                              item->getAbstractModel().getBoundingBox().size.z + margin * 2.0f,
+                              1.0f} * item->getFinalMatrix();
+//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
+//        item->bounding_box.size.y = range.y + margin * 2.0f;
+        }
+
+        for (auto &item: mesh.fillers) {
+            item->bounding_box.center =
+                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
+
+            item->bounding_box.size =
+                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
+                              range.y + margin * 2.0f,
+                              item->getAbstractModel().getBoundingBox().size.z,
+                              1.0f} * item->getFinalMatrix();
+//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
+//        item->bounding_box.size.y = range.y + margin * 2.0f;
+        }
+
+        for (auto& item: mesh.tiles) {
+            item->bounding_box.center =
+                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
+
+            item->bounding_box.size =
+                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
+                              range.y + margin * 2.0f,
+                              item->getAbstractModel().getBoundingBox().size.z,
+                              1.0f} * item->getFinalMatrix();
+
+//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
+//        item->bounding_box.size.y = range.y + margin * 2.0f;
+        }
+
+        first = true;
     }
 }
 
@@ -57,7 +133,6 @@ void TerrainInstance::snap(const Camera& p_cam_pos) {
 
                 glm::vec3 fill = glm::vec3(x >= 2 ? 1.f : 0.f, 0.f, y >= 2 ? 1.f : 0.f) * scale;
                 glm::vec3 tile_tl = base + glm::vec3(x, 0.f, y) * tile_size + fill;
-                glm::vec3 tile_br = tile_tl + tile_size;
 
                 mesh.tiles[tile]->setPosition(tile_tl);
                 mesh.tiles[tile]->setScale(glm::vec3(scale, 1.f, scale));
@@ -114,13 +189,12 @@ void TerrainInstance::initializeMesh(Assets& assets) {
     auto terrain_material = Limitless::ms::Material::builder()
             .name("terrain")
             .color(glm::vec4(1.0))
-//            .two_sided(true)
+
             .shading(Limitless::ms::Shading::Lit)
-//            .shading(Limitless::ms::Shading::Unlit)
             .model(Limitless::InstanceType::Terrain)
 
-            .normal(orm)
-//            .orm(noise)
+            .normal_map()
+            .orm_map()
 
             // textures
             .custom("terrain_control_texture", control)
@@ -132,10 +206,9 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
             // scalars
             .custom("terrain_size", terrain_size)
-            .custom("terrain_texel_size", terrain_texel_size)
-            .custom("terrain_texture_scale", 64.0f)
+            .custom("terrain_texture_scale", texture_scale)
             .custom("terrain_vertex_spacing", vertex_spacing)
-            .custom("terrain_vertex_density", vertex_density)
+            .custom("terrain_vertex_normals_distance", vertex_normals_distance)
             .custom("terrain_height_scale", height_scale)
             .custom("terrain_noise1_scale", noise1_scale)
             .custom("terrain_noise2_scale", noise2_scale)
@@ -146,29 +219,34 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             .custom("terrain_macro_variation2", macro_variation2)
 
             // switches
+            .custom("terrain_macro_variation", macro_variation)
             .custom("terrain_show_tiles", show_tiles)
+            .custom("terrain_show_terrain_size", show_terrain_size)
+            .custom("terrain_show_vertex_normals_distance", show_vertex_normals_distance)
+            .custom("terrain_show_texture_chunks", show_texture_chunks)
 
-            .global("#include \"../terrain/terrain.glsl\"\n")
-
-            // custom vertex shader
-            .vertex(R"(
-                vec3 v_vertex = (getModelTransform() * vec4(vertex_position, 1.0)).xyz;
-
-                vec2 UV = mod(v_vertex.xz, (terrain_size * terrain_vertex_spacing));
-                UV = UV / (terrain_size * terrain_vertex_spacing);
-
-                vertex_position.y = texture(terrain_height_texture, UV).r * terrain_height_scale;
-
-                float u = texture(terrain_height_texture,UV + vec2(terrain_texel_size, 0)).r * terrain_height_scale - texture(terrain_height_texture,UV - vec2(terrain_texel_size, 0)).r * terrain_height_scale;
-                float v = texture(terrain_height_texture,UV + vec2(0, terrain_texel_size)).r * terrain_height_scale - texture(terrain_height_texture,UV - vec2(0, terrain_texel_size)).r * terrain_height_scale;
-
-                normal = normalize(vec3(u, 2.0 * terrain_vertex_spacing, v));
+            .global_vertex(R"(
+                #include "../terrain/terrain.glsl"
+            )")
+            .global_fragment(R"(
+                #include "../terrain/terrain_surface.glsl"
             )")
 
-            // custom fragment shader
+            .vertex(R"(
+                vec2 vertex_transformed = (getModelTransform() * vec4(vertex_position, 1.0)).xz;
+                vec2 terrain_texel_uv = getTerrainTexelUV(vertex_transformed);
+                vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
+
+//                vertex_position.y = texture(terrain_height_texture, terrain_uv).r * terrain_height_scale;
+                vertex_position.y = get_height(terrain_uv);
+
+                normal = getTerrainNormal(terrain_uv);
+            )")
+
             .fragment(R"(
                 calculateTerrain(mctx);
             )")
+
             .build(assets);
 
     for (const auto& _: meshes) {
@@ -270,6 +348,10 @@ void TerrainInstance::setVertexSpacing(float vertexSpacing) {
     vertex_spacing = vertexSpacing;
 }
 
+void TerrainInstance::setVertexNormalsDistance(float distance) {
+    vertex_normals_distance = distance;
+}
+
 void TerrainInstance::setHeightScale(float heightScale) {
     height_scale = heightScale;
 }
@@ -308,12 +390,4 @@ void TerrainInstance::setMeshSize(int meshSize) {
 
 void TerrainInstance::setMeshLodCount(int meshLodCount) {
     mesh_lod_count = meshLodCount;
-}
-
-std::shared_ptr<Texture> TerrainInstance::generateNormalMap() {
-    return std::shared_ptr<Texture>();
-}
-
-void TerrainInstance::setGeneratedNormalMap(const std::shared_ptr<Texture>& normal_map) {
-    generated_normal_map = normal_map;
 }

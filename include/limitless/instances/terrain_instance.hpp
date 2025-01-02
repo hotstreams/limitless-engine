@@ -3,13 +3,13 @@
 #include <limitless/instances/model_instance.hpp>
 #include <utility>
 #include <limitless/models/model.hpp>
-#include "../../../src/limitless/util/geoclipmap.h"
 
 #include <limitless/assets.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 
 #include <limitless/util/brush.hpp>
+#include "instanced_instance.hpp"
 
 namespace Limitless {
     class Assets;
@@ -40,24 +40,25 @@ namespace Limitless {
                 return ctrl;
             }
         };
-    private:
+    public:
         // terrain size in world units
         float terrain_size = 128.0f;
 
-        //
-        float terrain_texel_size = 1.0f / terrain_size;
-
         // spacing between vertices
-        // does not affect terrain size
         float vertex_spacing = 1.0f;
 
-        //
-        float vertex_density = 1.0f / vertex_spacing;
-
-        //
+        // height scale factor
         float height_scale = 1.0f;
 
-        //
+        // texture chunk scale
+        // to how many tiles is the texture applied
+        float texture_scale = 4.0f;
+
+        float vertex_normals_distance = 20.0f;
+
+        // adds macro variation pattern
+        bool macro_variation = false;
+
         float noise1_scale = 0.225f;
         float noise2_scale = 0.04f;
         float noise2_angle = 0.0f;
@@ -68,10 +69,12 @@ namespace Limitless {
         glm::vec3 macro_variation2 = glm::vec3(0.33f);
 
         bool show_tiles = false;
+        bool show_terrain_size = false;
+        bool show_vertex_normals_distance = false;
+        bool show_texture_chunks = false;
 
         int mesh_size = 32;
-
-        int mesh_lod_count = 6;
+        int mesh_lod_count = 1;
 
         struct Mesh {
             std::shared_ptr<ModelInstance> cross;
@@ -79,10 +82,14 @@ namespace Limitless {
             std::vector<std::shared_ptr<ModelInstance>> fillers;
             std::vector<std::shared_ptr<ModelInstance>> trims;
             std::vector<std::shared_ptr<ModelInstance>> seams;
+
+            std::shared_ptr<InstancedInstance> i_tiles;
+            std::shared_ptr<InstancedInstance> i_fillers;
+            std::shared_ptr<InstancedInstance> i_trims;
+            std::shared_ptr<InstancedInstance> i_seams;
         } mesh;
 
         std::shared_ptr<Texture> height_map;
-        std::shared_ptr<Texture> generated_normal_map;
         std::shared_ptr<Texture> control;
         std::shared_ptr<Texture> albedo;
         std::shared_ptr<Texture> normal;
@@ -90,8 +97,6 @@ namespace Limitless {
         std::shared_ptr<Texture> noise;
 
         void snap(const Camera& p_cam_pos);
-
-        std::shared_ptr<Texture> generateNormalMap();
     public:
         TerrainInstance(
             std::shared_ptr<Texture> height_map,
@@ -105,7 +110,6 @@ namespace Limitless {
         void initializeMesh(Assets& assets);
 
         void setHeightMap(const std::shared_ptr<Texture>& height_map);
-        void setGeneratedNormalMap(const std::shared_ptr<Texture>& normal_map);
         void setControlMap(const std::shared_ptr<Texture>& control_map);
         void setNoise(const std::shared_ptr<Texture>& noise);
         void setAlbedoMap(const std::shared_ptr<Texture>& albedo_map);
@@ -113,27 +117,19 @@ namespace Limitless {
         void setOrmMap(const std::shared_ptr<Texture>& orm_map);
 
         void setChunkSize(float chunkSize);
-
         void setVertexSpacing(float vertexSpacing);
+        void setVertexNormalsDistance(float distance);
 
         void setHeightScale(float heightScale);
-
         void setNoise1Scale(float noise1Scale);
-
         void setNoise2Scale(float noise2Scale);
-
         void setNoise2Angle(float noise2Angle);
-
         void setNoise2Offset(float noise2Offset);
-
         void setNoise3Scale(float noise3Scale);
-
         void setMacroVariation1(const glm::vec3 &macroVariation1);
-
         void setMacroVariation2(const glm::vec3 &macroVariation2);
 
         void setMeshSize(int meshSize);
-
         void setMeshLodCount(int meshLodCount);
 
         /**
