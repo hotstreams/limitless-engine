@@ -5,108 +5,83 @@
 #include <random>
 
 #include <utility>
+#include <iostream>
 
 using namespace Limitless;
 using namespace Limitless::ms;
 
 void TerrainInstance::update(const Camera &camera) {
-    static bool first = false;
+    snap(camera);
 
-    if (!first) {
-        snap(camera);
+    mesh.cross->update(camera);
 
-        mesh.cross->update(camera);
+    mesh.seams->update(camera);
+    mesh.trims->update(camera);
+    mesh.fillers->update(camera);
+    mesh.tiles->update(camera);
 
-//        for (auto &item: mesh.seams) {
-//            item->update(camera);
-//        }
-//
-//        for (auto &item: mesh.trims) {
-//            item->update(camera);
-//        }
-//
-//        for (auto &item: mesh.fillers) {
-//            item->update(camera);
-//        }
-//
-//        for (auto &item: mesh.tiles) {
-//            item->update(camera);
-//        }
+    for (auto& i : mesh.trims_test) {
+        i->update(camera);
+    }
 
 
+    const auto range = glm::vec2(height_scale * 0.5f, height_scale);
+    const auto margin = 0.1f;
 
+    mesh.cross->bounding_box.center.y = mesh.cross->bounding_box.center.y + range.x - margin;
+    mesh.cross->bounding_box.size.y = range.y + margin * 2.0f;
 
+    for (const auto &item: mesh.seams->getInstances()) {
+        item->bounding_box.center =
+                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
 
-        const auto range = glm::vec2(height_scale * 0.5f, height_scale);
-        const auto margin = 0.0f;
+        item->bounding_box.size =
+                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
+                          range.y + margin * 2.0f,
+                          item->getAbstractModel().getBoundingBox().size.z,
+                          1.0f} * item->getFinalMatrix();
+    }
 
-        mesh.cross->bounding_box.center.y = mesh.cross->bounding_box.center.y + range.x - margin;
-        mesh.cross->bounding_box.size.y = range.y + margin * 2.0f;
+    for (const auto &item: mesh.trims->getInstances()) {
+        item->bounding_box.center =
+                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
 
-        for (auto &item: mesh.seams) {
-            item->bounding_box.center =
-                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
+        item->bounding_box.size =
+                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
+                          range.y + margin * 2.0f,
+                          item->getAbstractModel().getBoundingBox().size.z,
+                          1.0f} * item->getFinalMatrix();
+    }
 
-            item->bounding_box.size =
-                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
-                              range.y + margin * 2.0f,
-                              item->getAbstractModel().getBoundingBox().size.z,
-                              1.0f} * item->getFinalMatrix();
+    for (const auto &item: mesh.fillers->getInstances()) {
+        item->bounding_box.center =
+                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
 
+        item->bounding_box.size =
+                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
+                          range.y + margin * 2.0f,
+                          item->getAbstractModel().getBoundingBox().size.z,
+                          1.0f} * item->getFinalMatrix();
+    }
 
-//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
-//        item->bounding_box.size.y = range.y + margin * 2.0f;
-        }
+    for (const auto &item: mesh.tiles->getInstances()) {
+        item->bounding_box.center =
+                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
+                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
 
-        for (auto &item: mesh.trims) {
-            item->bounding_box.center =
-                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
-
-            item->bounding_box.size =
-                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x + margin * 2.0f,
-                              range.y + margin * 2.0f,
-                              item->getAbstractModel().getBoundingBox().size.z + margin * 2.0f,
-                              1.0f} * item->getFinalMatrix();
-//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
-//        item->bounding_box.size.y = range.y + margin * 2.0f;
-        }
-
-        for (auto &item: mesh.fillers) {
-            item->bounding_box.center =
-                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
-
-            item->bounding_box.size =
-                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
-                              range.y + margin * 2.0f,
-                              item->getAbstractModel().getBoundingBox().size.z,
-                              1.0f} * item->getFinalMatrix();
-//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
-//        item->bounding_box.size.y = range.y + margin * 2.0f;
-        }
-
-        for (auto& item: mesh.tiles) {
-            item->bounding_box.center =
-                    glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                    glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
-
-            item->bounding_box.size =
-                    glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
-                              range.y + margin * 2.0f,
-                              item->getAbstractModel().getBoundingBox().size.z,
-                              1.0f} * item->getFinalMatrix();
-
-//        item->bounding_box.center.y = item->bounding_box.center.y + range.x - margin;
-//        item->bounding_box.size.y = range.y + margin * 2.0f;
-        }
-
-        first = true;
+        item->bounding_box.size =
+                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
+                          range.y + margin * 2.0f,
+                          item->getAbstractModel().getBoundingBox().size.z,
+                          1.0f} * item->getFinalMatrix();
     }
 }
 
 void TerrainInstance::snap(const Camera& p_cam_pos) {
+//    static auto cam_pos = p_cam_pos.getPosition();
     glm::vec3 cam_pos = p_cam_pos.getPosition();
     cam_pos.y = 0;
 
@@ -134,16 +109,16 @@ void TerrainInstance::snap(const Camera& p_cam_pos) {
                 glm::vec3 fill = glm::vec3(x >= 2 ? 1.f : 0.f, 0.f, y >= 2 ? 1.f : 0.f) * scale;
                 glm::vec3 tile_tl = base + glm::vec3(x, 0.f, y) * tile_size + fill;
 
-                mesh.tiles[tile]->setPosition(tile_tl);
-                mesh.tiles[tile]->setScale(glm::vec3(scale, 1.f, scale));
+                mesh.tiles->getInstances()[tile]->setPosition(tile_tl);
+                mesh.tiles->getInstances()[tile]->setScale(glm::vec3(scale, 1.f, scale));
 
                 tile++;
             }
         }
 
         {
-            mesh.fillers[l]->setPosition(snapped_pos);
-            mesh.fillers[l]->setScale(glm::vec3(scale, 1.f, scale));
+            mesh.fillers->getInstances()[l]->setPosition(snapped_pos);
+            mesh.fillers->getInstances()[l]->setScale(glm::vec3(scale, 1.f, scale));
         }
 
         if (l != mesh_lod_count - 1) {
@@ -163,17 +138,26 @@ void TerrainInstance::snap(const Camera& p_cam_pos) {
 
                 float angle = glm::radians(rotations[r]);
 
-                mesh.trims[edge]->setPosition(tile_center);
-                mesh.trims[edge]->setScale(glm::vec3(scale, 1.f, scale));
-                mesh.trims[edge]->setRotation(glm::vec3(0.f, -angle, 0.f));
+                mesh.trims->getInstances()[edge]->setPosition(tile_center);
+                mesh.trims->getInstances()[edge]->setScale(glm::vec3(scale, 1.f, scale));
+                mesh.trims->getInstances()[edge]->setRotation(glm::vec3(0.f, -angle, 0.f));
+
+                mesh.trims_test[edge]->setPosition(tile_center);
+                mesh.trims_test[edge]->setScale(glm::vec3(scale, 1.f, scale));
+                mesh.trims_test[edge]->setRotation(glm::vec3(0.f, -angle, 0.f));
+
+//                std::cout << "values" << std::endl;
+//                std::cout << "position " << tile_center.x << " " << tile_center.y << " " << tile_center.z << std::endl;
+//                std::cout << "scale " << scale << std::endl;
+                std::cout << "rotation " << -angle << std::endl;
             }
 
             // Position seams
             {
                 glm::vec3 next_base = next_snapped_pos - glm::vec3(float(mesh_size << (l + 1)), 0.f, float(mesh_size << (l + 1))) * vertex_spacing;
 
-                mesh.seams[edge]->setPosition(next_base);
-                mesh.seams[edge]->setScale(glm::vec3(scale, 1.f, scale));
+                mesh.seams->getInstances()[edge]->setPosition(next_base);
+                mesh.seams->getInstances()[edge]->setScale(glm::vec3(scale, 1.f, scale));
             }
             edge++;
         }
@@ -189,9 +173,10 @@ void TerrainInstance::initializeMesh(Assets& assets) {
     auto terrain_material = Limitless::ms::Material::builder()
             .name("terrain")
             .color(glm::vec4(1.0))
+//            .two_sided(true)
 
             .shading(Limitless::ms::Shading::Lit)
-            .model(Limitless::InstanceType::Terrain)
+            .models({Limitless::InstanceType::Instanced, Limitless::InstanceType::Model, Limitless::InstanceType::Terrain})
 
             .normal_map()
             .orm_map()
@@ -261,21 +246,27 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
     mesh.cross = std::make_shared<ModelInstance>(InstanceType::Terrain, std::move(cross_model), glm::vec3(0.0f));
 
+    mesh.fillers = std::make_shared<InstancedInstance>();
+    mesh.seams = std::make_shared<InstancedInstance>();
+    mesh.tiles = std::make_shared<InstancedInstance>();
+    mesh.trims = std::make_shared<InstancedInstance>();
+
     for (int l = 0; l < mesh_lod_count; l++) {
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
                 if (l != 0 && (x == 1 || x == 2) && (y == 1 || y == 2)) {
                     continue;
                 }
-                mesh.tiles.emplace_back(std::make_shared<ModelInstance>(InstanceType::Terrain, tile_model, glm::vec3(0.0f)));
+                mesh.tiles->add(std::make_shared<ModelInstance>(InstanceType::Terrain, tile_model, glm::vec3(0.0f)));
             }
         }
 
-        mesh.fillers.emplace_back(std::make_shared<ModelInstance>(InstanceType::Terrain, filler_model, glm::vec3(0.0f)));
+        mesh.fillers->add(std::make_shared<ModelInstance>(InstanceType::Terrain, filler_model, glm::vec3(0.0f)));
 
         if (l != mesh_lod_count - 1) {
-            mesh.trims.emplace_back(std::make_shared<ModelInstance>(InstanceType::Terrain, trim_model, glm::vec3(0.0f)));
-            mesh.seams.emplace_back(std::make_shared<ModelInstance>(InstanceType::Terrain, seam_model, glm::vec3(0.0f)));
+            mesh.trims->add(std::make_shared<ModelInstance>(InstanceType::Terrain, trim_model, glm::vec3(0.0f)));
+            mesh.trims_test.emplace_back(std::make_shared<ModelInstance>(InstanceType::Terrain, trim_model, glm::vec3(0.0f)));
+            mesh.seams->add(std::make_shared<ModelInstance>(InstanceType::Terrain, seam_model, glm::vec3(0.0f)));
         }
     }
 }

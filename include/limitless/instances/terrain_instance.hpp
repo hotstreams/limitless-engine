@@ -74,19 +74,16 @@ namespace Limitless {
         bool show_texture_chunks = false;
 
         int mesh_size = 32;
-        int mesh_lod_count = 1;
+        int mesh_lod_count = 6;
 
         struct Mesh {
             std::shared_ptr<ModelInstance> cross;
-            std::vector<std::shared_ptr<ModelInstance>> tiles;
-            std::vector<std::shared_ptr<ModelInstance>> fillers;
-            std::vector<std::shared_ptr<ModelInstance>> trims;
-            std::vector<std::shared_ptr<ModelInstance>> seams;
 
-            std::shared_ptr<InstancedInstance> i_tiles;
-            std::shared_ptr<InstancedInstance> i_fillers;
-            std::shared_ptr<InstancedInstance> i_trims;
-            std::shared_ptr<InstancedInstance> i_seams;
+            std::shared_ptr<InstancedInstance> tiles;
+            std::shared_ptr<InstancedInstance> fillers;
+            std::shared_ptr<InstancedInstance> trims;
+            std::vector<std::shared_ptr<ModelInstance>> trims_test;
+            std::shared_ptr<InstancedInstance> seams;
         } mesh;
 
         std::shared_ptr<Texture> height_map;

@@ -73,7 +73,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
     scene.add(
         Instance::builder()
             .chunk_size(chunk_size)
-            .vertex_spacing(0.5f)
+            .vertex_spacing(1.0f)
             .height(elevations)
             .height_scale(20.0f)
             .mesh_size(32.0f)
