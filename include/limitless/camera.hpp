@@ -24,7 +24,7 @@ namespace Limitless {
         float yaw;
 
         float fov {90}; // degrees
-        float near_distance {0.01f};
+        float near_distance {0.001f};
         float far_distance {1000.0f};
 
         float move_speed {2.0f};

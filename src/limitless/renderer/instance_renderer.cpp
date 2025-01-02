@@ -178,11 +178,10 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
 
     renderVisibleInstancedInstance(*instance.mesh.tiles, drawp);
     renderVisibleInstancedInstance(*instance.mesh.fillers, drawp);
-//    renderVisibleInstancedInstance(*instance.mesh.trims, drawp);
-    //TODO: fix frustum culling bug
-    instance.getMesh().trims->setVisible(instance.getMesh().trims->getInstances());
-    render(*instance.getMesh().trims, drawp);
+    renderVisibleInstancedInstance(*instance.mesh.trims, drawp);
     renderVisibleInstancedInstance(*instance.mesh.seams, drawp);
+
+//    std::cout << "total :" << instance.mesh.trims->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.trims).size() << std::endl;
 
     if (auto instances = frustum_culling.getVisibleModelInstanced(instance.getId()); !instances.empty()) {
         render(*instances[0], drawp);

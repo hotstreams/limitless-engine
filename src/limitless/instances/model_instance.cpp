@@ -63,6 +63,7 @@ std::unique_ptr<Instance> ModelInstance::clone() noexcept {
 void ModelInstance::updateBoundingBox() noexcept {
     bounding_box.center = glm::vec4{position, 1.0f} + glm::vec4{model->getBoundingBox().center, 1.0f} * final_matrix;
     bounding_box.size = glm::vec4{model->getBoundingBox().size, 1.0f} * final_matrix;
+    bounding_box.size = glm::abs(bounding_box.size);
 }
 
 void ModelInstance::update(const Camera &camera) {

@@ -12,88 +12,45 @@ glm::vec3 Frustum::intersection(const std::vector<glm::vec3>& crosses) const {
     auto r = glm::mat3(crosses[ij2k<b, c>::k], -crosses[ij2k<a, c>::k], crosses[ij2k<a, b>::k]) * glm::vec3(planes[a].w, planes[b].w, planes[c].w);
     return r * (-1.0f / dot);
 }
-//
-//Frustum::Frustum(const glm::mat4& matrix)
-//    : planes {}
-//    , points {}
-//{
-//    auto m = glm::transpose(matrix);
-//    planes[0] = m[3] + m[0];
-//    planes[1] = m[3] - m[0];
-//    planes[2] = m[3] + m[1];
-//    planes[3] = m[3] - m[1];
-//    planes[4] = m[3] + m[2];
-//    planes[5] = m[3] - m[2];
-//
-//    std::vector<glm::vec3> combinations = {
-//        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Right])),
-//        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Bottom])),
-//        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Top])),
-//        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Near])),
-//        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Far])),
-//        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Bottom])),
-//        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Top])),
-//        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Near])),
-//        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Far])),
-//        glm::cross(glm::vec3(planes[Bottom]), glm::vec3(planes[Top])),
-//        glm::cross(glm::vec3(planes[Bottom]), glm::vec3(planes[Near])),
-//        glm::cross(glm::vec3(planes[Bottom]), glm::vec3(planes[Far])),
-//        glm::cross(glm::vec3(planes[Top]),    glm::vec3(planes[Near])),
-//        glm::cross(glm::vec3(planes[Top]),    glm::vec3(planes[Far])),
-//        glm::cross(glm::vec3(planes[Near]),   glm::vec3(planes[Far]))
-//    };
-//
-////    points[0] = intersection<Left,  Bottom, Near>(combinations);
-////    points[1] = intersection<Left,  Top,    Near>(combinations);
-////    points[2] = intersection<Right, Bottom, Near>(combinations);
-////    points[3] = intersection<Right, Top,    Near>(combinations);
-////    points[4] = intersection<Left,  Bottom, Far>(combinations);
-////    points[5] = intersection<Left,  Top,    Far>(combinations);
-////    points[6] = intersection<Right, Bottom, Far>(combinations);
-////    points[7] = intersection<Right, Top,    Far>(combinations);
-//
-//    glm::mat4 invMatrix = glm::inverse(matrix);
-//
-//    points[0] = glm::vec3(invMatrix * glm::vec4(-1, -1, -1, 1)); // Near Bottom Left
-//    points[1] = glm::vec3(invMatrix * glm::vec4( 1, -1, -1, 1)); // Near Bottom Right
-//    points[2] = glm::vec3(invMatrix * glm::vec4( 1,  1, -1, 1)); // Near Top Right
-//    points[3] = glm::vec3(invMatrix * glm::vec4(-1,  1, -1, 1)); // Near Top Left
-//    points[4] = glm::vec3(invMatrix * glm::vec4(-1, -1,  1, 1)); // Far Bottom Left
-//    points[5] = glm::vec3(invMatrix * glm::vec4( 1, -1,  1, 1)); // Far Bottom Right
-//    points[6] = glm::vec3(invMatrix * glm::vec4( 1,  1,  1, 1)); // Far Top Right
-//    points[7] = glm::vec3(invMatrix * glm::vec4(-1,  1,  1, 1)); // Far Top Left
-//}
 
-Frustum::Frustum(const glm::mat4& matrix) : planes{}, points{} {
-    // Извлечение плоскостей из матрицы
-    planes[0] = { glm::vec3(matrix[0][3] + matrix[0][0], matrix[1][3] + matrix[1][0], matrix[2][3] + matrix[2][0]), matrix[3][3] + matrix[3][0] }; // Left
-    planes[1] = { glm::vec3(matrix[0][3] - matrix[0][0], matrix[1][3] - matrix[1][0], matrix[2][3] - matrix[2][0]), matrix[3][3] - matrix[3][0] }; // Right
-    planes[2] = { glm::vec3(matrix[0][3] - matrix[0][1], matrix[1][3] - matrix[1][1], matrix[2][3] - matrix[2][1]), matrix[3][3] - matrix[3][1] }; // Top
-    planes[3] = { glm::vec3(matrix[0][3] + matrix[0][1], matrix[1][3] + matrix[1][1], matrix[2][3] + matrix[2][1]), matrix[3][3] + matrix[3][1] }; // Bottom
-    planes[4] = { glm::vec3(matrix[0][3] + matrix[0][2], matrix[1][3] + matrix[1][2], matrix[2][3] + matrix[2][2]), matrix[3][3] + matrix[3][2] }; // Near
-    planes[5] = { glm::vec3(matrix[0][3] - matrix[0][2], matrix[1][3] - matrix[1][2], matrix[2][3] - matrix[2][2]), matrix[3][3] - matrix[3][2] }; // Far
+Frustum::Frustum(const glm::mat4& matrix)
+    : planes {}
+    , points {}
+{
+    auto m = glm::transpose(matrix);
+    planes[0] = m[3] + m[0];
+    planes[1] = m[3] - m[0];
+    planes[2] = m[3] + m[1];
+    planes[3] = m[3] - m[1];
+    planes[4] = m[3] + m[2];
+    planes[5] = m[3] - m[2];
 
-//    // Нормализация плоскостей
-//    for (auto& plane : planes) {
-//        plane.normalize();
-//    }
+    std::vector<glm::vec3> combinations = {
+        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Right])),
+        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Bottom])),
+        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Top])),
+        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Near])),
+        glm::cross(glm::vec3(planes[Left]),   glm::vec3(planes[Far])),
+        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Bottom])),
+        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Top])),
+        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Near])),
+        glm::cross(glm::vec3(planes[Right]),  glm::vec3(planes[Far])),
+        glm::cross(glm::vec3(planes[Bottom]), glm::vec3(planes[Top])),
+        glm::cross(glm::vec3(planes[Bottom]), glm::vec3(planes[Near])),
+        glm::cross(glm::vec3(planes[Bottom]), glm::vec3(planes[Far])),
+        glm::cross(glm::vec3(planes[Top]),    glm::vec3(planes[Near])),
+        glm::cross(glm::vec3(planes[Top]),    glm::vec3(planes[Far])),
+        glm::cross(glm::vec3(planes[Near]),   glm::vec3(planes[Far]))
+    };
 
-    // Вычисление угловых точек фрустума из обратной матрицы
-    glm::mat4 invMatrix = glm::inverse(matrix);
-
-    points[0] = glm::vec3(invMatrix * glm::vec4(-1, -1, -1, 1)); // Near Bottom Left
-    points[1] = glm::vec3(invMatrix * glm::vec4( 1, -1, -1, 1)); // Near Bottom Right
-    points[2] = glm::vec3(invMatrix * glm::vec4( 1,  1, -1, 1)); // Near Top Right
-    points[3] = glm::vec3(invMatrix * glm::vec4(-1,  1, -1, 1)); // Near Top Left
-    points[4] = glm::vec3(invMatrix * glm::vec4(-1, -1,  1, 1)); // Far Bottom Left
-    points[5] = glm::vec3(invMatrix * glm::vec4( 1, -1,  1, 1)); // Far Bottom Right
-    points[6] = glm::vec3(invMatrix * glm::vec4( 1,  1,  1, 1)); // Far Top Right
-    points[7] = glm::vec3(invMatrix * glm::vec4(-1,  1,  1, 1)); // Far Top Left
-//
-//    // Приведение к W = 1 для всех точек
-//    for (auto& point : points) {
-//        point /= point.w;
-//    }
+    points[0] = intersection<Left,  Bottom, Near>(combinations);
+    points[1] = intersection<Left,  Top,    Near>(combinations);
+    points[2] = intersection<Right, Bottom, Near>(combinations);
+    points[3] = intersection<Right, Top,    Near>(combinations);
+    points[4] = intersection<Left,  Bottom, Far>(combinations);
+    points[5] = intersection<Left,  Top,    Far>(combinations);
+    points[6] = intersection<Right, Bottom, Far>(combinations);
+    points[7] = intersection<Right, Top,    Far>(combinations);
 }
 
 bool Frustum::intersects(const Box& box) const {
@@ -137,9 +94,9 @@ Frustum Frustum::fromCamera(const Camera& camera) {
 
 bool boxInFrustum(const Frustum& frustum, const Box& box)
 {
-    auto min = box.center - box.size * 1.5f;
-    auto max = box.center + box.size * 1.5f;
-    
+    auto min = box.center - box.size * 0.5f;
+    auto max = box.center + box.size * 0.5f;
+
     // check box outside/inside of frustum
     for( int i=0; i<6; i++ )
     {
@@ -169,6 +126,6 @@ bool boxInFrustum(const Frustum& frustum, const Box& box)
 
 
 bool Frustum::intersects(Instance& instance) const {
-//    return intersects(instance.getBoundingBox());
-    return boxInFrustum(*this, instance.getBoundingBox());
+    return intersects(instance.getBoundingBox());
+//    return boxInFrustum(*this, instance.getBoundingBox());
 }

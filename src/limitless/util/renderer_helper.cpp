@@ -120,7 +120,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 //
 //            for (auto &item : terrain.mesh.trims->getInstances()[0]) {
 //                if (frustum.intersects(*terrain.mesh.trims->getInstances()[0])) {
-                    show(terrain.mesh.trims->getInstances()[0]);
+//                    show(terrain.mesh.trims->getInstances()[0]);
 //                }
 //            }
 

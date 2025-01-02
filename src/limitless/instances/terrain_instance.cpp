@@ -42,14 +42,11 @@ void TerrainInstance::update(const Camera &camera) {
                           range.y + margin * 2.0f,
                           item->getAbstractModel().getBoundingBox().size.z,
                           1.0f} * item->getFinalMatrix();
+
+        item->bounding_box.size = glm::abs(item->bounding_box.size);
     }
 
     for (const auto &item: mesh.trims->getInstances()) {
-        const auto translation_matrix = glm::translate(glm::mat4{1.0f}, position);
-        const auto rotation_matrix = glm::toMat4(rotation);
-        const auto scale_matrix = glm::scale(glm::mat4{1.0f}, scale);
-        auto model_matrix = translation_matrix * rotation_matrix * scale_matrix;
-
         item->bounding_box.center =
                 glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
                 glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
@@ -59,6 +56,8 @@ void TerrainInstance::update(const Camera &camera) {
                           range.y + margin * 2.0f,
                           item->getAbstractModel().getBoundingBox().size.z,
                           1.0f} * item->getFinalMatrix();
+
+        item->bounding_box.size = glm::abs(item->bounding_box.size);
     }
 
     for (const auto &item: mesh.fillers->getInstances()) {
@@ -71,6 +70,8 @@ void TerrainInstance::update(const Camera &camera) {
                           range.y + margin * 2.0f,
                           item->getAbstractModel().getBoundingBox().size.z,
                           1.0f} * item->getFinalMatrix();
+
+        item->bounding_box.size = glm::abs(item->bounding_box.size);
     }
 
     for (const auto &item: mesh.tiles->getInstances()) {
@@ -83,11 +84,12 @@ void TerrainInstance::update(const Camera &camera) {
                           range.y + margin * 2.0f,
                           item->getAbstractModel().getBoundingBox().size.z,
                           1.0f} * item->getFinalMatrix();
+
+        item->bounding_box.size = glm::abs(item->bounding_box.size);
     }
 }
 
 void TerrainInstance::snap(const Camera& p_cam_pos) {
-//    static auto cam_pos = p_cam_pos.getPosition();
     glm::vec3 cam_pos = p_cam_pos.getPosition();
     cam_pos.y = 0;
 
@@ -155,7 +157,7 @@ void TerrainInstance::snap(const Camera& p_cam_pos) {
 //                std::cout << "values" << std::endl;
 //                std::cout << "position " << tile_center.x << " " << tile_center.y << " " << tile_center.z << std::endl;
 //                std::cout << "scale " << scale << std::endl;
-                std::cout << "rotation " << -angle << std::endl;
+//                std::cout << "rotation " << -angle << std::endl;
             }
 
             // Position seams
