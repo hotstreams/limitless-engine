@@ -32,7 +32,11 @@ float value_noise(vec2 p) {
     float b = 1.0;
     vec2  d = vec2(0.0);
 
-    for( int i=0; i < 16; i++ ) {
+//    int octaves = int( clamp(
+//    float(world_noise_max_octaves) - floor(v_vertex_xz_dist/(world_noise_lod_distance)),
+//    float(world_noise_min_octaves), float(world_noise_max_octaves)) );
+
+    for( int i=0; i < 4; i++ ) {
         vec3 n = noise(p);
         d += n.yz;
         a += b * n.x / (1.0 + dot(d,d));
