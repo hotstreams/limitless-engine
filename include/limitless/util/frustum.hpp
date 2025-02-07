@@ -9,7 +9,7 @@ namespace Limitless {
     class Frustum {
     public:
         enum Planes { Left, Right, Bottom, Top, Near, Far };
-    private:
+    public:
         std::array<glm::vec4, 6> planes;
         std::array<glm::vec3, 8> points;
 

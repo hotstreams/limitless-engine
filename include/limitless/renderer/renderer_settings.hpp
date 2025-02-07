@@ -24,25 +24,25 @@ namespace Limitless {
         /**
          * Screen Space Ambient Occlusion
          */
-        bool screen_space_ambient_occlusion {true};
+        bool screen_space_ambient_occlusion {false};
         SSAO::Settings ssao_settings;
 
         /**
          * Screen Space Reflections
          */
-        bool screen_space_reflections {true};
+        bool screen_space_reflections {false};
         SSR::Settings ssr_settings;
 
         /**
          * FXAA Fast Approximate Antialiasing
          */
-        bool fast_approximate_antialiasing {true};
+        bool fast_approximate_antialiasing {false};
         //TODO: refactor shaders
 
         /**
          * Cascade shadow maps
          */
-        bool cascade_shadow_maps = true;
+        bool cascade_shadow_maps = false;
         glm::uvec2 csm_resolution = {1024 * 4, 1024 * 4 };
         uint8_t csm_split_count = 3; // [2; 4]
 
@@ -83,12 +83,12 @@ namespace Limitless {
         /**
          * Render System Axes
          */
-        bool coordinate_system_axes = false;
+        bool coordinate_system_axes = true;
 
         /**
          * Render bounding boxes
          */
-        bool bounding_box = false;
+        bool bounding_box = true;
 
         class Builder {
         private:
@@ -100,24 +100,24 @@ namespace Limitless {
             /**
              * Screen Space Ambient Occlusion
              */
-            bool screen_space_ambient_occlusion {true};
+            bool screen_space_ambient_occlusion {false};
             SSAO::Settings ssao_cfg;
 
             /**
              * Screen Space Reflections
              */
-            bool screen_space_reflections {true};
+            bool screen_space_reflections {false};
             SSR::Settings ssr_cfg;
 
             /**
              * FXAA Fast Approximate Antialiasing
              */
-            bool fast_approximate_antialiasing {true};
+            bool fast_approximate_antialiasing {false};
 
             /**
              * Cascade shadow maps
              */
-            bool cascade_shadow_maps = true;
+            bool cascade_shadow_maps = false;
             glm::uvec2 csm_resolution = {1024 * 4, 1024 * 4 };
             uint8_t csm_split_count = 3; // [2; 4]
 
@@ -163,7 +163,7 @@ namespace Limitless {
             /**
              * Render bounding boxes
              */
-            bool bounding_box = false;
+            bool bounding_box = true;
         public:
             Builder& enable_normal_mapping();
             Builder& disable_normal_mapping();

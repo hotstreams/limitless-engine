@@ -14,7 +14,12 @@ void Material::Builder::setMaterialIndex() {
     std::unique_lock lock(mutex);
 
     //TODO: make snippets comparisons
-    if (!uniforms.empty() || !vertex_snippet.empty() || !fragment_snippet.empty() || !global_snippet.empty() || !shading_snippet.empty()) {
+    if (!uniforms.empty() ||
+        !vertex_snippet.empty() ||
+        !fragment_snippet.empty() ||
+        !global_vertex_snippet.empty() ||
+        !global_fragment_snippet.empty()
+        || !shading_snippet.empty()) {
         // it is custom material; makes index unique
         shader_index = next_shader_index++;
     } else {
@@ -45,7 +50,7 @@ std::shared_ptr<Material> Material::Builder::build(Assets& assets) {
         setModelShaders();
     }
 
-    auto material = std::shared_ptr<Material>(new Material(*this));
+    auto material = std::shared_ptr<Material>(new Material(*this));;
 
     assets.materials.add(material->name, material);
 
@@ -158,6 +163,16 @@ Material::Builder &Material::Builder::transmission(float transmission) noexcept 
     return *this;
 }
 
+Material::Builder& Material::Builder::normal_map() noexcept {
+    normal_map_ = true;
+    return *this;
+}
+
+Material::Builder& Material::Builder::orm_map() noexcept {
+    orm_map_ = true;
+    return *this;
+}
+
 Material::Builder &Material::Builder::blending(Blending blending) noexcept {
     _blending = blending;
     return *this;
@@ -188,8 +203,13 @@ Material::Builder &Material::Builder::fragment(const std::string& snippet) noexc
     return *this;
 }
 
-Material::Builder &Material::Builder::global(const std::string& snippet) noexcept {
-    global_snippet = snippet;
+Material::Builder &Material::Builder::global_fragment(const std::string& snippet) noexcept {
+    global_fragment_snippet = snippet;
+    return *this;
+}
+
+Material::Builder &Material::Builder::global_vertex(const std::string& snippet) noexcept {
+    global_vertex_snippet = snippet;
     return *this;
 }
 

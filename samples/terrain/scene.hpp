@@ -9,8 +9,6 @@ namespace LimitlessMaterials {
     private:
         Limitless::Assets& assets;
         Limitless::Scene scene;
-
-        void createTerrain();
     public:
         Scene(Limitless::Context& ctx, Limitless::Assets& assets);
 

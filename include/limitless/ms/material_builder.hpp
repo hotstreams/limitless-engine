@@ -33,8 +33,12 @@ namespace Limitless::ms {
 
         std::string vertex_snippet;
         std::string fragment_snippet;
-        std::string global_snippet;
+        std::string global_fragment_snippet;
+        std::string global_vertex_snippet;
         std::string shading_snippet;
+
+        bool normal_map_ {false};
+        bool orm_map_ {false};
 
         bool _skybox {false};
 
@@ -73,6 +77,9 @@ namespace Limitless::ms {
         Builder& reflectance(float reflectance) noexcept;
         Builder& transmission(float transmission) noexcept;
 
+        Builder& normal_map() noexcept;
+        Builder& orm_map() noexcept;
+
         Builder& blending(Blending blending) noexcept;
         Builder& shading(Shading shading) noexcept;
         Builder& two_sided(bool two_sided) noexcept;
@@ -81,7 +88,8 @@ namespace Limitless::ms {
 
         Builder& vertex(const std::string& snippet) noexcept;
         Builder& fragment(const std::string& snippet) noexcept;
-        Builder& global(const std::string& snippet) noexcept;
+        Builder& global_fragment(const std::string& snippet) noexcept;
+        Builder& global_vertex(const std::string& snippet) noexcept;
         Builder& shading(const std::string& snippet) noexcept;
 
         Builder& model(InstanceType model) noexcept;

@@ -3,6 +3,7 @@
 #include <limitless/core/texture/extension_texture.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/core/context_initializer.hpp>
+#include <iostream>
 
 using namespace Limitless;
 

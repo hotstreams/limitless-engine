@@ -103,7 +103,8 @@ void EffectShaderDefineReplacer::replaceMaterialDependentDefine(Shader& shader, 
 
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Vertex], material.getVertexSnippet());
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Fragment], material.getFragmentSnippet());
-    shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Global], material.getGlobalSnippet());
+    shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::GlobalVertex], material.getGlobalVertexSnippet());
+    shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::GlobalFragment], material.getGlobalFragmentSnippet());
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomScalar], getScalarUniformDefines(material));
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomSamplers], getSamplerUniformDefines(material));
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomShading], material.getShadingSnippet());

@@ -11,6 +11,7 @@
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/cylinder.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
+#include <iostream>
 
 using namespace Limitless;
 using namespace Limitless::ms;
@@ -89,17 +90,50 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
     auto box = ModelInstance {assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
 
     context.setLineWidth(2.5f);
-    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
+//    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
     for (const auto& instance : scene.getInstances()) {
-        auto& bounding_box = instance->getBoundingBox();
+//        auto& bounding_box = instance->getBoundingBox();
+//
+//        box .setPosition(bounding_box.center)
+//            .setScale(bounding_box.size)
+//            .update(camera);
+//
+//        InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+        if (instance->getInstanceType() == InstanceType::Terrain) {
+            auto show = [&] (const auto& instance) {
+                auto& bounding_box = instance->getBoundingBox();
 
-        box .setPosition(bounding_box.center)
-            .setScale(bounding_box.size)
-            .update(camera);
+                box .setPosition(bounding_box.center)
+                        .setScale(bounding_box.size)
+                        .update(camera);
 
-        InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+                InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+            };
+
+            auto& terrain = static_cast<TerrainInstance&>(*instance);
+
+
+//            for (auto &item: terrain.mesh.seams) {
+//                show(item);
+//            }
+            const auto frustum = Frustum::fromCamera(camera);
+//
+//            for (auto &item : terrain.mesh.trims->getInstances()[0]) {
+//                if (frustum.intersects(*terrain.mesh.trims->getInstances()[0])) {
+//                    show(terrain.mesh.trims->getInstances()[0]);
+//                }
+//            }
+
+//            for (auto &item: terrain.mesh.fillers) {
+//                show(item);
+//            }
+
+//            for (auto &item: terrain.mesh.tiles) {
+//                show(item);
+//            }
+        }
     }
-    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+//    context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
 void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {

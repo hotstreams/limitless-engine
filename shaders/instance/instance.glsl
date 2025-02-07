@@ -113,9 +113,50 @@ mat4 getModelTransform() {
 
         return mat3(T, B, N);
     }
+
+    vec3 computeTangent(vec3 normal) {
+        vec3 tangent;
+
+        if (abs(normal.x) > abs(normal.z))
+            tangent = vec3(-normal.y, normal.x, 0.0);
+        else
+            tangent = vec3(0.0, -normal.z, normal.y);
+
+        tangent = normalize(tangent - dot(tangent, normal) * normal);
+
+        return tangent;
+    }
+
+    void Onb(in vec3 N, inout vec3 T, inout vec3 B)
+    {
+    	float sgn = N.z >= 0.0f ? 1.0f : -1.0f;
+    	float aa = - 1.0f / (sgn + N.z);
+    	float bb = N.x * N.y * aa;
+
+    	T = vec3(1.0f + sgn * N.x * N.x * aa, sgn * bb, -sgn * N.x);
+    	B = vec3(bb, sgn + N.y * N.y * aa, -N.y);
+    }
+
+    mat3 getModelTBN(mat4 model_transform, vec3 normal, vec3 tangent) {
+        //TODO: pass through uniform instance buffer ? bone transform ?
+        mat3 normal_matrix = transpose(inverse(mat3(model_transform)));
+
+        //vec3 T = normalize(normal_matrix * tangent);
+        vec3 N = normalize(normal_matrix * normal);
+        //T = normalize(T - dot(T, N) * N);
+        //vec3 B = cross(N, T);
+
+        //return mat3(T, B, N);
+
+        vec3 T,B;
+        Onb(N, T, B);
+
+        return mat3(T, B, N);
+    }
+
     //TODO: remove?
     // added because material_context.glsl needed "getVertexTBN" to be compiled in vertex shader
     mat3 getVertexTBN() {
-        return getModelTBN(getModelTransform());
+        return getModelTBN(getModelTransform(), getVertexNormal(), getVertexTangent());
     }
 #endif

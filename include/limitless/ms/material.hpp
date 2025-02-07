@@ -98,14 +98,25 @@ namespace Limitless::ms {
         std::string fragment_snippet;
 
         /**
-         * Global shader code to allow customization
+         * Global fragment shader code to allow customization
          */
-        std::string global_snippet;
+        std::string global_fragment_snippet;
+
+        /**
+         * Global fragment shader code to allow customization
+         */
+        std::string global_vertex_snippet;
 
         /**
          * Shading shader code to allow customization
          */
         std::string shading_snippet;
+
+        /**
+         *
+         */
+        bool normal_map {};
+        bool orm_map {};
 
         /**
          * Material Buffer
@@ -203,6 +214,8 @@ namespace Limitless::ms {
         [[nodiscard]] float getThickness() const;
         [[nodiscard]] float getReflectance() const;
         [[nodiscard]] float getTransmission() const;
+        [[nodiscard]] bool getNormalMap() const;
+        [[nodiscard]] bool getOrmMap() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getDiffuseTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getNormalTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getEmissiveMaskTexture() const;
@@ -250,6 +263,9 @@ namespace Limitless::ms {
         void setORMTexture(const std::shared_ptr<Texture>& texture);
         void setBlending(Blending blending);
 
+        void setNormalMap();
+        void setOrmMap();
+
         [[nodiscard]] Blending getBlending() const noexcept;
         [[nodiscard]] Shading getShading() const noexcept;
         [[nodiscard]] bool getTwoSided() const noexcept;
@@ -258,7 +274,8 @@ namespace Limitless::ms {
         [[nodiscard]] uint64_t getShaderIndex() const noexcept;
         [[nodiscard]] const std::string& getVertexSnippet() const noexcept;
         [[nodiscard]] const std::string& getFragmentSnippet() const noexcept;
-        [[nodiscard]] const std::string& getGlobalSnippet() const noexcept;
+        [[nodiscard]] const std::string& getGlobalFragmentSnippet() const noexcept;
+        [[nodiscard]] const std::string& getGlobalVertexSnippet() const noexcept;
         [[nodiscard]] const std::string& getShadingSnippet() const noexcept;
         [[nodiscard]] const InstanceTypes& getModelShaders() const noexcept;
         [[nodiscard]] const Buffer& getBuffer() const noexcept;

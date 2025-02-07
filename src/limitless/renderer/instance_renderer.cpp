@@ -1,4 +1,5 @@
 #include <limitless/renderer/instance_renderer.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -24,8 +25,7 @@ void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstan
 
     instance.getInstanceBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::UniformBuffer, "INSTANCE_BUFFER"));
 
-    shader
-            .setMaterial(*mesh.getMaterial());
+    shader.setMaterial(*mesh.getMaterial());
 
     // sets custom pass-dependent uniforms
     drawp.setter(shader);
@@ -176,19 +176,15 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
         return;
     }
 
-    for (const auto& mref: frustum_culling.getVisibleTerrainMeshes(instance)) {
-        auto& mesh = mref.get();
+    renderVisibleInstancedInstance(*instance.mesh.tiles, drawp);
+    renderVisibleInstancedInstance(*instance.mesh.fillers, drawp);
+    renderVisibleInstancedInstance(*instance.mesh.trims, drawp);
+    renderVisibleInstancedInstance(*instance.mesh.seams, drawp);
 
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
-        }
+//    std::cout << "total :" << instance.mesh.trims->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.trims).size() << std::endl;
 
-        // set render state: shaders, material, blending, etc
-        setRenderState(instance, mesh, drawp);
-
-        // draw vertices
-        mesh.getMesh()->draw();
+    if (auto instances = frustum_culling.getVisibleModelInstanced(instance.getId()); !instances.empty()) {
+        render(*instances[0], drawp);
     }
 }
 
@@ -219,18 +215,47 @@ void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &d
         return;
     }
 
-    for (const auto& [_, mesh]: instance.getMeshes()) {
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
-        }
+//    render(*instance.getMesh().cross, drawp);
 
-        // set render state: shaders, material, blending, etc
-        setRenderState(instance, mesh, drawp);
+//    for (auto &item: instance.getMesh().seams) {
+//        render(*item, drawp);
+//    }
+//
+//    for (auto &item : instance.getMesh().trims_test) {
+//        render(*item, drawp);
+//    }
+//
+//    render(*instance.getMesh().cross, drawp);
 
-        // draw vertices
-        mesh.getMesh()->draw();
-    }
+//    for (auto &item: instance.getMesh().seams) {
+        instance.getMesh().seams->setVisible(instance.getMesh().seams->getInstances());
+        render(*instance.getMesh().seams, drawp);
+//    }
+
+//    for (auto &item: instance.getMesh().trims) {
+    instance.getMesh().trims->setVisible(instance.getMesh().trims->getInstances());
+        render(*instance.getMesh().trims, drawp);
+//    }
+
+//    for (auto &item: instance.getMesh().fillers) {
+    instance.getMesh().fillers->setVisible(instance.getMesh().fillers->getInstances());
+        render(*instance.getMesh().fillers, drawp);
+//    }
+
+//    for (auto &item: instance.getMesh().tiles) {
+    instance.getMesh().tiles->setVisible(instance.getMesh().tiles->getInstances());
+        render(*instance.getMesh().tiles, drawp);
+//    }
+//    instance.getMesh().trims->setVisible(instance.getMesh().trims->getInstances());
+//    render(*instance.getMesh().trims, drawp);
+//
+//    for (auto &item: instance.getMesh().fillers) {
+//        render(*item, drawp);
+//    }
+//
+//    for (auto &item: instance.getMesh().tiles) {
+//        render(*item, drawp);
+//    }
 }
 
 void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &drawp) {
@@ -242,6 +267,7 @@ void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &d
         case InstanceType::Effect: break; //NOLINT
         case InstanceType::Decal: break; //NOLINT
         case InstanceType::Terrain: renderVisibleTerrain(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
+//        case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
     }
 }
 

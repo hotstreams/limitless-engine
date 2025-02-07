@@ -1,6 +1,10 @@
 #include "./material.glsl"
 
 struct MaterialContext {
+    // vertex parameters
+//    vec3 vertex_position;
+    vec3 vertex_normal;
+
 #if defined (ENGINE_MATERIAL_COLOR)
     vec4 color;
 #endif
@@ -13,8 +17,11 @@ struct MaterialContext {
     vec4 diffuse;
 #endif
 
-#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
+#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)
     vec3 normal;
+    vec3 tbn_t;
+    vec3 tbn_b;
+    vec3 tbn_n;
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
@@ -28,7 +35,7 @@ struct MaterialContext {
     float metallic;
     float roughness;
 
-#if defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE)
+#if defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE) || defined(ENGINE_MATERIAL_ORM_MAP)
     float ao;
 #endif
 
@@ -47,6 +54,13 @@ struct MaterialContext {
 MaterialContext computeDefaultMaterialContext(vec2 uv) {
     MaterialContext mctx;
 
+//    mctx.vertex_position = getVertexPosition();
+//    mctx.vertex_normal = getVertexNormal();
+
+#if !defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && !defined (ENGINE_SETTINGS_NORMAL_MAPPING)
+    mctx.vertex_normal = getVertexNormal();
+#endif
+
 #if defined (ENGINE_MATERIAL_COLOR)
     mctx.color = getMaterialColor();
 #endif
@@ -61,6 +75,9 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
     mctx.normal = getMaterialNormal(uv);
+    mctx.tbn_t = getVertexTBN()[0];
+    mctx.tbn_b = getVertexTBN()[1];
+    mctx.tbn_n = getVertexTBN()[2];
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
@@ -120,7 +137,7 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
     return mctx;
 }
 
-ENGINE_MATERIAL_GLOBAL_DEFINITIONS
+ENGINE_MATERIAL_GLOBAL_FRAGMENT_DEFINITIONS
 
 void customMaterialContext(inout MaterialContext mctx) {
     ENGINE_MATERIAL_FRAGMENT_SNIPPET
@@ -197,7 +214,8 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #endif
     normal = normalize(normal * 2.0 - 1.0);
 
-    mat3 TBN = getVertexTBN();
+    mat3 TBN = mat3(mctx.tbn_t, mctx.tbn_b, mctx.tbn_n);
+//    mat3 TBN = getVertexTBN();
 #if defined (ENGINE_MATERIAL_TWO_SIDED)
     TBN[0] = gl_FrontFacing ? TBN[0] : -TBN[0];
     TBN[1] = gl_FrontFacing ? TBN[1] : -TBN[1];
@@ -205,7 +223,8 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #endif
     normal = normalize(TBN * normal);
 #else
-    vec3 normal = normalize(getVertexNormal());
+    vec3 normal = normalize(mctx.vertex_normal);
+//    vec3 normal = getVertexNormal();
 #endif
     return normal;
 #endif

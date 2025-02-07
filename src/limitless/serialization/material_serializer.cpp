@@ -39,8 +39,8 @@ void MaterialSerializer::deserialize(ByteBuffer& buffer, Assets& assets, Materia
             .blending(blending)
             .two_sided(two_sided)
             .vertex(vertex_code)
-            .fragment(fragment_code)
-            .global(global_code);
+            .fragment(fragment_code);
+//            .global(global_code);
 
     for (auto& [property, uniform]: properties) {
         switch (property) {
@@ -154,7 +154,7 @@ ByteBuffer MaterialSerializer::serialize(const Material& material) {
            << material.getUniforms()
            << material.getVertexSnippet()
            << material.getFragmentSnippet()
-           << material.getGlobalSnippet()
+//           << material.getGlobalSnippet()
            << material.getModelShaders();
 
     return buffer;

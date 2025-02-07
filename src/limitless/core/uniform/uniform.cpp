@@ -164,7 +164,11 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
             const auto& sampler = static_cast<const UniformSampler&>(uniform).getSampler(); //NOLINT
             switch (sampler->getType()) {
                 case Texture::Type::Tex2D:
-                    declaration.append("sampler2D ");
+                    if (sampler->getDataType() == Texture::DataType::UnsignedInt) {
+                        declaration.append("usampler2D ");
+                    } else {
+                        declaration.append("sampler2D ");
+                    }
                     break;
                 case Texture::Type::Tex3D:
                     declaration.append("sampler3D ");

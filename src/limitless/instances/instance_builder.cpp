@@ -217,6 +217,197 @@ Instance::Builder &Instance::Builder::decal_projection_mask(uint8_t mask) {
     return *this;
 }
 
-std::shared_ptr<DecalInstance> Instance::Builder::asTerrain() {
-    return std::shared_ptr<DecalInstance>();
+std::shared_ptr<TerrainInstance> Instance::Builder::asTerrain(Assets& assets) {
+    if (!height_map_) {
+        throw instance_builder_exception {"Height map for terrain is not set!"};
+    }
+
+    if (!control_map_) {
+        throw instance_builder_exception {"Control map for terrain is not set!"};
+    }
+
+    if (!albedo_map_) {
+        throw instance_builder_exception {"Albedo for terrain is not set!"};
+    }
+
+    if (!normal_map_) {
+        throw instance_builder_exception {"Normals for terrain is not set!"};
+    }
+
+    if (!orm_map_) {
+        throw instance_builder_exception {"Orm for terrain is not set!"};
+    }
+
+    if (!noise_) {
+        throw instance_builder_exception {"Noise for terrain is not set!"};
+    }
+
+    if (albedo_map_ && normal_map_ && orm_map_) {
+        if (albedo_map_->getSize().z != normal_map_->getSize().z || albedo_map_->getSize().z != orm_map_->getSize().z) {
+            throw instance_builder_exception {"Missing textures in albedo/normal/orm maps!"};
+        }
+    }
+
+    auto instance = std::make_shared<TerrainInstance>(
+        height_map_,
+        control_map_,
+        albedo_map_,
+        normal_map_,
+        orm_map_,
+        noise_
+    );
+    initialize(*instance);
+
+    instance->setChunkSize(chunk_size_);
+    instance->setVertexSpacing(vertex_spacing_);
+    instance->setHeightScale(height_scale_);
+    instance->setNoise1Scale(noise1_scale_);
+    instance->setNoise2Scale(noise2_scale_);
+    instance->setNoise2Angle(noise2_angle_);
+    instance->setNoise2Offset(noise2_offset_);
+    instance->setNoise3Scale(noise3_scale_);
+    instance->setMacroVariation1(macro_variation1_);
+    instance->setMacroVariation2(macro_variation2_);
+    instance->setMeshSize(mesh_size_);
+    instance->setMeshLodCount(mesh_lod_count_);
+
+    instance->initializeMesh(assets);
+
+    return instance;
+}
+
+Instance::Builder& Instance::Builder::chunk_size(float chunkSize) {
+    chunk_size_ = chunkSize;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::vertex_spacing(float vertexSpacing) {
+    vertex_spacing_ = vertexSpacing;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::height_scale(float heightScale) {
+    height_scale_ = heightScale;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::noise1_scale(float noise1Scale) {
+    noise1_scale_ = noise1Scale;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::noise2_scale(float noise2Scale) {
+    noise2_scale_ = noise2Scale;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::noise2_angle(float noise2Angle) {
+    noise2_angle_ = noise2Angle;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::noise2_offset(float noise2Offset) {
+    noise2_offset_ = noise2Offset;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::noise3_scale(float noise3Scale) {
+    noise3_scale_ = noise3Scale;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::macro_variation1(const glm::vec3 &macroVariation1) {
+    macro_variation1_ = macroVariation1;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::macro_variation2(const glm::vec3 &macroVariation2) {
+    macro_variation2_ = macroVariation2;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::mesh_size(float mesh_size) {
+    mesh_size_ = mesh_size;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::mesh_lod_count(float mesh_lod_count) {
+    mesh_lod_count_ = mesh_lod_count;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::height_map(const std::shared_ptr<Texture>& height_map) {
+    height_map_ = height_map;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::control_map(const std::shared_ptr<Texture>& control_map) {
+    control_map_ = control_map;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::albedo_map(const std::shared_ptr<Texture>& albedo_map) {
+    albedo_map_ = albedo_map;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::normal_map(const std::shared_ptr<Texture>& normal_map) {
+    normal_map_ = normal_map;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::orm_map(const std::shared_ptr<Texture>& orm_map) {
+    orm_map_ = orm_map;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::noise(const std::shared_ptr<Texture>& noise) {
+    noise_ = noise;
+    return *this;
+}
+
+Instance::Builder &Instance::Builder::height(const float* data) {
+    std::vector<uint16_t> el;
+    el.resize(chunk_size_ * chunk_size_);
+
+    for (auto i = 0; i < chunk_size_ * chunk_size_; ++i) {
+        el[i] = data[i] * 65535.0f;
+    }
+
+    height_map_ =
+        Texture::builder()
+            .target(Texture::Type::Tex2D)
+            .mipmap(false)
+            .internal_format(Texture::InternalFormat::R16)
+            .size(glm::uvec2{chunk_size_, chunk_size_})
+            .format(Texture::Format::Red)
+            .data_type(Texture::DataType::UnsignedShort)
+            .wrap_r(Texture::Wrap::Repeat)
+            .wrap_s(Texture::Wrap::Repeat)
+            .wrap_t(Texture::Wrap::Repeat)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .data(el.data())
+            .build();
+
+    return *this;
+}
+
+Instance::Builder &Instance::Builder::control(const TerrainInstance::control_value* data) {
+    control_map_ =
+        Texture::builder()
+            .mipmap(false)
+            .target(Texture::Type::Tex2D)
+            .format(Texture::Format::RedInt)
+            .internal_format(Texture::InternalFormat::R32UI)
+            .size(glm::uvec2{chunk_size_, chunk_size_})
+            .data_type(Texture::DataType::UnsignedInt)
+            .wrap_r(Texture::Wrap::Repeat)
+            .wrap_s(Texture::Wrap::Repeat)
+            .wrap_t(Texture::Wrap::Repeat)
+            .min_filter(Texture::Filter::Linear)
+            .mag_filter(Texture::Filter::Linear)
+            .data(data)
+            .build();
+    return *this;
 }

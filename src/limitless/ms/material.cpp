@@ -161,9 +161,12 @@ void Limitless::ms::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.uniforms, rhs.uniforms);
     swap(lhs.vertex_snippet, rhs.vertex_snippet);
     swap(lhs.fragment_snippet, rhs.fragment_snippet);
-    swap(lhs.global_snippet, rhs.global_snippet);
+    swap(lhs.global_fragment_snippet, rhs.global_fragment_snippet);
+    swap(lhs.global_vertex_snippet, rhs.global_vertex_snippet);
     swap(lhs.shading_snippet, rhs.shading_snippet);
     swap(lhs.buffer, rhs.buffer);
+    swap(lhs.normal_map, rhs.normal_map);
+    swap(lhs.orm_map, rhs.orm_map);
 }
 
 Material::Material(const Material& material)
@@ -176,8 +179,11 @@ Material::Material(const Material& material)
     , model_shaders {material.model_shaders}
     , vertex_snippet {material.vertex_snippet}
     , fragment_snippet {material.fragment_snippet}
-    , global_snippet {material.global_snippet}
+    , global_fragment_snippet {material.global_fragment_snippet}
+    , global_vertex_snippet {material.global_vertex_snippet}
     , shading_snippet {material.shading_snippet}
+    , normal_map {material.normal_map}
+    , orm_map {material.orm_map}
     , buffer {material.buffer} {
 
     // deep copy of properties
@@ -351,6 +357,14 @@ float Material::getTransmission() const {
     } catch (const std::out_of_range& e) {
         throw material_exception("Material property not found - Transmission");
     }
+}
+
+bool Material::getNormalMap() const {
+    return normal_map;
+}
+
+bool Material::getOrmMap() const {
+    return orm_map;
 }
 
 const std::shared_ptr<Texture>& Material::getDiffuseTexture() const {
@@ -681,8 +695,12 @@ const std::string& Material::getFragmentSnippet() const noexcept {
     return fragment_snippet;
 }
 
-const std::string& Material::getGlobalSnippet() const noexcept {
-    return global_snippet;
+const std::string& Material::getGlobalFragmentSnippet() const noexcept {
+    return global_fragment_snippet;
+}
+
+const std::string& Material::getGlobalVertexSnippet() const noexcept {
+    return global_vertex_snippet;
 }
 
 const std::string& Material::getShadingSnippet() const noexcept {
@@ -721,7 +739,10 @@ Material::Material(Material::Builder& builder)
     , uniforms {std::move(builder.uniforms)}
     , vertex_snippet {builder.vertex_snippet}
     , fragment_snippet {builder.fragment_snippet}
-    , global_snippet {builder.global_snippet}
+    , global_fragment_snippet {builder.global_fragment_snippet}
+    , global_vertex_snippet {builder.global_vertex_snippet}
     , shading_snippet {builder.shading_snippet}
+    , normal_map {builder.normal_map_}
+    , orm_map {builder.orm_map_}
     , buffer {*this} {
 }

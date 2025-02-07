@@ -13,7 +13,7 @@ glm::vec3 Frustum::intersection(const std::vector<glm::vec3>& crosses) const {
     return r * (-1.0f / dot);
 }
 
-Frustum::Frustum(const glm::mat4& matrix) 
+Frustum::Frustum(const glm::mat4& matrix)
     : planes {}
     , points {}
 {
@@ -92,6 +92,40 @@ Frustum Frustum::fromCamera(const Camera& camera) {
     return Frustum {camera.getProjection() * camera.getView()};
 }
 
+bool boxInFrustum(const Frustum& frustum, const Box& box)
+{
+    auto min = box.center - box.size * 0.5f;
+    auto max = box.center + box.size * 0.5f;
+
+    // check box outside/inside of frustum
+    for( int i=0; i<6; i++ )
+    {
+        int out = 0;
+        out += ((dot( frustum.planes[i], glm::vec4(min.x, min.y, min.z, 1.0f) ) < 0.0 )?1:0);
+        out += ((dot( frustum.planes[i], glm::vec4(max.x, min.y, min.z, 1.0f) ) < 0.0 )?1:0);
+        out += ((dot( frustum.planes[i], glm::vec4(min.x, max.y, min.z, 1.0f) ) < 0.0 )?1:0);
+        out += ((dot( frustum.planes[i], glm::vec4(max.x, max.y, min.z, 1.0f) ) < 0.0 )?1:0);
+        out += ((dot( frustum.planes[i], glm::vec4(min.x, min.y, max.z, 1.0f) ) < 0.0 )?1:0);
+        out += ((dot( frustum.planes[i], glm::vec4(max.x, min.y, max.z, 1.0f) ) < 0.0 )?1:0);
+        out += ((dot( frustum.planes[i], glm::vec4(min.x, max.y, max.z, 1.0f) ) < 0.0 )?1:0);
+        out += ((dot( frustum.planes[i], glm::vec4(max.x, max.y, max.z, 1.0f) ) < 0.0 )?1:0);
+        if( out==8 ) return false;
+    }
+
+    // check frustum outside/inside box
+    int out;
+    out=0; for( int i=0; i<8; i++ ) out += ((frustum.points[i].x > max.x)?1:0); if( out==8 ) return false;
+    out=0; for( int i=0; i<8; i++ ) out += ((frustum.points[i].x < min.x)?1:0); if( out==8 ) return false;
+    out=0; for( int i=0; i<8; i++ ) out += ((frustum.points[i].y > max.y)?1:0); if( out==8 ) return false;
+    out=0; for( int i=0; i<8; i++ ) out += ((frustum.points[i].y < min.y)?1:0); if( out==8 ) return false;
+    out=0; for( int i=0; i<8; i++ ) out += ((frustum.points[i].z > max.z)?1:0); if( out==8 ) return false;
+    out=0; for( int i=0; i<8; i++ ) out += ((frustum.points[i].z < min.z)?1:0); if( out==8 ) return false;
+
+    return true;
+}
+
+
 bool Frustum::intersects(Instance& instance) const {
     return intersects(instance.getBoundingBox());
+//    return boxInFrustum(*this, instance.getBoundingBox());
 }

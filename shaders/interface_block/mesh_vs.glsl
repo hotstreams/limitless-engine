@@ -8,15 +8,6 @@ out _vertex_data {
     vec3 world_position;
     vec2 uv;
 
-    #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
-        vec2 uv1;
-        vec2 uv2;
-        vec2 uv3;
-        flat uint mask;
-        flat uint current;
-        flat uint types;
-    #endif
-
     #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
         flat int instance_id;
     #endif
