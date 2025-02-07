@@ -109,7 +109,7 @@ namespace Limitless {
         /**
          * Calculates transformed vertex position on specified instance mesh for specified vertex
          */
-        [[nodiscard]] glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const;
+        [[nodiscard]] glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<Mesh>& mesh, size_t vertex_index) const;
 
         const auto& getBoneTransform() const noexcept { return bone_transform; }
     };

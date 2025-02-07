@@ -7,7 +7,6 @@
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/vertex.hpp>
 #include <limitless/models/mesh.hpp>
-#include <limitless/core/skeletal_stream.hpp>
 #include <iostream>
 
 using namespace Limitless;
@@ -182,21 +181,22 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
-glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const {
-    const auto& skinned_mesh = dynamic_cast<SkinnedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*mesh).getVertexStream());
-
-    const auto& bone_weight = skinned_mesh.getBoneWeights().at(vertex_index);
-    const auto& vertex = skinned_mesh.getVertices().at(vertex_index);
-
-    auto transform = bone_transform[bone_weight.bone_index[0]] * bone_weight.weight[0];
-    transform     += bone_transform[bone_weight.bone_index[1]] * bone_weight.weight[1];
-    transform     += bone_transform[bone_weight.bone_index[2]] * bone_weight.weight[2];
-    transform     += bone_transform[bone_weight.bone_index[3]] * bone_weight.weight[3];
-
-    auto matrix = final_matrix;
-    matrix *= transform;
-
-    return matrix * glm::vec4(vertex.position, 1.0);
+glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<Mesh>& mesh, size_t vertex_index) const {
+//    const auto& skinned_mesh = dynamic_cast<SkinnedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*mesh).getVertexStream());
+//
+//    const auto& bone_weight = skinned_mesh.getBoneWeights().at(vertex_index);
+//    const auto& vertex = skinned_mesh.getVertices().at(vertex_index);
+//
+//    auto transform = bone_transform[bone_weight.bone_index[0]] * bone_weight.weight[0];
+//    transform     += bone_transform[bone_weight.bone_index[1]] * bone_weight.weight[1];
+//    transform     += bone_transform[bone_weight.bone_index[2]] * bone_weight.weight[2];
+//    transform     += bone_transform[bone_weight.bone_index[3]] * bone_weight.weight[3];
+//
+//    auto matrix = final_matrix;
+//    matrix *= transform;
+//
+//    return matrix * glm::vec4(vertex.position, 1.0);
+    return glm::vec3(1.0f);
 }
 
 const std::vector<Animation>& SkeletalInstance::getAllAnimations() const noexcept {

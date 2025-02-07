@@ -8,17 +8,17 @@ namespace Limitless {
 
     class Buffer::Builder {
     private:
-        Buffer::Type target_;
-        std::variant<Buffer::Usage, Buffer::Storage> usage_;
-        std::variant<Buffer::MutableAccess, Buffer::ImmutableAccess> access_;
+        Type target_;
+        std::variant<Usage, Storage> usage_;
+        std::variant<MutableAccess, ImmutableAccess> access_;
         const void* data_ {};
         size_t size_ {};
     public:
-        Builder& target(Buffer::Type _target);
-        Builder& usage(Buffer::Usage _usage);
-        Builder& usage(Buffer::Storage _storage);
-        Builder& access(Buffer::MutableAccess _access);
-        Builder& access(Buffer::ImmutableAccess _access);
+        Builder& target(Type _target);
+        Builder& usage(Usage _usage);
+        Builder& usage(Storage _storage);
+        Builder& access(MutableAccess _access);
+        Builder& access(ImmutableAccess _access);
         Builder& data(const void* _data);
         Builder& size(size_t _size);
 

@@ -4,13 +4,13 @@
 #include <string>
 #include <memory>
 
-namespace Limitless {
-    class AbstractMesh;
+#include "mesh.hpp"
 
+namespace Limitless {
     class AbstractModel {
     protected:
         std::string name;
-        std::vector<std::shared_ptr<AbstractMesh>> meshes;
+        std::vector<std::shared_ptr<Mesh>> meshes;
         Box bounding_box {};
 
         void calculateBoundingBox();

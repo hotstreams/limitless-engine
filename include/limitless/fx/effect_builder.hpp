@@ -44,7 +44,7 @@ namespace Limitless::fx {
 
         EffectBuilder& setBurstCount(std::unique_ptr<Distribution<uint32_t>> burst_count);
         EffectBuilder& setMaterial(std::shared_ptr<ms::Material> material);
-        EffectBuilder& setMesh(std::shared_ptr<AbstractMesh> mesh);
+        EffectBuilder& setMesh(std::shared_ptr<Mesh> mesh);
         EffectBuilder& setDuration(std::chrono::duration<float> duration);
         EffectBuilder& setLocalPosition(const glm::vec3& local_position);
         EffectBuilder& setLocalRotation(const glm::quat& local_rotation);

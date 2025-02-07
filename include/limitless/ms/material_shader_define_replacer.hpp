@@ -6,6 +6,7 @@
 #include <limitless/ms/shading.hpp>
 #include <limitless/renderer/shader_type.hpp>
 #include <limitless/core/shader/shader_define_replacer.hpp>
+#include <limitless/core/vertex_stream/vertex_stream.hpp>
 
 namespace Limitless {
     class Shader;
@@ -74,6 +75,8 @@ namespace Limitless {
                 { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_SHADING_CUSTOM_SNIPPET" },
             };
 
+            static inline std::string vertex_input_prefix = "_vertex_";
+
             static std::string getPropertyDefines(const Material& material);
             static std::string getShadingDefines(const Material& material);
             static std::string getModelDefines(InstanceType model_shader);
@@ -81,6 +84,24 @@ namespace Limitless {
             static std::string getMaterialDependentDefine(const Material& material, InstanceType model_shader);
             static std::string getScalarUniformDefines(const Material& material);
             static std::string getSamplerUniformDefines(const Material& material);
+
+
+            static std::string getMaterialBufferDeclaration(const Material& material);
+            static std::string getMaterialGettersDeclaration(const Material& material);
+
+
+            /*
+             *  Vertex Input Stream
+             */
+            static std::string getVertexStreamDeclaration(const std::shared_ptr<VertexStream>& stream);
+            static std::string getVertexStreamGettersDeclaration(const std::shared_ptr<VertexStream>& stream);
+
+            static std::string getVertexContextDeclaration(const std::shared_ptr<VertexStream>& stream);
+            static std::string getVertexContextCompute(const std::shared_ptr<VertexStream>& stream);
+
+            static std::string getVertexContextInterfaceBlock(const std::shared_ptr<VertexStream>& stream);
+            static std::string getVertexContextInterfaceBlockOut(const std::shared_ptr<VertexStream>& stream);
+            static std::string getVertexContextInterfaceBlockIn(const std::shared_ptr<VertexStream>& stream);
 
             MaterialShaderDefineReplacer() noexcept = default;
         public:

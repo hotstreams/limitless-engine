@@ -10,7 +10,7 @@ OPTION(BUILD_SAMPLES "Builds samples" ON)
 OPTION(BUILD_TESTS "Builds tests" ON)
 
 OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" ON)
+OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" OFF)
 OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF)
 
 #########################################
@@ -45,6 +45,7 @@ set(ENGINE_CORE
 
     src/limitless/core/uniform/uniform.cpp
     src/limitless/core/uniform/uniform_value.cpp
+    src/limitless/core/uniform/uniform_value_array.cpp
     src/limitless/core/uniform/uniform_sampler.cpp
     src/limitless/core/uniform/uniform_time.cpp
     src/limitless/core/uniform/uniform_setter.cpp
@@ -64,6 +65,12 @@ set(ENGINE_CORE
 
     src/limitless/core/buffer/buffer_binding_point.cpp
     src/limitless/core/shader/shader_program_introspection.cpp
+
+    src/limitless/core/vertex_stream/vertex_stream.cpp
+    src/limitless/core/vertex_stream/vertex_stream_builder.cpp
+    src/limitless/core/vertex_stream/vertex_array_builder.cpp
+    src/limitless/core/vertex_stream/indexed_stream.cpp
+    src/limitless/core/vertex_stream/skeletal_stream.cpp
 )
 
 set(ENGINE_INSTANCES
@@ -113,18 +120,18 @@ set(ENGINE_MODELS
 )
 
 set(ENGINE_SERIALIZATION
-    src/limitless/serialization/effect_serializer.cpp
-    src/limitless/serialization/emitter_serializer.cpp
-    src/limitless/serialization/distribution_serializer.cpp
-    src/limitless/serialization/material_serializer.cpp
-    src/limitless/serialization/uniform_serializer.cpp
+#    src/limitless/serialization/effect_serializer.cpp
+#    src/limitless/serialization/emitter_serializer.cpp
+#    src/limitless/serialization/distribution_serializer.cpp
+#    src/limitless/serialization/material_serializer.cpp
+#    src/limitless/serialization/uniform_serializer.cpp
 )
 
 set(ENGINE_UTIL
     src/limitless/util/thread_pool.cpp
     src/limitless/util/sorter.cpp
     src/limitless/util/renderer_helper.cpp
-        src/limitless/renderer/color_picker.cpp
+    src/limitless/renderer/color_picker.cpp
     src/limitless/util/frustum.cpp
 )
 
@@ -208,6 +215,11 @@ set(ENGINE_SRC
     src/limitless/scene.cpp
     src/limitless/skybox/skybox.cpp
     src/limitless/log.cpp
+    src/limitless/models/mesh_builder.cpp
+    src/limitless/models/mesh.cpp
+    src/limitless/models/model_builder.cpp
+    include/limitless/models/model_builder.h
+        include/limitless/core/uniform/uniform_sampler_array.hpp
 )
 
 #########################################

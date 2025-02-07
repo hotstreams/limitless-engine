@@ -1,45 +1,33 @@
 #pragma once
 
-#include <limitless/models/abstract_mesh.hpp>
-#include <limitless/core/vertex_stream.hpp>
-#include <limitless/core/abstract_vertex_stream.hpp>
+#include <limitless/util/box.hpp>
+#include <limitless/core/vertex_stream/vertex_stream.hpp>
 
 namespace Limitless {
-    class Mesh : public AbstractMesh {
-    private:
-        std::unique_ptr<AbstractVertexStream> stream;
+    class Mesh {
+    protected:
+        std::shared_ptr<VertexStream> stream;
         std::string name;
         Box bounding_box {};
 
         void calculateBoundingBox() {
             //TODO: dispatch?
-            if (auto vnt = dynamic_cast<VertexStream<VertexNormalTangent>*>(stream.get()); vnt) {
-                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
-            }
-            if (auto vnt = dynamic_cast<VertexStream<VertexTerrain>*>(stream.get()); vnt) {
-                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
-            }
+//            if (auto vnt = dynamic_cast<VertexStream<VertexNormalTangent>*>(stream.get()); vnt) {
+//                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
+//            }
+//            if (auto vnt = dynamic_cast<VertexStream<VertexTerrain>*>(stream.get()); vnt) {
+//                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
+//            }
+            bounding_box = Box{glm::vec3(0.0f), glm::vec3(555.0f)};
         }
-    public:
-//        Mesh(std::vector<Vertex>&& vertices, VertexStreamUsage usage, VertexStreamDraw draw, std::string _name)
-//            : stream {std::move(vertices), usage, draw}
-//            , name {std::move(_name)} {
-//            calculateBoundingBox();
-//        }
 
-//        Mesh(size_t count, VertexStreamUsage usage, VertexStreamDraw draw, std::string _name)
-//            : stream {count, usage, draw}
-//            , name {std::move(_name)} {
-//            calculateBoundingBox();
-//        }
-
-        explicit Mesh(std::unique_ptr<AbstractVertexStream> _stream, std::string _name)
+        explicit Mesh(std::shared_ptr<VertexStream> _stream, std::string _name)
             : stream {std::move(_stream)}
             , name {std::move(_name)} {
-            calculateBoundingBox();
-        }
-
-        ~Mesh() override = default;
+                calculateBoundingBox();
+            }
+    public:
+        virtual ~Mesh() = default;
 
         Mesh(const Mesh&) = delete;
         Mesh& operator=(const Mesh&) = delete;
@@ -47,27 +35,22 @@ namespace Limitless {
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(Mesh&&) noexcept = default;
 
-        [[nodiscard]] const Box& getBoundingBox() noexcept override { return bounding_box; }
-        [[nodiscard]] const std::string& getName() const noexcept override { return name; }
-        [[nodiscard]] std::string& getName() noexcept override { return name; }
+        [[nodiscard]] const Box& getBoundingBox() noexcept { return bounding_box; }
+        [[nodiscard]] const std::string& getName() const noexcept { return name; }
+        [[nodiscard]] std::string& getName() noexcept { return name; }
 
         auto& getVertexStream() noexcept { return *stream; }
         [[nodiscard]] const auto& getVertexStream() const noexcept { return *stream; }
 
-        void draw() noexcept override {
+        void draw() noexcept {
             stream->draw();
         }
 
-        void draw(VertexStreamDraw draw) noexcept override {
-            stream->draw(draw);
-        }
-
-        void draw_instanced(std::size_t count) noexcept override {
+        void draw_instanced(std::size_t count) noexcept {
             stream->draw_instanced(count);
         }
 
-        void draw_instanced(VertexStreamDraw draw, std::size_t count) noexcept override {
-            stream->draw_instanced(draw, count);
-        }
+        class Builder;
+        static Builder builder();
     };
 }

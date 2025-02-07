@@ -2,7 +2,7 @@
 
 #include <limitless/loaders/texture_loader.hpp>
 #include "limitless/core/shader/shader_program.hpp"
-#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/ms/material_builder.hpp>

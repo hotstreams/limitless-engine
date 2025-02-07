@@ -10,8 +10,9 @@ namespace Limitless {
     class Model : public AbstractModel {
     protected:
         std::vector<std::shared_ptr<ms::Material>> materials;
-    public:
+
         Model(decltype(meshes)&& mesh, decltype(materials)&& materials, std::string name);
+    public:
         ~Model() override = default;
 
         Model(const Model&) = delete;
@@ -22,5 +23,8 @@ namespace Limitless {
 
         [[nodiscard]] const auto& getMaterials() const noexcept { return materials; }
         [[nodiscard]] auto& getMaterials() noexcept { return materials; }
+
+        class Builder;
+        static Builder builder();
     };
 }

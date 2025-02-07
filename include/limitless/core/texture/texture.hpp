@@ -220,5 +220,7 @@ namespace Limitless {
         class Builder;
 
         static Builder builder();
+
+        static void copy(std::shared_ptr<Texture> origin, size_t layer, std::shared_ptr<Texture> destination);
     };
 }

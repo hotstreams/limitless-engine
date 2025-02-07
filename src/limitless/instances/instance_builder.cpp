@@ -4,7 +4,6 @@
 #include <limitless/models/elementary_model.hpp>
 #include <limitless/instances/decal_instance.hpp>
 #include <limitless/models/mesh.hpp>
-#include <limitless/core/indexed_stream.hpp>
 
 using namespace Limitless;
 

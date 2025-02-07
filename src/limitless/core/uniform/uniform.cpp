@@ -5,6 +5,7 @@
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/texture/texture.hpp>
 #include <limitless/core/uniform/uniform.hpp>
+#include <limitless/core/uniform/uniform_value_array.hpp>
 
 
 using namespace Limitless;
@@ -132,6 +133,7 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
 
     switch (uniform.getType()) {
         case UniformType::Time:
+        case UniformType::ValueArray:
         case UniformType::Value:
             switch (uniform.getValueType()) {
                 case UniformValueType::Float:
@@ -158,6 +160,9 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
                 case UniformValueType::Mat3:
                     declaration.append("mat3 ");
                     break;
+                case DataType::IVec4:
+                    declaration.append("ivec4 ");
+                    break;
             }
             break;
         case UniformType::Sampler:
@@ -182,7 +187,57 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
             break;
     }
 
-    declaration.append(uniform.getName() + ";\n");
+    if (uniform.getType() != UniformType::ValueArray) {
+        declaration.append(uniform.getName() + ";\n");
+    } else {
+        switch (uniform.getValueType()) {
+            case UniformValueType::Float: {
+                    auto count = static_cast<const UniformValueArray<float>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case UniformValueType::Int: {
+                    auto count = static_cast<const UniformValueArray<int32_t>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case UniformValueType::Uint: {
+                    auto count = static_cast<const UniformValueArray<uint32_t>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case UniformValueType::Vec2: {
+                    auto count = static_cast<const UniformValueArray<glm::vec2>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case UniformValueType::Vec3: {
+                    auto count = static_cast<const UniformValueArray<glm::vec3>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case UniformValueType::Vec4: {
+                    auto count = static_cast<const UniformValueArray<glm::vec4>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case UniformValueType::Mat4: {
+                    auto count = static_cast<const UniformValueArray<glm::mat4>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case UniformValueType::Mat3: {
+                    auto count = static_cast<const UniformValueArray<glm::mat3>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+            case DataType::IVec4: {
+                    auto count = static_cast<const UniformValueArray<glm::ivec4>&>(uniform).getCount();
+                    declaration.append(uniform.getName() + "[" + std::to_string(count) + "];\n");
+                }
+                break;
+        }
+    }
 
     return declaration;
 }
@@ -207,6 +262,8 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
                     return sizeof(glm::mat3);
                 case UniformValueType::Mat4:
                     return sizeof(glm::mat4);
+                case DataType::IVec4:
+                    return sizeof(glm::ivec4);
             }
             break;
         case UniformType::Sampler: {
@@ -217,6 +274,28 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
         }
         case UniformType::Time:
             return sizeof(float);
+        case UniformType::ValueArray:
+            switch (uniform.getValueType()) {
+                case UniformValueType::Float:
+                    return sizeof(float) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case UniformValueType::Int:
+                    return sizeof(int32_t) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case UniformValueType::Uint:
+                    return sizeof(uint32_t) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case UniformValueType::Vec2:
+                    return sizeof(glm::vec2) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case UniformValueType::Vec3:
+                    return sizeof(glm::vec3) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case UniformValueType::Vec4:
+                    return sizeof(glm::vec4) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case UniformValueType::Mat3:
+                    return sizeof(glm::mat3) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case UniformValueType::Mat4:
+                    return sizeof(glm::mat4) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+                case DataType::IVec4:
+                    return sizeof(glm::ivec4) * static_cast<const UniformValueArray<float>&>(uniform).getValues().size(); //NOLINT
+            }
+            break;
     }
 
     return 0;
@@ -237,6 +316,7 @@ size_t Limitless::getUniformAlignment(const Uniform& uniform) {
                 // All these have !vec4! alignment
                 case UniformValueType::Vec3:
                 case UniformValueType::Vec4:
+                case UniformValueType::IVec4:
                 case UniformValueType::Mat3:
                 case UniformValueType::Mat4:
                     return sizeof(glm::vec4);
@@ -250,6 +330,8 @@ size_t Limitless::getUniformAlignment(const Uniform& uniform) {
         }
         case UniformType::Time:
             return sizeof(float);
+        case UniformType::ValueArray:
+            return sizeof(glm::vec4);
     }
 
     return 0;

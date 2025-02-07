@@ -2,12 +2,12 @@
 
 #include <memory>
 #include <limitless/serialization/asset_deserializer.hpp>
+#include <limitless/core/uniform/uniform_value_type.hpp>
 
 namespace Limitless {
     class Uniform;
     class ByteBuffer;
     class Assets;
-    enum class UniformValueType;
 
     class UniformSerializer {
     private:

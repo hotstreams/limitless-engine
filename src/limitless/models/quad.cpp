@@ -3,7 +3,8 @@
 using namespace Limitless;
 
 #include <limitless/util/tangent_space.hpp>
-#include <limitless/models/mesh.hpp>
+#include <limitless/models/mesh_builder.hpp>
+#include <limitless/core/vertex_stream/vertex_stream_builder.hpp>
 
 Quad::Quad() : ElementaryModel("quad") {
     std::vector<Vertex> vertices = {
@@ -14,9 +15,18 @@ Quad::Quad() : ElementaryModel("quad") {
     };
 
     meshes.emplace_back(
-        std::make_unique<Mesh>(
-            std::make_unique<VertexStream<Vertex>>(std::move(vertices), VertexStreamUsage::Static, VertexStreamDraw::TriangleStrip),
-            "quad_mesh")
+        Mesh::builder()
+            .name("quad_mesh")
+            .vertex_stream(
+                VertexStream::builder()
+                    .attribute(0, VertexStream::Attribute::Position, sizeof(Vertex), offsetof(Vertex, position))
+                    .attribute(1, VertexStream::Attribute::Uv, sizeof(Vertex), offsetof(Vertex, uv))
+                    .vertices(vertices)
+                    .usage(VertexStream::Usage::Static)
+                    .draw(VertexStream::Draw::TriangleStrip)
+                    .build()
+            )
+            .build()
     );
 
     calculateBoundingBox();

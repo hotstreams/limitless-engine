@@ -34,8 +34,8 @@ namespace Limitless::ms {
      *
      * Should be compiled using MaterialCompiler to generate shader for usage
      */
-    class Material final {
-    private:
+    class Material {
+    protected:
         /**
          * Contains set of predefined properties
          *
@@ -166,7 +166,7 @@ namespace Limitless::ms {
         friend bool operator==(const Material& lhs, const Material& rhs) noexcept;
         friend bool operator<(const Material& lhs, const Material& rhs) noexcept;
     public:
-        ~Material() = default;
+        virtual ~Material() = default;
 
         /**
          * Material copy constructor
@@ -277,7 +277,7 @@ namespace Limitless::ms {
          */
         static Builder builder();
 
-        private:
+        protected:
             /**
              *  Constructs material from builder
              */

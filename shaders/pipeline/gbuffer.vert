@@ -1,13 +1,41 @@
 ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
-#include "../interface_block/vertex.glsl"
+ENGINE::VERTEX_STREAM
+ENGINE::VERTEX_CONTEXT
+ENGINE::VERTEX_CONTEXT_PASS_THROUGH
+
 #include "../pipeline/scene.glsl"
 #include "../instance/instance.glsl"
 #include "../material/material.glsl"
-#include "../interface_block/pass_through.glsl"
+
+
+generate vertex stream
+generate vertex stream getters
+
+generate vertex context
+generate vertex context compute
+
+generate vertex context out interface block
+
+VertexContext computeVertexContext() {
+    VertexContext vctx;
+
+    ENGINE::VERTEX_CONTEXT_ASSIGN_STREAM_ATTIRIBUTES
+
+    vctx.model_transform = getModelTransform();
+}
 
 void main() {
+    VertexContext vctx = computeVertexContext();
+    CustomVertexContext(vctx);
+
+    vctx.world_position = vctx.model_transform * vec4(vctx.vertex_position, 1.0);
+    gl_Position = getViewProjection() * world_position;
+
+    VertexContextPassThrough(vctx);
+
+
     #if !defined (SpriteEmitter)
        vec2 uv = getVertexUV();
     #else

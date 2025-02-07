@@ -19,13 +19,13 @@ TextInstance::TextInstance(std::string _text, const glm::vec2& _position, std::s
     calculateModelMatrix();
 }
 
-TextInstance::TextInstance(size_t count, const glm::vec2& _position, std::shared_ptr<FontAtlas> _font)
-    : text_model {count}
-    , text {}
-    , position {_position}
-    , font {std::move(_font)} {
-    calculateModelMatrix();
-}
+//TextInstance::TextInstance(size_t count, const glm::vec2& _position, std::shared_ptr<FontAtlas> _font)
+//    : text_model {count}
+//    , text {}
+//    , position {_position}
+//    , font {std::move(_font)} {
+//    calculateModelMatrix();
+//}
 
 void TextInstance::calculateModelMatrix() noexcept {
     const auto translation_matrix = glm::translate(glm::mat4{1.0f}, glm::vec3{position, 0.0f});

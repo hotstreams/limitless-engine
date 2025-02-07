@@ -29,13 +29,13 @@ namespace Limitless::fx {
         MeshLocationAttachment& operator=(const MeshLocationAttachment&) noexcept = default;
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, size_t index) noexcept override {
-            const auto selected_mesh = this->getSelectedMesh();
-            const auto vertex_index = this->getVertexIndex(selected_mesh);
-            const auto triangle_pos = this->getTrianglePosition();
-            const auto mesh_position = this->getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
-            particle.position += mesh_position;
-
-            cache[index] = { selected_mesh, vertex_index, triangle_pos, mesh_position };
+//            const auto selected_mesh = this->getSelectedMesh();
+//            const auto vertex_index = this->getVertexIndex(selected_mesh);
+//            const auto triangle_pos = this->getTrianglePosition();
+//            const auto mesh_position = this->getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
+//            particle.position += mesh_position;
+//
+//            cache[index] = { selected_mesh, vertex_index, triangle_pos, mesh_position };
         }
 
         void deinitialize(const std::vector<size_t>& indices) override {

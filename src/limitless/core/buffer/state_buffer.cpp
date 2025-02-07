@@ -92,6 +92,15 @@ void StateBuffer::bind() const noexcept {
     }
 }
 
+void StateBuffer::unbind() const noexcept {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
+        if (ctx->buffer_target[target] != 0) {
+            glBindBuffer(static_cast<GLenum>(target), 0);
+            ctx->buffer_target[target] = 0;
+        }
+    }
+}
+
 void StateBuffer::bindAs(Type _target) const noexcept {
     if (auto* ctx = Context::getCurrentContext(); ctx) {
         if (ctx->buffer_target[_target] != id) {

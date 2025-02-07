@@ -64,11 +64,11 @@ namespace Limitless {
                     buffer << static_cast<const fx::InitialAcceleration<Particle>&>(module).getDistribution();
                     break;
                 case fx::ModuleType::MeshLocationAttachment: {
-                    if (std::holds_alternative<std::shared_ptr<AbstractModel>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())) {
-                        buffer << std::get<std::shared_ptr<AbstractModel>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())->getName();
-                    } else {
-                        buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())->getName();
-                    }
+                    // if (std::holds_alternative<std::shared_ptr<AbstractModel>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())) {
+                    //     buffer << std::get<std::shared_ptr<AbstractModel>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())->getName();
+                    // } else {
+                    //     buffer << std::get<std::shared_ptr<Mesh>>(static_cast<const fx::MeshLocationAttachment<Particle>&>(module).getMesh())->getName();
+                    // }
                     break;
                 }
                 case fx::ModuleType::InitialMeshLocation: {
@@ -77,9 +77,9 @@ namespace Limitless {
                                << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getScale()
                                << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getRotation();
                     } else {
-                        buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName()
-                               << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getScale()
-                               << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getRotation();
+                        // buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName()
+                        //        << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getScale()
+                        //        << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getRotation();
                     }
                     break;
                 }
@@ -230,7 +230,7 @@ namespace Limitless {
                     try {
                         module = std::make_unique<fx::MeshLocationAttachment<Particle>>(assets.models.at(mesh_name));
                     } catch (...) {
-                        module = std::make_unique<fx::MeshLocationAttachment<Particle>>(assets.meshes.at(mesh_name));
+                        // module = std::make_unique<fx::MeshLocationAttachment<Particle>>(assets.meshes.at(mesh_name));
                     }
                     break;
                 }

@@ -3,6 +3,8 @@
 #include <limitless/core/texture/extension_texture.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/core/framebuffer.hpp>
+#include <utility>
 
 using namespace Limitless;
 
@@ -270,4 +272,11 @@ bool Texture::isImmutable() const noexcept {
 
 Texture::Builder Texture::builder() {
     return {};
+}
+
+void Texture::copy(std::shared_ptr<Texture> origin, size_t layer, std::shared_ptr<Texture> destination) {
+    auto from = Framebuffer::fromTexture(std::move(origin));
+    auto to = Framebuffer::fromTexture(std::move(destination), layer);
+
+    to.blit(from, Filter::Nearest);
 }

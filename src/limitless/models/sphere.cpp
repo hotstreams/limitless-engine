@@ -1,10 +1,11 @@
+#include <limitless/models/mesh_builder.hpp>
 #include <limitless/models/sphere.hpp>
 
 using namespace Limitless;
 
 #include <limitless/util/tangent_space.hpp>
 #include <limitless/util/math.hpp>
-#include <limitless/core/indexed_stream.hpp>
+#include <limitless/core/vertex_stream/vertex_stream_builder.hpp>
 #include <limitless/models/mesh.hpp>
 
 Sphere::Sphere(glm::uvec2 segment_count) : ElementaryModel("sphere") {
@@ -63,9 +64,21 @@ Sphere::Sphere(glm::uvec2 segment_count) : ElementaryModel("sphere") {
     calculateTangentSpaceTriangle(vertices, indices);
 
     meshes.emplace_back(
-            std::make_unique<Mesh>(
-                    std::make_unique<IndexedVertexStream<VertexNormalTangent>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles),
-            "sphere")
+        Mesh::builder()
+            .name("sphere_mesh")
+            .vertex_stream(
+                VertexStream::builder()
+                    .attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, position))
+                    .attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, normal))
+                    .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, tangent))
+                    .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, uv))
+                    .vertices(vertices)
+                    .indices(indices)
+                    .usage(VertexStream::Usage::Static)
+                    .draw(VertexStream::Draw::Triangles)
+                    .build()
+            )
+            .build()
     );
 
     calculateBoundingBox();

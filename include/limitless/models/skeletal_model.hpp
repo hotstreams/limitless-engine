@@ -54,7 +54,9 @@ namespace Limitless {
         std::vector<Animation> animations;
         std::vector<Bone> bones;
         std::vector<Tree<uint32_t>> skeletons;
-    public:
+
+        friend class Builder;
+
         SkeletalModel(
             decltype(meshes)&& meshes,
             decltype(materials)&& materials,
@@ -64,7 +66,7 @@ namespace Limitless {
             decltype(animations)&& a,
             std::string name
         ) noexcept;
-
+    public:
         ~SkeletalModel() override = default;
 
         SkeletalModel(const SkeletalModel&) = delete;

@@ -3,7 +3,9 @@
 namespace Limitless {
     enum class UniformType {
         Value,
+        ValueArray,
         Sampler,
+        SamplerArray,
         Time
     };
 }

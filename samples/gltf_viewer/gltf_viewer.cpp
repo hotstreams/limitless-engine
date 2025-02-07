@@ -4,12 +4,11 @@
 #include <limitless/camera.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/core/context.hpp>
-#include <limitless/core/indexed_stream.hpp>
-#include <limitless/core/skeletal_stream.hpp>
+#include <limitless/core/vertex_stream/skeletal_stream.hpp>
 #include <limitless/core/vertex.hpp>
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
-#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/models/abstract_model.hpp>
 #include <limitless/models/bones.hpp>
 #include <limitless/models/line.hpp>

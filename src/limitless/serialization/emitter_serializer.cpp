@@ -7,7 +7,7 @@
 #include <limitless/fx/effect_builder.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/assets.hpp>
-#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/fx/emitters/sprite_emitter.hpp>
 #include <limitless/fx/emitters/mesh_emitter.hpp>
 #include <limitless/fx/emitters/beam_emitter.hpp>

@@ -280,3 +280,19 @@ void Texture::Builder::useBestSupportedExtensionTexture() {
         useBindlessExtensionTexture();
     }
 }
+
+std::shared_ptr<Texture> Texture::Builder::asArray(const Texture& texture, size_t count) {
+    return
+        Texture::builder()
+            .size({texture.getSize().x, texture.getSize().y, count})
+            .target(Type::Tex2DArray)
+            .mag_filter(texture.getMag())
+            .min_filter(texture.getMin())
+            .data_type(texture.getDataType())
+            .format(texture.getFormat())
+            .internal_format(texture.getInternalFormat())
+            .wrap_s(texture.getWrapS())
+            .wrap_t(texture.getWrapT())
+            .wrap_r(texture.getWrapR())
+            .build();
+}

@@ -97,7 +97,7 @@ EffectBuilder& EffectBuilder::setMaterial(std::shared_ptr<ms::Material> material
     return *this;
 }
 
-EffectBuilder& EffectBuilder::setMesh(std::shared_ptr<AbstractMesh> mesh) {
+EffectBuilder& EffectBuilder::setMesh(std::shared_ptr<Mesh> mesh) {
     if (!mesh) {
         throw std::runtime_error{"Cannot set empty mesh for emitter!"};
     }

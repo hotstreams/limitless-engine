@@ -56,6 +56,7 @@ namespace Limitless {
         void bindBase(GLuint index) const noexcept override;
         void bindAs(Type target) const noexcept override;
         void bind() const noexcept override;
+        void unbind() const noexcept override;
 
         StateBuffer* clone() override;
 

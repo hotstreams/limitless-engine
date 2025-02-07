@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
@@ -16,11 +16,11 @@ namespace Limitless {
 namespace Limitless {
     class MeshInstance final {
     private:
-        std::shared_ptr<AbstractMesh> mesh;
+        std::shared_ptr<Mesh> mesh;
         std::shared_ptr<ms::Material> material;
         std::shared_ptr<ms::Material> base;
     public:
-        MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept;
+        MeshInstance(std::shared_ptr<Mesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept;
         ~MeshInstance() = default;
 
         MeshInstance(const MeshInstance&);
@@ -38,7 +38,7 @@ namespace Limitless {
         [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
         [[nodiscard]] auto& getMaterial() noexcept { return material; }
 
-        [[nodiscard]] const std::shared_ptr<AbstractMesh>& getMesh() const noexcept { return mesh; }
+        [[nodiscard]] const std::shared_ptr<Mesh>& getMesh() const noexcept { return mesh; }
 
         void update();
 

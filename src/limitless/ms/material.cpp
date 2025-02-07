@@ -709,7 +709,7 @@ Material::Builder Material::builder() {
     return {};
 }
 
-Material::Material(Material::Builder& builder)
+Material::Material(Builder& builder)
     : properties {std::move(builder.properties)}
     , blending {builder._blending}
     , shading {builder._shading}

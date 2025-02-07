@@ -3,7 +3,7 @@
 #include <limitless/fx/emitters/emitter.hpp>
 
 namespace Limitless {
-    class AbstractMesh;
+    class Mesh;
     class EmitterSerializer;
 
     namespace ms {
@@ -16,7 +16,7 @@ namespace Limitless::fx {
 
     class MeshEmitter : public Emitter<MeshParticle> {
     private:
-        std::shared_ptr<AbstractMesh> mesh;
+        std::shared_ptr<Mesh> mesh;
         std::shared_ptr<ms::Material> material;
 
         MeshEmitter() noexcept;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/fx/modules/module.hpp>
-#include <limitless/core/indexed_stream.hpp>
+#include <limitless/core/vertex_stream/indexed_stream.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <variant>
 #include <limitless/models/mesh.hpp>
@@ -38,34 +38,34 @@ namespace Limitless::fx {
         }
 
         glm::vec3 getPositionOnMesh(const std::shared_ptr<AbstractMesh>& _mesh, size_t vertex_index, float r1, float r2) {
-            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*_mesh).getVertexStream());
-            const auto& vertices = indexed_mesh.getVertices();
-            const auto& indices = indexed_mesh.getIndices();
-
-            const auto v_index1 = indices[vertex_index];
-            const auto v_index2 = indices[vertex_index + 1];
-            const auto v_index3 = indices[vertex_index + 2];
-
-            if (instance) {
-                if (instance->getInstanceType() == InstanceType::Skeletal) {
-                    const auto& skeletal_instance = static_cast<SkeletalInstance&>(*instance);
-                    const auto pos1 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index1);
-                    const auto pos2 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index2);
-                    const auto pos3 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index3);
-
-                    return constructModelMatrix() * glm::vec4(getPositionOnTriangle(pos1, pos2, pos3, r1, r2), 1.0f);
-                }
-
-                return constructModelMatrix() * instance->getModelMatrix() * glm::vec4(getPositionOnTriangle(vertices[v_index1].position,
-                                                                                    vertices[v_index2].position,
-                                                                                    vertices[v_index3].position,
-                                                                                    r1, r2), 1.0f);
-            }
-
-            return constructModelMatrix() * glm::vec4(getPositionOnTriangle(vertices[v_index1].position,
-                                         vertices[v_index2].position,
-                                         vertices[v_index3].position,
-                                         r1, r2), 1.0f);
+//            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*_mesh).getVertexStream());
+//            const auto& vertices = indexed_mesh.getVertices();
+//            const auto& indices = indexed_mesh.getIndices();
+//
+//            const auto v_index1 = indices[vertex_index];
+//            const auto v_index2 = indices[vertex_index + 1];
+//            const auto v_index3 = indices[vertex_index + 2];
+//
+//            if (instance) {
+//                if (instance->getInstanceType() == InstanceType::Skeletal) {
+//                    const auto& skeletal_instance = static_cast<SkeletalInstance&>(*instance);
+//                    const auto pos1 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index1);
+//                    const auto pos2 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index2);
+//                    const auto pos3 = skeletal_instance.getSkinnedVertexPosition(_mesh, v_index3);
+//
+//                    return constructModelMatrix() * glm::vec4(getPositionOnTriangle(pos1, pos2, pos3, r1, r2), 1.0f);
+//                }
+//
+//                return constructModelMatrix() * instance->getModelMatrix() * glm::vec4(getPositionOnTriangle(vertices[v_index1].position,
+//                                                                                    vertices[v_index2].position,
+//                                                                                    vertices[v_index3].position,
+//                                                                                    r1, r2), 1.0f);
+//            }
+//
+//            return constructModelMatrix() * glm::vec4(getPositionOnTriangle(vertices[v_index1].position,
+//                                         vertices[v_index2].position,
+//                                         vertices[v_index3].position,
+//                                         r1, r2), 1.0f);
         }
 
         InitialMeshLocation(ModuleType type, std::shared_ptr<AbstractMesh> _mesh) noexcept
@@ -99,11 +99,11 @@ namespace Limitless::fx {
         }
 
         auto getVertexIndex(const std::shared_ptr<AbstractMesh>& selected_mesh) {
-            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*selected_mesh).getVertexStream());
-            const auto& indices = indexed_mesh.getIndices();
-            using vector_size_type = typename std::remove_reference_t<decltype(indices)>::size_type;
-            auto int_distribution = std::uniform_int_distribution(static_cast<vector_size_type>(0), indices.size() - 4);
-            return int_distribution(generator);
+//            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*selected_mesh).getVertexStream());
+//            const auto& indices = indexed_mesh.getIndices();
+//            using vector_size_type = typename std::remove_reference_t<decltype(indices)>::size_type;
+//            auto int_distribution = std::uniform_int_distribution(static_cast<vector_size_type>(0), indices.size() - 4);
+//            return int_distribution(generator);
         }
 
         auto getTrianglePosition() {
@@ -158,10 +158,10 @@ namespace Limitless::fx {
         const auto& getRotation() const noexcept { return rotation; }
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
-            const auto selected_mesh = getSelectedMesh();
-            const auto vertex_index = getVertexIndex(selected_mesh);
-            const auto triangle_pos = getTrianglePosition();
-            particle.position += getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
+//            const auto selected_mesh = getSelectedMesh();
+//            const auto vertex_index = getVertexIndex(selected_mesh);
+//            const auto triangle_pos = getTrianglePosition();
+//            particle.position += getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
         }
 
         [[nodiscard]] InitialMeshLocation* clone() const noexcept override {

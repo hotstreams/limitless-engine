@@ -7,6 +7,9 @@
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/uniform/uniform_time.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
+#include <limitless/core/uniform/uniform_value_array.hpp>
+#include <limitless/core/texture/texture_builder.hpp>
+#include <limitless/ms/batched_material.hpp>
 
 using namespace Limitless::ms;
 
@@ -34,6 +37,26 @@ void Material::Builder::checkRequirements() {
     if (_name.empty()) {
         throw material_builder_exception("Name cannot be empty!");
     }
+}
+
+std::shared_ptr<BatchedMaterial> Material::Builder::buildBatched(Assets& assets) {
+    if (_batch_material && _batch_count != 0) {
+        makeBatched(*_batch_material, _batch_count);
+    }
+
+    if (!_batch_materials.empty()) {
+        makeBatched(*_batch_materials[0], _batch_count != 0 ? _batch_count : _batch_materials.size());
+    }
+
+    auto material = std::shared_ptr<BatchedMaterial>(new BatchedMaterial(*this));
+
+    for (size_t i = 0; i < _batch_materials.size(); ++i) {
+        material->set(i, *_batch_materials[i], true);
+    }
+
+    assets.materials.add(material->name, material);
+
+    return material;
 }
 
 std::shared_ptr<Material> Material::Builder::build(Assets& assets) {
@@ -265,5 +288,128 @@ Material::Builder &Material::Builder::custom(const std::string &name, const std:
 
 Material::Builder &Material::Builder::refraction(bool refraction_) noexcept {
     _refraction = refraction_;
+    return *this;
+}
+
+Material::Builder& Material::Builder::batch_count(size_t size) {
+    _batch_count = size;
+    return *this;
+}
+
+void Material::Builder::makeBatched(const Material& material, size_t batch_count) {
+    const std::string batch_postfix = "_array";
+
+    // map properties to batched arrays
+    for (const auto& [property, uniform]: material.properties) {
+        const auto name = uniform->getName() + batch_postfix;
+
+        switch (property) {
+            case Property::Diffuse:
+            case Property::Normal:
+            case Property::EmissiveMask:
+            case Property::BlendMask:
+            case Property::MetallicTexture:
+            case Property::RoughnessTexture:
+            case Property::AmbientOcclusionTexture:
+            case Property::ORM:
+                uniforms[name] = std::make_unique<UniformSampler>(
+                    name,
+                    Texture::Builder::asArray(*static_cast<UniformSampler&>(*uniform).getSampler(), batch_count)
+                );
+                break;
+
+            case Property::Color:
+            case Property::EmissiveColor:
+                uniforms[name] = std::make_unique<UniformValueArray<glm::vec4>>(name,batch_count);
+                break;
+
+            case Property::Metallic:
+            case Property::Roughness:
+            case Property::IoR:
+            case Property::Absorption:
+            case Property::MicroThickness:
+            case Property::Thickness:
+            case Property::Reflectance:
+            case Property::Transmission:
+                uniforms[name] = std::make_unique<UniformValueArray<float>>(name,batch_count);
+                break;
+        }
+    }
+
+    // map uniforms to batched arrays
+    for (const auto& [_, uniform]: material.uniforms) {
+        const auto name = uniform->getName() + batch_postfix;
+
+        switch (uniform->getType()) {
+            case UniformType::Value:
+                switch (uniform->getValueType()) {
+                    case DataType::Float:
+                        uniforms[name] = std::make_unique<UniformValueArray<float>>(name,batch_count);
+                        break;
+                    case DataType::Int:
+                        uniforms[name] = std::make_unique<UniformValueArray<int32_t>>(name,batch_count);
+                        break;
+                    case DataType::Uint:
+                        uniforms[name] = std::make_unique<UniformValueArray<uint32_t>>(name,batch_count);
+                        break;
+                    case DataType::Vec2:
+                        uniforms[name] = std::make_unique<UniformValueArray<glm::vec2>>(name,batch_count);
+                        break;
+                    case DataType::Vec3:
+                        uniforms[name] = std::make_unique<UniformValueArray<glm::vec3>>(name,batch_count);
+                        break;
+                    case DataType::Vec4:
+                        uniforms[name] = std::make_unique<UniformValueArray<glm::vec4>>(name,batch_count);
+                        break;
+                    case DataType::Mat3:
+                        uniforms[name] = std::make_unique<UniformValueArray<glm::mat3>>(name,batch_count);
+                        break;
+                    case DataType::Mat4:
+                        uniforms[name] = std::make_unique<UniformValueArray<glm::mat4>>(name,batch_count);
+                        break;
+                    case DataType::IVec4:
+                        uniforms[name] = std::make_unique<UniformValueArray<glm::ivec4>>(name,batch_count);
+                        break;
+                }
+                break;
+
+            case UniformType::Sampler:
+                uniforms[name] = std::make_unique<UniformSampler>(
+                    name,
+                    Texture::Builder::asArray(*static_cast<UniformSampler&>(*uniform).getSampler(), batch_count)
+                );
+                break;
+            case UniformType::Time:
+                uniforms[uniform->getName()] = uniform->clone();
+                break;
+
+            case UniformType::ValueArray:
+                throw material_exception{"batching of uniform arrays is not supported yet!"};
+        }
+    }
+
+    for (const auto& [property, uniform] : material.properties) {
+        properties[property] = uniform->clone();
+    }
+
+    _blending = material.blending;
+    _shading = material.shading;
+    _two_sided = material.two_sided;
+    _refraction = material.refraction;
+    _name = material.name + "_batched";
+    _model_shaders = material.model_shaders;
+    vertex_snippet = material.vertex_snippet;
+    fragment_snippet = material.fragment_snippet;
+    global_snippet = material.global_snippet;
+    shading_snippet = material.shading_snippet;
+}
+
+Material::Builder &Material::Builder::batch(const std::shared_ptr<Material>& material) {
+    _batch_material = material;
+    return *this;
+}
+
+Material::Builder &Material::Builder::add_batch(const std::shared_ptr<Material>& material) {
+    _batch_materials.emplace_back(material);
     return *this;
 }
