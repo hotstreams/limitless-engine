@@ -59,6 +59,7 @@ void ColorPicker::render(InstanceRenderer& renderer, [[maybe_unused]] Scene &sce
     framebuffer.clear();
 
     renderer.renderScene({ctx, assets, ShaderType::ColorPicker, ms::Blending::Opaque, setter});
+    renderer.renderScene({ctx, assets, ShaderType::ColorPicker, ms::Blending::Translucent, setter});
 
     for (auto& pick: data) {
         if (!pick.sync.isAlreadyPlaced()) {

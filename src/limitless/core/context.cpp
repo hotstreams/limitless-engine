@@ -6,12 +6,12 @@ using namespace Limitless;
 
 Context::Context(
     const std::string& title,
-    glm::uvec2 size,
+    glm::uvec2 _size,
     const Context* shared,
     const WindowHints& hints
 ) : ContextInitializer()
   , ContextState()
-  , size {size} {
+  , size {_size} {
     // sets window hints for creation
     for (const auto& [hint, value] : hints) {
         glfwWindowHint(static_cast<int>(hint), value);
@@ -22,6 +22,13 @@ Context::Context(
     if (!window) {
         throw context_error {"Failed to create window"};
     }
+
+    // The created window, framebuffer and context may differ from what you requested.
+    int framebuffer_width = 0;
+    int framebuffer_height = 0;
+    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
+
+    size = glm::uvec2(framebuffer_width, framebuffer_height);
 
     if (!glew_inited) {
         makeCurrent();
@@ -134,7 +141,7 @@ void Context::setFullscreen(bool value) noexcept {
 
         const auto* mode = glfwGetVideoMode(monitor.value());
         monitor = std::nullopt;
-        glfwSetWindowMonitor(window, monitor.value(), 0, 0, mode->width, mode->height, mode->refreshRate);
+        glfwSetWindowMonitor(window, nullptr, 0, 0, mode->width, mode->height, mode->refreshRate);
     }
 }
 
