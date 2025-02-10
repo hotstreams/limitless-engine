@@ -177,15 +177,15 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
     }
 
     renderVisibleInstancedInstance(*instance.mesh.tiles, drawp);
-    renderVisibleInstancedInstance(*instance.mesh.fillers, drawp);
-    renderVisibleInstancedInstance(*instance.mesh.trims, drawp);
-    renderVisibleInstancedInstance(*instance.mesh.seams, drawp);
+    // renderVisibleInstancedInstance(*instance.mesh.fillers, drawp);
+    // renderVisibleInstancedInstance(*instance.mesh.trims, drawp);
+    // renderVisibleInstancedInstance(*instance.mesh.seams, drawp);
 
-//    std::cout << "total :" << instance.mesh.trims->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.trims).size() << std::endl;
+    std::cout << "total :" << instance.mesh.tiles->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.tiles).size() << std::endl;
 
-    if (auto instances = frustum_culling.getVisibleModelInstanced(instance.getId()); !instances.empty()) {
-        render(*instances[0], drawp);
-    }
+    // if (auto instances = frustum_culling.getVisibleModelInstanced(instance.getId()); !instances.empty()) {
+    //     render(*instances[0], drawp);
+    // }
 }
 
 void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters &drawp) {

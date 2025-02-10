@@ -126,6 +126,6 @@ bool boxInFrustum(const Frustum& frustum, const Box& box)
 
 
 bool Frustum::intersects(Instance& instance) const {
-    return intersects(instance.getBoundingBox());
-//    return boxInFrustum(*this, instance.getBoundingBox());
+    //return intersects(instance.getBoundingBox());
+    return boxInFrustum(*this, instance.getBoundingBox());
 }

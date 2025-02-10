@@ -24,7 +24,6 @@ void TerrainInstance::update(const Camera &camera) {
         i->update(camera);
     }
 
-
     const auto range = glm::vec2(height_scale * 0.5f, height_scale);
     const auto margin = 0.0f;
 

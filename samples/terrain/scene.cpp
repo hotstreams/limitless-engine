@@ -61,10 +61,10 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
                 v.base_id = 0;
             }
 
-            if (test >= 0.5 && test <= 0.7) {
-                v.extra_id = 2;
-                v.blend = 128;
-            }
+            // if (test >= 0.5 && test <= 0.7) {
+            //     v.extra_id = 2;
+            //     v.blend = 128;
+            // }
 
             *(controls + int(y * chunk_size) + x) = v;
         }
@@ -76,7 +76,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
             .vertex_spacing(1.0f)
             .height(elevations)
             .height_scale(20.0f)
-            .mesh_size(32.0f)
+            .mesh_size(16.0f)
             .mesh_lod_count(5)
             .control(controls)
             .noise(TextureLoader::load(assets, "../../assets/textures/noise.png"))
