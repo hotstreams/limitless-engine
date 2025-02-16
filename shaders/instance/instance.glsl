@@ -13,10 +13,7 @@ struct InstanceData {
 /*
  *  Instance Uniform Buffer and API for `single model`
  */
-#if defined (ENGINE_MATERIAL_REGULAR_MODEL) ||
-    defined (ENGINE_MATERIAL_SKELETAL_MODEL) ||
-    defined (ENGINE_MATERIAL_DECAL_MODEL) ||
-    defined (ENGINE_MATERIAL_TERRAIN_MODEL)
+#if defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)
 
 layout (std140) uniform INSTANCE_BUFFER {
     InstanceData _instance_data;
@@ -127,8 +124,7 @@ mat4 getBoneMatrix() {
 #endif
 
 mat4 getModelTransform() {
-#if defined (ENGINE_MATERIAL_SKELETAL_MODEL) ||
-    defined (ENGINE_MATERIAL_SKELETAL_INSTANCED_MODEL)
+#if defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_INSTANCED_MODEL)
     return getModelMatrix() * getBoneMatrix();
 #else
     return getModelMatrix();

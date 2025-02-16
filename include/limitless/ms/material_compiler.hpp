@@ -21,7 +21,7 @@ namespace Limitless::ms {
     protected:
         Assets& assets;
 
-        static void replaceMaterialSettings(Shader& shader, const Material& material, InstanceType model_shader) noexcept;
+        static void replaceMaterialSettings(Shader& shader, const Material& material, const RendererSettings& settings, InstanceType model_shader) noexcept;
     public:
         MaterialCompiler(Context& context, Assets& assets, const RendererSettings& settings) noexcept;
         ~MaterialCompiler() override = default;

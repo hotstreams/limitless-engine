@@ -106,27 +106,26 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
     ShaderCompiler compiler {ctx, settings};
 
     if (settings.bloom) {
-        add("blur_downsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_downsample"));
-        add("blur_upsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_upsample"));
-        add("brightness", compiler.compile(shader_dir / "postprocessing/bloom/brightness"));
+        add("blur_downsample", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/bloom/blur_downsample"));
+        add("blur_upsample", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/bloom/blur_upsample"));
+        add("brightness", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/bloom/brightness"));
     }
 
-    add("deferred", compiler.compile(shader_dir / "pipeline/deferred"));
-    add("composite", compiler.compile(shader_dir / "pipeline/composite"));
-    add("outline", compiler.compile(shader_dir / "pipeline/outline"));
-
+    add("deferred", compiler.compile(shader_dir / "pipeline/quad",shader_dir / "pipeline/deferred"));
+    add("composite", compiler.compile(shader_dir / "pipeline/quad",shader_dir / "pipeline/composite"));
+    add("outline", compiler.compile(shader_dir / "pipeline/quad",shader_dir / "pipeline/outline"));
 
     if (settings.screen_space_ambient_occlusion) {
-        add("ssao", compiler.compile(shader_dir / "postprocessing/ssao/ssao"));
-        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/ssao/ssao_blur"));
+        add("ssao", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/ssao/ssao"));
+        add("ssao_blur", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/ssao/ssao_blur"));
     }
 
     if (settings.screen_space_reflections) {
-        add("ssr", compiler.compile(shader_dir / "postprocessing/ssr/ssr"));
+        add("ssr", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/ssr/ssr"));
     }
 
     if (settings.fast_approximate_antialiasing) {
-        add("fxaa", compiler.compile(shader_dir / "postprocessing/fxaa"));
+        add("fxaa", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/fxaa"));
     }
 
 //    if (settings.depth_of_field) {

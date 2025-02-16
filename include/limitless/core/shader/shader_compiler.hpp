@@ -85,6 +85,28 @@ namespace Limitless {
          */
         std::shared_ptr<ShaderProgram> compile(const fs::path& path, const ShaderAction& actions = ShaderAction{});
 
+        /**
+         * Compiles ShaderProgram at specified path with separate vertex shader and applies ShaderActions
+         *
+         * Takes name from path and tries to compile name.ext files as shaders and combine them in ShaderProgram
+         *
+         * check shader file extensions in "shader_extensions.hpp"
+         *
+         * Example:
+         *          /home/user/
+         *                 shader_name.vs
+         *                 shader_name.fs
+         * ShaderCompiles will compile shader_name ShaderProgram with shader_name.vs as VertexShader and shader_name.fs as FragmentShader
+         *
+         * @param vertex_path - path for vertex shader
+         * @param fragment_path - path for fragment shader
+         * @param actions - ShaderActions to be applied to source code
+         * @return - compiled ShaderProgram
+         */
+        std::shared_ptr<ShaderProgram> compile(
+            const fs::path& vertex_path,
+            const fs::path& fragment_path,
+            const ShaderAction& actions = ShaderAction{});
 
         /**
          * Adds Shader to ShaderProgram and waits to compile function to be invoked on

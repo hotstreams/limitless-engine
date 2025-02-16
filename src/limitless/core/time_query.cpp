@@ -27,11 +27,23 @@ void TimeQuery::calculate() {
     GLuint64 start {}, stop {};
 
     if (!ping_pong) {
-        glGetQueryObjectui64v(queries[0], GL_QUERY_RESULT, &start);
-        glGetQueryObjectui64v(queries[1], GL_QUERY_RESULT, &stop);
+        GLint available;
+        glGetQueryObjectiv(queries[1], GL_QUERY_RESULT_AVAILABLE, &available);
+        if (available) {
+            glGetQueryObjectui64v(queries[0], GL_QUERY_RESULT, &start);
+            glGetQueryObjectui64v(queries[1], GL_QUERY_RESULT, &stop);
+        } else {
+            return; // Результат еще не готов
+        }
     } else {
-        glGetQueryObjectui64v(queries[2], GL_QUERY_RESULT, &start);
-        glGetQueryObjectui64v(queries[3], GL_QUERY_RESULT, &stop);
+        GLint available;
+        glGetQueryObjectiv(queries[3], GL_QUERY_RESULT_AVAILABLE, &available);
+        if (available) {
+            glGetQueryObjectui64v(queries[2], GL_QUERY_RESULT, &start);
+            glGetQueryObjectui64v(queries[3], GL_QUERY_RESULT, &stop);
+        } else {
+            return; // Результат еще не готов
+        }
     }
 
     duration = (stop - start) / 1e6f;

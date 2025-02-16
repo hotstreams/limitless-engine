@@ -75,6 +75,21 @@ namespace Limitless {
                 { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_SHADING_CUSTOM_SNIPPET" },
             };
 
+            enum class VertexDefineType {
+                Stream,
+                Context,
+                ContextAssignment,
+                PassThrough
+            };
+
+            static inline std::unordered_map<VertexDefineType, std::string> VERTEX_STREAM_DEFINE =
+            {
+                { VertexDefineType::Stream, "ENGINE::VERTEX_STREAM" },
+                { VertexDefineType::Context, "ENGINE::VERTEX_CONTEXT" },
+                { VertexDefineType::ContextAssignment, "ENGINE::ASSIGN_STREAM_ATTIRIBUTES" },
+                { VertexDefineType::PassThrough, "ENGINE::PASS_THROUGH" }
+            };
+
             static inline std::string vertex_input_prefix = "_vertex_";
 
             static std::string getPropertyDefines(const Material& material);
@@ -93,19 +108,43 @@ namespace Limitless {
             /*
              *  Vertex Input Stream
              */
-            static std::string getVertexStreamDeclaration(const std::shared_ptr<VertexStream>& stream);
-            static std::string getVertexStreamGettersDeclaration(const std::shared_ptr<VertexStream>& stream);
+            static std::string getVertexStreamDeclaration(InstanceType instance_type);
+            static std::string getVertexStreamGettersDeclaration(InstanceType instance_type);
 
-            static std::string getVertexContextDeclaration(const std::shared_ptr<VertexStream>& stream);
-            static std::string getVertexContextCompute(const std::shared_ptr<VertexStream>& stream);
+            static std::string getVertexContextDeclaration(InstanceType instance_type);
+            static std::string getVertexContextCompute(InstanceType instance_type);
 
-            static std::string getVertexContextInterfaceBlock(const std::shared_ptr<VertexStream>& stream);
-            static std::string getVertexContextInterfaceBlockOut(const std::shared_ptr<VertexStream>& stream);
-            static std::string getVertexContextInterfaceBlockIn(const std::shared_ptr<VertexStream>& stream);
+            static std::string getVertexContextInterfaceBlock(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextInterfaceBlockOut(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextInterfaceBlockIn(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexPassThrough(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
 
             MaterialShaderDefineReplacer() noexcept = default;
         public:
-            static void replaceMaterialDependentDefine(Shader& shader, const Material& material, InstanceType model_shader);
+            static void replaceMaterialDependentDefine(
+                Shader& shader,
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType model_shader);
         };
     }
 }

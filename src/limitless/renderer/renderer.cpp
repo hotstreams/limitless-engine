@@ -29,7 +29,11 @@
 using namespace Limitless;
 
 void Renderer::render(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
-    instance_renderer.update(scene, camera);
+    {
+        ProfilerScope scope("Rendering");
+
+        instance_renderer.update(scene, camera);
+    }
 
     for (const auto& pass: passes) {
         pass->update(scene, camera);
@@ -40,6 +44,8 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
         pass->render(instance_renderer, scene, context, assets, camera, setter);
         pass->addUniformSetter(setter);
     }
+
+    profiler.draw(context, assets);
 }
 
 void Renderer::onFramebufferChange(glm::uvec2 size) {

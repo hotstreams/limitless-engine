@@ -1,15 +1,16 @@
 #pragma once
 
 #include <limitless/core/shader/shader.hpp>
-#include <string_view>
+#include <string>
+#include <unordered_map>
 
 namespace Limitless {
-    constexpr struct { std::string_view ext; Shader::Type type; } shader_file_extensions[] = {
-            { ".vert",  Shader::Type::Vertex },
-            { ".tesc", Shader::Type::TessControl },
-            { ".tese", Shader::Type::TessEval },
-            { ".geom",  Shader::Type::Geometry },
-            { ".frag",  Shader::Type::Fragment },
-            { ".comp",  Shader::Type::Compute }
+    inline std::unordered_map<Shader::Type, std::string> shader_file_extensions = {
+            { Shader::Type::Vertex, ".vert" },
+            { Shader::Type::TessControl, ".tesc" },
+            { Shader::Type::TessEval, ".tese" },
+            { Shader::Type::Geometry, ".geom" },
+            { Shader::Type::Fragment, ".frag" },
+            { Shader::Type::Compute, ".comp" }
     };
 }

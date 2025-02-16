@@ -1,15 +1,28 @@
-* single model mesh batching (prototype for other types of batching)
-* shader generation
-* performance + logging
-* shader quality tweeks
-* weather system, wind, vertex pivot animation
-* LOD?
-* post processing effects refactoring, fog, soft particles, soft shadows?, screen space shadows resolution tweeks
-* indirect draw, compute shaders
-* light culling
-* other optimizations
-* shadows refactoring
+* features
+0. gpu & cpu counters, logging
+1. vertex pivot animation, wind
+2. billboards
+2. weather system
+3. post processing effects (fog, soft particles, soft shadows?, screen space shadows resolution tweeks)
+   Multiple tone mappers: generic (customizable), ACES, filmic, etc.
+   Color and tone management: luminance scaling, gamut mapping
+   Color grading: exposure, night adaptation, white balance, channel mixer, shadows/mid-tones/highlights, ASC CDL, contrast, saturation, etc.
+4. shadows refactoring
+5. height fog & volumetric fog, color grading and more
 
+* optimizations
+1. single model mesh batching + shader generation 
+2. texture compression 
+3. gbuffer reformatting
+4. LOD
+5. indirect draw
+6. compute shaders (for skeletal & wind animation, frustum culling, light culling)
+7. combine all geometry in one buffer (global vao, vbo?)
+8. possibly combine another things in ssbo/ubo to reduce state binding changes
+9. possible optimizations after profiling 
+10. shader quality (switch different shaders on different LODs based on distance) (Arguably useful, because cost of switching could be more than shader computation)
+
+https://www.reddit.com/r/unrealengine/comments/192pj36/how_to_better_optimize_forest_for_a_video_game/
 
 static mesh batching in one model
 static batching several models?
@@ -75,14 +88,6 @@ MATERIALS
 
 
 Renderer 
-
-
-    void draw(Instance instance) {
-        
-        instance.mesh
-
-    }
-
 
     VertexStream::builder
         .attribute
