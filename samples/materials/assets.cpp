@@ -228,13 +228,13 @@ void LimitlessMaterials::Assets::setUpMaterials() {
 
     Material::builder()
             .name("fireball")
-            .vertex("vec2 uv_1 = vec2(uv.x + time * 0.05, uv.y + time * 0.0);\n"
-                    "vec2 uv_2 = vec2(uv.x - time * 0.05, uv.y - time * 0.0);\n"
+            .vertex("vec2 uv_1 = vec2(vctx.uv.x + time * 0.05, vctx.uv.y + time * 0.0);\n"
+                    "vec2 uv_2 = vec2(vctx.uv.x - time * 0.05, vctx.uv.y - time * 0.0);\n"
                     " \n"
                     "float s = texture(fire_mask, uv_1).r;\n"
                     "float t = texture(fire_mask, uv_2).r;\n"
                     "\n"
-                    "vertex_position.xyz -= getVertexNormal() * texture(fire_mask, uv + vec2(s, t)).r * 0.6;")
+                    "vctx.position.xyz -= getVertexNormal() * texture(fire_mask, vctx.uv + vec2(s, t)).r * 0.6;")
             .fragment("vec2 uv = getVertexUV();"
                       "vec2 uv_1 = vec2(uv.x + time * 0.05, uv.y + time * 0.0);\n"
                       "vec2 uv_2 = vec2(uv.x - time * 0.05, uv.y - time * 0.0);\n"

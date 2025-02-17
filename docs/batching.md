@@ -15,6 +15,9 @@
 2. texture compression 
 3. gbuffer reformatting
 4. LOD
+5. optimize state changes, put all in one buffer, sort by state change
+   https://www.khronos.org/opengl/wiki/Vertex_Specification_Best_Practices
+   https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions
 5. indirect draw
 6. compute shaders (for skeletal & wind animation, frustum culling, light culling)
 7. combine all geometry in one buffer (global vao, vbo?)

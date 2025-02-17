@@ -1,3 +1,4 @@
+#include <iostream>
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/ms/material_shader_define_replacer.hpp>
 
@@ -34,13 +35,10 @@ VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
             {5, DataType::Vec4}
         };
     case InstanceType::BatchedModel:
-        break;
     case InstanceType::Effect:
-        break;
     case InstanceType::Decal:
-        break;
     case InstanceType::Terrain:
-        break;
+        throw std::runtime_error("not implemented");
     }
 }
 
@@ -61,6 +59,7 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
                 {0, "position"},
                 {1, "normal"},
                 {2, "tangent"},
+                {3, "uv"},
                 {4, "bone_index"},
                 {5, "bone_weight"},
         };
@@ -69,6 +68,7 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
                     {0, "position"},
                     {1, "normal"},
                     {2, "tangent"},
+                    {3, "uv"},
                     {4, "bone_index"},
                     {5, "bone_weight"},
                     {6, "mesh_index"},
@@ -76,7 +76,7 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
     case InstanceType::Effect:
     case InstanceType::Decal:
     case InstanceType::Terrain:
-        break;
+        throw std::runtime_error("not implemented");
     }
 }
 
@@ -122,10 +122,8 @@ void MaterialShaderDefineReplacer::replaceMaterialDependentDefine(
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomShading], material.getShadingSnippet());
 
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Stream], getVertexStreamDeclaration(model_shader) + getVertexStreamGettersDeclaration(model_shader));
-    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Context],
-        getVertexContextDeclaration(model_shader) +
-        getVertexContextInterfaceBlockOut(material, settings, model_shader));
-    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Context], getVertexContextDeclaration(material, settings, model_shader) + getVertexContextInterfaceBlockOut(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(material, settings, model_shader));
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::PassThrough], getVertexPassThrough(material, settings, model_shader));
 }
 
@@ -227,7 +225,8 @@ std::string MaterialShaderDefineReplacer::getMaterialDependentDefine(const Mater
 
 std::string MaterialShaderDefineReplacer::getVertexStreamDeclaration(InstanceType instance_type) {
     std::string stream_declaration;
-
+try
+{
     auto input_type = getInputTypeFromInstanceType(instance_type);
     auto name_map = getNameMappingFromInstanceType(instance_type);
 
@@ -238,6 +237,10 @@ std::string MaterialShaderDefineReplacer::getVertexStreamDeclaration(InstanceTyp
     for (const auto& [index, type] : input_type) {
         stream_declaration += generate_layout_line(index, name_map.at(index), type);
     }
+} catch (const std::exception& e)
+{
+    std::cout << "test" << std::endl;
+}
 
     return stream_declaration;
 }
@@ -261,11 +264,15 @@ std::string MaterialShaderDefineReplacer::getVertexStreamGettersDeclaration(Inst
     return getters_declaration;
 }
 
-std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(InstanceType instance_type) {
+std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(
+    const Material& material,
+    const RendererSettings& settings,
+    InstanceType type
+) {
     std::string context_declaration = "struct VertexContext {\n";
 
-    auto input_type = getInputTypeFromInstanceType(instance_type);
-    auto name_map = getNameMappingFromInstanceType(instance_type);
+    auto input_type = getInputTypeFromInstanceType(type);
+    auto name_map = getNameMappingFromInstanceType(type);
 
     auto generate_attribute_decl = [] (const std::string& name, DataType type) {
         return getDataTypeString(type) + " " + name + ";\n";
@@ -279,16 +286,24 @@ std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(InstanceTy
     context_declaration += "mat4 model_transform;\n";
     context_declaration += "vec4 world_position;\n";
 
+    if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
+        context_declaration += "mat3 TBN;\n";
+    }
+
     context_declaration += "};\n";
 
     return context_declaration;
 }
 
-std::string MaterialShaderDefineReplacer::getVertexContextCompute(InstanceType instance_type) {
+std::string MaterialShaderDefineReplacer::getVertexContextCompute(
+    const Material& material,
+    const RendererSettings& settings,
+    InstanceType type
+) {
     std::string context_assignment;
 
-    auto input_type = getInputTypeFromInstanceType(instance_type);
-    auto name_map = getNameMappingFromInstanceType(instance_type);
+    auto input_type = getInputTypeFromInstanceType(type);
+    auto name_map = getNameMappingFromInstanceType(type);
 
     auto generate_vertex_getter_name = [] (const std::string& name, DataType type) {
         auto upper_name = name;
@@ -302,6 +317,17 @@ std::string MaterialShaderDefineReplacer::getVertexContextCompute(InstanceType i
 
     for (const auto& [index, type] : input_type) {
         context_assignment += get_assignment(name_map.at(index), type);
+    }
+
+    context_assignment += "vctx.model_transform = getModelTransform();\n";
+
+// TBN matrix only for meshes
+// (defined (MeshEmitter) || defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_INSTANCED_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)) && defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
+    if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
+        //TODO: pass through uniform instance buffer ? bone transform ?
+        //TODO: research on transpose inverse bone scaling
+        context_assignment += "mat3 normal_matrix = transpose(inverse(mat3(vctx.model_transform)));\n";
+        context_assignment += "vctx.TBN = calculateTBN(vctx.normal, vctx.tangent, normal_matrix);\n";
     }
 
     return context_assignment;

@@ -111,8 +111,17 @@ namespace Limitless {
             static std::string getVertexStreamDeclaration(InstanceType instance_type);
             static std::string getVertexStreamGettersDeclaration(InstanceType instance_type);
 
-            static std::string getVertexContextDeclaration(InstanceType instance_type);
-            static std::string getVertexContextCompute(InstanceType instance_type);
+            static std::string getVertexContextDeclaration(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextCompute(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
 
             static std::string getVertexContextInterfaceBlock(
                 const Material& material,

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "scene.hpp"
 #include "assets.hpp"
 
@@ -128,8 +130,19 @@ namespace LimitlessMaterials {
     };
 }
 
+static void terminationHandler()
+{
+    for ( int i = 0 ; i < 1000; i++)
+    {
+        std::cout << i << std::endl;
+    }
+}
+
 int main() {
+    std::set_terminate(terminationHandler);
+
     LimitlessMaterials::MaterialsScene scene;
     scene.gameLoop();
+
     return 0;
 }

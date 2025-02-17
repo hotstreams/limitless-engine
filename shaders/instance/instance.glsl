@@ -137,24 +137,3 @@ mat4 getModelTransform() {
         return mat4(1.0);
     }
 #endif
-
-// TBN matrix only for meshes
-#if (defined (MeshEmitter) || defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_INSTANCED_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)) && defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-    mat3 getModelTBN(mat4 model_transform) {
-        //TODO: pass through uniform instance buffer ? bone transform ?
-        //TODO: research on transpose inverse bone scaling
-        mat3 normal_matrix = transpose(inverse(mat3(model_transform)));
-
-        vec3 T = normalize(normal_matrix * getVertexTangent());
-        vec3 N = normalize(normal_matrix * getVertexNormal());
-        T = normalize(T - dot(T, N) * N);
-        vec3 B = cross(N, T);
-
-        return mat3(T, B, N);
-    }
-    //TODO: remove?
-    // added because material_context.glsl needed "getVertexTBN" to be compiled in vertex shader
-    mat3 getVertexTBN() {
-        return getModelTBN(getModelTransform());
-    }
-#endif
