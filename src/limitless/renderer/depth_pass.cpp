@@ -23,6 +23,7 @@ void DepthPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
+	GPUProfileScope profile_scope {global_gpu_profiler, "DepthPass"};
 
     ctx.enable(Capabilities::DepthTest);
 	ctx.enable(Capabilities::StencilTest);

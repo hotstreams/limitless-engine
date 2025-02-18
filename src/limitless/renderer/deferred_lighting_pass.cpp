@@ -27,6 +27,7 @@ void DeferredLightingPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
+    GPUProfileScope profile_scope {global_gpu_profiler, "DeferredLightingPass"};
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

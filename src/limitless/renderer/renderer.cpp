@@ -29,6 +29,8 @@
 using namespace Limitless;
 
 void Renderer::render(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
+    GPUProfileScope profile_scope {global_gpu_profiler, "Renderer::render"};
+
     instance_renderer.update(scene, camera);
 
     for (const auto& pass: passes) {
@@ -40,6 +42,8 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
         pass->render(instance_renderer, scene, context, assets, camera, setter);
         pass->addUniformSetter(setter);
     }
+
+    global_gpu_profiler.checkPendingQueries();
 }
 
 void Renderer::onFramebufferChange(glm::uvec2 size) {

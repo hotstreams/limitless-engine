@@ -15,6 +15,8 @@ DirectionalShadowPass::DirectionalShadowPass(Renderer& renderer)
 void DirectionalShadowPass::render(InstanceRenderer &renderer, Scene &scene,
                                    Context &ctx, const Assets &assets,
                                    const Camera &camera, [[maybe_unused]] UniformSetter &setter) {
+    GPUProfileScope profile_scope {global_gpu_profiler, "DirectionalShadowPass"};
+
     shadows.draw(renderer, scene, ctx, assets, camera);
     shadows.mapData();
 }

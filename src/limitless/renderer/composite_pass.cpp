@@ -26,7 +26,7 @@ void CompositePass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
-
+    GPUProfileScope profile_scope {global_gpu_profiler, "CompositePass"};
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 

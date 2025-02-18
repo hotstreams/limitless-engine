@@ -17,7 +17,7 @@ void DecalPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
-
+    GPUProfileScope profile_scope {global_gpu_profiler, "DecalPass"};
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
     gbuffer.getFramebuffer().readBuffer(FramebufferAttachment::None);

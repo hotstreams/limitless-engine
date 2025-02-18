@@ -17,6 +17,7 @@ void BloomPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
+    GPUProfileScope profile_scope {global_gpu_profiler, "Bloom"};
     bloom.process(ctx, assets, renderer.getPass<TranslucentPass>().getResult());
 }
 

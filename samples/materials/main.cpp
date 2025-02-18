@@ -1,12 +1,17 @@
+#include <iostream>
+
 #include "scene.hpp"
 #include "assets.hpp"
 
 #include <limitless/core/context.hpp>
+#include <limitless/core/profiler.hpp>
 #include <limitless/text/text_instance.hpp>
 #include <limitless/renderer/color_picker.hpp>
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 #include <limitless/renderer/renderer.hpp>
+
+struct GPUProfiler;
 
 namespace LimitlessMaterials {
     class MaterialsScene {
@@ -128,8 +133,19 @@ namespace LimitlessMaterials {
     };
 }
 
+static void printProfilerFrames(const GPUProfiler& profiler) {
+    for (const auto& [name, frame] : profiler.frames) {
+        std::cout << name << ": min " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMinDuration()).count()
+                  << ", max " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMaxDuration()).count()
+                  << ", avg " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getAverageDuration()).count()
+                  << ", n " << frame.getCount() << std::endl;
+    }
+}
+
 int main() {
     LimitlessMaterials::MaterialsScene scene;
     scene.gameLoop();
+
+    printProfilerFrames(global_gpu_profiler);
     return 0;
 }

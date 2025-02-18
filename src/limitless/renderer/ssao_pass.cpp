@@ -27,6 +27,8 @@ SSAOPass::SSAOPass(Renderer& renderer)
 void SSAOPass::render(InstanceRenderer &instance_renderer, Scene &scene, Context &ctx,
                       const Assets &assets, const Camera &camera,
                       UniformSetter &setter) {
+    GPUProfileScope profile_scope {global_gpu_profiler, "SSAOPass"};
+
     ssao.draw(ctx, assets, renderer.getPass<DeferredFramebufferPass>().getDepth());
 }
 

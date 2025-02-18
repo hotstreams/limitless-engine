@@ -1,32 +1,120 @@
 #include <limitless/core/profiler.hpp>
 
-#include <limitless/assets.hpp>
-
-using namespace Limitless;
-
-void Profiler::draw(Context& ctx, const Assets& assets) {
-    TextInstance text {"text", glm::vec2{0.0f}, assets.fonts.at("nunito")};
-    text.setSize(glm::vec2{0.5f});
-    glm::vec2 position = {400, 400};
-    for (const auto& [name, query] : queries) {
-        text.setText(name + " " + std::to_string(query.getDuration()));
-        text.setPosition(position);
-        text.draw(ctx, assets);
-
-        position -= glm::vec2{0.0f, 0.1f};
+GPUProfiler::~GPUProfiler() {
+    for (const auto& query : availableQueries) {
+        glDeleteQueries(1, &query);
+    }
+    for (const auto& period : pendingQueries) {
+        glDeleteQueries(1, &period.startQuery);
+        glDeleteQueries(1, &period.endQuery);
     }
 }
 
-TimeQuery& Profiler::operator[] (const std::string& name) {
-    return queries[name];
+GPUProfiler::QueryID GPUProfiler::createQuery() {
+    QueryID query;
+    glGenQueries(1, &query);
+    return query;
 }
 
-ProfilerScope::ProfilerScope(const std::string& name)
-    : query {profiler[name]} {
-    query.start();
+void GPUProfiler::deleteQuery(QueryID query) {
+    glDeleteQueries(1, &query);
 }
 
-ProfilerScope::~ProfilerScope() {
-    query.stop();
-    query.calculate();
+void GPUProfiler::ensureAvailableQueries() {
+    if (availableQueries.empty()) {
+        // Создаем новый пул запросов (например, 32 запроса)
+        const int poolSize = 32;
+        availableQueries.reserve(poolSize);
+        for (int i = 0; i < poolSize; ++i) {
+            availableQueries.push_back(createQuery());
+        }
+    }
 }
+
+void GPUProfiler::GPUFrame::record(Duration duration) {
+    durations.push_back(duration);
+    if (duration < minDuration) minDuration = duration;
+    if (duration > maxDuration) maxDuration = duration;
+    totalDuration += duration;
+    ++count;
+}
+
+GPUProfiler::Duration GPUProfiler::GPUFrame::getMinDuration() const noexcept {
+    return minDuration;
+}
+
+GPUProfiler::Duration GPUProfiler::GPUFrame::getMaxDuration() const noexcept {
+    return maxDuration;
+}
+
+GPUProfiler::Duration GPUProfiler::GPUFrame::getAverageDuration() const noexcept {
+    if (count == 0) return std::chrono::nanoseconds::zero();
+
+    auto total_count = std::chrono::duration_cast<std::chrono::nanoseconds>(totalDuration).count();
+    auto average = total_count / count;
+
+    return std::chrono::nanoseconds(average);
+}
+
+size_t GPUProfiler::GPUFrame::getCount() const noexcept {
+    return count;
+}
+
+void GPUProfiler::checkPendingQueries() {
+    for (auto it = pendingQueries.begin(); it != pendingQueries.end();) {
+        GLint availableStart, availableEnd;
+        glGetQueryObjectiv(it->startQuery, GL_QUERY_RESULT_AVAILABLE, &availableStart);
+        glGetQueryObjectiv(it->endQuery, GL_QUERY_RESULT_AVAILABLE, &availableEnd);
+
+        if (availableStart && availableEnd) {
+            GLuint64 start, end;
+            glGetQueryObjectui64v(it->startQuery, GL_QUERY_RESULT, &start);
+            glGetQueryObjectui64v(it->endQuery, GL_QUERY_RESULT, &end);
+
+            Duration duration = std::chrono::nanoseconds(end - start);
+            frames[it->identifier].record(duration);
+
+            // Удаляем использованные запросы
+            deleteQuery(it->startQuery);
+            deleteQuery(it->endQuery);
+
+            it = pendingQueries.erase(it); // Удаляем из списка
+        } else {
+            ++it; // Переходим к следующему запросу
+        }
+    }
+}
+
+GPUProfileScope::GPUProfileScope(GPUProfiler& profiler, const char* id)
+    : profiler(profiler), identifier(id) {
+    profiler.ensureAvailableQueries();
+
+    period.startQuery = profiler.availableQueries.back();
+    profiler.availableQueries.pop_back();
+
+    period.endQuery = profiler.availableQueries.back();
+    profiler.availableQueries.pop_back();
+
+    period.identifier = identifier;
+    period.ready = false;
+
+    glQueryCounter(period.startQuery, GL_TIMESTAMP);
+}
+
+GPUProfileScope::~GPUProfileScope() {
+    glQueryCounter(period.endQuery, GL_TIMESTAMP);
+
+    profiler.pendingQueries.push_back(period);
+}
+
+GPUProfiler::QueryID GPUProfileScope::createTimestampQuery() {
+    GPUProfiler::QueryID query;
+    glGenQueries(1, &query);
+    return query;
+}
+
+void GPUProfileScope::destroyTimestampQuery(GPUProfiler::QueryID query) {
+    glDeleteQueries(1, &query);
+}
+
+GPUProfiler global_gpu_profiler;

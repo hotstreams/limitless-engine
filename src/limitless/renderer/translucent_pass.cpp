@@ -28,6 +28,7 @@ void TranslucentPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
+    GPUProfileScope profile_scope {global_gpu_profiler, "TranslucentPass"};
 
     std::array transparent = {
         ms::Blending::Additive,

@@ -1,29 +1,62 @@
 #pragma once
 
-#include <limitless/core/time_query.hpp>
-#include <limitless/text/text_instance.hpp>
-#include <map>
+#include <chrono>
+#include <limits>
+#include <unordered_map>
+#include <string>
+#include <vector>
+#include <GL/glew.h>
 
-namespace Limitless {
-    class Profiler final {
-    private:
-        std::map<std::string, TimeQuery> queries;
-    public:
-        Profiler() = default;
-        ~Profiler() = default;
+struct GPUProfiler {
+    using QueryID = GLuint;
+    using Duration = std::chrono::nanoseconds;
 
-        void draw(Context& ctx, const Assets& assets);
-
-        TimeQuery& operator[] (const std::string& name);
+    struct GPUPeriod {
+        QueryID startQuery;
+        QueryID endQuery;
+        bool ready = false;
+        std::string identifier;
     };
 
-    inline Profiler profiler;
+    struct GPUFrame {
+        void record(Duration duration);
+        Duration getMinDuration() const noexcept;
+        Duration getMaxDuration() const noexcept;
+        Duration getAverageDuration() const noexcept;
+        size_t getCount() const noexcept;
 
-    class ProfilerScope final {
     private:
-        TimeQuery& query;
-    public:
-        explicit ProfilerScope(const std::string& name);
-        ~ProfilerScope();
+        std::vector<Duration> durations;
+        Duration minDuration = std::chrono::nanoseconds::max();
+        Duration maxDuration = std::chrono::nanoseconds::zero();
+        Duration totalDuration = std::chrono::nanoseconds::zero();
+        size_t count = 0;
     };
-}
+
+    std::unordered_map<std::string, GPUFrame> frames;
+    std::vector<GPUPeriod> pendingQueries;
+
+    ~GPUProfiler();
+
+    void checkPendingQueries();
+    void ensureAvailableQueries();
+public:
+    std::vector<QueryID> availableQueries;
+    QueryID createQuery();
+    void deleteQuery(QueryID query);
+};
+
+extern GPUProfiler global_gpu_profiler;
+
+struct GPUProfileScope {
+    GPUProfiler& profiler;
+    const char* identifier;
+    GPUProfiler::GPUPeriod period;
+
+    GPUProfileScope(GPUProfiler& profiler, const char* id);
+    ~GPUProfileScope();
+
+private:
+    static GPUProfiler::QueryID createTimestampQuery();
+    static void destroyTimestampQuery(GPUProfiler::QueryID query);
+};

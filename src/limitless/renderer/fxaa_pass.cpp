@@ -21,6 +21,8 @@ std::shared_ptr<Texture> FXAAPass::getResult() {
 }
 
 void FXAAPass::render(InstanceRenderer &instance_renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
+    GPUProfileScope profile_scope {global_gpu_profiler, "FXAAPass"};
+
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 

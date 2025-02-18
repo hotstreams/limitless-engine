@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limitless/core/profiler.hpp>
 #include <limitless/instances/model_instance.hpp>
 
 namespace Limitless {
@@ -21,6 +22,8 @@ namespace Limitless {
         std::map<uint64_t, std::vector<std::reference_wrapper<MeshInstance>>> visible_meshes_of_terrain_instances;
     public:
         void update(Scene& scene, Camera& camera) {
+            GPUProfileScope profile_scope {global_gpu_profiler, "Frustum culling"};
+
             visible.clear();
             visible_instances_of_instanced_instances.clear();
             visible_meshes_of_terrain_instances.clear();
