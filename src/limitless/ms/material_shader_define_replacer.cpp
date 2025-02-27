@@ -19,6 +19,7 @@ VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
     {
     case InstanceType::Model:
     case InstanceType::Instanced:
+    case InstanceType::Decal:
         return {
             {0, DataType::Vec3},
             {1, DataType::Vec3},
@@ -36,7 +37,6 @@ VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
         };
     case InstanceType::BatchedModel:
     case InstanceType::Effect:
-    case InstanceType::Decal:
     case InstanceType::Terrain:
         throw std::runtime_error("not implemented");
     }
@@ -48,6 +48,7 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
     {
     case InstanceType::Model:
     case InstanceType::Instanced:
+    case InstanceType::Decal:
         return {
             {0, "position"},
             {1, "normal"},
@@ -65,16 +66,15 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
         };
     case InstanceType::BatchedModel:
         return {
-                    {0, "position"},
-                    {1, "normal"},
-                    {2, "tangent"},
-                    {3, "uv"},
-                    {4, "bone_index"},
-                    {5, "bone_weight"},
-                    {6, "mesh_index"},
+                {0, "position"},
+                {1, "normal"},
+                {2, "tangent"},
+                {3, "uv"},
+                {4, "bone_index"},
+                {5, "bone_weight"},
+                {6, "mesh_index"},
             };
     case InstanceType::Effect:
-    case InstanceType::Decal:
     case InstanceType::Terrain:
         throw std::runtime_error("not implemented");
     }
@@ -122,9 +122,13 @@ void MaterialShaderDefineReplacer::replaceMaterialDependentDefine(
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomShading], material.getShadingSnippet());
 
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Stream], getVertexStreamDeclaration(model_shader) + getVertexStreamGettersDeclaration(model_shader));
-    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Context], getVertexContextDeclaration(material, settings, model_shader) + getVertexContextInterfaceBlockOut(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::VertexContext], getVertexContextDeclaration(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockOut], getVertexContextInterfaceBlockOut(material, settings, model_shader));
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(material, settings, model_shader));
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::PassThrough], getVertexPassThrough(material, settings, model_shader));
+
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockIn], getVertexContextInterfaceBlockIn(material, settings, model_shader) + getVertexContextInterfaceBlockInGetters(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::FragmentContext], getFragmentContextDeclaration(material, settings, model_shader) + getFragmentVertexContextCompute(material, settings, model_shader));
 }
 
 std::string MaterialShaderDefineReplacer::getScalarUniformDefines(const Material &material) {
@@ -251,14 +255,37 @@ std::string MaterialShaderDefineReplacer::getVertexStreamGettersDeclaration(Inst
     auto input_type = getInputTypeFromInstanceType(instance_type);
     auto name_map = getNameMappingFromInstanceType(instance_type);
 
-    auto generate_vertex_getter = [] (uint8_t index, const std::string& name, DataType type) {
-        auto upper_name = name;
-        upper_name[0] = toupper(upper_name[0]);
-        return getDataTypeString(type) + " getVertex" + upper_name + "() {\n return " + vertex_input_prefix + name + ";\n}\n";
+    auto to_camel_case = [] (const std::string& input)
+    {
+        std::string result;
+        bool capitalizeNext = true;
+
+        for (char ch : input) {
+            if (ch == '_') {
+                capitalizeNext = true;
+            } else {
+                if (capitalizeNext) {
+                    result += std::toupper(ch);
+                    capitalizeNext = false;
+                } else {
+                    result += ch;
+                }
+            }
+        }
+
+        if (!result.empty()) {
+            result[0] = std::toupper(result[0]);
+        }
+
+        return result;
+    };
+
+    auto generate_vertex_getter = [to_camel_case] (const std::string& name, DataType type) {
+        return getDataTypeString(type) + " getVertex" + to_camel_case(name) + "() {\n return " + vertex_input_prefix + name + ";\n}\n";
     };
 
     for (const auto& [index, type] : input_type) {
-        getters_declaration += generate_vertex_getter(index, name_map.at(index), type);
+        getters_declaration += generate_vertex_getter(name_map.at(index), type);
     }
 
     return getters_declaration;
@@ -282,12 +309,8 @@ std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(
         context_declaration += generate_attribute_decl(name_map.at(index), type);
     }
 
-    // additional vertex context parameters
-    context_declaration += "mat4 model_transform;\n";
-    context_declaration += "vec4 world_position;\n";
-
-    if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
-        context_declaration += "mat3 TBN;\n";
+    if (type == InstanceType::Instanced) {
+        context_declaration += " int instance_id;\n";
     }
 
     context_declaration += "};\n";
@@ -305,29 +328,45 @@ std::string MaterialShaderDefineReplacer::getVertexContextCompute(
     auto input_type = getInputTypeFromInstanceType(type);
     auto name_map = getNameMappingFromInstanceType(type);
 
-    auto generate_vertex_getter_name = [] (const std::string& name, DataType type) {
-        auto upper_name = name;
-        upper_name[0] = toupper(upper_name[0]);
-        return " getVertex" + upper_name + "();\n";
+    auto to_camel_case = [] (const std::string& input)
+    {
+        std::string result;
+        bool capitalizeNext = true;
+
+        for (char ch : input) {
+            if (ch == '_') {
+                capitalizeNext = true;
+            } else {
+                if (capitalizeNext) {
+                    result += std::toupper(ch);
+                    capitalizeNext = false;
+                } else {
+                    result += ch;
+                }
+            }
+        }
+
+        if (!result.empty()) {
+            result[0] = std::toupper(result[0]);
+        }
+
+        return result;
     };
 
-    auto get_assignment = [generate_vertex_getter_name] (const std::string& name, DataType type) {
-        return "vctx." + name + + " = " + generate_vertex_getter_name(name, type);
+    auto generate_vertex_getter = [to_camel_case] (const std::string& name, DataType type) {
+        return "getVertex" + to_camel_case(name) + "();\n";
+    };
+
+    auto get_assignment = [generate_vertex_getter] (const std::string& name, DataType type) {
+        return "vctx." + name + + " = " + generate_vertex_getter(name, type);
     };
 
     for (const auto& [index, type] : input_type) {
         context_assignment += get_assignment(name_map.at(index), type);
     }
 
-    context_assignment += "vctx.model_transform = getModelTransform();\n";
-
-// TBN matrix only for meshes
-// (defined (MeshEmitter) || defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_INSTANCED_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)) && defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-    if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
-        //TODO: pass through uniform instance buffer ? bone transform ?
-        //TODO: research on transpose inverse bone scaling
-        context_assignment += "mat3 normal_matrix = transpose(inverse(mat3(vctx.model_transform)));\n";
-        context_assignment += "vctx.TBN = calculateTBN(vctx.normal, vctx.tangent, normal_matrix);\n";
+    if (type == InstanceType::Instanced) {
+        context_assignment += "vctx.instance_id = gl_InstanceID;\n";
     }
 
     return context_assignment;
@@ -344,6 +383,11 @@ std::string MaterialShaderDefineReplacer::getVertexContextInterfaceBlock(
     auto name_map = getNameMappingFromInstanceType(type);
 
     auto generate_attribute_decl = [] (const std::string& name, DataType type) {
+        if (type == DataType::Int ||
+            type == DataType::IVec4 ||
+            type == DataType::Uint) {
+            return "flat " + getDataTypeString(type) + " " + name + ";\n";
+        }
         return getDataTypeString(type) + " " + name + ";\n";
     };
 
@@ -365,6 +409,41 @@ std::string MaterialShaderDefineReplacer::getVertexContextInterfaceBlock(
     context += "}";
 
     return context;
+}
+
+std::string MaterialShaderDefineReplacer::getFragmentContextDeclaration(
+    const Material& material,
+    const RendererSettings& settings,
+    InstanceType type
+)
+{
+    std::string context_declaration = "struct VertexContext {\n";
+
+    auto input_type = getInputTypeFromInstanceType(type);
+    auto name_map = getNameMappingFromInstanceType(type);
+
+    auto generate_attribute_decl = [] (const std::string& name, DataType type) {
+        return getDataTypeString(type) + " " + name + ";\n";
+    };
+
+    for (const auto& [index, type] : input_type) {
+        context_declaration += generate_attribute_decl(name_map.at(index), type);
+    }
+
+    // additional vertex context parameters
+    context_declaration += "vec4 world_position;\n";
+
+    if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
+        context_declaration += "mat3 TBN;\n";
+    }
+
+    if (type == InstanceType::Instanced) {
+        context_declaration += "int instance_id;\n";
+    }
+
+    context_declaration += "};\n";
+
+    return context_declaration;
 }
 
 std::string MaterialShaderDefineReplacer::getVertexContextInterfaceBlockOut(
@@ -395,6 +474,127 @@ std::string MaterialShaderDefineReplacer::getVertexContextInterfaceBlockIn(
     return context_out;
 }
 
+std::string MaterialShaderDefineReplacer::getVertexContextInterfaceBlockInGetters(
+    const Material& material,
+    const RendererSettings& settings,
+    InstanceType type
+)
+{
+    std::string getters;
+
+    auto input_type = getInputTypeFromInstanceType(type);
+    auto name_map = getNameMappingFromInstanceType(type);
+
+    auto to_camel_case = [] (const std::string& input)
+    {
+        std::string result;
+        bool capitalizeNext = true;
+
+        for (char ch : input) {
+            if (ch == '_') {
+                capitalizeNext = true;
+            } else {
+                if (capitalizeNext) {
+                    result += std::toupper(ch);
+                    capitalizeNext = false;
+                } else {
+                    result += ch;
+                }
+            }
+        }
+
+        if (!result.empty()) {
+            result[0] = std::toupper(result[0]);
+        }
+
+        return result;
+    };
+
+    auto generate_vertex_getter = [to_camel_case] (const std::string& name, DataType type) {
+        return getDataTypeString(type) + " getVertex" + to_camel_case(name) + "() {\n\treturn _in_vertex_context." + name + ";\n}";
+    };
+
+    for (const auto& [index, type] : input_type) {
+        getters += generate_vertex_getter(name_map.at(index), type);
+    }
+
+    // additional vertex context parameters
+    getters += "vec4 getVertexWorldPosition() {\n\treturn _in_vertex_context.world_position;\n}";
+
+    if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
+        getters += "mat3 getVertexTBN() {\n\treturn _in_vertex_context.TBN;\n}";
+    }
+
+    if (type == InstanceType::Instanced) {
+        getters += "int getVertexInstanceId() {\n\treturn _in_vertex_context.instance_id;\n}";
+    }
+
+    return getters;
+}
+
+std::string MaterialShaderDefineReplacer::getFragmentVertexContextCompute(
+    const Material& material,
+    const RendererSettings& settings,
+    InstanceType type
+) {
+    std::string context = "VertexContext computeVertexContext() {\nVertexContext vctx;\n";
+
+    auto input_type = getInputTypeFromInstanceType(type);
+    auto name_map = getNameMappingFromInstanceType(type);
+
+    auto to_camel_case = [] (const std::string& input)
+    {
+        std::string result;
+        bool capitalizeNext = true;
+
+        for (char ch : input) {
+            if (ch == '_') {
+                capitalizeNext = true;
+            } else {
+                if (capitalizeNext) {
+                    result += std::toupper(ch);
+                    capitalizeNext = false;
+                } else {
+                    result += ch;
+                }
+            }
+        }
+
+        if (!result.empty()) {
+            result[0] = std::toupper(result[0]);
+        }
+
+        return result;
+    };
+
+    auto generate_vertex_getter = [to_camel_case] (const std::string& name, DataType type) {
+        return "getVertex" + to_camel_case(name) + "();\n";
+    };
+
+    auto get_assignment = [generate_vertex_getter] (const std::string& name, DataType type) {
+        return "vctx." + name + + " = " + generate_vertex_getter(name, type);
+    };
+
+    for (const auto& [index, type] : input_type) {
+        context += get_assignment(name_map.at(index), type);
+    }
+
+    // additional vertex context parameters
+    context += "vctx.world_position = getVertexWorldPosition();\n";
+
+    if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
+        context += "vctx.TBN = getVertexTBN();\n";
+    }
+
+    if (type == InstanceType::Instanced) {
+        context += "vctx.instance_id = getVertexInstanceId();\n";
+    }
+
+    context += "\treturn vctx;\n}\n";
+
+    return context;
+}
+
 std::string MaterialShaderDefineReplacer::getVertexPassThrough(
     const Material& material,
     const RendererSettings& settings,
@@ -415,14 +615,14 @@ std::string MaterialShaderDefineReplacer::getVertexPassThrough(
     }
 
     // additional vertex context parameters
-    pass_through += "_out_vertex_context.world_position = vctx.world_position;\n";
+    pass_through += "_out_vertex_context.world_position = ectx.world_position;\n";
 
     if (settings.normal_mapping && material.getProperties().count(Property::Normal)) {
-        pass_through += "_out_vertex_context.TBN = vctx.TBN;\n";
+        pass_through += "_out_vertex_context.TBN = ectx.TBN;\n";
     }
 
     if (type == InstanceType::Instanced) {
-        pass_through += "_out_vertex_context.instance_id = gl_InstanceID;\n";
+        pass_through += "_out_vertex_context.instance_id = vctx.instance_id;\n";
     }
 
     return pass_through;

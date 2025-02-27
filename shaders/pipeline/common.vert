@@ -1,17 +1,23 @@
 ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
+ENGINE::VERTEX_STREAM
+ENGINE::VERTEX_CONTEXT
+ENGINE::INTERFACE_BLOCK_OUT
+
+#include "../pipeline/scene.glsl"
 #include "../instance/instance.glsl"
 #include "../material/material.glsl"
 #include "../vertex/vertex_context.glsl"
-#include "../pipeline/scene.glsl"
 
 void main() {
     VertexContext vctx = computeVertexContext();
-    CustomVertexContext(vctx);
+    InstanceContext ictx = computeInstanceContext(vctx);
+    EvalContext ectx = computeEvalContext(vctx, ictx);
 
-    vctx.world_position = vctx.model_transform * vec4(vctx.position, 1.0);
-    gl_Position = getViewProjection() * vctx.world_position;
+    CustomVertexContext(vctx, ictx, ectx);
 
-    VertexContextPassThrough(vctx);
+    ProcessEvalContext(vctx, ictx, ectx);
+
+    VertexPassThrough(vctx, ictx, ectx);
 }

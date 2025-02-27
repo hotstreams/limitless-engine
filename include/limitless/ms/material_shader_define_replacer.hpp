@@ -77,7 +77,10 @@ namespace Limitless {
 
             enum class VertexDefineType {
                 Stream,
-                Context,
+                VertexContext,
+                FragmentContext,
+                InterfaceBlockOut,
+                InterfaceBlockIn,
                 ContextAssignment,
                 PassThrough
             };
@@ -85,9 +88,12 @@ namespace Limitless {
             static inline std::unordered_map<VertexDefineType, std::string> VERTEX_STREAM_DEFINE =
             {
                 { VertexDefineType::Stream, "ENGINE::VERTEX_STREAM" },
-                { VertexDefineType::Context, "ENGINE::VERTEX_CONTEXT" },
-                { VertexDefineType::ContextAssignment, "ENGINE::ASSIGN_STREAM_ATTIRIBUTES" },
-                { VertexDefineType::PassThrough, "ENGINE::PASS_THROUGH" }
+                { VertexDefineType::VertexContext, "ENGINE::VERTEX_CONTEXT" },
+                { VertexDefineType::FragmentContext, "ENGINE::FRAGMENT_CONTEXT" },
+                { VertexDefineType::InterfaceBlockOut, "ENGINE::INTERFACE_BLOCK_OUT" },
+                { VertexDefineType::InterfaceBlockIn, "ENGINE::INTERFACE_BLOCK_IN" },
+                { VertexDefineType::ContextAssignment, "ENGINE_ASSIGN_STREAM_ATTRIBUTES" },
+                { VertexDefineType::PassThrough, "ENGINE_VERTEX_PASS_THROUGH" }
             };
 
             static inline std::string vertex_input_prefix = "_vertex_";
@@ -117,6 +123,12 @@ namespace Limitless {
                 InstanceType type
             );
 
+            static std::string getFragmentContextDeclaration(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
             static std::string getVertexContextCompute(
                 const Material& material,
                 const RendererSettings& settings,
@@ -136,6 +148,18 @@ namespace Limitless {
             );
 
             static std::string getVertexContextInterfaceBlockIn(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextInterfaceBlockInGetters(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getFragmentVertexContextCompute(
                 const Material& material,
                 const RendererSettings& settings,
                 InstanceType type

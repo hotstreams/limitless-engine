@@ -22,8 +22,13 @@ void MaterialCompiler::compile(const Material& material, ShaderType pass_shader,
     };
 
 	try {
-		// auto shader = compile(assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props);
-		auto shader = compile(assets.getShaderDir() / "pipeline/common", assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props);
+		std::shared_ptr<ShaderProgram> shader;
+		if (material.getUniforms().count("skybox"))
+		{
+			shader = compile(assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props);
+		} else {
+			shader = compile(assets.getShaderDir() / "pipeline/common", assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props);
+		}
 
 		assets.shaders.add(pass_shader, model_shader, material.getShaderIndex(), shader);
 	} catch (const std::exception& e) {

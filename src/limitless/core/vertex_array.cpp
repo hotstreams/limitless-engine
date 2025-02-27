@@ -61,7 +61,7 @@ VertexArray::~VertexArray() {
 
 void VertexArray::bind() const noexcept {
     Context::apply([this] (Context& ctx) {
-        if (ctx.vertex_array_id != id) {
+    if (ctx.vertex_array_id != id) {
             glBindVertexArray(id);
             ctx.vertex_array_id = id;
         }

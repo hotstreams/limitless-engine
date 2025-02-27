@@ -77,7 +77,7 @@ namespace Limitless {
                                << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getScale()
                                << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getRotation();
                     } else {
-                        // buffer << std::get<std::shared_ptr<AbstractMesh>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName()
+                        // buffer << std::get<std::shared_ptr<Mesh>>(static_cast<const fx::InitialMeshLocation<Particle>&>(module).getMesh())->getName()
                         //        << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getScale()
                         //        << static_cast<const fx::InitialMeshLocation<Particle>&>(module).getRotation();
                     }

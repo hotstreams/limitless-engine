@@ -1,25 +1,26 @@
-    ENGINE::COMMON
+ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
-#include "../interface_block/vertex.glsl"
-#include "./scene.glsl"
+ENGINE::VERTEX_STREAM
+ENGINE::VERTEX_CONTEXT
+ENGINE::INTERFACE_BLOCK_OUT
+
+#include "../pipeline/scene.glsl"
 #include "../instance/instance.glsl"
 #include "../material/material.glsl"
-#include "../interface_block/pass_through.glsl"
-
-out vec3 skybox_uv;
+#include "../vertex/vertex_context.glsl"
 
 void main() {
-    vec2 uv = vec2(0.0);
+    VertexContext vctx = computeVertexContext();
+    InstanceContext ictx = computeInstanceContext(vctx);
+    EvalContext ectx = computeEvalContext(vctx, ictx);
 
-    vec3 vertex_position = getVertexPosition();
+    CustomVertexContext(vctx, ictx, ectx);
 
-    ENGINE_MATERIAL_VERTEX_SNIPPET
+    ProcessEvalContext(vctx, ictx, ectx);
 
-    skybox_uv = getVertexPosition();
-
-    vec4 pos = getProjection() * mat4(mat3(getView())) * vec4(vertex_position, 1.0);
+    vec4 pos = getProjection() * mat4(mat3(getView())) * vec4(vctx.position, 1.0);
     gl_Position = pos.xyww;
 
-    InterfaceBlockPassThrough(pos.xyw, uv, getModelTransform());
+    VertexPassThrough(vctx, ictx, ectx);
 }

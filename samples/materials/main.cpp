@@ -139,7 +139,7 @@ static void terminationHandler()
 }
 
 int main() {
-    std::set_terminate(terminationHandler);
+    // std::set_terminate(terminationHandler);
 
     LimitlessMaterials::MaterialsScene scene;
     scene.gameLoop();

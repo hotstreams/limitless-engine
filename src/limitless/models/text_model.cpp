@@ -47,5 +47,5 @@ void TextModel::draw() const {
 
 //    vertex_array.bind();
 
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    // glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 }

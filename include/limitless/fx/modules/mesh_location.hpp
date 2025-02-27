@@ -13,7 +13,7 @@ namespace Limitless::fx {
     template<typename Particle>
     class InitialMeshLocation : public Module<Particle> {
     protected:
-        std::variant<std::shared_ptr<AbstractMesh>, std::shared_ptr<AbstractModel>> mesh;
+        std::variant<std::shared_ptr<Mesh>, std::shared_ptr<AbstractModel>> mesh;
         std::default_random_engine generator;
 
         ModelInstance* instance {};
@@ -37,7 +37,7 @@ namespace Limitless::fx {
             return (m1 * a) + (m2 * b) + (m3 * c);
         }
 
-        glm::vec3 getPositionOnMesh(const std::shared_ptr<AbstractMesh>& _mesh, size_t vertex_index, float r1, float r2) {
+        glm::vec3 getPositionOnMesh(const std::shared_ptr<Mesh>& _mesh, size_t vertex_index, float r1, float r2) {
 //            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*_mesh).getVertexStream());
 //            const auto& vertices = indexed_mesh.getVertices();
 //            const auto& indices = indexed_mesh.getIndices();
@@ -68,7 +68,7 @@ namespace Limitless::fx {
 //                                         r1, r2), 1.0f);
         }
 
-        InitialMeshLocation(ModuleType type, std::shared_ptr<AbstractMesh> _mesh) noexcept
+        InitialMeshLocation(ModuleType type, std::shared_ptr<Mesh> _mesh) noexcept
             : Module<Particle>(type)
             , mesh {std::move(_mesh)}
             , generator {std::random_device()()} {
@@ -81,9 +81,9 @@ namespace Limitless::fx {
         }
 
         auto getSelectedMesh() {
-            std::shared_ptr<AbstractMesh> selected_mesh;
-            if (std::holds_alternative<std::shared_ptr<AbstractMesh>>(mesh)) {
-                selected_mesh = std::get<std::shared_ptr<AbstractMesh>>(mesh);
+            std::shared_ptr<Mesh> selected_mesh;
+            if (std::holds_alternative<std::shared_ptr<Mesh>>(mesh)) {
+                selected_mesh = std::get<std::shared_ptr<Mesh>>(mesh);
             } else {
                 const auto& model = std::get<std::shared_ptr<AbstractModel>>(mesh);
                 const auto& meshes = model->getMeshes();
@@ -98,7 +98,7 @@ namespace Limitless::fx {
             return selected_mesh;
         }
 
-        auto getVertexIndex(const std::shared_ptr<AbstractMesh>& selected_mesh) {
+        auto getVertexIndex(const std::shared_ptr<Mesh>& selected_mesh) {
 //            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*selected_mesh).getVertexStream());
 //            const auto& indices = indexed_mesh.getIndices();
 //            using vector_size_type = typename std::remove_reference_t<decltype(indices)>::size_type;
@@ -113,7 +113,7 @@ namespace Limitless::fx {
             return std::pair{r1, r2};
         }
     public:
-        explicit InitialMeshLocation(std::shared_ptr<AbstractMesh> _mesh) noexcept
+        explicit InitialMeshLocation(std::shared_ptr<Mesh> _mesh) noexcept
                 : Module<Particle>(ModuleType::InitialMeshLocation)
                 , mesh {std::move(_mesh)}
                 , generator {std::random_device()()} {
@@ -125,7 +125,7 @@ namespace Limitless::fx {
                 , generator {std::random_device()()}{
         }
 
-        explicit InitialMeshLocation(std::shared_ptr<AbstractMesh> _mesh, const glm::vec3& _scale, const glm::vec3& _rotation) noexcept
+        explicit InitialMeshLocation(std::shared_ptr<Mesh> _mesh, const glm::vec3& _scale, const glm::vec3& _rotation) noexcept
             : Module<Particle>(ModuleType::InitialMeshLocation)
             , mesh {std::move(_mesh)}
             , generator {std::random_device()()}

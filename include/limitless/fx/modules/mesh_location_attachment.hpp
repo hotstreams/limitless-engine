@@ -8,14 +8,14 @@ namespace Limitless::fx {
     class MeshLocationAttachment final : public InitialMeshLocation<Particle> {
     private:
         struct LocationCache {
-            std::shared_ptr<AbstractMesh> selected_mesh;
+            std::shared_ptr<Mesh> selected_mesh;
             size_t vertex_index;
             std::pair<float, float> triangle_position;
             glm::vec3 last_position;
         };
         std::map<size_t, LocationCache> cache;
     public:
-        explicit MeshLocationAttachment(std::shared_ptr<AbstractMesh> mesh) noexcept
+        explicit MeshLocationAttachment(std::shared_ptr<Mesh> mesh) noexcept
             : InitialMeshLocation<Particle>(ModuleType::MeshLocationAttachment, std::move(mesh)) {
         }
 

@@ -20,7 +20,7 @@ Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& f
     material = Material::builder()
                     .name(path.stem().string())
                     .custom("skybox", cube_map_texture)
-                    .fragment("mctx.color.rgb = texture(skybox, skybox_uv).rgb;\n")
+                    .fragment("mctx.color.rgb = texture(skybox, vctx.position).rgb;\n")
                     .color(glm::vec4(1.0f))
                     .two_sided(true)
                     .shading(Shading::Unlit)

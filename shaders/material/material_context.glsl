@@ -122,19 +122,13 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 
 ENGINE_MATERIAL_GLOBAL_DEFINITIONS
 
-void customMaterialContext(inout MaterialContext mctx) {
+void customMaterialContext(inout MaterialContext mctx, const VertexContext vctx) {
     ENGINE_MATERIAL_FRAGMENT_SNIPPET
 }
 
-MaterialContext computeMaterialContext() {
-    MaterialContext mctx = computeDefaultMaterialContext(getVertexUV());
-    customMaterialContext(mctx);
-    return mctx;
-}
-
-MaterialContext computeMaterialContext(vec2 uv) {
-    MaterialContext mctx = computeDefaultMaterialContext(uv);
-    customMaterialContext(mctx);
+MaterialContext computeMaterialContext(VertexContext vctx) {
+    MaterialContext mctx = computeDefaultMaterialContext(vctx.uv);
+    customMaterialContext(mctx, vctx);
     return mctx;
 }
 

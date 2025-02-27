@@ -128,7 +128,7 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .ior(1.5)
             .time()
             .custom("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga"))
-            .fragment("mctx.IoR = texture(noise, vec2(getVertexUV().x, getVertexUV().y + time * 0.1)).r;"
+            .fragment("mctx.IoR = texture(noise, vec2(vctx.uv.x, vctx.uv.y + time * 0.1)).r;"
                       "mctx.IoR = clamp(mctx.IoR, 0.0, 1.0);"
             )
             .shading(Shading::Unlit)
@@ -185,8 +185,8 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .custom("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga"))
             .time()
             .fragment(
-                    "vec2 panned = vec2(getVertexUV().x + time * 0.1, getVertexUV().y + time * 0.05);"
-                    "vec2 uv = getVertexUV() + texture(noise, panned).r;"
+                    "vec2 panned = vec2(vctx.uv.x + time * 0.1, vctx.uv.y + time * 0.05);"
+                    "vec2 uv = vctx.uv + texture(noise, panned).r;"
                     "mctx.color.rgb = getMaterialDiffuse(uv).rgb;"
                     "mctx.emissive_color *= texture(noise, panned).g;"
             )
@@ -202,7 +202,7 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .custom("snow", TextureLoader::load(*this, assets_dir / "textures/snow.jpg"))
             .time()
             .fragment(
-                    "vec2 uv = getVertexUV() + time * 0.05;"
+                    "vec2 uv = vctx.uv + time * 0.05;"
                     "mctx.color.rgb += texture(snow, uv).rgb * abs(cos(time * 0.5));"
                     "mctx.emissive_color *= texture(snow, uv).r;"
             )
@@ -218,8 +218,8 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .custom("noise", TextureLoader::load(*this, assets_dir / "textures/true_noise.tga"))
             .time()
             .fragment(
-                    "vec2 panned = vec2(getVertexUV().x + time * 0.05, getVertexUV().y);"
-                    "vec2 uv = vec2(getVertexUV().x, getVertexUV().y  + texture(noise, panned).g);"
+                    "vec2 panned = vec2(vctx.uv.x + time * 0.05, vctx.uv.y);"
+                    "vec2 uv = vec2(vctx.uv.x, vctx.uv.y  + texture(noise, panned).g);"
                     "mctx.color.rgb = getMaterialDiffuse(uv).rgb;"
                     "mctx.emissive_color *= getMaterialDiffuse(uv).g;"
             )
@@ -235,7 +235,7 @@ void LimitlessMaterials::Assets::setUpMaterials() {
                     "float t = texture(fire_mask, uv_2).r;\n"
                     "\n"
                     "vctx.position.xyz -= getVertexNormal() * texture(fire_mask, vctx.uv + vec2(s, t)).r * 0.6;")
-            .fragment("vec2 uv = getVertexUV();"
+            .fragment("vec2 uv = getVertexUv();"
                       "vec2 uv_1 = vec2(uv.x + time * 0.05, uv.y + time * 0.0);\n"
                       "vec2 uv_2 = vec2(uv.x - time * 0.05, uv.y - time * 0.0);\n"
                       " \n"
@@ -264,7 +264,7 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .custom("height", TextureLoader::load(*this, assets_dir / "textures/brickwork_height.png"))
             .shading(Shading::Lit)
             .vertex(
-                    "vertex_position += getVertexNormal() * texture(height, getVertexUV()).xyz * 0.25;"
+                    "vctx.position += vctx.normal * texture(height, vctx.uv).xyz * 0.25;"
             )
             .build(*this);
 
