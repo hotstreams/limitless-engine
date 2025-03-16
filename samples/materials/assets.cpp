@@ -11,6 +11,8 @@ void LimitlessMaterials::Assets::setUpMaterials() {
 
     const fs::path assets_dir {ENGINE_ASSETS_DIR};
 
+        TextureLoader::load(*this, assets_dir / "models/tree/Leaf_Cluster_2_Summer_Normal.png");
+
     Material::builder()
             .name("color")
             .color({1.0f, 0.5f, 1.0f, 1.0f})

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "scene.hpp"
 #include "assets.hpp"
 

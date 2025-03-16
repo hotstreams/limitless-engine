@@ -35,9 +35,19 @@ VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
             {4, DataType::IVec4},
             {5, DataType::Vec4}
         };
-    case InstanceType::BatchedModel:
     case InstanceType::Effect:
+        return {
+            {0, DataType::Vec4},
+            {1, DataType::Vec4},
+            {2, DataType::Vec4},
+            {3, DataType::Vec4},
+            {4, DataType::Vec4},
+            {5, DataType::Vec4},
+            {6, DataType::Vec4}
+        };
+    case InstanceType::BatchedModel:
     case InstanceType::Terrain:
+    default:
         throw std::runtime_error("not implemented");
     }
 }
@@ -75,6 +85,15 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
                 {6, "mesh_index"},
             };
     case InstanceType::Effect:
+        return {
+            {0, "color"},
+            {1, "subUV"},
+            {2, "properties"},
+            {3, "acceleration_lifetime"},
+            {4, "position_size"},
+            {5, "rotation_time"},
+            {6, "velocity"}
+        };
     case InstanceType::Terrain:
         throw std::runtime_error("not implemented");
     }

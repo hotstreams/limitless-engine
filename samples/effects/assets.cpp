@@ -124,7 +124,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .setMaxCount(1)
                 .build();
     }
-
+    //
     {
         Material::builder()
                 .name("fireball_material")
@@ -280,7 +280,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.15f, -0.025f, -0.15f), glm::vec3(0.15f, -0.15f, 0.15f)))
                 .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.15f, 0.05f, -0.15f), glm::vec3(0.15f, 0.1f, 0.15f)))
                 .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{2.0f}, glm::vec4{5.0f}))
-                .addInitialMeshLocation(dynamic_cast<SkeletalModel&>(*models.at("model")).getMeshes().at(1))
+                .addInitialMeshLocation(dynamic_cast<SkeletalModel&>(*models.at("model")).getMeshes().at(0))
                 .setMaterial(materials.at("drop"))
                 .setMaxCount(500)
                 .setSpawnRate(500.0f)

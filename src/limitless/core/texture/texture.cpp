@@ -14,7 +14,7 @@ void Texture::storage(const void* data) {
     if (is2D()) {
         texture->texStorage2D(static_cast<GLenum>(target), levels, static_cast<GLenum>(internal_format), static_cast<glm::uvec2>(size));
         if (data) {
-            subImage(0, {0, 0}, static_cast<glm::uvec2>(size), data);
+            subImage(0, glm::uvec2{0, 0}, static_cast<glm::uvec2>(size), data);
         }
     }
 

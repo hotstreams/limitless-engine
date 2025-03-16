@@ -98,7 +98,12 @@ std::string EffectShaderDefineReplacer::getEmitterDefines(const AbstractEmitter&
     return defines;
 }
 
-void EffectShaderDefineReplacer::replaceMaterialDependentDefine(Shader& shader, const ms::Material& material, InstanceType model_shader, const AbstractEmitter& emitter) {
+void EffectShaderDefineReplacer::replaceMaterialDependentDefine(
+    Shader& shader,
+    const ms::Material& material,
+    const RendererSettings& settings,
+    InstanceType model_shader,
+    const AbstractEmitter& emitter) {
     shader.replaceKey(DEFINE_NAMES.at(Define::MaterialDependent), getMaterialDependentDefine(material, model_shader) + getEmitterDefines(emitter));
 
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::Vertex], material.getVertexSnippet());
@@ -107,4 +112,13 @@ void EffectShaderDefineReplacer::replaceMaterialDependentDefine(Shader& shader, 
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomScalar], getScalarUniformDefines(material));
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomSamplers], getSamplerUniformDefines(material));
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomShading], material.getShadingSnippet());
+
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Stream], getVertexStreamDeclaration(model_shader) + getVertexStreamGettersDeclaration(model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::VertexContext], getVertexContextDeclaration(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockOut], getVertexContextInterfaceBlockOut(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::PassThrough], getVertexPassThrough(material, settings, model_shader));
+
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockIn], getVertexContextInterfaceBlockIn(material, settings, model_shader) + getVertexContextInterfaceBlockInGetters(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::FragmentContext], getFragmentContextDeclaration(material, settings, model_shader) + getFragmentVertexContextCompute(material, settings, model_shader));
 }
