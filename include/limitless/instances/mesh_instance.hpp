@@ -5,6 +5,7 @@
 #include <limitless/ms/material.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
 #include <limitless/core/context.hpp>
+#include <limitless/camera.hpp>
 #include <memory>
 
 namespace Limitless {
@@ -17,46 +18,46 @@ namespace Limitless {
     class MeshInstance final {
     private:
         std::shared_ptr<Mesh> mesh;
-        std::shared_ptr<ms::Material> material;
-        std::shared_ptr<ms::Material> base;
+
+        struct LodMaterial
+        {
+            std::shared_ptr<ms::Material> material;
+            std::shared_ptr<ms::Material> base;
+
+            LodMaterial(const ms::Material& mat)
+                : material(std::make_shared<ms::Material>(mat))
+                , base(std::make_shared<ms::Material>(mat))
+            {
+
+            }
+        };
+        std::unordered_map<uint32_t, LodMaterial> lods;
+
+        uint32_t current_lod;
+
+        void selectLod(const Camera& camera, const glm::vec3& position);
     public:
-        MeshInstance(std::shared_ptr<Mesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept;
+        MeshInstance(std::shared_ptr<Mesh> mesh) noexcept;
         ~MeshInstance() = default;
 
         MeshInstance(const MeshInstance&);
-        MeshInstance(MeshInstance&&) noexcept = default;
+        MeshInstance(MeshInstance&&) noexcept = default;    
 
-        // changes current material
+        // changes current material for current lod
         void changeMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
 
-        // changes base material
+        // changes base material for current lod
         void changeBaseMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
 
-        // resets base material to base
+        // resets base material to base material for current lod
         void reset() noexcept;
 
-        [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
-        [[nodiscard]] auto& getMaterial() noexcept { return material; }
+        [[nodiscard]] const auto& getMaterial() const noexcept { return lods.at(current_lod).material; }
+        [[nodiscard]] auto& getMaterial() noexcept { return lods.at(current_lod).material; }
 
         [[nodiscard]] const std::shared_ptr<Mesh>& getMesh() const noexcept { return mesh; }
+        [[nodiscard]] const uint32_t& getCurrentLod() const noexcept { return current_lod; }
 
-        void update();
-
-        void draw(Context& ctx,
-                  const Assets& assets,
-                  ShaderType pass,
-                  InstanceType model,
-                  const glm::mat4& model_matrix,
-                  ms::Blending blending,
-                  const UniformSetter& uniform_setter);
-
-        void draw_instanced(Context& ctx,
-                            const Assets& assets,
-                            ShaderType pass,
-                            InstanceType model,
-                            const glm::mat4& model_matrix,
-                            ms::Blending blending,
-                            const UniformSetter& uniform_setter,
-                            uint32_t count);
+        void update(const Camera& camera, const glm::vec3& position);
     };
 }

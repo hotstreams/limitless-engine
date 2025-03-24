@@ -9,116 +9,54 @@
 using namespace Limitless;
 using namespace Limitless::ms;
 
-MeshInstance::MeshInstance(std::shared_ptr<Mesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept
+MeshInstance::MeshInstance(std::shared_ptr<Mesh> mesh) noexcept
     : mesh {std::move(mesh)}
-    , material {std::make_shared<Material>(*material)} {
+    , current_lod {0} {
+    for (uint32_t i = 0; i < mesh->getLods().size(); ++i) {
+        const auto& lod = mesh->getLods()[i];
+        lods.emplace(i, LodMaterial(*lod.material));
+    }
 }
 
 MeshInstance::MeshInstance(const MeshInstance& rhs)
     : mesh {rhs.mesh}
-    , material {std::make_shared<Material>(*rhs.material)}
-    , base {std::make_shared<Material>(*rhs.base)} {
+    , current_lod {rhs.current_lod} {
+    for (const auto& [index, lod] : rhs.lods) {
+        lods.emplace(index, LodMaterial(*lod.material));
+    }
 }
 
 void MeshInstance::changeBaseMaterial(const std::shared_ptr<ms::Material>& material_) noexcept {
-    base = std::make_shared<Material>(*material_);
-    material = std::make_shared<Material>(*material_);
+    lods.at(current_lod).base = std::make_shared<Material>(*material_);
+    lods.at(current_lod).material = std::make_shared<Material>(*material_);
 }
 
 void MeshInstance::changeMaterial(const std::shared_ptr<Material>& material_) noexcept {
-    material = std::make_shared<Material>(*material_);
+    lods.at(current_lod).material = std::make_shared<Material>(*material_);
 }
 
 void MeshInstance::reset() noexcept {
-    material = base;
+    lods.at(current_lod).material = std::make_shared<Material>(*lods.at(current_lod).base);
 }
 
-//void MeshInstance::draw(Context& ctx,
-//                        const Assets& assets,
-//                        ShaderType pass,
-//                        InstanceType model,
-//                        const glm::mat4& model_matrix,
-//                        ms::Blending blending,
-//                        const UniformSetter& uniform_setter) {
-//
-//    if (material->getBlending() != blending) {
-//        return;
-//    }
-//
-//    setBlendingMode(material->getBlending());
-//
-//    // sets culling based on two-sideness
-//    if (material->getTwoSided()) {
-//        ctx.disable(Capabilities::CullFace);
-//    } else {
-//        ctx.enable(Capabilities::CullFace);
-//
-//        // front cullfacing for shadows helps prevent peter panning
-//        if (pass == ShaderType::DirectionalShadow) {
-//            ctx.setCullFace(CullFace::Front);
-//        } else {
-//            ctx.setCullFace(CullFace::Back);
-//        }
-//    }
-//
-//    // gets required shader from storage
-//    auto& shader = assets.shaders.get(pass, model, material->getShaderIndex());
-//
-//    // updates model/material uniforms
-//    shader.setUniform("_model_transform", model_matrix)
-//          .setMaterial(*material);
-//
-//    // sets custom pass-dependent uniforms
-//    uniform_setter(shader);
-//
-//    shader.use();
-//
-//    mesh->draw();
-//}
-//
-//void MeshInstance::draw_instanced(Context& ctx,
-//                                  const Assets& assets,
-//                                  ShaderType pass,
-//                                  InstanceType model,
-//                                  const glm::mat4& model_matrix,
-//                                  ms::Blending blending,
-//                                  const UniformSetter& uniform_setter,
-//                                  uint32_t count) {
-//    if (material->getBlending() != blending) {
-//        return;
-//    }
-//
-//    setBlendingMode(material->getBlending());
-//
-//    // sets culling based on two-sideness
-//    if (material->getTwoSided()) {
-//        ctx.disable(Capabilities::CullFace);
-//    } else {
-//        ctx.enable(Capabilities::CullFace);
-//
-//        // front cullfacing for shadows helps prevent peter panning
-//        if (pass == ShaderType::DirectionalShadow) {
-//            ctx.setCullFace(CullFace::Front);
-//        } else {
-//            ctx.setCullFace(CullFace::Back);
-//        }
-//    }
-//
-//    // gets required shader from storage
-//    auto& shader = assets.shaders.get(pass, model, material->getShaderIndex());
-//
-//    // updates model/material uniforms
-//    shader.setUniform("_model_transform", model_matrix)
-//            .setMaterial(*material);
-//
-//    // sets custom pass-dependent uniforms
-//    uniform_setter(shader);
-//
-//    shader.use();
-//
-//    mesh->draw_instanced(count);
-//}
+void MeshInstance::selectLod(const Camera& camera, const glm::vec3& position) {
+    switch (mesh->getSelection()) {
+        case Mesh::LodSelection::CameraDistance:
+            {
+                const auto distance = glm::distance(camera.getPosition(), position);
+                for (uint32_t i = 0; i < mesh->getDistances().size(); ++i) {
+                    if (distance <= mesh->getDistances()[i]) {
+                        current_lod = i;
+                        break;
+                    }
+                }
+            }
+            break;
+    }
+}
 
-void MeshInstance::update() {
-    material->update();
+void MeshInstance::update(const Camera& camera, const glm::vec3& position) {
+    selectLod(camera, position);
+
+    lods.at(current_lod).material->update();
 }

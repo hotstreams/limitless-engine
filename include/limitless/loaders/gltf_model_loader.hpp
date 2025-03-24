@@ -14,7 +14,8 @@ namespace Limitless {
 		GenerateUniqueMeshNames,
 		FlipWindingOrder,
 		NoMaterials,
-		GlobalScale
+		GlobalScale,
+		LoadLODs
 	};
 
 	struct ModelLoadError : public std::runtime_error {
@@ -37,6 +38,11 @@ namespace Limitless {
 
 		ModelLoaderFlags& instanced() {
 			additional_instance_types.emplace(InstanceType::Instanced);
+			return *this;
+		}
+
+		ModelLoaderFlags& loadLODs() {
+			options.emplace(ModelLoaderOption::LoadLODs);
 			return *this;
 		}
 	};

@@ -19,6 +19,8 @@ ModelInstance::ModelInstance(InstanceType shader, decltype(model) _model, const 
         for (uint32_t i = 0; i < model_meshes.size(); ++i) {
             meshes.emplace(model_meshes[i]->getName(), MeshInstance{model_meshes[i], model_mats[i]});
         }
+
+        updateBoundingBox();
     } catch (...) {
         throw std::logic_error{"Wrong model for ModelInstance"};
     }
@@ -35,6 +37,8 @@ ModelInstance::ModelInstance(decltype(model) _model, std::shared_ptr<ms::Materia
         auto& elementary_model = dynamic_cast<ElementaryModel&>(*model);
 
         meshes.emplace(elementary_model.getMesh()->getName(), MeshInstance{elementary_model.getMesh(), material});
+
+        changeMaterials(material);
     } catch (...) {
         throw std::logic_error{"Wrong model for ModelInstance"};
     }
@@ -57,7 +61,9 @@ MeshInstance& ModelInstance::operator[](uint32_t index) {
 }
 
 std::unique_ptr<Instance> ModelInstance::clone() noexcept {
-    return std::make_unique<ModelInstance>(*this);
+    auto instance = std::make_unique<ModelInstance>(*this);
+
+    return instance;
 }
 
 void ModelInstance::updateBoundingBox() noexcept {
@@ -68,9 +74,11 @@ void ModelInstance::updateBoundingBox() noexcept {
 void ModelInstance::update(const Camera &camera) {
     Instance::update(camera);
 
-	for (auto& [_, mesh] : meshes) {
-		mesh.update();
+	for (auto& [mesh_name, mesh] : meshes) {
+		mesh.update(camera, position);
 	}
+
+    updateBoundingBox();
 }
 
 void ModelInstance::changeMaterial(uint32_t mesh_index, const std::shared_ptr<ms::Material> &material) {

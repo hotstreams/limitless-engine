@@ -89,8 +89,8 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
         // set render state: shaders, material, blending, etc
         setRenderState(instance, mesh, drawp);
 
-        // draw vertices
-        mesh.getMesh()->draw();
+        // draw current lod
+        mesh.getMesh()->draw(mesh.getCurrentLod());
     }
 }
 
