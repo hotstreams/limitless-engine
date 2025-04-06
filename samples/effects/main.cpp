@@ -2,11 +2,13 @@
 #include "assets.hpp"
 
 #include <limitless/core/context.hpp>
+#include <limitless/core/profiler.hpp>
 #include <limitless/text/text_instance.hpp>
 #include <limitless/renderer/color_picker.hpp>
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/logging/log.hpp>
 
 namespace LimitlessMaterials {
     class MaterialsScene {
@@ -127,7 +129,11 @@ namespace LimitlessMaterials {
 }
 
 int main() {
-    LimitlessMaterials::MaterialsScene scene;
+    // Initialize logging system
+    Log::init();
+    
+    LimitlessEffects::EffectsScene scene;
     scene.gameLoop();
+
     return 0;
 }

@@ -22,7 +22,7 @@ namespace Limitless {
         std::map<uint64_t, std::vector<std::reference_wrapper<MeshInstance>>> visible_meshes_of_terrain_instances;
     public:
         void update(Scene& scene, Camera& camera) {
-            GPUProfileScope profile_scope {global_gpu_profiler, "Frustum culling"};
+            ProfilerScope profile_scope {"Frustum culling"};
 
             visible.clear();
             visible_instances_of_instanced_instances.clear();
@@ -65,6 +65,5 @@ namespace Limitless {
 
         [[nodiscard]] const Instances& getVisibleInstances() const noexcept { return visible; }
         [[nodiscard]] const std::vector<std::shared_ptr<ModelInstance>>& getVisibleModelInstanced(const InstancedInstance& instance) const noexcept { return visible_instances_of_instanced_instances.at(instance.getId()); }
-        const std::vector<std::reference_wrapper<MeshInstance>>& getVisibleTerrainMeshes(const TerrainInstance& instance) const noexcept { return visible_meshes_of_terrain_instances.at(instance.getId()); }
     };
 }

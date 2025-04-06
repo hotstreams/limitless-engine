@@ -10,8 +10,7 @@
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 #include <limitless/renderer/renderer.hpp>
-
-struct GPUProfiler;
+#include <limitless/logging/log.hpp>
 
 namespace LimitlessMaterials {
     class MaterialsScene {
@@ -133,7 +132,7 @@ namespace LimitlessMaterials {
     };
 }
 
-static void printProfilerFrames(const GPUProfiler& profiler) {
+static void printProfilerFrames(const Limitless::GPUProfiler& profiler) {
     for (const auto& [name, frame] : profiler.frames) {
         std::cout << name << ": min " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMinDuration()).count()
                   << ", max " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMaxDuration()).count()
@@ -143,9 +142,12 @@ static void printProfilerFrames(const GPUProfiler& profiler) {
 }
 
 int main() {
+    // Initialize logging system
+    Limitless::Log::init();
+    
     LimitlessMaterials::MaterialsScene scene;
     scene.gameLoop();
 
-    printProfilerFrames(global_gpu_profiler);
+    printProfilerFrames(Limitless::global_gpu_profiler);
     return 0;
 }

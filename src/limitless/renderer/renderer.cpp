@@ -29,7 +29,7 @@
 using namespace Limitless;
 
 void Renderer::render(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
-    GPUProfileScope profile_scope {global_gpu_profiler, "Renderer::render"};
+    ProfilerScope profile_scope {"Renderer::render"};
 
     instance_renderer.update(scene, camera);
 
@@ -178,7 +178,7 @@ Renderer::Builder &Renderer::Builder::deferred() {
     if (renderer->settings.bloom) {
         addBloomPass();
     }
-    addOutlinePass();
+    // addOutlinePass();
     addCompositePass();
     if (renderer->settings.fast_approximate_antialiasing) {
         addFXAAPass();

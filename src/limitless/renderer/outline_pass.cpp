@@ -28,7 +28,7 @@ void OutlinePass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
-    GPUProfileScope profile_scope {global_gpu_profiler, "OutlinePass"};
+    ProfilerScope profile_scope {"OutlinePass"};
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

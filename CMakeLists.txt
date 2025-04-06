@@ -10,7 +10,7 @@ OPTION(BUILD_SAMPLES "Builds samples" ON)
 OPTION(BUILD_TESTS "Builds tests" ON)
 
 OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" ON)
+OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" OFF)
 OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF)
 
 #########################################

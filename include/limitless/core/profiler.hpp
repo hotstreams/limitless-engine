@@ -7,56 +7,107 @@
 #include <vector>
 #include <GL/glew.h>
 
-struct GPUProfiler {
-    using QueryID = GLuint;
-    using Duration = std::chrono::nanoseconds;
+namespace Limitless {
+    struct GPUProfiler {
+        using QueryID = GLuint;
+        using Duration = std::chrono::nanoseconds;
+        
+        // Maximum number of frames to keep per identifier
+        static constexpr size_t MAX_FRAME_COUNT = 128;
 
-    struct GPUPeriod {
-        QueryID startQuery;
-        QueryID endQuery;
-        bool ready = false;
-        std::string identifier;
+        struct GPUPeriod {
+            QueryID start_query;
+            QueryID end_query;
+            bool ready = false;
+            std::string identifier;
+        };
+
+        struct GPUFrame {
+            void record(Duration duration);
+            Duration getMinDuration() const noexcept;
+            Duration getMaxDuration() const noexcept;
+            Duration getAverageDuration() const noexcept;
+            size_t getCount() const noexcept;
+
+        private:
+            std::vector<Duration> durations;
+            Duration min_duration = std::chrono::nanoseconds::max();
+            Duration max_duration = std::chrono::nanoseconds::zero();
+            Duration total_duration = std::chrono::nanoseconds::zero();
+            size_t count = 0;
+        };
+
+        std::unordered_map<std::string, GPUFrame> frames;
+        std::vector<GPUPeriod> pending_queries;
+
+        ~GPUProfiler();
+
+        void checkPendingQueries();
+        void ensureAvailableQueries();
+    public:
+        std::vector<QueryID> available_queries;
+        QueryID createQuery();
+        void deleteQuery(QueryID query);
     };
 
-    struct GPUFrame {
-        void record(Duration duration);
-        Duration getMinDuration() const noexcept;
-        Duration getMaxDuration() const noexcept;
-        Duration getAverageDuration() const noexcept;
-        size_t getCount() const noexcept;
+    inline GPUProfiler global_gpu_profiler;
+
+    struct GPUProfileScope {
+        GPUProfiler& profiler;
+        std::string identifier;
+        GPUProfiler::GPUPeriod period;
+
+        GPUProfileScope(std::string id, GPUProfiler& profiler = global_gpu_profiler);
+        ~GPUProfileScope();
 
     private:
-        std::vector<Duration> durations;
-        Duration minDuration = std::chrono::nanoseconds::max();
-        Duration maxDuration = std::chrono::nanoseconds::zero();
-        Duration totalDuration = std::chrono::nanoseconds::zero();
-        size_t count = 0;
+        static GPUProfiler::QueryID createTimestampQuery();
+        static void destroyTimestampQuery(GPUProfiler::QueryID query);
     };
 
-    std::unordered_map<std::string, GPUFrame> frames;
-    std::vector<GPUPeriod> pendingQueries;
+    struct CPUProfiler {
+        using Duration = std::chrono::nanoseconds;
+        using TimePoint = std::chrono::high_resolution_clock::time_point;
+        
+        // Maximum number of frames to keep per identifier
+        static constexpr size_t MAX_FRAME_COUNT = 128;
 
-    ~GPUProfiler();
+        struct CPUFrame {
+            void record(Duration duration);
+            Duration getMinDuration() const noexcept;
+            Duration getMaxDuration() const noexcept;
+            Duration getAverageDuration() const noexcept;
+            size_t getCount() const noexcept;
 
-    void checkPendingQueries();
-    void ensureAvailableQueries();
-public:
-    std::vector<QueryID> availableQueries;
-    QueryID createQuery();
-    void deleteQuery(QueryID query);
-};
+        private:
+            std::vector<Duration> durations;
+            Duration min_duration = std::chrono::nanoseconds::max();
+            Duration max_duration = std::chrono::nanoseconds::zero();
+            Duration total_duration = std::chrono::nanoseconds::zero();
+            size_t count = 0;
+        };
 
-extern GPUProfiler global_gpu_profiler;
+        std::unordered_map<std::string, CPUFrame> frames;
 
-struct GPUProfileScope {
-    GPUProfiler& profiler;
-    const char* identifier;
-    GPUProfiler::GPUPeriod period;
+        ~CPUProfiler() = default;
+    };
 
-    GPUProfileScope(GPUProfiler& profiler, const char* id);
-    ~GPUProfileScope();
+    inline CPUProfiler global_cpu_profiler;
 
-private:
-    static GPUProfiler::QueryID createTimestampQuery();
-    static void destroyTimestampQuery(GPUProfiler::QueryID query);
-};
+    struct CPUProfileScope {
+        CPUProfiler& profiler;
+        std::string identifier;
+        CPUProfiler::TimePoint start_time;
+
+        CPUProfileScope(std::string id, CPUProfiler& profiler = global_cpu_profiler);
+        ~CPUProfileScope();
+    };
+
+    struct ProfilerScope {
+        GPUProfileScope gpu_scope;
+        CPUProfileScope cpu_scope;
+
+        ProfilerScope(std::string id);
+        ~ProfilerScope() = default;
+    };
+}

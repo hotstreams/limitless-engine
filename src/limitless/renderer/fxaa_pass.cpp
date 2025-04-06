@@ -20,8 +20,14 @@ std::shared_ptr<Texture> FXAAPass::getResult() {
     return framebuffer.get(FramebufferAttachment::Color0).texture;
 }
 
-void FXAAPass::render(InstanceRenderer &instance_renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
-    GPUProfileScope profile_scope {global_gpu_profiler, "FXAAPass"};
+void FXAAPass::render(
+        [[maybe_unused]] InstanceRenderer& instance_renderer,
+        [[maybe_unused]] Scene &scene,
+        Context &ctx,
+        [[maybe_unused]] const Assets &assets,
+        [[maybe_unused]] const Camera &camera,
+        [[maybe_unused]] UniformSetter &setter) {
+    ProfilerScope profile_scope {"FXAAPass"};
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

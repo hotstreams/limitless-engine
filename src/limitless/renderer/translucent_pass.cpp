@@ -23,12 +23,12 @@ TranslucentPass::TranslucentPass(Renderer& renderer)
 
 void TranslucentPass::render(
         InstanceRenderer& instance_renderer,
-        [[maybe_unused]] Scene &scene,
+        Scene &scene,
         Context &ctx,
         const Assets &assets,
-        [[maybe_unused]] const Camera &camera,
+        const Camera &camera,
         UniformSetter &setter) {
-    GPUProfileScope profile_scope {global_gpu_profiler, "TranslucentPass"};
+    ProfilerScope profile_scope {"TranslucentPass"};
 
     std::array transparent = {
         ms::Blending::Additive,

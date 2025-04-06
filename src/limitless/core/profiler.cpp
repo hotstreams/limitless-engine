@@ -1,12 +1,14 @@
 #include <limitless/core/profiler.hpp>
 
+namespace Limitless {
+
 GPUProfiler::~GPUProfiler() {
-    for (const auto& query : availableQueries) {
+    for (const auto& query : available_queries) {
         glDeleteQueries(1, &query);
     }
-    for (const auto& period : pendingQueries) {
-        glDeleteQueries(1, &period.startQuery);
-        glDeleteQueries(1, &period.endQuery);
+    for (const auto& period : pending_queries) {
+        glDeleteQueries(1, &period.start_query);
+        glDeleteQueries(1, &period.end_query);
     }
 }
 
@@ -21,36 +23,64 @@ void GPUProfiler::deleteQuery(QueryID query) {
 }
 
 void GPUProfiler::ensureAvailableQueries() {
-    if (availableQueries.empty()) {
-        // Создаем новый пул запросов (например, 32 запроса)
+    if (available_queries.empty()) {
+        // Create a new query pool (e.g., 32 queries)
         const int poolSize = 32;
-        availableQueries.reserve(poolSize);
+        available_queries.reserve(poolSize);
         for (int i = 0; i < poolSize; ++i) {
-            availableQueries.push_back(createQuery());
+            available_queries.push_back(createQuery());
         }
     }
 }
 
 void GPUProfiler::GPUFrame::record(Duration duration) {
+    // If we've reached the maximum, remove the oldest entry
+    if (durations.size() >= GPUProfiler::MAX_FRAME_COUNT) {
+        auto oldest_duration = durations.front();
+        
+        // Update total duration by removing the oldest duration
+        total_duration -= oldest_duration;
+        
+        // Check if we need to recalculate min/max (if the oldest was min or max)
+        bool recalculate_min = (oldest_duration == min_duration);
+        bool recalculate_max = (oldest_duration == max_duration);
+        
+        // Remove the oldest entry
+        durations.erase(durations.begin());
+        count--;
+        
+        // Recalculate min/max if necessary
+        if (recalculate_min || recalculate_max) {
+            min_duration = std::chrono::nanoseconds::max();
+            max_duration = std::chrono::nanoseconds::zero();
+            
+            for (const auto& d : durations) {
+                if (d < min_duration) min_duration = d;
+                if (d > max_duration) max_duration = d;
+            }
+        }
+    }
+    
+    // Add the new duration
     durations.push_back(duration);
-    if (duration < minDuration) minDuration = duration;
-    if (duration > maxDuration) maxDuration = duration;
-    totalDuration += duration;
+    if (duration < min_duration) min_duration = duration;
+    if (duration > max_duration) max_duration = duration;
+    total_duration += duration;
     ++count;
 }
 
 GPUProfiler::Duration GPUProfiler::GPUFrame::getMinDuration() const noexcept {
-    return minDuration;
+    return min_duration;
 }
 
 GPUProfiler::Duration GPUProfiler::GPUFrame::getMaxDuration() const noexcept {
-    return maxDuration;
+    return max_duration;
 }
 
 GPUProfiler::Duration GPUProfiler::GPUFrame::getAverageDuration() const noexcept {
     if (count == 0) return std::chrono::nanoseconds::zero();
 
-    auto total_count = std::chrono::duration_cast<std::chrono::nanoseconds>(totalDuration).count();
+    auto total_count = std::chrono::duration_cast<std::chrono::nanoseconds>(total_duration).count();
     auto average = total_count / count;
 
     return std::chrono::nanoseconds(average);
@@ -61,50 +91,50 @@ size_t GPUProfiler::GPUFrame::getCount() const noexcept {
 }
 
 void GPUProfiler::checkPendingQueries() {
-    for (auto it = pendingQueries.begin(); it != pendingQueries.end();) {
+    for (auto it = pending_queries.begin(); it != pending_queries.end();) {
         GLint availableStart, availableEnd;
-        glGetQueryObjectiv(it->startQuery, GL_QUERY_RESULT_AVAILABLE, &availableStart);
-        glGetQueryObjectiv(it->endQuery, GL_QUERY_RESULT_AVAILABLE, &availableEnd);
+        glGetQueryObjectiv(it->start_query, GL_QUERY_RESULT_AVAILABLE, &availableStart);
+        glGetQueryObjectiv(it->end_query, GL_QUERY_RESULT_AVAILABLE, &availableEnd);
 
         if (availableStart && availableEnd) {
             GLuint64 start, end;
-            glGetQueryObjectui64v(it->startQuery, GL_QUERY_RESULT, &start);
-            glGetQueryObjectui64v(it->endQuery, GL_QUERY_RESULT, &end);
+            glGetQueryObjectui64v(it->start_query, GL_QUERY_RESULT, &start);
+            glGetQueryObjectui64v(it->end_query, GL_QUERY_RESULT, &end);
 
             Duration duration = std::chrono::nanoseconds(end - start);
             frames[it->identifier].record(duration);
 
-            // Удаляем использованные запросы
-            deleteQuery(it->startQuery);
-            deleteQuery(it->endQuery);
+            // Delete used queries
+            deleteQuery(it->start_query);
+            deleteQuery(it->end_query);
 
-            it = pendingQueries.erase(it); // Удаляем из списка
+            it = pending_queries.erase(it); // Remove from list
         } else {
-            ++it; // Переходим к следующему запросу
+            ++it; // Move to next query
         }
     }
 }
 
-GPUProfileScope::GPUProfileScope(GPUProfiler& profiler, const char* id)
-    : profiler(profiler), identifier(id) {
+GPUProfileScope::GPUProfileScope(std::string id, GPUProfiler& profiler)
+    : profiler(profiler), identifier(std::move(id)) {
     profiler.ensureAvailableQueries();
 
-    period.startQuery = profiler.availableQueries.back();
-    profiler.availableQueries.pop_back();
+    period.start_query = profiler.available_queries.back();
+    profiler.available_queries.pop_back();
 
-    period.endQuery = profiler.availableQueries.back();
-    profiler.availableQueries.pop_back();
+    period.end_query = profiler.available_queries.back();
+    profiler.available_queries.pop_back();
 
     period.identifier = identifier;
     period.ready = false;
 
-    glQueryCounter(period.startQuery, GL_TIMESTAMP);
+    glQueryCounter(period.start_query, GL_TIMESTAMP);
 }
 
 GPUProfileScope::~GPUProfileScope() {
-    glQueryCounter(period.endQuery, GL_TIMESTAMP);
+    glQueryCounter(period.end_query, GL_TIMESTAMP);
 
-    profiler.pendingQueries.push_back(period);
+    profiler.pending_queries.push_back(period);
 }
 
 GPUProfiler::QueryID GPUProfileScope::createTimestampQuery() {
@@ -117,4 +147,79 @@ void GPUProfileScope::destroyTimestampQuery(GPUProfiler::QueryID query) {
     glDeleteQueries(1, &query);
 }
 
-GPUProfiler global_gpu_profiler;
+// CPUProfiler implementation
+void CPUProfiler::CPUFrame::record(Duration duration) {
+    // If we've reached the maximum, remove the oldest entry
+    if (durations.size() >= CPUProfiler::MAX_FRAME_COUNT) {
+        auto oldest_duration = durations.front();
+        
+        // Update total duration by removing the oldest duration
+        total_duration -= oldest_duration;
+        
+        // Check if we need to recalculate min/max (if the oldest was min or max)
+        bool recalculate_min = (oldest_duration == min_duration);
+        bool recalculate_max = (oldest_duration == max_duration);
+        
+        // Remove the oldest entry
+        durations.erase(durations.begin());
+        count--;
+        
+        // Recalculate min/max if necessary
+        if (recalculate_min || recalculate_max) {
+            min_duration = std::chrono::nanoseconds::max();
+            max_duration = std::chrono::nanoseconds::zero();
+            
+            for (const auto& d : durations) {
+                if (d < min_duration) min_duration = d;
+                if (d > max_duration) max_duration = d;
+            }
+        }
+    }
+    
+    // Add the new duration
+    durations.push_back(duration);
+    if (duration < min_duration) min_duration = duration;
+    if (duration > max_duration) max_duration = duration;
+    total_duration += duration;
+    ++count;
+}
+
+CPUProfiler::Duration CPUProfiler::CPUFrame::getMinDuration() const noexcept {
+    return min_duration;
+}
+
+CPUProfiler::Duration CPUProfiler::CPUFrame::getMaxDuration() const noexcept {
+    return max_duration;
+}
+
+CPUProfiler::Duration CPUProfiler::CPUFrame::getAverageDuration() const noexcept {
+    if (count == 0) return std::chrono::nanoseconds::zero();
+
+    auto total_count = std::chrono::duration_cast<std::chrono::nanoseconds>(total_duration).count();
+    auto average = total_count / count;
+
+    return std::chrono::nanoseconds(average);
+}
+
+size_t CPUProfiler::CPUFrame::getCount() const noexcept {
+    return count;
+}
+
+// CPUProfileScope implementation
+CPUProfileScope::CPUProfileScope(std::string id, CPUProfiler& profiler)
+    : profiler(profiler), identifier(std::move(id)) {
+    start_time = std::chrono::high_resolution_clock::now();
+}
+
+CPUProfileScope::~CPUProfileScope() {
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<CPUProfiler::Duration>(endTime - start_time);
+    profiler.frames[identifier].record(duration);
+}
+
+// Combined ProfilerScope implementation
+ProfilerScope::ProfilerScope(std::string id)
+    : gpu_scope(id), cpu_scope(std::move(id)) {
+}
+
+} // namespace Limitless

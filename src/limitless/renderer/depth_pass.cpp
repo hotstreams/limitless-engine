@@ -18,12 +18,12 @@ DepthPass::DepthPass(Renderer& renderer)
 
 void DepthPass::render(
         InstanceRenderer& instance_renderer,
-        [[maybe_unused]] Scene &scene,
+        Scene &scene,
         Context &ctx,
-        const Assets &assets,
+        [[maybe_unused]] const Assets &assets,
         [[maybe_unused]] const Camera &camera,
-        UniformSetter &setter) {
-	GPUProfileScope profile_scope {global_gpu_profiler, "DepthPass"};
+        [[maybe_unused]] UniformSetter &setter) {
+    ProfilerScope profile_scope {"DepthPass"};
 
     ctx.enable(Capabilities::DepthTest);
 	ctx.enable(Capabilities::StencilTest);

@@ -20,7 +20,7 @@ void GBufferPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
-    GPUProfileScope profile_scope {global_gpu_profiler, "FXAAPass"};
+    ProfilerScope profile_scope {"GBufferPass"};
 
     ctx.enable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

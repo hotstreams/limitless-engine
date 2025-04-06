@@ -19,30 +19,30 @@ namespace Limitless {
         /**
          *  Normal mapping
          */
-        bool normal_mapping {true};
+        bool normal_mapping {false};
 
         /**
          * Screen Space Ambient Occlusion
          */
-        bool screen_space_ambient_occlusion {true};
+        bool screen_space_ambient_occlusion {false};
         SSAO::Settings ssao_settings;
 
         /**
          * Screen Space Reflections
          */
-        bool screen_space_reflections {true};
+        bool screen_space_reflections {false};
         SSR::Settings ssr_settings;
 
         /**
          * FXAA Fast Approximate Antialiasing
          */
-        bool fast_approximate_antialiasing {true};
+        bool fast_approximate_antialiasing {false};
         //TODO: refactor shaders
 
         /**
          * Cascade shadow maps
          */
-        bool cascade_shadow_maps = true;
+        bool cascade_shadow_maps = false;
         glm::uvec2 csm_resolution = {1024 * 4, 1024 * 4 };
         uint8_t csm_split_count = 3; // [2; 4]
 
@@ -59,7 +59,7 @@ namespace Limitless {
         /**
          *
          */
-        bool bloom {true};
+        bool bloom {false};
         float bloom_extract_threshold {1.0f};
         float bloom_strength {1.0f};
         uint32_t bloom_blur_iteration_count {8};
@@ -95,29 +95,29 @@ namespace Limitless {
             /**
              *  Normal mapping
              */
-            bool normal_mapping {true};
+            bool normal_mapping {false};
 
             /**
              * Screen Space Ambient Occlusion
              */
-            bool screen_space_ambient_occlusion {true};
+            bool screen_space_ambient_occlusion {false};
             SSAO::Settings ssao_cfg;
 
             /**
              * Screen Space Reflections
              */
-            bool screen_space_reflections {true};
+            bool screen_space_reflections {false};
             SSR::Settings ssr_cfg;
 
             /**
              * FXAA Fast Approximate Antialiasing
              */
-            bool fast_approximate_antialiasing {true};
+            bool fast_approximate_antialiasing {false};
 
             /**
              * Cascade shadow maps
              */
-            bool cascade_shadow_maps = true;
+            bool cascade_shadow_maps = false;
             glm::uvec2 csm_resolution = {1024 * 4, 1024 * 4 };
             uint8_t csm_split_count = 3; // [2; 4]
 
@@ -134,7 +134,7 @@ namespace Limitless {
             /**
              *
              */
-            bool bloom {true};
+            bool bloom {false};
             float bloom_ex_threshold {1.0f};
             float bloom_str {1.0f};
             uint32_t bloom_blur_it_count {8};

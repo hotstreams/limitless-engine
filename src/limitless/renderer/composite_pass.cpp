@@ -26,7 +26,7 @@ void CompositePass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
-    GPUProfileScope profile_scope {global_gpu_profiler, "CompositePass"};
+    ProfilerScope profile_scope {"CompositePass"};
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 
@@ -39,14 +39,23 @@ void CompositePass::render(
         shader.setUniform("lightened", renderer.getPass<TranslucentPass>().getResult());
 
         {
-            auto& bloom_pass = renderer.getPass<BloomPass>();
-            //TODO: move to bloom
-            const auto bloom_strength = bloom_pass.getBloom().strength / static_cast<float>(bloom_pass.getBloom().blur.getIterationCount());
-            //TODO: what if there is no bloom ?
-            shader.setUniform("bloom", bloom_pass.getResult())
-                  .setUniform("outline", renderer.getPass<OutlinePass>().getResult())
-                  .setUniform("bloom_strength", bloom_strength)
-                  .setUniform("tone_mapping_exposure", tone_mapping_exposure);
+            if (renderer.isPresent<BloomPass>()) {
+                auto& bloom_pass = renderer.getPass<BloomPass>();
+                const auto bloom_strength = bloom_pass.getBloom().strength / static_cast<float>(bloom_pass.getBloom().blur.getIterationCount());
+                shader.setUniform("bloom", bloom_pass.getResult())
+                      .setUniform("bloom_strength", bloom_strength);
+            } else {
+                shader.setUniform("bloom_strength", 0.0f);
+            }
+
+            if (renderer.isPresent<OutlinePass>()) {
+                shader.setUniform("outline", renderer.getPass<OutlinePass>().getResult())
+                      .setUniform("outline_strength", 1.0f);
+            } else {
+                shader.setUniform("outline_strength", 0.0f);
+            }
+            
+            shader.setUniform("tone_mapping_exposure", tone_mapping_exposure);
         }
 
         shader.use();

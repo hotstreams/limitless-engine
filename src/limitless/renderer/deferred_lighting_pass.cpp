@@ -22,12 +22,12 @@ std::shared_ptr<Texture> DeferredLightingPass::getResult() {
 
 void DeferredLightingPass::render(
         [[maybe_unused]] InstanceRenderer& instance_renderer,
-        [[maybe_unused]] Scene&scene,
+        Scene &scene,
         Context &ctx,
         const Assets &assets,
-        [[maybe_unused]] const Camera &camera,
+        const Camera &camera,
         UniformSetter &setter) {
-    GPUProfileScope profile_scope {global_gpu_profiler, "DeferredLightingPass"};
+    ProfilerScope profile_scope {"DeferredLightingPass"};
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

@@ -175,8 +175,9 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
     if (!shouldBeRendered(instance, drawp)) {
         return;
     }
-
+/*
     for (const auto& mref: frustum_culling.getVisibleTerrainMeshes(instance)) {
+    for (const auto& mref: frustum_culling.getVisibleModelInstanced(instance)) {
         auto& mesh = mref.get();
 
         // skip mesh if blending is different
@@ -189,7 +190,7 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
 
         // draw vertices
         mesh.getMesh()->draw();
-    }
+    }*/
 }
 
 void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters &drawp) {

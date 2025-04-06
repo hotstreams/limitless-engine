@@ -1,4 +1,5 @@
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/logging/log.hpp>
 
 #include <algorithm>
 #include <fstream>
