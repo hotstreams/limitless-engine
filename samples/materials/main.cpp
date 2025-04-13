@@ -132,7 +132,8 @@ namespace LimitlessMaterials {
     };
 }
 
-static void printProfilerFrames(const Limitless::GPUProfiler& profiler) {
+template<typename ProfilerType>
+static void printProfilerFrames(const ProfilerType& profiler) {
     for (const auto& [name, frame] : profiler.frames) {
         std::cout << name << ": min " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMinDuration()).count()
                   << ", max " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMaxDuration()).count()
@@ -148,6 +149,9 @@ int main() {
     LimitlessMaterials::MaterialsScene scene;
     scene.gameLoop();
 
+    std::cout << "GPU" << std::endl;
     printProfilerFrames(Limitless::global_gpu_profiler);
+    std::cout << "CPU" << std::endl;
+    printProfilerFrames(Limitless::global_cpu_profiler);
     return 0;
 }

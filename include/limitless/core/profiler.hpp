@@ -97,7 +97,7 @@ namespace Limitless {
     struct CPUProfileScope {
         CPUProfiler& profiler;
         std::string identifier;
-        CPUProfiler::TimePoint start_time;
+        CPUProfiler::TimePoint start_time;\
 
         CPUProfileScope(std::string id, CPUProfiler& profiler = global_cpu_profiler);
         ~CPUProfileScope();
