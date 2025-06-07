@@ -131,6 +131,8 @@ namespace Limitless {
         bool mipmap {false};
         bool compressed {false};
         bool immutable {false};
+
+        size_t getBytesPerPixel() const noexcept;
     protected:
         Texture() = default;
     public:
@@ -164,6 +166,7 @@ namespace Limitless {
         [[nodiscard]] auto isCubemapArray() const noexcept { return target == Type::TexCubeMapArray; }
         [[nodiscard]] uint32_t getId() const noexcept;
         [[nodiscard]] auto& getExtensionTexture() noexcept { return *texture; }
+        [[nodiscard]] std::vector<std::byte> getPixels() noexcept;
 
         Texture& setMinFilter(Filter filter);
         Texture& setMagFilter(Filter filter);

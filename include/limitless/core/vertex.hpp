@@ -14,12 +14,25 @@ namespace Limitless {
     struct TextVertex {
         glm::vec2 position;
         glm::vec2 uv;
+        glm::vec4 color;
 
-        TextVertex(glm::vec2 _position, glm::vec2 _uv) noexcept
+        TextVertex(glm::vec2 _position, glm::vec2 _uv, glm::vec4 _color) noexcept
             : position{_position}
-            , uv{_uv} {}
+            , uv{_uv}
+            , color{_color}
+        {}
 
         TextVertex() = default;
+    };
+
+    struct TextSelectionVertex {
+        glm::vec2 position;
+
+        TextSelectionVertex(glm::vec2 _position) noexcept
+            : position{_position}
+        {}
+
+        TextSelectionVertex() = default;
     };
 
     struct VertexNormal {

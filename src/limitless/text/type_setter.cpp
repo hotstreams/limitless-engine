@@ -1,0 +1,291 @@
+#include <limitless/text/type_setter.hpp>
+
+#include <sstream>
+
+using namespace Limitless;
+
+static size_t utf8CharLength(char c) {
+    if ((c & 0x80) == 0) {
+        return 1;
+
+    } else if ((c & 0xE0) == 0xC0) {
+        return 2;
+
+    } else if ((c & 0xF0) == 0xE0) {
+        return 3;
+
+    } else if ((c & 0xF8) == 0xF0) {
+        return 4;
+    }
+
+    return 0;
+}
+
+/**
+ * Invokes bool(uint32_t) function for each Unicode codepoint of a UTF-8 encoded string.
+ * If that function returns false, then iteration is stopped.
+ */
+template <typename T>
+static void forEachUnicodeCodepoint(std::string_view str, T&& func) {
+    size_t i = 0;
+    while (i < str.size()) {
+        size_t char_len = utf8CharLength(str[i]);
+        if (char_len == 0) {
+            throw font_error {"invalid UTF-8 char"};
+        }
+
+        uint32_t codepoint = str[i] & (0xFF >> char_len);
+        for (size_t j = 1; j < char_len; ++j) {
+            char continuation_byte = str[i + j];
+
+            if ((continuation_byte & 0xC0) != 0x80) {
+                throw font_error {"invalid UTF-8 byte sequence at " + std::to_string(i + j)};
+            }
+            codepoint = (codepoint << 6) | (continuation_byte & 0x3F);
+        }
+
+        if (!func(codepoint)) {
+            return;
+        }
+
+        i += char_len;
+    }
+}
+
+static std::vector<std::string> split(const std::string& str, char separator) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(str);
+    std::string token;
+
+    while (std::getline(ss, token, separator)) {
+        tokens.emplace_back(std::move(token));
+    }
+
+    return tokens;
+}
+
+static std::string wordWrap(
+    const std::string& original_text,
+    const FontAtlas& font,
+    float wrap_width,
+    float curr_width
+) {
+    std::string word_wrapped_text;
+    auto lines = split(original_text, '\n');
+
+    for (const auto& line : lines) {
+        auto words = split(line, ' ');
+
+        for (auto& word : words) {
+            if (&word != &words.back()) {
+                word += ' ';
+            }
+
+            const auto word_width = [&](){
+                float result = 0.f;
+
+                forEachUnicodeCodepoint(word, [&](uint32_t cp){
+                    const auto& fc = font.getFontChar(cp);
+
+                    result += (fc.advance >> 6);
+
+                    return true;
+                });
+
+                return result;
+            }();
+
+            if (curr_width + word_width <= wrap_width) {
+                word_wrapped_text += word;
+                curr_width += word_width;
+
+            } else {
+                if (curr_width != 0.f) {
+                    word_wrapped_text += '\n';
+                }
+                word_wrapped_text += word;
+                curr_width = word_width;
+            }
+        }
+
+        if (&line != &lines.back()) {
+            curr_width = 0.f;
+            word_wrapped_text += '\n';
+        }
+    }
+
+    return word_wrapped_text;
+}
+
+TypeSetResult TypeSetter::typeSet(
+    const std::vector<FormattedText>& formatted_text_parts
+) {
+    std::unordered_map<FontAtlas*, FontVertices> font_vertices;
+    std::pair<glm::vec2, glm::vec2> bounding_box {{0.f, 0.f}, {0.f, 0.f}};
+    glm::vec2& min_pos = bounding_box.first;
+    glm::vec2& max_pos = bounding_box.second;
+
+    if (formatted_text_parts.empty()) {
+        return TypeSetResult({}, bounding_box);
+    }
+
+    glm::vec2 offset {0.f, 0.f};
+    
+    for (const auto& formatted_text : formatted_text_parts) {
+        const auto& color = formatted_text.format.color;
+        const auto& font = formatted_text.format.font;
+        const auto& wrap_width = formatted_text.format.wrap_width;
+
+        const auto& text = wrap_width
+            ? wordWrap(formatted_text.text, *font, *wrap_width, offset.x)
+            : formatted_text.text;
+
+        auto& vertices = [&]() -> std::vector<TextVertex>& {
+            auto it = font_vertices.find(font.get());
+            if (it != font_vertices.end()) {
+                return it->second.vertices;
+            }
+
+            font_vertices.emplace(font.get(), FontVertices(font, {}));
+            return font_vertices.at(font.get()).vertices;
+        }();
+
+        forEachUnicodeCodepoint(text, [&](uint32_t cp) -> bool {
+            if (cp == '\n') {
+                offset.y -= font->getFontSize();
+                offset.x = 0;
+                // ++cp_index;
+                return true;
+            }
+
+            const auto& fc = font->getFontChar(cp);
+
+            float x = offset.x + fc.bearing.x;
+            float y = offset.y + fc.bearing.y - fc.size.y;
+
+            min_pos = glm::vec2(std::min(min_pos.x, x), std::min(min_pos.y, y));
+            max_pos = glm::vec2(std::max(max_pos.x, x + fc.size.x), std::max(max_pos.y, y + fc.size.y));
+
+            const auto vertex_color = fc.is_icon ? glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) : color;
+
+            vertices.emplace_back(glm::vec2{x, y + fc.size.y}, fc.uvs[2], vertex_color);
+            vertices.emplace_back(glm::vec2{x, y},             fc.uvs[0], vertex_color);
+            vertices.emplace_back(glm::vec2{x + fc.size.x, y}, fc.uvs[1], vertex_color);
+
+            vertices.emplace_back(glm::vec2{x, y + fc.size.y}, fc.uvs[2], vertex_color);
+            vertices.emplace_back(glm::vec2{x + fc.size.x, y}, fc.uvs[1], vertex_color);
+            vertices.emplace_back(glm::vec2{x + fc.size.x, y + fc.size.y}, fc.uvs[3], vertex_color);
+
+            offset.x += (fc.advance >> 6);
+            // ++cp_index;
+            return true;
+        });
+    };
+
+    std::vector<FontVertices> vertices_per_font;
+
+    for (auto& [font_atlas_ptr, vertices] : font_vertices) {
+        vertices_per_font.emplace_back(std::move(vertices));
+    }
+
+    return TypeSetResult(std::move(vertices_per_font), bounding_box);
+}
+
+std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
+    const std::vector<FormattedText>& formatted_text_parts,
+    size_t start_codepoint_index,
+    size_t end_codepoint_index
+) {
+    std::vector<TextSelectionVertex> vertices;
+
+    auto addRect = [&] (glm::vec2 pos, glm::vec2 size) {
+        vertices.emplace_back(glm::vec2{pos.x, -pos.y + size.y});
+        vertices.emplace_back(glm::vec2{pos.x, -pos.y});
+        vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y});
+
+        vertices.emplace_back(glm::vec2{pos.x, -pos.y + size.y});
+        vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y});
+        vertices.emplace_back(glm::vec2{pos.x + size.x, -pos.y + size.y});
+    };
+
+    glm::ivec2 offset {};
+    size_t cp_index = 0u;
+    uint32_t line_width = 0u;
+    uint32_t line_height = 0u;
+
+    for (const auto& formatted_text : formatted_text_parts) {
+        const auto& text = formatted_text.text;
+        const auto& font = formatted_text.format.font;
+
+        forEachUnicodeCodepoint(text, [&](uint32_t cp) {
+            line_height = std::max(line_height, font->getFontSize());
+            if (cp_index < start_codepoint_index) {
+                // Skip until selection range starts.
+                offset.x += font->getFontChar(cp).advance >> 6;
+                if (cp == '\n') {
+                    offset.x = 0;
+                    offset.y += line_height;
+                    line_height = 0u;
+                }
+                ++cp_index;
+                return true;
+
+            } else if (cp_index < end_codepoint_index) {
+                if (cp == '\n') {
+                    if (line_width != 0) {
+                        // Finish this selection line.
+                        addRect({offset.x, offset.y}, glm::vec2{line_width, line_height});
+                        line_width = 0;
+                        offset.x = 0;
+                        offset.y += line_height;
+                        line_height = 0u;
+                    } else {
+                        // An empty line, still add small selection geometry for it.
+                        line_width = font->getFontChar(' ').advance >> 6;
+                    }
+                } else {
+                        line_width += font->getFontChar(cp).advance >> 6;
+                }
+                ++cp_index;
+                return true;
+
+            } else {
+                return false;
+            }
+        });
+    }
+
+
+    return vertices;
+}
+
+glm::vec2 TypeSetter::getBoundingBoxSize(const std::vector<FormattedText>& formatted_text_parts) {
+    if (formatted_text_parts.empty()) {
+        return glm::vec2(0.f, 0.f);
+    }
+
+    // TODO: compute first line height.
+    glm::vec2 max_size {0, formatted_text_parts[0].format.font->getFontSize()};
+    float line_width = 0.f;
+
+    for (const auto& formatted_text : formatted_text_parts) {
+        const auto& text = formatted_text.text;
+        const auto& font = formatted_text.format.font;
+
+        forEachUnicodeCodepoint(text, [&](uint32_t cp) {
+            const auto& fc = font->getFontChar(cp);
+
+            line_width += (fc.advance >> 6);
+
+            if (cp == '\n') {
+                max_size.y += font->getFontSize();
+                line_width = 0;
+            }
+
+            max_size.x = std::max(max_size.x, line_width);
+            return true;
+        });
+    }
+
+    return max_size;
+}

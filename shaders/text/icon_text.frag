@@ -8,5 +8,5 @@ out vec4 FragColor;
 uniform sampler2D bitmap;
 
 void main() {
-    FragColor = vec4(vs_color.rgb, texture(bitmap, vs_uv).r * vs_color.a);
+    FragColor = vs_color * texture(bitmap, vs_uv);
 }

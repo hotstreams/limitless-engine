@@ -75,6 +75,7 @@ namespace Limitless {
         VertexArray& operator<<(const std::pair<TextVertex, const std::shared_ptr<Buffer>&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexNormalTangent, const std::shared_ptr<Buffer>&>& attribute) noexcept;
         VertexArray& operator<<(const std::pair<VertexTerrain, const std::shared_ptr<Buffer>&>& attribute) noexcept;
+        VertexArray& operator<<(const std::pair<TextSelectionVertex, const std::shared_ptr<Buffer>&>& attribute) noexcept;
     };
 
     void swap(VertexArray& lhs, VertexArray& rhs);

@@ -137,6 +137,7 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
 
     add("text", compiler.compile(shader_dir / "text/text"));
     add("text_selection", compiler.compile(shader_dir / "text/text_selection"));
+    add("icon_text", compiler.compile(shader_dir / "text/icon_text"));
 }
 
 void ShaderStorage::clear() {

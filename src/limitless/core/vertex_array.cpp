@@ -93,7 +93,13 @@ VertexArray& VertexArray::operator<<(const std::pair<Vertex, const std::shared_p
 VertexArray& VertexArray::operator<<(const std::pair<TextVertex, const std::shared_ptr<Buffer>&>& attribute) noexcept {
     setAttribute<glm::vec2>(0, false, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, position), attribute.second);
     setAttribute<glm::vec2>(1, false, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, uv), attribute.second);
-	return *this;
+    setAttribute<glm::vec4>(2, false, sizeof(TextVertex), (GLvoid*)offsetof(TextVertex, color), attribute.second);
+    return *this;
+}
+
+VertexArray& VertexArray::operator<<(const std::pair<TextSelectionVertex, const std::shared_ptr<Buffer>&>& attribute) noexcept {
+    setAttribute<glm::vec2>(0, false, sizeof(TextSelectionVertex), (GLvoid*)offsetof(TextSelectionVertex, position), attribute.second);
+    return *this;
 }
 
 void VertexArray::setAttribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer, const std::shared_ptr<Buffer>& buffer) {

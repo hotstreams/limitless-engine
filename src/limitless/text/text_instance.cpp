@@ -5,25 +5,27 @@
 #include "limitless/core/uniform/uniform.hpp"
 #include <limitless/core/context.hpp>
 #include <limitless/text/font_atlas.hpp>
+#include <limitless/text/type_setter.hpp>
 #include <limitless/assets.hpp>
 
 #include <glm/gtx/transform.hpp>
 
 using namespace Limitless;
 
-TextInstance::TextInstance(std::string _text, const glm::vec2& _position, std::shared_ptr<FontAtlas> _font)
-    : text_model {_font->generate(_text)}
-    , text {std::move(_text)}
+TextInstance::TextInstance(
+    std::vector<FormattedText> _formatted_text_parts,
+    const glm::vec2& _position
+)
+    : formatted_text_parts {std::move(_formatted_text_parts)}
     , position {_position}
-    , font {std::move(_font)} {
-    calculateModelMatrix();
-}
-
-TextInstance::TextInstance(size_t count, const glm::vec2& _position, std::shared_ptr<FontAtlas> _font)
-    : text_model {count}
-    , text {}
-    , position {_position}
-    , font {std::move(_font)} {
+{
+    auto type_set_result = TypeSetter::typeSet(formatted_text_parts);
+    bounding_box = type_set_result.bounding_box;
+    for (auto& fv : type_set_result.vertices_of_fonts) {
+        font_text_models.push_back(FontTextModel{
+            TextModel(std::move(fv.vertices)), fv.font
+        });
+    }
     calculateModelMatrix();
 }
 
@@ -34,16 +36,24 @@ void TextInstance::calculateModelMatrix() noexcept {
     model_matrix = translation_matrix * scaling_matrix;
 }
 
-TextInstance& TextInstance::setText(std::string _text) {
-    if (text != _text) {
-        text = std::move(_text);
-        text_model.update(font->generate(text));
-    }
-    return *this;
+TextInstance& TextInstance::setText(std::string _text, TextFormat _text_format) {
+    return setText({FormattedText(std::move(_text), std::move(_text_format))});
 }
 
-TextInstance& TextInstance::setColor(const glm::vec4& _color) noexcept {
-    color = _color;
+TextInstance& TextInstance::setText(std::vector<FormattedText> _formatted_text_parts) {
+    if (formatted_text_parts != _formatted_text_parts) {
+        formatted_text_parts = std::move(_formatted_text_parts);
+
+        auto type_set_result = TypeSetter::typeSet(formatted_text_parts);
+        font_text_models.clear();
+
+        bounding_box = type_set_result.bounding_box;
+        for (auto& fv : type_set_result.vertices_of_fonts) {
+            font_text_models.push_back(FontTextModel{
+                TextModel(std::move(fv.vertices)), fv.font
+            });
+        }
+    }
     return *this;
 }
 
@@ -53,7 +63,7 @@ TextInstance& TextInstance::setSelectionColor(const glm::vec4& _color) noexcept 
 }
 
 TextInstance& TextInstance::setSelection(size_t begin, size_t end) {
-    selection_model = TextModel{font->getSelectionGeometry(text, begin, end)};
+    selection_model = TextSelectionModel{TypeSetter::typeSetSelection(formatted_text_parts, begin, end)};
     return *this;
 }
 
@@ -74,8 +84,20 @@ TextInstance& TextInstance::setSize(const glm::vec2& _size) noexcept {
     return *this;
 }
 
+glm::vec2 TextInstance::getBoundingBoxDimensions() const noexcept {
+    const auto& [min, max] = bounding_box;
+    return (max - min) * size;
+}
+
 void TextInstance::draw(Context& ctx, const Assets& assets) {
     ctx.disable(Capabilities::DepthTest);
+
+    const auto ortho_projection = glm::ortho(
+        0.0f,
+        static_cast<float>(ctx.getSize().x),
+        0.0f,
+        static_cast<float>(ctx.getSize().y)
+    );
 
     // draw selection
     if (selection_model) {
@@ -84,7 +106,7 @@ void TextInstance::draw(Context& ctx, const Assets& assets) {
         auto& shader = assets.shaders.get("text_selection");
 
         shader.setUniform("model", model_matrix)
-              .setUniform("proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y)))
+              .setUniform("proj", ortho_projection)
               .setUniform("color", selection_color);
 
         shader.use();
@@ -93,18 +115,19 @@ void TextInstance::draw(Context& ctx, const Assets& assets) {
     }
 
     // draw text
-    {
-        auto& shader = assets.shaders.get("text");
-
+    for (auto& ftm : font_text_models) {
+        auto& text_shader = ftm.font_atlas->isIconAtlas()
+            ? assets.shaders.get("icon_text")
+            : assets.shaders.get("text");
         setBlendingMode(ms::Blending::Text);
 
-        shader.setUniform("bitmap", font->getTexture())
+        text_shader
+              .setUniform("bitmap", ftm.font_atlas->getTexture())
               .setUniform("model", model_matrix)
-              .setUniform("proj", glm::ortho(0.0f, static_cast<float>(ctx.getSize().x), 0.0f, static_cast<float>(ctx.getSize().y)))
-              .setUniform("color", color);
+              .setUniform("proj", ortho_projection);
 
-        shader.use();
+        text_shader.use();
 
-        text_model.draw();
+        ftm.text_model.draw();
     }
 }
