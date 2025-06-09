@@ -63,7 +63,13 @@ TextInstance& TextInstance::setSelectionColor(const glm::vec4& _color) noexcept 
 }
 
 TextInstance& TextInstance::setSelection(size_t begin, size_t end) {
-    selection_model = TextSelectionModel{TypeSetter::typeSetSelection(formatted_text_parts, begin, end)};
+    auto vertices = TypeSetter::typeSetSelection(formatted_text_parts, begin, end);
+    if (!selection_model) {
+        selection_model = TextSelectionModel(std::move(vertices));
+    } else {
+        selection_model->update(std::move(vertices));
+    }
+
     return *this;
 }
 

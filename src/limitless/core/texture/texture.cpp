@@ -323,10 +323,6 @@ std::vector<std::byte> Texture::getPixels() noexcept {
     std::vector<std::byte> pixels;
     pixels.resize(size.x * size.y * getBytesPerPixel());
 
-    std::cerr << "getPixels size: " << size.x << " " << size.y << " " << getBytesPerPixel() << std::endl;
-    std::cerr << "getPixels format: " << formatToString(static_cast<GLenum>(format)) << " " << dataTypeToString(static_cast<GLenum>(data_type)) << std::endl;
-    std::cerr << "getPixels target: " << targetToString(static_cast<GLenum>(target)) << std::endl;
-    
     bind(0);
     glGetTexImage(static_cast<GLenum>(target), 
                   0,  // mipmap level 
@@ -334,8 +330,6 @@ std::vector<std::byte> Texture::getPixels() noexcept {
                   static_cast<GLenum>(data_type),
                   pixels.data());
 
-    std::cerr << "getPixels pixels: " << bytesToHexString(pixels) << std::endl;
-    
     return pixels;
 }
 

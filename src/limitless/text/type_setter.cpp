@@ -261,7 +261,7 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
                 if (cp == '\n') {
                     if (line_width != 0) {
                         // Finish this selection line.
-                        addRect({offset.x, offset.y}, glm::vec2{line_width, line_height});
+                        addRect({offset.x, offset.y + line_height/4}, glm::vec2{line_width, line_height});
                         line_width = 0;
                         offset.x = 0;
                         offset.y += line_height;
@@ -281,6 +281,8 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
             }
         });
     }
+
+    addRect({offset.x, offset.y + line_height/4}, glm::vec2{line_width, line_height});
 
 
     return vertices;
