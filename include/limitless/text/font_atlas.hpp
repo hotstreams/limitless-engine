@@ -53,7 +53,8 @@ namespace Limitless {
     public:
         static std::shared_ptr<FontAtlas> load(
             const fs::path& path,
-            uint32_t pixel_size
+            uint32_t pixel_size,
+            std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges = {}
         );
 
 		static std::shared_ptr<FontAtlas> make(
@@ -82,7 +83,10 @@ namespace Limitless {
          * Return font character for given Unicode codepoint.
          * If font does not have it, then ""missing/tofu" font character is returned.
          */
-        [[nodiscard]] const FontChar& getFontChar(uint32_t utf32_codepoint) const noexcept;
+        [[nodiscard]] const FontChar& getFontCharOrTofu(uint32_t utf32_codepoint) const noexcept;
+
+        [[nodiscard]] std::optional<std::reference_wrapper<const FontChar>>
+        getFontChar(uint32_t utf32_codepoint) const noexcept;
 
         [[nodiscard]] const auto& getTexture() const { return texture; }
 

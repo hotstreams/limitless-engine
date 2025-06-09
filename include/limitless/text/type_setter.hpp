@@ -13,25 +13,32 @@ namespace Limitless {
 
     struct TextFormat {
         glm::vec4 color;
-        std::shared_ptr<FontAtlas> font;
+        std::vector<std::shared_ptr<FontAtlas>> font_stack;
         std::optional<float> wrap_width;
 
-        TextFormat(glm::vec4 _color, std::shared_ptr<FontAtlas> _font, std::optional<float> _wrap_width)
+        TextFormat(
+            glm::vec4 _color,
+            std::vector<std::shared_ptr<FontAtlas>> _font_stack,
+            std::optional<float> _wrap_width
+        )
             : color (_color)
-            , font (_font)
+            , font_stack (std::move(_font_stack))
             , wrap_width (_wrap_width)
         {
         }
 
         friend bool operator==(const TextFormat& lhs, const TextFormat& rhs) {
             return lhs.color == rhs.color
-                && lhs.font.get() == rhs.font.get()
+                && sameFontStack(lhs, rhs)
                 && lhs.wrap_width == rhs.wrap_width;
         }
 
         friend bool operator!=(const TextFormat& lhs, const TextFormat& rhs) {
             return !(lhs == rhs);
         }
+
+    private:
+        static bool sameFontStack(const TextFormat& lhs, const TextFormat& rhs);
     };
 
     struct FormattedText {
@@ -85,7 +92,5 @@ namespace Limitless {
             size_t start_codepoint_index,
             size_t end_codepoint_index
         );
-
-        static glm::vec2 getBoundingBoxSize(const std::vector<FormattedText>& formatted_text_parts);
     };
 }
