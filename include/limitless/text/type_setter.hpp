@@ -16,17 +16,20 @@ namespace Limitless {
         std::vector<std::shared_ptr<FontAtlas>> font_stack;
         std::optional<float> wrap_width;
         std::optional<CjkVariant> cjk_variant;
+        float line_spacing_modifier;
 
         TextFormat(
             glm::vec4 _color,
             std::vector<std::shared_ptr<FontAtlas>> _font_stack,
             std::optional<float> _wrap_width,
-            std::optional<CjkVariant> _cjk_variant
+            std::optional<CjkVariant> _cjk_variant,
+            float _line_spacing_modifier
         )
             : color (_color)
             , font_stack (std::move(_font_stack))
             , wrap_width (_wrap_width)
             , cjk_variant (_cjk_variant)
+            , line_spacing_modifier (_line_spacing_modifier)
         {
         }
 
@@ -34,7 +37,8 @@ namespace Limitless {
             return lhs.color == rhs.color
                 && sameFontStack(lhs, rhs)
                 && lhs.wrap_width == rhs.wrap_width
-                && lhs.cjk_variant == rhs.cjk_variant;
+                && lhs.cjk_variant == rhs.cjk_variant
+                && lhs.line_spacing_modifier == rhs.line_spacing_modifier;
         }
 
         friend bool operator!=(const TextFormat& lhs, const TextFormat& rhs) {

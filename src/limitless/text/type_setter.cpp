@@ -161,6 +161,7 @@ TypeSetResult TypeSetter::typeSet(
         const auto& font_stack = formatted_text.format.font_stack;
         const auto& wrap_width = formatted_text.format.wrap_width;
         const auto& cjk_variant = formatted_text.format.cjk_variant;
+        const auto line_spacing_modifier = formatted_text.format.line_spacing_modifier;
 
         if (font_stack.empty()) {
             throw font_error("empty font stack");
@@ -182,7 +183,7 @@ TypeSetResult TypeSetter::typeSet(
 
         forEachUnicodeCodepoint(text, [&](uint32_t cp) -> bool {
             if (cp == '\n') {
-                offset.y -= font_stack[0]->getFontSize();
+                offset.y -= font_stack[0]->getFontSize() * line_spacing_modifier;
                 offset.x = 0;
 
                 return true;
@@ -250,6 +251,7 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
         const auto& text = formatted_text.text;
         const auto& font_stack = formatted_text.format.font_stack;
         const auto& cjk_variant = formatted_text.format.cjk_variant;
+        const auto line_spacing_modifier = formatted_text.format.line_spacing_modifier;
 
         if (font_stack.empty()) {
             throw font_error("empty font stack");
@@ -265,7 +267,7 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
                 offset.x += font->getFontCharOrTofu(cp).advance >> 6;
                 if (cp == '\n') {
                     offset.x = 0;
-                    offset.y += line_height;
+                    offset.y += line_height * line_spacing_modifier;
                     line_height = 0u;
                 }
                 ++cp_index;
@@ -278,7 +280,7 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
                         addRect({offset.x, offset.y + line_height/4}, glm::vec2{line_width, line_height});
                         line_width = 0;
                         offset.x = 0;
-                        offset.y += line_height;
+                        offset.y += line_height * line_spacing_modifier;
                         line_height = 0u;
                     } else {
                         // An empty line, still add small selection geometry for it.
