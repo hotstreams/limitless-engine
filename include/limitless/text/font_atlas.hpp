@@ -44,6 +44,12 @@ namespace Limitless {
         bool is_icon;
     };
 
+    enum class CjkVariant {
+        CHINESE,
+        JAPANESE,
+        KOREAN
+    };
+
     struct font_error : public std::runtime_error {
         explicit font_error(const char* error) : runtime_error{error} { }
         explicit font_error(const std::string& error) : runtime_error{error} {}
@@ -54,7 +60,8 @@ namespace Limitless {
         static std::shared_ptr<FontAtlas> load(
             const fs::path& path,
             uint32_t pixel_size,
-            std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges = {}
+            std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges = {},
+            std::optional<CjkVariant> _cjk_variant = std::nullopt
         );
 
 		static std::shared_ptr<FontAtlas> make(
@@ -66,7 +73,8 @@ namespace Limitless {
             std::unordered_map<uint32_t, FontChar> chars,
             std::shared_ptr<Texture> texture,
             uint32_t pixel_size,
-            bool is_icon
+            bool is_icon,
+            std::optional<CjkVariant> cjk_variant
         );
 
 		FontAtlas(const FontAtlas&) = delete;
@@ -92,6 +100,8 @@ namespace Limitless {
 
         [[nodiscard]] auto isIconAtlas() const noexcept { return is_icon; }
 
+        [[nodiscard]] auto getCjkVariant() const noexcept { return cjk_variant; }
+
         /**
          * Return vertices for UTF-8 encoded string.
          */
@@ -112,5 +122,6 @@ namespace Limitless {
         std::shared_ptr<Texture> texture;
         uint32_t pixel_size;
         bool is_icon;
+        std::optional<CjkVariant> cjk_variant;
     };
 }

@@ -70,7 +70,8 @@ static std::shared_ptr<FontAtlas> makeAtlas(
     std::unordered_map<uint32_t, GlyphInfo> glyph_for_char,
     uint32_t pixel_size,
     size_t bytes_per_pixel,
-    bool is_icon
+    bool is_icon,
+    std::optional<CjkVariant> cjk_variant
 ) {
     std::unordered_map<uint32_t, FontChar> chars;
 
@@ -178,19 +179,27 @@ static std::shared_ptr<FontAtlas> makeAtlas(
             .buildMutable();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-    return std::make_shared<FontAtlas>(std::move(chars), std::move(texture), pixel_size, is_icon);
+    return std::make_shared<FontAtlas>(
+        std::move(chars),
+        std::move(texture),
+        pixel_size,
+        is_icon,
+        cjk_variant
+    );
 }
 
 FontAtlas::FontAtlas(
     std::unordered_map<uint32_t, FontChar> chars,
     std::shared_ptr<Texture> texture,
     uint32_t pixel_size,
-    bool _is_icon
+    bool _is_icon,
+    std::optional<CjkVariant> _cjk_variant
 )  
     : chars {std::move(chars)}
     , texture {std::move(texture)}
     , pixel_size {pixel_size}
     , is_icon (_is_icon)
+    , cjk_variant (_cjk_variant)
 {
 
 }
@@ -227,13 +236,20 @@ std::shared_ptr<FontAtlas> FontAtlas::make(
         });
     }
 
-    return makeAtlas(std::move(glyph_for_char), font_size_in_pixels, bytes_per_pixel, /* is_icon = */ true);
+    return makeAtlas(
+        std::move(glyph_for_char),
+        font_size_in_pixels,
+        bytes_per_pixel,
+        /* is_icon = */ true,
+        /* cjk_variant = */std::nullopt
+    );
 }
 
 std::shared_ptr<FontAtlas> FontAtlas::load(
     const fs::path& path,
     uint32_t pixel_size,
-    std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges
+    std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges,
+    std::optional<CjkVariant> cjk_variant
 ) {
     static FT_Library ft {nullptr};
 
@@ -308,7 +324,13 @@ std::shared_ptr<FontAtlas> FontAtlas::load(
 
     FT_Done_Face(face);
 
-    return makeAtlas(std::move(glyph_for_char), pixel_size, /* bytes_per_pixel = */ 1, /* is_icon = */ false);
+    return makeAtlas(
+        std::move(glyph_for_char),
+        pixel_size,
+        /* bytes_per_pixel = */ 1,
+        /* is_icon = */ false,
+        cjk_variant
+    );
 }
 
 FontAtlas::~FontAtlas() = default;

@@ -15,22 +15,26 @@ namespace Limitless {
         glm::vec4 color;
         std::vector<std::shared_ptr<FontAtlas>> font_stack;
         std::optional<float> wrap_width;
+        std::optional<CjkVariant> cjk_variant;
 
         TextFormat(
             glm::vec4 _color,
             std::vector<std::shared_ptr<FontAtlas>> _font_stack,
-            std::optional<float> _wrap_width
+            std::optional<float> _wrap_width,
+            std::optional<CjkVariant> _cjk_variant
         )
             : color (_color)
             , font_stack (std::move(_font_stack))
             , wrap_width (_wrap_width)
+            , cjk_variant (_cjk_variant)
         {
         }
 
         friend bool operator==(const TextFormat& lhs, const TextFormat& rhs) {
             return lhs.color == rhs.color
                 && sameFontStack(lhs, rhs)
-                && lhs.wrap_width == rhs.wrap_width;
+                && lhs.wrap_width == rhs.wrap_width
+                && lhs.cjk_variant == rhs.cjk_variant;
         }
 
         friend bool operator!=(const TextFormat& lhs, const TextFormat& rhs) {

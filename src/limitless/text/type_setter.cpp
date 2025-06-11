@@ -66,9 +66,18 @@ static std::vector<std::string> split(const std::string& str, char separator) {
 
 static const std::shared_ptr<FontAtlas>& getFontForChar(
     uint32_t utf32_codepoint,
-    const std::vector<std::shared_ptr<FontAtlas>>& font_stack
+    const std::vector<std::shared_ptr<FontAtlas>>& font_stack,
+    std::optional<CjkVariant> cjk_variant
 ) {
     for (const auto& font_sptr : font_stack) {
+        if (cjk_variant) {
+            const auto font_cjk_variant = font_sptr->getCjkVariant();
+            if (font_cjk_variant && *cjk_variant != *font_cjk_variant) {
+                // skip font if its for wrong CJK variant.
+                continue;
+            }
+        }
+
         auto maybe_fc = font_sptr->getFontChar(utf32_codepoint);
         if (maybe_fc) {
             return font_sptr;
@@ -84,6 +93,7 @@ static std::string wordWrap(
     float curr_width
 ) {
     std::string word_wrapped_text;
+    // TODO: investigate word split for CJK.
     auto lines = split(original_text, '\n');
 
     for (const auto& line : lines) {
@@ -98,7 +108,8 @@ static std::string wordWrap(
                 float result = 0.f;
 
                 forEachUnicodeCodepoint(word, [&](uint32_t cp){
-                    const auto& font = getFontForChar(cp, font_stack);
+                     // TODO: this might result in wrong word wrap if diff fonts are selected due to CJK variance.
+                    const auto& font = getFontForChar(cp, font_stack, /* cjk_variant = */std::nullopt);
                     const auto& fc = font->getFontCharOrTofu(cp);
 
                     result += (fc.advance >> 6);
@@ -149,6 +160,7 @@ TypeSetResult TypeSetter::typeSet(
         const auto& color = formatted_text.format.color;
         const auto& font_stack = formatted_text.format.font_stack;
         const auto& wrap_width = formatted_text.format.wrap_width;
+        const auto& cjk_variant = formatted_text.format.cjk_variant;
 
         if (font_stack.empty()) {
             throw font_error("empty font stack");
@@ -176,7 +188,7 @@ TypeSetResult TypeSetter::typeSet(
                 return true;
             }
 
-            const auto& font = getFontForChar(cp, font_stack);
+            const auto& font = getFontForChar(cp, font_stack, cjk_variant);
             const auto& fc = font->getFontCharOrTofu(cp);
 
             float x = offset.x + fc.bearing.x;
@@ -237,12 +249,14 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
     for (const auto& formatted_text : formatted_text_parts) {
         const auto& text = formatted_text.text;
         const auto& font_stack = formatted_text.format.font_stack;
+        const auto& cjk_variant = formatted_text.format.cjk_variant;
+
         if (font_stack.empty()) {
             throw font_error("empty font stack");
         }
 
         forEachUnicodeCodepoint(text, [&](uint32_t cp) {
-            const auto& font = getFontForChar(cp, font_stack);
+            const auto& font = getFontForChar(cp, font_stack, cjk_variant);
 
             line_height = std::max(line_height, font_stack[0]->getFontSize());
             if (cp_index < start_codepoint_index) {
