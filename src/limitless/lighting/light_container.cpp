@@ -77,7 +77,7 @@ Light& LightContainer::add(Light&& light) {
 Light& LightContainer::add(const Light& light) {
     // add new light to all lights
     auto copy = light;
-    lights.emplace(light.getId(), std::move(copy));
+    lights.emplace(copy.getId(), std::move(copy));
 
     // add corresponding internal presentation
     internal_lights.emplace(copy.getId(), light);
