@@ -10,7 +10,8 @@ void Profiler::draw(Context& ctx, const Assets& assets) {
         {assets.fonts.at("nunito")},
         /* wrap_width =*/ std::nullopt,
         /* cjk_variant = */std::nullopt,
-        /* line_spacing_modifier = */1.f
+        /* line_spacing_modifier = */1.f,
+        /* pixel_size = */std::nullopt
     );
     auto text = TextInstance({{"text", text_format}}, glm::vec2(0.f));
     text.setSize(glm::vec2{0.5f});

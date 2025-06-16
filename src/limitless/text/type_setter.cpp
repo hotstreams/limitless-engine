@@ -182,35 +182,41 @@ TypeSetResult TypeSetter::typeSet(
         };
 
         forEachUnicodeCodepoint(text, [&](uint32_t cp) -> bool {
+            const auto& font = getFontForChar(cp, font_stack, cjk_variant);
+            const auto scale = formatted_text.format.pixel_size
+                ? static_cast<float>(*formatted_text.format.pixel_size) / font->getFontSize() : 1.0f;
+
             if (cp == '\n') {
-                offset.y -= font_stack[0]->getFontSize() * line_spacing_modifier;
+                offset.y -= font->getFontSize() * line_spacing_modifier * scale;
                 offset.x = 0;
 
                 return true;
             }
 
-            const auto& font = getFontForChar(cp, font_stack, cjk_variant);
             const auto& fc = font->getFontCharOrTofu(cp);
 
-            float x = offset.x + fc.bearing.x;
-            float y = offset.y + fc.bearing.y - fc.size.y;
+            const auto width = fc.size.x * scale;
+            const auto height = fc.size.y * scale;
+
+            float x = offset.x + fc.bearing.x * scale;
+            float y = offset.y + fc.bearing.y * scale - height;
 
             min_pos = glm::vec2(std::min(min_pos.x, x), std::min(min_pos.y, y));
-            max_pos = glm::vec2(std::max(max_pos.x, x + fc.size.x), std::max(max_pos.y, y + fc.size.y));
+            max_pos = glm::vec2(std::max(max_pos.x, x + width), std::max(max_pos.y, y + height));
 
             const auto vertex_color = fc.is_icon ? glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) : color;
 
             auto& vertices = getVertices(font);
 
-            vertices.emplace_back(glm::vec2{x, y + fc.size.y}, fc.uvs[2], vertex_color);
+            vertices.emplace_back(glm::vec2{x, y + height}, fc.uvs[2], vertex_color);
             vertices.emplace_back(glm::vec2{x, y},             fc.uvs[0], vertex_color);
-            vertices.emplace_back(glm::vec2{x + fc.size.x, y}, fc.uvs[1], vertex_color);
+            vertices.emplace_back(glm::vec2{x + width, y}, fc.uvs[1], vertex_color);
 
-            vertices.emplace_back(glm::vec2{x, y + fc.size.y}, fc.uvs[2], vertex_color);
-            vertices.emplace_back(glm::vec2{x + fc.size.x, y}, fc.uvs[1], vertex_color);
-            vertices.emplace_back(glm::vec2{x + fc.size.x, y + fc.size.y}, fc.uvs[3], vertex_color);
+            vertices.emplace_back(glm::vec2{x, y + height}, fc.uvs[2], vertex_color);
+            vertices.emplace_back(glm::vec2{x + width, y}, fc.uvs[1], vertex_color);
+            vertices.emplace_back(glm::vec2{x + width, y + height}, fc.uvs[3], vertex_color);
 
-            offset.x += (fc.advance >> 6);
+            offset.x += (fc.advance >> 6) * scale;
 
             return true;
         });
@@ -259,12 +265,14 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
 
         forEachUnicodeCodepoint(text, [&](uint32_t cp) {
             const auto& font = getFontForChar(cp, font_stack, cjk_variant);
+            const auto scale = formatted_text.format.pixel_size
+                ? static_cast<float>(*formatted_text.format.pixel_size) / font->getFontSize() : 1.0f;
 
-            line_height = std::max(line_height, font_stack[0]->getFontSize());
+            line_height = std::max(line_height, static_cast<uint32_t>(font->getFontSize() * scale));
             if (cp_index < start_codepoint_index) {
                 // Skip until selection range starts.
                 
-                offset.x += font->getFontCharOrTofu(cp).advance >> 6;
+                offset.x += (font->getFontCharOrTofu(cp).advance >> 6) * scale;
                 if (cp == '\n') {
                     offset.x = 0;
                     offset.y += line_height * line_spacing_modifier;
@@ -284,10 +292,10 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
                         line_height = 0u;
                     } else {
                         // An empty line, still add small selection geometry for it.
-                        line_width = font->getFontCharOrTofu(' ').advance >> 6;
+                        line_width = (font->getFontCharOrTofu(' ').advance >> 6) * scale;
                     }
                 } else {
-                        line_width += font->getFontCharOrTofu(cp).advance >> 6;
+                    line_width += (font->getFontCharOrTofu(cp).advance >> 6) * scale;
                 }
                 ++cp_index;
                 return true;
@@ -299,7 +307,6 @@ std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
     }
 
     addRect({offset.x, offset.y + line_height/4}, glm::vec2{line_width, line_height});
-
 
     return vertices;
 }
