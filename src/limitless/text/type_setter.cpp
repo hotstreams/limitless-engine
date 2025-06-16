@@ -150,11 +150,15 @@ TypeSetResult TypeSetter::typeSet(
     glm::vec2& min_pos = bounding_box.first;
     glm::vec2& max_pos = bounding_box.second;
 
+    std::unordered_map<std::string, std::vector<std::pair<glm::vec2, glm::vec2>>> link_rectangles;
+
     if (formatted_text_parts.empty()) {
-        return TypeSetResult({}, bounding_box);
+        return TypeSetResult({}, bounding_box, {});
     }
 
     glm::vec2 offset {0.f, 0.f};
+    std::optional<float> line_min_y = std::nullopt;
+    std::optional<float> line_max_y = std::nullopt;
     
     for (const auto& formatted_text : formatted_text_parts) {
         const auto& color = formatted_text.format.color;
@@ -162,6 +166,9 @@ TypeSetResult TypeSetter::typeSet(
         const auto& wrap_width = formatted_text.format.wrap_width;
         const auto& cjk_variant = formatted_text.format.cjk_variant;
         const auto line_spacing_modifier = formatted_text.format.line_spacing_modifier;
+        const auto& link_id = formatted_text.format.link_id;
+
+        float part_x = offset.x;
 
         if (font_stack.empty()) {
             throw font_error("empty font stack");
@@ -187,8 +194,19 @@ TypeSetResult TypeSetter::typeSet(
                 ? static_cast<float>(*formatted_text.format.pixel_size) / font->getFontSize() : 1.0f;
 
             if (cp == '\n') {
+                const auto rect_width = offset.x - part_x;
+                if (link_id && rect_width > 0 && line_min_y && line_max_y) {
+                    link_rectangles[*link_id].emplace_back(
+                        glm::vec2{part_x, *line_min_y},
+                        glm::vec2{rect_width, *line_max_y - *line_min_y}
+                    );
+                }
                 offset.y -= font->getFontSize() * line_spacing_modifier * scale;
                 offset.x = 0;
+                part_x = 0.f;
+
+                line_min_y = std::nullopt;
+                line_max_y = std::nullopt;
 
                 return true;
             }
@@ -200,6 +218,14 @@ TypeSetResult TypeSetter::typeSet(
 
             float x = offset.x + fc.bearing.x * scale;
             float y = offset.y + fc.bearing.y * scale - height;
+
+            if (!line_min_y || *line_min_y > y) {
+                line_min_y = y;
+            }
+
+            if (!line_max_y || *line_max_y < (y + height)) {
+                line_max_y = y + height;
+            }
 
             min_pos = glm::vec2(std::min(min_pos.x, x), std::min(min_pos.y, y));
             max_pos = glm::vec2(std::max(max_pos.x, x + width), std::max(max_pos.y, y + height));
@@ -220,6 +246,13 @@ TypeSetResult TypeSetter::typeSet(
 
             return true;
         });
+
+        if (link_id && (offset.x - part_x) > 0 && line_min_y && line_max_y) {
+            link_rectangles[*link_id].emplace_back(
+                glm::vec2{part_x, *line_min_y},
+                glm::vec2{offset.x - part_x, *line_max_y - *line_min_y}
+            );
+        }
     };
 
     std::vector<FontVertices> vertices_per_font;
@@ -228,7 +261,7 @@ TypeSetResult TypeSetter::typeSet(
         vertices_per_font.emplace_back(std::move(vertices));
     }
 
-    return TypeSetResult(std::move(vertices_per_font), bounding_box);
+    return TypeSetResult(std::move(vertices_per_font), bounding_box, std::move(link_rectangles));
 }
 
 std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(

@@ -26,6 +26,7 @@ namespace Limitless {
         glm::vec4 color {1.0f};
         glm::vec2 size {1.0f};
         std::pair<glm::vec2, glm::vec2> bounding_box {glm::vec2(0.f),glm::vec2(0.f)};
+        std::unordered_map<std::string, std::vector<std::pair<glm::vec2, glm::vec2>>> link_rectangles;
 
         glm::vec4 selection_color {};
         bool hidden {false};
@@ -51,6 +52,9 @@ namespace Limitless {
         [[nodiscard]] const auto& getPosition() const noexcept { return position; }
         [[nodiscard]] auto isHidden() const noexcept { return hidden; }
         [[nodiscard]] auto isVisible() const noexcept { return !hidden; }
+
+        // TODO: take scale into account.
+        [[nodiscard]] const auto& getLinkRectangles() const noexcept { return link_rectangles; }
 
         /**
          * In model space.

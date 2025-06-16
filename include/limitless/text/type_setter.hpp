@@ -18,6 +18,7 @@ namespace Limitless {
         std::optional<CjkVariant> cjk_variant;
         float line_spacing_modifier;
         std::optional<uint32_t> pixel_size;
+        std::optional<std::string> link_id;
 
         TextFormat(
             glm::vec4 _color,
@@ -25,7 +26,8 @@ namespace Limitless {
             std::optional<float> _wrap_width,
             std::optional<CjkVariant> _cjk_variant,
             float _line_spacing_modifier,
-            std::optional<uint32_t> _pixel_size
+            std::optional<uint32_t> _pixel_size,
+            std::optional<std::string> _link_id
         )
             : color (_color)
             , font_stack (std::move(_font_stack))
@@ -33,6 +35,7 @@ namespace Limitless {
             , cjk_variant (_cjk_variant)
             , line_spacing_modifier (_line_spacing_modifier)
             , pixel_size (_pixel_size)
+            , link_id (_link_id)
         {
         }
 
@@ -42,7 +45,8 @@ namespace Limitless {
                 && lhs.wrap_width == rhs.wrap_width
                 && lhs.cjk_variant == rhs.cjk_variant
                 && lhs.line_spacing_modifier == rhs.line_spacing_modifier
-                && lhs.pixel_size == rhs.pixel_size;
+                && lhs.pixel_size == rhs.pixel_size
+                && lhs.link_id == rhs.link_id;
         }
 
         friend bool operator!=(const TextFormat& lhs, const TextFormat& rhs) {
@@ -83,10 +87,16 @@ namespace Limitless {
     struct TypeSetResult {
         std::vector<FontVertices> vertices_of_fonts;
         std::pair<glm::vec2, glm::vec2> bounding_box;
+        std::unordered_map<std::string, std::vector<std::pair<glm::vec2, glm::vec2>>> link_rectangles;
 
-        TypeSetResult(std::vector<FontVertices> _vertices_of_fonts, std::pair<glm::vec2, glm::vec2> _bounding_box)
+        TypeSetResult(
+            std::vector<FontVertices> _vertices_of_fonts,
+            std::pair<glm::vec2, glm::vec2> _bounding_box,
+            std::unordered_map<std::string, std::vector<std::pair<glm::vec2, glm::vec2>>> _link_rectangles
+        )
             : vertices_of_fonts(std::move(_vertices_of_fonts))
             , bounding_box(std::move(_bounding_box))
+            , link_rectangles(std::move(_link_rectangles))
         {
 
         }

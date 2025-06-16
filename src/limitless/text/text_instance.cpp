@@ -21,6 +21,7 @@ TextInstance::TextInstance(
 {
     auto type_set_result = TypeSetter::typeSet(formatted_text_parts);
     bounding_box = type_set_result.bounding_box;
+    link_rectangles = std::move(type_set_result.link_rectangles);
     for (auto& fv : type_set_result.vertices_of_fonts) {
         font_text_models.push_back(FontTextModel{
             TextModel(std::move(fv.vertices)), fv.font
@@ -48,6 +49,7 @@ TextInstance& TextInstance::setText(std::vector<FormattedText> _formatted_text_p
         font_text_models.clear();
 
         bounding_box = type_set_result.bounding_box;
+        link_rectangles = std::move(type_set_result.link_rectangles);
         for (auto& fv : type_set_result.vertices_of_fonts) {
             font_text_models.push_back(FontTextModel{
                 TextModel(std::move(fv.vertices)), fv.font
