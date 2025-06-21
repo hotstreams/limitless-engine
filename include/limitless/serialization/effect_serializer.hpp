@@ -2,6 +2,7 @@
 
 #include <limitless/serialization/asset_deserializer.hpp>
 #include <memory>
+#include <cstdint>
 
 namespace Limitless {
     class EffectInstance;
