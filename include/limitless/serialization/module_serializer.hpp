@@ -31,6 +31,8 @@
 #include <limitless/fx/modules/time.hpp>
 #include <limitless/fx/modules/beam_speed.hpp>
 
+#include <cstdint>
+
 namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <limitless/fx/effect_builder.hpp>
+#include <cstdint>
 
 namespace Limitless {
     class ByteBuffer;

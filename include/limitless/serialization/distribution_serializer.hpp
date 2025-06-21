@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <cstdint>
 
 namespace Limitless {
     template<typename T> class Distribution;

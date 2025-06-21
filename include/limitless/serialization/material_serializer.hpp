@@ -3,6 +3,7 @@
 #include <memory>
 #include <limitless/serialization/asset_deserializer.hpp>
 #include <limitless/ms/material.hpp>
+#include <cstdint>
 
 namespace Limitless {
     class Context;

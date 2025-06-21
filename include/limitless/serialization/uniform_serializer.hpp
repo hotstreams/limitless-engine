@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <limitless/serialization/asset_deserializer.hpp>
+#include <cstdint>
 
 namespace Limitless {
     class Uniform;
