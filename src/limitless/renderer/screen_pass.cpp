@@ -39,7 +39,7 @@ void ScreenPass::render(
         if (renderer.isPresent<FXAAPass>()) {
             screen = renderer.getPass<FXAAPass>().getResult();
         } else {
-            screen = renderer.getPass<CompositePass>().getResult();;
+            screen = renderer.getPass<CompositePass>().getResult();
         }
 
         shader.setUniform("screen_texture", screen);

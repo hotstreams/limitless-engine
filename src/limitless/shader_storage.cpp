@@ -112,7 +112,11 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
     }
 
     add("deferred", compiler.compile(shader_dir / "pipeline/deferred"));
-    add("composite", compiler.compile(shader_dir / "pipeline/composite"));
+    if (settings.bloom) {
+        add("composite_with_bloom", compiler.compile(shader_dir / "pipeline/composite_with_bloom"));
+    } else {
+        add("composite", compiler.compile(shader_dir / "pipeline/composite"));
+    }
     add("outline", compiler.compile(shader_dir / "pipeline/outline"));
 
 

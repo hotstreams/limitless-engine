@@ -25,6 +25,46 @@ void CompositePass::render(
         Context &ctx,
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
+        [[maybe_unused]] UniformSetter &setter
+) {
+    
+    ctx.disable(Capabilities::DepthTest);
+    ctx.disable(Capabilities::Blending);
+
+    {
+        ctx.setViewPort(getResult()->getSize());
+        framebuffer.clear();
+
+        auto& shader = assets.shaders.get("composite");
+
+        shader.setUniform("lightened", renderer.getPass<TranslucentPass>().getResult());
+
+        {
+            shader.setUniform("outline", renderer.getPass<OutlinePass>().getResult())
+                  .setUniform("tone_mapping_exposure", tone_mapping_exposure)
+                  .setUniform("gamma", gamma);
+        }
+
+        shader.use();
+
+        assets.meshes.at("quad")->draw();
+    }
+}
+
+void CompositePass::onFramebufferChange(glm::uvec2 size) {
+    framebuffer.onFramebufferChange(size);
+}
+
+CompositeWithBloomPass::CompositeWithBloomPass(Renderer& renderer)
+    : CompositePass {renderer} {
+}
+
+void CompositeWithBloomPass::render(
+        [[maybe_unused]] InstanceRenderer &instance_renderer,
+        [[maybe_unused]] Scene &scene,
+        Context &ctx,
+        const Assets &assets,
+        [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
 
     ctx.disable(Capabilities::DepthTest);
@@ -34,7 +74,7 @@ void CompositePass::render(
         ctx.setViewPort(getResult()->getSize());
         framebuffer.clear();
 
-        auto& shader = assets.shaders.get("composite");
+        auto& shader = assets.shaders.get("composite_with_bloom");
 
         shader.setUniform("lightened", renderer.getPass<TranslucentPass>().getResult());
 
@@ -54,8 +94,4 @@ void CompositePass::render(
 
         assets.meshes.at("quad")->draw();
     }
-}
-
-void CompositePass::onFramebufferChange(glm::uvec2 size) {
-    framebuffer.onFramebufferChange(size);
 }

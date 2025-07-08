@@ -108,7 +108,11 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     /*
      *  Combines shaded translucent result and bloom
      */
-    add<CompositePass>(size);
+    if (settings.bloom) {
+        add<CompositeWithBloomPass>(size);
+    } else {
+        add<CompositePass>(size);
+    }
 
 //    if (settings.fast_approximate_antialiasing) {
 //        add<FXAAPass>(size);
