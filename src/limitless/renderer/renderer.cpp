@@ -132,6 +132,11 @@ Renderer::Builder &Renderer::Builder::addOutlinePass() {
     return *this;
 }
 
+Renderer::Builder &Renderer::Builder::addCompositeWithBloomPass() {
+    renderer->passes.emplace_back(std::make_unique<CompositeWithBloomPass>(*renderer));
+    return *this;
+}
+
 Renderer::Builder &Renderer::Builder::addCompositePass() {
     renderer->passes.emplace_back(std::make_unique<CompositePass>(*renderer));
     return *this;
@@ -175,7 +180,11 @@ Renderer::Builder &Renderer::Builder::deferred() {
         addBloomPass();
     }
     addOutlinePass();
-    addCompositePass();
+    if (renderer->settings.bloom) {
+        addCompositeWithBloomPass();
+    } else {
+        addCompositePass();
+    }
     if (renderer->settings.fast_approximate_antialiasing) {
         addFXAAPass();
     }

@@ -124,6 +124,7 @@ namespace Limitless {
             Builder& addTranslucentPass();
             Builder& addBloomPass();
             Builder& addOutlinePass();
+            Builder& addCompositeWithBloomPass();
             Builder& addCompositePass();
             Builder& addFXAAPass();
             Builder& addScreenPass();
