@@ -87,13 +87,22 @@ Light& LightContainer::add(const Light& light) {
 
 void LightContainer::update() {
     // check if there were an update to lights
-    bool changed {};
-    for (auto& [id, light]: lights) {
-        // if changed since last update
-        if (light.isChanged()) {
-            // update corresponding internal presentation
-            internal_lights.at(id).update(light);
+    bool changed = false;
+
+    auto it = lights.begin();
+    while (it != lights.end()) {
+        auto& [id, light] = *it;
+        if (light.isRemoved()) {
+            internal_lights.erase(id);
+            it = lights.erase(it);
             changed = true;
+
+        } else {
+            if (light.isChanged()) {
+                internal_lights.at(id).update(light);
+                changed = true;
+            }
+            ++it;
         }
     }
 
