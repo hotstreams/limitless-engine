@@ -828,26 +828,40 @@ static std::shared_ptr<ms::Material> loadMaterial(
 			flags.wrapping = *wrap_t_mode;
 		}
 
-		if (strncmp(img.uri, "data:", 5) == 0) {
-			const char* comma = strchr(img.uri, ',');
-
-			if (comma && comma - img.uri >= 7 && strncmp(comma - 7, ";base64", 7) == 0) {
-				auto buffer = bytesFromBase64(comma + 1);
-
-				return TextureLoader::load(
-					assets,
-					name,
-					buffer.data(),
-					buffer.size(),
-					flags
-				);
-			} else {
-				throw ModelLoadError {"unknown data uri"};
+		if (img.uri == nullptr) {
+			if (!img.buffer_view) {
+				throw ModelLoadError {"texture has no uri and no buffer view"};
 			}
 
+			return TextureLoader::load(
+				assets,
+				name,
+				cgltf_buffer_view_data(img.buffer_view),
+				img.buffer_view->size
+			);
+
 		} else {
-			const auto path = base_path / fs::path(img.uri);
-			return TextureLoader::load(assets, path, flags);
+			if (strncmp(img.uri, "data:", 5) == 0) {
+				const char* comma = strchr(img.uri, ',');
+
+				if (comma && comma - img.uri >= 7 && strncmp(comma - 7, ";base64", 7) == 0) {
+					auto buffer = bytesFromBase64(comma + 1);
+
+					return TextureLoader::load(
+						assets,
+						name,
+						buffer.data(),
+						buffer.size(),
+						flags
+					);
+				} else {
+					throw ModelLoadError {"unknown data uri"};
+				}
+
+			} else {
+				const auto path = base_path / fs::path(img.uri);
+				return TextureLoader::load(assets, path, flags);
+			}
 		}
 	};
 
