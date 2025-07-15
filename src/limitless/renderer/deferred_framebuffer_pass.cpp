@@ -3,6 +3,7 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -39,6 +40,8 @@ void DeferredFramebufferPass::render(
         [[maybe_unused]] const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
+    CpuProfileScope scope(global_profiler, "DeferredFramebufferPass::render");
+
     ctx.setViewPort(framebuffer.get(FramebufferAttachment::Color0).texture->getSize());
     ctx.setDepthMask(DepthMask::True);
     ctx.disable(Capabilities::Blending);

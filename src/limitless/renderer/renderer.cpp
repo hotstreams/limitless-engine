@@ -25,20 +25,31 @@
 #include <limitless/renderer/ssao_pass.hpp>
 #include <limitless/renderer/ssr_pass.hpp>
 #include <limitless/renderer/fxaa_pass.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
 void Renderer::render(Context& context, const Assets& assets, Scene& scene, Camera& camera) {
+    CpuProfileScope scope(global_profiler, "Renderer::render");
+
     instance_renderer.update(scene, camera);
 
-    for (const auto& pass: passes) {
-        pass->update(scene, camera);
+    {
+        CpuProfileScope scope(global_profiler, "Renderer::render_update_passes");
+
+        for (const auto& pass: passes) {
+            pass->update(scene, camera);
+        }
     }
 
-    UniformSetter setter;
-    for (const auto& pass: passes) {
-        pass->render(instance_renderer, scene, context, assets, camera, setter);
-        pass->addUniformSetter(setter);
+    {
+        CpuProfileScope scope(global_profiler, "Renderer::render_render_passes");
+
+        UniformSetter setter;
+        for (const auto& pass: passes) {
+            pass->render(instance_renderer, scene, context, assets, camera, setter);
+            pass->addUniformSetter(setter);
+        }
     }
 }
 

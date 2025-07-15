@@ -1,4 +1,5 @@
 #include <limitless/renderer/instance_renderer.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -57,6 +58,7 @@ bool InstanceRenderer::shouldBeRendered(const Instance &instance, const DrawPara
 }
 
 void InstanceRenderer::renderScene(const DrawParameters& drawp) {
+    CpuProfileScope scope(global_profiler, "InstanceRenderer::renderScene");
     // renders common instances except decals
     // because decals rendered projected on everything else
     for (const auto& instance: frustum_culling.getVisibleInstances()) {
@@ -246,6 +248,8 @@ void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &d
 }
 
 void InstanceRenderer::update(Scene& scene, Camera& camera) {
+    CpuProfileScope scope(global_profiler, "InstanceRenderer::update");
+
     frustum_culling.update(scene, camera);
     effect_renderer.update(frustum_culling.getVisibleInstances());
 }

@@ -1,6 +1,7 @@
 #include <limitless/scene.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/assets.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -110,17 +111,21 @@ void Scene::setSkybox(const std::shared_ptr<Skybox>& skybox_) {
 }
 
 void Scene::update(const Camera& camera) {
+    CpuProfileScope scope(global_profiler, "Scene::update");
+
     lighting.update();
 
     removeDeadInstances();
 
     for (auto& [_, instance] : instances) {
+        CpuProfileScope scope(global_profiler, "Scene::update_instance");
         if (instance->getInstanceType() != InstanceType::Effect) {
             instance->update(camera);
         }
     }
 
     for (auto& [_, instance] : instances) {
+        CpuProfileScope scope(global_profiler, "Scene::update_effect_instance");
         if (instance->getInstanceType() == InstanceType::Effect) {
             instance->update(camera);
         }

@@ -1,6 +1,7 @@
 #include <limitless/instances/instanced_instance.hpp>
 #include <limitless/core/shader/shader_program.hpp>
 #include <limitless/scene.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -65,6 +66,7 @@ void InstancedInstance::updateInstanceBuffer() {
 }
 
 void InstancedInstance::update(const Camera &camera) {
+    CpuProfileScope scope(global_profiler, "InstancedInstance::update");
     if (instances.empty()) {
         return;
     }

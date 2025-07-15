@@ -6,6 +6,7 @@
 #include <limitless/ms/blending.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -20,6 +21,8 @@ void GBufferPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
+
+    CpuProfileScope scope(global_profiler, "GBufferPass::render");
 
     ctx.enable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

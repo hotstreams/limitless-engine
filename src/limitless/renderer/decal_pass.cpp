@@ -3,6 +3,7 @@
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -17,6 +18,8 @@ void DecalPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
+
+    CpuProfileScope scope(global_profiler, "DecalPass::render");
 
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 

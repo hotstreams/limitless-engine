@@ -24,6 +24,7 @@ set(ENGINE_CORE
     src/limitless/core/context_observer.cpp
     src/limitless/core/state_query.cpp
     src/limitless/core/profiler.cpp
+    src/limitless/core/cpu_profiler.cpp
     src/limitless/core/time_query.cpp
 
     src/limitless/core/texture/texture.cpp
