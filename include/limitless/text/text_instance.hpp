@@ -19,7 +19,7 @@ namespace Limitless {
         };
 
         std::vector<FontTextModel> font_text_models;
-        std::optional<TextSelectionModel> selection_model {std::nullopt};
+        TextSelectionModel selection_model;
 
         std::vector<FormattedText> formatted_text_parts;
         glm::vec2 position {0.0f};

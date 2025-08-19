@@ -4,6 +4,27 @@
 
 using namespace Limitless;
 
+TextSelectionModel::TextSelectionModel(TextSelectionModel&& other) noexcept {
+    swap(*this, other);
+}
+
+TextSelectionModel& TextSelectionModel::operator=(TextSelectionModel&& other) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+
+    swap(*this, other);
+    return *this;
+}
+
+void Limitless::swap(TextSelectionModel& lhs, TextSelectionModel& rhs) noexcept {
+    using std::swap;
+    swap(lhs.vertex_array, rhs.vertex_array);
+    swap(lhs.buffer, rhs.buffer);
+    swap(lhs.vertices, rhs.vertices);
+}
+
+
 TextSelectionModel::TextSelectionModel(std::vector<TextSelectionVertex>&& vertices)
     : vertices{std::move(vertices)}
 {
@@ -40,3 +61,5 @@ void TextSelectionModel::draw() const {
     vertex_array.bind();
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 }
+
+TextSelectionModel::~TextSelectionModel() = default;

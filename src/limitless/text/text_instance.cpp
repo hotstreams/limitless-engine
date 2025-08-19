@@ -16,7 +16,8 @@ TextInstance::TextInstance(
     std::vector<FormattedText> _formatted_text_parts,
     const glm::vec2& _position
 )
-    : formatted_text_parts {std::move(_formatted_text_parts)}
+    : selection_model(0)
+    , formatted_text_parts {std::move(_formatted_text_parts)}
     , position {_position}
 {
     auto type_set_result = TypeSetter::typeSet(formatted_text_parts);
@@ -66,17 +67,13 @@ TextInstance& TextInstance::setSelectionColor(const glm::vec4& _color) noexcept 
 
 TextInstance& TextInstance::setSelection(size_t begin, size_t end) {
     auto vertices = TypeSetter::typeSetSelection(formatted_text_parts, begin, end);
-    if (!selection_model) {
-        selection_model = TextSelectionModel(std::move(vertices));
-    } else {
-        selection_model->update(std::move(vertices));
-    }
+    selection_model.update(std::move(vertices));
 
     return *this;
 }
 
 TextInstance& TextInstance::removeSelection() noexcept {
-    selection_model = std::nullopt;
+    selection_model.update({});
     return *this;
 }
 
@@ -108,18 +105,18 @@ void TextInstance::draw(Context& ctx, const Assets& assets) {
     );
 
     // draw selection
-    if (selection_model) {
+    if (!selection_model.empty()) {
         ctx.disable(Capabilities::Blending);
 
         auto& shader = assets.shaders.get("text_selection");
 
         shader.setUniform("model", model_matrix)
-              .setUniform("proj", ortho_projection)
-              .setUniform("color", selection_color);
+                .setUniform("proj", ortho_projection)
+                .setUniform("color", selection_color);
 
         shader.use();
 
-        selection_model->draw();
+        selection_model.draw();
     }
 
     // draw text
