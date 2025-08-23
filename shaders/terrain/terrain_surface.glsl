@@ -1,6 +1,7 @@
 #include "./terrain.glsl"
 #include "../functions/stochastic.glsl"
-
+    #define dFdxCoarse(a) dFdx(a)
+    #define dFdyCoarse(a) dFdy(a)
 terrain_data getTerrainData(vec2 uv, const terrain_control tctrl) {
     terrain_data data;
 
@@ -25,6 +26,86 @@ terrain_data getTerrainData(vec2 uv, const terrain_control tctrl) {
     }
 
     return data;
+}
+
+void calculateTerrain2(inout MaterialContext mctx) {
+    vec3 vertex_position = getVertexPosition();
+    vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position.xz);
+    vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
+    vec2 chunk_uv = getChunkUV(terrain_uv);
+
+    vec2 terrain_texel_base = floor(terrain_texel_uv);
+
+	ivec2 index[4];
+	const vec3 offsets = vec3(0, 1, 2);
+
+	// control map lookups, used for some normal lookups as well
+	index[0] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xy));
+	index[1] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yy));
+	index[2] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yx));
+	index[3] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xx));
+
+    // Terrain normals
+    vec3 index_normal[4];
+    float h[4];
+    // allows additional derivatives, eg world noise, brush previews etc
+    float u = 0.0;
+    float v = 0.0;
+
+  //  u+= value_noise(terrain_uv);
+   // v += value_noise(terrain_uv);
+
+    // Re-use index[] for the first lookups, skipping some math. 3 lookups
+    h[3] = texelFetch(terrain_height_texture, index[3], 0).r  * terrain_height_scale; // 0 (0,0)
+    h[2] = texelFetch(terrain_height_texture, index[2], 0).r  * terrain_height_scale; // 1 (1,0)
+    h[0] = texelFetch(terrain_height_texture, index[0], 0).r  * terrain_height_scale; // 2 (0,1)
+    index_normal[3] = normalize(vec3(h[3] - h[2] + u, terrain_vertex_spacing, h[3] - h[0] + v));
+
+    // Set flat world normal - overwritten if bilerp is true
+    vec3 w_normal = index_normal[3];
+
+    vec3 base_ddx = dFdxCoarse(vertex_position);
+    vec3 base_ddy = dFdyCoarse(vertex_position);
+    // Calculate the effective mipmap for regionspace, and when less than 0,
+    // skip all extra lookups required for bilinear blend.
+    float region_mip = log2(max(length(base_ddx.xz), length(base_ddy.xz)));
+    bool bilerp = region_mip < 0.0;
+
+if (bilerp)
+{
+	vec2 index_id = floor(terrain_texel_uv);
+
+    // 5 lookups
+    // Fetch the additional required height values for smooth normals
+    h[1] = texelFetch(terrain_height_texture, index[1], 0).r   * terrain_height_scale; // 3 (1,1)
+    float h_4 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.yz)), 0).r   * terrain_height_scale; // 4 (1,2)
+    float h_5 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.zy)), 0).r   * terrain_height_scale; // 5 (2,1)
+    float h_6 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.zx)), 0).r   * terrain_height_scale; // 6 (2,0)
+    float h_7 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.xz)), 0).r  * terrain_height_scale; // 7 (0,2)
+
+    index_normal[0] = normalize(vec3(h[0] - h[1] + u, terrain_vertex_spacing, h[0] - h_7 + v));
+    index_normal[1] = normalize(vec3(h[1] - h_5 + u, terrain_vertex_spacing, h[1] - h_4 + v));
+    index_normal[2] = normalize(vec3(h[2] - h_6 + u, terrain_vertex_spacing, h[2] - h[1] + v));
+
+
+	// Lookup offsets, ID and blend weight
+	vec2 weight = fract(terrain_texel_uv);
+	vec2 invert = 1.0 - weight;
+	vec4 weights = vec4(
+		invert.x * weight.y, // 0
+		weight.x * weight.y, // 1
+		weight.x * invert.y, // 2
+		invert.x * invert.y  // 3
+	);
+
+    // Set interpolated world normal
+    w_normal =
+        index_normal[0] * weights[0] +
+        index_normal[1] * weights[1] +
+        index_normal[2] * weights[2] +
+        index_normal[3] * weights[3] ;
+}
+    mctx.color = vec4(w_normal * 0.5 + 0.5, 0.0);
 }
 
 void calculateTerrain(inout MaterialContext mctx) {
@@ -123,6 +204,45 @@ void calculateTerrain(inout MaterialContext mctx) {
 //        if (vertex_camera_distance <= terrain_vertex_normals_distance) {
         mctx.vertex_normal = getTerrainNormal(terrain_uv);
 
+
+        {
+
+     vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position.xz);
+        vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
+        vec2 chunk_uv = getChunkUV(terrain_uv);
+
+        vec2 terrain_texel_base = floor(terrain_texel_uv);
+
+    ivec2 index[4];
+    const vec3 offsets = vec3(0, 1, 2);
+
+    // control map lookups, used for some normal lookups as well
+    index[0] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xy));
+    index[1] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yy));
+    index[2] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yx));
+    index[3] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xx));
+
+    // Terrain normals
+    vec3 index_normal[4];
+    float h[4];
+    // allows additional derivatives, eg world noise, brush previews etc
+    float u = 0.0;
+    float v = 0.0;
+
+  //  u+= value_noise(terrain_uv);
+   // v += value_noise(terrain_uv);
+
+    // Re-use index[] for the first lookups, skipping some math. 3 lookups
+    h[3] = texelFetch(terrain_height_texture, index[3], 0).r  * terrain_height_scale; // 0 (0,0)
+    h[2] = texelFetch(terrain_height_texture, index[2], 0).r  * terrain_height_scale; // 1 (1,0)
+    h[0] = texelFetch(terrain_height_texture, index[0], 0).r  * terrain_height_scale; // 2 (0,1)
+    index_normal[3] = normalize(vec3(h[3] - h[2] + u, terrain_vertex_spacing, h[3] - h[0] + v));
+
+    mctx.vertex_normal = index_normal[3];
+
+
+        }
+
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
             mat3 TBN = getTerrainTBN(mctx.vertex_normal);
             mctx.tbn_t = TBN[0];
@@ -156,4 +276,6 @@ void calculateTerrain(inout MaterialContext mctx) {
             mctx.color.xyz = vec3(1.0, 0.0, 0.0);
         }
     }
+
+    mctx.color.xyz = mctx.normal * 0.5 + 0.5;
 }

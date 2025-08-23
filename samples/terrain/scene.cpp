@@ -40,8 +40,8 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
     auto humidity_map = Noise::makePerlinNoiseMap(glm::vec2{chunk_size}, rng, 8);
     auto test_map = Noise::makePerlinNoiseMap(glm::vec2{chunk_size}, rng, 8);
 
-    auto* elevations = new float[chunk_size * chunk_size];
-    auto* controls = new Limitless::TerrainInstance::control_value[chunk_size * chunk_size];
+    auto* elevations = new float[(int)chunk_size * (int)chunk_size];
+    auto* controls = new Limitless::TerrainInstance::control_value[(int)chunk_size * (int)chunk_size];
 
     for (auto y = 0; y < chunk_size; ++y) {
         for (auto x = 0; x < chunk_size; ++x) {
@@ -75,7 +75,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
             .chunk_size(chunk_size)
             .vertex_spacing(1.0f)
             .height(elevations)
-            .height_scale(20.0f)
+            .height_scale(40.0f)
             .mesh_size(16.0f)
             .mesh_lod_count(5)
             .control(controls)

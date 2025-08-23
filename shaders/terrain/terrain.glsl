@@ -42,7 +42,7 @@ float get_height(vec2 uv) {
 }
 
 vec3 getTerrainNormal(vec2 uv) {
-    float terrain_texel_size = 1.0 / terrain_size;
+   float terrain_texel_size = 1.0 / terrain_size;
 
     float hL = get_height(uv - vec2(terrain_texel_size, 0));
     float hR = get_height(uv + vec2(terrain_texel_size, 0));
@@ -53,6 +53,7 @@ vec3 getTerrainNormal(vec2 uv) {
     float v = hD - hU;
 
     return normalize(vec3(u, 2.0 * terrain_vertex_spacing, v));
+
 }
 
 mat3 getTerrainTBN(vec3 normal) {

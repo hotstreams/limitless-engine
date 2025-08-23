@@ -1,3 +1,132 @@
+# Build directories
+/build/
 /cmake/
-/cmake-build-debug/
-/cmake-build-release/
+/cmake-build-*/
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Compiled Object files
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.tmp
+*.temp
+
+# Asset files (images, models, textures, audio, video)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.tga
+*.webp
+*.ico
+*.svg
+
+# 3D model files
+*.fbx
+*.obj
+*.3ds
+*.dae
+*.blend
+*.max
+*.maya
+*.lwo
+*.x3d
+*.gltf
+*.glb
+*.bin
+
+# Audio files
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.aac
+*.wma
+*.m4a
+
+# Video files
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# Font files
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+
+# Archive files
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.bz2
+
+# Documentation assets (keep .md files but ignore media)
+docs/preview/
+*.pdf
+
+# Material files (engine-specific)
+*.stgmat
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+Makefile
+compile_commands.json
+
+# Testing
+Testing/
+CTestTestfile.cmake
+
+# Logs
+*.log

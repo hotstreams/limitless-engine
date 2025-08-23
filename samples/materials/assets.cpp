@@ -275,7 +275,7 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .diffuse( TextureLoader::load(*this, assets_dir / "textures/albedo.jpg", {
                     TextureLoaderFlags::Space::sRGB
             }))
-            .global(
+            .global_fragment(
                     "#include \"../functions/fresnel.glsl\""
             )
             .fragment(
@@ -290,7 +290,7 @@ void LimitlessMaterials::Assets::setUpMaterials() {
                     TextureLoaderFlags::Space::sRGB
             }))
             .color(glm::vec4(1.0))
-            .global(
+            .global_fragment(
                     "#include \"../functions/hue_shift.glsl\""
             )
             .fragment(

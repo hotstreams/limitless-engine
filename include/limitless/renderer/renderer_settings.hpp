@@ -88,7 +88,7 @@ namespace Limitless {
         /**
          * Render bounding boxes
          */
-        bool bounding_box = true;
+        bool bounding_box = false;
 
         class Builder {
         private:
@@ -163,7 +163,7 @@ namespace Limitless {
             /**
              * Render bounding boxes
              */
-            bool bounding_box = true;
+            bool bounding_box = false;
         public:
             Builder& enable_normal_mapping();
             Builder& disable_normal_mapping();

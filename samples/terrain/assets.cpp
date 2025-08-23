@@ -31,7 +31,7 @@ void LimitlessMaterials::Assets::setUpMaterials() {
 //
     Material::builder()
             .name("test")
-            .shading(Shading::Lit)
+            .shading(Shading::Unlit)
             .color(glm::vec4(1.0f))
             .build(*this);
 }
