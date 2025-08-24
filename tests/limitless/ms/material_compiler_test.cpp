@@ -337,7 +337,7 @@ void test_MaterialCompiler_compiles_material_with_custom_global(RendererSettings
     Material::Builder builder {};
     auto material = builder.name("material")
             .color( glm::vec4 {1.0f})
-            .global("")
+            .global_fragment("")
             .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build(assets);
 

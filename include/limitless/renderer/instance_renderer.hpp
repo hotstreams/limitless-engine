@@ -20,7 +20,7 @@ namespace Limitless {
         UniformSetter setter {};
         UniformInstanceSetter isetter {};
     };
-
+    inline uint32_t instance_index = 0;
     class InstanceRenderer {
     private:
         FrustumCulling frustum_culling;

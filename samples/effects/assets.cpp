@@ -109,7 +109,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .vertex(
                         "vertex_position.xyz += sin(getParticleTime() * vertex_offset_freq) * getVertexNormal() * vertex_offset_dir *texture(noise, getParticleTime() + uv).r;")
 
-                .global("#include \"../functions/fresnel.glsl\"")
+                .global_fragment("#include \"../functions/fresnel.glsl\"")
                 .build(*this);
     }
 
@@ -150,14 +150,14 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .color(glm::vec4(1.0f))
                 .shading(Shading::Unlit)
                 .blending(Blending::Additive)
-                .global("#include \"../functions/tone_mapping.glsl\"")
+                .global_fragment("#include \"../functions/tone_mapping.glsl\"")
                 .model(InstanceType::Effect)
                 .build(*this);
 
         Material::builder().name("fireball_sparks")
                 .fragment("mctx.emissive_color *= circle(getVertexUV(), 0.7);"
                           "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
-                .global("#include \"../functions/circle.glsl\"")
+                .global_fragment("#include \"../functions/circle.glsl\"")
 
                 .emissive_color( glm::vec4{5.0f, 1.5f, 1.0f, 1.0f})
                 .color(glm::vec4(1.0))
@@ -204,7 +204,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .color( glm::vec4(1.0, 1.0, 0.3, 1.0))
                 .fragment("mctx.emissive_color *= circle(getVertexUV(), 0.7) * getParticleColor().rgb;"
                           "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
-                .global("#include \"../functions/circle.glsl\"")
+                .global_fragment("#include \"../functions/circle.glsl\"")
                 .model(InstanceType::Effect)
                 .build(*this);
     }
@@ -234,7 +234,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .emissive_color(glm::vec4(50.0, 0.0, 50.0, 1.0))
                 .color(glm::vec4(0.0))
                 .fragment("mctx.emissive_color *= circle(getVertexUV(), 0.5);")
-                .global("#include \"../functions/circle.glsl\"")
+                .global_fragment("#include \"../functions/circle.glsl\"")
                 .model(InstanceType::Effect)
                 .shading(Shading::Unlit)
                 .build(*this);
@@ -266,7 +266,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .fragment("mctx.emissive_color *= circle(getVertexUV(), 0.7) * getParticleColor().rgb * 5.0;")
                 .shading(Shading::Unlit)
                 .blending(Blending::Additive)
-                .global("#include \"../functions/circle.glsl\"")
+                .global_fragment("#include \"../functions/circle.glsl\"")
                 .model(InstanceType::Effect)
                 .build(*this);
     }
@@ -329,7 +329,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                           "mctx.color.rgb *= circle(getVertexUV(), 0.7);")
                 .shading(Shading::Unlit)
                 .blending(Blending::Additive)
-                .global("#include \"../functions/circle.glsl\"")
+                .global_fragment("#include \"../functions/circle.glsl\"")
                 .model(InstanceType::Effect)
                 .build(*this);
     }

@@ -85,7 +85,7 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
     InstanceRenderer::render(y_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
     InstanceRenderer::render(z_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
 }
-
+           
 void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Scene& scene) {
     auto box = ModelInstance {assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
 
@@ -100,36 +100,42 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 //
 //        InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
         if (instance->getInstanceType() == InstanceType::Terrain) {
-            auto show = [&] (const auto& instance) {
+            auto show = [&] (const auto& instance, bool intersect) {
                 auto& bounding_box = instance->getBoundingBox();
 
                 box .setPosition(bounding_box.center)
                         .setScale(bounding_box.size)
                         .update(camera);
 
+                if (intersect) {
+                    box.changeMaterial(0, assets.materials.at("green"));
+                } else {
+                    box.changeMaterial(0, assets.materials.at("red"));
+                }
+
                 InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
             };
 
             auto& terrain = static_cast<TerrainInstance&>(*instance);
 
-
 //            for (auto &item: terrain.mesh.seams) {
 //                show(item);
 //            }
-            const auto frustum = Frustum::fromCamera(camera);
+            static auto frustum = Frustum::fromCamera(camera);
+
+            if (!lock) {
+                frustum = Frustum::fromCamera(camera);
+            }
 //
-//            for (auto &item : terrain.mesh.trims->getInstances()[0]) {
-//                if (frustum.intersects(*terrain.mesh.trims->getInstances()[0])) {
-//                    show(terrain.mesh.trims->getInstances()[0]);
-//                }
-//            }
+            // auto& instance = terrain.mesh.tiles->getInstances()[instance_index % terrain.mesh.tiles->getInstances().size()];
+            // show(instance, frustum.intersects(*instance));
 
 //            for (auto &item: terrain.mesh.fillers) {
 //                show(item);
 //            }
 
             for (auto &item: terrain.mesh.tiles->getInstances()) {
-                show(item);
+                show(item, frustum.intersects(*item));
             }
         }
     }
@@ -137,9 +143,9 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 }
 
 void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {
-    if (settings.bounding_box) {
+    //if (settings.bounding_box) {
         renderBoundingBoxes(context, assets, camera, scene);
-    }
+   // }
 
     if (settings.coordinate_system_axes) {
         renderCoordinateSystemAxes(context, assets);

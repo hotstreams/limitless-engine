@@ -88,7 +88,7 @@ namespace Limitless {
         /**
          * Render bounding boxes
          */
-        bool bounding_box = false;
+        bool bounding_box = true;
 
         class Builder {
         private:

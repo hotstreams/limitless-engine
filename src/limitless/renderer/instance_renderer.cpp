@@ -166,7 +166,8 @@ void InstanceRenderer::renderVisibleInstancedInstance(InstancedInstance& instanc
     // we should take shadow influencers from shadowmap too
     // if drawp.type != Shadows
     // set instanced subset (visible for current frame path)
-    instance.setVisible(frustum_culling.getVisibleModelInstanced(instance));
+    //instance.setVisible(frustum_culling.getVisibleModelInstanced(instance));
+    instance.setVisible({instance.getInstances()[instance_index % instance.getInstances().size()]});
 
     render(instance, drawp);
 }
@@ -179,11 +180,11 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
     render(*instance.getMesh().cross, drawp);
 
     renderVisibleInstancedInstance(*instance.mesh.tiles, drawp);
-    renderVisibleInstancedInstance(*instance.mesh.fillers, drawp);
-    renderVisibleInstancedInstance(*instance.mesh.trims, drawp);
-    renderVisibleInstancedInstance(*instance.mesh.seams, drawp);
+   // renderVisibleInstancedInstance(*instance.mesh.fillers, drawp);
+   // renderVisibleInstancedInstance(*instance.mesh.trims, drawp);
+  //  renderVisibleInstancedInstance(*instance.mesh.seams, drawp);
 
-    std::cout << "total :" << instance.mesh.tiles->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.tiles).size() << std::endl;
+   // std::cout << "total :" << instance.mesh.tiles->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.tiles).size() << std::endl;
 
     // if (auto instances = frustum_culling.getVisibleModelInstanced(instance.getId()); !instances.empty()) {
     //     render(*instances[0], drawp);

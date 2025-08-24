@@ -7,6 +7,7 @@
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/util/renderer_helper.hpp>
 
 namespace LimitlessMaterials {
     class MaterialsScene {
@@ -77,6 +78,21 @@ namespace LimitlessMaterials {
 
             if (key == GLFW_KEY_GRAVE_ACCENT && state == Limitless::InputState::Released) {
                 hidden_text = !hidden_text;
+            }
+
+            if (key == GLFW_KEY_1 && state == Limitless::InputState::Pressed)
+            {
+                Limitless::instance_index++;
+            }
+
+            if (key == GLFW_KEY_2 && state == Limitless::InputState::Pressed)
+            {
+                Limitless::instance_index--;
+            }
+
+            if (key == GLFW_KEY_3 && state == Limitless::InputState::Pressed)
+            {
+                Limitless::lock = !Limitless::lock;
             }
         }
 

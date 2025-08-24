@@ -7,7 +7,7 @@ namespace Limitless {
     class Lighting;
     class Assets;
     class RendererSettings;
-
+    inline bool lock = false; 
     class RendererHelper {
     private:
         const RendererSettings& settings;

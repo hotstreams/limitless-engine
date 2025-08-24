@@ -513,14 +513,14 @@ TEST_CASE("Material::Builder builds material with global snippet") {
 
     builder.name("material")
             .color(glm::vec4 {1.0f})
-            .global("snippet");
+            .global_fragment("snippet");
 
     auto material = builder.build(assets);
 
     REQUIRE(material->getName() == "material");
     REQUIRE(material->getColor() == glm::vec4 {1.0f});
     REQUIRE(material->getProperties().size() == 1);
-    REQUIRE(material->getGlobalSnippet() == "snippet");
+    REQUIRE(material->getGlobalFragmentSnippet() == "snippet");
 
     check_opengl_state();
 }

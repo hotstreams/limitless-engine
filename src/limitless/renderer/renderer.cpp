@@ -148,6 +148,7 @@ Renderer::Builder &Renderer::Builder::addScreenPass() {
 }
 
 Renderer::Builder &Renderer::Builder::addRenderDebugPass() {
+    std::cout << "123" << std::endl;
     renderer->passes.emplace_back(std::make_unique<RenderDebugPass>(*renderer));
     return *this;
 }
@@ -180,9 +181,9 @@ Renderer::Builder &Renderer::Builder::deferred() {
         addFXAAPass();
     }
     addScreenPass();
-    if (renderer->settings.bounding_box || renderer->settings.light_radius || renderer->settings.coordinate_system_axes) {
+   // if (renderer->settings.bounding_box || renderer->settings.light_radius || renderer->settings.coordinate_system_axes) {
         addRenderDebugPass();
-    }
+  //  }
     return *this;
 }
 
