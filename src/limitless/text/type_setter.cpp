@@ -215,6 +215,7 @@ TypeSetResult TypeSetter::typeSet(
 
             const auto width = fc.size.x * scale;
             const auto height = fc.size.y * scale;
+            const auto advance = (fc.advance >> 6) * scale;
 
             float x = offset.x + fc.bearing.x * scale;
             float y = offset.y + fc.bearing.y * scale - height;
@@ -228,7 +229,8 @@ TypeSetResult TypeSetter::typeSet(
             }
 
             min_pos = glm::vec2(std::min(min_pos.x, x), std::min(min_pos.y, y));
-            max_pos = glm::vec2(std::max(max_pos.x, x + width), std::max(max_pos.y, y + height));
+            // perhaps x + width is more correct, but advance is more correct for monospace fonts.
+            max_pos = glm::vec2(std::max(max_pos.x, x + advance), std::max(max_pos.y, y + height));
 
             const auto vertex_color = fc.is_icon ? glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) : color;
 
@@ -242,7 +244,7 @@ TypeSetResult TypeSetter::typeSet(
             vertices.emplace_back(glm::vec2{x + width, y}, fc.uvs[1], vertex_color);
             vertices.emplace_back(glm::vec2{x + width, y + height}, fc.uvs[3], vertex_color);
 
-            offset.x += (fc.advance >> 6) * scale;
+            offset.x += advance;
 
             return true;
         });

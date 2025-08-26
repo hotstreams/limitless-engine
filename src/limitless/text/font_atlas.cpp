@@ -147,6 +147,29 @@ static std::shared_ptr<FontAtlas> makeAtlas(
     chars.emplace('\t', chars.at(' '));
     chars.at('\t').advance *= TAB_WIDTH_IN_SPACES;
 
+    {
+        uint32_t max_digit_advance = 0;
+        for (int i = 0; i < 10; ++i) {
+            uint32_t char_code = '0' + i;
+            if (chars.find(char_code) != chars.end()) {
+                max_digit_advance = std::max(max_digit_advance, chars.at(char_code).advance);
+            }
+        }
+
+        auto addMonospaceDigit = [&](int digit) {
+            const uint32_t monospace_char_code = 0x1D7F6 + digit;
+            const uint32_t ascii_char_code = '0' + digit;
+            if (chars.find(monospace_char_code) == chars.end() && chars.find(ascii_char_code) != chars.end()) {
+                chars.emplace(monospace_char_code, chars.at(ascii_char_code));
+                chars.at(monospace_char_code).advance = max_digit_advance;
+            }
+        };
+
+        for (int i = 0; i < 10; ++i) {
+            addMonospaceDigit(i);
+        }
+    }
+
     const auto internal_format = [bytes_per_pixel] {
         switch (bytes_per_pixel) {
             case 1: return Texture::InternalFormat::R8;
