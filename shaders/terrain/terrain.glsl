@@ -75,6 +75,10 @@ void calculateTerrain(inout MaterialContext mctx) {
 //    vec3 variation = MacroContrast(MacroVariation());
 
     vec3 diffuse = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_diffuse_texture);
+    if (getVertexTileCurrent() == 1u) {
+        vec3 diffuse_snow = StochasticTexture(terrain_uv, 4u, _terrain_diffuse_texture);
+        diffuse = (1.0 - winter ) * diffuse + winter * diffuse_snow;
+    }
     vec3 normal = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_normal_texture);
     vec3 orm = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_orm_texture);
 
@@ -103,6 +107,10 @@ void calculateTerrain(inout MaterialContext mctx) {
         if (mask[i] == 1u) {
             // fetch adjacent type
             vec3 adjacent_diffuse = StochasticTexture(terrain_uv, types[i], _terrain_diffuse_texture).rgb;
+            if (types[i] == 1u) {
+                vec3 adjacent_diffuse_snow = StochasticTexture(terrain_uv, 4u, _terrain_diffuse_texture).rgb;
+                adjacent_diffuse = (1.0 - winter ) * adjacent_diffuse + winter * adjacent_diffuse_snow;
+            }
             vec3 adjacent_normal = StochasticTexture(terrain_uv, types[i], _terrain_normal_texture).xyz;
             vec3 adjacent_orm = StochasticTexture(terrain_uv, types[i], _terrain_orm_texture).rgb;
 
