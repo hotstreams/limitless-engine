@@ -83,8 +83,9 @@ void StateTexture::bind(GLenum target, GLuint index) const {
             throw std::logic_error{"Failed to bind texture to unit greater than accessible"};
         }
 
+        activate(index);
+
         if (ctx->texture_bound[index] != id) {
-            activate(index);
             glBindTexture(target, id);
             ctx->texture_bound[index] = id;
         }

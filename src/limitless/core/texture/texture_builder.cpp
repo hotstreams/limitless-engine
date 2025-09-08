@@ -247,21 +247,23 @@ std::shared_ptr<Texture> Texture::Builder::asDepth32F(glm::uvec2 size) {
             .build();
 }
 
-void Texture::Builder::useStateExtensionTexture() {
+Texture::Builder& Texture::Builder::useStateExtensionTexture() {
     texture->texture = std::make_unique<StateTexture>();
     texture->texture->generateId();
+    return *this;
 }
 
-void Texture::Builder::useNamedExtensionTexture() {
+Texture::Builder& Texture::Builder::useNamedExtensionTexture() {
     if (!ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access")) {
         throw std::runtime_error{"NamedExtensionTexture is not supported!"};
     }
 
     texture->texture = std::make_unique<NamedTexture>(static_cast<GLenum>(texture->target));
     texture->texture->generateId();
+    return *this;
 }
 
-void Texture::Builder::useBindlessExtensionTexture() {
+Texture::Builder& Texture::Builder::useBindlessExtensionTexture() {
     if (!ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
         throw std::runtime_error{"BindlessTexture is not supported!"};
     }
@@ -271,12 +273,14 @@ void Texture::Builder::useBindlessExtensionTexture() {
     }
 
     texture->texture = std::make_unique<BindlessTexture>(texture->texture.release());
+    return *this;
 }
 
-void Texture::Builder::useBestSupportedExtensionTexture() {
+Texture::Builder& Texture::Builder::useBestSupportedExtensionTexture() {
     ContextInitializer::isExtensionSupported("GL_ARB_direct_state_access") ? useNamedExtensionTexture() : useStateExtensionTexture();
 
     if (ContextInitializer::isExtensionSupported("GL_ARB_bindless_texture")) {
         useBindlessExtensionTexture();
     }
+    return *this;
 }
