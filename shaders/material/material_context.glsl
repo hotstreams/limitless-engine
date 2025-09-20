@@ -222,6 +222,8 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
     TBN[1] = gl_FrontFacing ? TBN[2] : -TBN[2];
 #endif
     normal = normalize(TBN * normal);
+    
+    normal = normalize(mctx.vertex_normal);
 #else
     vec3 normal = normalize(mctx.vertex_normal);
 //    vec3 normal = getVertexNormal();

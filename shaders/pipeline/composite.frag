@@ -16,7 +16,7 @@ uniform float gamma;
 
 void main() {
     vec3 bloom_color = texture(bloom, uv).rgb * bloom_strength;
-    color = texture(lightened, uv).rgb + bloom_color;
+    color = texture(lightened, uv).rgb;// + bloom_color;
 
     // apply tone mapping function to HDR
     color = toneMapping(color, tone_mapping_exposure);

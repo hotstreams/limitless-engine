@@ -144,7 +144,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 
 void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {
     //if (settings.bounding_box) {
-        renderBoundingBoxes(context, assets, camera, scene);
+     //   renderBoundingBoxes(context, assets, camera, scene);
    // }
 
     if (settings.coordinate_system_axes) {

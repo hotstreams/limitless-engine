@@ -22,6 +22,10 @@ vec2 rotate(vec2 v, float cosa, float sina) {
 
 uniform float blend_sharpness = 0.87;
 
+uniform float mipmap_bias = 1.0;
+uniform float depth_blur = 0.0;
+uniform float bias_distance = 512.0;
+
 vec3 height_blend(vec3 a_value, float a_height, vec3 b_value, float b_height, float blend) {
     float ma = max(a_height + (1.0 - blend), b_height + blend) - (1.001 - blend_sharpness);
     float b1 = max(a_height + (1.0 - blend) - ma, 0.0);

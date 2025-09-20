@@ -27,7 +27,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
     scene.getLighting().setAmbientColor(glm::vec4(1.0f));
 
     scene.add(Light::builder()
-      .color(glm::vec4(1.0, 1.0, 1.0, 1.0f))
+      .color(glm::vec4(1.0, 1.0, 1.0, 0.1f))
       .direction(glm::vec3{0.3f, -1.0f, 0.0f})
       .build()
     );
