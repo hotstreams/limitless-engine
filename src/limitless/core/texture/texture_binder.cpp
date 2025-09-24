@@ -3,6 +3,7 @@
 #include <limitless/core/context_initializer.hpp>
 #include <algorithm>
 #include <stdexcept>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 //
@@ -32,6 +33,7 @@ using namespace Limitless;
 //}
 
 std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
+    CpuProfileScope scope(global_profiler, "TextureBinder::bind");
     if (textures.size() > static_cast<size_t>(ContextInitializer::limits.max_texture_units)) {
         throw std::runtime_error("Failed to bind textures which more than texture units.");
     }

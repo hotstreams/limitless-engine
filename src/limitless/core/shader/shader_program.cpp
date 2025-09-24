@@ -6,6 +6,7 @@
 #include <limitless/core/context.hpp>
 #include <limitless/ms/material.hpp>
 #include <algorithm>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -16,6 +17,7 @@ ShaderProgram::ShaderProgram(GLuint id) noexcept
 }
 
 void ShaderProgram::bindIndexedBuffers() {
+    CpuProfileScope scope(global_profiler, "ShaderProgram::bindIndexedBuffers");
     for (auto& [target, name, block_index, bound_point, connected] : indexed_binds) {
         // connects index block inside program with state binding point
         if (!connected) {
@@ -33,6 +35,7 @@ void ShaderProgram::bindIndexedBuffers() {
         if (auto* ctx = Context::getCurrentContext(); ctx) {
             // binds buffer to state binding point
             try {
+                CpuProfileScope scope(global_profiler, "ShaderProgram::bindIndexedBuffers::bindBuffer");
                 auto buffer = ctx->getIndexedBuffers().get(name);
 
                 Buffer::Type program_target {};
@@ -72,14 +75,21 @@ ShaderProgram::~ShaderProgram() {
 void ShaderProgram::use() {
     if (auto* state = Context::getCurrentContext(); state) {
         if (state->shader_id != id) {
+            CpuProfileScope scope(global_profiler, "ShaderProgram::use::useProgram");
             state->shader_id = id;
             glUseProgram(id);
         }
 
-        bindResources();
+        {
+            CpuProfileScope scope(global_profiler, "ShaderProgram::use::bindResources");
+            bindResources();
+        }
 
-        for (auto& [name, uniform] : uniforms) {
-            uniform->set();
+        {
+            CpuProfileScope scope(global_profiler, "ShaderProgram::use::setUniforms");
+            for (auto& [name, uniform] : uniforms) {
+                uniform->set();
+            }
         }
     }
 }

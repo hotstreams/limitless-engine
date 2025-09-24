@@ -4,37 +4,63 @@
 using namespace Limitless;
 
 void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstance& mesh, const DrawParameters& drawp) {
-    // sets culling based on two-sideness
-    if (mesh.getMaterial()->getTwoSided()) {
-        drawp.ctx.disable(Capabilities::CullFace);
-    } else {
-        drawp.ctx.enable(Capabilities::CullFace);
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::culling");
+        // sets culling based on two-sideness
+        if (mesh.getMaterial()->getTwoSided()) {
+            drawp.ctx.disable(Capabilities::CullFace);
+        } else {
+            drawp.ctx.enable(Capabilities::CullFace);
+        }
     }
 
-    // front cullfacing for shadows helps prevent peter panning
-    if (drawp.type == ShaderType::DirectionalShadow) {
-        drawp.ctx.setCullFace(CullFace::Front);
-    } else {
-        drawp.ctx.setCullFace(CullFace::Back);
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::cullface");
+        // front cullfacing for shadows helps prevent peter panning
+        if (drawp.type == ShaderType::DirectionalShadow) {
+            drawp.ctx.setCullFace(CullFace::Front);
+        } else {
+            drawp.ctx.setCullFace(CullFace::Back);
+        }
     }
 
-    setBlendingMode(mesh.getMaterial()->getBlending());
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::blending");
+        setBlendingMode(mesh.getMaterial()->getBlending());
+    }
 
     // gets required shader from storage
-    auto& shader = drawp.assets.shaders.get(drawp.type, instance.getInstanceType(), mesh.getMaterial()->getShaderIndex());
+    auto& shader = [&]() -> ShaderProgram& {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::getShader");
+        return drawp.assets.shaders.get(drawp.type, instance.getInstanceType(), mesh.getMaterial()->getShaderIndex());
+    }();
 
-    instance.getInstanceBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::UniformBuffer, "INSTANCE_BUFFER"));
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::bindInstanceBuffer");
+        instance.getInstanceBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::UniformBuffer, "INSTANCE_BUFFER"));
+    }
 
-    shader
-            .setMaterial(*mesh.getMaterial());
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::setMaterial");
+        shader.setMaterial(*mesh.getMaterial());
+    }
 
     // sets custom pass-dependent uniforms
-    drawp.setter(shader);
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::setPassUniforms");
+        drawp.setter(shader);
+    }
 
     // sets custom instance-dependent uniforms
-    drawp.isetter(shader, instance);
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::setInstanceUniforms");
+        drawp.isetter(shader, instance);
+    }
 
-    shader.use();
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::useShader");
+        shader.use();
+    }
 }
 
 bool InstanceRenderer::shouldBeRendered(const Instance &instance, const DrawParameters& drawp) {
@@ -199,8 +225,13 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
         return;
     }
 
-    // bind buffer for instanced data
-    instance.getBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
+    CpuProfileScope scope(global_profiler, "InstanceRenderer::renderInstancedInstance");
+
+    {
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::renderInstancedInstance::bindBuffer");
+        // bind buffer for instanced data
+        instance.getBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "model_buffer"));
+    }
 
     for (const auto& [_, mesh]: instance.getInstances()[0]->getMeshes()) {
         // skip mesh if blending is different
@@ -208,11 +239,19 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
             return;
         }
 
-        // set render state: shaders, material, blending, etc
-        setRenderState(instance, mesh, drawp);
+        CpuProfileScope scope(global_profiler, "InstanceRenderer::renderInstancedInstance::renderMesh");
 
-        // draw vertices
-        mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
+        {
+            CpuProfileScope scope(global_profiler, "InstanceRenderer::renderInstancedInstance::renderMesh::setRenderState");
+            // set render state: shaders, material, blending, etc
+            setRenderState(instance, mesh, drawp);
+        }
+
+        {
+            CpuProfileScope scope(global_profiler, "InstanceRenderer::renderInstancedInstance::renderMesh::draw_instanced");
+            // draw vertices
+            mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
+        }
     }
 }
 
