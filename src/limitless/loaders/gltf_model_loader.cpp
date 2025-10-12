@@ -664,7 +664,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const cgltf_material& material,
 	const std::string& model_name,
 	size_t material_index,
-    [[maybe_unused]] const ModelLoaderFlags& flags
+	const ModelLoaderFlags& model_flags
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
 	const auto material_name = model_name + (material.name
@@ -837,7 +837,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 				assets,
 				name,
 				cgltf_buffer_view_data(img.buffer_view),
-				img.buffer_view->size
+				img.buffer_view->size,
+				flags
 			);
 
 		} else {
@@ -879,8 +880,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 
 		// The base color texture MUST contain 8-bit values encoded with the
 		// sRGB opto-electronic transfer function.
-		// TODO: deduce other flags from cgltf sampler.
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
+		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
+			.withSpace(TextureLoaderFlags::Space::sRGB);
 
 		builder.diffuse(*loadTextureFrom(*base_color_tex, material_name + "_base_color", flags));
 		builder.color(toVec4(pbr_mr.base_color_factor));
@@ -900,7 +901,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	auto* normal_tex = material.normal_texture.texture;
 	if (normal_tex && normal_tex->image) {
 		// These values MUST be encoded with a linear transfer function.
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
+		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
+			.withSpace(TextureLoaderFlags::Space::Linear);
 
 		builder.normal(*loadTextureFrom(*normal_tex, material_name + "_normal", flags));
 	}
@@ -914,7 +916,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	if (emissive_tex && emissive_tex->image) {
 		// This texture contains RGB components encoded with the sRGB transfer
 		// function
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
+		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
+			.withSpace(TextureLoaderFlags::Space::sRGB);
 
 		builder.emissive_mask(*loadTextureFrom(*emissive_tex, material_name + "_emissive_mask", flags));
 	}
@@ -989,7 +992,11 @@ static void fixMissingMaterials(
 }
 
 static SkeletalModel* loadSkeletalModel(
-	Assets& assets, const fs::path& path, const cgltf_data& src, const std::string& model_name, const ModelLoaderFlags& flags
+	Assets& assets,
+	const fs::path& path,
+	const cgltf_data& src,
+	const std::string& model_name,
+	const ModelLoaderFlags& flags
 ) {
 	std::vector<Bone> bones;
 	std::unordered_map<const cgltf_node*, size_t> bone_indice_map;
@@ -1091,7 +1098,11 @@ static SkeletalModel* loadSkeletalModel(
 }
 
 static Model* loadPlainModel(
-	Assets& assets, const fs::path& path, const cgltf_data& src, const std::string& model_name, const ModelLoaderFlags& flags
+	Assets& assets,
+	const fs::path& path,
+	const cgltf_data& src,
+	const std::string& model_name,
+	const ModelLoaderFlags& flags
 ) {
 	std::vector<std::shared_ptr<AbstractMesh>> meshes;
 	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
