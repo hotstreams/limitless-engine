@@ -6,6 +6,7 @@ using namespace Limitless;
 
 IndexedStream::IndexedStream(
     Type type,
+    std::map<Attribute, AttributeIndex> attributes,
     std::map<uint8_t, std::string>&& name_mapping,
     InputType input_type,
     Draw draw,
@@ -19,6 +20,7 @@ IndexedStream::IndexedStream(
 )
     : VertexStream(
         type,
+        std::move(attributes),
         std::move(name_mapping),
         std::move(input_type),
         draw,

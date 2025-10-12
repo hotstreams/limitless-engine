@@ -500,6 +500,7 @@ loadMeshes(
 							.draw(VertexStream::Draw::Triangles)
 							.build()
 					)
+					.add_lod({0, indices.size()})
 					.build()
 			);
 

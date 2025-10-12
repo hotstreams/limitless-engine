@@ -8,8 +8,11 @@ namespace Limitless::ms {
 
 namespace Limitless {
     class Model : public AbstractModel {
+    public:
+        using LodMaterials = std::vector<std::shared_ptr<ms::Material>>;
+
     protected:
-        std::vector<std::shared_ptr<ms::Material>> materials;
+        std::vector<LodMaterials> materials;
 
         Model(decltype(meshes)&& mesh, decltype(materials)&& materials, std::string name);
     public:

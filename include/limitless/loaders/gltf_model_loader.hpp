@@ -15,7 +15,7 @@ namespace Limitless {
 		FlipWindingOrder,
 		NoMaterials,
 		GlobalScale,
-		LoadLODs
+		LOD
 	};
 
 	struct ModelLoadError : public std::runtime_error {
@@ -41,8 +41,8 @@ namespace Limitless {
 			return *this;
 		}
 
-		ModelLoaderFlags& loadLODs() {
-			options.emplace(ModelLoaderOption::LoadLODs);
+		ModelLoaderFlags& lod() {
+			options.emplace(ModelLoaderOption::LOD);
 			return *this;
 		}
 	};

@@ -64,37 +64,44 @@ std::shared_ptr<Model> Model::Builder::build(Assets& assets) {
         throw std::runtime_error("Model meshes must have the same number of materials.");
     }
 
-    if (batched_) {
-        auto mesh_builder = Mesh::builder().name(name_ + "_batched");
-        for (auto& mesh : meshes_) {
-            mesh_builder.batch(mesh);
-        }
-        auto batched_mesh = mesh_builder.build();
+    // if (batched_) {
+    //     auto mesh_builder = Mesh::builder().name(name_ + "_batched");
+    //     for (auto& mesh : meshes_) {
+    //         mesh_builder.batch(mesh);
+    //     }
+    //     auto batched_mesh = mesh_builder.build();
+    //
+    //     auto material_builder = ms::Material::builder();
+    //     for (auto material : materials_) {
+    //         material_builder.add_batch(material);
+    //     }
+    //     auto batched_material = material_builder.buildBatched(assets);
+    //
+    //     if (!skeletons_.empty()) {
+    //         return std::shared_ptr<SkeletalModel>(new SkeletalModel(
+    //             {batched_mesh},
+    //             {batched_material},
+    //             std::move(bones_),
+    //             std::move(bone_map_),
+    //             std::move(skeletons_),
+    //             std::move(animations_),
+    //             std::move(name_)
+    //         ));
+    //     }
+    //
+    //     return std::shared_ptr<Model>(new Model({batched_mesh}, {batched_material}, std::move(name_)));
+    // } else {
+        std::vector<LodMaterials> materials;
 
-        auto material_builder = ms::Material::builder();
-        for (auto material : materials_) {
-            material_builder.add_batch(material);
-        }
-        auto batched_material = material_builder.buildBatched(assets);
-
-        if (!skeletons_.empty()) {
-            return std::shared_ptr<SkeletalModel>(new SkeletalModel(
-                {batched_mesh},
-                {batched_material},
-                std::move(bones_),
-                std::move(bone_map_),
-                std::move(skeletons_),
-                std::move(animations_),
-                std::move(name_)
-            ));
+        for (const auto& material : materials_)
+        {
+            materials.emplace_back(LodMaterials{material});
         }
 
-        return std::shared_ptr<Model>(new Model({batched_mesh}, {batched_material}, std::move(name_)));
-    } else {
         if (!skeletons_.empty()) {
             return std::shared_ptr<SkeletalModel>(new SkeletalModel(
                 std::move(meshes_),
-                std::move(materials_),
+                std::move(materials),
                 std::move(bones_),
                 std::move(bone_map_),
                 std::move(skeletons_),
@@ -102,9 +109,9 @@ std::shared_ptr<Model> Model::Builder::build(Assets& assets) {
                 std::move(name_)
                 ));
         } else {
-            return std::shared_ptr<Model>(new Model(std::move(meshes_), std::move(materials_), std::move(name_)));
+            return std::shared_ptr<Model>(new Model(std::move(meshes_), std::move(materials), std::move(name_)));
         }
-    }
+    // }
 }
 
 

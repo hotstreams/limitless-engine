@@ -16,7 +16,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
 }
 
 void LimitlessMaterials::Scene::update(Limitless::Context& context, const Limitless::Camera& camera) {
-    scene.update(context, camera);
+    scene.update(camera);
 }
 
 void LimitlessMaterials::Scene::createTerrain() {

@@ -21,14 +21,9 @@ namespace Limitless {
 
         std::shared_ptr<VertexStream> stream;
 
-        struct LodData
-        {
+        struct LodData {
             size_t offset;
             size_t count;
-
-            std::shared_ptr<ms::Material> material;
-
-            Box bounding_box;
         };
         std::vector<LodData> lods;
 
@@ -37,15 +32,12 @@ namespace Limitless {
         LodSelection selection;
         std::vector<float> distances;
 
+        Box bounding_box;
+
         void calculateBoundingBox() {
-            //TODO: dispatch?
-//            if (auto vnt = dynamic_cast<VertexStream<VertexNormalTangent>*>(stream.get()); vnt) {
-//                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
-//            }
-//            if (auto vnt = dynamic_cast<VertexStream<VertexTerrain>*>(stream.get()); vnt) {
-//                bounding_box = Limitless::calculateBoundingBox(vnt->getVertices());
-//            }
-            // bounding_box = Box{glm::vec3(0.0f), glm::vec3(555.0f)};
+            bounding_box = Limitless::calculateBoundingBox([&](auto lambda){
+                stream->forEach<glm::vec3>(VertexStream::Attribute::Position, lambda);
+            });
         }
 
         Mesh(
@@ -62,7 +54,7 @@ namespace Limitless {
             , selection{selection}
             , distances{std::move(distances)}
         {
-            
+            calculateBoundingBox();
         }
 
     public:
@@ -74,6 +66,9 @@ namespace Limitless {
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(Mesh&&) noexcept = default;
 
+        // Default constructor for derived classes
+        Mesh() = default;
+
         [[nodiscard]] const std::string& getName() const noexcept { return name; }
         [[nodiscard]] std::string& getName() noexcept { return name; }
         [[nodiscard]] LodSelection getSelection() const noexcept { return selection; }
@@ -82,6 +77,7 @@ namespace Limitless {
         [[nodiscard]] const std::vector<LodData>& getLods() const noexcept { return lods; }
         auto& getVertexStream() noexcept { return *stream; }
         [[nodiscard]] const auto& getVertexStream() const noexcept { return *stream; }
+        [[nodiscard]] const Box& getBoundingBox() const noexcept { return bounding_box; }
 
         // draws highest lod
         void draw() noexcept {

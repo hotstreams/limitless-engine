@@ -6,6 +6,7 @@ using namespace Limitless;
 
 VertexStream::VertexStream(
     Type type,
+    std::map<Attribute, AttributeIndex> attributes,
     std::map<uint8_t, std::string>&& name_mapping,
     InputType input_type,
     Draw mode,
@@ -15,7 +16,8 @@ VertexStream::VertexStream(
     std::shared_ptr<VertexArray> vertex_array,
     std::shared_ptr<Buffer> vertex_buffer
 )
-    : name_mapping(std::move(name_mapping))
+    : attributes(std::move(attributes))
+    , name_mapping(std::move(name_mapping))
     , type(type)
     , input_type(std::move(input_type))
     , mode(mode)

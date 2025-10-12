@@ -37,6 +37,7 @@ Plane::Plane() : ElementaryModel("plane") {
                     .draw(VertexStream::Draw::Triangles)
                     .build()
             )
+            .add_lod({0, indices.size()})
             .build()
     );
 
@@ -74,6 +75,7 @@ PlaneQuad::PlaneQuad() : ElementaryModel("planequad") {
                     .draw(VertexStream::Draw::Triangles)
                     .build()
             )
+            .add_lod({0, indices.size()})
             .build()
     );
 

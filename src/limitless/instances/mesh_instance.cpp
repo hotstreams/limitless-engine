@@ -9,20 +9,20 @@
 using namespace Limitless;
 using namespace Limitless::ms;
 
-MeshInstance::MeshInstance(std::shared_ptr<Mesh> mesh) noexcept
-    : mesh {std::move(mesh)}
+MeshInstance::MeshInstance(std::shared_ptr<Mesh> mesh_, std::vector<std::shared_ptr<Material>> lod_materials) noexcept
+    : mesh {std::move(mesh_)}
     , current_lod {0} {
-    for (uint32_t i = 0; i < mesh->getLods().size(); ++i) {
-        const auto& lod = mesh->getLods()[i];
-        lods.emplace(i, LodMaterial(*lod.material));
+    for (auto& material : lod_materials)
+    {
+        lods.emplace_back(*material);
     }
 }
 
 MeshInstance::MeshInstance(const MeshInstance& rhs)
     : mesh {rhs.mesh}
     , current_lod {rhs.current_lod} {
-    for (const auto& [index, lod] : rhs.lods) {
-        lods.emplace(index, LodMaterial(*lod.material));
+    for (const auto& [material, base] : rhs.lods) {
+        lods.emplace_back(*material);
     }
 }
 

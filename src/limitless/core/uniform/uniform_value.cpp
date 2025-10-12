@@ -24,6 +24,9 @@ constexpr UniformValueType UniformValue<T>::getUniformValueType() {
     else if constexpr (std::is_same<T, glm::vec4>::value) {
         return UniformValueType::Vec4;
     }
+    else if constexpr (std::is_same<T, glm::ivec4>::value) {
+        return UniformValueType::IVec4;
+    }
     else if constexpr (std::is_same<T, glm::mat3>::value) {
         return UniformValueType::Mat3;
     }
@@ -76,6 +79,9 @@ void UniformValue<T>::set() {
     else if constexpr (std::is_same<T, glm::vec4>::value) {
         glUniform4fv(location, 1, &value[0]);
     }
+    else if constexpr (std::is_same<T, glm::ivec4>::value) {
+        glUniform4iv(location, 1, &value[0]);
+    }
     else if constexpr (std::is_same<T, glm::mat3>::value) {
         glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
     }
@@ -115,6 +121,7 @@ namespace Limitless {
     template class UniformValue<glm::vec2>;
     template class UniformValue<glm::vec3>;
     template class UniformValue<glm::vec4>;
+    template class UniformValue<glm::ivec4>;
     template class UniformValue<glm::mat3>;
     template class UniformValue<glm::mat4>;
 }

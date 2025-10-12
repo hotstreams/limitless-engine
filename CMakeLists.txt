@@ -228,6 +228,7 @@ set(ENGINE_SRC
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
+    set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "Disable HarfBuzz support" FORCE)
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype")
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/build/cmake")
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/plog")

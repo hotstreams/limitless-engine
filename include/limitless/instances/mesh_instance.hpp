@@ -8,6 +8,8 @@
 #include <limitless/camera.hpp>
 #include <memory>
 
+#include "limitless/models/model.hpp"
+
 namespace Limitless {
     class Assets;
     enum class ShaderType;
@@ -19,8 +21,7 @@ namespace Limitless {
     private:
         std::shared_ptr<Mesh> mesh;
 
-        struct LodMaterial
-        {
+        struct LodMaterial {
             std::shared_ptr<ms::Material> material;
             std::shared_ptr<ms::Material> base;
 
@@ -31,13 +32,13 @@ namespace Limitless {
 
             }
         };
-        std::unordered_map<uint32_t, LodMaterial> lods;
+        std::vector<LodMaterial> lods;
 
         uint32_t current_lod;
 
         void selectLod(const Camera& camera, const glm::vec3& position);
     public:
-        MeshInstance(std::shared_ptr<Mesh> mesh) noexcept;
+        MeshInstance(std::shared_ptr<Mesh> mesh, std::vector<std::shared_ptr<ms::Material>> lod_materials) noexcept;
         ~MeshInstance() = default;
 
         MeshInstance(const MeshInstance&);

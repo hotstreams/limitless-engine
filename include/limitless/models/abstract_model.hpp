@@ -10,7 +10,9 @@ namespace Limitless {
     class AbstractModel {
     protected:
         std::string name;
+
         std::vector<std::shared_ptr<Mesh>> meshes;
+
         Box bounding_box {};
 
         void calculateBoundingBox();

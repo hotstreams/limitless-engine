@@ -78,6 +78,7 @@ Sphere::Sphere(glm::uvec2 segment_count) : ElementaryModel("sphere") {
                     .draw(VertexStream::Draw::Triangles)
                     .build()
             )
+            .add_lod({0, indices.size()})
             .build()
     );
 

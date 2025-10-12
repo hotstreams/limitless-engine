@@ -70,6 +70,7 @@ Cube::Cube() : ElementaryModel("cube") {
                     .draw(VertexStream::Draw::Triangles)
                     .build()
             )
+            .add_lod({0, vertices.size()})
             .build()
     );
 

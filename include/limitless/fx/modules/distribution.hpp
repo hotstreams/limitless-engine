@@ -3,59 +3,37 @@
 #include <glm/glm.hpp>
 #include <random>
 
-namespace std {
-    template<> struct is_floating_point<glm::vec2> : public true_type {};
-    template<> struct is_floating_point<glm::vec3> : public true_type {};
-    template<> struct is_floating_point<glm::vec4> : public true_type {};
-
-    template<>
-    class uniform_real_distribution<glm::vec2> {
+namespace Limitless {
+    // Custom uniform distribution for GLM vector types
+    template<typename T>
+    class uniform_vector_distribution {
     private:
-        glm::vec2 min, max;
+        T min, max;
+        std::uniform_real_distribution<float> float_dist;
     public:
-        uniform_real_distribution(const glm::vec2& min, const glm::vec2& max) noexcept
-                : min(min), max(max) {}
+        uniform_vector_distribution(const T& min, const T& max) noexcept
+                : min(min), max(max), float_dist(0.0f, 1.0f) {}
 
-        template<typename _UniformRandomNumberGenerator>
-        glm::vec2 operator()(_UniformRandomNumberGenerator& __urng) {
-            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
-            return { __aurng() * (max.x - min.x) + min.x,
-                     __aurng() * (max.y - min.y) + min.y };
+        template<typename Generator>
+        T operator()(Generator& gen) {
+            if constexpr (std::is_same_v<T, glm::vec2>) {
+                return { float_dist(gen) * (max.x - min.x) + min.x,
+                         float_dist(gen) * (max.y - min.y) + min.y };
+            } else if constexpr (std::is_same_v<T, glm::vec3>) {
+                return { float_dist(gen) * (max.x - min.x) + min.x,
+                         float_dist(gen) * (max.y - min.y) + min.y,
+                         float_dist(gen) * (max.z - min.z) + min.z };
+            } else if constexpr (std::is_same_v<T, glm::vec4>) {
+                return { float_dist(gen) * (max.x - min.x) + min.x,
+                         float_dist(gen) * (max.y - min.y) + min.y,
+                         float_dist(gen) * (max.z - min.z) + min.z,
+                         float_dist(gen) * (max.w - min.w) + min.w };
+            }
         }
-    };
 
-    template<>
-    class uniform_real_distribution<glm::vec3> {
-    private:
-        glm::vec3 min, max;
-    public:
-        uniform_real_distribution(const glm::vec3& min, const glm::vec3& max) noexcept
-                : min(min), max(max) {}
-
-        template<typename _UniformRandomNumberGenerator>
-        glm::vec3 operator()(_UniformRandomNumberGenerator& __urng) {
-            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
-            return { __aurng() * (max.x - min.x) + min.x,
-                     __aurng() * (max.y - min.y) + min.y,
-                     __aurng() * (max.z - min.z) + min.z };
-        }
-    };
-
-    template<>
-    class uniform_real_distribution<glm::vec4> {
-    private:
-        glm::vec4 min, max;
-    public:
-        uniform_real_distribution(const glm::vec4& min, const glm::vec4& max)
-                : min(min), max(max) {}
-
-        template<typename _UniformRandomNumberGenerator>
-        glm::vec4 operator()(_UniformRandomNumberGenerator& __urng) {
-            __detail::_Adaptor<_UniformRandomNumberGenerator, float> __aurng(__urng);
-            return { __aurng() * (max.x - min.x) + min.x,
-                     __aurng() * (max.y - min.y) + min.y,
-                     __aurng() * (max.z - min.z) + min.z,
-                     __aurng() * (max.w - min.w) + min.w };
+        void set(const T& new_min, const T& new_max) noexcept {
+            min = new_min;
+            max = new_max;
         }
     };
 }
@@ -114,6 +92,18 @@ namespace Limitless {
     public:
         uniform_distribution(T min, T max) : distribution{min, max} {}
         void set(const T& min, const T& max) { distribution = std::uniform_real_distribution{min, max}; }
+        template<typename Gen> auto operator()(Gen&& gen) { return distribution(std::forward<Gen>(gen)); }
+    };
+
+    // Specialization for GLM vector types
+    template<typename T>
+    class uniform_distribution<T, typename std::enable_if_t<
+        std::is_same_v<T, glm::vec2> || std::is_same_v<T, glm::vec3> || std::is_same_v<T, glm::vec4>
+    >> {
+        uniform_vector_distribution<T> distribution;
+    public:
+        uniform_distribution(const T& min, const T& max) : distribution{min, max} {}
+        void set(const T& min, const T& max) { distribution.set(min, max); }
         template<typename Gen> auto operator()(Gen&& gen) { return distribution(std::forward<Gen>(gen)); }
     };
 

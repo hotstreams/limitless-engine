@@ -36,7 +36,7 @@ ModelInstance::ModelInstance(decltype(model) _model, std::shared_ptr<ms::Materia
     try {
         auto& elementary_model = dynamic_cast<ElementaryModel&>(*model);
 
-        meshes.emplace(elementary_model.getMesh()->getName(), MeshInstance{elementary_model.getMesh(), material});
+        meshes.emplace(elementary_model.getMesh()->getName(), MeshInstance{elementary_model.getMesh(), {material}});
 
         changeMaterials(material);
     } catch (...) {

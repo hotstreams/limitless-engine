@@ -67,6 +67,7 @@ Cylinder::Cylinder(float base_radius, float top_radius, float height)
                     .draw(VertexStream::Draw::Triangles)
                     .build()
             )
+            .add_lod({0, indices.size()})
             .build()
     );
 

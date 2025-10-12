@@ -33,7 +33,7 @@ void main() {
     info.b = 0.0;
 
     outline.rgb = ictx.outline_color.rgb;
-    outline.a = ictx.is_outlined == 1u ? ictx.id / 65535.0 : 0.0;
+    outline.a = ictx.is_outlined == 1u ? ictx.id / uint(65535.0) :uint(0.0);
 
     emissive = computeMaterialEmissiveColor(mctx);
 }

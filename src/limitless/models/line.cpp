@@ -24,6 +24,7 @@ Line::Line(const glm::vec3 &a, const glm::vec3 &b) : ElementaryModel("line") {
                     .draw(VertexStream::Draw::Lines)
                     .build()
             )
+            .add_lod({0, vertices.size()})
             .build()
     );
 

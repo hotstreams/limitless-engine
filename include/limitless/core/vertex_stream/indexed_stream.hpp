@@ -12,6 +12,7 @@ namespace Limitless {
 
         IndexedStream(
             Type type,
+            std::map<Attribute, AttributeIndex> attributes,
             std::map<uint8_t, std::string>&& name_mapping,
             InputType input_type,
             Draw draw,

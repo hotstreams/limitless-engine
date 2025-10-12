@@ -2,6 +2,7 @@
 
 #include <limitless/core/buffer/buffer.hpp>
 #include <memory>
+#include <string_view>
 
 namespace Limitless {
     class ContextState;

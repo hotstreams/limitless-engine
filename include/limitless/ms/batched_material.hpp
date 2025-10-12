@@ -140,6 +140,14 @@ namespace Limitless::ms {
                                 }
                             }
                                 break;
+                            case DataType::IVec4: {
+                                auto uniform_value = static_cast<UniformValueArray<glm::ivec4>&>(*uniforms[name]);
+
+                                if (uniform->isChanged() || force) {
+                                    uniform_value.setValue(index, static_cast<UniformValue<glm::ivec4>&>(*uniform).getValue());
+                                }
+                            }
+                                break;
                         }
                         break;
 
@@ -150,6 +158,11 @@ namespace Limitless::ms {
                         if (uniform->isChanged() || force) {
                             Texture::copy(static_cast<UniformSampler&>(*uniform).getSampler(), index, texture);
                         }
+                    }
+                        break;
+                    case UniformType::SamplerArray: {
+                        // TODO: Implement SamplerArray handling
+                        // This case is added to prevent compiler warnings
                     }
                         break;
                     case UniformType::Time: {

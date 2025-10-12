@@ -47,8 +47,10 @@ namespace Limitless {
 
         using DataType = DataType;
         using InputType = std::map<uint8_t, DataType>;
+        using AttributeIndex = uint8_t;
     protected:
-        std::map<uint8_t, std::string> name_mapping;
+        std::map<Attribute, AttributeIndex> attributes;
+        std::map<AttributeIndex, std::string> name_mapping;
         Type type;
         InputType input_type;
         Draw mode;
@@ -62,6 +64,7 @@ namespace Limitless {
 
         VertexStream(
             Type type,
+            std::map<Attribute, AttributeIndex> attributes,
             std::map<uint8_t, std::string>&& name_mapping,
             InputType input_type,
             Draw mode,
@@ -110,6 +113,21 @@ namespace Limitless {
         }
 
         void update(std::vector<std::byte> data);
+
+        template<typename T>
+        void forEach(Attribute attribute, std::function<void(const T&)> function) {
+            if (attributes.find(attribute) == attributes.end()) {
+                return;
+            }
+
+            const auto size = vertex_array->getAttributes().at(attributes.at(attribute)).stride;
+            const auto offset = vertex_array->getAttributes().at(attributes.at(attribute)).pointer;
+
+            for (size_t i = 0; i < data.size(); i += size) {
+                const auto& value = reinterpret_cast<const T&>(data[i + reinterpret_cast<size_t>(offset)]);
+                function(value);
+            }
+        }
 
         template<typename Vertex>
         void update(std::vector<Vertex> vertex_data) {

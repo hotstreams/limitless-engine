@@ -19,8 +19,9 @@ namespace Limitless {
             { Attribute::MeshIndex, "mesh_index" }
         };
 
-        std::unordered_map<GLuint, VertexArray::Attribute> attributes;
-        std::map<uint8_t, std::string> name_mapping;
+        std::map<Attribute, AttributeIndex> attributes;
+        std::map<AttributeIndex, VertexArray::Attribute> vertex_attributes;
+        std::map<AttributeIndex, std::string> name_mapping;
         InputType stream_type;
 
         std::vector<std::byte> vertex_data;

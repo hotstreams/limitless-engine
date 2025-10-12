@@ -105,7 +105,7 @@ std::shared_ptr<Buffer> VertexStream::Builder::buildSkeletalBuffer() {
 std::shared_ptr<VertexArray> VertexStream::Builder::buildVertexArray() {
     auto builder = VertexArray::builder();
 
-    for (const auto& [index, attribute] : attributes) {
+    for (const auto& [index, attribute] : vertex_attributes) {
         builder.attribute(index, attribute);
     }
 
@@ -128,22 +128,23 @@ DataType VertexStream::Builder::getDataType(Attribute attribute) {
 VertexStream::Builder& VertexStream::Builder::attribute(uint8_t index, VertexStream::DataType type, const std::string& name, size_t stride, size_t offset) {
     stream_type.emplace(index, type);
     auto [size, gl_data_type] = getOpenGLDataType(type);
-    attributes.emplace(index, VertexArray::Attribute(size, gl_data_type, GL_FALSE, stride, reinterpret_cast<const GLvoid*>(offset), nullptr));
+    vertex_attributes.emplace(index, VertexArray::Attribute(size, gl_data_type, GL_FALSE, stride, reinterpret_cast<const GLvoid*>(offset), nullptr));
     name_mapping.emplace(index, name);
     return *this;
 }
 
-VertexStream::Builder& VertexStream::Builder::attribute(uint8_t index, VertexStream::Attribute attribute, size_t stride, size_t offset) {
+VertexStream::Builder& VertexStream::Builder::attribute(uint8_t index, Attribute attribute, size_t stride, size_t offset) {
     auto data_type = getDataType(attribute);
     stream_type.emplace(index, data_type);
     auto [size, gl_data_type] = getOpenGLDataType(data_type);
-    attributes.emplace(index, VertexArray::Attribute(size, gl_data_type, GL_FALSE, stride, reinterpret_cast<const GLvoid*>(offset), nullptr));
+    attributes.emplace(attribute, index);
+    vertex_attributes.emplace(index, VertexArray::Attribute(size, gl_data_type, GL_FALSE, stride, reinterpret_cast<const GLvoid*>(offset), nullptr));
     name_mapping.emplace(index, ATTRIBUTE_NAMINGS[attribute]);
     return *this;
 }
 
 VertexStream::Builder& VertexStream::Builder::normalized(size_t index, bool normalized) {
-    attributes.at(index).normalized = normalized;
+    vertex_attributes.at(index).normalized = normalized;
     return *this;
 }
 
@@ -173,7 +174,7 @@ std::shared_ptr<VertexStream> VertexStream::Builder::build() {
     }
 
     auto vertex_buffer = buildVertexBuffer();
-    for (auto& [index, attribute]: attributes) {
+    for (auto& [index, attribute]: vertex_attributes) {
         attribute.buffer = vertex_buffer;
     }
 
@@ -183,6 +184,7 @@ std::shared_ptr<VertexStream> VertexStream::Builder::build() {
             auto vertex_array = buildVertexArray();
             stream = new VertexStream(
                     getStreamType(),
+                    std::move(attributes),
                     std::move(name_mapping),
                     std::move(stream_type),
                     draw_mode,
@@ -200,6 +202,7 @@ std::shared_ptr<VertexStream> VertexStream::Builder::build() {
             vertex_array->setElementBuffer(index_buffer);
             stream = new IndexedStream(
                     getStreamType(),
+                    std::move(attributes),
                     std::move(name_mapping),
                     std::move(stream_type),
                     draw_mode,
@@ -217,8 +220,8 @@ std::shared_ptr<VertexStream> VertexStream::Builder::build() {
 
             auto skeletal_buffer = buildSkeletalBuffer();
 
-            for (int i = 4; i < attributes.size(); ++i) {
-                attributes.at(i).buffer = skeletal_buffer;
+            for (int i = 4; i < vertex_attributes.size(); ++i) {
+                vertex_attributes.at(i).buffer = skeletal_buffer;
             }
             auto vertex_array = buildVertexArray();
             auto index_buffer = buildIndexBuffer();
@@ -226,6 +229,7 @@ std::shared_ptr<VertexStream> VertexStream::Builder::build() {
             vertex_array->setElementBuffer(index_buffer);
             stream = new SkeletalStream(
                     getStreamType(),
+                    std::move(attributes),
                     std::move(name_mapping),
                     std::move(stream_type),
                     draw_mode,

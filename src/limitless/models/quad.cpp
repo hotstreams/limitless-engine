@@ -26,6 +26,7 @@ Quad::Quad() : ElementaryModel("quad") {
                     .draw(VertexStream::Draw::TriangleStrip)
                     .build()
             )
+            .add_lod({0, vertices.size()})
             .build()
     );
 
