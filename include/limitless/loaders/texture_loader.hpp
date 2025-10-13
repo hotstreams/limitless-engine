@@ -14,7 +14,7 @@ namespace Limitless {
     	// does not work for DDS formats
         enum class Origin { TopLeft, BottomLeft };
         enum class Filter { Linear, Nearest };
-        enum class Compression { None, Default, DXT1, DXT5, BC7, RGTC, ASTC };
+        enum class Compression { None, Default, DXT1, DXT5, BC7, RGTC };
         // works for dds with precomputed mipmaps only
         enum class DownScale { None = 0, x2, x4, x8, x16 };
         enum class Space { sRGB, Linear };

@@ -92,29 +92,11 @@ void TextureLoader::setFormat(Texture::Builder& builder, const TextureLoaderFlag
                 case 2: internal = Texture::InternalFormat::RG_RGTC; break;
             }
             break;
-        case TextureLoaderFlags::Compression::ASTC:
-        astc:
-            if (channels != 4) {
-                throw texture_loader_exception("ASTC compression is only supported for 4 channels, got " + std::to_string(channels));
-            }
-
-            if (!ContextInitializer::isExtensionSupported(ASTC_EXTENSION)) {
-                throw texture_loader_exception("ASTC compression is not supported!");
-            }
-
-            internal = (flags.space == TextureLoaderFlags::Space::sRGB)
-                ? Texture::InternalFormat::sRGBA8_ASTC_6x6
-                : Texture::InternalFormat::RGBA_ASTC_6x6;
-            break;
 
         case TextureLoaderFlags::Compression::Default:
             // RGTC is good for normals / masks, bad for color.
             if ((channels == 1 || channels == 2) && ContextInitializer::isExtensionSupported(RGTC_EXTENSION)) {
                 goto rgtc;
-            }
-
-            if (channels == 4 && ContextInitializer::isExtensionSupported(ASTC_EXTENSION)) {
-                goto astc;
             }
 
             if ((channels == 3 || channels == 4) && ContextInitializer::isExtensionSupported(BPTC_EXTENSION)) {

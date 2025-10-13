@@ -70,8 +70,8 @@ namespace Limitless {
             RG_RGTC = GL_COMPRESSED_RG_RGTC2,
 
             // GL_KHR_texture_compression_astc_ldr
-            RGBA_ASTC_6x6 = GL_COMPRESSED_RGBA_ASTC_6x6_KHR,
-            sRGBA8_ASTC_6x6 = GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR
+            RGBA_ASTC_4x4 = GL_COMPRESSED_RGBA_ASTC_4x4_KHR,
+            sRGBA8_ASTC_4x4 = GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR
         };
 
         enum class Format {
