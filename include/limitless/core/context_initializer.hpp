@@ -26,7 +26,7 @@ namespace Limitless {
 
         static void initializeGLEW();
         static void initializeGLFW();
-        static void getExtensions() noexcept;
+        static void discoverExtensions() noexcept;
         static void getLimits() noexcept;
 
         ContextInitializer();
@@ -41,6 +41,9 @@ namespace Limitless {
         static void printExtensions() noexcept;
         static bool isExtensionSupported(std::string_view name) noexcept;
         static bool checkMinimumRequirements() noexcept;
+        static const auto& getExtensions() noexcept {
+            return extensions;
+        }
 
         static bool isProgramInterfaceQuerySupported() noexcept;
         static bool isBindlessTextureSupported() noexcept;

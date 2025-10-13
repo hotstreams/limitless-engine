@@ -671,6 +671,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		? std::string(material.name)
 		: generateMaterialName(model_name, material_index));
 
+	// assets.materials.remove(material_name);
+
 	builder
 		.name(material_name)
 		.shading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
@@ -833,6 +835,9 @@ static std::shared_ptr<ms::Material> loadMaterial(
 				throw ModelLoadError {"texture has no uri and no buffer view"};
 			}
 
+			// TODO: check if removal is needed.
+			// assets.textures.remove(name);
+
 			return TextureLoader::load(
 				assets,
 				name,
@@ -848,6 +853,9 @@ static std::shared_ptr<ms::Material> loadMaterial(
 				if (comma && comma - img.uri >= 7 && strncmp(comma - 7, ";base64", 7) == 0) {
 					auto buffer = bytesFromBase64(comma + 1);
 
+					// TODO: check if removal is needed.
+					// assets.textures.remove(name);
+
 					return TextureLoader::load(
 						assets,
 						name,
@@ -861,6 +869,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 
 			} else {
 				const auto path = base_path / fs::path(img.uri);
+				// TODO: check if removal is needed.
+				// assets.textures.remove(path.stem().string());
 				return TextureLoader::load(assets, path, flags);
 			}
 		}
@@ -881,7 +891,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		// The base color texture MUST contain 8-bit values encoded with the
 		// sRGB opto-electronic transfer function.
 		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
-			.withSpace(TextureLoaderFlags::Space::sRGB);
+			.withSrgb();
 
 		builder.diffuse(*loadTextureFrom(*base_color_tex, material_name + "_base_color", flags));
 		builder.color(toVec4(pbr_mr.base_color_factor));
@@ -902,7 +912,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	if (normal_tex && normal_tex->image) {
 		// These values MUST be encoded with a linear transfer function.
 		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
-			.withSpace(TextureLoaderFlags::Space::Linear);
+			.withLinearSpace()
+			.withNoCompression();
 
 		builder.normal(*loadTextureFrom(*normal_tex, material_name + "_normal", flags));
 	}
@@ -917,7 +928,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		// This texture contains RGB components encoded with the sRGB transfer
 		// function
 		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
-			.withSpace(TextureLoaderFlags::Space::sRGB);
+			.withSrgb();
 
 		builder.emissive_mask(*loadTextureFrom(*emissive_tex, material_name + "_emissive_mask", flags));
 	}

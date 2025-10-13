@@ -14,7 +14,7 @@ namespace Limitless {
     	// does not work for DDS formats
         enum class Origin { TopLeft, BottomLeft };
         enum class Filter { Linear, Nearest };
-        enum class Compression { None, Default, DXT1, DXT5, BC7, RGTC };
+        enum class Compression { None, Default, DXT1, DXT5, BC7, RGTC, ASTC };
         // works for dds with precomputed mipmaps only
         enum class DownScale { None = 0, x2, x4, x8, x16 };
         enum class Space { sRGB, Linear };
@@ -58,6 +58,22 @@ namespace Limitless {
             return new_flags;
         }
 
+        TextureLoaderFlags withCompression(bool use_compression) const noexcept {
+            auto new_flags = *this;
+            new_flags.compression = use_compression
+                ? TextureLoaderFlags::Compression::Default
+                : TextureLoaderFlags::Compression::None;
+            return new_flags;
+        }
+
+        TextureLoaderFlags withBestCompression() const noexcept {
+            return withCompression(true);
+        }
+
+        TextureLoaderFlags withNoCompression() const noexcept {
+            return withCompression(false);
+        }
+
         TextureLoaderFlags withSrgb() const noexcept {
             return withSpace(Space::sRGB);
         }
@@ -82,6 +98,7 @@ namespace Limitless {
     class texture_loader_exception : public std::runtime_error {
     public:
         explicit texture_loader_exception(const char* msg) : std::runtime_error(msg) {}
+        explicit texture_loader_exception(std::string msg) : std::runtime_error(std::move(msg)) {}
     };
 
     class TextureLoader final {

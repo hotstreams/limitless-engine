@@ -45,6 +45,10 @@ namespace Limitless {
             }
         }
 
+        /**
+         * Add a resource to the container.
+         * If the resource already exists, a resource_container_error exception is thrown.
+         */
         void add(const std::string& name, std::shared_ptr<T> res) {
             std::unique_lock lock(mutex);
             const auto result = resource.emplace(name, std::move(res));
@@ -53,6 +57,10 @@ namespace Limitless {
             }
         }
 
+        /**
+         * Remove a resource from the container.
+         * If the resource does not exist, nothing happens.
+         */
         void remove(const std::string& name) {
             std::unique_lock lock(mutex);
             resource.erase(name);
