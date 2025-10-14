@@ -34,6 +34,7 @@ namespace Limitless {
         void update(const Camera &camera) override;
 
         auto& getInstances() noexcept { return instances; }
+        const auto& getInstances() const noexcept { return instances; }
         auto& getVisibleInstances() noexcept { return visible_instances; }
         auto& getBuffer() noexcept { return buffer ; }
 
