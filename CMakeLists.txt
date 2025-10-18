@@ -97,6 +97,8 @@ set(ENGINE_LOADERS
     src/limitless/loaders/dds_loader.cpp
     src/limitless/loaders/cgltf.c
     src/limitless/loaders/gltf_model_loader.cpp
+    src/limitless/loaders/cgltf_write.c
+    src/limitless/loaders/gltf_model_saver.cpp
 )
 
 set(ENGINE_MODELS

@@ -134,12 +134,16 @@ static std::vector<ElemType> copyFromAccessor(const cgltf_accessor& accessor) {
 	return result;
 }
 
-static glm::vec4 toVec4(const float (&src)[4]) {
-	return glm::vec4 {src[0], src[1], src[2], src[3]};
+static glm::vec2 toVec2(const float (&src)[2]) {
+	return glm::vec2 {src[0], src[1]};
 }
 
 static glm::vec3 toVec3(const float (&src)[3]) {
 	return glm::vec3 {src[0], src[1], src[2]};
+}
+
+static glm::vec4 toVec4(const float (&src)[4]) {
+	return glm::vec4 {src[0], src[1], src[2], src[3]};
 }
 
 static glm::quat toQuat(const float (&src)[4]) {
@@ -168,6 +172,20 @@ static glm::quat toQuat(const std::array<float, 4>& src) {
 	return result;
 }
 
+static glm::mat3 toMat3(const float (&src)[3][3]) {
+	return glm::mat3 {
+		src[0][0],
+		src[0][1],
+		src[0][2],
+		src[1][0],
+		src[1][1],
+		src[1][2],
+		src[2][0],
+		src[2][1],
+		src[2][2]
+	};
+}
+
 static glm::mat4 toMat4(const float (&src)[16]) {
 	return glm::mat4 {
 		src[0],
@@ -186,6 +204,27 @@ static glm::mat4 toMat4(const float (&src)[16]) {
 		src[13],
 		src[14],
 		src[15]};
+}
+
+static glm::mat3 toMat4(const float (&mat4)[4][4]) {
+	return glm::mat4 {
+		mat4[0][0],
+		mat4[0][1],
+		mat4[0][2],
+		mat4[0][3],
+		mat4[1][0],
+		mat4[1][1],
+		mat4[1][2],
+		mat4[1][3],
+		mat4[2][0],
+		mat4[2][1],
+		mat4[2][2],
+		mat4[2][3],
+		mat4[3][0],
+		mat4[3][1],
+		mat4[3][2],
+		mat4[3][3]
+	};
 }
 
 static glm::mat4 toMat4(const std::array<float, 16>& src) {
@@ -664,7 +703,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const cgltf_material& material,
 	const std::string& model_name,
 	size_t material_index,
-	const ModelLoaderFlags& model_flags
+	const ModelLoaderFlags& model_flags,
+	const cgltf_texture* textures
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
 	const auto material_name = model_name + (material.name
@@ -738,7 +778,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	    return output;
 	};
 
-	auto loadTextureFrom = [&](cgltf_texture& tex, std::string name, TextureLoaderFlags flags) -> std::optional<std::shared_ptr<Texture>> {
+	auto loadTextureFrom = [&](const cgltf_texture& tex, std::string name, TextureLoaderFlags flags) -> std::optional<std::shared_ptr<Texture>> {
 		if (!tex.image) {
 			return std::nullopt;
 		}
@@ -943,6 +983,53 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		builder.emissive_color(emissive_color);
 	}
 
+	for (size_t i = 0; i < material.uniforms_count; ++i) {
+		const auto& uniform = material.uniforms[i];
+		switch (uniform.type) {
+			case cgltf_uniform_type_sampler:
+				builder.custom(uniform.name, *loadTextureFrom(textures[uniform.value.uint_value], textures[uniform.value.uint_value].name, model_flags.base_tex_flags));
+				continue;
+			case cgltf_uniform_type_time:
+				builder.time();
+				continue;
+			case cgltf_uniform_type_value:
+				switch (uniform.value_type) {
+					case cgltf_uniform_value_type_int:
+						builder.custom(uniform.name, uniform.value.int_value);
+						continue;
+					case cgltf_uniform_value_type_uint:
+						builder.custom(uniform.name, uniform.value.uint_value);
+						continue;
+					case cgltf_uniform_value_type_float:
+						builder.custom(uniform.name, uniform.value.float_value);
+						continue;
+					case cgltf_uniform_value_type_vec2:
+						builder.custom(uniform.name, toVec2(uniform.value.vec2_value));
+						continue;
+					case cgltf_uniform_value_type_vec3:
+						builder.custom(uniform.name, toVec3(uniform.value.vec3_value));
+						continue;
+					case cgltf_uniform_value_type_vec4:
+						builder.custom(uniform.name, toVec4(uniform.value.vec4_value));
+						continue;
+					case cgltf_uniform_value_type_mat3:
+						builder.custom(uniform.name, toMat3(uniform.value.mat3_value));
+						continue;
+					case cgltf_uniform_value_type_mat4:
+						builder.custom(uniform.name, toMat4(uniform.value.mat4_value));
+						continue;
+					case cgltf_uniform_value_type_texture:
+						throw ModelLoadError("invalid uniform value type");
+				}
+				throw ModelLoadError("unknown uniform value type");
+		}
+		throw ModelLoadError("unknown uniform type");
+	}
+
+	if (material.fragment) {
+		builder.fragment(material.fragment);
+	}
+
 	return builder.models(instance_types).build(assets);
 }
 
@@ -958,7 +1045,7 @@ static std::vector<std::shared_ptr<ms::Material>> loadMaterials(
 
 	for (size_t i = 0; i < src.materials_count; ++i) {
 		materials.emplace_back(loadMaterial(
-			assets, instance_types, path.parent_path(), src.materials[i], model_name, i, flags
+			assets, instance_types, path.parent_path(), src.materials[i], model_name, i, flags, src.textures
 		));
 	}
 

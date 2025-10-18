@@ -170,7 +170,7 @@ namespace Limitless {
         [[nodiscard]] auto isCubemapArray() const noexcept { return target == Type::TexCubeMapArray; }
         [[nodiscard]] uint32_t getId() const noexcept;
         [[nodiscard]] auto& getExtensionTexture() noexcept { return *texture; }
-        [[nodiscard]] std::vector<std::byte> getPixels() noexcept;
+        [[nodiscard]] std::vector<std::byte> getPixels() const noexcept;
 
         Texture& setMinFilter(Filter filter);
         Texture& setMagFilter(Filter filter);

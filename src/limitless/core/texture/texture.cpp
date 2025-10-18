@@ -319,7 +319,7 @@ static std::string bytesToHexString(const std::vector<std::byte>& bytes) {
     return ss.str();
 }
 
-std::vector<std::byte> Texture::getPixels() noexcept {
+std::vector<std::byte> Texture::getPixels() const noexcept {
     std::vector<std::byte> pixels;
     pixels.resize(size.x * size.y * getBytesPerPixel());
 
