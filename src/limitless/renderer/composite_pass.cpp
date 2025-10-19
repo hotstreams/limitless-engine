@@ -7,6 +7,7 @@
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/renderer/translucent_pass.hpp>
 #include <limitless/renderer/outline_pass.hpp>
+#include <limitless/renderer/fog_pass.hpp>
 #include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
@@ -38,7 +39,10 @@ void CompositePass::render(
 
         auto& shader = assets.shaders.get("composite");
 
-        shader.setUniform("lightened", renderer.getPass<TranslucentPass>().getResult());
+        // Prefer fogged image if present, else translucent result
+        shader.setUniform("lightened", renderer.isPresent<FogPass>()
+            ? renderer.getPass<FogPass>().getResult()
+            : renderer.getPass<TranslucentPass>().getResult());
 
         {
             shader.setUniform("outline", renderer.getPass<OutlinePass>().getResult())
@@ -77,7 +81,9 @@ void CompositeWithBloomPass::render(
 
         auto& shader = assets.shaders.get("composite_with_bloom");
 
-        shader.setUniform("lightened", renderer.getPass<TranslucentPass>().getResult());
+        shader.setUniform("lightened", renderer.isPresent<FogPass>()
+            ? renderer.getPass<FogPass>().getResult()
+            : renderer.getPass<TranslucentPass>().getResult());
 
         {
             auto& bloom_pass = renderer.getPass<BloomPass>();

@@ -118,6 +118,7 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
         add("composite", compiler.compile(shader_dir / "pipeline/composite"));
     }
     add("outline", compiler.compile(shader_dir / "pipeline/outline"));
+    add("fog", compiler.compile(shader_dir / "pipeline/fog"));
 
 
     if (settings.screen_space_ambient_occlusion) {

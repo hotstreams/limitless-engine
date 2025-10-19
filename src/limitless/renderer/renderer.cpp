@@ -16,6 +16,7 @@
 #include <limitless/renderer/deferred_lighting_pass.hpp>
 #include <limitless/renderer/translucent_pass.hpp>
 #include <limitless/renderer/bloom_pass.hpp>
+#include <limitless/renderer/fog_pass.hpp>
 #include <limitless/renderer/composite_pass.hpp>
 #include <limitless/renderer/screen_pass.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
@@ -138,6 +139,11 @@ Renderer::Builder &Renderer::Builder::addBloomPass() {
     return *this;
 }
 
+Renderer::Builder &Renderer::Builder::addFogPass() {
+    renderer->passes.emplace_back(std::make_unique<FogPass>(*renderer));
+    return *this;
+}
+
 Renderer::Builder &Renderer::Builder::addOutlinePass() {
     renderer->passes.emplace_back(std::make_unique<OutlinePass>(*renderer));
     return *this;
@@ -187,6 +193,7 @@ Renderer::Builder &Renderer::Builder::deferred() {
     }
     addDeferredLightingPass();
     addTranslucentPass();
+    addFogPass();
     if (renderer->settings.bloom) {
         addBloomPass();
     }

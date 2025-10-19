@@ -178,6 +178,7 @@ set(ENGINE_RENDERER
     src/limitless/renderer/deferred_lighting_pass.cpp
     src/limitless/renderer/depth_pass.cpp
     src/limitless/renderer/translucent_pass.cpp
+    src/limitless/renderer/fog_pass.cpp
     src/limitless/renderer/bloom_pass.cpp
     src/limitless/renderer/composite_pass.cpp
     src/limitless/renderer/ssao_pass.cpp

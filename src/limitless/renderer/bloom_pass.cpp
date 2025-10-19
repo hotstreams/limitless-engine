@@ -2,6 +2,7 @@
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/translucent_pass.hpp>
+#include <limitless/renderer/fog_pass.hpp>
 
 using namespace Limitless;
 
@@ -17,7 +18,12 @@ void BloomPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
-    bloom.process(ctx, assets, renderer.getPass<TranslucentPass>().getResult());
+    // Prefer fogged image if present, else translucent result
+    if (renderer.isPresent<FogPass>()) {
+        bloom.process(ctx, assets, renderer.getPass<FogPass>().getResult());
+    } else {
+        bloom.process(ctx, assets, renderer.getPass<TranslucentPass>().getResult());
+    }
 }
 
 void BloomPass::onFramebufferChange(glm::uvec2 size) {

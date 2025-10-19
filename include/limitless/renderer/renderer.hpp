@@ -123,6 +123,7 @@ namespace Limitless {
             Builder& addDeferredLightingPass();
             Builder& addTranslucentPass();
             Builder& addBloomPass();
+            Builder& addFogPass();
             Builder& addOutlinePass();
             Builder& addCompositeWithBloomPass();
             Builder& addCompositePass();
