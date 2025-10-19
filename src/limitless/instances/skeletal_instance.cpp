@@ -101,7 +101,7 @@ const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const
     return nullptr;
 }
 
-SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position)
+SkeletalInstance::SkeletalInstance(std::shared_ptr<Model> m, const glm::vec3& position)
     : ModelInstance(InstanceType::Skeletal, std::move(m), position) {
     //TODO: check type
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);

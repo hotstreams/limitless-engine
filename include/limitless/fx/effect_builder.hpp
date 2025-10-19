@@ -7,7 +7,7 @@
 namespace Limitless {
     class EffectInstance;
     class Mesh;
-    class AbstractModel;
+    class Model;
     class Context;
     class Assets;
     class EmitterSerializer;
@@ -68,11 +68,11 @@ namespace Limitless::fx {
         EffectBuilder& addInitialSize(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addInitialAcceleration(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addInitialMeshLocation(std::shared_ptr<Mesh> mesh, const glm::vec3& scale, const glm::vec3& rotation);
-        EffectBuilder& addInitialMeshLocation(std::shared_ptr<AbstractModel> mesh, const glm::vec3& scale, const glm::vec3& rotation);
+        EffectBuilder& addInitialMeshLocation(std::shared_ptr<Model> mesh, const glm::vec3& scale, const glm::vec3& rotation);
         EffectBuilder& addInitialMeshLocation(std::shared_ptr<Mesh> mesh);
-        EffectBuilder& addInitialMeshLocation(std::shared_ptr<AbstractModel> mesh);
+        EffectBuilder& addInitialMeshLocation(std::shared_ptr<Model> mesh);
         EffectBuilder& addMeshLocationAttachment(std::shared_ptr<Mesh> mesh);
-        EffectBuilder& addMeshLocationAttachment(std::shared_ptr<AbstractModel> mesh);
+        EffectBuilder& addMeshLocationAttachment(std::shared_ptr<Model> mesh);
         EffectBuilder& addSubUV(const glm::vec2& size, float fps, const glm::vec2& frame_count);
         EffectBuilder& addVelocityByLife(std::unique_ptr<Distribution<glm::vec3>> distribution);
         EffectBuilder& addColorByLife(std::unique_ptr<Distribution<glm::vec4>> distribution);

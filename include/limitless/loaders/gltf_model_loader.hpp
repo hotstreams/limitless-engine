@@ -7,7 +7,7 @@
 #include <string>
 
 namespace Limitless {
-	class AbstractModel;
+	class Model;
 
 	enum class ModelLoaderOption {
 		FlipUV,
@@ -54,7 +54,7 @@ namespace Limitless {
 		// Returns a shared pointer to resulting model on success.
 		// Provided assets are modified.
 		// On failure, a ModelLoadError exception is thrown.
-		static std::shared_ptr<AbstractModel> loadModel(
+		static std::shared_ptr<Model> loadModel(
 			Assets& assets, const fs::path& path, const ModelLoaderFlags& flags
 		);
 	};

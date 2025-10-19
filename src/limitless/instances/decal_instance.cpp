@@ -5,7 +5,7 @@
 
 using namespace Limitless;
 
-DecalInstance::DecalInstance(std::shared_ptr<AbstractModel> model, const std::shared_ptr<ms::Material>& material, const glm::vec3& position)
+DecalInstance::DecalInstance(std::shared_ptr<Model> model, const std::shared_ptr<ms::Material>& material, const glm::vec3& position)
     : Instance {InstanceType::Decal, position}
     , model {std::move(std::move(model))}
     , material {std::make_shared<ms::Material>(*material)} {

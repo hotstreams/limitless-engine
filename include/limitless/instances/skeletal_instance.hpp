@@ -61,7 +61,7 @@ namespace Limitless {
         /**
          * Creates instance with SkeletalModel
          */
-        SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position);
+        SkeletalInstance(std::shared_ptr<Model> m, const glm::vec3& position);
         ~SkeletalInstance() override = default;
 
         SkeletalInstance(const SkeletalInstance&) noexcept;

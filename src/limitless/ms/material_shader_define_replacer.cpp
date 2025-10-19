@@ -159,15 +159,15 @@ std::string MaterialShaderDefineReplacer::getMaterialBufferDeclaration(const Mat
     std::string buffer = "layout (std140) uniform MATERIAL_BUFFER {\n";
 
     for (const auto& [_, uniform] : material.getProperties()) {
-        if (uniform->getType() != UniformType::Sampler && uniform->getType() != UniformType::SamplerArray ||
-            (uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported()) {
+        if ((uniform->getType() != UniformType::Sampler && uniform->getType() != UniformType::SamplerArray) ||
+            ((uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported())) {
             buffer.append(getUniformDeclaration(*uniform));
         }
     }
 
     for (const auto& [_, uniform] : material.getUniforms()) {
-        if (uniform->getType() != UniformType::Sampler && uniform->getType() != UniformType::SamplerArray ||
-            (uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported()) {
+        if ((uniform->getType() != UniformType::Sampler && uniform->getType() != UniformType::SamplerArray) ||
+            ((uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported())) {
             buffer.append(getUniformDeclaration(*uniform));
         }
     }

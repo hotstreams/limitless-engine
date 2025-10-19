@@ -6,31 +6,10 @@
 
 namespace Limitless {
     class Mesh {
-    public:
-        enum class LodTransition {
-            None,
-            Fade,
-            Speedtree
-        };
-
-        enum class LodSelection {
-            CameraDistance
-        };
     protected:
         std::string name;
 
         std::shared_ptr<VertexStream> stream;
-
-        struct LodData {
-            size_t offset;
-            size_t count;
-        };
-        std::vector<LodData> lods;
-
-        LodTransition transition;
-        
-        LodSelection selection;
-        std::vector<float> distances;
 
         Box bounding_box;
 
@@ -42,17 +21,10 @@ namespace Limitless {
 
         Mesh(
             std::string name,
-            std::shared_ptr<VertexStream> stream,
-            std::vector<LodData> lods,
-            LodTransition transition,
-            LodSelection selection,
-            std::vector<float> distances)
+            std::shared_ptr<VertexStream> stream
+        )
             : name{std::move(name)}
             , stream{std::move(stream)}
-            , lods{std::move(lods)}
-            , transition{transition}
-            , selection{selection}
-            , distances{std::move(distances)}
         {
             calculateBoundingBox();
         }
@@ -71,33 +43,16 @@ namespace Limitless {
 
         [[nodiscard]] const std::string& getName() const noexcept { return name; }
         [[nodiscard]] std::string& getName() noexcept { return name; }
-        [[nodiscard]] LodSelection getSelection() const noexcept { return selection; }
-        [[nodiscard]] LodTransition getTransition() const noexcept { return transition; }   
-        [[nodiscard]] const std::vector<float>& getDistances() const noexcept { return distances; }
-        [[nodiscard]] const std::vector<LodData>& getLods() const noexcept { return lods; }
         auto& getVertexStream() noexcept { return *stream; }
         [[nodiscard]] const auto& getVertexStream() const noexcept { return *stream; }
         [[nodiscard]] const Box& getBoundingBox() const noexcept { return bounding_box; }
 
-        // draws highest lod
         void draw() noexcept {
-            const auto& highest = lods[0];
-            stream->draw(highest.offset, highest.count);
+            stream->draw();
         }
 
         void draw_instanced(std::size_t count) noexcept {
-            const auto& highest = lods[0];
-            stream->draw_instanced(highest.offset, highest.count, count);
-        }
-
-        void draw(uint32_t lod) noexcept {
-            const auto& lod_data = lods[lod];
-            stream->draw(lod_data.offset, lod_data.count);
-        }
-
-        void draw_instanced(uint32_t lod, std::size_t count) noexcept {
-            const auto& lod_data = lods[lod];
-            stream->draw_instanced(lod_data.offset, lod_data.count, count);
+            stream->draw_instanced(count);
         }
 
         class Builder;

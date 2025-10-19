@@ -30,7 +30,7 @@ namespace Limitless {
         /**
          * Model data
          */
-        std::shared_ptr<AbstractModel> model_;
+        std::shared_ptr<Model> model_;
 
         class MaterialChange {
         public:
@@ -72,7 +72,7 @@ namespace Limitless {
         /**
          *  Sets Model to building instance
          */
-        Builder& model(const std::shared_ptr<AbstractModel>& model);
+        Builder& model(const std::shared_ptr<Model>& model);
 
         /**
          *  Sets Model to effect instance

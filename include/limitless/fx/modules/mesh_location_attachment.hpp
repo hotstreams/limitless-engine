@@ -19,7 +19,7 @@ namespace Limitless::fx {
             : InitialMeshLocation<Particle>(ModuleType::MeshLocationAttachment, std::move(mesh)) {
         }
 
-        explicit MeshLocationAttachment(std::shared_ptr<AbstractModel> mesh) noexcept
+        explicit MeshLocationAttachment(std::shared_ptr<Model> mesh) noexcept
             : InitialMeshLocation<Particle>(ModuleType::MeshLocationAttachment, std::move(mesh)) {
         }
 

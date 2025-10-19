@@ -85,6 +85,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/decal_instance.cpp
     src/limitless/instances/instanced_instance.cpp
     src/limitless/instances/terrain_instance.cpp
+    src/limitless/instances/lod_group_instance.cpp
 )
 
 set(ENGINE_LIGHTING
@@ -106,10 +107,8 @@ set(ENGINE_LOADERS
 )
 
 set(ENGINE_MODELS
-    src/limitless/models/elementary_model.cpp
     src/limitless/models/text_model.cpp
     src/limitless/models/skeletal_model.cpp
-    src/limitless/models/abstract_model.cpp
     src/limitless/models/cube.cpp
     src/limitless/models/line.cpp
     src/limitless/models/plane.cpp
@@ -218,8 +217,6 @@ set(ENGINE_SRC
     src/limitless/models/mesh_builder.cpp
     src/limitless/models/mesh.cpp
     src/limitless/models/model_builder.cpp
-    include/limitless/models/model_builder.h
-        include/limitless/core/uniform/uniform_sampler_array.hpp
 )
 
 #########################################
@@ -260,7 +257,7 @@ target_include_directories(limitless-engine PUBLIC include)
 target_compile_features(limitless-engine PUBLIC cxx_std_17)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(limitless-engine PRIVATE -O0 -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
+    target_compile_options(limitless-engine PRIVATE -O0 -g -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
     target_compile_definitions(limitless-engine PUBLIC LIMITLESS_OPENGL_DEBUG)
 endif()
 

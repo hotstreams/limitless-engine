@@ -14,7 +14,7 @@
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/loaders/gltf_model_loader.hpp>
 #include <limitless/models/mesh.hpp>
-#include <limitless/models/abstract_model.hpp>
+#include <limitless/models/model.hpp>
 #include <limitless/models/bones.hpp>
 #include <limitless/models/line.hpp>
 #include <limitless/models/mesh.hpp>
@@ -126,9 +126,58 @@ static std::vector<ElemType> copyFromAccessor(const cgltf_accessor& accessor) {
 	const uint8_t* data = static_cast<const uint8_t*>(accessor.buffer_view->buffer->data)
 	                      + accessor.buffer_view->offset + accessor.offset;
 
+	// Calculate element size based on component type and count
+	size_t element_size = 0;
+	switch (accessor.component_type) {
+		case cgltf_component_type_r_8:
+		case cgltf_component_type_r_8u:
+			element_size = 1;
+			break;
+		case cgltf_component_type_r_16:
+		case cgltf_component_type_r_16u:
+			element_size = 2;
+			break;
+		case cgltf_component_type_r_32f:
+		case cgltf_component_type_r_32u:
+			element_size = 4;
+			break;
+		default:
+			throw ModelLoadError {"unsupported component type"};
+	}
+	
+	// Calculate components per element based on type
+	size_t components_per_element = 1;
+	switch (accessor.type) {
+		case cgltf_type_scalar:
+			components_per_element = 1;
+			break;
+		case cgltf_type_vec2:
+			components_per_element = 2;
+			break;
+		case cgltf_type_vec3:
+			components_per_element = 3;
+			break;
+		case cgltf_type_vec4:
+			components_per_element = 4;
+			break;
+		case cgltf_type_mat2:
+			components_per_element = 4;
+			break;
+		case cgltf_type_mat3:
+			components_per_element = 9;
+			break;
+		case cgltf_type_mat4:
+			components_per_element = 16;
+			break;
+		default:
+			throw ModelLoadError {"unsupported accessor type"};
+	}
+	
+	size_t actual_stride = accessor.stride > 0 ? accessor.stride : (element_size * components_per_element);
+
 	for (cgltf_size i = 0; i < accessor.count; ++i) {
 		result.emplace_back(*reinterpret_cast<const ElemType*>(data));
-		data += accessor.stride;
+		data += actual_stride;
 	}
 
 	return result;
@@ -165,6 +214,50 @@ static glm::quat toQuat(const std::array<float, 4>& src) {
 	result.z = src[2];
 	result.w = src[3];
 
+	return result;
+}
+
+// Specialized function for loading normalized quaternions
+static std::vector<std::array<float, 4>> copyNormalizedQuaternionsFromAccessor(const cgltf_accessor& accessor) {
+	if (!accessor.normalized) {
+		throw ModelLoadError {"accessor is not normalized"};
+	}
+	
+	if (accessor.type != cgltf_type_vec4) {
+		throw ModelLoadError {"accessor is not vec4 type"};
+	}
+	
+	std::vector<std::array<float, 4>> result;
+	result.reserve(accessor.count);
+	
+	const uint8_t* data = static_cast<const uint8_t*>(accessor.buffer_view->buffer->data)
+	                      + accessor.buffer_view->offset + accessor.offset;
+	
+	size_t actual_stride = accessor.stride > 0 ? accessor.stride : 8; // 4 components * 2 bytes
+	
+	for (cgltf_size i = 0; i < accessor.count; ++i) {
+		std::array<float, 4> normalized_quat;
+		
+		if (accessor.component_type == cgltf_component_type_r_16) {
+			const int16_t* src = reinterpret_cast<const int16_t*>(data);
+			normalized_quat[0] = src[0] / 32767.0f;
+			normalized_quat[1] = src[1] / 32767.0f;
+			normalized_quat[2] = src[2] / 32767.0f;
+			normalized_quat[3] = src[3] / 32767.0f;
+		} else if (accessor.component_type == cgltf_component_type_r_16u) {
+			const uint16_t* src = reinterpret_cast<const uint16_t*>(data);
+			normalized_quat[0] = src[0] / 65535.0f;
+			normalized_quat[1] = src[1] / 65535.0f;
+			normalized_quat[2] = src[2] / 65535.0f;
+			normalized_quat[3] = src[3] / 65535.0f;
+		} else {
+			throw ModelLoadError {"unsupported component type for normalized quaternions"};
+		}
+		
+		result.emplace_back(normalized_quat);
+		data += actual_stride;
+	}
+	
 	return result;
 }
 
@@ -500,7 +593,6 @@ loadMeshes(
 							.draw(VertexStream::Draw::Triangles)
 							.build()
 					)
-					.add_lod({0, indices.size()})
 					.build()
 			);
 
@@ -531,6 +623,12 @@ Animation loadAnimation(
 		}
 
 		auto keyframe_times = copyFromAccessor<float>(*sampler.input);
+		
+		// Debug output
+		std::cout << "Animation " << anim_name << " - Channel " << i << ":" << std::endl;
+		std::cout << "  Input accessor: count=" << sampler.input->count << ", type=" << toString(sampler.input->type) << ", component_type=" << toString(sampler.input->component_type) << std::endl;
+		std::cout << "  Output accessor: count=" << sampler.output->count << ", type=" << toString(sampler.output->type) << ", component_type=" << toString(sampler.output->component_type) << std::endl;
+		std::cout << "  Keyframe times count: " << keyframe_times.size() << std::endl;
 
 		if (bone_map.find(channel.target_node) == bone_map.end()) {
 			throw ModelLoadError {"failed to find bone for this node"};
@@ -581,7 +679,12 @@ Animation loadAnimation(
 				throw ModelLoadError {"multiple rotation animation tracks for single bone"};
 			}
 
-			auto rotations = copyFromAccessor<std::array<float, 4>>(*sampler.output);
+			std::vector<std::array<float, 4>> rotations;
+			if (sampler.output->normalized) {
+				rotations = copyNormalizedQuaternionsFromAccessor(*sampler.output);
+			} else {
+				rotations = copyFromAccessor<std::array<float, 4>>(*sampler.output);
+			}
 
 			if (rotations.size() != keyframe_times.size()) {
 				throw ModelLoadError {"rotations count != keyframe_times count"};
@@ -1129,18 +1232,18 @@ static std::shared_ptr<Model> loadPlainModel(
 	// return new Model(std::move(meshes), std::move(mesh_materials), model_name);
 }
 
-static std::shared_ptr<AbstractModel>
+static std::shared_ptr<Model>
 loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const ModelLoaderFlags& flags) {
 	auto model_name = path.stem().string();
 
 	if (src.skins_count > 0) {
-		return std::shared_ptr<AbstractModel>(loadSkeletalModel(assets, path, src, model_name, flags));
+		return std::shared_ptr<Model>(loadSkeletalModel(assets, path, src, model_name, flags));
 	} else {
-		return std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name, flags));
+		return std::shared_ptr<Model>(loadPlainModel(assets, path, src, model_name, flags));
 	}
 }
 
-std::shared_ptr<AbstractModel>
+std::shared_ptr<Model>
 GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags) {
 	cgltf_options opts = cgltf_options {
 		cgltf_file_type_invalid, // autodetect

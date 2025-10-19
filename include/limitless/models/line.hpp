@@ -1,9 +1,11 @@
 #pragma once
 
-#include <limitless/models/elementary_model.hpp>
+#include <limitless/models/model.hpp>
+
+#include "limitless/core/vertex.hpp"
 
 namespace Limitless {
-    class Line : public ElementaryModel {
+    class Line : public Model {
     public:
         Line(const glm::vec3& a, const glm::vec3& b);
         ~Line() override = default;

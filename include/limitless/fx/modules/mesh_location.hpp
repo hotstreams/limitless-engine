@@ -13,7 +13,7 @@ namespace Limitless::fx {
     template<typename Particle>
     class InitialMeshLocation : public Module<Particle> {
     protected:
-        std::variant<std::shared_ptr<Mesh>, std::shared_ptr<AbstractModel>> mesh;
+        std::variant<std::shared_ptr<Mesh>, std::shared_ptr<Model>> mesh;
         std::default_random_engine generator;
 
         ModelInstance* instance {};
@@ -74,7 +74,7 @@ namespace Limitless::fx {
             , generator {std::random_device()()} {
         }
 
-        InitialMeshLocation(ModuleType type, std::shared_ptr<AbstractModel> _mesh) noexcept
+        InitialMeshLocation(ModuleType type, std::shared_ptr<Model> _mesh) noexcept
             : Module<Particle>(type)
             , mesh {std::move(_mesh)}
             , generator {std::random_device()()} {
@@ -85,8 +85,8 @@ namespace Limitless::fx {
             if (std::holds_alternative<std::shared_ptr<Mesh>>(mesh)) {
                 selected_mesh = std::get<std::shared_ptr<Mesh>>(mesh);
             } else {
-                const auto& model = std::get<std::shared_ptr<AbstractModel>>(mesh);
-                const auto& meshes = model->getMeshes();
+                const auto& model = std::get<std::shared_ptr<Model>>(mesh);
+                const auto& meshes = model->getLods()[0].meshes;
 
                 using vector_size_type = typename std::remove_reference_t<decltype(meshes)>::size_type;
                 auto int_distribution = std::uniform_int_distribution(static_cast<vector_size_type>(0), meshes.size() - 1);
@@ -119,7 +119,7 @@ namespace Limitless::fx {
                 , generator {std::random_device()()} {
         }
 
-        explicit InitialMeshLocation(std::shared_ptr<AbstractModel> _mesh) noexcept
+        explicit InitialMeshLocation(std::shared_ptr<Model> _mesh) noexcept
                 : Module<Particle>(ModuleType::InitialMeshLocation)
                 , mesh {std::move(_mesh)}
                 , generator {std::random_device()()}{
@@ -133,7 +133,7 @@ namespace Limitless::fx {
             , rotation {_rotation} {
         }
 
-        explicit InitialMeshLocation(std::shared_ptr<AbstractModel> _mesh, const glm::vec3& _scale, const glm::vec3& _rotation) noexcept
+        explicit InitialMeshLocation(std::shared_ptr<Model> _mesh, const glm::vec3& _scale, const glm::vec3& _rotation) noexcept
             : Module<Particle>(ModuleType::InitialMeshLocation)
             , mesh {std::move(_mesh)}
             , generator {std::random_device()()}

@@ -47,22 +47,47 @@ Model::Builder &Model::Builder::batched() {
     return *this;
 }
 
+Model::Builder& Model::Builder::transition(LodTransition transition) {
+    transition_ = transition;
+    return *this;
+}
+
+Model::Builder& Model::Builder::selection(LodSelection selection) {
+    selection_ = selection;
+    return *this;
+}
+
+Model::Builder& Model::Builder::distances(const std::vector<float>& distances) {
+    distances_ = distances;
+    return *this;
+}
+
+Model::Builder& Model::Builder::add_lod(const std::shared_ptr<Model>& model) {
+    models_.emplace_back(model);
+    return *this;
+}
+
+Model::Builder& Model::Builder::add_lods(const std::vector<std::shared_ptr<Model>>& models) {
+    models_.insert(models_.end(), models.begin(), models.end());
+    return *this;
+}
+
 std::shared_ptr<Model> Model::Builder::build(Assets& assets) {
-    if (name_.empty()) {
-        throw std::runtime_error("Model name cannot be empty.");
-    }
-
-    if (meshes_.empty()) {
-        throw std::runtime_error("Model meshes cannot be empty.");
-    }
-
-    if (materials_.empty()) {
-        throw std::runtime_error("Model materials cannot be empty.");
-    }
-
-    if (meshes_.size() != materials_.size()) {
-        throw std::runtime_error("Model meshes must have the same number of materials.");
-    }
+    // if (name_.empty()) {
+    //     throw std::runtime_error("Model name cannot be empty.");
+    // }
+    //
+    // if (meshes_.empty()) {
+    //     throw std::runtime_error("Model meshes cannot be empty.");
+    // }
+    //
+    // if (materials_.empty()) {
+    //     throw std::runtime_error("Model materials cannot be empty.");
+    // }
+    //
+    // if (meshes_.size() != materials_.size()) {
+    //     throw std::runtime_error("Model meshes must have the same number of materials.");
+    // }
 
     // if (batched_) {
     //     auto mesh_builder = Mesh::builder().name(name_ + "_batched");
@@ -91,28 +116,41 @@ std::shared_ptr<Model> Model::Builder::build(Assets& assets) {
     //
     //     return std::shared_ptr<Model>(new Model({batched_mesh}, {batched_material}, std::move(name_)));
     // } else {
-        std::vector<LodMaterials> materials;
 
-        for (const auto& material : materials_)
-        {
-            materials.emplace_back(LodMaterials{material});
-        }
-
+    if (models_.empty()) {
         if (!skeletons_.empty()) {
             return std::shared_ptr<SkeletalModel>(new SkeletalModel(
+                name_,
                 std::move(meshes_),
-                std::move(materials),
+                std::move(materials_),
+                transition_,
+                selection_,
+                std::move(distances_),
                 std::move(bones_),
                 std::move(bone_map_),
                 std::move(skeletons_),
-                std::move(animations_),
-                std::move(name_)
+                std::move(animations_)
                 ));
         } else {
-            return std::shared_ptr<Model>(new Model(std::move(meshes_), std::move(materials), std::move(name_)));
+            return std::shared_ptr<Model>(
+                new Model(
+                    name_,
+                    std::move(meshes_),
+                    std::move(materials_),
+                    transition_,
+                    selection_,
+                    std::move(distances_)
+                ));
         }
-    // }
+    } else {
+
+        std::vector<Lod> lods;
+        for (auto& model : models_) {
+            auto& meshes = model->getLods().at(0).meshes;
+            auto& materials = model->getLods().at(0).materials;
+            lods.emplace_back(Lod{meshes, materials});
+        }
+
+        return std::shared_ptr<Model>(new Model(name_, lods, transition_, selection_, distances_));
+    }
 }
-
-
-

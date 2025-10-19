@@ -1,9 +1,9 @@
 #pragma once
 
-#include <limitless/models/elementary_model.hpp>
+#include <limitless/models/model.hpp>
 
 namespace Limitless {
-    class Sphere : public ElementaryModel {
+    class Sphere : public Model {
     public:
         explicit Sphere(glm::uvec2 segment_count);
         ~Sphere() override = default;

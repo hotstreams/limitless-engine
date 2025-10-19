@@ -30,7 +30,7 @@ namespace Limitless {
         /**
          * Screen Space Reflections
          */
-        bool screen_space_reflections {true};
+        bool screen_space_reflections {false};
         SSR::Settings ssr_settings;
 
         /**
@@ -88,7 +88,7 @@ namespace Limitless {
         /**
          * Render bounding boxes
          */
-        bool bounding_box = false;
+        bool bounding_box = true;
 
         class Builder {
         private:
@@ -106,7 +106,7 @@ namespace Limitless {
             /**
              * Screen Space Reflections
              */
-            bool screen_space_reflections {true};
+            bool screen_space_reflections {false};
             SSR::Settings ssr_cfg;
 
             /**

@@ -108,17 +108,38 @@ std::optional<glm::vec3> AnimationNode::scalingLerp(double anim_time) const {
 }
 
 SkeletalModel::SkeletalModel(
-    decltype(meshes)&& meshes,
-    decltype(materials)&& materials,
-    decltype(bones)&& _bones,
-    decltype(bone_map)&& _bone_map,
-    decltype(skeletons)&& _skeletons,
-    decltype(animations)&& _animations,
-    std::string name
+    const std::string& name,
+    const std::vector<std::shared_ptr<Mesh>>& meshes,
+    const std::vector<std::shared_ptr<ms::Material>>& materials,
+    LodTransition transition,
+    LodSelection selection,
+    const std::vector<float>& distances,
+    decltype(bones)&& bones,
+    decltype(bone_map)&& bone_map,
+    decltype(skeletons)&& skeletons,
+    decltype(animations)&& animations
 ) noexcept
-    : Model {std::move(meshes), std::move(materials), std::move(name)}
-    , bone_map {std::move(_bone_map)}
-    , animations {std::move(_animations)}
-    , bones {std::move(_bones)}
-    , skeletons {std::move(_skeletons)} {
+    : Model {name, meshes, materials, transition, selection, distances}
+    , bone_map {std::move(bone_map)}
+    , animations {std::move(animations)}
+    , bones {std::move(bones)}
+    , skeletons {std::move(skeletons)} {
+}
+
+SkeletalModel::SkeletalModel(
+    const std::string& name,
+    const std::vector<Lod>& lods,
+    LodTransition transition,
+    LodSelection selection,
+    const std::vector<float>& distances,
+    decltype(bones)&& bones,
+    decltype(bone_map)&& bone_map,
+    decltype(skeletons)&& skeletons,
+    decltype(animations)&& animations
+) noexcept
+    : Model {name, lods, transition, selection, distances}
+    , bone_map {std::move(bone_map)}
+    , animations {std::move(animations)}
+    , bones {std::move(bones)}
+    , skeletons {std::move(skeletons)} {
 }

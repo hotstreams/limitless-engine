@@ -3,12 +3,45 @@
 
 using namespace Limitless;
 
-Model::Model(decltype(meshes)&& _meshes, decltype(materials)&& _materials, std::string name)
-    : AbstractModel(std::move(_meshes), std::move(name))
-    , materials(std::move(_materials)) {
+Model::Model(
+    const std::string& name,
+    const std::vector<std::shared_ptr<Mesh>>& meshes,
+    const std::vector<std::shared_ptr<ms::Material>>& materials,
+    LodTransition transition,
+    LodSelection selection,
+    const std::vector<float>& distances
+)
+    : name {name}
+    , lods {{meshes, materials}}
+    , transition {transition}
+    , selection {selection}
+    , distances {distances} {
+    calculateBoundingBox();
 }
 
-Model::Builder Model::builder() {
+Model::Model(
+    const std::string& name,
+    const std::vector<Lod>& lods,
+    LodTransition transition,
+    LodSelection selection,
+    const std::vector<float>& distances
+)
+    : name {name}
+    , lods {lods}
+    , transition {transition}
+    , selection {selection}
+    , distances {distances} {
+    calculateBoundingBox();
+}
+
+void Model::calculateBoundingBox() {
+    bounding_box = lods[0].meshes[0]->getBoundingBox();
+    for (uint32_t i = 1; i < lods[0].meshes.size(); ++i) {
+        bounding_box = mergeBoundingBox(bounding_box, lods[0].meshes[i]->getBoundingBox());
+    }
+}
+
+Model::Builder Model::builder()
+{
     return {};
 }
-

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <limitless/models/elementary_model.hpp>
+#include <limitless/models/model.hpp>
 
 namespace Limitless {
-    class Plane : public ElementaryModel {
+    class Plane : public Model {
     public:
         Plane();
         ~Plane() override = default;
@@ -18,7 +18,7 @@ namespace Limitless {
     /*
      * used only with tesselation pipeline
      */
-    class PlaneQuad : public ElementaryModel {
+    class PlaneQuad : public Model {
     public:
         PlaneQuad();
         ~PlaneQuad() override = default;

@@ -20,45 +20,26 @@ namespace Limitless {
     class MeshInstance final {
     private:
         std::shared_ptr<Mesh> mesh;
-
-        struct LodMaterial {
-            std::shared_ptr<ms::Material> material;
-            std::shared_ptr<ms::Material> base;
-
-            LodMaterial(const ms::Material& mat)
-                : material(std::make_shared<ms::Material>(mat))
-                , base(std::make_shared<ms::Material>(mat))
-            {
-
-            }
-        };
-        std::vector<LodMaterial> lods;
-
-        uint32_t current_lod;
-
-        void selectLod(const Camera& camera, const glm::vec3& position);
+        std::shared_ptr<ms::Material> material;
+        std::shared_ptr<ms::Material> base;
     public:
-        MeshInstance(std::shared_ptr<Mesh> mesh, std::vector<std::shared_ptr<ms::Material>> lod_materials) noexcept;
+        MeshInstance(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ms::Material>& material) noexcept;
         ~MeshInstance() = default;
 
         MeshInstance(const MeshInstance&);
         MeshInstance(MeshInstance&&) noexcept = default;    
 
-        // changes current material for current lod
         void changeMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
-
-        // changes base material for current lod
         void changeBaseMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
 
-        // resets base material to base material for current lod
+        // resets base material to base material
         void reset() noexcept;
 
-        [[nodiscard]] const auto& getMaterial() const noexcept { return lods.at(current_lod).material; }
-        [[nodiscard]] auto& getMaterial() noexcept { return lods.at(current_lod).material; }
+        [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
+        [[nodiscard]] auto& getMaterial() noexcept { return material; }
 
         [[nodiscard]] const std::shared_ptr<Mesh>& getMesh() const noexcept { return mesh; }
-        [[nodiscard]] const uint32_t& getCurrentLod() const noexcept { return current_lod; }
 
-        void update(const Camera& camera, const glm::vec3& position);
+        void update();
     };
 }

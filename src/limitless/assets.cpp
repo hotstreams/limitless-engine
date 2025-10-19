@@ -60,21 +60,21 @@ void Assets::load([[maybe_unused]] Context& context) {
 
     // used in render as point light model
     models.add("sphere", std::make_shared<Sphere>(glm::uvec2{32}));
-    meshes.add("sphere", models.at("sphere")->getMeshes().at(0));
+    meshes.add("sphere", models.at("sphere")->getLods().at(0).meshes.at(0));
 
     // used in postprocessing
     models.add("quad", std::make_shared<Quad>());
-    meshes.add("quad", models.at("quad")->getMeshes().at(0));
+    meshes.add("quad", models.at("quad")->getLods().at(0).meshes.at(0));
 
     // used in skybox render
     models.add("cube", std::make_shared<Cube>());
-    meshes.add("cube", models.at("cube")->getMeshes().at(0));
+    meshes.add("cube", models.at("cube")->getLods().at(0).meshes.at(0));
 
     models.add("plane", std::make_shared<Plane>());
-    meshes.add("plane", models.at("plane")->getMeshes().at(0));
+    meshes.add("plane", models.at("plane")->getLods().at(0).meshes.at(0));
 
     models.add("planequad", std::make_shared<PlaneQuad>());
-    meshes.add("planequad", models.at("planequad")->getMeshes().at(0));
+    meshes.add("planequad", models.at("planequad")->getLods().at(0).meshes.at(0));
 
     models.add("line", std::make_shared<Line>(glm::vec3{0.0f}, glm::vec3{1.0f}));
     models.add("cylinder", std::make_shared<Cylinder>());

@@ -32,31 +32,6 @@ Mesh::Builder& Mesh::Builder::batch(const std::shared_ptr<Mesh>& mesh) {
     return *this;
 }
 
-Mesh::Builder& Mesh::Builder::lods(const std::vector<Mesh::LodData>& lods) {
-    lods_ = lods;
-    return *this;
-}
-
-Mesh::Builder& Mesh::Builder::add_lod(const Mesh::LodData& lod) {
-    lods_.push_back(lod);
-    return *this;
-}
-
-Mesh::Builder& Mesh::Builder::transition(Mesh::LodTransition transition) {
-    transition_ = transition;
-    return *this;
-}
-
-Mesh::Builder& Mesh::Builder::selection(Mesh::LodSelection selection) {
-    selection_ = selection;
-    return *this;
-}
-
-Mesh::Builder& Mesh::Builder::distances(const std::vector<float>& distances) {
-    distances_ = distances;
-    return *this;
-}
-
 std::shared_ptr<Mesh> Mesh::Builder::build() {
     if (name_.empty()) {
         throw std::runtime_error("Mesh name cannot be empty.");
@@ -81,10 +56,6 @@ std::shared_ptr<Mesh> Mesh::Builder::build() {
     
     return std::shared_ptr<Mesh>(new Mesh(
         std::move(name_), 
-        std::move(vertex_stream_), 
-        std::move(lods_), 
-        transition_, 
-        selection_, 
-        std::move(distances_)
+        std::move(vertex_stream_)
     ));
 }

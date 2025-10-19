@@ -1,10 +1,10 @@
 #pragma once
 
-#include <limitless/models/elementary_model.hpp>
+#include <limitless/models/model.hpp>
 
 namespace Limitless {
     // uses NDC space
-    class Quad : public ElementaryModel {
+    class Quad : public Model {
     public:
         Quad();
         ~Quad() override = default;

@@ -90,7 +90,7 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
         setRenderState(instance, mesh, drawp);
 
         // draw current lod
-        mesh.getMesh()->draw(mesh.getCurrentLod());
+        mesh.getMesh()->draw();
     }
 }
 
@@ -143,7 +143,7 @@ void InstanceRenderer::render(DecalInstance& instance, const DrawParameters& dra
 
     shader.use();
 
-    instance.getModel()->getMeshes()[0]->draw();
+    instance.getModel()->getLods()[0].meshes[0]->draw();
 }
 
 void InstanceRenderer::render(Instance& instance, const DrawParameters& drawp) {

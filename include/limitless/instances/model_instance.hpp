@@ -1,11 +1,9 @@
 #pragma once
 
 #include <limitless/instances/instance.hpp>
-#include <limitless/instances/mesh_instance.hpp>
+#include <limitless/instances/lod_group_instance.hpp>
 
 namespace Limitless {
-    class AbstractModel;
-
     class no_such_mesh : public std::runtime_error {
     private:
         using std::runtime_error::runtime_error;
@@ -18,8 +16,8 @@ namespace Limitless {
      */
     class ModelInstance : public Instance {
     protected:
-        std::map<std::string, MeshInstance> meshes;
-        std::shared_ptr<AbstractModel> model;
+        std::shared_ptr<Model> model;
+        LodGroupInstance lod_group;
 
         void updateBoundingBox() noexcept override;
         ModelInstance(InstanceType shader, decltype(model) model, const glm::vec3& position);
@@ -28,11 +26,6 @@ namespace Limitless {
          * Creates static model with specified loaded Model
          */
         explicit ModelInstance(decltype(model) model, const glm::vec3& position);
-
-        /**
-         * Creates static model with specified elementary model and material
-         */
-        ModelInstance(decltype(model) model, std::shared_ptr<ms::Material> material, const glm::vec3& position);
 
         ~ModelInstance() override = default;
 
@@ -138,7 +131,7 @@ namespace Limitless {
         */
         void resetMaterials();
 
-        [[nodiscard]] const auto& getMeshes() const noexcept { return meshes; }
-        auto& getMeshes() noexcept { return meshes; }
+        [[nodiscard]] const auto& getMeshes() const noexcept { return lod_group.getCurrentMeshes(); }
+        auto& getMeshes() noexcept { return lod_group.getCurrentMeshes(); }
     };
 }
