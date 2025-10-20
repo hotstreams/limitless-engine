@@ -16,7 +16,7 @@ void main() {
     color = texture(lightened, uv).rgb;
 
     // apply tone mapping function to HDR
-    color = toneMapping(color, tone_mapping_exposure);
+    color = acesMapping(color, tone_mapping_exposure);
 
     // apply gamma correction
     color = pow(color, vec3(1.0 / gamma));
