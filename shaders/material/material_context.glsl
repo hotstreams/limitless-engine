@@ -19,9 +19,7 @@ struct MaterialContext {
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)
     vec3 normal;
-    vec3 tbn_t;
-    vec3 tbn_b;
-    vec3 tbn_n;
+    vec3 tangent;
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
@@ -55,11 +53,7 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
     MaterialContext mctx;
 
 //    mctx.vertex_position = getVertexPosition();
-//    mctx.vertex_normal = getVertexNormal();
-
-#if !defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && !defined (ENGINE_SETTINGS_NORMAL_MAPPING)
     mctx.vertex_normal = getVertexNormal();
-#endif
 
 #if defined (ENGINE_MATERIAL_COLOR)
     mctx.color = getMaterialColor();
@@ -75,9 +69,7 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE)
     mctx.normal = getMaterialNormal(uv);
-    mctx.tbn_t = getVertexTBN()[0];
-    mctx.tbn_b = getVertexTBN()[1];
-    mctx.tbn_n = getVertexTBN()[2];
+    mctx.tangent = getVertexTangent();
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
@@ -207,26 +199,36 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #if defined (SpriteEmitter) || defined (BeamEmitter)
     return getCameraPosition() - getVertexPosition();
 #else
-#if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
+
+#if (defined(ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)
     vec3 normal = mctx.normal;
+
 #if defined (ENGINE_MATERIAL_TWO_SIDED)
     normal = gl_FrontFacing ? normal : -normal;
 #endif
     normal = normalize(normal * 2.0 - 1.0);
 
-    mat3 TBN = mat3(mctx.tbn_t, mctx.tbn_b, mctx.tbn_n);
-//    mat3 TBN = getVertexTBN();
+    // Simple TBN reconstruction
+    vec3 N = normalize(mctx.vertex_normal);
+    vec3 T = normalize(mctx.tangent);
+    
+    // Re-orthogonalize
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = normalize(cross(N, T));
+    
+    mat3 TBN = mat3(T, B, N);
+
 #if defined (ENGINE_MATERIAL_TWO_SIDED)
     TBN[0] = gl_FrontFacing ? TBN[0] : -TBN[0];
     TBN[1] = gl_FrontFacing ? TBN[1] : -TBN[1];
-    TBN[1] = gl_FrontFacing ? TBN[2] : -TBN[2];
+    TBN[2] = gl_FrontFacing ? TBN[2] : -TBN[2];
 #endif
-    normal = normalize(TBN * normal);
+
+    vec3 result = normalize(TBN * normal);
     
-    normal = normalize(mctx.vertex_normal);
+    return result;
 #else
     vec3 normal = normalize(mctx.vertex_normal);
-//    vec3 normal = getVertexNormal();
 #endif
     return normal;
 #endif

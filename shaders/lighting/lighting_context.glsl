@@ -54,7 +54,7 @@ LightingContext computeLightingContext(const ShadingContext sctx, const Light li
     lctx.H = normalize(sctx.V + lctx.L);
     lctx.len = length(light.position.xyz - sctx.worldPos);
 
-    lctx.NoL = saturate(dot(sctx.N, lctx.L));
+    lctx.NoL = max(saturate(dot(sctx.N, lctx.L)), MIN_NoL);
     lctx.NoH = saturate(dot(sctx.N, lctx.H));
     lctx.LoH = saturate(dot(lctx.L, lctx.H));
 

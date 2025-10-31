@@ -16,7 +16,8 @@ void InterfaceBlockPassThrough() {
 
     #if defined (MeshEmitter)
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-            _out_data[gl_InvocationID].TBN = getVertexTBN(index);
+            _out_data[gl_InvocationID].tangent = getVertexTangent(index);
+            _out_data[gl_InvocationID].normal = getVertexNormal(index);
         #else
             _out_data[gl_InvocationID].normal = getVertexNormal(index);
         #endif
@@ -58,7 +59,8 @@ void InterfaceBlockPassThrough() {
     #endif
 #else
     #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-        _out_data[gl_InvocationID].TBN = getVertexTBN(index);
+        _out_data[gl_InvocationID].tangent = getVertexTangent(index);
+        _out_data[gl_InvocationID].normal = getVertexNormal(index);
     #else
         _out_data[gl_InvocationID].normal = getVertexNormal(index);
     #endif

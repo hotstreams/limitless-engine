@@ -104,6 +104,9 @@ namespace Limitless::ms {
         Builder& custom(const std::string& name, const glm::vec2& value) noexcept;
         Builder& custom(const std::string& name, const glm::vec3& value) noexcept;
         Builder& custom(const std::string& name, const glm::vec4& value) noexcept;
+        Builder& custom(const std::string& name, const std::vector<float>& value) noexcept;
+        Builder& custom(const std::string& name, const std::vector<glm::vec2>& value) noexcept;
+        Builder& custom(const std::string& name, const std::vector<glm::vec4>& value) noexcept;
         Builder& custom(const std::string& name, const glm::mat3& value) noexcept;
         Builder& custom(const std::string& name, const glm::mat4& value) noexcept;
         Builder& custom(const std::string& name, const std::shared_ptr<Texture>& value) noexcept;

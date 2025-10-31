@@ -38,43 +38,42 @@ namespace Limitless {
                 } else if (instance->getInstanceType() == InstanceType::Terrain) {
                     auto& terrain = static_cast<TerrainInstance&>(*instance); //NOLINT
 
-                    for (auto& i: terrain.mesh.seams->getInstances()) {
+                    for (auto& i: terrain.getMesh().seams->getInstances()) {
                         if (frustum.intersects(*i)) {
-                            visible_instances_of_instanced_instances[terrain.mesh.seams->getId()].emplace_back(i);
+                            visible_instances_of_instanced_instances[terrain.getMesh().seams->getId()].emplace_back(i);
                         }
                     }
 
-                    for (auto& i: terrain.mesh.trims->getInstances()) {
+                    for (auto& i: terrain.getMesh().trims->getInstances()) {
                         if (frustum.intersects(*i)) {
-                            visible_instances_of_instanced_instances[terrain.mesh.trims->getId()].emplace_back(i);
+                            visible_instances_of_instanced_instances[terrain.getMesh().trims->getId()].emplace_back(i);
                         }
                     }
 
-                    for (auto& i: terrain.mesh.fillers->getInstances()) {
+                    for (auto& i: terrain.getMesh().fillers->getInstances()) {
                         if (frustum.intersects(*i)) {
-                            visible_instances_of_instanced_instances[terrain.mesh.fillers->getId()].emplace_back(i);
+                            visible_instances_of_instanced_instances[terrain.getMesh().fillers->getId()].emplace_back(i);
                         }
                     }
 
-                    for (auto& i: terrain.mesh.tiles->getInstances()) {
+                    for (auto& i: terrain.getMesh().tiles->getInstances()) {
                         if (frustum.intersects(*i)) {
-                            visible_instances_of_instanced_instances[terrain.mesh.tiles->getId()].emplace_back(i);
+                            visible_instances_of_instanced_instances[terrain.getMesh().tiles->getId()].emplace_back(i);
                         }
                     }
 
-                    if (frustum.intersects(*terrain.mesh.cross)) {
-                        visible_instances_of_instanced_instances[instance->getId()].emplace_back(terrain.mesh.cross);
+                    if (frustum.intersects(*terrain.getMesh().cross)) {
+                        visible_instances_of_instanced_instances[instance->getId()].emplace_back(terrain.getMesh().cross);
                     }
 
-//                    if (
-//                            visible_instances_of_instanced_instances.count(terrain.mesh.seams->getId()) != 0 ||
-//                        visible_instances_of_instanced_instances.count(terrain.mesh.trims->getId()) != 0 ||
-//                        visible_instances_of_instanced_instances.count(terrain.mesh.fillers->getId()) != 0 ||
-//                        visible_instances_of_instanced_instances.count(terrain.mesh.tiles->getId()) != 0 ||
-//                        visible_instances_of_instanced_instances.count(instance->getId()) != 0
-//                    ) {
+                   if (visible_instances_of_instanced_instances.count(terrain.getMesh().seams->getId()) != 0 ||
+                       visible_instances_of_instanced_instances.count(terrain.getMesh().trims->getId()) != 0 ||
+                       visible_instances_of_instanced_instances.count(terrain.getMesh().fillers->getId()) != 0 ||
+                       visible_instances_of_instanced_instances.count(terrain.getMesh().tiles->getId()) != 0 ||
+                       visible_instances_of_instanced_instances.count(instance->getId()) != 0
+                   ) {
                         visible.emplace_back(instance);
-//                    }
+                   }
                 } else {
                     if (frustum.intersects(*instance)) {
                         visible.emplace_back(instance);

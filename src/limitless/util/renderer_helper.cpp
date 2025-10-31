@@ -134,7 +134,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 //                show(item);
 //            }
 
-            for (auto &item: terrain.mesh.tiles->getInstances()) {
+            for (auto &item: terrain.getMesh().tiles->getInstances()) {
                 show(item, frustum.intersects(*item));
             }
         }

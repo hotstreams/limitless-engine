@@ -172,10 +172,10 @@ Renderer::Builder &Renderer::Builder::deferred() {
     }
     addDeferredLightingPass();
     addTranslucentPass();
-    if (renderer->settings.bloom) {
-        addBloomPass();
-    }
-    addOutlinePass();
+    // if (renderer->settings.bloom) {
+    //     addBloomPass();
+    // }
+    // addOutlinePass();
     addCompositePass();
     if (renderer->settings.fast_approximate_antialiasing) {
         addFXAAPass();

@@ -1,222 +1,7 @@
-#include "./terrain.glsl"
-#include "../functions/stochastic.glsl"
-#include "../instance/instance_fs.glsl"
+// Terrain surface shader - matches Terrain3D's fragment shader logic
+#include "../terrain/terrain.glsl"
+#include "../terrain/terrain_debug.glsl"
 
-vec3 hsv2rgb(vec3 c) {
-    vec3 p = abs(fract(c.xxx + vec3(0.0, 0.6666667, 0.3333333)) * 6.0 - 3.0);
-    vec3 rgb = c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
-    return rgb;
-}
-
-vec3 colorFromId(uint id) {
-    const float PHI = 0.6180339887498949;
-    float h = fract(float(id) * PHI);
-    float s = 0.65;
-    float v = 0.95;
-    return hsv2rgb(vec3(h, s, v));
-}
-
-#define dFdxCoarse(a) dFdx(a)
-#define dFdyCoarse(a) dFdy(a)
-
-terrain_data getTerrainData(vec2 uv, const terrain_control tctrl) {
-    terrain_data data;
-
-    vec2 uv1, uv2, uv3;
-    vec3 weights;
-    vec4 duvd;
-    _get_stochastic_data(uv, uv1, uv2, uv3, duvd, weights);
-
-    data.albedo = get_detiled_texture(uv1, uv2, uv3, duvd, weights, terrain_albedo_texture, tctrl.base_id);
-    data.normal = get_detiled_texture(uv1, uv2, uv3, duvd, weights, terrain_normal_texture, tctrl.base_id);
-    data.orm = get_detiled_texture(uv1, uv2, uv3, duvd, weights, terrain_orm_texture, tctrl.base_id);
-
-    if (tctrl.blend > 0.0) {
-        vec3 extra_albedo = get_detiled_texture(uv1, uv2, uv3, duvd, weights, terrain_albedo_texture, tctrl.extra_id);
-        vec3 extra_normal = get_detiled_texture(uv1, uv2, uv3, duvd, weights, terrain_normal_texture, tctrl.extra_id);
-        vec3 extra_orm = get_detiled_texture(uv1, uv2, uv3, duvd, weights, terrain_orm_texture, tctrl.extra_id);
-
-        //TODO: height blending unpack?
-        data.albedo = height_blend(data.albedo, 1.0, extra_albedo, 1.0, tctrl.blend);
-        data.normal = height_blend(data.normal, 1.0, extra_normal, 1.0, tctrl.blend);
-        data.orm = height_blend(data.orm, 1.0, extra_orm, 1.0, tctrl.blend);
-    }
-
-    return data;
-}
-
-void OldTerrain(inout MaterialContext mctx) {
-    vec3 vertex_position = getVertexPosition();
-    vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position.xz);
-    vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
-    vec2 chunk_uv = getChunkUV(terrain_uv);
-
-    vec2 terrain_texel_base = floor(terrain_texel_uv);
-
-    vec2 terrain_adjacent_texel_uv[4] = {
-        getTerrainTexelUV(terrain_texel_base),
-        getTerrainTexelUV(terrain_texel_base + vec2(1.0, 0.0)),
-        getTerrainTexelUV(terrain_texel_base + vec2(0.0, 1.0)),
-        getTerrainTexelUV(terrain_texel_base + vec2(1.0, 1.0))
-    };
-
-    uint control[4] = {
-        getTerrainControl(terrain_adjacent_texel_uv[0]),
-        getTerrainControl(terrain_adjacent_texel_uv[1]),
-        getTerrainControl(terrain_adjacent_texel_uv[2]),
-        getTerrainControl(terrain_adjacent_texel_uv[3])
-    };
-
-    terrain_control tctrl[4] = {
-        decode(control[0]),
-        decode(control[1]),
-        decode(control[2]),
-        decode(control[3])
-    };
-
-    terrain_data data[4] = {
-        getTerrainData(chunk_uv, tctrl[0]),
-        getTerrainData(chunk_uv, tctrl[1]),
-        getTerrainData(chunk_uv, tctrl[2]),
-        getTerrainData(chunk_uv, tctrl[3]),
-    };
-
-    vec2 weights1 = clamp(fract(terrain_texel_uv), 0, 1);
-    vec2 weights0 = vec2(1.0) - weights1;
-
-    // Adjust final weights by texture's height/depth + noise. 1 lookup
-    float noise3 = texture(terrain_noise_texture, terrain_uv * terrain_noise1_scale).r;
-
-    vec4 weights = vec4(
-        blend_weights(weights0.x * weights0.y, clamp(/*mat[0].alb_ht.a*/ noise3, 0.0, 1.0)),
-        blend_weights(weights1.x * weights0.y, clamp(/*mat[1].alb_ht.a*/ noise3, 0.0, 1.0)),
-        blend_weights(weights0.x * weights1.y, clamp(/*mat[2].alb_ht.a*/ noise3, 0.0, 1.0)),
-        blend_weights(weights1.x * weights1.y, clamp(/*mat[3].alb_ht.a*/ noise3, 0.0, 1.0))
-    );
-
-    float weight_sum = weights.x + weights.y + weights.z + weights.w;
-    float weight_inv = 1.0 / weight_sum;
-
-    vec3 albedo = weight_inv * (
-        data[0].albedo * weights.x +
-        data[1].albedo * weights.y +
-        data[2].albedo * weights.z +
-        data[3].albedo * weights.w
-    );
-
-    vec3 normal = weight_inv * (
-        data[0].normal * weights.x +
-        data[1].normal * weights.y +
-        data[2].normal * weights.z +
-        data[3].normal * weights.w
-    );
-
-    vec3 orm = weight_inv * (
-        data[0].orm * weights.x +
-        data[1].orm * weights.y +
-        data[2].orm * weights.z +
-        data[3].orm * weights.w
-    );
-
-    float vertex_camera_distance = length(getVertexPosition().xz - getCameraPosition().xz);
-
-    vec3 macro_variation = vec3(1.0);
-    if (bool(terrain_macro_variation)) {
-        float noise1 = texture(
-            terrain_noise_texture,
-            rotate(chunk_uv * terrain_noise2_scale * .1, cos(terrain_noise2_angle), sin(terrain_noise2_angle)) +
-            terrain_noise2_offset).r;
-        float noise2 = texture(terrain_noise_texture, chunk_uv * terrain_noise3_scale * .1).r;
-        vec3 macrov = mix(terrain_macro_variation1, vec3(1.0), clamp(noise1 + vertex_camera_distance * 0.0002, 0.0, 1.0));
-        macrov *= mix(terrain_macro_variation2, vec3(1.0), clamp(noise2 + vertex_camera_distance * 0.0002, 0.0, 1.0));
-    }
-
-    mctx.color.xyz = albedo * macro_variation;
-
-    mctx.ao = orm.r;
-    mctx.roughness = orm.g;
-    mctx.metallic = orm.b;
-
-    {
-//        if (vertex_camera_distance <= terrain_vertex_normals_distance) {
-        mctx.vertex_normal = getTerrainNormal(terrain_uv);
-
-
-        {
-
-     vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position.xz);
-        vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
-        vec2 chunk_uv = getChunkUV(terrain_uv);
-
-        vec2 terrain_texel_base = floor(terrain_texel_uv);
-
-    ivec2 index[4];
-    const vec3 offsets = vec3(0, 1, 2);
-
-    // control map lookups, used for some normal lookups as well
-    index[0] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xy));
-    index[1] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yy));
-    index[2] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yx));
-    index[3] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xx));
-
-    // Terrain normals
-    vec3 index_normal[4];
-    float h[4];
-    // allows additional derivatives, eg world noise, brush previews etc
-    float u = 0.0;
-    float v = 0.0;
-
-  //  u+= value_noise(terrain_uv);
-   // v += value_noise(terrain_uv);
-
-    // Re-use index[] for the first lookups, skipping some math. 3 lookups
-    h[3] = texelFetch(terrain_height_texture, index[3], 0).r  * terrain_height_scale; // 0 (0,0)
-    h[2] = texelFetch(terrain_height_texture, index[2], 0).r  * terrain_height_scale; // 1 (1,0)
-    h[0] = texelFetch(terrain_height_texture, index[0], 0).r  * terrain_height_scale; // 2 (0,1)
-    index_normal[3] = normalize(vec3(h[3] - h[2] + u, terrain_vertex_spacing, h[3] - h[0] + v));
-
-    mctx.vertex_normal = index_normal[3];
-
-
-        }
-
-        #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-            mat3 TBN = getTerrainTBN(mctx.vertex_normal);
-            mctx.tbn_t = TBN[0];
-            mctx.tbn_b = TBN[1];
-            mctx.tbn_n = TBN[2];
-            mctx.normal = normalize(normal);
-        #endif
-//        }
-    }
-
-    if (bool(terrain_show_terrain_size)) {
-        if (is_on_tile_border(vertex_position, vec3(terrain_size * terrain_vertex_spacing), 0.1)) {
-            mctx.color.xyz = vec3(1.0, 0.0, 0.0);
-        }
-    }
-
-    if (bool(terrain_show_tiles)) {
-        if (is_on_tile_border(vertex_position, vec3(terrain_vertex_spacing), 0.01)) {
-            mctx.color.xyz = vec3(0.0, 0.0, 0.0);
-        }
-    }
-
-    if (bool(terrain_show_texture_chunks)) {
-        mctx.color.xyz = vec3(chunk_uv, 0.0);
-    }
-
-    if (bool(terrain_show_vertex_normals_distance)) {
-        if (vertex_camera_distance <= terrain_vertex_normals_distance) {
-            mctx.color.xyz = vec3(0.0, 1.0, 0.0);
-        } else {
-            mctx.color.xyz = vec3(1.0, 0.0, 0.0);
-        }
-    }
-
-    mctx.color.xyz = mctx.normal * 0.5 + 0.5;
-}
-#define DIV_1024 0.0009765625
 void calculateTerrain(inout MaterialContext mctx) {
     vec3 vertex_position = getVertexPosition();
     vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position.xz);
@@ -224,91 +9,225 @@ void calculateTerrain(inout MaterialContext mctx) {
     vec2 chunk_uv = getChunkUV(terrain_uv);
     vec2 terrain_texel_base = floor(terrain_texel_uv);
 
-    // Lookup offsets, ID and blend weight
-	vec2 weight = fract(terrain_texel_uv);
-	vec2 invert = 1.0 - weight;
-	vec4 weights = vec4(
-		invert.x * weight.y, // 0
-		weight.x * weight.y, // 1
-		weight.x * invert.y, // 2
-		invert.x * invert.y  // 3
-	);
+    if (vertex_position.x < 0.0 || vertex_position.x >= terrain_size ||
+         vertex_position.z < 0.0 || vertex_position.z >= terrain_size) {
+         discard;
+    }
 
-    // Neighbor indices around the current texel
+    vec2 index_id = floor(terrain_texel_uv);
+    vec2 weight = fract(terrain_texel_uv);
+    vec2 invert = 1.0 - weight;
+    vec4 weights = vec4(
+        invert.x * weight.y,
+        weight.x * weight.y,
+        weight.x * invert.y,
+        invert.x * invert.y
+    );
+
     ivec2 index[4];
     const vec3 offsets = vec3(0, 1, 2);
+
     index[0] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xy));
     index[1] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yy));
     index[2] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.yx));
     index[3] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xx));
 
     vec3 base_ddx = dFdxCoarse(vertex_position);
-	vec3 base_ddy = dFdyCoarse(vertex_position);
-    
-    float density = 1.0 / max(terrain_vertex_spacing, 1e-6);
+    vec3 base_ddy = dFdxCoarse(vertex_position);
 
-    // Calculate the effective mipmap for regionspace, and when less than 0,
-	// skip all extra lookups required for bilinear blend.
-	float region_mip = log2(max(length(base_ddx.xz), length(base_ddy.xz)) * density);
-	bool bilerp = region_mip < 0.0;
+    float region_mip = max(length(base_ddx.xz), length(base_ddy.xz));
+    bool normal_bilerp = log2(region_mip * terrain_vertex_density * normal_bilerp_multiplier) < 0.0;
+    bool tile_bilerp = log2(region_mip * terrain_vertex_density * tile_bilerp_multiplier) < 0.0;
 
-	// Terrain normals
-	vec3 index_normal[4];
+    vec3 index_normal[4];
     float h[4];
 
-    h[0] = texelFetch(terrain_height_texture, index[0], 0).r * terrain_height_scale; // (0,1)
-    h[2] = texelFetch(terrain_height_texture, index[2], 0).r * terrain_height_scale; // (1,0)
-    h[3] = texelFetch(terrain_height_texture, index[3], 0).r * terrain_height_scale; // (1,1)
+    h[3] = fetchTerrainHeight(index[3]);
+    h[2] = fetchTerrainHeight(index[2]);
+    h[0] = fetchTerrainHeight(index[0]);
     index_normal[3] = normalize(vec3(h[3] - h[2], terrain_vertex_spacing, h[3] - h[0]));
 
     vec3 w_normal = index_normal[3];
 
     float vertex_camera_distance = length(getVertexPosition().xz - getCameraPosition().xz);
 
-    // Adjust derivatives for mipmap bias and depth blur effect
-	float bias = mix(mipmap_bias, depth_blur + 1., smoothstep(0.0, 1.0, (vertex_camera_distance - bias_distance) * DIV_1024));
-	
+    float bias = mix(mipmap_bias,
+        depth_blur + 1.0,
+        smoothstep(0.0, 1.0, (vertex_camera_distance - bias_distance) * terrain_texel_size));
+
     base_ddx *= bias;
-	base_ddy *= bias;
+    base_ddy *= bias;
 
-    if (bilerp) {
-        vec2 index_id = floor(terrain_texel_uv);
+    if (normal_bilerp) {
+        h[1] = fetchTerrainHeight(index[1]);
+        float h4 = fetchTerrainHeight(ivec2(terrain_texel_base + offsets.yz));
+        float h5 = fetchTerrainHeight(ivec2(terrain_texel_base + offsets.zy));
+        float h6 = fetchTerrainHeight(ivec2(terrain_texel_base + offsets.zx));
+        float h7 = fetchTerrainHeight(ivec2(terrain_texel_base + offsets.xz));
 
-        // Additional heights for smooth normals (5 more lookups)
-        h[1] = texelFetch(terrain_height_texture, index[1], 0).r * terrain_height_scale; // (1,1)
-        float h4 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.yz)), 0).r * terrain_height_scale; // (1,2)
-        float h5 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.zy)), 0).r * terrain_height_scale; // (2,1)
-        float h6 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.zx)), 0).r * terrain_height_scale; // (2,0)
-        float h7 = texelFetch(terrain_height_texture, ivec2(getTerrainTexelUV(index_id + offsets.xz)), 0).r * terrain_height_scale; // (0,2)
-
-        // Per-corner normals
         index_normal[0] = normalize(vec3(h[0] - h[1], terrain_vertex_spacing, h[0] - h7));
         index_normal[1] = normalize(vec3(h[1] - h5, terrain_vertex_spacing, h[1] - h4));
         index_normal[2] = normalize(vec3(h[2] - h6, terrain_vertex_spacing, h[2] - h[1]));
 
-        w_normal = normalize(
+        w_normal =
             index_normal[0] * weights[0] +
             index_normal[1] * weights[1] +
             index_normal[2] * weights[2] +
-            index_normal[3] * weights[3]
+            index_normal[3] * weights[3];
+
+        w_normal = normalize(w_normal);
+    }
+
+    vec4 color_map = fetchColor(index[3]);
+    uvec4 control = uvec4(fetchTerrainControl(index[3]));
+
+    if (tile_bilerp && bool(enable_tile_bilerp)) {
+        vec4 col_map[4];
+        col_map[0] = fetchColor(index[0]);
+        col_map[1] = fetchColor(index[1]);
+        col_map[2] = fetchColor(index[2]);
+        col_map[3] = fetchColor(index[3]);
+        color_map = col_map[0] * weights[0] + col_map[1] * weights[1] + col_map[2] * weights[2] + col_map[3] * weights[3];
+
+        control = uvec4(
+            fetchTerrainControl(index[0]),
+            fetchTerrainControl(index[1]),
+            fetchTerrainControl(index[2]),
+            control[3]
         );
     }
 
-    // Output normals to material context
-    mctx.vertex_normal = w_normal;
-    mctx.normal = w_normal;
-    #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-        mat3 TBN = getTerrainTBN(mctx.vertex_normal);
-        mctx.tbn_t = TBN[0];
-        mctx.tbn_b = TBN[1];
-        mctx.tbn_n = TBN[2];
-    #endif
-    // fetch color
-    mctx.color = texture(terrain_albedo_texture, vec3(chunk_uv, 0.0));
-    //mctx.color.xyz = vec3(chunk_uv, 0.0);
-    //mctx.color.xyz = mctx.vertex_normal * 0.5 + 0.5;
+    ivec4 t_id[2] = {
+        ivec4(control >> uvec4(0u) & uvec4(0x3Fu)),
+        ivec4(control >> uvec4(6u) & uvec4(0x3Fu))
+    };
 
-   // if (is_on_tile_border(vertex_position, vec3(terrain_vertex_spacing), 0.01)) {
-  //      mctx.color.xyz = vec3(0.0, 0.0, 0.0);
-  //  }
+    ivec2 texture_ids[4] = ivec2[4](
+        ivec2(t_id[0].x, t_id[1].x),
+        ivec2(t_id[0].y, t_id[1].y),
+        ivec2(t_id[0].z, t_id[1].z),
+        ivec2(t_id[0].w, t_id[1].w)
+    );
+
+    vec4 weights_id_1 = vec4(control >> uvec4(12u) & uvec4(0xFFu)) * DIV_255;
+    vec4 weights_id_0 = 1.0 - weights_id_1;
+
+    vec2 t_weights[4] = vec2[4](
+        vec2(weights_id_0[0], weights_id_1[0]),
+        vec2(weights_id_0[1], weights_id_1[1]),
+        vec2(weights_id_0[2], weights_id_1[2]),
+        vec2(weights_id_0[3], weights_id_1[3]));
+
+    if (tile_bilerp && bool(enable_tile_bilerp)) {
+        t_weights = vec2[4](vec2(0), vec2(0), vec2(0), vec2(0));
+        weights_id_0 *= weights;
+        weights_id_1 *= weights;
+        for (int i = 0; i < 4; i++) {
+            vec2 w_0 = vec2(weights_id_0[i]);
+            vec2 w_1 = vec2(weights_id_1[i]);
+            ivec2 id_0 = texture_ids[i].xx;
+            ivec2 id_1 = texture_ids[i].yy;
+            t_weights[0] += fma(w_0, vec2(equal(texture_ids[0], id_0)), w_1 * vec2(equal(texture_ids[0], id_1)));
+            t_weights[1] += fma(w_0, vec2(equal(texture_ids[1], id_0)), w_1 * vec2(equal(texture_ids[1], id_1)));
+            t_weights[2] += fma(w_0, vec2(equal(texture_ids[2], id_0)), w_1 * vec2(equal(texture_ids[2], id_1)));
+            t_weights[3] += fma(w_0, vec2(equal(texture_ids[3], id_0)), w_1 * vec2(equal(texture_ids[3], id_1)));
+        }
+    }
+
+    tile_data mat = tile_data(vec4(0.0), vec4(0.0), 0.0, 0.0);
+
+    float base_weight = (tile_bilerp && bool(enable_tile_bilerp)) ? weights[3] : 1.0;
+    
+    process(
+        base_ddx,
+        base_ddy,
+        base_weight,
+        index[3],
+        control[3],
+        t_weights[3],
+        texture_ids[3],
+        index_normal[3],
+        h[3],
+        mat);
+
+    if (tile_bilerp && bool(enable_tile_bilerp)) {
+        process(
+            base_ddx,
+            base_ddy,
+            weights[2],
+            index[2],
+            control[2],
+            t_weights[2],
+            texture_ids[2],
+            index_normal[2],
+            h[2],
+            mat);
+
+        process(
+            base_ddx,
+            base_ddy,
+            weights[1],
+            index[1],
+            control[1],
+            t_weights[1],
+            texture_ids[1],
+            index_normal[1],
+            h[1],
+            mat);
+
+        process(
+            base_ddx,
+            base_ddy,
+            weights[0],
+            index[0],
+            control[0],
+            t_weights[0],
+            texture_ids[0],
+            index_normal[0],
+            h[0],
+            mat);
+    }
+
+    float weight_inv = 1.0 / max(mat.total_weight, 1e-3);
+    mat.albedo_height *= weight_inv;
+    mat.normal_roughness *= weight_inv;
+    mat.normal_depth *= weight_inv;
+
+    mctx.color.xyz = mat.albedo_height.rgb * color_map.rgb;
+
+    mctx.roughness = clamp(fma(color_map.a - 0.5, 2.0, mat.normal_roughness.a), 0.0, 1.0);
+    mctx.metallic = 0.0;
+
+    float ao = (1.0 - (mat.albedo_height.a * log(1.1))) * (1.0 - mat.normal_roughness.y);
+    mctx.ao = clamp(1.0 - ao, mat.albedo_height.a, 1.0);
+
+    mctx.vertex_normal = w_normal;
+
+    #if (defined(ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)
+        vec3 norm = normalize(mat.normal_roughness.xzy);
+
+        norm.xy *= mat.normal_depth;
+        norm.z = sqrt(max(0.0, 1.0 - dot(norm.xy, norm.xy)));
+
+        mctx.normal = fma(normalize(norm), vec3(0.5), vec3(0.5));
+
+        mctx.tangent = normalize(cross(w_normal, vec3(0.0, 0.0, 1.0)));
+    #endif
+
+    // Apply debug visualization if enabled
+    //applyDebugVisualization(17, terrain_uv, control[3], mctx, mat, bilerp, texture_ids[3]);
+
+/*
+    if (bool(terrain_show_tiles)) {
+        if (is_on_tile_border(vertex_position, vec3(terrain_vertex_spacing), 0.01)) {
+            mctx.color.xyz = vec3(1.0, 0.0, 0.0);
+        }
+    }
+
+    if (bool(terrain_show_terrain_size)) {
+        if (is_on_tile_border(vertex_position, vec3(terrain_size), 0.01)) {
+            mctx.color.xyz = vec3(0.0, 1.0, 0.0);
+        }
+    }
+*/
 }

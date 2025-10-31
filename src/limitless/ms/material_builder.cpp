@@ -8,6 +8,8 @@
 #include <limitless/core/uniform/uniform_time.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
 
+#include "limitless/core/uniform/uniform_value_array.hpp"
+
 using namespace Limitless::ms;
 
 void Material::Builder::setMaterialIndex() {
@@ -280,6 +282,24 @@ Material::Builder &Material::Builder::custom(const std::string &name, const glm:
 
 Material::Builder &Material::Builder::custom(const std::string &name, const std::shared_ptr<Texture> &value) noexcept {
     uniforms[name] = std::make_unique<UniformSampler>(name, value);
+    return *this;
+}
+
+Material::Builder& Material::Builder::custom(const std::string& name, const std::vector<float>& value) noexcept
+{
+    uniforms[name] = std::make_unique<UniformValueArray<float>>(name, value);
+    return *this;
+}
+
+Material::Builder& Material::Builder::custom(const std::string& name, const std::vector<glm::vec2>& value) noexcept
+{
+    uniforms[name] = std::make_unique<UniformValueArray<glm::vec2>>(name, value);
+    return *this;
+}
+
+Material::Builder& Material::Builder::custom(const std::string& name, const std::vector<glm::vec4>& value) noexcept
+{
+    uniforms[name] = std::make_unique<UniformValueArray<glm::vec4>>(name, value);
     return *this;
 }
 

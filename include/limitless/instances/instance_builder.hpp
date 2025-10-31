@@ -16,7 +16,8 @@ namespace Limitless {
     /**
      *
      */
-    class Instance::Builder {
+    class Instance::Builder
+    {
     private:
         /**
          * Instance data
@@ -68,29 +69,32 @@ namespace Limitless {
         /**
          * Terrain data
          */
-        float chunk_size_ {1024.0f};
-        float vertex_spacing_ {0.5f};
-        float height_scale_ {10.0f};
-        float noise1_scale_ {0.225f};
-        float noise2_scale_ {0.04f};
-        float noise2_angle_ {0.0f};
-        float noise2_offset_ {0.5f};
-        float noise3_scale_ {0.076f};
-        glm::vec3 macro_variation1_ = glm::vec3(0.5f);
-        glm::vec3 macro_variation2_ = glm::vec3(0.33f);
+
+        float terrain_size_ {1024.0f};
+        float vertex_spacing_ {1.0f};
+        float height_scale_ {1.0f};
+
+        bool enable_tile_bilerp_ {true};
+        float normal_bilerp_multiplier_ {1.0f};
+        float tile_bilerp_multiplier_ {1.0f};
+
         uint32_t mesh_size_ {64};
         uint32_t mesh_lod_count_ {6};
+
         std::shared_ptr<Texture> height_map_;
         std::shared_ptr<Texture> control_map_;
         std::shared_ptr<Texture> albedo_map_;
         std::shared_ptr<Texture> normal_map_;
-        std::shared_ptr<Texture> orm_map_;
-        std::shared_ptr<Texture> noise_;
+        std::shared_ptr<Texture> color_map_;
+
+        std::vector<float> texture_uv_scale_;
+        std::vector<float> texture_normal_depth_;
+        std::vector<glm::vec2> texture_detile_;
 
         void initialize(Instance& instance);
         void initialize(const std::shared_ptr<ModelInstance>& instance);
     public:
-        Builder() noexcept = default;
+        Builder() noexcept;
 
         /**
          *  Sets Model to building instance
@@ -148,25 +152,12 @@ namespace Limitless {
          */
         Builder& decal_projection_mask(uint8_t mask);
 
-        Builder& chunk_size(float chunk_size);
-
+        Builder& terrain_size(float terrain_size);
         Builder& vertex_spacing(float vertex_spacing);
-
         Builder& height_scale(float height_scale);
-
-        Builder& noise1_scale(float noise1_scale);
-
-        Builder& noise2_scale(float noise2_scale);
-
-        Builder& noise2_angle(float noise2_angle);
-
-        Builder& noise2_offset(float noise2_offset);
-
-        Builder& noise3_scale(float noise3_scale);
-
-        Builder& macro_variation1(const glm::vec3& macro_variation1);
-
-        Builder& macro_variation2(const glm::vec3& macro_variation2);
+        Builder& enable_tile_bilerp(bool bilerp = true);
+        Builder& normal_bilerp_multiplier(float multiplier);
+        Builder& tile_bilerp_multiplier(float multiplier);
 
         Builder& mesh_size(float mesh_size);
         Builder& mesh_lod_count(float mesh_lod_count);
@@ -175,8 +166,11 @@ namespace Limitless {
         Builder& control_map(const std::shared_ptr<Texture>& control_map);
         Builder& albedo_map(const std::shared_ptr<Texture>& albedo_map);
         Builder& normal_map(const std::shared_ptr<Texture>& normal_map);
-        Builder& orm_map(const std::shared_ptr<Texture>& orm_map);
-        Builder& noise(const std::shared_ptr<Texture>& noise);
+        Builder& color_map(const std::shared_ptr<Texture>& color_map);
+
+        Builder& texture_uv_scale(const std::vector<float>& texture_uv_scale);
+        Builder& texture_normal_depth(const std::vector<float>& texture_normal_depth);
+        Builder& texture_detile(const std::vector<glm::vec2>& texture_detile);
 
         Builder& height(const float* data);
         Builder& control(const TerrainInstance::control_value* data);

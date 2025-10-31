@@ -1,5 +1,6 @@
 #include "../functions/common.glsl"
 #include "../pipeline/scene.glsl"
+#include "../functions/brdf.glsl"
 
 #define ENGINE_SHADING_UNLIT 0u
 #define ENGINE_SHADING_LIT 1u
@@ -64,7 +65,9 @@ ShadingContext computeShadingContext(
     context.V = normalize(getCameraPosition() - context.worldPos);
     context.NoV = computeNoV(context.N, context.V);
 
-    context.F0 = computeF0(baseColor, context.metallic, 1.0);
+    float reflectance = 0.5;
+    float dielectricF0 = computeDielectricF0(reflectance);
+    context.F0 = mix(vec3(dielectricF0), baseColor, context.metallic);
     context.ambientOcclusion = ambientOcclusion;
     context.emissive_color = emissive_color;
 

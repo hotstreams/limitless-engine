@@ -2,7 +2,8 @@
 #define MIN_ROUGHNESS 0.002025
 #define MIN_PERCEPTUAL_ROUGHNESS 0.045
 
-#define MIN_NoV 1e-4
+#define MIN_NoV 0.0001
+#define MIN_NoL 0.0001
 
 float pow5(float x) {
     float x2 = x * x;

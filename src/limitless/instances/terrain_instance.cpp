@@ -11,6 +11,22 @@ using namespace Limitless;
 using namespace Limitless::ms;
 
 void TerrainInstance::update(const Camera &camera) {
+    // float camera_height = camera.getPosition().y;
+    // float height_factor = glm::clamp((camera_height - lod_height_min) / (lod_height_max - lod_height_min), 0.0f, 1.0f);
+    // // Use a power function to make the LOD change more slowly at low heights and faster at high heights.
+    // height_factor = glm::pow(height_factor, 2.0f); // Example: quadratic
+    // float lod_scale = glm::mix(lod_scale_min, lod_scale_max, height_factor) * lod_height_scale;
+    //
+    // static float last = original_spacing;
+    // float current = original_spacing * lod_scale;
+    // if (fabs(current - last) >= 1.0f)
+    // {
+    //     last = current;
+    //     vertex_spacing = current;
+    // }
+    //
+    // std::cout << "lod " << vertex_spacing << std::endl;
+
     snap(camera);
 
     mesh.cross->update(camera);
@@ -20,14 +36,10 @@ void TerrainInstance::update(const Camera &camera) {
     mesh.fillers->update(camera);
     mesh.tiles->update(camera);
 
-    for (auto& i : mesh.trims_test) {
-        i->update(camera);
-    }
-
     const auto range = glm::vec2(height_scale * 0.5f, height_scale);
     const auto margin = 0.0f;
 
-    mesh.cross->bounding_box.center.y = mesh.cross->bounding_box.center.y + range.x - margin;
+    mesh.cross->bounding_box.center.y = range.x - margin;
     mesh.cross->bounding_box.size.y = range.y + margin * 2.0f;
 
 
@@ -148,18 +160,8 @@ void TerrainInstance::snap(const Camera& p_cam_pos) {
                 mesh.trims->getInstances()[edge]->setPosition(tile_center);
                 mesh.trims->getInstances()[edge]->setScale(glm::vec3(scale, 1.f, scale));
                 mesh.trims->getInstances()[edge]->setRotation(glm::vec3(0.f, -angle, 0.f));
-
-                mesh.trims_test[edge]->setPosition(tile_center);
-                mesh.trims_test[edge]->setScale(glm::vec3(scale, 1.f, scale));
-                mesh.trims_test[edge]->setRotation(glm::vec3(0.f, -angle, 0.f));
-
-//                std::cout << "values" << std::endl;
-//                std::cout << "position " << tile_center.x << " " << tile_center.y << " " << tile_center.z << std::endl;
-//                std::cout << "scale " << scale << std::endl;
-//                std::cout << "rotation " << -angle << std::endl;
             }
 
-            // Position seams
             {
                 glm::vec3 next_base = next_snapped_pos - glm::vec3(float(mesh_size << (l + 1)), 0.f, float(mesh_size << (l + 1))) * vertex_spacing;
 
@@ -177,45 +179,43 @@ void TerrainInstance::initializeMesh(Assets& assets) {
     std::vector<std::shared_ptr<ms::Material>> materials;
     materials.reserve(meshes.size());
 
-    auto terrain_material = Limitless::ms::Material::builder()
+    auto terrain_material = Material::builder()
             .name("terrain")
-            .color(glm::vec4(1.0))
-//            .two_sided(true)
 
-            .shading(Limitless::ms::Shading::Lit)
-            .models({Limitless::InstanceType::Instanced, Limitless::InstanceType::Model, Limitless::InstanceType::Terrain})
+            .color(glm::vec4(1.0f))
+
+            .shading(Shading::Lit)
+            .models({InstanceType::Instanced, InstanceType::Model, InstanceType::Terrain})
 
             .normal_map()
             .orm_map()
 
-            // textures
             .custom("terrain_control_texture", control)
             .custom("terrain_albedo_texture", albedo)
             .custom("terrain_normal_texture", normal)
-            .custom("terrain_orm_texture", orm)
-            .custom("terrain_noise_texture", noise)
             .custom("terrain_height_texture", height_map)
+            .custom("terrain_color_map", color_map) 
 
-            // scalars
             .custom("terrain_size", terrain_size)
-            .custom("terrain_texture_scale", texture_scale)
+            .custom("terrain_texel_size", 1.0f / terrain_size)
             .custom("terrain_vertex_spacing", vertex_spacing)
-            .custom("terrain_vertex_normals_distance", vertex_normals_distance)
+            .custom("terrain_vertex_density", 1.0f / vertex_spacing)
             .custom("terrain_height_scale", height_scale)
-            .custom("terrain_noise1_scale", noise1_scale)
-            .custom("terrain_noise2_scale", noise2_scale)
-            .custom("terrain_noise2_angle", noise2_angle)
-            .custom("terrain_noise2_offset", noise2_offset)
-            .custom("terrain_noise3_scale", noise3_scale)
-            .custom("terrain_macro_variation1", macro_variation1)
-            .custom("terrain_macro_variation2", macro_variation2)
 
-            // switches
-            .custom("terrain_macro_variation", macro_variation)
-            .custom("terrain_show_tiles", show_tiles)
-            .custom("terrain_show_terrain_size", show_terrain_size)
-            .custom("terrain_show_vertex_normals_distance", show_vertex_normals_distance)
-            .custom("terrain_show_texture_chunks", show_texture_chunks)
+            .custom("terrain_texture_uv_scale_array", texture_uv_scale)
+            .custom("terrain_texture_color_map", color_map)
+            .custom("terrain_texture_normal_depth_array", texture_normal_depth)
+            .custom("terrain_texture_detile_array", texture_detile)
+
+            .custom("enable_tile_bilerp", enable_tile_bilerp)
+            .custom("normal_bilerp_multiplier", normal_bilerp_multiplier)
+            .custom("tile_bilerp_multiplier", tile_bilerp_multiplier)
+
+            .custom("bias_distance", bias_distance)
+            .custom("mipmap_bias", mipmap_bias)
+            .custom("depth_blur", depth_blur)
+
+            .custom("blend_sharpness", blend_sharpness)
 
             .global_vertex(R"(
                 #include "../terrain/terrain.glsl"
@@ -229,10 +229,7 @@ void TerrainInstance::initializeMesh(Assets& assets) {
                 vec2 terrain_texel_uv = getTerrainTexelUV(vertex_transformed);
                 vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
 
-//                vertex_position.y = texture(terrain_height_texture, terrain_uv).r * terrain_height_scale;
-                vertex_position.y = get_height(terrain_uv);
-
-                normal = getTerrainNormal(terrain_uv);
+                vertex_position.y = getTerrainHeight(terrain_uv);
             )")
 
             .fragment(R"(
@@ -272,7 +269,6 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
         if (l != mesh_lod_count - 1) {
             mesh.trims->add(std::make_shared<ModelInstance>(InstanceType::Terrain, trim_model, glm::vec3(0.0f)));
-            mesh.trims_test.emplace_back(std::make_shared<ModelInstance>(InstanceType::Terrain, trim_model, glm::vec3(0.0f)));
             mesh.seams->add(std::make_shared<ModelInstance>(InstanceType::Terrain, seam_model, glm::vec3(0.0f)));
         }
     }
@@ -283,17 +279,17 @@ TerrainInstance::TerrainInstance(
     std::shared_ptr<Texture> control_map,
     std::shared_ptr<Texture> albedo_map,
     std::shared_ptr<Texture> normal_map,
-    std::shared_ptr<Texture> orm_map,
-    std::shared_ptr<Texture> noise
+    std::shared_ptr<Texture> color_map
 )
     : Instance(InstanceType::Terrain, glm::vec3{0.0f})
     , height_map(std::move(height_map))
     , control(std::move(control_map))
     , albedo(std::move(albedo_map))
     , normal(std::move(normal_map))
-    , orm(std::move(orm_map))
-    , noise(std::move(noise))
-
+    , color_map(std::move(color_map))
+    , texture_uv_scale(MAX_TEXTURES, 1.0f)
+    , texture_normal_depth(MAX_TEXTURES, 1.0f)
+    , texture_detile(MAX_TEXTURES, glm::vec2{1.0f})
 {
 
 }
@@ -306,10 +302,6 @@ void TerrainInstance::setControlMap(const std::shared_ptr<Texture>& texture) {
     control = texture;
 }
 
-void TerrainInstance::setNoise(const std::shared_ptr<Texture>& texture) {
-    noise = texture;
-}
-
 void TerrainInstance::setAlbedoMap(const std::shared_ptr<Texture>& texture) {
     albedo = texture;
 }
@@ -318,68 +310,28 @@ void TerrainInstance::setNormalMap(const std::shared_ptr<Texture>& texture) {
     normal = texture;
 }
 
-void TerrainInstance::setOrmMap(const std::shared_ptr<Texture>& texture) {
-    orm = texture;
+void TerrainInstance::setColorMap(const std::shared_ptr<Texture>& texture) {
+    color_map = texture;
 }
 
-void TerrainInstance::updateHeight(const void* data) {
+void TerrainInstance::updateHeight(const void* data) const {
     height_map->subImage(0, glm::uvec2{0}, glm::uvec2(terrain_size), data);
 }
 
-void TerrainInstance::updateHeight(glm::uvec2 offset, glm::uvec2 size, const void* data) {
+void TerrainInstance::updateHeight(glm::uvec2 offset, glm::uvec2 size, const void* data) const {
     height_map->subImage(0, offset, size, data);
 }
 
-void TerrainInstance::updateControl(const void *data) {
+void TerrainInstance::updateControl(const void *data) const {
     control->subImage(0, glm::uvec2{0}, glm::uvec2(terrain_size), data);
 }
 
-void TerrainInstance::updateControl(glm::uvec2 offset, glm::uvec2 size, const void *data) {
+void TerrainInstance::updateControl(glm::uvec2 offset, glm::uvec2 size, const void *data) const {
     control->subImage(0, offset, size, data);
-}
-
-void TerrainInstance::setChunkSize(float chunkSize) {
-    terrain_size = chunkSize;
 }
 
 void TerrainInstance::setVertexSpacing(float vertexSpacing) {
     vertex_spacing = vertexSpacing;
-}
-
-void TerrainInstance::setVertexNormalsDistance(float distance) {
-    vertex_normals_distance = distance;
-}
-
-void TerrainInstance::setHeightScale(float heightScale) {
-    height_scale = heightScale;
-}
-
-void TerrainInstance::setNoise1Scale(float noise1Scale) {
-    noise1_scale = noise1Scale;
-}
-
-void TerrainInstance::setNoise2Scale(float noise2Scale) {
-    noise2_scale = noise2Scale;
-}
-
-void TerrainInstance::setNoise2Angle(float noise2Angle) {
-    noise2_angle = noise2Angle;
-}
-
-void TerrainInstance::setNoise2Offset(float noise2Offset) {
-    noise2_offset = noise2Offset;
-}
-
-void TerrainInstance::setNoise3Scale(float noise3Scale) {
-    noise3_scale = noise3Scale;
-}
-
-void TerrainInstance::setMacroVariation1(const glm::vec3 &macroVariation1) {
-    macro_variation1 = macroVariation1;
-}
-
-void TerrainInstance::setMacroVariation2(const glm::vec3 &macroVariation2) {
-    macro_variation2 = macroVariation2;
 }
 
 void TerrainInstance::setMeshSize(int meshSize) {
@@ -388,4 +340,58 @@ void TerrainInstance::setMeshSize(int meshSize) {
 
 void TerrainInstance::setMeshLodCount(int meshLodCount) {
     mesh_lod_count = meshLodCount;
+}
+
+void TerrainInstance::setHeightScale(float height) {
+    height_scale = height;
+}
+
+void TerrainInstance::setTerrainSize(float size) {
+    terrain_size = size;
+}
+
+void TerrainInstance::enableTileBilerp()
+{
+    enable_tile_bilerp = 1;
+}
+
+void TerrainInstance::disableTileBilerp()
+{
+    enable_tile_bilerp = 0;
+}
+
+void TerrainInstance::setTileBilerp(bool bilerp)
+{
+    enable_tile_bilerp = bilerp;
+}
+
+void TerrainInstance::setNormalBilerpMultiplier(float multiplier)
+{
+    normal_bilerp_multiplier = multiplier;
+}
+
+void TerrainInstance::setTileBilerpMultiplier(float multiplier)
+{
+    tile_bilerp_multiplier = multiplier;
+}
+
+void TerrainInstance::setTextureUVScales(const std::vector<float>& scales) {
+    // Update all texture scales at once
+    // This would need to be implemented based on your material system
+}
+
+
+void TerrainInstance::setTextureColors(const std::vector<glm::vec4>& colors) {
+    // Update all texture colors at once
+    // This would need to be implemented based on your material system
+}
+
+void TerrainInstance::setTextureNormalDepths(const std::vector<float>& normal_depths) {
+    // Update all texture normal depths at once
+    // This would need to be implemented based on your material system
+}
+
+void TerrainInstance::setTextureDetiles(const std::vector<glm::vec2>& normal_depths)
+{
+
 }

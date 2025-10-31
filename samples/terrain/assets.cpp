@@ -34,6 +34,19 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .shading(Shading::Unlit)
             .color(glm::vec4(1.0f))
             .build(*this);
+
+    Material::builder()
+        .name("rock")
+        .shading(Shading::Lit)
+        // .color(glm::vec4(1.0f))
+    .diffuse(TextureLoader::load(
+            *this,
+                "../../assets/textures/stonework_albedo.png",
+            TextureLoaderFlags(TextureLoaderFlags::Space::sRGB)))
+    .normal(TextureLoader::load(
+                *this,
+                    "../../assets/textures/stonework_normal.png" ))
+        .build(*this);
 }
 
 LimitlessMaterials::Assets::Assets(Limitless::Context &ctx, Limitless::Renderer &renderer, const fs::path &path)

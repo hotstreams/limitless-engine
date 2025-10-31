@@ -22,7 +22,12 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
 
         #if defined (MeshEmitter)
             #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-                _out_data.TBN = getModelTBN(model_transform);
+                mat3 normal_matrix = transpose(inverse(mat3(model_transform)));
+                vec3 T = normalize(normal_matrix * getVertexTangent());
+                vec3 N = normalize(normal_matrix * getVertexNormal());
+                T = normalize(T - dot(T, N) * N);
+                _out_data.tangent = T;
+                _out_data.normal = N;
             #else
                 _out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
             #endif
@@ -64,10 +69,15 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
         #endif
     #else
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
+            mat3 normal_matrix = transpose(inverse(mat3(model_transform)));
             #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
-                _out_data.TBN = getModelTBN(model_transform, normal, computeTangent(normal));
+                // nothing, gets calculated in terrain fragment shader
             #else
-                _out_data.TBN = getModelTBN(model_transform);
+                vec3 T = normalize(normal_matrix * getVertexTangent());
+                vec3 N = normalize(normal_matrix * getVertexNormal());
+                T = normalize(T - dot(T, N) * N);
+                _out_data.tangent = T;
+                _out_data.normal = N;
             #endif
         #else
             #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)

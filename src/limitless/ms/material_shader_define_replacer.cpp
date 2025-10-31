@@ -57,7 +57,9 @@ void MaterialShaderDefineReplacer::replaceMaterialDependentDefine(Shader &shader
 std::string MaterialShaderDefineReplacer::getScalarUniformDefines(const Material &material) {
     std::string uniforms;
     for (const auto& [name, uniform] : material.getUniforms()) {
-        if (uniform->getType() == UniformType::Value || uniform->getType() == UniformType::Time) {
+        if (uniform->getType() == UniformType::Value ||
+            uniform->getType() == UniformType::ValueArray ||
+            uniform->getType() == UniformType::Time) {
             auto decl = getUniformDeclaration(*uniform);
             decl.erase(decl.find("uniform"), 7);
             uniforms.append(decl);

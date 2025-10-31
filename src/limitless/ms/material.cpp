@@ -9,6 +9,9 @@
 #include <limitless/ms/material_builder.hpp>
 
 #include <cstring>
+#include <iostream>
+
+#include "limitless/core/uniform/uniform_value_array.hpp"
 
 using namespace Limitless::ms;
 using namespace Limitless;
@@ -35,6 +38,7 @@ void Material::Buffer::initialize(const Material& material) {
             offset += offset % alignment ? alignment - offset % alignment : 0;
 
             uniform_offsets.emplace(uniform->getName(), offset);
+
             offset += size;
         }
     };
@@ -106,6 +110,100 @@ void Material::Buffer::map(std::vector<std::byte>& block, Uniform& uniform) {
             map<float>(block, uniform);
             break;
         }
+        case UniformType::ValueArray:
+            switch (uniform.getValueType()) {
+            case UniformValueType::Uint:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<unsigned int>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each uint array element is aligned to 16 bytes
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(unsigned int));
+                    }
+                }
+                break;
+            case UniformValueType::Int:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<int>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each int array element is aligned to 16 bytes
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(int));
+                    }
+                }
+                break;
+            case UniformValueType::Float:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<float>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each float array element is aligned to 16 bytes
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(float));
+                    }
+                }
+                break;
+            case UniformValueType::Vec2:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<glm::vec2>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each vec2 array element is aligned to 16 bytes
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(glm::vec2));
+                    }
+                }
+                break;
+            case UniformValueType::Vec3:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<glm::vec3>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each vec3 array element must be aligned to 16 bytes (treated as vec4)
+                    // We need to copy each vec3 element with proper padding
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(glm::vec3));
+                        // The 4th component (w) is automatically 0 due to padding
+                    }
+                }
+                break;
+            case UniformValueType::Vec4:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<glm::vec4>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each vec4 array element is aligned to 16 bytes
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(glm::vec4));
+                    }
+                }
+                break;
+            case UniformValueType::Mat4:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<glm::mat4>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each mat4 array element is aligned to 16 bytes per column (64 bytes total)
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 64, &uniform_array.getValues()[i], sizeof(glm::mat4));
+                    }
+                }
+                break;
+            case UniformValueType::Mat3:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<glm::mat3>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each mat3 array element is aligned to 16 bytes per column (48 bytes total)
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 48, &uniform_array.getValues()[i], sizeof(glm::mat3));
+                    }
+                }
+                break;
+            }
+            break;
     }
 }
 

@@ -8,7 +8,8 @@ vec3 regularShading(const ShadingContext sctx, const LightingContext lctx, const
     vec3 Fd = DiffuseBRDF(sctx, lctx);
     vec3 Fr = SpecularBRDF(sctx, lctx);
 
-    vec3 color = Fd + Fr;
+    vec3 energyCompensation = computeEnergyCompensation(sctx.F0, sctx.roughness, sctx.NoV);
+    vec3 color = Fd + Fr * energyCompensation;
 
 //#if defined (ENGINE_MATERIAL_REFRACTION)
 //    Fd *= (1.0 - sctx.transmission);

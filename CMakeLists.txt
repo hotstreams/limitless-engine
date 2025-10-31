@@ -211,6 +211,8 @@ set(ENGINE_SRC
     src/limitless/scene.cpp
     src/limitless/skybox/skybox.cpp
     src/limitless/log.cpp
+        include/limitless/core/uniform/uniform_value_array.hpp
+        src/limitless/core/uniform/uniform_value_array.cpp
 )
 
 #########################################

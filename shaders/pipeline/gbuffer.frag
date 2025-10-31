@@ -1,6 +1,17 @@
 ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
+// Debug visualization modes
+// #define DEBUG_VIEW_MODE 1  // Vertex Normals (geometry)
+// #define DEBUG_VIEW_MODE 2  // Tangents
+// #define DEBUG_VIEW_MODE 3  // Bitangents  
+// #define DEBUG_VIEW_MODE 4  // Normal Map (raw texture)
+// #define DEBUG_VIEW_MODE 5  // Final Normals (after TBN)
+// #define DEBUG_VIEW_MODE 6  // UV Coordinates
+// #define DEBUG_VIEW_MODE 7  // UV Derivatives (mipmap issues - RED = artifacts!)
+// #define DEBUG_VIEW_MODE 8  // View Angle (RED = grazing, GREEN = perpendicular)
+// #define DEBUG_VIEW_MODE 9  // Tangent Length (GREEN = good, RED = bad)
+
 #include "../interface_block/fragment.glsl"
 #include "../instance/instance_fs.glsl"
 #include "./scene.glsl"
@@ -16,9 +27,20 @@ layout (location = 5) out vec4 outline;
 void main() {
     MaterialContext mctx = computeMaterialContext();
 
-    albedo = computeMaterialColor(mctx).rgb;
+    vec3 computed_normal = computeMaterialNormal(mctx);
 
-    normal = computeMaterialNormal(mctx);
+#if defined(DEBUG_VIEW_MODE)
+    // Debug visualization active - output debug view
+    vec3 debug_color = debugVisualize(mctx, computed_normal);
+    albedo = debug_color;
+    normal = vec3(0.0, 0.0, 1.0); // Flat normal for debug
+    emissive = vec3(0.0);
+#else
+    // Normal rendering
+    albedo = computeMaterialColor(mctx).rgb;
+    normal = computed_normal;
+    emissive = computeMaterialEmissiveColor(mctx);
+#endif
 
     properties.r = mctx.roughness;
     properties.g = mctx.metallic;
@@ -29,7 +51,5 @@ void main() {
     info.b = 0.0;
 
     outline.rgb = getOutlineColor();
-    outline.a = getIsOutlined() == 1u ? getId() / 65535.0 : 0.0;
-
-    emissive = computeMaterialEmissiveColor(mctx);
+    outline.a = getIsOutlined() == 1u ? float(getId()) / 65535.0 : 0.0;
 }

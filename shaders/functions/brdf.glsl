@@ -25,7 +25,7 @@ float F_Schlick(float F0, float f90, float VoH) {
 float D_GGX(float roughness, float NoH) {
     float oneMinusNoHSquared = 1.0 - NoH * NoH;
     float a = NoH * roughness;
-    float k = roughness / (oneMinusNoHSquared + a * a);
+    float k = min(roughness / (oneMinusNoHSquared + a * a), 453.5);
     float d = k * k * (1.0 / PI);
     return d;
 }
@@ -38,6 +38,7 @@ float V_SmithGGXCorrelated(float NoV, float NoL, float a2, float lambdaV) {
 
 // Hammon 2017, "PBR Diffuse Lighting for GGX+Smith Microsurfaces"
 float V_SmithGGXCorrelatedFast(float roughness, float NoV, float NoL) {
+    // NoV and NoL are already clamped to MIN_NoV/MIN_NoL in their respective contexts
     float v = 0.5 / mix(2.0 * NoL * NoV, NoL + NoV, roughness);
     return v;
 }
@@ -81,4 +82,24 @@ float Fd_Wrap(float NoL, float w) {
     float w1 = 1.0 + w;
     float x = w1 * w1;
     return (NoL + w) / x;
+}
+
+// Energy compensation for multiple scattering (UE4 approximation)
+// Based on "Real Shading in Unreal Engine 4" by Brian Karis
+vec3 EnvBRDFApprox(vec3 f0, float roughness, float NoV) {
+    vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+    vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+    vec4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    return f0 * AB.x + AB.y;
+}
+
+vec3 computeEnergyCompensation(vec3 f0, float roughness, float NoV) {
+    vec3 dfg = EnvBRDFApprox(f0, roughness, NoV);
+    return 1.0 + f0 * (1.0 / dfg.y - 1.0);
+}
+
+float computeDielectricF0(float reflectance) {
+    return 0.16 * reflectance * reflectance;
 }

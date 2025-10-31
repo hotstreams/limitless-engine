@@ -16,18 +16,24 @@ namespace Limitless {
 
     class TerrainInstance : public Instance {
     public:
-        struct control_value final {
-            uint32_t base_id    : 6;
-            uint32_t extra_id   : 6;
-            uint32_t blend      : 8;
-            uint32_t reserved   : 12;
+        static constexpr uint8_t MAX_TEXTURES = 64;
 
-            static uint32_t encode(struct control_value ctrl) {
+        struct control_value final {
+            uint32_t base_id    : 6;   // 0-5
+            uint32_t extra_id   : 6;   // 6-11
+            uint32_t blend      : 8;   // 12-19
+            uint32_t scale      : 3;   // 20-22
+            uint32_t rotation   : 4;   // 23-26
+            uint32_t reserved   : 5;   // 27-31
+
+            static uint32_t encode(control_value ctrl) {
                 uint32_t result = 0;
                 result |= (ctrl.base_id & 0x3F);
                 result |= (ctrl.extra_id & 0x3F) << 6;
                 result |= (ctrl.blend & 0xFF) << 12;
-                result |= (ctrl.reserved & 0xFFF) << 20;
+                result |= (ctrl.scale & 0x7) << 20;
+                result |= (ctrl.rotation & 0xF) << 23;
+                result |= (ctrl.reserved & 0x1F) << 27;
                 return result;
             }
 
@@ -36,12 +42,14 @@ namespace Limitless {
                 ctrl.base_id = value & 0x3F;
                 ctrl.extra_id = (value >> 6) & 0x3F;
                 ctrl.blend = (value >> 12) & 0xFF;
-                ctrl.reserved = (value >> 20) & 0xFFF;
+                ctrl.scale = (value >> 20) & 0x7;
+                ctrl.rotation = (value >> 23) & 0xF;
+                ctrl.reserved = (value >> 27) & 0x1F;
                 return ctrl;
             }
         };
-    public:
-        // terrain size in world units
+    private:
+        // terrain size in number of vertices
         float terrain_size = 128.0f;
 
         // spacing between vertices
@@ -50,39 +58,32 @@ namespace Limitless {
         // height scale factor
         float height_scale = 1.0f;
 
-        // texture chunk scale
-        // to how many tiles is the texture applied
-        float texture_scale = 4.0f;
-
-        float vertex_normals_distance = 20.0f;
-
-        // adds macro variation pattern
-        bool macro_variation = false;
-
-        float noise1_scale = 0.225f;
-        float noise2_scale = 0.04f;
-        float noise2_angle = 0.0f;
-        float noise2_offset = 0.5f;
-        float noise3_scale = 0.076f;
-
-        glm::vec3 macro_variation1 = glm::vec3(0.5f);
-        glm::vec3 macro_variation2 = glm::vec3(0.33f);
-
-        bool show_tiles = false;
-        bool show_terrain_size = false;
-        bool show_vertex_normals_distance = false;
-        bool show_texture_chunks = false;
-
+        // climap mesh size
         int mesh_size = 32;
+
+        // clipmap lod count
         int mesh_lod_count = 6;
+
+        // distance at which mipmap starts
+        float bias_distance = 64.0f;
+
+        float mipmap_bias = 1.0f;
+
+        float depth_blur = 0.0f;
+
+        float blend_sharpness = 8.0f;
+
+        uint32_t enable_tile_bilerp = 1;
+
+        float normal_bilerp_multiplier = 1.0f;
+
+        float tile_bilerp_multiplier = 1.0f;
 
         struct Mesh {
             std::shared_ptr<ModelInstance> cross;
-
             std::shared_ptr<InstancedInstance> tiles;
             std::shared_ptr<InstancedInstance> fillers;
             std::shared_ptr<InstancedInstance> trims;
-            std::vector<std::shared_ptr<ModelInstance>> trims_test;
             std::shared_ptr<InstancedInstance> seams;
         } mesh;
 
@@ -90,8 +91,11 @@ namespace Limitless {
         std::shared_ptr<Texture> control;
         std::shared_ptr<Texture> albedo;
         std::shared_ptr<Texture> normal;
-        std::shared_ptr<Texture> orm;
-        std::shared_ptr<Texture> noise;
+        std::shared_ptr<Texture> color_map;
+
+        std::vector<float> texture_uv_scale;
+        std::vector<float> texture_normal_depth;
+        std::vector<glm::vec2> texture_detile;
 
         void snap(const Camera& p_cam_pos);
     public:
@@ -100,34 +104,38 @@ namespace Limitless {
             std::shared_ptr<Texture> control_map,
             std::shared_ptr<Texture> albedo_map,
             std::shared_ptr<Texture> normal_map,
-            std::shared_ptr<Texture> orm_map,
-            std::shared_ptr<Texture> noise
+            std::shared_ptr<Texture> color_map
         );
 
         void initializeMesh(Assets& assets);
 
         void setHeightMap(const std::shared_ptr<Texture>& height_map);
+        
+        void setTextureUVScales(const std::vector<float>& scales);
+        void setTextureNormalDepths(const std::vector<float>& normal_depths);
+        void setTextureDetiles(const std::vector<glm::vec2>& normal_depths);
+
+
+        void setTextureColors(const std::vector<glm::vec4>& colors);
+
         void setControlMap(const std::shared_ptr<Texture>& control_map);
-        void setNoise(const std::shared_ptr<Texture>& noise);
         void setAlbedoMap(const std::shared_ptr<Texture>& albedo_map);
         void setNormalMap(const std::shared_ptr<Texture>& normal_map);
-        void setOrmMap(const std::shared_ptr<Texture>& orm_map);
+        void setColorMap(const std::shared_ptr<Texture>& color_map);
 
-        void setChunkSize(float chunkSize);
-        void setVertexSpacing(float vertexSpacing);
-        void setVertexNormalsDistance(float distance);
+        void setVertexSpacing(float vertex_spacing);
 
-        void setHeightScale(float heightScale);
-        void setNoise1Scale(float noise1Scale);
-        void setNoise2Scale(float noise2Scale);
-        void setNoise2Angle(float noise2Angle);
-        void setNoise2Offset(float noise2Offset);
-        void setNoise3Scale(float noise3Scale);
-        void setMacroVariation1(const glm::vec3 &macroVariation1);
-        void setMacroVariation2(const glm::vec3 &macroVariation2);
+        void setMeshSize(int mesh_size);
+        void setMeshLodCount(int mesh_lod_Count);
+        void setHeightScale(float height);
+        void setTerrainSize(float size);
 
-        void setMeshSize(int meshSize);
-        void setMeshLodCount(int meshLodCount);
+        void enableTileBilerp();
+        void disableTileBilerp();
+        void setTileBilerp(bool bilerp);
+
+        void setNormalBilerpMultiplier(float multiplier);
+        void setTileBilerpMultiplier(float multiplier);
 
         /**
          * Updates full height map from data
@@ -138,28 +146,28 @@ namespace Limitless {
          *
          * to get height more than 1.0 set height_scale
          */
-        void updateHeight(const void* data);
+        void updateHeight(const void* data) const;
 
         /**
          * Updates part of height map with offset and size
          */
-        void updateHeight(glm::uvec2 offset, glm::uvec2 size, const void* data);
+        void updateHeight(glm::uvec2 offset, glm::uvec2 size, const void* data) const;
 
         /**
          * Updates full control map from data
          *
          * expects pointer to TerrainInstance::control_value / uint32_t
          */
-        void updateControl(const void* data);
+        void updateControl(const void* data) const;
 
         /**
          * Updates part of control map with offset and size
          */
-        void updateControl(glm::uvec2 offset, glm::uvec2 size, const void* data);
+        void updateControl(glm::uvec2 offset, glm::uvec2 size, const void* data) const;
 
         [[nodiscard]] const auto& getMesh() const noexcept { return mesh; }
 
-        void update(const Limitless::Camera &camera) override;
+        void update(const Camera &camera) override;
 
         std::unique_ptr<Instance> clone() noexcept override {
             return std::make_unique<TerrainInstance>(*this);

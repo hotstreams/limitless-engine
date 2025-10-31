@@ -6,6 +6,8 @@
 #include <limitless/core/texture/texture.hpp>
 #include <limitless/core/uniform/uniform.hpp>
 
+#include "limitless/core/uniform/uniform_value_array.hpp"
+
 
 using namespace Limitless;
 
@@ -133,6 +135,7 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
     switch (uniform.getType()) {
         case UniformType::Time:
         case UniformType::Value:
+        case UniformType::ValueArray:
             switch (uniform.getValueType()) {
                 case UniformValueType::Float:
                     declaration.append("float ");
@@ -186,7 +189,43 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
             break;
     }
 
-    declaration.append(uniform.getName() + ";\n");
+    if (uniform.getType() != UniformType::ValueArray) {
+        declaration.append(uniform.getName() + ";\n");
+    } else {
+        size_t count = 0;
+        switch (uniform.getValueType())
+        {
+            case UniformValueType::Float:
+                count = static_cast<const UniformValueArray<float>&>(uniform).getCount();
+                break;
+            case UniformValueType::Int:
+                count = static_cast<const UniformValueArray<int>&>(uniform).getCount();
+                break;
+            case UniformValueType::Uint:
+                count = static_cast<const UniformValueArray<unsigned int>&>(uniform).getCount();
+                break;
+            case UniformValueType::Vec2:
+                count = static_cast<const UniformValueArray<glm::vec2>&>(uniform).getCount();
+                break;
+            case UniformValueType::Vec3:
+                count = static_cast<const UniformValueArray<glm::vec3>&>(uniform).getCount();
+                break;
+            case UniformValueType::Vec4:
+                count = static_cast<const UniformValueArray<glm::vec4>&>(uniform).getCount();
+                break;
+            case UniformValueType::IVec4:
+                count = static_cast<const UniformValueArray<glm::ivec4>&>(uniform).getCount();
+                break;
+            case UniformValueType::Mat3:
+                count = static_cast<const UniformValueArray<glm::mat3>&>(uniform).getCount();
+                break;
+            case UniformValueType::Mat4:
+                count = static_cast<const UniformValueArray<glm::mat4>&>(uniform).getCount();
+                break;
+        }
+
+        declaration.append(uniform.getName() + "[" + std::to_string(count) + "]" + ";\n");
+    }
 
     return declaration;
 }
@@ -221,6 +260,34 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
         }
         case UniformType::Time:
             return sizeof(float);
+        case UniformType::ValueArray:
+            switch (uniform.getValueType()) {
+            case UniformValueType::Float:
+                // std140: Each float array element is aligned to 16 bytes
+                return static_cast<const UniformValueArray<float>&>(uniform).getCount() * 16;
+            case UniformValueType::Int:
+                // std140: Each int array element is aligned to 16 bytes
+                return static_cast<const UniformValueArray<int>&>(uniform).getCount() * 16;
+            case UniformValueType::Uint:
+                // std140: Each uint array element is aligned to 16 bytes
+                return static_cast<const UniformValueArray<unsigned int>&>(uniform).getCount() * 16;
+            case UniformValueType::Vec2:
+                // std140: Each vec2 array element is aligned to 16 bytes
+                return static_cast<const UniformValueArray<glm::vec2>&>(uniform).getCount() * 16;
+            case UniformValueType::Vec3:
+                // std140: Each vec3 array element is aligned to 16 bytes (treated as vec4)
+                return static_cast<const UniformValueArray<glm::vec3>&>(uniform).getCount() * 16;
+            case UniformValueType::Vec4:
+                // std140: Each vec4 array element is aligned to 16 bytes
+                return static_cast<const UniformValueArray<glm::vec4>&>(uniform).getCount() * 16;
+            case UniformValueType::Mat3:
+                // std140: Each mat3 array element is aligned to 16 bytes per column (48 bytes total)
+                return static_cast<const UniformValueArray<glm::mat3>&>(uniform).getCount() * 48;
+            case UniformValueType::Mat4:
+                // std140: Each mat4 array element is aligned to 16 bytes per column (64 bytes total)
+                return static_cast<const UniformValueArray<glm::mat4>&>(uniform).getCount() * 64;
+            }
+            break;
     }
 
     return 0;
@@ -245,6 +312,10 @@ size_t Limitless::getUniformAlignment(const Uniform& uniform) {
                 case UniformValueType::Mat4:
                     return sizeof(glm::vec4);
             }
+            break;
+        case UniformType::ValueArray:
+            // std140: All arrays have 16-byte base alignment regardless of element type
+            return 16;
             break;
         case UniformType::Sampler: {
             size_t alignment = 0;

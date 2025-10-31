@@ -19,7 +19,8 @@
 
         #if defined (MeshEmitter)
             #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-                mat3 TBN;
+                vec3 tangent;
+                vec3 normal;
             #else
                 vec3 normal;
             #endif
@@ -63,7 +64,8 @@
 #else
     out _vertex_data {
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-            mat3 TBN;
+            vec3 tangent;
+            vec3 normal;
         #else
             vec3 normal;
         #endif

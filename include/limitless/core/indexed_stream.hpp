@@ -85,7 +85,7 @@ namespace Limitless {
 
             auto cp = rhs.indices;
 
-            std::transform(cp.begin(), cp.end(), cp.begin(), std::bind2nd(std::plus(), this->stream.size()));
+            // std::transform(cp.begin(), cp.end(), cp.begin(), std::bind2nd(std::plus(), this->stream.size()));
 
             indices.insert(indices.begin(), cp.begin(), cp.end());
 

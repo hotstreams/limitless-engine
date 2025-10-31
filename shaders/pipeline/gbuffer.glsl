@@ -35,7 +35,7 @@ vec3 getGBufferColor(vec2 uv) {
 }
 
 vec3 getGBufferNormal(vec2 uv) {
-    return texture(_normal_texture, uv).xyz;
+   return normalize(texture(_normal_texture, uv).xyz);
 }
 
 vec3 getGBufferProps(vec2 uv) {

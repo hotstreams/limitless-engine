@@ -8,6 +8,7 @@ namespace Limitless {
         Vec2,
         Vec3,
         Vec4,
+        IVec4,
         Mat3,
         Mat4
     };

@@ -108,8 +108,10 @@ mat4 getModelTransform() {
 
         vec3 T = normalize(normal_matrix * getVertexTangent());
         vec3 N = normalize(normal_matrix * getVertexNormal());
+        // Gram-Schmidt orthogonalization to ensure T is perpendicular to N
         T = normalize(T - dot(T, N) * N);
-        vec3 B = cross(N, T);
+        // Compute bitangent to ensure right-handed coordinate system
+        vec3 B = normalize(cross(N, T));
 
         return mat3(T, B, N);
     }
@@ -157,6 +159,6 @@ mat4 getModelTransform() {
     //TODO: remove?
     // added because material_context.glsl needed "getVertexTBN" to be compiled in vertex shader
     mat3 getVertexTBN() {
-        return getModelTBN(getModelTransform(), getVertexNormal(), getVertexTangent());
+        return getModelTBN(getModelTransform());
     }
 #endif

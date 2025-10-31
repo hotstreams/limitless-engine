@@ -12,7 +12,7 @@
 namespace LimitlessMaterials {
     class MaterialsScene {
     private:
-        glm::uvec2 window_size {1080, 720};
+        glm::uvec2 window_size {1280, 720};
 
         Limitless::Context context;
         Limitless::Camera camera;
@@ -29,7 +29,7 @@ namespace LimitlessMaterials {
                         .title("material-demo")
                         .size(window_size)
                         .cursor(Limitless::CursorMode::Normal)
-                        .swap_interval(1)
+                        .swap_interval(0)
                         .sticky_keys()
                         .on_framebuffer_change([&] (glm::uvec2 size) {
                             onFramebufferChange(size);
@@ -49,7 +49,7 @@ namespace LimitlessMaterials {
                 .build()}
             , assets {context, *render, ENGINE_ASSETS_DIR}
             , scene {context, assets} {
-            camera.setPosition({256.0f, 10.0f, 256.0f});
+            camera.setPosition({280.0f, 30.0f, 256.0f});
             assets.recompileAssets(context, render->getSettings());
         }
 

@@ -18,7 +18,8 @@ in _vertex_data {
 
     #if defined (MeshEmitter)
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-            mat3 TBN;
+            vec3 tangent;
+            vec3 normal;
         #else
             vec3 normal;
         #endif
@@ -166,8 +167,12 @@ vec3 getVertexPosition() {
 
 #if defined (MeshEmitter)
     #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-        mat3 getVertexTBN() {
-            return _in_data.TBN;
+        vec3 getVertexTangent() {
+            return _in_data.tangent;
+        }
+        
+        vec3 getVertexNormal() {
+            return _in_data.normal;
         }
     #else
        vec3 getVertexNormal() {
