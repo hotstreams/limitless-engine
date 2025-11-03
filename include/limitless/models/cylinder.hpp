@@ -1,10 +1,10 @@
 #pragma once
 
-#include <limitless/models/elementary_model.hpp>
+#include <limitless/models/model.hpp>
 #include <limitless/core/vertex.hpp>
 
 namespace Limitless {
-    class Cylinder : public ElementaryModel {
+    class Cylinder : public Model {
     public:
         [[nodiscard]] std::vector<glm::vec3> generateNormals() const;
         [[nodiscard]] std::vector<glm::vec3> generateUnit() const;

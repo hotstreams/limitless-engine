@@ -2,6 +2,8 @@
 #include "../shading/shading_context.glsl"
 #include "./light.glsl"
 
+#define ENGINE_MATERIAL_SPECULAR_GGX
+
 struct LightingContext {
     vec3 L;
     float NoL;
@@ -15,7 +17,7 @@ struct LightingContext {
     float attenuation;
 
 #if defined (ENGINE_MATERIAL_SPECULAR_GGX)
-    float lambdV;
+    float lambdaV;
 #endif
 };
 

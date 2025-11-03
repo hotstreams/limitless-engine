@@ -8,18 +8,18 @@ namespace Limitless::fx {
     class MeshLocationAttachment final : public InitialMeshLocation<Particle> {
     private:
         struct LocationCache {
-            std::shared_ptr<AbstractMesh> selected_mesh;
+            std::shared_ptr<Mesh> selected_mesh;
             size_t vertex_index;
             std::pair<float, float> triangle_position;
             glm::vec3 last_position;
         };
         std::map<size_t, LocationCache> cache;
     public:
-        explicit MeshLocationAttachment(std::shared_ptr<AbstractMesh> mesh) noexcept
+        explicit MeshLocationAttachment(std::shared_ptr<Mesh> mesh) noexcept
             : InitialMeshLocation<Particle>(ModuleType::MeshLocationAttachment, std::move(mesh)) {
         }
 
-        explicit MeshLocationAttachment(std::shared_ptr<AbstractModel> mesh) noexcept
+        explicit MeshLocationAttachment(std::shared_ptr<Model> mesh) noexcept
             : InitialMeshLocation<Particle>(ModuleType::MeshLocationAttachment, std::move(mesh)) {
         }
 
@@ -29,13 +29,13 @@ namespace Limitless::fx {
         MeshLocationAttachment& operator=(const MeshLocationAttachment&) noexcept = default;
 
         void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, size_t index) noexcept override {
-            const auto selected_mesh = this->getSelectedMesh();
-            const auto vertex_index = this->getVertexIndex(selected_mesh);
-            const auto triangle_pos = this->getTrianglePosition();
-            const auto mesh_position = this->getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
-            particle.position += mesh_position;
-
-            cache[index] = { selected_mesh, vertex_index, triangle_pos, mesh_position };
+//            const auto selected_mesh = this->getSelectedMesh();
+//            const auto vertex_index = this->getVertexIndex(selected_mesh);
+//            const auto triangle_pos = this->getTrianglePosition();
+//            const auto mesh_position = this->getPositionOnMesh(selected_mesh, vertex_index, triangle_pos.first, triangle_pos.second);
+//            particle.position += mesh_position;
+//
+//            cache[index] = { selected_mesh, vertex_index, triangle_pos, mesh_position };
         }
 
         void deinitialize(const std::vector<size_t>& indices) override {

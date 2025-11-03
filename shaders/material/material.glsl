@@ -116,7 +116,6 @@ layout (std140) uniform MATERIAL_BUFFER {
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
     uniform sampler2D _material_orm_texture;
 #endif
-
     ENGINE_MATERIAL_CUSTOM_SAMPLERS
 #endif
 

@@ -6,6 +6,7 @@
 #include <limitless/ms/shading.hpp>
 #include <limitless/renderer/shader_type.hpp>
 #include <limitless/core/shader/shader_define_replacer.hpp>
+#include <limitless/core/vertex_stream/vertex_stream.hpp>
 
 namespace Limitless {
     class Shader;
@@ -76,6 +77,29 @@ namespace Limitless {
                 { SnippetDefineType::CustomShading, "ENGINE_MATERIAL_SHADING_CUSTOM_SNIPPET" },
             };
 
+            enum class VertexDefineType {
+                Stream,
+                VertexContext,
+                FragmentContext,
+                InterfaceBlockOut,
+                InterfaceBlockIn,
+                ContextAssignment,
+                PassThrough
+            };
+
+            static inline std::unordered_map<VertexDefineType, std::string> VERTEX_STREAM_DEFINE =
+            {
+                { VertexDefineType::Stream, "ENGINE::VERTEX_STREAM" },
+                { VertexDefineType::VertexContext, "ENGINE::VERTEX_CONTEXT" },
+                { VertexDefineType::FragmentContext, "ENGINE::FRAGMENT_CONTEXT" },
+                { VertexDefineType::InterfaceBlockOut, "ENGINE::INTERFACE_BLOCK_OUT" },
+                { VertexDefineType::InterfaceBlockIn, "ENGINE::INTERFACE_BLOCK_IN" },
+                { VertexDefineType::ContextAssignment, "ENGINE_ASSIGN_STREAM_ATTRIBUTES" },
+                { VertexDefineType::PassThrough, "ENGINE_VERTEX_PASS_THROUGH" }
+            };
+
+            static inline std::string vertex_input_prefix = "_vertex_";
+
             static std::string getPropertyDefines(const Material& material);
             static std::string getShadingDefines(const Material& material);
             static std::string getModelDefines(InstanceType model_shader);
@@ -84,9 +108,78 @@ namespace Limitless {
             static std::string getScalarUniformDefines(const Material& material);
             static std::string getSamplerUniformDefines(const Material& material);
 
+
+            static std::string getMaterialBufferDeclaration(const Material& material);
+            static std::string getMaterialGettersDeclaration(const Material& material);
+
+
+            /*
+             *  Vertex Input Stream
+             */
+            static std::string getVertexStreamDeclaration(InstanceType instance_type);
+            static std::string getVertexStreamGettersDeclaration(InstanceType instance_type);
+
+            static std::string getVertexContextDeclaration(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getFragmentContextDeclaration(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextCompute(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextInterfaceBlock(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextInterfaceBlockOut(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextInterfaceBlockIn(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexContextInterfaceBlockInGetters(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getFragmentVertexContextCompute(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
+            static std::string getVertexPassThrough(
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType type
+            );
+
             MaterialShaderDefineReplacer() noexcept = default;
         public:
-            static void replaceMaterialDependentDefine(Shader& shader, const Material& material, InstanceType model_shader);
+            static void replaceMaterialDependentDefine(
+                Shader& shader,
+                const Material& material,
+                const RendererSettings& settings,
+                InstanceType model_shader);
         };
     }
 }

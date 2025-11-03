@@ -34,8 +34,8 @@ namespace Limitless::ms {
      *
      * Should be compiled using MaterialCompiler to generate shader for usage
      */
-    class Material final {
-    private:
+    class Material {
+    protected:
         /**
          * Contains set of predefined properties
          *
@@ -117,6 +117,7 @@ namespace Limitless::ms {
          */
         bool normal_map {};
         bool orm_map {};
+        bool default_computation {true};
 
         /**
          * Material Buffer
@@ -177,7 +178,7 @@ namespace Limitless::ms {
         friend bool operator==(const Material& lhs, const Material& rhs) noexcept;
         friend bool operator<(const Material& lhs, const Material& rhs) noexcept;
     public:
-        ~Material() = default;
+        virtual ~Material() = default;
 
         /**
          * Material copy constructor
@@ -216,6 +217,7 @@ namespace Limitless::ms {
         [[nodiscard]] float getTransmission() const;
         [[nodiscard]] bool getNormalMap() const;
         [[nodiscard]] bool getOrmMap() const;
+        [[nodiscard]] bool getDefaultComputation() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getDiffuseTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getNormalTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getEmissiveMaskTexture() const;
@@ -294,7 +296,7 @@ namespace Limitless::ms {
          */
         static Builder builder();
 
-        private:
+        protected:
             /**
              *  Constructs material from builder
              */

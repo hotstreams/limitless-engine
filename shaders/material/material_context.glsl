@@ -53,7 +53,10 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
     MaterialContext mctx;
 
 //    mctx.vertex_position = getVertexPosition();
+
+#if defined (ENGINE_VERTEX_NORMAL)
     mctx.vertex_normal = getVertexNormal();
+#endif
 
 #if defined (ENGINE_MATERIAL_COLOR)
     mctx.color = getMaterialColor();
@@ -131,19 +134,19 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 
 ENGINE_MATERIAL_GLOBAL_FRAGMENT_DEFINITIONS
 
-void customMaterialContext(inout MaterialContext mctx) {
+void customMaterialContext(inout MaterialContext mctx, const VertexContext vctx) {
     ENGINE_MATERIAL_FRAGMENT_SNIPPET
 }
 
-MaterialContext computeMaterialContext() {
-    MaterialContext mctx = computeDefaultMaterialContext(getVertexUV());
-    customMaterialContext(mctx);
-    return mctx;
-}
+MaterialContext computeMaterialContext(VertexContext vctx) {
+    #if defined (ENGINE_MATERIAL_DEFAULT_COMPUTATION) && defined (ENGINE_VERTEX_UV)
+        MaterialContext mctx = computeDefaultMaterialContext(vctx.uv);
+    #else
+        MaterialContext mctx;
+    #endif
 
-MaterialContext computeMaterialContext(vec2 uv) {
-    MaterialContext mctx = computeDefaultMaterialContext(uv);
-    customMaterialContext(mctx);
+    customMaterialContext(mctx, vctx);
+
     return mctx;
 }
 

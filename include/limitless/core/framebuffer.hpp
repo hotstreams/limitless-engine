@@ -95,6 +95,7 @@ namespace Limitless {
         static Framebuffer asRGB8LinearClampToEdgeWithDepth(glm::vec2 size);
         static Framebuffer asRGB16FNearestClampToEdge(glm::uvec2 size);
         static Framebuffer asRGB16FNearestClampToEdgeWithDepth(glm::uvec2 size, const std::shared_ptr<Texture>& depth);
+        static Framebuffer fromTexture(std::shared_ptr<Texture> texture, uint32_t layer = 0);
     };
 
     class DefaultFramebuffer : public RenderTarget {

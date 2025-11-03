@@ -10,8 +10,8 @@ namespace Limitless::ms {
 }
 
 namespace Limitless {
-    class AbstractMesh;
-    class AbstractModel;
+    class Mesh;
+    class Model;
     class EffectInstance;
     class Texture;
     class Skybox;
@@ -47,8 +47,8 @@ namespace Limitless {
         /**
          * Resource containers that hold specific type of assets
          */
-        ResourceContainer<AbstractModel> models;
-        ResourceContainer<AbstractMesh> meshes;
+        ResourceContainer<Model> models;
+        ResourceContainer<Mesh> meshes;
         ResourceContainer<Texture> textures;
         ResourceContainer<ms::Material> materials;
         ResourceContainer<Skybox> skyboxes;

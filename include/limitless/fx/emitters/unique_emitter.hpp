@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/fx/emitters/abstract_emitter.hpp>
-#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/fx/modules/module.hpp>
 
 #include <memory>
@@ -42,7 +42,7 @@ namespace Limitless::fx {
         // emitter type
         AbstractEmitter::Type emitter_type {};
         // optional rendering mesh
-        std::optional<std::shared_ptr<AbstractMesh>> mesh {};
+        std::optional<std::shared_ptr<Mesh>> mesh {};
         // material itself with all prop and uniform values
         std::shared_ptr<ms::Material> material;
     };

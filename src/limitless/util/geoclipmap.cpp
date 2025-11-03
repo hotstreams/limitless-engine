@@ -1,33 +1,37 @@
-#include <limitless/core/indexed_stream.hpp>
 #include "limitless/util/geoclipmap.hpp"
+
+#include "limitless/core/vertex_stream/vertex_stream_builder.hpp"
+#include "limitless/models/mesh_builder.hpp"
+
 
 using namespace Limitless;
 
-std::shared_ptr<AbstractMesh> GeoClipMap::_create_mesh(
-        std::vector<VertexNormalTangent>&& p_vertices,
+std::shared_ptr<Mesh> GeoClipMap::_create_mesh(
+        std::vector<TerrainVertex>&& p_vertices,
         std::vector<uint32_t>&& p_indices,
         std::string name
 ) {
-    auto mesh = std::make_shared<Limitless::Mesh>(
-        std::make_unique<Limitless::IndexedVertexStream<Limitless::VertexNormalTangent>>(
-                std::move(p_vertices),
-                std::move(p_indices),
-                Limitless::VertexStreamUsage::Dynamic,
-                Limitless::VertexStreamDraw::Triangles
-        ),
-        name
-    );
-
-	return mesh;
+	return Mesh::builder()
+		 .name(name)
+		 .vertex_stream(
+			 VertexStream::builder()
+				 .attribute(0, VertexStream::Attribute::Position, sizeof(TerrainVertex), offsetof(TerrainVertex, position))
+				 .vertices(p_vertices)
+				 .indices(p_indices)
+				 .usage(VertexStream::Usage::Static)
+				 .draw(VertexStream::Draw::Triangles)
+				 .build()
+		 )
+		 .build();
 }
 
-std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size, const int p_levels) {
-    std::shared_ptr<AbstractMesh> tile_mesh;
-    std::shared_ptr<AbstractMesh> filler_mesh;
-    std::shared_ptr<AbstractMesh> trim_mesh;
-    std::shared_ptr<AbstractMesh> cross_mesh;
-    std::shared_ptr<AbstractMesh> seam_mesh;
-    std::shared_ptr<AbstractMesh> skirt_mesh;
+std::vector<std::shared_ptr<Mesh>> GeoClipMap::generate(const int p_size, const int p_levels) {
+    std::shared_ptr<Mesh> tile_mesh;
+    std::shared_ptr<Mesh> filler_mesh;
+    std::shared_ptr<Mesh> trim_mesh;
+    std::shared_ptr<Mesh> cross_mesh;
+    std::shared_ptr<Mesh> seam_mesh;
+    std::shared_ptr<Mesh> skirt_mesh;
 
 	int TILE_RESOLUTION = p_size;
 	int PATCH_VERT_RESOLUTION = TILE_RESOLUTION + 1;
@@ -41,7 +45,7 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 	// LOD0: 4 tiles are placed as a square in each center quadrant, for a total of 16 tiles
 	// LOD1..N 3 tiles make up a corner, 4 corners uses 12 tiles
 	{
-		std::vector<VertexNormalTangent> vertices {};
+		std::vector<TerrainVertex> vertices {};
 		vertices.resize(PATCH_VERT_RESOLUTION * PATCH_VERT_RESOLUTION);
         std::vector<uint32_t> indices;
 		indices.resize(TILE_RESOLUTION * TILE_RESOLUTION * 6);
@@ -75,7 +79,7 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 	// These meshes are small strips that fill in the gaps between LOD1+,
 	// but only on the camera X and Z axes, and not on LOD0.
 	{
-		std::vector<VertexNormalTangent> vertices;
+		std::vector<TerrainVertex> vertices;
 		vertices.resize(PATCH_VERT_RESOLUTION * 8);
 		std::vector<uint32_t> indices;
 		indices.resize(TILE_RESOLUTION * 24);
@@ -148,7 +152,7 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 	// This mesh is a skinny L shape that fills in the gaps between
 	// LOD meshes when they are moving at different speeds and have gaps
 	{
-		std::vector<VertexNormalTangent> vertices;
+		std::vector<TerrainVertex> vertices;
 		vertices.resize((CLIPMAP_VERT_RESOLUTION * 2 + 1) * 2);
 		std::vector<uint32_t> indices;
 		indices.resize((CLIPMAP_VERT_RESOLUTION * 2 - 1) * 6);
@@ -203,7 +207,7 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 	// This mesh is the small cross shape that fills in the gaps along the
 	// X and Z axes between the center quadrants on LOD0.
 	{
-		std::vector<VertexNormalTangent> vertices;
+		std::vector<TerrainVertex> vertices;
 		vertices.resize(PATCH_VERT_RESOLUTION * 8);
 		std::vector<uint32_t> indices;
 		indices.resize(TILE_RESOLUTION * 24 + 6);
@@ -269,7 +273,7 @@ std::vector<std::shared_ptr<AbstractMesh>> GeoClipMap::generate(const int p_size
 	// This is a very thin mesh that is supposed to cover tiny gaps
 	// between tiles and fillers when the vertices do not line up
 	{
-		std::vector<VertexNormalTangent> vertices;
+		std::vector<TerrainVertex> vertices;
 		vertices.resize(CLIPMAP_VERT_RESOLUTION * 4);
 		std::vector<uint32_t> indices;
 		indices.resize(CLIPMAP_VERT_RESOLUTION * 6);

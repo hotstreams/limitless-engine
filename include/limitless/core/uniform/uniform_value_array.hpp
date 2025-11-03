@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include <limitless/core/uniform/uniform.hpp>
 #include <vector>
 

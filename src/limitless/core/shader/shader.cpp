@@ -1,3 +1,4 @@
+#include <iostream>
 #include <limitless/core/shader/shader.hpp>
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/keyline_extensions.hpp>
@@ -66,6 +67,7 @@ void Shader::checkStatus() const {
         file << log << std::endl;
         file << "-------------" << std::endl;
         file << "Shader source:" << source << std::endl;
+        std::cout << source << std::endl;
     }
 
     throw shader_compilation_error("failed to compile " + path.string() + ": " + log);

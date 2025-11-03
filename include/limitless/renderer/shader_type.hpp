@@ -85,6 +85,7 @@ namespace Limitless {
     enum class InstanceType {
         Model,
         Skeletal,
+        BatchedModel,
         Instanced,
         SkeletalInstanced,
         Effect,

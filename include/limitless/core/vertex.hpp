@@ -41,22 +41,6 @@ namespace Limitless {
         const auto& getPosition() const noexcept { return position; }
     };
 
-    struct VertexTerrain {
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec3 tangent;
-        glm::vec2 uv;
-        glm::vec2 uv1;
-        glm::vec2 uv2;
-        glm::vec2 uv3;
-        uint32_t current;
-        uint32_t mask;
-        uint32_t types;
-
-        auto& getPosition() noexcept { return position; }
-        const auto& getPosition() const noexcept { return position; }
-    };
-
     struct VertexPackedNormalTangent {
         glm::vec3 position;
         uint32_t normal;
@@ -76,4 +60,9 @@ namespace Limitless {
                 xs << 9  | ((uint32_t)(value.x * 511 + (xs << 9)) & 511);
         return vi;
     }
+
+    struct TerrainVertex
+    {
+        glm::vec3 position;
+    };
 }

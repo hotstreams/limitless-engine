@@ -1,9 +1,12 @@
 ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
-in vec3 skybox_uv;
+ENGINE::INTERFACE_BLOCK_IN
+ENGINE::FRAGMENT_CONTEXT
 
-#include "../interface_block/fragment.glsl"
+#include "./scene.glsl"
+#include "../instance/instance.glsl"
+#include "../material/material_context.glsl"
 #include "../shading/shading_mctx.glsl"
 
 layout (location = 0) out vec3 albedo;
@@ -14,7 +17,9 @@ layout (location = 4) out vec3 info;
 layout (location = 5) out vec4 outline;
 
 void main() {
-    MaterialContext mctx = computeMaterialContext();
+    VertexContext vctx = computeVertexContext();
+    InstanceContext ictx = computeInstanceContext(vctx);
+    MaterialContext mctx = computeMaterialContext(vctx);
 
     albedo = computeMaterialColor(mctx).rgb;
 

@@ -1,9 +1,8 @@
-// Terrain surface shader - matches Terrain3D's fragment shader logic
 #include "../terrain/terrain.glsl"
 #include "../terrain/terrain_debug.glsl"
 
 void calculateTerrain(inout MaterialContext mctx) {
-    vec3 vertex_position = getVertexPosition();
+    vec3 vertex_position = getVertexWorldPosition().xyz;
     vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position.xz);
     vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
     vec2 chunk_uv = getChunkUV(terrain_uv);

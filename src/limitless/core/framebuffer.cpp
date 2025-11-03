@@ -1,6 +1,7 @@
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/core/texture/texture.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
+#include <utility>
 
 using namespace Limitless;
 
@@ -289,6 +290,18 @@ Framebuffer Framebuffer::asRGB16FNearestClampToEdge(glm::uvec2 size) {
 
     framebuffer.bind();
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, color};
+    framebuffer.drawBuffer(FramebufferAttachment::Color0);
+    framebuffer.checkStatus();
+    framebuffer.unbind();
+
+    return framebuffer;
+}
+
+Framebuffer Framebuffer::fromTexture(std::shared_ptr<Texture> texture, uint32_t layer) {
+    Framebuffer framebuffer;
+
+    framebuffer.bind();
+    framebuffer << TextureAttachment{FramebufferAttachment::Color0, std::move(texture), layer};
     framebuffer.drawBuffer(FramebufferAttachment::Color0);
     framebuffer.checkStatus();
     framebuffer.unbind();

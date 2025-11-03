@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/fx/renderers/emitter_renderer.hpp>
+#include <limitless/core/buffer/buffer_builder.hpp>
 
 namespace Limitless::fx {
     template<>
@@ -48,7 +49,7 @@ namespace Limitless::fx {
         void draw(Context& ctx,
                   const Assets& assets,
                   ShaderType pass,
-                  const std::shared_ptr<AbstractMesh>& mesh,
+                  const std::shared_ptr<Mesh>& mesh,
                   const ms::Material& material,
                   ms::Blending blending,
                   const UniformSetter& setter) const {

@@ -22,7 +22,8 @@ void EffectCompiler::compile(ShaderType shader_type, const T& emitter) {
             EffectShaderDefineReplacer::replaceMaterialDependentDefine(shader, emitter.getMaterial(), InstanceType::Effect, emitter);
         };
 
-        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / SHADER_PASS_PATH.at(shader_type), props));
+        // assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / SHADER_PASS_PATH.at(shader_type), props));
+        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / "pipeline/common", assets.getShaderDir() / SHADER_PASS_PATH.at(shader_type), props));
     }
 }
 

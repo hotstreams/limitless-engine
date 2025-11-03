@@ -1,11 +1,14 @@
 #pragma once
 
-#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/ms/material.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
 #include <limitless/core/context.hpp>
+#include <limitless/camera.hpp>
 #include <memory>
+
+#include "limitless/models/model.hpp"
 
 namespace Limitless {
     class Assets;
@@ -16,47 +19,27 @@ namespace Limitless {
 namespace Limitless {
     class MeshInstance final {
     private:
-        std::shared_ptr<AbstractMesh> mesh;
+        std::shared_ptr<Mesh> mesh;
         std::shared_ptr<ms::Material> material;
         std::shared_ptr<ms::Material> base;
     public:
-        MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept;
+        MeshInstance(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ms::Material>& material) noexcept;
         ~MeshInstance() = default;
 
         MeshInstance(const MeshInstance&);
-        MeshInstance(MeshInstance&&) noexcept = default;
+        MeshInstance(MeshInstance&&) noexcept = default;    
 
-        // changes current material
         void changeMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
-
-        // changes base material
         void changeBaseMaterial(const std::shared_ptr<ms::Material>& material) noexcept;
 
-        // resets base material to base
+        // resets base material to base material
         void reset() noexcept;
 
         [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
         [[nodiscard]] auto& getMaterial() noexcept { return material; }
 
-        [[nodiscard]] const std::shared_ptr<AbstractMesh>& getMesh() const noexcept { return mesh; }
+        [[nodiscard]] const std::shared_ptr<Mesh>& getMesh() const noexcept { return mesh; }
 
         void update();
-
-        void draw(Context& ctx,
-                  const Assets& assets,
-                  ShaderType pass,
-                  InstanceType model,
-                  const glm::mat4& model_matrix,
-                  ms::Blending blending,
-                  const UniformSetter& uniform_setter);
-
-        void draw_instanced(Context& ctx,
-                            const Assets& assets,
-                            ShaderType pass,
-                            InstanceType model,
-                            const glm::mat4& model_matrix,
-                            ms::Blending blending,
-                            const UniformSetter& uniform_setter,
-                            uint32_t count);
     };
 }

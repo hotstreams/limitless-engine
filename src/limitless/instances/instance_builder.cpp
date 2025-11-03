@@ -1,10 +1,16 @@
 #include <limitless/instances/instance_builder.hpp>
 #include <limitless/models/skeletal_model.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
-#include <limitless/models/elementary_model.hpp>
+#include <limitless/models/model.hpp>
 #include <limitless/instances/decal_instance.hpp>
 #include <limitless/models/mesh.hpp>
-#include <limitless/core/indexed_stream.hpp>
+
+#include "limitless/models/cube.hpp"
+#include "limitless/models/cylinder.hpp"
+#include "limitless/models/line.hpp"
+#include "limitless/models/plane.hpp"
+#include "limitless/models/quad.hpp"
+#include "limitless/models/sphere.hpp"
 
 using namespace Limitless;
 
@@ -63,7 +69,7 @@ Instance::Builder::Builder() noexcept
 
 }
 
-Instance::Builder& Instance::Builder::model(const std::shared_ptr<AbstractModel>& model) {
+Instance::Builder& Instance::Builder::model(const std::shared_ptr<Model>& model) {
     model_ = model;
     return *this;
 }
@@ -94,22 +100,40 @@ Instance::Builder& Instance::Builder::bounding_box(const Box& box) {
 }
 
 std::shared_ptr<ModelInstance> Instance::Builder::asModel() {
-    if (dynamic_cast<Model*>(model_.get())) {
+    if (dynamic_cast<Cube*>(model_.get()) ||
+        dynamic_cast<Cylinder*>(model_.get()) ||
+        dynamic_cast<Sphere*>(model_.get()) ||
+        dynamic_cast<Line*>(model_.get()) ||
+        dynamic_cast<Plane*>(model_.get()) ||
+        dynamic_cast<PlaneQuad*>(model_.get()) ||
+        dynamic_cast<Quad*>(model_.get())
+    ) {
+        if (global_material) {
+            auto& lods = model_->getLods();
+            for (auto& [meshes, materials] : lods)
+            {
+                std::vector<std::shared_ptr<ms::Material>> replaced_materials;
+                replaced_materials.resize(materials.size());
+                for (auto& material: replaced_materials) {
+                    material = global_material;
+                }
+                materials = std::move(replaced_materials);
+            }
+
+            auto instance = std::make_shared<ModelInstance>(model_, position_);
+            initialize(*instance);
+            initialize(instance);
+            return instance;
+        }
+
+        throw instance_builder_exception {"Material for Elementary model is not set!"};
+    }
+
+    if (model_.get()) {
         auto instance = std::make_shared<ModelInstance>(model_, position_);
         initialize(*instance);
         initialize(instance);
         return instance;
-    }
-
-    if (dynamic_cast<ElementaryModel*>(model_.get())) {
-        if (global_material) {
-            auto instance = std::make_shared<ModelInstance>(model_, global_material, position_);
-            initialize(*instance);
-            initialize(instance);
-            return instance;
-        } else {
-            throw instance_builder_exception {"Material for Elementary model is not set!"};
-        }
     }
 
     throw instance_builder_exception {"Invalid parameters for instance builder!"};
@@ -132,19 +156,8 @@ std::shared_ptr<Instance> Instance::Builder::build() {
             return asSkeletal();
         }
 
-        if (dynamic_cast<Model*>(model_.get())) {
+        if (model_.get()) {
             return asModel();
-        }
-
-        if (dynamic_cast<ElementaryModel *>(model_.get())) {
-            if (global_material) {
-                auto instance = std::make_shared<ModelInstance>(model_, global_material, position_);
-                initialize(*instance);
-                initialize(instance);
-                return instance;
-            } else {
-                throw instance_builder_exception {"Material for Elementary model is not set!"};
-            }
         }
 
         throw instance_builder_exception {"Invalid parameters for instance builder!"};
@@ -205,9 +218,9 @@ std::shared_ptr<DecalInstance> Instance::Builder::asDecal() {
         throw instance_builder_exception {"Material for decal is not set!"};
     }
 
-    if (!dynamic_cast<ElementaryModel*>(model_.get())) {
-        throw instance_builder_exception {"Model for decal is not elementary!"};
-    }
+    // if (!dynamic_cast<ElementaryModel*>(model_.get())) {
+    //     throw instance_builder_exception {"Model for decal is not elementary!"};
+    // }
 
     auto instance = std::make_shared<DecalInstance>(model_, global_material, position_);
     initialize(*instance);

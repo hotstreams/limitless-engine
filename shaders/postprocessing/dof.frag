@@ -4,7 +4,7 @@ Limitless::Extensions
 #include "../pipeline/scene.glsl"
 #include "../functions/reconstruct_position.glsl"
 
-in vec2 fs_uv;
+in vec2 uv;
 
 out vec3 color;
 
@@ -16,8 +16,6 @@ uniform vec2 uv_focus;
 uniform vec2 distance;
 
 void main() {
-    vec2 uv = fs_uv;
-
     float far = getCameraFarPlane();
 
     vec3 position = reconstructPosition(uv, texture(depth_texture, uv).r);

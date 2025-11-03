@@ -5,6 +5,7 @@ namespace Limitless {
         Value,
         ValueArray,
         Sampler,
+        SamplerArray,
         Time
     };
 }

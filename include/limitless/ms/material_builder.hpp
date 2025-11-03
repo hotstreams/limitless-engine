@@ -3,6 +3,7 @@
 #include <limitless/ms/material.hpp>
 #include <limitless/ms/unique_material.hpp>
 #include <mutex>
+#include "batched_material.hpp"
 
 namespace Limitless {
     class Assets;
@@ -31,6 +32,10 @@ namespace Limitless::ms {
         uint64_t shader_index {};
         InstanceTypes _model_shaders;
 
+        size_t _batch_count {};
+        std::shared_ptr<Material> _batch_material;
+        std::vector<std::shared_ptr<Material>> _batch_materials;
+
         std::string vertex_snippet;
         std::string fragment_snippet;
         std::string global_fragment_snippet;
@@ -40,12 +45,16 @@ namespace Limitless::ms {
         bool normal_map_ {false};
         bool orm_map_ {false};
 
+        bool need_default_computation {true};
+
         bool _skybox {false};
 
-        UniqueMaterial getMaterialType() const noexcept;
+        [[nodiscard]] UniqueMaterial getMaterialType() const noexcept;
         void checkRequirements();
         void setMaterialIndex();
         void setModelShaders();
+
+        void makeBatched(const Material& material, size_t batch_count);
 
         friend class Material;
     public:
@@ -79,6 +88,7 @@ namespace Limitless::ms {
 
         Builder& normal_map() noexcept;
         Builder& orm_map() noexcept;
+        Builder& default_computation(bool compute = true);
 
         Builder& blending(Blending blending) noexcept;
         Builder& shading(Shading shading) noexcept;
@@ -110,6 +120,11 @@ namespace Limitless::ms {
         Builder& custom(const std::string& name, const glm::mat3& value) noexcept;
         Builder& custom(const std::string& name, const glm::mat4& value) noexcept;
         Builder& custom(const std::string& name, const std::shared_ptr<Texture>& value) noexcept;
+
+        Builder& batch_count(size_t size);
+        Builder& batch(const std::shared_ptr<Material>& material);
+        Builder& add_batch(const std::shared_ptr<Material>& material);
+        std::shared_ptr<BatchedMaterial> buildBatched(Assets& assets);
 
         std::shared_ptr<Material> build(Assets& assets);
     };

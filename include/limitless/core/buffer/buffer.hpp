@@ -160,6 +160,13 @@ namespace Limitless {
         virtual void bind() const noexcept = 0;
 
         /**
+        * Wraps glBindBuffer(0) call
+        *
+        * unbinds current buffer
+        */
+        virtual void unbind() const noexcept = 0;
+
+        /**
          * Makes a copy of the buffer without the content
          */
         virtual Buffer* clone() = 0;

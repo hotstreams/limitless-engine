@@ -1,11 +1,14 @@
 #include <limitless/instances/terrain_instance.hpp>
 #include <limitless/ms/material_builder.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/util/geoclipmap.hpp>
 
 #include <random>
 
 #include <utility>
 #include <iostream>
+
+#include "limitless/models/model_builder.h"
 
 using namespace Limitless;
 using namespace Limitless::ms;
@@ -30,7 +33,6 @@ void TerrainInstance::update(const Camera &camera) {
     snap(camera);
 
     mesh.cross->update(camera);
-
     mesh.seams->update(camera);
     mesh.trims->update(camera);
     mesh.fillers->update(camera);
@@ -174,7 +176,7 @@ void TerrainInstance::snap(const Camera& p_cam_pos) {
 }
 
 void TerrainInstance::initializeMesh(Assets& assets) {
-    std::vector<std::shared_ptr<AbstractMesh>> meshes = GeoClipMap::generate(mesh_size, mesh_lod_count);
+    std::vector<std::shared_ptr<Limitless::Mesh>> meshes = GeoClipMap::generate(mesh_size, mesh_lod_count);
 
     std::vector<std::shared_ptr<ms::Material>> materials;
     materials.reserve(meshes.size());
@@ -217,6 +219,8 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
             .custom("blend_sharpness", blend_sharpness)
 
+            .default_computation(false)
+
             .global_vertex(R"(
                 #include "../terrain/terrain.glsl"
             )")
@@ -225,11 +229,10 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             )")
 
             .vertex(R"(
-                vec2 vertex_transformed = (getModelTransform() * vec4(vertex_position, 1.0)).xz;
-                vec2 terrain_texel_uv = getTerrainTexelUV(vertex_transformed);
+                vec2 terrain_texel_uv = getTerrainTexelUV(ectx.world_position.xz);
                 vec2 terrain_uv = getTerrainUV(terrain_texel_uv);
 
-                vertex_position.y = getTerrainHeight(terrain_uv);
+                ectx.world_position.y = getTerrainHeight(terrain_uv);
             )")
 
             .fragment(R"(
@@ -242,11 +245,11 @@ void TerrainInstance::initializeMesh(Assets& assets) {
         materials.emplace_back(terrain_material);
     }
 
-    auto tile_model = std::make_shared<Model>(std::vector{meshes[0]}, std::vector{materials[0]}, "map");
-    auto filler_model = std::make_shared<Model>(std::vector{meshes[1]}, std::vector{materials[1]}, "map");
-    auto trim_model = std::make_shared<Model>(std::vector{meshes[2]}, std::vector{materials[2]}, "map");
-    auto cross_model = std::make_shared<Model>(std::vector{meshes[3]}, std::vector{materials[3]}, "map");
-    auto seam_model = std::make_shared<Model>(std::vector{meshes[4]}, std::vector{materials[4]}, "map");
+    auto tile_model = Model::builder().name("map").meshes({meshes[0]}).materials({materials[0]}).build(assets);
+    auto filler_model = Model::builder().name("map").meshes({meshes[1]}).materials({materials[1]}).build(assets);
+    auto trim_model = Model::builder().name("map").meshes({meshes[2]}).materials({materials[2]}).build(assets);
+    auto cross_model = Model::builder().name("map").meshes({meshes[3]}).materials({materials[3]}).build(assets);
+    auto seam_model = Model::builder().name("map").meshes({meshes[4]}).materials({materials[4]}).build(assets);
 
     mesh.cross = std::make_shared<ModelInstance>(InstanceType::Terrain, std::move(cross_model), glm::vec3(0.0f));
 

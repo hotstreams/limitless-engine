@@ -5,8 +5,7 @@
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/texture/texture.hpp>
 #include <limitless/core/uniform/uniform.hpp>
-
-#include "limitless/core/uniform/uniform_value_array.hpp"
+#include <limitless/core/uniform/uniform_value_array.hpp>
 
 
 using namespace Limitless;
@@ -134,8 +133,8 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
 
     switch (uniform.getType()) {
         case UniformType::Time:
-        case UniformType::Value:
         case UniformType::ValueArray:
+        case UniformType::Value:
             switch (uniform.getValueType()) {
                 case UniformValueType::Float:
                     declaration.append("float ");
@@ -160,6 +159,9 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
                     break;
                 case UniformValueType::Mat3:
                     declaration.append("mat3 ");
+                    break;
+                case DataType::IVec4:
+                    declaration.append("ivec4 ");
                     break;
             }
             break;
@@ -250,6 +252,8 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
                     return sizeof(glm::mat3);
                 case UniformValueType::Mat4:
                     return sizeof(glm::mat4);
+                case DataType::IVec4:
+                    return sizeof(glm::ivec4);
             }
             break;
         case UniformType::Sampler: {
@@ -308,6 +312,7 @@ size_t Limitless::getUniformAlignment(const Uniform& uniform) {
                 // All these have !vec4! alignment
                 case UniformValueType::Vec3:
                 case UniformValueType::Vec4:
+                case UniformValueType::IVec4:
                 case UniformValueType::Mat3:
                 case UniformValueType::Mat4:
                     return sizeof(glm::vec4);

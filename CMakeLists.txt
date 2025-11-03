@@ -10,7 +10,7 @@ OPTION(BUILD_SAMPLES "Builds samples" ON)
 OPTION(BUILD_TESTS "Builds tests" ON)
 
 OPTION(OPENGL_DEBUG "Enables debug mode for OpenGL" ON)
-OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" ON)
+OPTION(OPENGL_NO_EXTENSIONS "Disables all extensions" OFF)
 OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF)
 
 #########################################
@@ -45,6 +45,7 @@ set(ENGINE_CORE
 
     src/limitless/core/uniform/uniform.cpp
     src/limitless/core/uniform/uniform_value.cpp
+    src/limitless/core/uniform/uniform_value_array.cpp
     src/limitless/core/uniform/uniform_sampler.cpp
     src/limitless/core/uniform/uniform_time.cpp
     src/limitless/core/uniform/uniform_setter.cpp
@@ -64,6 +65,12 @@ set(ENGINE_CORE
 
     src/limitless/core/buffer/buffer_binding_point.cpp
     src/limitless/core/shader/shader_program_introspection.cpp
+
+    src/limitless/core/vertex_stream/vertex_stream.cpp
+    src/limitless/core/vertex_stream/vertex_stream_builder.cpp
+    src/limitless/core/vertex_stream/vertex_array_builder.cpp
+    src/limitless/core/vertex_stream/indexed_stream.cpp
+    src/limitless/core/vertex_stream/skeletal_stream.cpp
 )
 
 set(ENGINE_INSTANCES
@@ -78,6 +85,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/decal_instance.cpp
     src/limitless/instances/instanced_instance.cpp
     src/limitless/instances/terrain_instance.cpp
+    src/limitless/instances/lod_group_instance.cpp
 )
 
 set(ENGINE_LIGHTING
@@ -99,10 +107,8 @@ set(ENGINE_LOADERS
 )
 
 set(ENGINE_MODELS
-    src/limitless/models/elementary_model.cpp
     src/limitless/models/text_model.cpp
     src/limitless/models/skeletal_model.cpp
-    src/limitless/models/abstract_model.cpp
     src/limitless/models/cube.cpp
     src/limitless/models/line.cpp
     src/limitless/models/plane.cpp
@@ -113,11 +119,11 @@ set(ENGINE_MODELS
 )
 
 set(ENGINE_SERIALIZATION
-    src/limitless/serialization/effect_serializer.cpp
-    src/limitless/serialization/emitter_serializer.cpp
-    src/limitless/serialization/distribution_serializer.cpp
-    src/limitless/serialization/material_serializer.cpp
-    src/limitless/serialization/uniform_serializer.cpp
+#    src/limitless/serialization/effect_serializer.cpp
+#    src/limitless/serialization/emitter_serializer.cpp
+#    src/limitless/serialization/distribution_serializer.cpp
+#    src/limitless/serialization/material_serializer.cpp
+#    src/limitless/serialization/uniform_serializer.cpp
 )
 
 set(ENGINE_UTIL
@@ -126,9 +132,7 @@ set(ENGINE_UTIL
     src/limitless/util/renderer_helper.cpp
     src/limitless/renderer/color_picker.cpp
     src/limitless/util/frustum.cpp
-
     src/limitless/util/geoclipmap.cpp
-
 )
 
 set(ENGINE_MS
@@ -211,8 +215,9 @@ set(ENGINE_SRC
     src/limitless/scene.cpp
     src/limitless/skybox/skybox.cpp
     src/limitless/log.cpp
-        include/limitless/core/uniform/uniform_value_array.hpp
-        src/limitless/core/uniform/uniform_value_array.cpp
+    src/limitless/models/mesh_builder.cpp
+    src/limitless/models/mesh.cpp
+    src/limitless/models/model_builder.cpp
 )
 
 #########################################
@@ -221,6 +226,7 @@ set(ENGINE_SRC
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw")
+    set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "Disable HarfBuzz support" FORCE)
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype")
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/build/cmake")
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/plog")
@@ -252,7 +258,7 @@ target_include_directories(limitless-engine PUBLIC include)
 target_compile_features(limitless-engine PUBLIC cxx_std_17)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(limitless-engine PRIVATE -O0 -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
+    target_compile_options(limitless-engine PRIVATE -O0 -g -ggdb -Wpedantic -Wextra -Wall -Wunused -Wno-attributes)
     target_compile_definitions(limitless-engine PUBLIC LIMITLESS_OPENGL_DEBUG)
 endif()
 

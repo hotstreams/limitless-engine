@@ -265,6 +265,7 @@ void Limitless::ms::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.buffer, rhs.buffer);
     swap(lhs.normal_map, rhs.normal_map);
     swap(lhs.orm_map, rhs.orm_map);
+    swap(lhs.default_computation, rhs.default_computation);
 }
 
 Material::Material(const Material& material)
@@ -282,6 +283,7 @@ Material::Material(const Material& material)
     , shading_snippet {material.shading_snippet}
     , normal_map {material.normal_map}
     , orm_map {material.orm_map}
+    , default_computation {material.default_computation}
     , buffer {material.buffer} {
 
     // deep copy of properties
@@ -463,6 +465,11 @@ bool Material::getNormalMap() const {
 
 bool Material::getOrmMap() const {
     return orm_map;
+}
+
+bool Material::getDefaultComputation() const
+{
+    return default_computation;
 }
 
 const std::shared_ptr<Texture>& Material::getDiffuseTexture() const {
@@ -825,7 +832,7 @@ Material::Builder Material::builder() {
     return {};
 }
 
-Material::Material(Material::Builder& builder)
+Material::Material(Builder& builder)
     : properties {std::move(builder.properties)}
     , blending {builder._blending}
     , shading {builder._shading}
@@ -842,5 +849,6 @@ Material::Material(Material::Builder& builder)
     , shading_snippet {builder.shading_snippet}
     , normal_map {builder.normal_map_}
     , orm_map {builder.orm_map_}
+    , default_computation {builder.need_default_computation}
     , buffer {*this} {
 }

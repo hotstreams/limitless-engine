@@ -2,7 +2,7 @@
 
 #include <limitless/loaders/texture_loader.hpp>
 #include "limitless/core/shader/shader_program.hpp"
-#include <limitless/models/abstract_mesh.hpp>
+#include <limitless/models/mesh.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/ms/material_builder.hpp>
@@ -20,7 +20,7 @@ Skybox::Skybox(Assets& assets, const fs::path& path, const TextureLoaderFlags& f
     material = Material::builder()
                     .name(path.stem().string())
                     .custom("skybox", cube_map_texture)
-                    .fragment("mctx.color.rgb = texture(skybox, skybox_uv).rgb;\n")
+                    .fragment("mctx.color.rgb = texture(skybox, vctx.position).rgb;\n")
                     .color(glm::vec4(1.0f))
                     .two_sided(true)
                     .shading(Shading::Unlit)

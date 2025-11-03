@@ -54,17 +54,34 @@ namespace Limitless {
         std::vector<Animation> animations;
         std::vector<Bone> bones;
         std::vector<Tree<uint32_t>> skeletons;
-    public:
+
+        friend class Builder;
+
         SkeletalModel(
-            decltype(meshes)&& meshes,
-            decltype(materials)&& materials,
+            const std::string& name,
+            const std::vector<std::shared_ptr<Mesh>>& meshes,
+            const std::vector<std::shared_ptr<ms::Material>>& materials,
+            LodTransition transition,
+            LodSelection selection,
+            const std::vector<float>& distances,
             decltype(bones)&& bones,
             decltype(bone_map)&& bone_map,
             decltype(skeletons)&& skeletons,
-            decltype(animations)&& a,
-            std::string name
+            decltype(animations)&& animations
         ) noexcept;
 
+        SkeletalModel(
+            const std::string& name,
+            const std::vector<Lod>& lods,
+            LodTransition transition,
+            LodSelection selection,
+            const std::vector<float>& distances,
+            decltype(bones)&& bones,
+            decltype(bone_map)&& bone_map,
+            decltype(skeletons)&& skeletons,
+            decltype(animations)&& animations
+        ) noexcept;
+    public:
         ~SkeletalModel() override = default;
 
         SkeletalModel(const SkeletalModel&) = delete;

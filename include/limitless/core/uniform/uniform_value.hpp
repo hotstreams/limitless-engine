@@ -13,6 +13,7 @@ namespace Limitless {
      *      glm::vec2
      *      glm::vec3
      *      glm::vec4
+     *      glm::ivec4
      *      glm::mat3
      *      glm::mat4
      */

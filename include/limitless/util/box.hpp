@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/functions.hpp>
 #include <vector>
+#include <functional>
 
 namespace Limitless {
     class Box {
@@ -12,7 +13,7 @@ namespace Limitless {
     };
 
     template<typename V>
-    inline Box calculateBoundingBox(const std::vector<V>& vertices) {
+    Box calculateBoundingBox(const std::vector<V>& vertices) {
         auto min = glm::vec3{ std::numeric_limits<float>::max() };
         auto max = glm::vec3{ std::numeric_limits<float>::min() };
 
@@ -21,6 +22,21 @@ namespace Limitless {
             min = glm::min(min, position);
             max = glm::max(max, position);
         }
+
+        const auto center = (min + max) / 2.0f;
+        const auto size = max - min;
+
+        return { center, size };
+    }
+
+    inline Box calculateBoundingBox(std::function<void(std::function<void(const glm::vec3&)>)> for_each) {
+        auto min = glm::vec3{ std::numeric_limits<float>::max() };
+        auto max = glm::vec3{ std::numeric_limits<float>::min() };
+
+        for_each([&min, &max](const glm::vec3& position){
+            min = glm::min(min, position);
+            max = glm::max(max, position);
+        });
 
         const auto center = (min + max) / 2.0f;
         const auto size = max - min;

@@ -11,7 +11,6 @@
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/cylinder.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
-#include <iostream>
 
 using namespace Limitless;
 using namespace Limitless::ms;
@@ -30,22 +29,30 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
     context.setDepthMask(DepthMask::False);
 //    context.disable(Capabilities::DepthTest);
 
-    auto sphere_instance = ModelInstance(assets.models.at("sphere"), assets.materials.at("default"), glm::vec3(0.0f));
+    auto sphere_instance = Instance::builder()
+        .model(assets.models.at("sphere"))
+        .material(assets.materials.at("default"))
+        .position(glm::vec3(0.0f))
+        .asModel();
 
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
     for (const auto& [_, light] : lighting.getLights()) {
         if (light.isPoint()) {
-            sphere_instance.setPosition(light.getPosition());
-            sphere_instance.setScale(glm::vec3(light.getRadius()));
-            sphere_instance.update(camera);
+            sphere_instance->setPosition(light.getPosition());
+            sphere_instance->setScale(glm::vec3(light.getRadius()));
+            sphere_instance->update(camera);
 
-            InstanceRenderer::render(sphere_instance, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+            InstanceRenderer::render(*sphere_instance, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
         }
         if (light.isSpot()) {
             auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() / 1.5f * glm::sin(glm::acos(glm::radians(light.getCone().y))), light.getRadius());
-            auto cone_instance = ModelInstance(cone, assets.materials.at("default"), glm::vec3(0.0f));
+            auto cone_instance = Instance::builder()
+                .model(cone)
+                .material(assets.materials.at("default"))
+                .position(glm::vec3(0.0f))
+                .asModel();
 
-            cone_instance.setPosition(light.getPosition());
+            cone_instance->setPosition(light.getPosition());
 
             auto y = glm::vec3{0.0f, 1.0f, 0.0f};
             auto a = glm::cross(y, light.getDirection());
@@ -54,10 +61,10 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
             }
             auto angle = glm::acos(glm::dot(y, light.getDirection()));
 
-            cone_instance.setRotation(a * angle);
-            cone_instance.update(camera);
+            cone_instance->setRotation(a * angle);
+            cone_instance->update(camera);
 
-            InstanceRenderer::render(cone_instance, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+            InstanceRenderer::render(*cone_instance, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
 
         }
     }
@@ -77,75 +84,52 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
     static const auto y = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
     static const auto z = std::make_shared<Line>(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -5.0f});
 
-    static ModelInstance x_i {x, assets.materials.at("green"), {5.0f, 1.0f, 0.0f}};
-    static ModelInstance y_i {y, assets.materials.at("blue"), {5.0f, 1.0f, 0.0f}};
-    static ModelInstance z_i {z, assets.materials.at("red"), {5.0f, 1.0f, 0.0f}};
+    static auto x_i = Instance::builder()
+        .model(x)
+        .material(assets.materials.at("green"))
+        .position({5.0f, 1.0f, 0.0f})
+        .asModel();
+    static auto y_i = Instance::builder()
+        .model(y)
+        .material(assets.materials.at("blue"))
+        .position({5.0f, 1.0f, 0.0f})
+        .asModel();
+    static auto z_i = Instance::builder()
+        .model(z)
+        .material(assets.materials.at("red"))
+        .position({5.0f, 1.0f, 0.0f})
+        .asModel();
 
-    InstanceRenderer::render(x_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
-    InstanceRenderer::render(y_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
-    InstanceRenderer::render(z_i, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+    InstanceRenderer::render(*x_i, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
+    InstanceRenderer::render(*y_i, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
+    InstanceRenderer::render(*z_i, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
 }
-           
+
 void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Scene& scene) {
-    auto box = ModelInstance {assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
+    auto box = Instance::builder()
+        .model(assets.models.at("cube"))
+        .material(assets.materials.at("default"))
+        .position(glm::vec3{0.0f})
+        .asModel();
 
     context.setLineWidth(2.5f);
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
     for (const auto& instance : scene.getInstances()) {
-//        auto& bounding_box = instance->getBoundingBox();
-//
-//        box .setPosition(bounding_box.center)
-//            .setScale(bounding_box.size)
-//            .update(camera);
-//
-//        InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
-        if (instance->getInstanceType() == InstanceType::Terrain) {
-            auto show = [&] (const auto& instance, bool intersect) {
-                auto& bounding_box = instance->getBoundingBox();
+        auto& bounding_box = instance->getBoundingBox();
 
-                box .setPosition(bounding_box.center)
-                        .setScale(bounding_box.size)
-                        .update(camera);
+        box ->setPosition(bounding_box.center)
+            .setScale(bounding_box.size)
+            .update(camera);
 
-                if (intersect) {
-                    box.changeMaterial(0, assets.materials.at("green"));
-                } else {
-                    box.changeMaterial(0, assets.materials.at("red"));
-                }
-
-                InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
-            };
-
-            auto& terrain = static_cast<TerrainInstance&>(*instance);
-
-//            for (auto &item: terrain.mesh.seams) {
-//                show(item);
-//            }
-            static auto frustum = Frustum::fromCamera(camera);
-
-            if (!lock) {
-                frustum = Frustum::fromCamera(camera);
-            }
-//
-            // auto& instance = terrain.mesh.tiles->getInstances()[instance_index % terrain.mesh.tiles->getInstances().size()];
-            // show(instance, frustum.intersects(*instance));
-
-//            for (auto &item: terrain.mesh.fillers) {
-//                show(item);
-//            }
-
-            for (auto &item: terrain.getMesh().tiles->getInstances()) {
-                show(item, frustum.intersects(*item));
-            }
-        }
+        InstanceRenderer::render(*box, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
 void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {
-    //if (settings.bounding_box) {
-     //   renderBoundingBoxes(context, assets, camera, scene);
-   // }
+    if (settings.bounding_box) {
+        renderBoundingBoxes(context, assets, camera, scene);
+    }
 
     if (settings.coordinate_system_axes) {
         renderCoordinateSystemAxes(context, assets);

@@ -61,7 +61,7 @@ namespace Limitless {
         /**
          * Creates instance with SkeletalModel
          */
-        SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::vec3& position);
+        SkeletalInstance(std::shared_ptr<Model> m, const glm::vec3& position);
         ~SkeletalInstance() override = default;
 
         SkeletalInstance(const SkeletalInstance&) noexcept;
@@ -109,7 +109,7 @@ namespace Limitless {
         /**
          * Calculates transformed vertex position on specified instance mesh for specified vertex
          */
-        [[nodiscard]] glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<AbstractMesh>& mesh, size_t vertex_index) const;
+        [[nodiscard]] glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<Mesh>& mesh, size_t vertex_index) const;
 
         const auto& getBoneTransform() const noexcept { return bone_transform; }
     };

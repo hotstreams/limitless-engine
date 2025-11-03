@@ -75,7 +75,7 @@ void ShaderCompiler::replaceCommonDefines(Shader &shader) {
 
 std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, const ShaderAction& action) {
     uint8_t shader_count {};
-    for (const auto& [extension, type] : shader_file_extensions) {
+    for (const auto& [type, extension] : shader_file_extensions) {
         try {
             Shader shader { path.string() + extension.data(), type, action };
 
@@ -96,3 +96,26 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
     return compile();
 }
 
+std::shared_ptr<ShaderProgram> ShaderCompiler::compile(
+    const fs::path& vertex_path,
+    const fs::path& fragment_path,
+    const ShaderAction& action
+) {
+    {
+        Shader vertex_shader { vertex_path.string() + shader_file_extensions[Shader::Type::Vertex], Shader::Type::Vertex, action };
+
+        replaceCommonDefines(vertex_shader);
+
+        *this << std::move(vertex_shader);
+    }
+
+    {
+        Shader fragment_shader { fragment_path.string() + shader_file_extensions[Shader::Type::Fragment], Shader::Type::Fragment, action };
+
+        replaceCommonDefines(fragment_shader);
+
+        *this << std::move(fragment_shader);
+    }
+
+    return compile();
+}

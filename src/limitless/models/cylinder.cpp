@@ -1,59 +1,12 @@
 #include <limitless/models/cylinder.hpp>
 
 #include <limitless/util/tangent_space.hpp>
-#include <limitless/models/mesh.hpp>
-#include <limitless/core/indexed_stream.hpp>
+#include <limitless/models/mesh_builder.hpp>
+#include <limitless/core/vertex_stream/vertex_stream_builder.hpp>
 
 #include <cmath>
 
 using namespace Limitless;
-
-Cylinder::Cylinder() : ElementaryModel("cylinder") {
-    const auto unit = generateUnit();
-    const auto normals = generateNormals();
-
-    auto vertices = generate(unit, normals);
-    auto indices = generateIndices();
-
-    calculateTangentSpaceTriangle(vertices, indices);
-
-    meshes.emplace_back(
-        std::make_unique<Mesh>(
-            std::make_unique<IndexedVertexStream<VertexNormalTangent>>(std::move(vertices),
-                                                                       std::move(indices),
-                                                                       VertexStreamUsage::Static,
-                                                                       VertexStreamDraw::Triangles),
-            "cylinder")
-    );
-
-//    calculateBoundingBox();
-}
-
-Cylinder::Cylinder(float base_radius, float top_radius, float height)
-    : ElementaryModel("cylinder")
-    , base_radius {base_radius}
-    , top_radius {top_radius}
-    , height {height} {
-
-    const auto unit = generateUnit();
-    const auto normals = generateNormals();
-
-    auto vertices = generate(unit, normals);
-    auto indices = generateIndices();
-
-    calculateTangentSpaceTriangle(vertices, indices);
-
-    meshes.emplace_back(
-            std::make_unique<Mesh>(
-                    std::make_unique<IndexedVertexStream<VertexNormalTangent>>(std::move(vertices),
-                                                                               std::move(indices),
-                                                                               VertexStreamUsage::Static,
-                                                                               VertexStreamDraw::Triangles),
-                    "cylinder")
-    );
-
-//    calculateBoundingBox();
-}
 
 std::vector<glm::vec3> Cylinder::generateNormals() const {
     std::vector<glm::vec3> normals;
@@ -193,4 +146,53 @@ std::vector<uint32_t> Cylinder::generateIndices() {
     }
 
     return indices;
+}
+
+Cylinder::Cylinder()
+    : Cylinder(1.0f, 1.0f, 2.0f)
+{
+
+}
+
+Cylinder::Cylinder(float base_radius, float top_radius, float height)
+    : Model(
+        "cylinder",
+        {[this, base_radius, top_radius, height]() {
+            this->base_radius = base_radius;
+            this->top_radius = top_radius;
+            this->height = height;
+            this->sector_count = 36;
+            this->stack_count = 1;
+            this->base_vertex_index = 0;
+            this->top_vertex_index = 0;
+
+            const auto unit = generateUnit();
+            const auto normals = generateNormals();
+
+            auto vertices = generate(unit, normals);
+            auto indices = generateIndices();
+
+            calculateTangentSpaceTriangle(vertices, indices);
+
+            return Mesh::builder()
+                .name("cylinder_mesh")
+                .vertex_stream(
+                    VertexStream::builder()
+                        .attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, position))
+                        .attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, normal))
+                        .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, tangent))
+                        .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, uv))
+                        .vertices(vertices)
+                        .indices(indices)
+                        .usage(VertexStream::Usage::Static)
+                        .draw(VertexStream::Draw::Triangles)
+                        .build()
+                )
+                .build();
+        }()},
+        {nullptr},
+        LodTransition::None,
+        LodSelection::CameraDistance,
+        {0.0f}
+    ) {
 }

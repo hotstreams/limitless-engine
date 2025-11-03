@@ -1,7 +1,11 @@
 ENGINE::COMMON
 ENGINE::MATERIALDEPENDENT
 
-#include "../interface_block/fragment.glsl"
+ENGINE::INTERFACE_BLOCK_IN
+ENGINE::FRAGMENT_CONTEXT
+
+#include "./scene.glsl"
+#include "../instance/instance.glsl"
 #include "../shading/shading_mctx.glsl"
 #include "../functions/reconstruct_position.glsl"
 #include "../functions/reconstruct_normal.glsl"
@@ -20,6 +24,8 @@ uniform uint projection_mask;
 uniform float decal_blend = 0.5;
 
 void main() {
+    VertexContext vctx = computeVertexContext();
+
     vec2 uv = gl_FragCoord.xy / getResolution();
 
     // check instance mask
@@ -45,8 +51,9 @@ void main() {
 
     // decal uv
     vec2 decal_uv = positionOS.xz + 0.5;
+    vctx.uv = decal_uv;
 
-    MaterialContext ctx = computeMaterialContext(decal_uv);
+    MaterialContext ctx = computeMaterialContext(vctx);
 
     // albedo
 #if defined (ENGINE_MATERIAL_COLOR) || defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE) || defined (ENGINE_MATERIAL_BLENDMASK_TEXTURE)

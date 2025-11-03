@@ -2,16 +2,16 @@
 
 #include <limitless/instances/instance.hpp>
 #include <limitless/ms/material.hpp>
-#include <limitless/models/elementary_model.hpp>
+#include <limitless/models/model.hpp>
 
 namespace Limitless {
     class DecalInstance : public Instance {
     private:
-        std::shared_ptr<AbstractModel> model;
+        std::shared_ptr<Model> model;
         std::shared_ptr<ms::Material> material;
         uint8_t projection_mask {0xFF};
     public:
-        DecalInstance(std::shared_ptr<AbstractModel> model, const std::shared_ptr<ms::Material>& material, const glm::vec3& position);
+        DecalInstance(std::shared_ptr<Model> model, const std::shared_ptr<ms::Material>& material, const glm::vec3& position);
 
         DecalInstance(const DecalInstance&);
 

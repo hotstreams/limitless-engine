@@ -12,7 +12,7 @@
 using namespace Limitless;
 
 template<typename V, typename I>
-std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
+std::function<std::shared_ptr<Mesh>()> ThreadedModelLoader::loadMesh(
         Assets& assets,
         aiMesh* m,
         const fs::path& path,
@@ -44,11 +44,11 @@ std::function<std::shared_ptr<AbstractMesh>()> ThreadedModelLoader::loadMesh(
             std::make_unique<IndexedVertexStream<V>>(std::move(vertices), std::move(indices), VertexStreamUsage::Static, VertexStreamDraw::Triangles) :
             std::make_unique<SkinnedVertexStream<V>>(std::move(vertices), std::move(indices), std::move(weights), VertexStreamUsage::Static, VertexStreamDraw::Triangles);
 
-        std::shared_ptr<AbstractMesh> mesh = std::make_shared<Mesh>(std::move(stream), std::move(name));
+        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::move(stream), std::move(name));
 
 //        auto mesh = !skinned ?
-//                    std::shared_ptr<AbstractMesh>(new IndexedMesh<V, I>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
-//                    std::shared_ptr<AbstractMesh>(new SkinnedMesh<V, I>(std::move(vertices), std::move(indices), std::move(weights), std::move(name), MeshDataType::Static, DrawMode::Triangles));
+//                    std::shared_ptr<Mesh>(new IndexedMesh<V, I>(std::move(vertices), std::move(indices), std::move(name), MeshDataType::Static, DrawMode::Triangles)) :
+//                    std::shared_ptr<Mesh>(new SkinnedMesh<V, I>(std::move(vertices), std::move(indices), std::move(weights), std::move(name), MeshDataType::Static, DrawMode::Triangles));
 
         asset_ptr.meshes.add(mesh->getName(), mesh);
 
@@ -119,7 +119,7 @@ std::function<std::shared_ptr<AbstractModel>()> ThreadedModelLoader::loadModel(A
     };
 }
 
-std::function<std::vector<std::shared_ptr<AbstractMesh>>()> ThreadedModelLoader::loadMeshes(
+std::function<std::vector<std::shared_ptr<Mesh>>()> ThreadedModelLoader::loadMeshes(
         Assets& assets,
         const aiScene* scene,
         const fs::path& path,
@@ -127,12 +127,12 @@ std::function<std::vector<std::shared_ptr<AbstractMesh>>()> ThreadedModelLoader:
         std::unordered_map<std::string, uint32_t>& bone_map,
         const ModelLoaderFlags& flags)
 {
-    std::vector<std::function<std::shared_ptr<AbstractMesh>()>> future_meshes;
+    std::vector<std::function<std::shared_ptr<Mesh>()>> future_meshes;
 
     for (uint32_t i = 0; i < scene->mNumMeshes; ++i) {
         auto* mesh = scene->mMeshes[i];
 
-        std::function<std::shared_ptr<AbstractMesh>()> future_mesh;
+        std::function<std::shared_ptr<Mesh>()> future_mesh;
 //        if (auto indices_count = mesh->mNumFaces * 3; indices_count < std::numeric_limits<GLubyte>::max()) {
 //            future_mesh = loadMesh<VertexNormalTangent, GLubyte>(mesh, path, bones, bone_map, flags);
 //        } else if (indices_count < std::numeric_limits<GLushort>::max()) {
@@ -145,7 +145,7 @@ std::function<std::vector<std::shared_ptr<AbstractMesh>>()> ThreadedModelLoader:
     }
 
     return [future_meshes = std::move(future_meshes)] () {
-        std::vector<std::shared_ptr<AbstractMesh>> meshes;
+        std::vector<std::shared_ptr<Mesh>> meshes;
         meshes.reserve(future_meshes.size());
 
         for (auto& future_mesh : future_meshes) {

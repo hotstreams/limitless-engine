@@ -26,7 +26,7 @@ namespace Limitless {
         void calculateModelMatrix() noexcept;
     public:
         TextInstance(std::string text, const glm::vec2& position, std::shared_ptr<FontAtlas> font);
-        TextInstance(size_t count, const glm::vec2& position, std::shared_ptr<FontAtlas> font);
+//        TextInstance(size_t count, const glm::vec2& position, std::shared_ptr<FontAtlas> font);
 
         void hide() noexcept { hidden = true; }
         void reveal() noexcept { hidden = false; }

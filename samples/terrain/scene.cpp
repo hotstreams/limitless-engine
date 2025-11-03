@@ -28,7 +28,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
 
     // Setup skybox for reflections and ambient lighting
     scene.setSkybox(assets.skyboxes.at("skybox"));
-    
+
     scene.getLighting().setAmbientColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
 
     scene.add(Light::builder()
@@ -121,23 +121,23 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
             // Add random scale and rotation for enhanced detiling
             v.scale = static_cast<uint32_t>(test * 7.0f) % 8;        // 0-7 scale values
             v.rotation = static_cast<uint32_t>(test * 16.0f) % 16;   // 0-15 rotation values
-            
+
             // DEBUG: Uncomment to visualize blend values
             // v.blend = static_cast<uint32_t>(test * 255.0f); // Random blend for testing
 
             *(controls + int(y * chunk_size) + x) = v;
-            
+
             // Generate color map data
             int color_idx = int(y * chunk_size + x) * 4;
-            
+
             // RGB: Color tinting based on elevation and humidity
             // High elevation (rock): Cooler gray-blue tint
             // Medium elevation (dirt): Warm brown tint
             // Low/humid (grass): Green tint
-            
+
             glm::vec3 color_tint(1.0f);  // Default neutral white
             float roughness_mod = 0.5f;   // Default neutral (0.5)
-            
+
             if (elevation >= 0.75f) {
                 // High altitude rock: Cool gray-blue tint, rougher
                 color_tint = glm::vec3(0.95f, 0.97f, 1.0f);  // Slight blue tint
@@ -151,12 +151,12 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
                 color_tint = glm::vec3(1.0f, 0.95f, 0.9f);  // Slight warm tint
                 roughness_mod = 0.45f;  // Rougher (dry dirt)
             }
-            
+
             // Add subtle noise variation to color and roughness
             float noise_factor = test * 0.1f - 0.05f;  // -0.05 to +0.05
             color_tint = glm::clamp(color_tint + glm::vec3(noise_factor), 0.0f, 1.0f);
             roughness_mod = glm::clamp(roughness_mod + noise_factor * 0.5f, 0.0f, 1.0f);
-            
+
             // Write to color map (RGBA8 format)
             color_map_data[color_idx + 0] = static_cast<uint8_t>(color_tint.r * 255.0f);  // R
             color_map_data[color_idx + 1] = static_cast<uint8_t>(color_tint.g * 255.0f);  // G
@@ -208,7 +208,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
     );
 
     auto tessellated_plane = std::make_shared<Plane>();
-    
+
     scene.add(Instance::builder()
         .model(tessellated_plane)
         .position({256.0f, 30.0f, 256.0f})
@@ -232,5 +232,5 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
 }
 
 void LimitlessMaterials::Scene::update(Context& context, const Camera& camera) {
-
+    scene.update(camera);
 }
