@@ -2,6 +2,7 @@
 
 #include <limitless/fx/renderers/emitter_renderer.hpp>
 #include <limitless/core/buffer/buffer_builder.hpp>
+#include <limitless/core/context.hpp>
 
 namespace Limitless::fx {
     template<>
@@ -21,6 +22,7 @@ namespace Limitless::fx {
                         .target(Buffer::Type::ShaderStorage)
                         .usage(Buffer::Usage::DynamicDraw)
                         .access(Buffer::MutableAccess::WriteOrphaning)
+                        .data(nullptr)
                         .size(sizeof(MeshParticle) * max_particle_count)
                         .build();
             }
@@ -35,13 +37,13 @@ namespace Limitless::fx {
                     .target(Buffer::Type::ShaderStorage)
                     .usage(Buffer::Usage::DynamicDraw)
                     .access(Buffer::MutableAccess::WriteOrphaning)
+                    .data(nullptr)
                     .size(sizeof(MeshParticle) * max_particle_count)
                     .build();
         }
 
         void update(ParticleCollector<MeshParticle>& collector) {
             const auto& particles = collector.yield();
-            checkStorageSize(particles.size());
             current_particle_count = particles.size();
             buffer->mapData(particles.data(), sizeof(MeshParticle) * current_particle_count);
         }

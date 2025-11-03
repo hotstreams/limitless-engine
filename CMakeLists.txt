@@ -231,9 +231,9 @@ set(ENGINE_SRC
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/build/cmake")
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/plog")
 
-    target_compile_options(glfw PUBLIC -O3)
-    target_compile_options(freetype PUBLIC -O3)
-    target_compile_options(glew PUBLIC -O3)
+    target_compile_options(glfw PRIVATE -O3)
+    target_compile_options(freetype PRIVATE -O3)
+    target_compile_options(glew PRIVATE -O3)
 
 ##########################################
 add_library(limitless-engine STATIC ${ENGINE_SRC})

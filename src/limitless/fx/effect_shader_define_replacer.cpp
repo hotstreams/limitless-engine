@@ -296,13 +296,27 @@ std::string EffectShaderDefineReplacer::getEffectMaterialDependentDefine(const m
 }
 
 std::string EffectShaderDefineReplacer::getEffectVertexContext(AbstractEmitter::Type emitter_type, const std::set<ModuleType>& modules) {
-    // For effects, VertexContext is minimal - just position
-    return "struct VertexContext {\n    vec3 position;\n};\n";
+    std::string context = "struct VertexContext {\n    vec3 position;\n";
+    
+    // For mesh emitters, add normal for transform calculations
+    if (emitter_type == AbstractEmitter::Type::Mesh) {
+        context += "    vec3 normal;\n";
+    }
+    
+    context += "};\n";
+    
+    return context;
 }
 
 std::string EffectShaderDefineReplacer::getEffectVertexContextAssignment(AbstractEmitter::Type emitter_type, const std::set<ModuleType>& modules) {
-    // For effects, just assign position
-    return "vctx.position = getVertexPosition();\n";
+    std::string assignment = "vctx.position = getVertexPosition();\n";
+    
+    // For mesh emitters, also assign normal
+    if (emitter_type == AbstractEmitter::Type::Mesh) {
+        assignment += "vctx.normal = getVertexNormal();\n";
+    }
+    
+    return assignment;
 }
 
 std::string EffectShaderDefineReplacer::getEffectInterfaceBlockOut(AbstractEmitter::Type emitter_type, const std::set<ModuleType>& modules) {

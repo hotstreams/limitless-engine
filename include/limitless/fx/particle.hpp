@@ -33,7 +33,7 @@ namespace Limitless::fx {
     };
 
     struct alignas(64) MeshParticle {
-        glm::mat4 model;
+        glm::mat4 model {1.0f}; // Identity matrix by default
         // vec4 color
         glm::vec4 color {1.0f};
         // xy - scaling factor; zw - frame uv

@@ -37,10 +37,10 @@ void EffectInstance::updateEmitters(const Camera& camera) const noexcept {
 
 EffectInstance::EffectInstance() noexcept
     : Instance(InstanceType::Effect, glm::vec3{0.0f}) {
-    // Set a large bounding box for effects so they always pass frustum culling
-    // Effects handle their own visibility internally via particle lifetimes
+    // Set a reasonable bounding box for effects
+    // Center is relative to instance position
     bounding_box.center = glm::vec3{0.0f};
-    bounding_box.size = glm::vec3{100.0f}; // Large enough to be visible from most camera positions
+    bounding_box.size = glm::vec3{10.0f}; // Reasonable default for most effects
 }
 
 EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, const glm::vec3& position) noexcept
@@ -49,9 +49,9 @@ EffectInstance::EffectInstance(const std::shared_ptr<EffectInstance>& effect, co
     for (const auto& [emitter_name, emitter] : effect->emitters) {
         emitters.emplace(emitter_name, emitter->clone());
     }
-    // Set a large bounding box for effects so they always pass frustum culling
+    // Set a reasonable bounding box for effects
     bounding_box.center = glm::vec3{0.0f};
-    bounding_box.size = glm::vec3{100.0f};
+    bounding_box.size = glm::vec3{10.0f};
 }
 
 EffectInstance::EffectInstance(const EffectInstance& effect) noexcept

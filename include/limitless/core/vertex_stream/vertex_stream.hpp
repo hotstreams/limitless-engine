@@ -103,6 +103,11 @@ namespace Limitless {
 
         void map() {
             const auto size = data.size();
+            
+            // Don't map empty buffers
+            if (size == 0) {
+                return;
+            }
 
             //TODO: shrink to fit sometimes?
             if (size > vertex_buffer->getSize()) {
