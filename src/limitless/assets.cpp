@@ -141,7 +141,6 @@ ShaderTypes Assets::getRequiredPassShaders(const RendererSettings& settings) {
     pass_shaders.emplace(ShaderType::GBuffer);
     pass_shaders.emplace(ShaderType::Forward);
     // pass_shaders.emplace(ShaderType::Decal);
-    //TODO: what the fuck?
 
     if (settings.cascade_shadow_maps) {
         pass_shaders.emplace(ShaderType::DirectionalShadow);

@@ -115,7 +115,23 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
     context.setLineWidth(2.5f);
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
     for (const auto& instance : scene.getInstances()) {
+        // Skip effects - they don't need bounding box visualization
+        if (instance->getInstanceType() == InstanceType::Effect) {
+            continue;
+        }
+        
+        // Skip instanced instances - they have many sub-instances
+        if (instance->getInstanceType() == InstanceType::Instanced) {
+            continue;
+        }
+        
         auto& bounding_box = instance->getBoundingBox();
+        
+        // Skip invalid bounding boxes
+        if (glm::any(glm::isnan(bounding_box.center)) || glm::any(glm::isnan(bounding_box.size)) ||
+            glm::any(glm::isinf(bounding_box.center)) || glm::any(glm::isinf(bounding_box.size))) {
+            continue;
+        }
 
         box ->setPosition(bounding_box.center)
             .setScale(bounding_box.size)

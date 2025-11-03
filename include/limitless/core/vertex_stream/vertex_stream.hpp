@@ -133,6 +133,7 @@ namespace Limitless {
         void update(std::vector<Vertex> vertex_data) {
             data.resize(sizeof(Vertex) * vertex_data.size());
             std::memcpy(data.data(), vertex_data.data(), sizeof(Vertex) * vertex_data.size());
+            map(); // Upload to GPU
         }
 
         class Builder;

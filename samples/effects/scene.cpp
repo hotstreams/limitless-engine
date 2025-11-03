@@ -82,16 +82,16 @@ void LimitlessMaterials::Scene::setUpEffects() {
     stem->play(stem->getAllAnimations()[0].name);
     scene.add(stem);
 
-    auto mod = Instance::builder()
-        .effect(assets.effects.at("modeldrop"))
-        .position({0.0f, 0.0f, 0.0f})
-        .asEffect();
-
-    const auto& module = mod->get<fx::SpriteEmitter>("sparks").getModule(fx::ModuleType::InitialMeshLocation);
-
-    dynamic_cast<fx::InitialMeshLocation<fx::SpriteParticle>&>(*module).attachModelInstance(stem.get());
-
-    scene.add(mod);
+    // auto mod = Instance::builder()
+    //     .effect(assets.effects.at("modeldrop"))
+    //     .position({0.0f, 0.0f, 0.0f})
+    //     .asEffect();
+    //
+    // const auto& module = mod->get<fx::SpriteEmitter>("sparks").getModule(fx::ModuleType::InitialMeshLocation);
+    //
+    // dynamic_cast<fx::InitialMeshLocation<fx::SpriteParticle>&>(*module).attachModelInstance(stem.get());
+    //
+    // scene.add(mod);
 
     scene.add(Instance::builder()
                       .effect(assets.effects.at("skeleton"))

@@ -107,7 +107,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                           "mctx.color.rgb *= fres * vec3(33.0 / 255.0 * 15.0f, 99.0 / 255.0 * 15.0f, 1000.0 / 255.0 * 25.0f);"
                 )
                 .vertex(
-                        "vertex_position.xyz += sin(getParticleTime() * vertex_offset_freq) * getVertexNormal() * vertex_offset_dir *texture(noise, getParticleTime() + uv).r;")
+                        "ectx.world_position.xyz += sin(getParticleTime() * vertex_offset_freq) * getVertexNormal() * vertex_offset_dir *texture(noise, getParticleTime() + getVertexUV()).r;")
 
                 .global_fragment("#include \"../functions/fresnel.glsl\"")
                 .build(*this);
@@ -176,6 +176,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .addSizeByLife(std::make_unique<ConstDistribution<float>>(1024.0f))
                 .addCustomMaterial(std::make_unique<RangeDistribution<float>>(0.0f, 0.9f), std::make_unique<RangeDistribution<float>>(0.0f, 0.9f), std::make_unique<ConstDistribution<float>>(0.0f), nullptr)
                 .addCustomMaterialByLife(nullptr, nullptr, std::make_unique<ConstDistribution<float>>(1.0f), nullptr)
+                .addTime()
                 .setMaterial(materials.at("fireball_material"))
                 .setSpawnMode(EmitterSpawn::Mode::Spray)
                 .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(1.0, -1.0, -1.0), glm::vec3(2.0, 1.0, 1.0)))
@@ -271,21 +272,21 @@ void LimitlessMaterials::Assets::setUpEffects() {
                 .build(*this);
     }
 
-    {
-        EffectBuilder builder{*this};
-        builder.create("modeldrop")
-                .createEmitter<SpriteEmitter>("sparks")
-                .addLifetime(std::make_unique<ConstDistribution<float>>(0.8f))
-                .addInitialSize(std::make_unique<ConstDistribution<float>>(5.0f))
-                .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.15f, -0.025f, -0.15f), glm::vec3(0.15f, -0.15f, 0.15f)))
-                .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.15f, 0.05f, -0.15f), glm::vec3(0.15f, 0.1f, 0.15f)))
-                .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{2.0f}, glm::vec4{5.0f}))
-                .addInitialMeshLocation(dynamic_cast<SkeletalModel&>(*models.at("model")).getMeshes().at(1))
-                .setMaterial(materials.at("drop"))
-                .setMaxCount(500)
-                .setSpawnRate(500.0f)
-                .build();
-    }
+    // {
+    //     EffectBuilder builder{*this};
+    //     builder.create("modeldrop")
+    //             .createEmitter<SpriteEmitter>("sparks")
+    //             .addLifetime(std::make_unique<ConstDistribution<float>>(0.8f))
+    //             .addInitialSize(std::make_unique<ConstDistribution<float>>(5.0f))
+    //             .addInitialVelocity(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.15f, -0.025f, -0.15f), glm::vec3(0.15f, -0.15f, 0.15f)))
+    //             .addInitialAcceleration(std::make_unique<RangeDistribution<glm::vec3>>(glm::vec3(-0.15f, 0.05f, -0.15f), glm::vec3(0.15f, 0.1f, 0.15f)))
+    //             .addInitialColor(std::make_unique<RangeDistribution<glm::vec4>>(glm::vec4{2.0f}, glm::vec4{5.0f}))
+    //             .addInitialMeshLocation(dynamic_cast<SkeletalModel&>(*models.at("model")).getMeshes().at(1))
+    //             .setMaterial(materials.at("drop"))
+    //             .setMaxCount(500)
+    //             .setSpawnRate(500.0f)
+    //             .build();
+    // }
 
     {
 

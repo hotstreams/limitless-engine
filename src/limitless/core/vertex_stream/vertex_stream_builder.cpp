@@ -169,7 +169,9 @@ VertexStream::Builder& VertexStream::Builder::batch(const std::vector<std::share
 }
 
 std::shared_ptr<VertexStream> VertexStream::Builder::build() {
-    if (vertex_data.empty()) {
+    // For Static usage, vertex data must be provided upfront
+    // For Dynamic/Stream usage, data can be provided later via update()
+    if (vertex_data.empty() && usage_mode == Usage::Static && count_ == 0) {
         throw std::runtime_error("Vertex data should be specified");
     }
 

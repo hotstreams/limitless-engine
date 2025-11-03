@@ -5,6 +5,7 @@
 void process(
     vec3 base_ddx,
     vec3 base_ddy,
+    vec3 vertex_position,
     const float weight,
     const ivec2 index,
     const uint control,
@@ -18,7 +19,7 @@ void process(
     float c_angle = DECODE_ROTATION(control);
     float blend = DECODE_BLEND(control);
 
-    vec3 i_vertex = getVertexWorldPosition().xyz;
+    vec3 i_vertex = vertex_position;
 
     base_ddx *= control_scale;
     base_ddy *= control_scale;
@@ -143,7 +144,7 @@ void calculateTerrain(inout MaterialContext mctx) {
     index[3] = ivec2(getTerrainTexelUV(terrain_texel_base + offsets.xx));
 
     vec3 base_ddx = dFdxCoarse(vertex_position);
-    vec3 base_ddy = dFdxCoarse(vertex_position);
+    vec3 base_ddy = dFdyCoarse(vertex_position);
 
     float region_mip = max(length(base_ddx.xz), length(base_ddy.xz));
     bool normal_bilerp = log2(region_mip * terrain_vertex_density * normal_bilerp_multiplier) < 0.0;
@@ -159,7 +160,7 @@ void calculateTerrain(inout MaterialContext mctx) {
 
     vec3 w_normal = index_normal[3];
 
-    float vertex_camera_distance = length(getVertexWorldPosition().xz - getCameraPosition().xz);
+    float vertex_camera_distance = length(vertex_position.xz - getCameraPosition().xz);
 
     float bias = mix(mipmap_bias,
         depth_blur + 1.0,
@@ -251,6 +252,7 @@ void calculateTerrain(inout MaterialContext mctx) {
     process(
         base_ddx,
         base_ddy,
+        vertex_position,
         base_weight,
         index[3],
         control[3],
@@ -264,6 +266,7 @@ void calculateTerrain(inout MaterialContext mctx) {
         process(
             base_ddx,
             base_ddy,
+            vertex_position,
             weights[2],
             index[2],
             control[2],
@@ -276,6 +279,7 @@ void calculateTerrain(inout MaterialContext mctx) {
         process(
             base_ddx,
             base_ddy,
+            vertex_position,
             weights[1],
             index[1],
             control[1],
@@ -288,6 +292,7 @@ void calculateTerrain(inout MaterialContext mctx) {
         process(
             base_ddx,
             base_ddy,
+            vertex_position,
             weights[0],
             index[0],
             control[0],

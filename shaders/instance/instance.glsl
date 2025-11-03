@@ -13,7 +13,7 @@ struct InstanceContext {
 /*
  *  Instance Uniform Buffer and API for `single model`
  */
-#if defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)
+#if defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL) || defined (ENGINE_MATERIAL_EFFECT_MODEL)
 
 layout (std140) uniform INSTANCE_BUFFER {
     InstanceContext _instance_context;
