@@ -71,7 +71,7 @@ namespace Limitless {
 
         float depth_blur = 0.0f;
 
-        float blend_sharpness = 8.0f;
+        float blend_sharpness = 4.0f;
 
         uint32_t enable_tile_bilerp = 1;
 

@@ -63,7 +63,7 @@ void Instance::Builder::initialize(const std::shared_ptr<ModelInstance>& instanc
 
 Instance::Builder::Builder() noexcept
     : texture_uv_scale_(TerrainInstance::MAX_TEXTURES, 1.0f)
-    , texture_normal_depth_(TerrainInstance::MAX_TEXTURES, 1.0f)
+    , texture_normal_depth_(TerrainInstance::MAX_TEXTURES, 2.0f)
     , texture_detile_(TerrainInstance::MAX_TEXTURES, glm::vec2{1.0f})
 {
 

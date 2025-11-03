@@ -32,7 +32,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
     scene.getLighting().setAmbientColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
 
     scene.add(Light::builder()
-        .color(glm::vec4(1.0f, 1.0f, 1.0f, 2.0f))  // Warm sunlight, high intensity
+        .color(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))  // Warm sunlight, high intensity
         .direction(glm::normalize(glm::vec3{0.5f, -0.7f, 0.3f}))
         .build()
     );

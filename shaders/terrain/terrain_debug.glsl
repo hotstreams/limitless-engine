@@ -17,6 +17,9 @@
 #define DEBUG_TOTAL_WEIGHT 16
 
 void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout MaterialContext mctx, const tile_data mat, bool bilerp, ivec2 texture_ids) {
+    // Set shading model for all debug modes
+    mctx.shading_model = 1u; // ENGINE_SHADING_LIT
+    
     if (debug_mode == DEBUG_NONE) {
         return;
     }
@@ -44,7 +47,7 @@ void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout Materi
 
     // DEBUG_HEIGHTMAP - Show heightmap
     if (debug_mode == DEBUG_HEIGHTMAP) {
-        float h = getVertexPosition().y;
+        float h = getVertexWorldPosition().y;
         float factor = clamp((h - 0.0) / max(terrain_height_scale, 1e-6), 0.0, 1.0);
         mctx.color.xyz = vec3(smoothstep(0.0, 1.0, factor));
         mctx.roughness = 0.7;
@@ -140,7 +143,7 @@ void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout Materi
 
     // DEBUG_COLORMAP - Show color map
     if (debug_mode == DEBUG_COLORMAP) {
-        vec2 vertex_position_xz = getVertexPosition().xz;
+        vec2 vertex_position_xz = getVertexWorldPosition().xz;
         vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position_xz);
         vec2 terrain_texel_base = floor(terrain_texel_uv);
         ivec2 index = ivec2(terrain_texel_base);
@@ -153,7 +156,7 @@ void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout Materi
 
     // DEBUG_ROUGHMAP - Show roughness from color map alpha
     if (debug_mode == DEBUG_ROUGHMAP) {
-        vec2 vertex_position_xz = getVertexPosition().xz;
+        vec2 vertex_position_xz = getVertexWorldPosition().xz;
         vec2 terrain_texel_uv = getTerrainTexelUV(vertex_position_xz);
         vec2 terrain_texel_base = floor(terrain_texel_uv);
         ivec2 index = ivec2(terrain_texel_base);
