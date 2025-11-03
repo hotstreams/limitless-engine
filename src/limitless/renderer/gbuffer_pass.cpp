@@ -20,6 +20,7 @@ void GBufferPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
+    ProfilerScope profile_scope {"GBufferPass"};
 
     ctx.enable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

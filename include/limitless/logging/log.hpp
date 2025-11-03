@@ -1,9 +1,5 @@
 #pragma once
 
-// This is a forwarding header for backward compatibility
-// New code should include <limitless/logging/log.hpp> directly
-#include <limitless/logging/log.hpp>
-
 #include <plog/Appenders/RollingFileAppender.h>
 #include <plog/Appenders/ConsoleAppender.h>
 #include <plog/Formatters/TxtFormatter.h>

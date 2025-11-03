@@ -60,7 +60,7 @@ vec3 computeLights(const ShadingContext sctx) {
     color += sctx.indirect_lighting;
 #endif
 
-    for (uint i = 0u; i < getLightCount(); ++i) {
+    /*for (uint i = 0u; i < getLightCount(); ++i) {
         Light light = getLight(i);
 
         LightingContext lctx = computeLightingContext(sctx, light);
@@ -70,7 +70,7 @@ vec3 computeLights(const ShadingContext sctx) {
         }
 
         color += computeLight(sctx, lctx, light);
-    }
+    }*/
 
     return color;
 }

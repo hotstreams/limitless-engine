@@ -17,6 +17,7 @@ void BloomPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
+    ProfilerScope profile_scope {"Bloom"};
     bloom.process(ctx, assets, renderer.getPass<TranslucentPass>().getResult());
 }
 

@@ -12,12 +12,12 @@ DecalPass::DecalPass(Renderer& renderer)
 
 void DecalPass::render(
         InstanceRenderer& instance_renderer,
-        [[maybe_unused]] Scene &scene,
+        Scene &scene,
         Context &ctx,
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
-
+    ProfilerScope profile_scope {"DecalPass"};
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
     gbuffer.getFramebuffer().readBuffer(FramebufferAttachment::None);

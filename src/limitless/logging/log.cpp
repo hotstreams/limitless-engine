@@ -7,9 +7,8 @@ void Log::init() {
     unlink("log.txt");
 
     plog::init(plog::info, &console_log).addAppender(&file_log);
-}
-
-void Log::registerProfilerExitLogger() {
+    
+    // Automatically register the profiler exit logger
     ProfilerExitLogger::registerExitLogger();
 }
 

@@ -28,6 +28,7 @@ void OutlinePass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
+    ProfilerScope profile_scope {"OutlinePass"};
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

@@ -24,9 +24,15 @@ SSAOPass::SSAOPass(Renderer& renderer)
     , ssao {renderer} {
 }
 
-void SSAOPass::render(InstanceRenderer &instance_renderer, Scene &scene, Context &ctx,
-                      const Assets &assets, const Camera &camera,
-                      UniformSetter &setter) {
+void SSAOPass::render(
+        [[maybe_unused]] InstanceRenderer& instance_renderer,
+        [[maybe_unused]] Scene &scene,
+        Context &ctx,
+        const Assets &assets,
+        [[maybe_unused]] const Camera &camera,
+        UniformSetter &setter) {
+    ProfilerScope profile_scope {"SSAOPass"};
+
     ssao.draw(ctx, assets, renderer.getPass<DeferredFramebufferPass>().getDepth());
 }
 

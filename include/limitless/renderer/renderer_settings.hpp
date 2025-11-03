@@ -19,7 +19,7 @@ namespace Limitless {
         /**
          *  Normal mapping
          */
-        bool normal_mapping {true};
+        bool normal_mapping {false};
 
         /**
          * Screen Space Ambient Occlusion
@@ -59,7 +59,7 @@ namespace Limitless {
         /**
          *
          */
-        bool bloom {true};
+        bool bloom {false};
         float bloom_extract_threshold {1.0f};
         float bloom_strength {1.0f};
         uint32_t bloom_blur_iteration_count {8};
@@ -95,7 +95,7 @@ namespace Limitless {
             /**
              *  Normal mapping
              */
-            bool normal_mapping {true};
+            bool normal_mapping {false};
 
             /**
              * Screen Space Ambient Occlusion
@@ -134,7 +134,7 @@ namespace Limitless {
             /**
              *
              */
-            bool bloom {true};
+            bool bloom {false};
             float bloom_ex_threshold {1.0f};
             float bloom_str {1.0f};
             uint32_t bloom_blur_it_count {8};
