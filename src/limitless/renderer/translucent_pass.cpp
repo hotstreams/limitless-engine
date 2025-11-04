@@ -13,6 +13,7 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/deferred_lighting_pass.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 #include "limitless/core/profiler.hpp"
 
@@ -31,6 +32,8 @@ void TranslucentPass::render(
         [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
     ProfilerScope profile_scope {"TranslucentPass"};
+
+    CpuProfileScope scope(global_profiler, "TranslucentPass::render");
 
     std::array transparent = {
         ms::Blending::Additive,

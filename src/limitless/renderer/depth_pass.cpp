@@ -9,6 +9,7 @@
 #include <limitless/fx/effect_renderer.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 #include "limitless/core/profiler.hpp"
 
@@ -26,6 +27,8 @@ void DepthPass::render(
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
     ProfilerScope profile_scope {"DepthPass"};
+
+    CpuProfileScope scope(global_profiler, "DepthPass::render");
 
     ctx.enable(Capabilities::DepthTest);
 	ctx.enable(Capabilities::StencilTest);

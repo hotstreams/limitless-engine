@@ -13,10 +13,10 @@ TextModel::TextModel(std::vector<TextVertex>&& _vertices)
     initialize(vertices.size());
 }
 
-//TextModel::TextModel(size_t count)
-//    : vertices {} {
-//    initialize(count);
-//}
+TextModel::TextModel(size_t count)
+    : vertices {} {
+    initialize(count);
+}
 
 void TextModel::initialize(size_t count) {
     buffer = Buffer::builder()
@@ -27,7 +27,7 @@ void TextModel::initialize(size_t count) {
             .access(Buffer::MutableAccess::WriteOrphaning)
             .build();
 
-//    vertex_array << std::pair<TextVertex, const std::shared_ptr<Buffer>&>(TextVertex{}, buffer);
+    vertex_array << std::pair<TextVertex, const std::shared_ptr<Buffer>&>(TextVertex{}, buffer);
 }
 
 void TextModel::update(std::vector<TextVertex>&& _vertices) {
@@ -45,7 +45,7 @@ void TextModel::draw() const {
         return;
     }
 
-//    vertex_array.bind();
+    vertex_array.bind();
 
-    // glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 }

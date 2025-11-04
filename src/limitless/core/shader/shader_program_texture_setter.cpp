@@ -4,7 +4,6 @@
 #include <limitless/core/uniform/uniform_sampler.hpp>
 #include <limitless/core/texture/texture_binder.hpp>
 #include <limitless/core/texture/extension_texture.hpp>
-#include <iostream>
 
 using namespace Limitless;
 

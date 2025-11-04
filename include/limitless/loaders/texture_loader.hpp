@@ -39,6 +39,11 @@ namespace Limitless {
         glm::vec4 border_color {0.0f};
 
         TextureLoaderFlags() = default;
+        // TextureLoaderFlags(const TextureLoaderFlags&) = default;
+        // TextureLoaderFlags(TextureLoaderFlags&&) = default;
+        // TextureLoaderFlags& operator=(const TextureLoaderFlags&) = default;
+        // TextureLoaderFlags& operator=(TextureLoaderFlags&&) = default;
+
         TextureLoaderFlags(Origin _origin) noexcept : origin { _origin } {}
         TextureLoaderFlags(Origin _origin, Filter _filter) noexcept : origin { _origin }, filter { _filter } {}
         TextureLoaderFlags(Origin _origin, Space _space) noexcept : origin { _origin }, space {_space} {}
@@ -46,6 +51,32 @@ namespace Limitless {
         TextureLoaderFlags(Filter _filter, Texture::Wrap _wrapping) noexcept : filter { _filter }, wrapping { _wrapping } {}
         TextureLoaderFlags(Space _space) noexcept : space { _space } {}
         TextureLoaderFlags(Texture::Wrap _wrapping) noexcept : wrapping { _wrapping } {}
+
+        TextureLoaderFlags withSpace(Space new_space) const noexcept {
+            auto new_flags = *this;
+            new_flags.space = new_space;
+            return new_flags;
+        }
+
+        TextureLoaderFlags withSrgb() const noexcept {
+            return withSpace(Space::sRGB);
+        }
+
+        TextureLoaderFlags withLinearSpace() const noexcept {
+            return withSpace(Space::Linear);
+        }
+
+        TextureLoaderFlags withNoMipmaps() const noexcept {
+            auto new_flags = *this;
+            new_flags.mipmap = false;
+            return new_flags;
+        }
+
+        TextureLoaderFlags withDownscale(DownScale new_downscale) const noexcept {
+            auto new_flags = *this;
+            new_flags.downscale = new_downscale;
+            return new_flags;
+        }
     };
 
     class texture_loader_exception : public std::runtime_error {

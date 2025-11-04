@@ -144,7 +144,7 @@ static std::vector<ElemType> copyFromAccessor(const cgltf_accessor& accessor) {
 		default:
 			throw ModelLoadError {"unsupported component type"};
 	}
-	
+
 	// Calculate components per element based on type
 	size_t components_per_element = 1;
 	switch (accessor.type) {
@@ -172,7 +172,7 @@ static std::vector<ElemType> copyFromAccessor(const cgltf_accessor& accessor) {
 		default:
 			throw ModelLoadError {"unsupported accessor type"};
 	}
-	
+
 	size_t actual_stride = accessor.stride > 0 ? accessor.stride : (element_size * components_per_element);
 
 	for (cgltf_size i = 0; i < accessor.count; ++i) {
@@ -222,22 +222,22 @@ static std::vector<std::array<float, 4>> copyNormalizedQuaternionsFromAccessor(c
 	if (!accessor.normalized) {
 		throw ModelLoadError {"accessor is not normalized"};
 	}
-	
+
 	if (accessor.type != cgltf_type_vec4) {
 		throw ModelLoadError {"accessor is not vec4 type"};
 	}
-	
+
 	std::vector<std::array<float, 4>> result;
 	result.reserve(accessor.count);
-	
+
 	const uint8_t* data = static_cast<const uint8_t*>(accessor.buffer_view->buffer->data)
 	                      + accessor.buffer_view->offset + accessor.offset;
-	
+
 	size_t actual_stride = accessor.stride > 0 ? accessor.stride : 8; // 4 components * 2 bytes
-	
+
 	for (cgltf_size i = 0; i < accessor.count; ++i) {
 		std::array<float, 4> normalized_quat;
-		
+
 		if (accessor.component_type == cgltf_component_type_r_16) {
 			const int16_t* src = reinterpret_cast<const int16_t*>(data);
 			normalized_quat[0] = src[0] / 32767.0f;
@@ -253,11 +253,11 @@ static std::vector<std::array<float, 4>> copyNormalizedQuaternionsFromAccessor(c
 		} else {
 			throw ModelLoadError {"unsupported component type for normalized quaternions"};
 		}
-		
+
 		result.emplace_back(normalized_quat);
 		data += actual_stride;
 	}
-	
+
 	return result;
 }
 
@@ -623,7 +623,7 @@ Animation loadAnimation(
 		}
 
 		auto keyframe_times = copyFromAccessor<float>(*sampler.input);
-		
+
 		// Debug output
 		std::cout << "Animation " << anim_name << " - Channel " << i << ":" << std::endl;
 		std::cout << "  Input accessor: count=" << sampler.input->count << ", type=" << toString(sampler.input->type) << ", component_type=" << toString(sampler.input->component_type) << std::endl;
@@ -785,7 +785,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const cgltf_material& material,
 	const std::string& model_name,
 	size_t material_index,
-    [[maybe_unused]] const ModelLoaderFlags& flags
+    [[maybe_unused]] const ModelLoaderFlags& model_flags
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
 	const auto material_name = model_name + (material.name
@@ -794,8 +794,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 
 	builder
 		.name(material_name)
-		// .shading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
-		.shading(ms::Shading::Unlit)
+		.shading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
 		.two_sided(material.double_sided);
 
 	switch (material.alpha_mode) {
@@ -950,26 +949,41 @@ static std::shared_ptr<ms::Material> loadMaterial(
 			flags.wrapping = *wrap_t_mode;
 		}
 
-		if (strncmp(img.uri, "data:", 5) == 0) {
-			const char* comma = strchr(img.uri, ',');
-
-			if (comma && comma - img.uri >= 7 && strncmp(comma - 7, ";base64", 7) == 0) {
-				auto buffer = bytesFromBase64(comma + 1);
-
-				return TextureLoader::load(
-					assets,
-					name,
-					buffer.data(),
-					buffer.size(),
-					flags
-				);
-			} else {
-				throw ModelLoadError {"unknown data uri"};
+		if (img.uri == nullptr) {
+			if (!img.buffer_view) {
+				throw ModelLoadError {"texture has no uri and no buffer view"};
 			}
 
+			return TextureLoader::load(
+				assets,
+				name,
+				cgltf_buffer_view_data(img.buffer_view),
+				img.buffer_view->size,
+				flags
+			);
+
 		} else {
-			const auto path = base_path / fs::path(img.uri);
-			return TextureLoader::load(assets, path, flags);
+			if (strncmp(img.uri, "data:", 5) == 0) {
+				const char* comma = strchr(img.uri, ',');
+
+				if (comma && comma - img.uri >= 7 && strncmp(comma - 7, ";base64", 7) == 0) {
+					auto buffer = bytesFromBase64(comma + 1);
+
+					return TextureLoader::load(
+						assets,
+						name,
+						buffer.data(),
+						buffer.size(),
+						flags
+					);
+				} else {
+					throw ModelLoadError {"unknown data uri"};
+				}
+
+			} else {
+				const auto path = base_path / fs::path(img.uri);
+				return TextureLoader::load(assets, path, flags);
+			}
 		}
 	};
 
@@ -987,8 +1001,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 
 		// The base color texture MUST contain 8-bit values encoded with the
 		// sRGB opto-electronic transfer function.
-		// TODO: deduce other flags from cgltf sampler.
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
+		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
+			.withSpace(TextureLoaderFlags::Space::sRGB);
 
 		builder.diffuse(*loadTextureFrom(*base_color_tex, material_name + "_base_color", flags));
 		builder.color(toVec4(pbr_mr.base_color_factor));
@@ -1008,7 +1022,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	auto* normal_tex = material.normal_texture.texture;
 	if (normal_tex && normal_tex->image) {
 		// These values MUST be encoded with a linear transfer function.
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
+		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
+			.withSpace(TextureLoaderFlags::Space::Linear);
 
 		builder.normal(*loadTextureFrom(*normal_tex, material_name + "_normal", flags));
 	}
@@ -1022,7 +1037,8 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	if (emissive_tex && emissive_tex->image) {
 		// This texture contains RGB components encoded with the sRGB transfer
 		// function
-		const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::sRGB);
+		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
+			.withSpace(TextureLoaderFlags::Space::sRGB);
 
 		builder.emissive_mask(*loadTextureFrom(*emissive_tex, material_name + "_emissive_mask", flags));
 	}
@@ -1097,7 +1113,11 @@ static void fixMissingMaterials(
 }
 
 static std::shared_ptr<Model> loadSkeletalModel(
-	Assets& assets, const fs::path& path, const cgltf_data& src, const std::string& model_name, const ModelLoaderFlags& flags
+	Assets& assets,
+	const fs::path& path,
+	const cgltf_data& src,
+	const std::string& model_name,
+	const ModelLoaderFlags& flags
 ) {
 	std::vector<Bone> bones;
 	std::unordered_map<const cgltf_node*, size_t> bone_indice_map;

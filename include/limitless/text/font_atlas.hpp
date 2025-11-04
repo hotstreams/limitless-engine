@@ -37,6 +37,17 @@ namespace Limitless {
          * UVs of this character glyph on font atlas texture.
          */
         std::array<glm::vec2, 4> uvs;
+
+        /**
+         * Whether this character is an icon, meaning that it does not get colored.
+         */
+        bool is_icon;
+    };
+
+    enum class CjkVariant {
+        CHINESE,
+        JAPANESE,
+        KOREAN
     };
 
     struct font_error : public std::runtime_error {
@@ -46,26 +57,55 @@ namespace Limitless {
 
     class FontAtlas {
     public:
-        FontAtlas(const fs::path& path, uint32_t pixel_size);
+        static std::shared_ptr<FontAtlas> load(
+            const fs::path& path,
+            uint32_t pixel_size,
+            std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges = {},
+            std::optional<CjkVariant> _cjk_variant = std::nullopt
+        );
+
+		static std::shared_ptr<FontAtlas> make(
+			uint32_t font_size_in_pixels,
+			std::unordered_map<uint32_t, std::shared_ptr<Texture>> icons
+		);
+
+        FontAtlas(
+            std::unordered_map<uint32_t, FontChar> chars,
+            std::shared_ptr<Texture> texture,
+            uint32_t pixel_size,
+            bool is_icon,
+            std::optional<CjkVariant> cjk_variant
+        );
+
+		FontAtlas(const FontAtlas&) = delete;
+        FontAtlas& operator=(const FontAtlas&) = delete;
+
         ~FontAtlas();
 
         /**
          * Return font vertical size in pixels.
          */
-        [[nodiscard]] auto getFontSize() const noexcept { return font_size; }
+        [[nodiscard]] auto getFontSize() const noexcept { return pixel_size; }
 
         /**
          * Return font character for given Unicode codepoint.
          * If font does not have it, then ""missing/tofu" font character is returned.
          */
-        [[nodiscard]] const FontChar& getFontChar(uint32_t utf32_codepoint) const noexcept;
+        [[nodiscard]] const FontChar& getFontCharOrTofu(uint32_t utf32_codepoint) const noexcept;
+
+        [[nodiscard]] std::optional<std::reference_wrapper<const FontChar>>
+        getFontChar(uint32_t utf32_codepoint) const noexcept;
 
         [[nodiscard]] const auto& getTexture() const { return texture; }
+
+        [[nodiscard]] auto isIconAtlas() const noexcept { return is_icon; }
+
+        [[nodiscard]] auto getCjkVariant() const noexcept { return cjk_variant; }
 
         /**
          * Return vertices for UTF-8 encoded string.
          */
-        [[nodiscard]] std::vector<TextVertex> generate(const std::string& text) const;
+        [[nodiscard]] std::vector<TextVertex> generate(const std::string& text, const glm::vec4& color = glm::vec4(1.0f)) const;
 
         /**
          * Return bounding box for UTF-8 encoded string.
@@ -75,14 +115,13 @@ namespace Limitless {
         /**
          * Return selection geometry for UTF-8 encoded string, from [@begin; @end) range position runes.
          */
-        std::vector<TextVertex> getSelectionGeometry(std::string_view text, size_t begin, size_t end) const;
+        [[nodiscard]] std::vector<TextSelectionVertex> getSelectionGeometry(std::string_view text, size_t begin, size_t end) const;
 
     private:
         std::unordered_map<uint32_t, FontChar> chars;
         std::shared_ptr<Texture> texture;
-        FT_Face face {};
-        uint32_t font_size;
-
-        static constexpr auto TAB_WIDTH_IN_SPACES = 4;
+        uint32_t pixel_size;
+        bool is_icon;
+        std::optional<CjkVariant> cjk_variant;
     };
 }

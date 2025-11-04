@@ -6,6 +6,7 @@
 #include <limitless/core/shader/shader_program.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 #include "limitless/core/profiler.hpp"
 
@@ -31,6 +32,8 @@ void OutlinePass::render(
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
     ProfilerScope profile_scope {"OutlinePass"};
+
+    CpuProfileScope scope(global_profiler, "OutlinePass::render");
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

@@ -43,7 +43,7 @@ namespace LimitlessMaterials {
                             onKey(key, scancode, state, modifier);
                         })
                         .build()
-        }
+            }
             , camera {window_size}
             , render {Limitless::Renderer::builder()
                 .resolution(window_size)
@@ -61,21 +61,16 @@ namespace LimitlessMaterials {
             auto offset = glm::vec2{pos.x - last_move.x, last_move.y - pos.y};
             last_move = pos;
 
-            camera.mouseMove(offset);
+            camera.setRotation(
+                camera.getPitch() + float(offset.y),
+                camera.getYaw() + float(offset.x)
+            );
         }
 
         void onKey(int key, [[maybe_unused]] int scancode, Limitless::InputState state, [[maybe_unused]] Limitless::Modifier modifier) {
             using namespace Limitless;
             if (key == GLFW_KEY_ESCAPE && state == Limitless::InputState::Pressed) {
                 done = true;
-            }
-
-            if (key == GLFW_KEY_SPACE && state == Limitless::InputState::Pressed) {
-                camera.getMoveSpeed() *= 5.0f;
-            }
-
-            if (key == GLFW_KEY_SPACE && state == Limitless::InputState::Released) {
-                camera.getMoveSpeed() /= 5.0f;
             }
 
             if (key == GLFW_KEY_GRAVE_ACCENT && state == Limitless::InputState::Released) {
@@ -92,19 +87,27 @@ namespace LimitlessMaterials {
             using namespace Limitless;
 
             if (context.isPressed(GLFW_KEY_W)) {
-                camera.movement(CameraMovement::Forward, delta);
+                camera.setPosition(camera.getPosition() + camera.getFront() * delta);
             }
 
             if (context.isPressed(GLFW_KEY_S)) {
-                camera.movement(CameraMovement::Backward, delta);
+                camera.setPosition(camera.getPosition() - camera.getFront() * delta);
             }
 
             if (context.isPressed(GLFW_KEY_A)) {
-                camera.movement(CameraMovement::Left, delta);
+                camera.setPosition(camera.getPosition() - camera.getRight() * delta);
             }
 
             if (context.isPressed(GLFW_KEY_D)) {
-                camera.movement(CameraMovement::Right, delta);
+                camera.setPosition(camera.getPosition() + camera.getRight() * delta);
+            }
+
+            if (context.isPressed(GLFW_KEY_SPACE)) {
+                camera.setPosition(camera.getPosition() + camera.getUp() * delta);
+            }
+
+            if (context.isPressed(GLFW_KEY_Z)) {
+                camera.setPosition(camera.getPosition() - camera.getUp() * delta);
             }
         }
 

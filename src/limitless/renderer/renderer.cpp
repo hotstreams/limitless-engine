@@ -34,7 +34,7 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
     instance_renderer.update(scene, camera);
 
     {
-        CPUProfileScope profile_scope {"PassUpdates"};
+        ProfilerScope profile_scope {"PassUpdates"};
         for (const auto& pass: passes) {
             pass->update(scene, camera);
         }
@@ -42,25 +42,21 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
 
     UniformSetter setter;
     {
-        CPUProfileScope profile_scope {"PassRenderLoop"};
+        ProfilerScope profile_scope {"PassRenderLoop"};
         size_t pass_index = 0;
         for (const auto& pass: passes) {
             {
-                CPUProfileScope scope {std::string("Pass[") + std::to_string(pass_index) + "]::render"};
+                ProfilerScope scope {std::string("Pass[") + std::to_string(pass_index) + "]::render"};
                 pass->render(instance_renderer, scene, context, assets, camera, setter);
             }
-            {
-                CPUProfileScope scope {"Pass::addUniformSetter"};
-                pass->addUniformSetter(setter);
-            }
+
+            pass->addUniformSetter(setter);
+
             ++pass_index;
         }
     }
 
-    {
-        CPUProfileScope profile_scope {"GPUProfiler::checkPendingQueries"};
-        global_gpu_profiler.checkPendingQueries();
-    }
+    global_gpu_profiler.checkPendingQueries();
 }
 
 void Renderer::onFramebufferChange(glm::uvec2 size) {
@@ -153,6 +149,11 @@ Renderer::Builder &Renderer::Builder::addOutlinePass() {
     return *this;
 }
 
+Renderer::Builder &Renderer::Builder::addCompositeWithBloomPass() {
+    renderer->passes.emplace_back(std::make_unique<CompositeWithBloomPass>(*renderer));
+    return *this;
+}
+
 Renderer::Builder &Renderer::Builder::addCompositePass() {
     renderer->passes.emplace_back(std::make_unique<CompositePass>(*renderer));
     return *this;
@@ -195,8 +196,12 @@ Renderer::Builder &Renderer::Builder::deferred() {
     if (renderer->settings.bloom) {
         addBloomPass();
     }
-    // addOutlinePass();
-    addCompositePass();
+    addOutlinePass();
+    if (renderer->settings.bloom) {
+        addCompositeWithBloomPass();
+    } else {
+        addCompositePass();
+    }
     if (renderer->settings.fast_approximate_antialiasing) {
         addFXAAPass();
     }

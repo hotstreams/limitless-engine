@@ -111,9 +111,14 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
         add("brightness", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/bloom/brightness"));
     }
 
-    add("deferred", compiler.compile(shader_dir / "pipeline/quad",shader_dir / "pipeline/deferred"));
-    add("composite", compiler.compile(shader_dir / "pipeline/quad",shader_dir / "pipeline/composite"));
-    add("outline", compiler.compile(shader_dir / "pipeline/quad",shader_dir / "pipeline/outline"));
+    add("deferred", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/deferred"));
+    if (settings.bloom) {
+        add("composite_with_bloom", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/composite_with_bloom"));
+    } else {
+        add("composite", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/composite"));
+    }
+    add("outline", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/outline"));
+
 
     if (settings.screen_space_ambient_occlusion) {
         add("ssao", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/ssao/ssao"));
@@ -136,6 +141,7 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
 
     add("text", compiler.compile(shader_dir / "text/text"));
     add("text_selection", compiler.compile(shader_dir / "text/text_selection"));
+    add("icon_text", compiler.compile(shader_dir / "text/icon_text"));
 }
 
 void ShaderStorage::clear() {

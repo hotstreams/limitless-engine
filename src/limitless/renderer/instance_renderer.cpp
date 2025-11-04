@@ -182,29 +182,12 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
         return;
     }
 
-    if (drawp.type == ShaderType::GBuffer)
-    {
-        ProfilerScope scope{"terrain"};
+    render(*instance.getMesh().cross, drawp);
 
-        render(*instance.getMesh().cross, drawp);
-
-        renderVisibleInstancedInstance(*instance.getMesh().tiles, drawp);
-        renderVisibleInstancedInstance(*instance.getMesh().fillers, drawp);
-        renderVisibleInstancedInstance(*instance.getMesh().trims, drawp);
-        renderVisibleInstancedInstance(*instance.getMesh().seams, drawp);
-    } else {
-        render(*instance.getMesh().cross, drawp);
-
-        renderVisibleInstancedInstance(*instance.getMesh().tiles, drawp);
-        renderVisibleInstancedInstance(*instance.getMesh().fillers, drawp);
-        renderVisibleInstancedInstance(*instance.getMesh().trims, drawp);
-        renderVisibleInstancedInstance(*instance.getMesh().seams, drawp);
-    }
-   // std::cout << "total :" << instance.mesh.tiles->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.tiles).size() << std::endl;
-
-    // if (auto instances = frustum_culling.getVisibleModelInstanced(instance.getId()); !instances.empty()) {
-    //     render(*instances[0], drawp);
-    // }
+    renderVisibleInstancedInstance(*instance.getMesh().tiles, drawp);
+    renderVisibleInstancedInstance(*instance.getMesh().fillers, drawp);
+    renderVisibleInstancedInstance(*instance.getMesh().trims, drawp);
+    renderVisibleInstancedInstance(*instance.getMesh().seams, drawp);
 }
 
 void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters &drawp) {
@@ -221,13 +204,9 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
             return;
         }
 
-        // set render state: shaders, material, blending, etc
         setRenderState(instance, mesh, drawp);
-    // drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-        // draw vertices
-        mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
-        // drawp.ctx.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 
+        mesh.getMesh()->draw_instanced(instance.getVisibleInstances().size());
     }
 }
 

@@ -156,7 +156,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
 
 	#if LIMITLESS_OPENGL_DEBUG
         if (!isPowerOfTwo(width, height)) {
-        	std::cerr << path.string() << " has not 2^n size, its not recommended to have it!" << std::endl;
+        	std::cerr << path.string() << " size is not a power of 2, please resize!" << std::endl;
         }
 	#endif
 

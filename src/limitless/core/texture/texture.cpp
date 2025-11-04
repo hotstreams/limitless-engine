@@ -6,6 +6,9 @@
 #include <limitless/core/framebuffer.hpp>
 #include <utility>
 
+#include <iostream>
+#include <sstream>
+
 using namespace Limitless;
 
 void Texture::storage(const void* data) {
@@ -279,4 +282,98 @@ void Texture::copy(std::shared_ptr<Texture> origin, size_t layer, std::shared_pt
     auto to = Framebuffer::fromTexture(std::move(destination), layer);
 
     to.blit(from, Filter::Nearest);
+}
+
+static std::string formatToString(GLenum format) {
+    switch (format) {
+        case GL_RED: return "GL_RED";
+        case GL_RG: return "GL_RG";
+        case GL_RGB: return "GL_RGB";
+        case GL_RGBA: return "GL_RGBA";
+        case GL_DEPTH_COMPONENT: return "GL_DEPTH_COMPONENT";
+        case GL_STENCIL_INDEX: return "GL_STENCIL_INDEX";
+        case GL_DEPTH_STENCIL: return "GL_DEPTH_STENCIL";
+        default: return "Unknown";
+    }
+}
+
+static std::string dataTypeToString(GLenum dataType) {
+    switch (dataType) {
+        case GL_UNSIGNED_BYTE: return "GL_UNSIGNED_BYTE";
+        case GL_FLOAT: return "GL_FLOAT";
+        case GL_INT: return "GL_INT";
+        case GL_UNSIGNED_INT: return "GL_UNSIGNED_INT";
+        case GL_SHORT: return "GL_SHORT";
+        case GL_UNSIGNED_SHORT: return "GL_UNSIGNED_SHORT";
+        case GL_BYTE: return "GL_BYTE";
+        case GL_UNSIGNED_INT_24_8: return "GL_UNSIGNED_INT_24_8";
+        default: return "Unknown";
+    }
+}
+
+static std::string targetToString(GLenum target) {
+    switch (target) {
+        case GL_TEXTURE_2D: return "GL_TEXTURE_2D";
+        case GL_TEXTURE_3D: return "GL_TEXTURE_3D";
+        case GL_TEXTURE_CUBE_MAP: return "GL_TEXTURE_CUBE_MAP";
+        case GL_TEXTURE_CUBE_MAP_ARRAY: return "GL_TEXTURE_CUBE_MAP_ARRAY";
+        default: return "Unknown";
+    }
+}
+
+static std::string bytesToHexString(const std::vector<std::byte>& bytes) {
+    std::stringstream ss;
+    for (const auto& byte : bytes) {
+        ss << std::hex << static_cast<int>(static_cast<unsigned char>(byte)) << " ";
+    }
+    return ss.str();
+}
+
+std::vector<std::byte> Texture::getPixels() noexcept {
+    std::vector<std::byte> pixels;
+    pixels.resize(size.x * size.y * getBytesPerPixel());
+
+    bind(0);
+    glGetTexImage(static_cast<GLenum>(target),
+                  0,  // mipmap level
+                  static_cast<GLenum>(format),
+                  static_cast<GLenum>(data_type),
+                  pixels.data());
+
+    return pixels;
+}
+
+size_t Texture::getBytesPerPixel() const noexcept {
+    const auto channels = [&]() -> size_t {
+        switch (format) {
+            case Format::DepthComponent: return 1;
+            case Format::StencilIndex: return 1;
+            case Format::DepthStencil: return 2;
+            case Format::Red: return 1;
+            case Format::Green: return 1;
+            case Format::Blue: return 1;
+            case Format::RG: return 2;
+            case Format::RGInt: return 2;
+            case Format::RGB: return 3;
+            case Format::RGBInt: return 3;
+            case Format::RGBA: return 4;
+        };
+        throw std::runtime_error("Invalid format");
+    }();
+
+    const auto bytes_per_channel = [&]() -> size_t {
+        switch (data_type) {
+            case DataType::UnsignedByte: return 1;
+            case DataType::Float: return 4;
+            case DataType::Int: return 4;
+            case DataType::UnsignedInt: return 4;
+            case DataType::Short: return 2;
+            case DataType::UnsignedShort: return 2;
+            case DataType::Byte: return 1;
+            case DataType::Uint24_8: return 3;
+        };
+        throw std::runtime_error("Invalid data type");
+    }();
+
+    return channels * bytes_per_channel;
 }

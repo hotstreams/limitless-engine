@@ -43,7 +43,10 @@ public:
 		};
 		last_mouse_pos   = mouse_pos;
 
-		camera.mouseMove(offset);
+		camera.setRotation(
+			camera.getPitch() + float(offset.y),
+			camera.getYaw() + float(offset.x)
+		);
 	}
 
 private:
@@ -170,7 +173,7 @@ int main(int argc, char* argv[]) {
 
 
 	camera.setPosition({0.0f, 0.0f, 0.0f});
-	camera.setFront({1.f, 0.f, 0.f});
+	camera.setRotation(0.0f, 0.0f);
 
 	if (!Limitless::ContextInitializer::checkMinimumRequirements()) {
 		std::cerr << "Minimum graphics card requirements are not met!" << std::endl;
@@ -202,27 +205,27 @@ int main(int argc, char* argv[]) {
 		ctx.pollEvents();
 
 		if (ctx.isPressed(GLFW_KEY_W)) {
-			camera.movement(CameraMovement::Forward, delta);
+			camera.setPosition(camera.getPosition() + camera.getFront() * delta);
 		}
 
 		if (ctx.isPressed(GLFW_KEY_S)) {
-			camera.movement(CameraMovement::Backward, delta);
+			camera.setPosition(camera.getPosition() - camera.getFront() * delta);
 		}
 
 		if (ctx.isPressed(GLFW_KEY_A)) {
-			camera.movement(CameraMovement::Left, delta);
+			camera.setPosition(camera.getPosition() - camera.getRight() * delta);
 		}
 
 		if (ctx.isPressed(GLFW_KEY_D)) {
-			camera.movement(CameraMovement::Right, delta);
+			camera.setPosition(camera.getPosition() + camera.getRight() * delta);
 		}
 
 		if (ctx.isPressed(GLFW_KEY_SPACE)) {
-			camera.movement(CameraMovement::Up, delta);
+			camera.setPosition(camera.getPosition() + camera.getUp() * delta);
 		}
 
 		if (ctx.isPressed(GLFW_KEY_Z)) {
-			camera.movement(CameraMovement::Down, delta);
+			camera.setPosition(camera.getPosition() - camera.getUp() * delta);
 		}
 
 		if (ctx.isPressed(GLFW_KEY_Q)) {

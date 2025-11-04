@@ -1,6 +1,7 @@
 #include <limitless/instances/instance.hpp>
 #include <limitless/instances/instance_builder.hpp>
 #include <limitless/core/buffer/buffer_builder.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -155,6 +156,7 @@ Instance& Instance::setBoundingBox(const Box& box) noexcept {
 }
 
 void Instance::update(const Camera &camera) {
+    CpuProfileScope scope(global_profiler, "Instance::update");
 	// updates current model matrices
 	updateModelMatrix();
 	updateFinalMatrix();

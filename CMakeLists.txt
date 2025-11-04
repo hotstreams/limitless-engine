@@ -24,6 +24,7 @@ set(ENGINE_CORE
     src/limitless/core/context_observer.cpp
     src/limitless/core/state_query.cpp
     src/limitless/core/profiler.cpp
+    src/limitless/core/cpu_profiler.cpp
     src/limitless/core/time_query.cpp
 
     src/limitless/core/texture/texture.cpp
@@ -108,6 +109,7 @@ set(ENGINE_LOADERS
 
 set(ENGINE_MODELS
     src/limitless/models/text_model.cpp
+    src/limitless/models/text_selection_model.cpp
     src/limitless/models/skeletal_model.cpp
     src/limitless/models/cube.cpp
     src/limitless/models/line.cpp
@@ -148,6 +150,7 @@ set(ENGINE_MS
 set(ENGINE_TEXT
     src/limitless/text/text_instance.cpp
     src/limitless/text/font_atlas.cpp
+    src/limitless/text/type_setter.cpp
 )
 
 set(ENGINE_FX

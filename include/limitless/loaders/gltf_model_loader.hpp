@@ -8,6 +8,7 @@
 
 namespace Limitless {
 	class Model;
+	class TextureLoaderFlags;
 
 	enum class ModelLoaderOption {
 		FlipUV,
@@ -28,6 +29,7 @@ namespace Limitless {
 		std::set<ModelLoaderOption> options;
 		float scale_factor {1.0f};
 		InstanceTypes additional_instance_types;
+		TextureLoaderFlags base_tex_flags;
 
 		auto isPresent(ModelLoaderOption option) const { return options.count(option) != 0; }
 
@@ -45,11 +47,16 @@ namespace Limitless {
 			options.emplace(ModelLoaderOption::LOD);
 			return *this;
 		}
+
+		ModelLoaderFlags& baseTextureLoaderFlags(TextureLoaderFlags tex_flags) {
+			base_tex_flags = std::move(tex_flags);
+			return *this;
+		}
 	};
 
 	class GltfModelLoader {
 	public:
-		// Load a 3D model from given file.
+		// Load a GLTF 3D model from given file.
 		// Will also attempt to load materials referenced in model definition.
 		// Returns a shared pointer to resulting model on success.
 		// Provided assets are modified.

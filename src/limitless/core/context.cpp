@@ -1,6 +1,7 @@
 #include <limitless/core/context.hpp>
 #include <utility>
 #include <stb_image.h>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -158,6 +159,7 @@ glm::uvec2 Context::getSize() const noexcept {
 }
 
 glm::vec2 Context::getCursorPos() const noexcept {
+    CpuProfileScope ps {global_profiler, "Context::getCursorPos"};
     double x, y;
     glfwGetCursorPos(window, &x, &y);
 

@@ -45,10 +45,10 @@ namespace Limitless {
         Builder& wrap_t(Texture::Wrap wrap);
         Builder& wrap_r(Texture::Wrap wrap);
 
-        void useStateExtensionTexture();
-        void useNamedExtensionTexture();
-        void useBindlessExtensionTexture();
-        void useBestSupportedExtensionTexture();
+        Builder& useStateExtensionTexture();
+        Builder& useNamedExtensionTexture();
+        Builder& useBindlessExtensionTexture();
+        Builder& useBestSupportedExtensionTexture();
 
         std::shared_ptr<Texture> buildMutable();
         std::shared_ptr<Texture> buildImmutable();

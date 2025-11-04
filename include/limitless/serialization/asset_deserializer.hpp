@@ -2,6 +2,7 @@
 
 #include <limitless/util/bytebuffer.hpp>
 
+#include <cstdint>
 #include <set>
 
 namespace Limitless {

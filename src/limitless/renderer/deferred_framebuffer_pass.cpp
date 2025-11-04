@@ -40,7 +40,7 @@ void DeferredFramebufferPass::render(
         [[maybe_unused]] const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
-    CPUProfileScope profile_scope {"DeferredFramebufferPass"};
+    ProfilerScope scope{"DeferredFramebufferPass"};
     ctx.setViewPort(framebuffer.get(FramebufferAttachment::Color0).texture->getSize());
     ctx.setDepthMask(DepthMask::True);
     ctx.disable(Capabilities::Blending);
