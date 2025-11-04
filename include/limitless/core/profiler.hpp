@@ -13,7 +13,7 @@ namespace Limitless {
         using Duration = std::chrono::nanoseconds;
         
         // Maximum number of frames to keep per identifier
-        static constexpr size_t MAX_FRAME_COUNT = 128;
+        static constexpr size_t MAX_FRAME_COUNT = 4098;
 
         struct GPUPeriod {
             QueryID start_query;
@@ -70,7 +70,7 @@ namespace Limitless {
         using TimePoint = std::chrono::high_resolution_clock::time_point;
         
         // Maximum number of frames to keep per identifier
-        static constexpr size_t MAX_FRAME_COUNT = 128;
+        static constexpr size_t MAX_FRAME_COUNT = 4096;
 
         struct CPUFrame {
             void record(Duration duration);

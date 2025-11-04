@@ -4,6 +4,7 @@
 #include <limitless/assets.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/scene.hpp>
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -19,5 +20,6 @@ void RenderDebugPass::render(
         const Assets &assets,
         const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
+    CPUProfileScope profile_scope {"RenderDebugPass"};
     helper.render(ctx, assets, camera, scene.getLighting(), scene);
 }

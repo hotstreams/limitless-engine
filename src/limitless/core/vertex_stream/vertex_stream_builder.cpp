@@ -222,7 +222,7 @@ std::shared_ptr<VertexStream> VertexStream::Builder::build() {
 
             auto skeletal_buffer = buildSkeletalBuffer();
 
-            for (int i = 4; i < vertex_attributes.size(); ++i) {
+            for (size_t i = 4; i < vertex_attributes.size(); ++i) {
                 vertex_attributes.at(i).buffer = skeletal_buffer;
             }
             auto vertex_array = buildVertexArray();

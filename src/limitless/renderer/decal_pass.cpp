@@ -4,6 +4,8 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 DecalPass::DecalPass(Renderer& renderer)
@@ -12,7 +14,7 @@ DecalPass::DecalPass(Renderer& renderer)
 
 void DecalPass::render(
         InstanceRenderer& instance_renderer,
-        Scene &scene,
+        [[maybe_unused]] Scene &scene,
         Context &ctx,
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,

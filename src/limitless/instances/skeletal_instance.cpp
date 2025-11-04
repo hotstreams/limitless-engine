@@ -181,7 +181,7 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
-glm::vec3 SkeletalInstance::getSkinnedVertexPosition(const std::shared_ptr<Mesh>& mesh, size_t vertex_index) const {
+glm::vec3 SkeletalInstance::getSkinnedVertexPosition([[maybe_unused]] const std::shared_ptr<Mesh>& mesh, [[maybe_unused]] size_t vertex_index) const {
 //    const auto& skinned_mesh = dynamic_cast<SkinnedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*mesh).getVertexStream());
 //
 //    const auto& bone_weight = skinned_mesh.getBoneWeights().at(vertex_index);

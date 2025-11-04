@@ -6,6 +6,8 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/core/context.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 DirectionalShadowPass::DirectionalShadowPass(Renderer& renderer)

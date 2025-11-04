@@ -7,6 +7,8 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 OutlinePass::OutlinePass(Renderer& renderer)

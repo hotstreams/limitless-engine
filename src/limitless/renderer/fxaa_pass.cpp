@@ -9,6 +9,8 @@
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 FXAAPass::FXAAPass(Renderer& renderer)

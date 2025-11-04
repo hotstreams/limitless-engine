@@ -25,7 +25,7 @@ std::shared_ptr<Mesh> GeoClipMap::_create_mesh(
 		 .build();
 }
 
-std::vector<std::shared_ptr<Mesh>> GeoClipMap::generate(const int p_size, const int p_levels) {
+std::vector<std::shared_ptr<Mesh>> GeoClipMap::generate(const int p_size, [[maybe_unused]] const int p_levels) {
     std::shared_ptr<Mesh> tile_mesh;
     std::shared_ptr<Mesh> filler_mesh;
     std::shared_ptr<Mesh> trim_mesh;

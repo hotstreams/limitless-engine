@@ -37,7 +37,11 @@ namespace Limitless::fx {
             return (m1 * a) + (m2 * b) + (m3 * c);
         }
 
-        glm::vec3 getPositionOnMesh(const std::shared_ptr<Mesh>& _mesh, size_t vertex_index, float r1, float r2) {
+        glm::vec3 getPositionOnMesh(
+            [[maybe_unused]] const std::shared_ptr<Mesh>& _mesh,
+            [[maybe_unused]] size_t vertex_index,
+            [[maybe_unused]] float r1,
+            [[maybe_unused]] float r2) {
 //            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*_mesh).getVertexStream());
 //            const auto& vertices = indexed_mesh.getVertices();
 //            const auto& indices = indexed_mesh.getIndices();
@@ -66,6 +70,7 @@ namespace Limitless::fx {
 //                                         vertices[v_index2].position,
 //                                         vertices[v_index3].position,
 //                                         r1, r2), 1.0f);
+            return {};
         }
 
         InitialMeshLocation(ModuleType type, std::shared_ptr<Mesh> _mesh) noexcept
@@ -98,7 +103,7 @@ namespace Limitless::fx {
             return selected_mesh;
         }
 
-        auto getVertexIndex(const std::shared_ptr<Mesh>& selected_mesh) {
+        auto getVertexIndex([[maybe_unused]] const std::shared_ptr<Mesh>& selected_mesh) {
 //            const auto& indexed_mesh = dynamic_cast<IndexedVertexStream<VertexNormalTangent>&>(dynamic_cast<Mesh&>(*selected_mesh).getVertexStream());
 //            const auto& indices = indexed_mesh.getIndices();
 //            using vector_size_type = typename std::remove_reference_t<decltype(indices)>::size_type;
@@ -157,7 +162,7 @@ namespace Limitless::fx {
         auto& getRotation() noexcept { return rotation; }
         const auto& getRotation() const noexcept { return rotation; }
 
-        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, [[maybe_unused]] size_t index) noexcept override {
+        void initialize([[maybe_unused]] AbstractEmitter& emitter, [[maybe_unused]] Particle& particle, [[maybe_unused]] size_t index) noexcept override {
 //            const auto selected_mesh = getSelectedMesh();
 //            const auto vertex_index = getVertexIndex(selected_mesh);
 //            const auto triangle_pos = getTrianglePosition();

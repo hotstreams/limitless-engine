@@ -15,10 +15,6 @@ struct LightingContext {
     float visibility;
     float LoH;
     float attenuation;
-
-#if defined (ENGINE_MATERIAL_SPECULAR_GGX)
-    float lambdaV;
-#endif
 };
 
 float getAttenuation(const ShadingContext sctx, const Light light) {
@@ -59,10 +55,6 @@ LightingContext computeLightingContext(const ShadingContext sctx, const Light li
     lctx.NoL = max(saturate(dot(sctx.N, lctx.L)), MIN_NoL);
     lctx.NoH = saturate(dot(sctx.N, lctx.H));
     lctx.LoH = saturate(dot(lctx.L, lctx.H));
-
-#if defined (ENGINE_MATERIAL_SPECULAR_GGX)
-    lctx.lambdaV = lctx.NoL * sqrt((sctx.NoV - sctx.a2 * sctx.NoV) * sctx.NoV + sctx.a2);
-#endif
 
     return lctx;
 }

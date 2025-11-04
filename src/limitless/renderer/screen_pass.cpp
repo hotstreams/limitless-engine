@@ -8,6 +8,7 @@
 #include <limitless/renderer/deferred_lighting_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/fxaa_pass.hpp>
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -27,6 +28,7 @@ void ScreenPass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
+    CPUProfileScope profile_scope {"ScreenPass"};
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

@@ -9,6 +9,9 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/util/renderer_helper.hpp>
 
+#include "limitless/core/profiler.hpp"
+#include "limitless/logging/log.hpp"
+
 namespace LimitlessMaterials {
     class MaterialsScene {
     private:
@@ -49,7 +52,7 @@ namespace LimitlessMaterials {
                 .build()}
             , assets {context, *render, ENGINE_ASSETS_DIR}
             , scene {context, assets} {
-            camera.setPosition({280.0f, 30.0f, 256.0f});
+            camera.setPosition({125.01f, 35.85f, 254.0f});
             assets.recompileAssets(context, render->getSettings());
         }
 
@@ -142,8 +145,27 @@ namespace LimitlessMaterials {
     };
 }
 
+template<typename ProfilerType>
+static void printProfilerFrames(const ProfilerType& profiler) {
+    for (const auto& [name, frame] : profiler.frames) {
+        std::cout << name << ": min " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMinDuration()).count()
+                  << ", max " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getMaxDuration()).count()
+                  << ", avg " << std::chrono::duration_cast<std::chrono::microseconds>(frame.getAverageDuration()).count()
+                  << ", n " << frame.getCount() << std::endl;
+    }
+}
+
 int main() {
+    // Initialize logging system
+    Limitless::Log::init();
+
     LimitlessMaterials::MaterialsScene scene;
     scene.gameLoop();
+
+    std::cout << "GPU" << std::endl;
+    printProfilerFrames(Limitless::global_gpu_profiler);
+    std::cout << "CPU" << std::endl;
+    printProfilerFrames(Limitless::global_cpu_profiler);
+
     return 0;
 }

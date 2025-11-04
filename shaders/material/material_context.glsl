@@ -211,15 +211,15 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #endif
     normal = normalize(normal * 2.0 - 1.0);
 
-    // Simple TBN reconstruction
     vec3 N = normalize(mctx.vertex_normal);
     vec3 T = normalize(mctx.tangent);
-    
-    // Re-orthogonalize
-    T = normalize(T - dot(T, N) * N);
+
+    //T = normalize(T - dot(T, N) * N);
     vec3 B = normalize(cross(N, T));
-    
-    mat3 TBN = mat3(T, B, N);
+
+    normal = normalize(mix(N, T * normal.x + B * normal.y + N * normal.z, 1.0));
+
+    //mat3 TBN = mat3(T, B, N);
 
 #if defined (ENGINE_MATERIAL_TWO_SIDED)
     TBN[0] = gl_FrontFacing ? TBN[0] : -TBN[0];
@@ -227,9 +227,9 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
     TBN[2] = gl_FrontFacing ? TBN[2] : -TBN[2];
 #endif
 
-    vec3 result = normalize(TBN * normal);
+    //vec3 result = normalize(TBN * normal);
     
-    return result;
+    return normal;
 #else
     vec3 normal = normalize(mctx.vertex_normal);
 #endif

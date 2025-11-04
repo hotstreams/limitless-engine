@@ -17,9 +17,6 @@
 #define DEBUG_TOTAL_WEIGHT 16
 
 void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout MaterialContext mctx, const tile_data mat, bool bilerp, ivec2 texture_ids) {
-    // Set shading model for all debug modes
-    mctx.shading_model = 1u; // ENGINE_SHADING_LIT
-    
     if (debug_mode == DEBUG_NONE) {
         return;
     }
@@ -42,6 +39,7 @@ void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout Materi
         mctx.color.xyz = vec3(0.2);
         mctx.roughness = 0.7;
         mctx.metallic = 0.0;
+        mctx.ao = 0.0;
         return;
     }
 

@@ -33,17 +33,34 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
 
     instance_renderer.update(scene, camera);
 
-    for (const auto& pass: passes) {
-        pass->update(scene, camera);
+    {
+        CPUProfileScope profile_scope {"PassUpdates"};
+        for (const auto& pass: passes) {
+            pass->update(scene, camera);
+        }
     }
 
     UniformSetter setter;
-    for (const auto& pass: passes) {
-        pass->render(instance_renderer, scene, context, assets, camera, setter);
-        pass->addUniformSetter(setter);
+    {
+        CPUProfileScope profile_scope {"PassRenderLoop"};
+        size_t pass_index = 0;
+        for (const auto& pass: passes) {
+            {
+                CPUProfileScope scope {std::string("Pass[") + std::to_string(pass_index) + "]::render"};
+                pass->render(instance_renderer, scene, context, assets, camera, setter);
+            }
+            {
+                CPUProfileScope scope {"Pass::addUniformSetter"};
+                pass->addUniformSetter(setter);
+            }
+            ++pass_index;
+        }
     }
 
-    global_gpu_profiler.checkPendingQueries();
+    {
+        CPUProfileScope profile_scope {"GPUProfiler::checkPendingQueries"};
+        global_gpu_profiler.checkPendingQueries();
+    }
 }
 
 void Renderer::onFramebufferChange(glm::uvec2 size) {

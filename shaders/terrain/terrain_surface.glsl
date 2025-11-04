@@ -146,9 +146,10 @@ void calculateTerrain(inout MaterialContext mctx) {
     vec3 base_ddx = dFdxCoarse(vertex_position);
     vec3 base_ddy = dFdyCoarse(vertex_position);
 
-    float region_mip = max(length(base_ddx.xz), length(base_ddy.xz));
-    bool normal_bilerp = log2(region_mip * terrain_vertex_density * normal_bilerp_multiplier) < 0.0;
-    bool tile_bilerp = log2(region_mip * terrain_vertex_density * tile_bilerp_multiplier) < 0.0;
+    float region_mip = log2(max(length(base_ddx.xz), length(base_ddy.xz)) * terrain_vertex_density);
+
+    bool normal_bilerp = region_mip < normal_bilerp_multiplier;
+    bool tile_bilerp = region_mip < tile_bilerp_multiplier;
 
     vec3 index_normal[4];
     float h[4];
@@ -185,8 +186,6 @@ void calculateTerrain(inout MaterialContext mctx) {
             index_normal[1] * weights[1] +
             index_normal[2] * weights[2] +
             index_normal[3] * weights[3];
-
-        w_normal = normalize(w_normal);
     }
 
     vec4 color_map = fetchColor(index[3]);
@@ -317,13 +316,13 @@ void calculateTerrain(inout MaterialContext mctx) {
     mctx.ao = clamp(1.0 - ao, mat.albedo_height.a, 1.0);
 
     mctx.vertex_normal = w_normal;
-    mctx.shading_model = 1u; // ENGINE_SHADING_LIT
+    mctx.shading_model = 1u;
 
     #if (defined(ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)
         vec3 norm = normalize(mat.normal_roughness.xzy);
 
-        norm.xy *= mat.normal_depth;
-        norm.z = sqrt(max(0.0, 1.0 - dot(norm.xy, norm.xy)));
+        //norm.xy *= mat.normal_depth;
+        //norm.z = sqrt(max(0.0, 1.0 - dot(norm.xy, norm.xy)));
 
         mctx.normal = fma(normalize(norm), vec3(0.5), vec3(0.5));
 
@@ -331,7 +330,7 @@ void calculateTerrain(inout MaterialContext mctx) {
     #endif
 
     // Apply debug visualization if enabled
-    //applyDebugVisualization(17, terrain_uv, control[3], mctx, mat, bilerp, texture_ids[3]);
+    //applyDebugVisualization(DEBUG_BILERP, terrain_uv, control[3], mctx, mat, tile_bilerp && bool(enable_tile_bilerp), texture_ids[3]);
 
 /*
     if (bool(terrain_show_tiles)) {

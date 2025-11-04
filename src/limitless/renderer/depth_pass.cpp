@@ -10,6 +10,8 @@
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 DepthPass::DepthPass(Renderer& renderer)
@@ -18,7 +20,7 @@ DepthPass::DepthPass(Renderer& renderer)
 
 void DepthPass::render(
         InstanceRenderer& instance_renderer,
-        Scene &scene,
+        [[maybe_unused]] Scene &scene,
         Context &ctx,
         [[maybe_unused]] const Assets &assets,
         [[maybe_unused]] const Camera &camera,

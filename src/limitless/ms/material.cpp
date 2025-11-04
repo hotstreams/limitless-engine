@@ -87,6 +87,9 @@ void Material::Buffer::map(std::vector<std::byte>& block, Uniform& uniform) {
                 case UniformValueType::Vec4:
                     map<glm::vec4>(block, uniform);
                     break;
+                case UniformValueType::IVec4:
+                    map<glm::ivec4>(block, uniform);
+                    break;
                 case UniformValueType::Mat4:
                     map<glm::mat4>(block, uniform);
                     break;
@@ -177,6 +180,17 @@ void Material::Buffer::map(std::vector<std::byte>& block, Uniform& uniform) {
                     auto* data = block.data() + offset;
                     for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
                         std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(glm::vec4));
+                    }
+                }
+                break;
+            case UniformValueType::IVec4:
+                {
+                    auto& uniform_array = static_cast<UniformValueArray<glm::ivec4>&>(uniform);
+                    const auto offset = uniform_offsets.at(uniform.getName());
+                    // std140: Each ivec4 array element is aligned to 16 bytes
+                    auto* data = block.data() + offset;
+                    for (size_t i = 0; i < uniform_array.getValues().size(); ++i) {
+                        std::memcpy(data + i * 16, &uniform_array.getValues()[i], sizeof(glm::ivec4));
                     }
                 }
                 break;

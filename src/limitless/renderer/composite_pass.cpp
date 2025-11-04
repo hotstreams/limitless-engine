@@ -7,6 +7,7 @@
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/renderer/translucent_pass.hpp>
 #include <limitless/renderer/outline_pass.hpp>
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -26,6 +27,7 @@ void CompositePass::render(
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
+    CPUProfileScope profile_scope {"CompositePass"};
 
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);

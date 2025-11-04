@@ -9,6 +9,8 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 DeferredLightingPass::DeferredLightingPass(Renderer& renderer)
@@ -22,10 +24,10 @@ std::shared_ptr<Texture> DeferredLightingPass::getResult() {
 
 void DeferredLightingPass::render(
         [[maybe_unused]] InstanceRenderer& instance_renderer,
-        Scene &scene,
+        [[maybe_unused]] Scene &scene,
         Context &ctx,
         const Assets &assets,
-        const Camera &camera,
+        [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
     ProfilerScope profile_scope {"DeferredLightingPass"};
 

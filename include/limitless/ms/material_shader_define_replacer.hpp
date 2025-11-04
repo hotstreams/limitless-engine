@@ -120,8 +120,6 @@ namespace Limitless {
             static std::string getVertexStreamGettersDeclaration(InstanceType instance_type);
 
             static std::string getVertexContextDeclaration(
-                const Material& material,
-                const RendererSettings& settings,
                 InstanceType type
             );
 
@@ -132,8 +130,6 @@ namespace Limitless {
             );
 
             static std::string getVertexContextCompute(
-                const Material& material,
-                const RendererSettings& settings,
                 InstanceType type
             );
 

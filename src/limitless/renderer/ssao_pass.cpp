@@ -17,6 +17,8 @@
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 SSAOPass::SSAOPass(Renderer& renderer)
@@ -30,7 +32,7 @@ void SSAOPass::render(
         Context &ctx,
         const Assets &assets,
         [[maybe_unused]] const Camera &camera,
-        UniformSetter &setter) {
+        [[maybe_unused]] UniformSetter &setter) {
     ProfilerScope profile_scope {"SSAOPass"};
 
     ssao.draw(ctx, assets, renderer.getPass<DeferredFramebufferPass>().getDepth());
@@ -40,7 +42,7 @@ void SSAOPass::onFramebufferChange(glm::uvec2 size) {
     ssao.onFramebufferChange(size);
 }
 
-void SSAOPass::update(Scene &scene, const Camera &camera) {
+void SSAOPass::update([[maybe_unused]] Scene &scene, const Camera &camera) {
     ssao.update(camera);
 }
 

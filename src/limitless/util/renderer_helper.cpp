@@ -11,6 +11,8 @@
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/cylinder.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
+#include <limitless/core/profiler.hpp>
+#include <iostream>
 
 using namespace Limitless;
 using namespace Limitless::ms;
@@ -106,6 +108,7 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
 }
 
 void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Scene& scene) {
+    CPUProfileScope profile_scope {"renderBoundingBoxes::inner"};
     auto box = Instance::builder()
         .model(assets.models.at("cube"))
         .material(assets.materials.at("default"))
@@ -114,14 +117,28 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
 
     context.setLineWidth(2.5f);
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
+    
+    size_t instance_count = 0;
+    size_t skipped_count = 0;
+    size_t rendered_count = 0;
+    
     for (const auto& instance : scene.getInstances()) {
+        ++instance_count;
         // Skip effects - they don't need bounding box visualization
         if (instance->getInstanceType() == InstanceType::Effect) {
+            ++skipped_count;
             continue;
         }
         
         // Skip instanced instances - they have many sub-instances
         if (instance->getInstanceType() == InstanceType::Instanced) {
+            ++skipped_count;
+            continue;
+        }
+        
+        // Skip terrain instances - they have thousands of tiles
+        if (instance->getInstanceType() == InstanceType::Terrain) {
+            ++skipped_count;
             continue;
         }
         
@@ -130,6 +147,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
         // Skip invalid bounding boxes
         if (glm::any(glm::isnan(bounding_box.center)) || glm::any(glm::isnan(bounding_box.size)) ||
             glm::any(glm::isinf(bounding_box.center)) || glm::any(glm::isinf(bounding_box.size))) {
+            ++skipped_count;
             continue;
         }
 
@@ -138,20 +156,33 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
             .update(camera);
 
         InstanceRenderer::render(*box, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
+        ++rendered_count;
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
+    
+    // Debug output (only once)
+    static bool printed = false;
+    if (!printed) {
+        std::cout << "BoundingBox debug: total=" << instance_count 
+                  << " skipped=" << skipped_count 
+                  << " rendered=" << rendered_count << std::endl;
+        printed = true;
+    }
 }
 
 void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {
     if (settings.bounding_box) {
+        CPUProfileScope profile_scope {"renderBoundingBoxes"};
         renderBoundingBoxes(context, assets, camera, scene);
     }
 
     if (settings.coordinate_system_axes) {
+        CPUProfileScope profile_scope {"renderCoordinateSystemAxes"};
         renderCoordinateSystemAxes(context, assets);
     }
 
     if (settings.light_radius) {
+        CPUProfileScope profile_scope {"renderLightsVolume"};
         renderLightsVolume(context, lighting, assets, camera);
     }
 }

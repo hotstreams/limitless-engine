@@ -16,6 +16,7 @@
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/uniform/uniform_setter.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -24,7 +25,8 @@ SSRPass::SSRPass(Renderer& renderer)
     , ssr {renderer} {
 }
 
-void SSRPass::render(InstanceRenderer &instance_renderer, Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) {
+void SSRPass::render([[maybe_unused]] InstanceRenderer &instance_renderer, [[maybe_unused]] Scene &scene, Context &ctx, const Assets &assets, const Camera &camera, [[maybe_unused]] UniformSetter &setter) {
+    CPUProfileScope profile_scope {"SSRPass"};
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
     ssr.draw(ctx, assets, camera, gbuffer.getDepth(), gbuffer.getNormal(), gbuffer.getProperties(), gbuffer.getAlbedo());

@@ -41,6 +41,7 @@ VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
         };
     case InstanceType::BatchedModel:
     case InstanceType::Effect:
+    case InstanceType::SkeletalInstanced:
         throw std::runtime_error("not implemented");
     }
 }
@@ -82,6 +83,7 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
             {0, "position"}
         };
     case InstanceType::Effect:
+    case InstanceType::SkeletalInstanced:
         throw std::runtime_error("not implemented");
     }
 }
@@ -150,9 +152,9 @@ void MaterialShaderDefineReplacer::replaceMaterialDependentDefine(
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomShading], material.getShadingSnippet());
 
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Stream], getVertexStreamDeclaration(model_shader) + getVertexStreamGettersDeclaration(model_shader));
-    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::VertexContext], getVertexContextDeclaration(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::VertexContext], getVertexContextDeclaration(model_shader));
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockOut], getVertexContextInterfaceBlockOut(material, settings, model_shader));
-    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(material, settings, model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(model_shader));
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::PassThrough], getVertexPassThrough(material, settings, model_shader));
 
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockIn], getVertexContextInterfaceBlockIn(material, settings, model_shader) + getVertexContextInterfaceBlockInGetters(material, settings, model_shader));
@@ -187,15 +189,15 @@ std::string MaterialShaderDefineReplacer::getMaterialBufferDeclaration(const Mat
     std::string buffer = "layout (std140) uniform MATERIAL_BUFFER {\n";
 
     for (const auto& [_, uniform] : material.getProperties()) {
-        if ((uniform->getType() != UniformType::Sampler && uniform->getType() != UniformType::SamplerArray) ||
-            ((uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported())) {
+        if ((uniform->getType() != UniformType::Sampler) ||
+            ((uniform->getType() == UniformType::Sampler) && ContextInitializer::isBindlessTextureSupported())) {
             buffer.append(getUniformDeclaration(*uniform));
         }
     }
 
     for (const auto& [_, uniform] : material.getUniforms()) {
-        if ((uniform->getType() != UniformType::Sampler && uniform->getType() != UniformType::SamplerArray) ||
-            ((uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported())) {
+        if ((uniform->getType() != UniformType::Sampler) ||
+            ((uniform->getType() == UniformType::Sampler) && ContextInitializer::isBindlessTextureSupported())) {
             buffer.append(getUniformDeclaration(*uniform));
         }
     }
@@ -205,13 +207,13 @@ std::string MaterialShaderDefineReplacer::getMaterialBufferDeclaration(const Mat
     buffer.append("};\n");
 
     for (const auto& [_, uniform] : material.getProperties()) {
-        if ((uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported()) {
+        if ((uniform->getType() == UniformType::Sampler) && ContextInitializer::isBindlessTextureSupported()) {
             buffer.append(getUniformDeclaration(*uniform));
         }
     }
 
     for (const auto& [_, uniform] : material.getUniforms()) {
-        if ((uniform->getType() == UniformType::Sampler || uniform->getType() == UniformType::SamplerArray) && ContextInitializer::isBindlessTextureSupported()) {
+        if ((uniform->getType() == UniformType::Sampler) && ContextInitializer::isBindlessTextureSupported()) {
             buffer.append(getUniformDeclaration(*uniform));
         }
     }
@@ -320,8 +322,6 @@ std::string MaterialShaderDefineReplacer::getVertexStreamGettersDeclaration(Inst
 }
 
 std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(
-    const Material& material,
-    const RendererSettings& settings,
     InstanceType type
 ) {
     std::string context_declaration = "struct VertexContext {\n";
@@ -347,8 +347,6 @@ std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(
 }
 
 std::string MaterialShaderDefineReplacer::getVertexContextCompute(
-    const Material& material,
-    const RendererSettings& settings,
     InstanceType type
 ) {
     std::string context_assignment;
@@ -381,16 +379,16 @@ std::string MaterialShaderDefineReplacer::getVertexContextCompute(
         return result;
     };
 
-    auto generate_vertex_getter = [to_camel_case] (const std::string& name, DataType type) {
+    auto generate_vertex_getter = [to_camel_case] (const std::string& name) {
         return "getVertex" + to_camel_case(name) + "();\n";
     };
 
-    auto get_assignment = [generate_vertex_getter] (const std::string& name, DataType type) {
-        return "vctx." + name + + " = " + generate_vertex_getter(name, type);
+    auto get_assignment = [generate_vertex_getter] (const std::string& name) {
+        return "vctx." + name + + " = " + generate_vertex_getter(name);
     };
 
-    for (const auto& [index, type] : input_type) {
-        context_assignment += get_assignment(name_map.at(index), type);
+    for (const auto& [index, _] : input_type) {
+        context_assignment += get_assignment(name_map.at(index));
     }
 
     if (type == InstanceType::Instanced) {
@@ -595,16 +593,16 @@ std::string MaterialShaderDefineReplacer::getFragmentVertexContextCompute(
         return result;
     };
 
-    auto generate_vertex_getter = [to_camel_case] (const std::string& name, DataType type) {
+    auto generate_vertex_getter = [to_camel_case] (const std::string& name) {
         return "getVertex" + to_camel_case(name) + "();\n";
     };
 
-    auto get_assignment = [generate_vertex_getter] (const std::string& name, DataType type) {
-        return "vctx." + name + + " = " + generate_vertex_getter(name, type);
+    auto get_assignment = [generate_vertex_getter] (const std::string& name) {
+        return "vctx." + name + + " = " + generate_vertex_getter(name);
     };
 
-    for (const auto& [index, type] : input_type) {
-        context += get_assignment(name_map.at(index), type);
+    for (const auto& [index, _] : input_type) {
+        context += get_assignment(name_map.at(index));
     }
 
     // additional vertex context parameters
@@ -634,12 +632,12 @@ std::string MaterialShaderDefineReplacer::getVertexPassThrough(
     auto input_type = getInputTypeFromInstanceType(type);
     auto name_map = getNameMappingFromInstanceType(type);
 
-    auto generate_attribute_decl = [] (const std::string& name, DataType type) {
+    auto generate_attribute_decl = [] (const std::string& name) {
         return "_out_vertex_context." + name + " = vctx." + name + ";\n";
     };
 
-    for (const auto& [index, type] : input_type) {
-        pass_through += generate_attribute_decl(name_map.at(index), type);
+    for (const auto& [index, _] : input_type) {
+        pass_through += generate_attribute_decl(name_map.at(index));
     }
 
     // additional vertex context parameters

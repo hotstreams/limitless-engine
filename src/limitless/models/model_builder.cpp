@@ -72,7 +72,7 @@ Model::Builder& Model::Builder::add_lods(const std::vector<std::shared_ptr<Model
     return *this;
 }
 
-std::shared_ptr<Model> Model::Builder::build(Assets& assets) {
+std::shared_ptr<Model> Model::Builder::build([[maybe_unused]] Assets& assets) {
     // if (name_.empty()) {
     //     throw std::runtime_error("Model name cannot be empty.");
     // }

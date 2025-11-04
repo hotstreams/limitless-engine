@@ -6,6 +6,7 @@
 #include <limitless/core/framebuffer.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -14,6 +15,7 @@ SkyboxPass::SkyboxPass(Renderer& renderer)
 }
 
 void SkyboxPass::render([[maybe_unused]] InstanceRenderer &instance_renderer, Scene &scene, Context &ctx, const Assets &assets, [[maybe_unused]] const Camera &camera, [[maybe_unused]] UniformSetter &setter) {
+    CPUProfileScope profile_scope {"SkyboxPass"};
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
     gbuffer.getFramebuffer().drawBuffers({

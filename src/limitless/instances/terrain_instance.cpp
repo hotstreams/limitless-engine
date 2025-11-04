@@ -186,7 +186,7 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
             .color(glm::vec4(1.0f))
 
-            .shading(Shading::Lit)
+            .shading(Shading::Unlit)
             .models({InstanceType::Instanced, InstanceType::Model, InstanceType::Terrain})
 
             .normal_map()
@@ -379,22 +379,17 @@ void TerrainInstance::setTileBilerpMultiplier(float multiplier)
 }
 
 void TerrainInstance::setTextureUVScales(const std::vector<float>& scales) {
-    // Update all texture scales at once
-    // This would need to be implemented based on your material system
+    texture_uv_scale = scales;
 }
 
-
 void TerrainInstance::setTextureColors(const std::vector<glm::vec4>& colors) {
-    // Update all texture colors at once
-    // This would need to be implemented based on your material system
+    color_map->subImage(0, {0, 0}, color_map->getSize(), colors.data());
 }
 
 void TerrainInstance::setTextureNormalDepths(const std::vector<float>& normal_depths) {
-    // Update all texture normal depths at once
-    // This would need to be implemented based on your material system
+    texture_normal_depth = normal_depths;
 }
 
-void TerrainInstance::setTextureDetiles(const std::vector<glm::vec2>& normal_depths)
-{
-
+void TerrainInstance::setTextureDetiles(const std::vector<glm::vec2>& detiles) {
+    texture_detile = detiles;
 }

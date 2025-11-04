@@ -9,7 +9,7 @@ vec3 DiffuseBRDF(const ShadingContext sctx, const LightingContext lctx) {
 vec3 SpecularBRDF(const ShadingContext sctx, const LightingContext lctx) {
     float D = D_GGX(sctx.roughness, lctx.NoH);
     #if defined (ENGINE_MATERIAL_SPECULAR_GGX)
-    float V = V_SmithGGXCorrelated(sctx.NoV, lctx.NoL, sctx.a2, lctx.lambdaV);
+    float V = V_SmithGGXCorrelated(sctx.NoV, lctx.NoL, sctx.a2);
     #elif defined (ENGINE_MATERIAL_SPECULAR_GGX_FAST)
     float V = V_SmithGGXCorrelatedFast(sctx.roughness, sctx.NoV, lctx.NoL);
     #endif

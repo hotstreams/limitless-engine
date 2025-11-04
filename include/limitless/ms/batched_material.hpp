@@ -160,10 +160,10 @@ namespace Limitless::ms {
                         }
                     }
                         break;
-                    case UniformType::SamplerArray: {
+                    // case UniformType::SamplerArray: {
                         // TODO: Implement SamplerArray handling
                         // This case is added to prevent compiler warnings
-                    }
+                    // }
                         break;
                     case UniformType::Time: {
 //                        auto uniform_time = static_cast<UniformTime&>(*uniforms[uniform->getName()]);

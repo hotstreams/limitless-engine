@@ -3,6 +3,8 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/translucent_pass.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 BloomPass::BloomPass(Renderer& renderer)

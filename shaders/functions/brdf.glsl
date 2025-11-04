@@ -32,7 +32,8 @@ float D_GGX(float roughness, float NoH) {
 }
 
 // "Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs", Heitz 2014
-float V_SmithGGXCorrelated(float NoV, float NoL, float a2, float lambdaV) {
+float V_SmithGGXCorrelated(float NoV, float NoL, float a2) {
+    float lambdaV = NoL * sqrt((NoV - a2 * NoV) * NoV + a2);
     float lambdaL = NoV * sqrt((NoL - a2 * NoL) * NoL + a2);
     return 0.5 / (lambdaV + lambdaL);
 }

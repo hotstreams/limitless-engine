@@ -100,14 +100,9 @@ std::string EffectShaderDefineReplacer::getEmitterDefines(const AbstractEmitter&
     return defines;
 }
 
-std::string EffectShaderDefineReplacer::getSpriteEmitterVertexStream(const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getSpriteEmitterVertexStream([[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string stream;
-    
-    // IMPORTANT: C++ EmitterRenderer ALWAYS sets up ALL attributes (0-6) unconditionally
-    // The SpriteParticle struct always has all fields, so we must declare all vertex inputs
-    // Only the getters/usage should be conditional based on modules
-    
-    // Fixed locations to match C++ EmitterRenderer setup (sprite_emitter_renderer.hpp)
+
     stream += "layout(location = 0) in vec4 vertex_color;\n";
     stream += "layout(location = 1) in vec4 vertex_subUV;\n";
     stream += "layout(location = 2) in vec4 vertex_properties;\n";
@@ -119,10 +114,9 @@ std::string EffectShaderDefineReplacer::getSpriteEmitterVertexStream(const std::
     return stream;
 }
 
-std::string EffectShaderDefineReplacer::getSpriteEmitterVertexGetters(const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getSpriteEmitterVertexGetters([[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string getters;
     
-    // All data is always present in the vertex buffer, so provide all getters
     getters += "vec4 getParticleColor() {\n    return vertex_color;\n}\n";
     getters += "vec4 getParticleSubUV() {\n    return vertex_subUV;\n}\n";
     getters += "vec4 getParticleProperties() {\n    return vertex_properties;\n}\n";
@@ -137,13 +131,9 @@ std::string EffectShaderDefineReplacer::getSpriteEmitterVertexGetters(const std:
     return getters;
 }
 
-std::string EffectShaderDefineReplacer::getBeamEmitterVertexStream(const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getBeamEmitterVertexStream([[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string stream;
-    
-    // IMPORTANT: C++ EmitterRenderer ALWAYS sets up ALL attributes (0-9) unconditionally
-    // The BeamParticleMapping struct always has all fields, so we must declare all vertex inputs
-    
-    // Fixed locations to match C++ EmitterRenderer setup (beam_emitter_renderer.hpp)
+
     stream += "layout(location = 0) in vec4 vertex_position;\n";
     stream += "layout(location = 1) in vec4 vertex_color;\n";
     stream += "layout(location = 2) in vec4 vertex_subUV;\n";
@@ -158,10 +148,9 @@ std::string EffectShaderDefineReplacer::getBeamEmitterVertexStream(const std::se
     return stream;
 }
 
-std::string EffectShaderDefineReplacer::getBeamEmitterVertexGetters(const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getBeamEmitterVertexGetters([[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string getters;
     
-    // All data is always present in the vertex buffer, so provide all getters
     getters += "vec3 getVertexPosition() {\n    return vertex_position.xyz;\n}\n";
     getters += "vec4 getParticleColor() {\n    return vertex_color;\n}\n";
     getters += "vec4 getParticleSubUV() {\n    return vertex_subUV;\n}\n";
@@ -180,10 +169,9 @@ std::string EffectShaderDefineReplacer::getBeamEmitterVertexGetters(const std::s
     return getters;
 }
 
-std::string EffectShaderDefineReplacer::getMeshEmitterVertexStream(const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getMeshEmitterVertexStream([[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string stream;
     
-    // Regular mesh vertex inputs
     stream += "layout(location = 0) in vec3 _vertex_position;\n";
     stream += "layout(location = 1) in vec3 _vertex_normal;\n";
     stream += "#if defined(ENGINE_MATERIAL_NORMAL_TEXTURE) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)\n";
@@ -198,10 +186,9 @@ std::string EffectShaderDefineReplacer::getMeshEmitterVertexStream(const std::se
     return stream;
 }
 
-std::string EffectShaderDefineReplacer::getMeshEmitterVertexGetters(const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getMeshEmitterVertexGetters([[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string getters;
     
-    // Mesh vertex getters
     getters += "vec3 getVertexPosition() {\n    return _vertex_position;\n}\n";
     getters += "vec3 getVertexNormal() {\n    return _vertex_normal;\n}\n";
     getters += "vec2 getVertexUV() {\n    return _vertex_uv;\n}\n";
@@ -213,7 +200,6 @@ std::string EffectShaderDefineReplacer::getMeshEmitterVertexGetters(const std::s
     getters += "vec4 getVertexBoneWeight() {\n    return _vertex_bone_weight;\n}\n";
     getters += "#endif\n";
     
-    // SSBO particle structure
     getters += "struct MeshParticle {\n";
     getters += "    mat4 model;\n";
     getters += "    vec4 color;\n";
@@ -229,7 +215,6 @@ std::string EffectShaderDefineReplacer::getMeshEmitterVertexGetters(const std::s
     getters += "    MeshParticle _particles[];\n";
     getters += "};\n";
     
-    // Particle data getters from SSBO
     getters += "mat4 getModelMatrix() {\n    return _particles[gl_InstanceID].model;\n}\n";
     getters += "vec4 getParticleColor() {\n    return _particles[gl_InstanceID].color;\n}\n";
     getters += "vec4 getParticleSubUV() {\n    return _particles[gl_InstanceID].subUV;\n}\n";
@@ -295,7 +280,7 @@ std::string EffectShaderDefineReplacer::getEffectMaterialDependentDefine(const m
     return define;
 }
 
-std::string EffectShaderDefineReplacer::getEffectVertexContext(AbstractEmitter::Type emitter_type, const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getEffectVertexContext(AbstractEmitter::Type emitter_type, [[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string context = "struct VertexContext {\n    vec3 position;\n";
     
     // For mesh emitters, add normal for transform calculations
@@ -308,10 +293,9 @@ std::string EffectShaderDefineReplacer::getEffectVertexContext(AbstractEmitter::
     return context;
 }
 
-std::string EffectShaderDefineReplacer::getEffectVertexContextAssignment(AbstractEmitter::Type emitter_type, const std::set<ModuleType>& modules) {
+std::string EffectShaderDefineReplacer::getEffectVertexContextAssignment(AbstractEmitter::Type emitter_type, [[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string assignment = "vctx.position = getVertexPosition();\n";
     
-    // For mesh emitters, also assign normal
     if (emitter_type == AbstractEmitter::Type::Mesh) {
         assignment += "vctx.normal = getVertexNormal();\n";
     }
@@ -322,7 +306,6 @@ std::string EffectShaderDefineReplacer::getEffectVertexContextAssignment(Abstrac
 std::string EffectShaderDefineReplacer::getEffectInterfaceBlockOut(AbstractEmitter::Type emitter_type, const std::set<ModuleType>& modules) {
     std::string block = "out _vertex_data {\n";
     
-    // Add fields based on modules and emitter type
     if (modules.count(ModuleType::InitialColor)) {
         block += "    vec4 color;\n";
     }
@@ -641,11 +624,10 @@ std::string EffectShaderDefineReplacer::getEffectInterfaceBlockInGetters(Abstrac
     return getters;
 }
 
-std::string EffectShaderDefineReplacer::getEffectFragmentContext(AbstractEmitter::Type emitter_type, const std::set<ModuleType>& modules) {
-    // For effects in fragment shader, VertexContext needs position and uv
+std::string EffectShaderDefineReplacer::getEffectFragmentContext(AbstractEmitter::Type emitter_type, [[maybe_unused]] const std::set<ModuleType>& modules) {
     std::string context = "struct VertexContext {\n";
     context += "    vec3 position;\n";
-    context += "    vec2 uv;\n"; // All emitters need UV (sprites use gl_PointCoord, others use vertex data)
+    context += "    vec2 uv;\n";
     
     if (emitter_type == AbstractEmitter::Type::Mesh) {
         context += "    vec3 normal;\n";

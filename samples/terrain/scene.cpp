@@ -26,7 +26,6 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
         .build()
     );
 
-    // Setup skybox for reflections and ambient lighting
     scene.setSkybox(assets.skyboxes.at("skybox"));
 
     scene.getLighting().setAmbientColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
@@ -74,7 +73,7 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
                 blend_factor += (test - 0.5f) * 0.1f; // ±5% variation
                 v.blend = static_cast<uint32_t>(glm::clamp(blend_factor, 0.0f, 1.0f) * 255.0f);
             } else if (elevation >= 0.6f && elevation < 0.7f) {
-                // Mid elevation: Dirt with grass transitions
+                // Mid-elevation: Dirt with grass transitions
                 if (humidity >= 0.35f) {
                     // Humid mid-elevation: Pure grass
                     v.base_id = 1;

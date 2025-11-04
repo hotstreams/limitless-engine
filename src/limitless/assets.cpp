@@ -120,13 +120,20 @@ void Assets::recompileAssets(Context& ctx, const RendererSettings& settings) {
 void Assets::compileMaterial(Context& ctx, const RendererSettings& settings, const std::shared_ptr<ms::Material>& material) {
     ms::MaterialCompiler compiler {ctx, *this, settings};
 
+    auto pass_shaders = getRequiredPassShaders(settings);
+
+    if (material->getModelShaders().count(InstanceType::Decal))
+    {
+        pass_shaders.emplace(ShaderType::Decal);
+    }
+
     for (const auto& model_shader_type : material->getModelShaders()) {
         // effect shaders compiled separately
         if (model_shader_type == InstanceType::Effect) {
             continue;
         }
 
-        for (const auto& pass_shader : getRequiredPassShaders(settings)) {
+        for (const auto& pass_shader : pass_shaders) {
             if (!shaders.reserveIfNotContains(pass_shader, model_shader_type, material->getShaderIndex())) {
                 compiler.compile(*material, pass_shader, model_shader_type);
             }

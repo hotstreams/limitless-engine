@@ -22,11 +22,13 @@ struct ShadingContext {
     vec3 F0;
     float ambientOcclusion;
 
-    vec3 emissive_color;
+    vec3 energyCompensation;
     float alpha;
 
-    vec3 indirect_lighting;
+    vec3 emissive_color;
     uint shading_model;
+
+    vec3 indirect_lighting;
 };
 
 ShadingContext computeShadingContext(
@@ -69,6 +71,12 @@ ShadingContext computeShadingContext(
     float dielectricF0 = computeDielectricF0(reflectance);
     context.F0 = mix(vec3(dielectricF0), baseColor, context.metallic);
     context.ambientOcclusion = ambientOcclusion;
+    
+    // Compute energy compensation once per pixel
+    // "Multiple-Scattering Microfacet BSDFs with the Smith Model"
+    vec3 dfg = EnvBRDFApprox(context.F0, context.roughness, context.NoV);
+    context.energyCompensation = 1.0 + context.F0 * (1.0 / max(dfg.y, 1e-5) - 1.0);
+    
     context.emissive_color = emissive_color;
 
 #if defined (ENGINE_MATERIAL_ANISOTROPY)

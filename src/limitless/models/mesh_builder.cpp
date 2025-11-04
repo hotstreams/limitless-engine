@@ -45,9 +45,8 @@ std::shared_ptr<Mesh> Mesh::Builder::build() {
     if (!meshes.empty()) {
         auto descriptions = getDescriptions();
 
-        // return batched mesh
         auto mesh = meshes[0];
-        for (int i = 1; i < meshes.size(); ++i) {
+        for (size_t i = 1; i < meshes.size(); ++i) {
             mesh->stream->merge(meshes[i]->getVertexStream());
         }
 

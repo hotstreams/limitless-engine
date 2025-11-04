@@ -19,7 +19,7 @@ namespace Limitless {
         /**
          *  Normal mapping
          */
-        bool normal_mapping {false};
+        bool normal_mapping {true};
 
         /**
          * Screen Space Ambient Occlusion
@@ -83,19 +83,19 @@ namespace Limitless {
         /**
          * Render System Axes
          */
-        bool coordinate_system_axes = true;
+        bool coordinate_system_axes = false;
 
         /**
          * Render bounding boxes
          */
-        bool bounding_box = true;
+        bool bounding_box = false;
 
         class Builder {
         private:
             /**
              *  Normal mapping
              */
-            bool normal_mapping {false};
+            bool normal_mapping {true};
 
             /**
              * Screen Space Ambient Occlusion

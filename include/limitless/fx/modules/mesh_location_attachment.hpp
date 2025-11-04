@@ -28,7 +28,7 @@ namespace Limitless::fx {
         MeshLocationAttachment(const MeshLocationAttachment&) = default;
         MeshLocationAttachment& operator=(const MeshLocationAttachment&) noexcept = default;
 
-        void initialize([[maybe_unused]] AbstractEmitter& emitter, Particle& particle, size_t index) noexcept override {
+        void initialize([[maybe_unused]] AbstractEmitter& emitter, [[maybe_unused]] Particle& particle, [[maybe_unused]] size_t index) noexcept override {
 //            const auto selected_mesh = this->getSelectedMesh();
 //            const auto vertex_index = this->getVertexIndex(selected_mesh);
 //            const auto triangle_pos = this->getTrianglePosition();

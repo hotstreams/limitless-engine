@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limitless/instances/model_instance.hpp>
+#include <limitless/core/profiler.hpp>
 #include <iostream>
 
 namespace Limitless {
@@ -17,6 +18,7 @@ namespace Limitless {
         std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instances_of_instanced_instances;
     public:
         void update(Scene& scene, Camera& camera) {
+            CPUProfileScope profile_scope {"FrustumCulling::update"};
             visible.clear();
             visible_instances_of_instanced_instances.clear();
 
@@ -24,6 +26,7 @@ namespace Limitless {
 
             for (auto& instance : scene.getInstances()) {
                 if (instance->getInstanceType() == InstanceType::Instanced) {
+                    CPUProfileScope profile_scope_instanced {"FC::Instanced"};
                     auto& instanced = static_cast<InstancedInstance&>(*instance); //NOLINT
 
                     for (auto& i: instanced.getInstances()) {
@@ -36,6 +39,7 @@ namespace Limitless {
                         visible.emplace_back(instance);
                     }
                 } else if (instance->getInstanceType() == InstanceType::Terrain) {
+                    CPUProfileScope profile_scope_terrain {"FC::Terrain"};
                     auto& terrain = static_cast<TerrainInstance&>(*instance); //NOLINT
 
                     for (auto& i: terrain.getMesh().seams->getInstances()) {

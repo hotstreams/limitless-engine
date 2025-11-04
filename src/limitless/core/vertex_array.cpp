@@ -26,7 +26,7 @@ void VertexArray::initialize() {
         setElementBuffer(element_buffer);
     }
 
-    Context::apply([this] (Context& ctx) {
+    Context::apply([] (Context& ctx) {
         ctx.vertex_array_id = 0;
         glBindVertexArray(0);
     });

@@ -6,6 +6,7 @@
 #include <limitless/core/texture/texture.hpp>
 #include <limitless/core/uniform/uniform.hpp>
 #include <limitless/core/uniform/uniform_value_array.hpp>
+#include <cstring>
 
 
 using namespace Limitless;
@@ -96,6 +97,11 @@ bool Limitless::operator<(const Uniform& lhs, const Uniform& rhs) noexcept {
                     const auto& rhs_v = static_cast<const UniformValue<glm::vec4>&>(rhs).getValue(); //NOLINT
                     return std::tie(lhs_v.x, lhs_v.y, lhs_v.z, lhs_v.w) < std::tie(rhs_v.x, rhs_v.y, rhs_v.z, rhs_v.w);
                 }
+                case DataType::IVec4: {
+                    const auto& lhs_v = static_cast<const UniformValue<glm::ivec4>&>(lhs).getValue(); //NOLINT
+                    const auto& rhs_v = static_cast<const UniformValue<glm::ivec4>&>(rhs).getValue(); //NOLINT
+                    return std::tie(lhs_v.x, lhs_v.y, lhs_v.z, lhs_v.w) < std::tie(rhs_v.x, rhs_v.y, rhs_v.z, rhs_v.w);
+                }
                 case UniformValueType::Mat3: {
                     const auto& lhs_v = static_cast<const UniformValue<glm::mat3>&>(lhs).getValue(); //NOLINT
                     const auto& rhs_v = static_cast<const UniformValue<glm::mat3>&>(rhs).getValue(); //NOLINT
@@ -121,6 +127,53 @@ bool Limitless::operator<(const Uniform& lhs, const Uniform& rhs) noexcept {
                                      rhs_v[3][0], rhs_v[3][1], rhs_v[3][2], rhs_v[3][3]);
                 }
             }
+
+            case UniformType::ValueArray:
+             switch (lhs.getValueType()) {
+                case UniformValueType::Float:
+                    return static_cast<const UniformValueArray<float>&>(lhs).getValues() < static_cast<const UniformValueArray<float>&>(rhs).getValues(); //NOLINT
+                case UniformValueType::Int:
+                    return static_cast<const UniformValueArray<int>&>(lhs).getValues() < static_cast<const UniformValueArray<int>&>(rhs).getValues(); //NOLINT
+                case UniformValueType::Uint:
+                    return static_cast<const UniformValueArray<unsigned int>&>(lhs).getValues() < static_cast<const UniformValueArray<unsigned int>&>(rhs).getValues(); //NOLINT
+                case UniformValueType::Vec2: {
+                    const auto& lhs_v = static_cast<const UniformValueArray<glm::vec2>&>(lhs).getValues(); //NOLINT
+                    const auto& rhs_v = static_cast<const UniformValueArray<glm::vec2>&>(rhs).getValues(); //NOLINT
+                    if (lhs_v.size() != rhs_v.size()) return lhs_v.size() < rhs_v.size();
+                    return std::memcmp(lhs_v.data(), rhs_v.data(), lhs_v.size() * sizeof(glm::vec2)) < 0;
+                }
+                case UniformValueType::Vec3: {
+                    const auto& lhs_v = static_cast<const UniformValueArray<glm::vec3>&>(lhs).getValues(); //NOLINT
+                    const auto& rhs_v = static_cast<const UniformValueArray<glm::vec3>&>(rhs).getValues(); //NOLINT
+                    if (lhs_v.size() != rhs_v.size()) return lhs_v.size() < rhs_v.size();
+                    return std::memcmp(lhs_v.data(), rhs_v.data(), lhs_v.size() * sizeof(glm::vec3)) < 0;
+                }
+                case UniformValueType::Vec4: {
+                    const auto& lhs_v = static_cast<const UniformValueArray<glm::vec4>&>(lhs).getValues(); //NOLINT
+                    const auto& rhs_v = static_cast<const UniformValueArray<glm::vec4>&>(rhs).getValues(); //NOLINT
+                    if (lhs_v.size() != rhs_v.size()) return lhs_v.size() < rhs_v.size();
+                    return std::memcmp(lhs_v.data(), rhs_v.data(), lhs_v.size() * sizeof(glm::vec4)) < 0;
+                }
+                case DataType::IVec4: {
+                    const auto& lhs_v = static_cast<const UniformValueArray<glm::ivec4>&>(lhs).getValues(); //NOLINT
+                    const auto& rhs_v = static_cast<const UniformValueArray<glm::ivec4>&>(rhs).getValues(); //NOLINT
+                    if (lhs_v.size() != rhs_v.size()) return lhs_v.size() < rhs_v.size();
+                    return std::memcmp(lhs_v.data(), rhs_v.data(), lhs_v.size() * sizeof(glm::ivec4)) < 0;
+                }
+                case UniformValueType::Mat3: {
+                    const auto& lhs_v = static_cast<const UniformValueArray<glm::mat3>&>(lhs).getValues(); //NOLINT
+                    const auto& rhs_v = static_cast<const UniformValueArray<glm::mat3>&>(rhs).getValues(); //NOLINT
+                    if (lhs_v.size() != rhs_v.size()) return lhs_v.size() < rhs_v.size();
+                    return std::memcmp(lhs_v.data(), rhs_v.data(), lhs_v.size() * sizeof(glm::mat3)) < 0;
+                }
+                case UniformValueType::Mat4: {
+                    const auto& lhs_v = static_cast<const UniformValueArray<glm::mat4>&>(lhs).getValues(); //NOLINT
+                    const auto& rhs_v = static_cast<const UniformValueArray<glm::mat4>&>(rhs).getValues(); //NOLINT
+                    if (lhs_v.size() != rhs_v.size()) return lhs_v.size() < rhs_v.size();
+                    return std::memcmp(lhs_v.data(), rhs_v.data(), lhs_v.size() * sizeof(glm::mat4)) < 0;
+                }
+            }
+            break;
     }
 
     // unreal case because all switch cases are handled
@@ -165,6 +218,7 @@ std::string Limitless::getUniformDeclaration(const Uniform& uniform) noexcept {
                     break;
             }
             break;
+
         case UniformType::Sampler:
             const auto& sampler = static_cast<const UniformSampler&>(uniform).getSampler(); //NOLINT
             switch (sampler->getType()) {
@@ -290,6 +344,8 @@ size_t Limitless::getUniformSize(const Uniform& uniform) {
             case UniformValueType::Mat4:
                 // std140: Each mat4 array element is aligned to 16 bytes per column (64 bytes total)
                 return static_cast<const UniformValueArray<glm::mat4>&>(uniform).getCount() * 64;
+            case DataType::IVec4:
+                return static_cast<const UniformValueArray<glm::vec4>&>(uniform).getCount() * 16;
             }
             break;
     }

@@ -14,6 +14,8 @@
 #include <limitless/renderer/deferred_lighting_pass.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 TranslucentPass::TranslucentPass(Renderer& renderer)
@@ -23,10 +25,10 @@ TranslucentPass::TranslucentPass(Renderer& renderer)
 
 void TranslucentPass::render(
         InstanceRenderer& instance_renderer,
-        Scene &scene,
+        [[maybe_unused]] Scene &scene,
         Context &ctx,
         const Assets &assets,
-        const Camera &camera,
+        [[maybe_unused]] const Camera &camera,
         UniformSetter &setter) {
     ProfilerScope profile_scope {"TranslucentPass"};
 

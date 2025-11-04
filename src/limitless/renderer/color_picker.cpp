@@ -7,6 +7,7 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/depth_pass.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -44,6 +45,7 @@ void ColorPicker::process(Context& ctx) {
 }
 
 void ColorPicker::render(InstanceRenderer& renderer, [[maybe_unused]] Scene &scene, Context &ctx, const Assets &assets, [[maybe_unused]] const Camera &camera, UniformSetter &setter) {
+    CPUProfileScope profile_scope {"ColorPicker"};
     if (data.empty()) {
         return;
     }

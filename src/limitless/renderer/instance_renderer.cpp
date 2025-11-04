@@ -1,6 +1,8 @@
 #include <limitless/renderer/instance_renderer.hpp>
 #include <iostream>
 
+#include "limitless/core/profiler.hpp"
+
 using namespace Limitless;
 
 void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstance& mesh, const DrawParameters& drawp) {
@@ -155,6 +157,8 @@ void InstanceRenderer::render(Instance& instance, const DrawParameters& drawp) {
         case InstanceType::Effect: break; //NOLINT
         case InstanceType::Decal: render(static_cast<DecalInstance&>(instance), drawp); break; //NOLINT
         case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::BatchedModel:
+            break;
     }
 }
 
@@ -172,18 +176,30 @@ void InstanceRenderer::renderVisibleInstancedInstance(InstancedInstance& instanc
     render(instance, drawp);
 }
 
-void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const DrawParameters &drawp) {
+void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const DrawParameters &drawp)
+{
     if (!shouldBeRendered(instance, drawp)) {
         return;
     }
 
-    render(*instance.getMesh().cross, drawp);
+    if (drawp.type == ShaderType::GBuffer)
+    {
+        ProfilerScope scope{"terrain"};
 
-    renderVisibleInstancedInstance(*instance.getMesh().tiles, drawp);
-    renderVisibleInstancedInstance(*instance.getMesh().fillers, drawp);
-    renderVisibleInstancedInstance(*instance.getMesh().trims, drawp);
-    renderVisibleInstancedInstance(*instance.getMesh().seams, drawp);
+        render(*instance.getMesh().cross, drawp);
 
+        renderVisibleInstancedInstance(*instance.getMesh().tiles, drawp);
+        renderVisibleInstancedInstance(*instance.getMesh().fillers, drawp);
+        renderVisibleInstancedInstance(*instance.getMesh().trims, drawp);
+        renderVisibleInstancedInstance(*instance.getMesh().seams, drawp);
+    } else {
+        render(*instance.getMesh().cross, drawp);
+
+        renderVisibleInstancedInstance(*instance.getMesh().tiles, drawp);
+        renderVisibleInstancedInstance(*instance.getMesh().fillers, drawp);
+        renderVisibleInstancedInstance(*instance.getMesh().trims, drawp);
+        renderVisibleInstancedInstance(*instance.getMesh().seams, drawp);
+    }
    // std::cout << "total :" << instance.mesh.tiles->getInstances().size() << " visible " << frustum_culling.getVisibleModelInstanced(*instance.mesh.tiles).size() << std::endl;
 
     // if (auto instances = frustum_culling.getVisibleModelInstanced(instance.getId()); !instances.empty()) {
@@ -273,6 +289,7 @@ void InstanceRenderer::renderVisible(Instance &instance, const DrawParameters &d
         case InstanceType::Effect: break; //NOLINT
         case InstanceType::Decal: break; //NOLINT
         case InstanceType::Terrain: renderVisibleTerrain(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
+        case InstanceType::BatchedModel: break;
         // case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
 //        case InstanceType::Terrain: render(static_cast<TerrainInstance&>(instance), drawp); break; //NOLINT
     }

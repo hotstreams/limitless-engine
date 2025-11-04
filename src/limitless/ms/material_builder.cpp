@@ -431,6 +431,8 @@ void Material::Builder::makeBatched(const Material& material, size_t batch_count
 
             case UniformType::ValueArray:
                 throw material_exception{"batching of uniform arrays is not supported yet!"};
+            // case UniformType::SamplerArray:
+            //     break;
         }
     }
 
