@@ -25,5 +25,5 @@ void main() {
     color = pow(color, vec3(1.0 / gamma));
 
     // add objects outlining
-    color += texture(outline, uv).rgb;
+    //color += texture(outline, uv).rgb;
 }

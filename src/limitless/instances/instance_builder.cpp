@@ -272,10 +272,17 @@ std::shared_ptr<TerrainInstance> Instance::Builder::asTerrain(Assets& assets) {
     initialize(*instance);
 
     instance->setVertexSpacing(vertex_spacing_);
-    instance->setMeshSize(mesh_size_);
-    instance->setMeshLodCount(mesh_lod_count_);
-    instance->setHeightScale(height_scale_);
     instance->setTerrainSize(terrain_size_);
+    instance->setMeshLodCount(mesh_lod_count_);
+    
+    // Auto-calculate mesh_size if requested, otherwise use manual value
+    if (auto_mesh_size_) {
+        instance->autoCalculateMeshSize();
+    } else {
+        instance->setMeshSize(mesh_size_);
+    }
+    
+    instance->setHeightScale(height_scale_);
     instance->setTileBilerp(enable_tile_bilerp_);
     instance->setNormalBilerpMultiplier(normal_bilerp_multiplier_);
     instance->setTileBilerpMultiplier(tile_bilerp_multiplier_);
@@ -328,6 +335,11 @@ Instance::Builder& Instance::Builder::mesh_size(float mesh_size) {
 
 Instance::Builder& Instance::Builder::mesh_lod_count(float mesh_lod_count) {
     mesh_lod_count_ = mesh_lod_count;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::auto_mesh_size() {
+    auto_mesh_size_ = true;
     return *this;
 }
 

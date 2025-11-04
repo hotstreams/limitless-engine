@@ -20,6 +20,6 @@ void RenderDebugPass::render(
         const Assets &assets,
         const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
-    CPUProfileScope profile_scope {"RenderDebugPass"};
+    ProfilerScope profile_scope {"RenderDebugPass"};
     helper.render(ctx, assets, camera, scene.getLighting(), scene);
 }

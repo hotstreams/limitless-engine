@@ -4,6 +4,8 @@
 #include <vector>
 #include <utility>
 
+#include "limitless/core/vertex_stream/vertex_stream.hpp"
+
 namespace Limitless {
     class Buffer;
 
@@ -16,9 +18,8 @@ namespace Limitless {
         void draw() const;
 
     private:
-        std::shared_ptr<VertexArray> vertex_array;
-        std::shared_ptr<Buffer> buffer;
         std::vector<TextVertex> vertices;
+        std::shared_ptr<VertexStream> vertex_stream;
 
         void initialize(size_t count);
     };

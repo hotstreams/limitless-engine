@@ -25,7 +25,8 @@ namespace Limitless {
             Uv,
             BoneIndices,
             BoneWeights,
-            MeshIndex
+            MeshIndex,
+            Color
         };
 
         enum class Usage {

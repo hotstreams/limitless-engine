@@ -80,6 +80,7 @@ namespace Limitless {
 
         uint32_t mesh_size_ {64};
         uint32_t mesh_lod_count_ {6};
+        bool auto_mesh_size_ {false};
 
         std::shared_ptr<Texture> height_map_;
         std::shared_ptr<Texture> control_map_;
@@ -161,6 +162,12 @@ namespace Limitless {
 
         Builder& mesh_size(float mesh_size);
         Builder& mesh_lod_count(float mesh_lod_count);
+        
+        /**
+         * Auto-calculates mesh_size based on terrain_size and mesh_lod_count
+         * to ensure full terrain coverage. Call this instead of mesh_size().
+         */
+        Builder& auto_mesh_size();
 
         Builder& height_map(const std::shared_ptr<Texture>& height_map);
         Builder& control_map(const std::shared_ptr<Texture>& control_map);

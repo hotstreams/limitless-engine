@@ -133,9 +133,9 @@ namespace LimitlessMaterials {
 
 int main() {
     // Initialize logging system
-    Log::init();
+    Limitless::Log::init();
     
-    LimitlessEffects::EffectsScene scene;
+    LimitlessMaterials::MaterialsScene scene;
     scene.gameLoop();
 
     return 0;

@@ -31,7 +31,7 @@ namespace LimitlessMaterials {
                 Limitless::Context::builder()
                         .title("material-demo")
                         .size(window_size)
-                        .cursor(Limitless::CursorMode::Normal)
+                        .cursor(Limitless::CursorMode::Disabled)
                         .swap_interval(0)
                         .sticky_keys()
                         .on_framebuffer_change([&] (glm::uvec2 size) {
@@ -59,7 +59,7 @@ namespace LimitlessMaterials {
         void onMouseMove(glm::dvec2 pos) {
             static glm::dvec2 last_move = {0, 0};
 
-            auto offset = glm::vec2{pos.x - last_move.x, last_move.y - pos.y};
+            auto offset = glm::vec2{pos.x - last_move.x, last_move.y - pos.y} * 0.5f;
             last_move = pos;
 
             camera.setRotation(
@@ -88,28 +88,30 @@ namespace LimitlessMaterials {
         void handleInput(float delta) noexcept {
             using namespace Limitless;
 
+            const auto speed = 10.0f;
+
             if (context.isPressed(GLFW_KEY_W)) {
-                camera.setPosition(camera.getPosition() + camera.getFront() * delta);
+                camera.setPosition(camera.getPosition() + camera.getFront() * delta * speed);
             }
 
             if (context.isPressed(GLFW_KEY_S)) {
-                camera.setPosition(camera.getPosition() - camera.getFront() * delta);
+                camera.setPosition(camera.getPosition() - camera.getFront() * delta * speed);
             }
 
             if (context.isPressed(GLFW_KEY_A)) {
-                camera.setPosition(camera.getPosition() - camera.getRight() * delta);
+                camera.setPosition(camera.getPosition() - camera.getRight() * delta * speed);
             }
 
             if (context.isPressed(GLFW_KEY_D)) {
-                camera.setPosition(camera.getPosition() + camera.getRight() * delta);
+                camera.setPosition(camera.getPosition() + camera.getRight() * delta * speed);
             }
 
             if (context.isPressed(GLFW_KEY_SPACE)) {
-                camera.setPosition(camera.getPosition() + camera.getUp() * delta);
+                camera.setPosition(camera.getPosition() + camera.getUp() * delta * speed);
             }
 
             if (context.isPressed(GLFW_KEY_Z)) {
-                camera.setPosition(camera.getPosition() - camera.getUp() * delta);
+                camera.setPosition(camera.getPosition() - camera.getUp() * delta * speed);
             }
         }
 

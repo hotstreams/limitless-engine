@@ -103,7 +103,7 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     /*
      * Draws outline for objects
      */
-    add<OutlinePass>(size);
+    // add<OutlinePass>(size);
 
     /*
      *  Combines shaded translucent result and bloom

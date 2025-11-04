@@ -75,9 +75,9 @@ namespace Limitless {
 
         uint32_t enable_tile_bilerp = 1;
 
-        float normal_bilerp_multiplier = 1.0f;
+        float normal_bilerp_multiplier = 0.0f;
 
-        float tile_bilerp_multiplier = 1.0f;
+        float tile_bilerp_multiplier = 0.0f;
 
         struct Mesh {
             std::shared_ptr<ModelInstance> cross;
@@ -129,6 +129,16 @@ namespace Limitless {
         void setMeshLodCount(int mesh_lod_Count);
         void setHeightScale(float height);
         void setTerrainSize(float size);
+
+        /**
+         * Auto-calculates optimal mesh_size based on terrain_size and mesh_lod_count
+         * to ensure the clipmap fully covers the terrain.
+         * 
+         * Formula: mesh_size = terrain_size / (2^(mesh_lod_count + 1))
+         * 
+         * Call this after setting terrain_size and mesh_lod_count.
+         */
+        void autoCalculateMeshSize();
 
         void enableTileBilerp();
         void disableTileBilerp();

@@ -33,8 +33,6 @@ void OutlinePass::render(
         [[maybe_unused]] UniformSetter &setter) {
     ProfilerScope profile_scope {"OutlinePass"};
 
-    CpuProfileScope scope(global_profiler, "OutlinePass::render");
-
     ctx.disable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
 

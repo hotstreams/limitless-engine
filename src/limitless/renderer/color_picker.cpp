@@ -45,7 +45,7 @@ void ColorPicker::process(Context& ctx) {
 }
 
 void ColorPicker::render(InstanceRenderer& renderer, [[maybe_unused]] Scene &scene, Context &ctx, const Assets &assets, [[maybe_unused]] const Camera &camera, UniformSetter &setter) {
-    CPUProfileScope profile_scope {"ColorPicker"};
+    ProfilerScope profile_scope {"ColorPickerPass"};
     if (data.empty()) {
         return;
     }

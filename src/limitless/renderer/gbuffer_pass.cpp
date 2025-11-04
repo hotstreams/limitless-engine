@@ -25,8 +25,6 @@ void GBufferPass::render(
         UniformSetter &setter) {
     ProfilerScope profile_scope {"GBufferPass"};
 
-    CpuProfileScope scope(global_profiler, "GBufferPass::render");
-
     ctx.enable(Capabilities::DepthTest);
     ctx.disable(Capabilities::Blending);
     ctx.setDepthFunc(DepthFunc::Equal);

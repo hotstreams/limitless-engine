@@ -46,7 +46,6 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
         size_t pass_index = 0;
         for (const auto& pass: passes) {
             {
-                ProfilerScope scope {std::string("Pass[") + std::to_string(pass_index) + "]::render"};
                 pass->render(instance_renderer, scene, context, assets, camera, setter);
             }
 
@@ -196,7 +195,7 @@ Renderer::Builder &Renderer::Builder::deferred() {
     if (renderer->settings.bloom) {
         addBloomPass();
     }
-    addOutlinePass();
+    // addOutlinePass();
     if (renderer->settings.bloom) {
         addCompositeWithBloomPass();
     } else {

@@ -321,15 +321,14 @@ void calculateTerrain(inout MaterialContext mctx) {
     #if (defined(ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)
         vec3 norm = normalize(mat.normal_roughness.xzy);
 
-        //norm.xy *= mat.normal_depth;
-        //norm.z = sqrt(max(0.0, 1.0 - dot(norm.xy, norm.xy)));
+        norm.xy *= mat.normal_depth;
+        norm.z = sqrt(max(0.0, 1.0 - dot(norm.xy, norm.xy)));
 
         mctx.normal = fma(normalize(norm), vec3(0.5), vec3(0.5));
 
         mctx.tangent = normalize(cross(w_normal, vec3(0.0, 0.0, 1.0)));
     #endif
 
-    // Apply debug visualization if enabled
     //applyDebugVisualization(DEBUG_BILERP, terrain_uv, control[3], mctx, mat, tile_bilerp && bool(enable_tile_bilerp), texture_ids[3]);
 
 /*

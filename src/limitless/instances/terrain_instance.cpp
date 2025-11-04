@@ -353,6 +353,18 @@ void TerrainInstance::setTerrainSize(float size) {
     terrain_size = size;
 }
 
+void TerrainInstance::autoCalculateMeshSize() {
+    // Calculate mesh_size to ensure clipmap covers entire terrain
+    // Coverage = mesh_size * 2^(mesh_lod_count + 1)
+    // Therefore: mesh_size = terrain_size / 2^(mesh_lod_count + 1)
+    mesh_size = static_cast<int>(terrain_size) >> (mesh_lod_count + 1);
+    
+    // Ensure minimum mesh_size of at least 4 for geometry generation
+    if (mesh_size < 4) {
+        mesh_size = 4;
+    }
+}
+
 void TerrainInstance::enableTileBilerp()
 {
     enable_tile_bilerp = 1;

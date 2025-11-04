@@ -15,7 +15,7 @@ SkyboxPass::SkyboxPass(Renderer& renderer)
 }
 
 void SkyboxPass::render([[maybe_unused]] InstanceRenderer &instance_renderer, Scene &scene, Context &ctx, const Assets &assets, [[maybe_unused]] const Camera &camera, [[maybe_unused]] UniformSetter &setter) {
-    CPUProfileScope profile_scope {"SkyboxPass"};
+    ProfilerScope profile_scope {"SkyboxPass"};
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
     gbuffer.getFramebuffer().drawBuffers({

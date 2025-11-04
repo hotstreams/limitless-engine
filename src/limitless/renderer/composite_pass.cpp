@@ -41,7 +41,8 @@ void CompositePass::render(
         shader.setUniform("lightened", renderer.getPass<TranslucentPass>().getResult());
 
         {
-            shader.setUniform("outline", renderer.getPass<OutlinePass>().getResult())
+            shader
+                // .setUniform("outline", renderer.getPass<OutlinePass>().getResult())
                   .setUniform("tone_mapping_exposure", tone_mapping_exposure)
                   .setUniform("gamma", gamma);
         }

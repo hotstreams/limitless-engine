@@ -170,8 +170,10 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
             .vertex_spacing(1.0f)
             .height(elevations)
             .height_scale(40.0f)
-            .mesh_size(16.0f)
             .mesh_lod_count(4)
+            .auto_mesh_size()
+            .normal_bilerp_multiplier(-1.0f)
+            .tile_bilerp_multiplier(-1.0f)
             .control(controls)
             .albedo_map(TextureLoader::load(
                 assets, {

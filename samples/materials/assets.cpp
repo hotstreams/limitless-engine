@@ -315,7 +315,7 @@ void LimitlessMaterials::Assets::setUpCommon(Limitless::Context &ctx) {
         Limitless::TextureLoaderFlags::Space::sRGB
     }));
 
-    fonts.add("nunito", std::make_shared<Limitless::FontAtlas>(assets_dir / "fonts/nunito.ttf", 48));
+    fonts.add("nunito", Limitless::FontAtlas::load(assets_dir / "fonts/nunito.ttf", 48));
 
     ctx.setWindowIcon(Limitless::TextureLoader::loadGLFWImage(*this, assets_dir / "icons/demo.png"));
 }

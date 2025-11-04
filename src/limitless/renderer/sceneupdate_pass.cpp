@@ -10,7 +10,7 @@ SceneUpdatePass::SceneUpdatePass(Renderer& renderer)
 }
 
 void SceneUpdatePass::update(Scene &scene, const Camera &camera) {
-    CpuProfileScope scope(global_profiler, "SceneUpdatePass::update");
+    ProfilerScope scope("SceneUpdatePass::update");
     scene.update(camera);
     scene_data.update(camera);
 }

@@ -2,50 +2,42 @@
 
 #include <limitless/core/buffer/buffer_builder.hpp>
 
+#include "limitless/core/vertex_stream/vertex_stream_builder.hpp"
+
 using namespace Limitless;
 
 TextModel::TextModel(std::vector<TextVertex>&& _vertices)
     : vertices {_vertices}
-    , vertex_array(
-        VertexArray::builder()
-            .build()
+    , vertex_stream(VertexStream::builder()
+                 .attribute(0, VertexStream::Attribute::Position, sizeof(TextVertex), offsetof(TextVertex, position))
+                 .attribute(1, VertexStream::Attribute::Uv, sizeof(TextVertex), offsetof(TextVertex, uv))
+                 .attribute(2, VertexStream::Attribute::Color, sizeof(TextVertex), offsetof(TextVertex, color))
+                 .vertices(vertices)
+                 .usage(VertexStream::Usage::Dynamic)
+                 .draw(VertexStream::Draw::Triangles)
+                 .build()
         ) {
-    initialize(vertices.size());
 }
 
 TextModel::TextModel(size_t count)
-    : vertices {} {
-    initialize(count);
-}
-
-void TextModel::initialize(size_t count) {
-    buffer = Buffer::builder()
-            .target(Buffer::Type::Array)
-            .data(vertices.empty() ? nullptr : vertices.data())
-            .size(count * sizeof(TextVertex))
-            .usage(Buffer::Usage::DynamicDraw)
-            .access(Buffer::MutableAccess::WriteOrphaning)
-            .build();
-
-    vertex_array << std::pair<TextVertex, const std::shared_ptr<Buffer>&>(TextVertex{}, buffer);
+    : vertices {count}
+    , vertex_stream(VertexStream::builder()
+             .attribute(0, VertexStream::Attribute::Position, sizeof(TextVertex), offsetof(TextVertex, position))
+             .attribute(1, VertexStream::Attribute::Uv, sizeof(TextVertex), offsetof(TextVertex, uv))
+             .attribute(2, VertexStream::Attribute::Color, sizeof(TextVertex), offsetof(TextVertex, color))
+             .count(count)
+             .usage(VertexStream::Usage::Dynamic)
+             .draw(VertexStream::Draw::Triangles)
+             .build()
+    ) {
 }
 
 void TextModel::update(std::vector<TextVertex>&& _vertices) {
     vertices = std::move(_vertices);
 
-    if (vertices.size() * sizeof(TextVertex) > buffer->getSize()) {
-        buffer->resize(vertices.size() * sizeof(TextVertex));
-    }
-
-    buffer->mapData(vertices.data(), vertices.size() * sizeof(TextVertex));
+    vertex_stream->update(vertices);
 }
 
 void TextModel::draw() const {
-    if (vertices.empty()) {
-        return;
-    }
-
-    vertex_array.bind();
-
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    vertex_stream->draw();
 }

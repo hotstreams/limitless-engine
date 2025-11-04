@@ -33,8 +33,6 @@ void TranslucentPass::render(
         UniformSetter &setter) {
     ProfilerScope profile_scope {"TranslucentPass"};
 
-    CpuProfileScope scope(global_profiler, "TranslucentPass::render");
-
     std::array transparent = {
         ms::Blending::Additive,
         ms::Blending::Modulate,

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <limitless/core/vertex_array.hpp>
 #include <limitless/core/vertex.hpp>
 #include <memory>
 #include <vector>
+
+#include "limitless/core/vertex_stream/vertex_stream.hpp"
 
 namespace Limitless {
     class TextSelectionModel {     
@@ -14,9 +15,6 @@ namespace Limitless {
         TextSelectionModel(const TextSelectionModel&) = delete;
         TextSelectionModel& operator=(const TextSelectionModel&) = delete;
 
-        TextSelectionModel(TextSelectionModel&&) noexcept;
-        TextSelectionModel& operator=(TextSelectionModel&&) noexcept;
-
         void update(std::vector<TextSelectionVertex>&& vertices);
         void draw() const;
 
@@ -25,14 +23,7 @@ namespace Limitless {
          ~TextSelectionModel();
 
      private:
-        VertexArray vertex_array;
-        std::shared_ptr<Buffer> buffer;
         std::vector<TextSelectionVertex> vertices;
-
-        void initialize(size_t count);
-
-        friend void swap(TextSelectionModel& lhs, TextSelectionModel& rhs) noexcept;
+        std::shared_ptr<VertexStream> vertex_stream;
     };
-
-    void swap(TextSelectionModel& lhs, TextSelectionModel& rhs) noexcept;
 }
