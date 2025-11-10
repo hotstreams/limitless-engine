@@ -42,7 +42,7 @@ namespace Limitless {
 
         const auto& getFramebuffer() const noexcept { return framebuffer; }
 
-        void draw(Context &ctx, const Assets &assets, const std::shared_ptr<Texture>& depth);
+        void draw(Context &ctx, const Assets &assets, const std::shared_ptr<Texture>& depth, const std::shared_ptr<Texture>& normal);
 
         void update(const Camera& camera);
 

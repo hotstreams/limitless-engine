@@ -20,9 +20,11 @@ layout (std140) uniform SSAO_BUFFER {
     float peak2;
     float power;
     uint max_level;
+    uint debug_mode;  // 0=off, 1=normals, 2=depth, 3=position, 4=radius, 5=samples
 };
 
 uniform sampler2D depth_texture;
+uniform sampler2D normal_texture;
 
 out vec3 color;
 
@@ -126,7 +128,59 @@ void main() {
     float z = linearize_depth(depth, getCameraNearPlane(), getCameraFarPlane());
 
     vec3 position = reconstructViewSpacePosition(uv, depth);
-    vec3 normal = reconstructViewSpaceNormal(depth_texture, uv, depth, position, vec2(1.0) / getResolution());
+    
+    vec3 worldNormal = texture(normal_texture, uv).xyz;
+    vec3 normal = normalize((getView() * vec4(worldNormal, 0.0)).xyz);
+
+    // ===== DEBUG MODES - Uncomment one to test =====
+    
+    // DEBUG 1: View-space normals (should be smooth RGB gradients)
+    color = vec3(normal * 0.5 + 0.5, 1.0); return;
+    
+    // DEBUG 2: World-space normals from G-buffer (should match your normal debug view)
+    //color = vec3(worldNormal * 0.5 + 0.5, 1.0); return;
+    
+    // DEBUG 3: Linear depth visualization (white=near, black=far)
+    //color = vec3(z / getCameraFarPlane(), 1.0, 1.0); return;
+    
+    // DEBUG 4: Position.z - view space depth (should be smooth)
+    //color = vec3(-position.z / getCameraFarPlane(), 1.0, 1.0); return;
+    
+    // DEBUG 5: Screen-space sample radius (green=good range ~10-100 pixels)
+    //float ssDiskRadius = -(projection_scale_radius / position.z);
+    //color = vec3(ssDiskRadius / 50.0, ssDiskRadius / 100.0, ssDiskRadius / 200.0); return;
+    
+    // DEBUG 6: Noise pattern (should be random per-pixel)
+    //float noise = getRandom(gl_FragCoord.xy);
+    //color = vec3(noise, noise, noise); return;
+    
+    // DEBUG 7: Raw occlusion (before sqrt and power) - should show subtle variations
+    //float occlusion_raw = 0.0;
+    //vec3 bentNormal_raw;
+    //scalableAmbientObscurance(occlusion_raw, bentNormal_raw, uv, position, normal);
+    //color = vec3(occlusion_raw * 0.5, occlusion_raw * 0.5, occlusion_raw * 0.5); return;
+    
+    // DEBUG 8: Occlusion after sqrt (should be darker than raw)
+    //float occlusion_raw = 0.0;
+    //vec3 bentNormal_raw;
+    //scalableAmbientObscurance(occlusion_raw, bentNormal_raw, uv, position, normal);
+    //float occlusion_sqrt = sqrt(occlusion_raw * intensity);
+    //color = vec3(occlusion_sqrt, occlusion_sqrt, occlusion_sqrt); return;
+    
+    // DEBUG 9: Single sample test - visualize one sample location
+    //float noise = getRandom(gl_FragCoord.xy);
+    //vec2 tapPos = startPosition(noise);
+    //vec3 tap = tapLocationFast(0.0, tapPos, noise);
+    //float ssDiskRadius = -(projection_scale_radius / position.z);
+    //float ssRadius = max(1.0, tap.z * ssDiskRadius);
+    //vec2 uvSample = uv + vec2(ssRadius * tap.xy) * 1.0 / getResolution();
+    //float isSample = length(uv - uvSample) < 0.01 ? 1.0 : 0.0;
+    //color = vec3(1.0, isSample, 0.0); return;
+    
+    // DEBUG 10: Check if position reconstruction is correct (should be negative Z)
+    //color = position.z < 0.0 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0); return;
+    
+    // ===== END DEBUG MODES =====
 
     float occlusion = 0.0;
     vec3 bentNormal; // will be discarded

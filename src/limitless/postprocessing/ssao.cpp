@@ -48,7 +48,7 @@ SSAO::SSAO(Renderer& renderer) {
             .build(SSAO_BUFFER_NAME, *Context::getCurrentContext());
 }
 
-void SSAO::draw(Context& ctx, const Assets& assets, const std::shared_ptr<Texture>& depth) {
+void SSAO::draw(Context& ctx, const Assets& assets, const std::shared_ptr<Texture>& depth, const std::shared_ptr<Texture>& normal) {
     {
         ctx.disable(Capabilities::DepthTest);
         ctx.disable(Capabilities::Blending);
@@ -67,7 +67,9 @@ void SSAO::draw(Context& ctx, const Assets& assets, const std::shared_ptr<Textur
 
         auto& shader = assets.shaders.get("ssao");
 
-        shader.setUniform("depth_texture", depth);
+        shader
+            .setUniform("depth_texture", depth)
+            .setUniform("normal_texture", normal);
 
         shader.use();
 

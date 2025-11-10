@@ -35,7 +35,7 @@ void SSAOPass::render(
         [[maybe_unused]] UniformSetter &setter) {
     ProfilerScope profile_scope {"SSAOPass"};
 
-    ssao.draw(ctx, assets, renderer.getPass<DeferredFramebufferPass>().getDepth());
+    ssao.draw(ctx, assets, renderer.getPass<DeferredFramebufferPass>().getDepth(), renderer.getPass<DeferredFramebufferPass>().getNormal());
 }
 
 void SSAOPass::onFramebufferChange(glm::uvec2 size) {

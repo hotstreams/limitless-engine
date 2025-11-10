@@ -172,8 +172,8 @@ LimitlessMaterials::Scene::Scene(Limitless::Context& ctx, Limitless::Assets& ass
             .height_scale(40.0f)
             .mesh_lod_count(4)
             .auto_mesh_size()
-            .normal_bilerp_multiplier(0.0f)
-            .tile_bilerp_multiplier(0.0f)
+            .normal_bilerp_multiplier(4.0f)  // Enable smooth normal interpolation at close range
+            .tile_bilerp_multiplier(0.0f)   // Keep tile bilerp off (only affects texture blending)
             .control(controls)
             .albedo_map(TextureLoader::load(
                 assets, {

@@ -26,11 +26,16 @@ float getTerrainHeight(vec2 uv) {
 }
 
 vec2 getTerrainTexelUV(vec2 vertex_position) {
-    return mod(vertex_position, terrain_size * terrain_vertex_spacing);
+    // Convert world-space position to texel-space by dividing by vertex_spacing
+    // This ensures offsets of +1, +2 etc represent actual texel neighbors
+    // NOTE: NO mod here! Mod happens at texel fetch time, not during coordinate conversion
+    return vertex_position * terrain_vertex_density;
 }
 
 vec2 getTerrainUV(vec2 texel_uv) {
-    return texel_uv / (terrain_size * terrain_vertex_spacing);
+    // Convert texel-space to normalized UV [0, 1]
+    // Using texture() with bilinear filtering (not texelFetch like Terrain3D)
+    return mod(texel_uv, terrain_size) * terrain_texel_size;
 }
 
 vec2 getChunkUV(vec2 uv) {

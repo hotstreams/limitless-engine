@@ -116,6 +116,24 @@ std::string MaterialShaderDefineReplacer::getPropertyDefines(const Material& mat
         defines.append("#define ENGINE_MATERIAL_DEFAULT_COMPUTATION\n");
     }
 
+    if (material.getName() == "_terrain") {
+        if (static_cast<const UniformValue<uint32_t>&>(*material.getUniforms().at("_detiling")).getValue()) {
+            defines.append("#define ENGINE_MATERIAL_TERRAIN_DETILING\n");
+        }
+
+        if (static_cast<const UniformValue<uint32_t>&>(*material.getUniforms().at("_blending")).getValue()) {
+            defines.append("#define ENGINE_MATERIAL_TERRAIN_BLENDING\n");
+        }
+
+        if (static_cast<const UniformValue<uint32_t>&>(*material.getUniforms().at("_layering")).getValue()) {
+            defines.append("#define ENGINE_MATERIAL_TERRAIN_LAYERING\n");
+        }
+
+        if (static_cast<const UniformValue<uint32_t>&>(*material.getUniforms().at("_height_blending")).getValue()) {
+            defines.append("#define ENGINE_MATERIAL_TERRAIN_HIGH_BLENDING\n");
+        }
+    }
+
     return defines;
 }
 

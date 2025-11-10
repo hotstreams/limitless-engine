@@ -182,11 +182,11 @@ void TerrainInstance::initializeMesh(Assets& assets) {
     materials.reserve(meshes.size());
 
     auto terrain_material = Material::builder()
-            .name("terrain")
+            .name("_terrain")
 
             .color(glm::vec4(1.0f))
 
-            .shading(Shading::Unlit)
+            .shading(Shading::Lit)
             .models({InstanceType::Instanced, InstanceType::Model, InstanceType::Terrain})
 
             .normal_map()
@@ -209,7 +209,7 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             .custom("terrain_texture_normal_depth_array", texture_normal_depth)
             .custom("terrain_texture_detile_array", texture_detile)
 
-            .custom("enable_tile_bilerp", enable_tile_bilerp)
+            .custom("enable_tile_bilerp", true)
             .custom("normal_bilerp_multiplier", normal_bilerp_multiplier)
             .custom("tile_bilerp_multiplier", tile_bilerp_multiplier)
 
@@ -218,6 +218,11 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             .custom("depth_blur", depth_blur)
 
             .custom("blend_sharpness", blend_sharpness)
+
+            .custom("_detiling", 1)
+            .custom("_blending", 1)
+            .custom("_layering", 1)
+            .custom("_height_blending", 1)
 
             .default_computation(false)
 
