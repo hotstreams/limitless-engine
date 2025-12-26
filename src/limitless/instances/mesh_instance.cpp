@@ -11,7 +11,9 @@ using namespace Limitless::ms;
 
 MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept
     : mesh {std::move(mesh)}
-    , material {std::make_shared<Material>(*material)} {
+    , material {std::make_shared<Material>(*material)}
+    , base (material)
+{
 }
 
 MeshInstance::MeshInstance(const MeshInstance& rhs)

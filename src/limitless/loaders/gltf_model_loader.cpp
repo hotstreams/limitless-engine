@@ -908,9 +908,16 @@ static std::shared_ptr<ms::Material> loadMaterial(
 				}
 
 			} else {
-				const auto path = base_path / fs::path(img.uri);
-				// TODO: check if removal is needed.
-				// assets.textures.remove(path.stem().string());
+				const auto rel_path = [&]() -> fs::path {
+					auto it = model_flags.texture_uri_replacements.find(img.uri);
+					if (it != model_flags.texture_uri_replacements.end()) {
+						return fs::path(it->second);
+					}
+					return fs::path(img.uri);
+				}();
+
+				const auto path = base_path / rel_path;
+
 				return TextureLoader::load(assets, path, flags);
 			}
 		}
@@ -1226,6 +1233,46 @@ static Model* loadPlainModel(
 	fixMissingMaterials(mesh_materials, assets, model_name, instance_types);
 
 	return new Model(std::move(meshes), std::move(mesh_materials), model_name);
+}
+
+std::vector<std::shared_ptr<Limitless::ms::Material>> GltfModelLoader::loadModelVariant(
+	Assets& assets,
+	const fs::path& path,
+	std::string variant_name,
+	const ModelLoaderFlags& flags
+) {
+	const auto base_model_name = path.stem().string();
+	const auto variant_model_name = base_model_name + "_" + std::move(variant_name);
+
+	cgltf_options opts = cgltf_options {
+		cgltf_file_type_invalid, // autodetect
+		0, // auto json token count
+		cgltf_memory_options {nullptr, nullptr, nullptr},
+		cgltf_file_options {nullptr, nullptr, nullptr}
+    };
+	cgltf_data* out_data = nullptr;
+
+    const auto path_str = path.string();
+
+	cgltf_result gltf = cgltf_parse_file(&opts, path_str.c_str(), &out_data);
+	if (gltf != cgltf_result_success) {
+		throw ModelLoadError {
+			"failed to parse GLTF model file " + path.string() + ": "
+			+ std::to_string(static_cast<int>(gltf))};
+	}
+
+	if (out_data->scenes == nullptr) {
+		throw ModelLoadError {"no scene"};
+	}
+
+	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
+	InstanceTypes instance_types = flags.additional_instance_types;
+	instance_types.emplace(InstanceType::Model);
+
+	auto loaded_materials = loadMaterials(variant_model_name, assets, instance_types, path, *out_data, flags);
+	fixMissingMaterials(loaded_materials, assets, variant_model_name, instance_types);
+
+	return loaded_materials;
 }
 
 static std::shared_ptr<AbstractModel>
