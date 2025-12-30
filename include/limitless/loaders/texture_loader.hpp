@@ -93,6 +93,20 @@ namespace Limitless {
             new_flags.downscale = new_downscale;
             return new_flags;
         }
+
+        TextureLoaderFlags withNoDownscale() const noexcept {
+            return withDownscale(DownScale::None);
+        }
+
+        TextureLoaderFlags withWrapping(Texture::Wrap new_wrapping) const noexcept {
+            auto new_flags = *this;
+            new_flags.wrapping = new_wrapping;
+            return new_flags;
+        }
+
+        TextureLoaderFlags withRepeating() const noexcept {
+            return withWrapping(Texture::Wrap::Repeat);
+        }
     };
 
     class texture_loader_exception : public std::runtime_error {
