@@ -50,7 +50,7 @@ namespace Limitless {
         bool changed;
     public:
         explicit Lighting(Context& ctx);
-        ~Lighting() = default;
+        ~Lighting();
 
         [[nodiscard]] const glm::vec4& getAmbientColor() const noexcept;
         [[nodiscard]] glm::vec4& getAmbientColor() noexcept;

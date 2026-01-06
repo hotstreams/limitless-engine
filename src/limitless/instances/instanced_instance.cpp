@@ -13,7 +13,7 @@ InstancedInstance::InstancedInstance()
         .access(Buffer::MutableAccess::WriteOrphaning)
         .data(nullptr)
         .size(sizeof(Data))
-        .build("model_buffer", *Context::getCurrentContext())} {
+        .build()} { // model_buffer
 }
 
 InstancedInstance::InstancedInstance(const InstancedInstance& rhs)
@@ -24,7 +24,7 @@ InstancedInstance::InstancedInstance(const InstancedInstance& rhs)
         .access(Buffer::MutableAccess::WriteOrphaning)
         .data(nullptr)
         .size(sizeof(Data))
-        .build("model_buffer", *Context::getCurrentContext())} {
+        .build()} { // model_buffer
     for (const auto& instance : rhs.instances) {
         instances.emplace_back((ModelInstance*)instance->clone().release());
     }

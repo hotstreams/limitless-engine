@@ -23,6 +23,10 @@ Lighting::Lighting(Context& ctx)
     createLightBuffer();
 }
 
+Lighting::~Lighting() {
+    context.getIndexedBuffers().remove(IndexedBuffer::Type::ShaderStorage, SCENE_LIGHTING_BUFFER_NAME);
+}
+
 const glm::vec4& Lighting::getAmbientColor() const noexcept {
     return ambient_color;
 }

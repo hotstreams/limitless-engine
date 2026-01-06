@@ -48,6 +48,12 @@ SSAO::SSAO(Renderer& renderer) {
             .build(SSAO_BUFFER_NAME, *Context::getCurrentContext());
 }
 
+SSAO::~SSAO() {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
+        ctx->getIndexedBuffers().remove(IndexedBuffer::Type::UniformBuffer, SSAO_BUFFER_NAME);
+    }
+}
+
 void SSAO::draw(Context& ctx, const Assets& assets, const std::shared_ptr<Texture>& depth) {
     {
         ctx.disable(Capabilities::DepthTest);

@@ -140,6 +140,7 @@ void InstanceRenderer::renderScene(const DrawParameters& drawp) {
 }
 
 void InstanceRenderer::renderDecals(const DrawParameters& drawp) {
+    CpuProfileScope scope(global_profiler, "InstanceRenderer::renderDecals");
     for (const auto& instance: frustum_culling.getVisibleInstances()) {
         if (instance->getInstanceType() == InstanceType::Decal) {
             render(static_cast<DecalInstance&>(*instance), drawp); //NOLINT

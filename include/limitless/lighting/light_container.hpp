@@ -46,7 +46,7 @@ namespace Limitless {
         std::shared_ptr<Buffer> buffer;
     public:
         LightContainer();
-        ~LightContainer() = default;
+        ~LightContainer();
 
         [[nodiscard]] auto& getLights() noexcept { return lights; }
         [[nodiscard]] const auto& getLights() const noexcept { return lights; }

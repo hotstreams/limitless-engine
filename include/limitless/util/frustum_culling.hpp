@@ -2,6 +2,8 @@
 
 #include <limitless/instances/model_instance.hpp>
 
+#include <unordered_map>
+
 namespace Limitless {
     class FrustumCulling {
     private:
@@ -13,12 +15,12 @@ namespace Limitless {
         /**
          * Contains visible array of model instances for each instanced instance
          */
-        std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instances_of_instanced_instances;
+        std::unordered_map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instances_of_instanced_instances;
 
         /**
          * Contains visible MeshInstances of TerrainInstance
          */
-        std::map<uint64_t, std::vector<std::reference_wrapper<MeshInstance>>> visible_meshes_of_terrain_instances;
+        std::unordered_map<uint64_t, std::vector<std::reference_wrapper<MeshInstance>>> visible_meshes_of_terrain_instances;
     public:
         void update(Scene& scene, Camera& camera) {
             visible.clear();

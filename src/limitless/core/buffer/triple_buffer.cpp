@@ -2,6 +2,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <cstdlib>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -69,6 +70,7 @@ void TripleBuffer::bufferSubData(GLintptr offset, size_t sub_size, const void* d
 }
 
 void TripleBuffer::bindBaseAs(Type target, GLuint index) const noexcept {
+    CpuProfileScope scope(global_profiler, "TripleBuffer::bindBaseAs");
     buffers[curr_index]->bindBaseAs(target, index);
 }
 

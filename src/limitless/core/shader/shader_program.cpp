@@ -34,24 +34,27 @@ void ShaderProgram::bindIndexedBuffers() {
 
         if (auto* ctx = Context::getCurrentContext(); ctx) {
             // binds buffer to state binding point
-            try {
-                CpuProfileScope scope(global_profiler, "ShaderProgram::bindIndexedBuffers::bindBuffer");
-                auto buffer = ctx->getIndexedBuffers().get(name);
-
-                Buffer::Type program_target {};
-                switch (target) {
-                    case IndexedBuffer::Type::UniformBuffer:
-                        program_target = Buffer::Type::Uniform;
-                        break;
-                    case IndexedBuffer::Type::ShaderStorage:
-                        program_target = Buffer::Type::ShaderStorage;
-                        break;
-                }
-
-                buffer->bindBaseAs(program_target, bound_point);
-            } catch (const buffer_not_found& e) {
+            CpuProfileScope scope(global_profiler, "ShaderProgram::bindIndexedBuffers::bindBuffer");
+            auto maybe_buffer = ctx->getIndexedBuffers().get(target, name);
+            if (!maybe_buffer) {
+                // usually this means that buffer is set manually, e.g. instanced instance buffer.
+                CpuProfileScope scope(global_profiler, "ShaderProgram::bindIndexedBuffers::bindBuffer::bufferNotFound");
                 continue;
             }
+
+            auto& buffer = *maybe_buffer;
+
+            Buffer::Type program_target {};
+            switch (target) {
+                case IndexedBuffer::Type::UniformBuffer:
+                    program_target = Buffer::Type::Uniform;
+                    break;
+                case IndexedBuffer::Type::ShaderStorage:
+                    program_target = Buffer::Type::ShaderStorage;
+                    break;
+            }
+
+            buffer->bindBaseAs(program_target, bound_point);
         }
     }
 }

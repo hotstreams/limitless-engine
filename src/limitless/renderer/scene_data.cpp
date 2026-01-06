@@ -21,7 +21,7 @@ SceneDataStorage::SceneDataStorage(Renderer& renderer) {
 
 SceneDataStorage::~SceneDataStorage() {
     if (auto* ctx = Context::getCurrentContext(); ctx) {
-        ctx->getIndexedBuffers().remove(PipelineShaderBuffers::SCENE_DATA_BUFFER_NAME, buffer);
+        ctx->getIndexedBuffers().remove(IndexedBuffer::Type::UniformBuffer, PipelineShaderBuffers::SCENE_DATA_BUFFER_NAME);
     }
 }
 

@@ -24,6 +24,6 @@ namespace Limitless {
 
         std::unique_ptr<Buffer> build();
         // builds indexed buffer for specified context
-        std::shared_ptr<Buffer> build(std::string_view name, ContextState& ctx);
+        std::shared_ptr<Buffer> build(const std::string& name, ContextState& ctx);
     };
 }

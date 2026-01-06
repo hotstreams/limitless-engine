@@ -245,6 +245,6 @@ void CascadeShadows::update(const RendererSettings& settings) {
 
 CascadeShadows::~CascadeShadows() {
     if (auto* ctx = Context::getCurrentContext(); ctx) {
-        ctx->getIndexedBuffers().remove(DIRECTIONAL_CSM_BUFFER_NAME, light_buffer);
+        ctx->getIndexedBuffers().remove(IndexedBuffer::Type::ShaderStorage, DIRECTIONAL_CSM_BUFFER_NAME);
     }
 }

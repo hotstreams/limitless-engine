@@ -39,6 +39,7 @@ namespace Limitless {
         void updateSettings(const Camera& camera);
     public:
         explicit SSAO(Renderer& renderer);
+        ~SSAO();
 
         const auto& getFramebuffer() const noexcept { return framebuffer; }
 

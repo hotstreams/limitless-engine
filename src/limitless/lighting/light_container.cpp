@@ -64,6 +64,12 @@ LightContainer::LightContainer() {
             .build(SHADER_STORAGE_NAME, *Context::getCurrentContext());
 }
 
+LightContainer::~LightContainer() {
+    if (auto* ctx = Context::getCurrentContext(); ctx) {
+        ctx->getIndexedBuffers().remove(IndexedBuffer::Type::ShaderStorage, SHADER_STORAGE_NAME);
+    }
+}
+
 Light& LightContainer::add(Light&& light) {
     // add new light to all lights
     lights.emplace(light.getId(), std::move(light));
