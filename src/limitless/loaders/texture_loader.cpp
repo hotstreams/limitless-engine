@@ -228,22 +228,33 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const std::string& 
     return texture;
 }
 
-std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
-    auto path = convertPathSeparators(_path);
-
-    stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
-
+std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
     constexpr std::array ext = { "_right", "_left", "_top", "_bottom", "_front", "_back" };
+
+    size_t i = 0;
+    std::array<fs::path, 6> paths;
+    std::generate(
+        std::begin(paths),
+        std::end(paths),
+        [&]() {
+            return path.parent_path() / (path.stem().string() + ext[i++] + path.extension().string());
+        }
+    );
+    return loadCubemap(assets, paths, flags);
+}
+
+std::shared_ptr<Texture> TextureLoader::loadCubemap(Assets& assets, const std::array<fs::path, 6>& paths, const TextureLoaderFlags& flags) {
+    stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
 
     std::array<void*, 6> data = { nullptr };
     int width = 0, height = 0, channels = 0;
 
     for (size_t i = 0; i < data.size(); ++i) {
-        std::string p = path.parent_path().string() + PATH_SEPARATOR + path.stem().string() + ext[i] + path.extension().string();
+        std::string p = convertPathSeparators(paths[i]).string();
         data[i] = stbi_load(p.c_str(), &width, &height, &channels, 0);
 
         if (!data[i]) {
-            throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
+            throw texture_loader_exception("Failed to load texture: " + p + " " + stbi_failure_reason());
         }
     }
 
@@ -261,7 +272,6 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& ass
             .wrap_t(Texture::Wrap::ClampToEdge)
             .wrap_r(Texture::Wrap::ClampToEdge);
 
-    builder.path(path);
     auto texture = builder.buildMutable();
     setAnisotropicFilter(texture, flags);
 

@@ -139,6 +139,10 @@ namespace Limitless {
             const TextureLoaderFlags& flags = {}
         );
 
+        // Expects base path, and will load the 6 cubemap faces with file suffixes: _right, _left, _top, _bottom, _front, _back.
         static std::shared_ptr<Texture> loadCubemap(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
+
+        // Expects paths for each cubemap face, in the order of Right, Left, Top, Bottom, Front, Back.
+        static std::shared_ptr<Texture> loadCubemap(Assets& assets, const std::array<fs::path, 6>& paths, const TextureLoaderFlags& flags = {});
     };
 }
