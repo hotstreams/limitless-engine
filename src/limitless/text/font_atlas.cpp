@@ -240,10 +240,10 @@ std::shared_ptr<FontAtlas> FontAtlas::make(
     const auto bytes_per_pixel = [&] {
         switch (icons.begin()->second->getInternalFormat()) {
             case Texture::InternalFormat::R8:
-                std::cerr << "internal format r8\n";
+                // std::cerr << "internal format r8\n";
                 return 1;
             case Texture::InternalFormat::RGBA8:
-                std::cerr << "internal format rgba8\n";
+                // std::cerr << "internal format rgba8\n";
                 return 4;
             default: throw font_error {"unsupported texture format"};
         }
