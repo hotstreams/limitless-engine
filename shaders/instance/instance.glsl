@@ -90,6 +90,22 @@ mat4 getBoneMatrix() {
     mat4 getModelMatrix() {
         return mat4(1.0);
     }
+
+    vec3 getOutlineColor() {
+        return vec3(0.0);
+    }
+
+    uint getId() {
+        return 0u;
+    }
+
+    uint getIsOutlined() {
+        return 0u;
+    }
+
+    uint getDecalMask() {
+        return 0u;
+    }
 #endif
 
 mat4 getModelTransform() {
