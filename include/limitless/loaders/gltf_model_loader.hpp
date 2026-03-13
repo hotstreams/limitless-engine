@@ -90,6 +90,10 @@ namespace Limitless {
 			const ModelLoaderFlags& flags
 		);
 
-		static std::shared_ptr<AbstractMesh> simplifyMesh(const AbstractMesh& mesh, const LodOptions& options);
+		static std::shared_ptr<AbstractMesh> simplifyMesh(
+			const AbstractMesh& mesh,
+			const LodOptions& options,
+			const std::vector<unsigned char>& vertex_locks = {}
+		);
 	};
 }

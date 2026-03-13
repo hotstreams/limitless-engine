@@ -1330,7 +1330,8 @@ template<typename V>
 static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
 	const IndexedVertexStream<V>& indexed_stream,
 	const std::string& mesh_name,
-	const LodOptions& options
+	const LodOptions& options,
+	const std::vector<unsigned char>& vertex_locks = {}
 ) {
 	auto indices = indexed_stream.getIndices();
 	auto vertices = indexed_stream.getVertices();
@@ -1342,8 +1343,21 @@ static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
 	const auto old_index_count = indices.size();
 	const auto old_vertex_count = vertices.size();
 
+	const unsigned char* locks_ptr = vertex_locks.empty() ? nullptr : vertex_locks.data();
+
 	std::vector<GLuint> simplified_indices(indices.size());
-	size_t new_index_count = meshopt_simplify(
+	size_t new_index_count = options.forced ? meshopt_simplifySloppy(
+		simplified_indices.data(),
+		indices.data(),
+		indices.size(),
+		reinterpret_cast<const float*>(vertices.data()),
+		vertices.size(),
+		sizeof(V),
+		locks_ptr,
+		target_index_count,
+		options.target_error,
+		nullptr
+	) : meshopt_simplify(
 		simplified_indices.data(),
 		indices.data(),
 		indices.size(),
@@ -1383,17 +1397,21 @@ static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
 	return std::make_shared<Mesh>(std::move(stream), mesh_name);
 }
 
-std::shared_ptr<AbstractMesh> GltfModelLoader::simplifyMesh(const AbstractMesh& base_mesh, const LodOptions& options) {
+std::shared_ptr<AbstractMesh> GltfModelLoader::simplifyMesh(
+	const AbstractMesh& base_mesh,
+	const LodOptions& options,
+	const std::vector<unsigned char>& vertex_locks
+) {
 	const Mesh& mesh = static_cast<const Mesh&>(base_mesh);
 	const auto& vertex_stream = mesh.getVertexStream();
 	const auto& mesh_name = mesh.getName();
 
 	if (const auto* stream = dynamic_cast<const IndexedVertexStream<VertexNormalTangent>*>(&vertex_stream)) {
-		return simplifyIndexedMesh(*stream, mesh_name, options);
+		return simplifyIndexedMesh(*stream, mesh_name, options, vertex_locks);
 	}
 
 	if (const auto* stream = dynamic_cast<const IndexedVertexStream<VertexTerrain>*>(&vertex_stream)) {
-		return simplifyIndexedMesh(*stream, mesh_name, options);
+		return simplifyIndexedMesh(*stream, mesh_name, options, vertex_locks);
 	}
 
 	throw ModelLoadError {"unsupported vertex stream type for mesh simplification"};
