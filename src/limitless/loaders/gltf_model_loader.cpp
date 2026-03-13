@@ -1,4 +1,5 @@
 #include "cgltf.h"
+#include <meshoptimizer.h>
 
 #include <chrono>
 #include <cstdio>
@@ -473,6 +474,45 @@ loadMeshes(
                 // gltf 2.0 spec: uv origin in top left corner
                 // OpenGL uv origin in bottom left
 				uv});
+		}
+
+		// Mesh simplification using meshoptimizer.
+		if (flags.lod_options.simplification_factor < 1.0f) {
+			size_t target_index_count = static_cast<size_t>(indices.size() * flags.lod_options.simplification_factor);
+			// Ensure target is aligned to triangles (multiple of 3) and at least 3.
+			target_index_count = std::max(target_index_count - target_index_count % 3, size_t {3});
+
+			const auto old_index_count = indices.size();
+			std::vector<GLuint> simplified_indices(indices.size());
+			size_t new_index_count = flags.lod_options.forced
+			? meshopt_simplifySloppy(
+				simplified_indices.data(),
+				indices.data(),
+				indices.size(),
+				reinterpret_cast<const float*>(vertices.data()),
+				vertices.size(),
+				sizeof(VertexNormalTangent),
+				target_index_count,
+				flags.lod_options.target_error,
+				nullptr
+			)
+			:	meshopt_simplify(
+					simplified_indices.data(),
+					indices.data(),
+					indices.size(),
+					reinterpret_cast<const float*>(vertices.data()),
+					vertices.size(),
+					sizeof(VertexNormalTangent),
+					target_index_count,
+					flags.lod_options.target_error,
+					0,
+					nullptr
+				);
+
+			std::cout << "Mesh " << mesh_name << " simplification: " << old_index_count << " -> " << new_index_count << std::endl;
+
+			simplified_indices.resize(new_index_count);
+			indices = std::move(simplified_indices);
 		}
 
 		if (!skin) {
@@ -1284,6 +1324,79 @@ loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const Mod
 	} else {
 		return std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name, flags));
 	}
+}
+
+template<typename V>
+static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
+	const IndexedVertexStream<V>& indexed_stream,
+	const std::string& mesh_name,
+	const LodOptions& options
+) {
+	auto indices = indexed_stream.getIndices();
+	auto vertices = indexed_stream.getVertices();
+
+	size_t target_index_count = static_cast<size_t>(indices.size() * options.simplification_factor);
+	// Ensure target is aligned to triangles (multiple of 3) and at least 3.
+	target_index_count = std::max(target_index_count - target_index_count % 3, size_t {3});
+
+	const auto old_index_count = indices.size();
+	const auto old_vertex_count = vertices.size();
+
+	std::vector<GLuint> simplified_indices(indices.size());
+	size_t new_index_count = meshopt_simplify(
+		simplified_indices.data(),
+		indices.data(),
+		indices.size(),
+		reinterpret_cast<const float*>(vertices.data()),
+		vertices.size(),
+		sizeof(V),
+		target_index_count,
+		options.target_error,
+		0,
+		nullptr
+	);
+	simplified_indices.resize(new_index_count);
+
+	// Compact vertex buffer by removing vertices no longer referenced after simplification.
+	std::vector<V> optimized_vertices(vertices.size());
+	size_t unique_vertex_count = meshopt_optimizeVertexFetch(
+		optimized_vertices.data(),
+		simplified_indices.data(),
+		simplified_indices.size(),
+		vertices.data(),
+		vertices.size(),
+		sizeof(V)
+	);
+	optimized_vertices.resize(unique_vertex_count);
+
+	std::cout << "Mesh " << mesh_name << " simplification: "
+		<< old_index_count << " -> " << new_index_count << " indices, "
+		<< old_vertex_count << " -> " << unique_vertex_count << " vertices" << std::endl;
+
+	auto stream = std::make_unique<IndexedVertexStream<V>>(
+		std::move(optimized_vertices),
+		std::move(simplified_indices),
+		VertexStreamUsage::Static,
+		VertexStreamDraw::Triangles
+	);
+
+	return std::make_shared<Mesh>(std::move(stream), mesh_name);
+}
+
+std::shared_ptr<AbstractMesh> GltfModelLoader::simplifyMesh(const AbstractMesh& base_mesh, const LodOptions& options) {
+	const Mesh& mesh = static_cast<const Mesh&>(base_mesh);
+	const auto& vertex_stream = mesh.getVertexStream();
+	const auto& mesh_name = mesh.getName();
+
+	if (const auto* stream = dynamic_cast<const IndexedVertexStream<VertexNormalTangent>*>(&vertex_stream)) {
+		return simplifyIndexedMesh(*stream, mesh_name, options);
+	}
+
+	if (const auto* stream = dynamic_cast<const IndexedVertexStream<VertexTerrain>*>(&vertex_stream)) {
+		return simplifyIndexedMesh(*stream, mesh_name, options);
+	}
+
+	throw ModelLoadError {"unsupported vertex stream type for mesh simplification"};
 }
 
 std::shared_ptr<AbstractModel>

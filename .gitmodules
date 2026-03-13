@@ -16,3 +16,6 @@
 [submodule "thirdparty/plog"]
 	path = thirdparty/plog
 	url = https://github.com/SergiusTheBest/plog
+[submodule "thirdparty/meshoptimizer"]
+	path = thirdparty/meshoptimizer
+	url = https://github.com/zeux/meshoptimizer

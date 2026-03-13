@@ -225,10 +225,12 @@ set(ENGINE_SRC
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype")
     add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/build/cmake")
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/plog")
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/meshoptimizer")
 
     target_compile_options(glfw PUBLIC -O3)
     target_compile_options(freetype PUBLIC -O3)
     target_compile_options(glew PUBLIC -O3)
+    target_compile_options(meshoptimizer PUBLIC -O3)
 
 ##########################################
 add_library(limitless-engine STATIC ${ENGINE_SRC})
@@ -239,10 +241,12 @@ target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/th
 target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/freetype/include")
 target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/glew/include")
 target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/plog/include")
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/meshoptimizer/src")
 
 target_link_libraries(limitless-engine PUBLIC glfw ${GLFW_LIBRARIES})
 target_link_libraries(limitless-engine PUBLIC glew ${GLEW_LIBRARIES})
 target_link_libraries(limitless-engine PUBLIC freetype)
+target_link_libraries(limitless-engine PUBLIC meshoptimizer)
 
 if (UNIX)
     target_link_libraries(limitless-engine PUBLIC GL)

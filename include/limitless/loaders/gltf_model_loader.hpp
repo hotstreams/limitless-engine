@@ -24,6 +24,12 @@ namespace Limitless {
 			: std::runtime_error(msg) {}
 	};
 
+	struct LodOptions {
+		float target_error {0.01f};
+		float simplification_factor {0.5f};
+		bool forced {false};
+	};
+
 	class ModelLoaderFlags {
 	public:
 		std::set<ModelLoaderOption> options;
@@ -31,6 +37,7 @@ namespace Limitless {
 		InstanceTypes additional_instance_types;
 		TextureLoaderFlags base_tex_flags;
 		std::unordered_map<std::string, std::string> texture_uri_replacements;
+		LodOptions lod_options;
 
 		auto isPresent(ModelLoaderOption option) const { return options.count(option) != 0; }
 
@@ -51,6 +58,11 @@ namespace Limitless {
 
 		ModelLoaderFlags& textureUriReplacements(std::unordered_map<std::string, std::string> uri_replacements) {
 			texture_uri_replacements = std::move(uri_replacements);
+			return *this;
+		}
+
+		ModelLoaderFlags& lodOptions(LodOptions options) {
+			lod_options = std::move(options);
 			return *this;
 		}
 	};
@@ -77,5 +89,7 @@ namespace Limitless {
 			std::string variant_name,
 			const ModelLoaderFlags& flags
 		);
+
+		static std::shared_ptr<AbstractMesh> simplifyMesh(const AbstractMesh& mesh, const LodOptions& options);
 	};
 }
