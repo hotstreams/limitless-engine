@@ -2,6 +2,7 @@
 #include <utility>
 #include <stb_image.h>
 #include <limitless/core/cpu_profiler.hpp>
+#include <limitless/core/profiler.hpp>
 
 using namespace Limitless;
 
@@ -13,6 +14,7 @@ Context::Context(
 ) : ContextInitializer()
   , ContextState()
   , size {_size} {
+    CpuProfileScope ps(global_profiler, "Context::Context");
     // sets window hints for creation
     for (const auto& [hint, value] : hints) {
         glfwWindowHint(static_cast<int>(hint), value);

@@ -1,5 +1,5 @@
 #include <limitless/core/context_initializer.hpp>
-
+#include <limitless/core/cpu_profiler.hpp>
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -44,6 +44,7 @@ void ContextInitializer::initializeGLFW() {
 }
 
 ContextInitializer::ContextInitializer() {
+    CpuProfileScope ps(Limitless::global_profiler, "ContextInitializer::ContextInitializer");
     if (!glfw_inited) {
         initializeGLFW();
     }
