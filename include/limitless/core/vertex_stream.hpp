@@ -124,5 +124,9 @@ namespace Limitless {
         void draw_instanced(std::size_t count) noexcept override {
             draw_instanced(mode, count);
         }
+
+        void recreateVAO() noexcept override {
+            vertex_array.recreateOnCurrentContext();
+        }
     };
 }

@@ -69,5 +69,9 @@ namespace Limitless {
         void draw_instanced(VertexStreamDraw draw, std::size_t count) noexcept override {
             stream->draw_instanced(draw, count);
         }
+
+        void recreateVAO() noexcept override {
+            stream->recreateVAO();
+        }
     };
 }

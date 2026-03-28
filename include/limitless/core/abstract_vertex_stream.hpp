@@ -28,5 +28,7 @@ namespace Limitless {
 
         virtual void draw_instanced(std::size_t count) noexcept = 0;
         virtual void draw_instanced(VertexStreamDraw draw, std::size_t count) noexcept = 0;
+
+        virtual void recreateVAO() noexcept = 0;
     };
 }

@@ -49,6 +49,11 @@ namespace Limitless {
         void setAttribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer, const std::shared_ptr<Buffer>& buffer);
         void setElementBuffer(const std::shared_ptr<Buffer>& buffer);
 
+        // Creates a new VAO on the current GL context, re-binding all existing
+        // vertex attributes and element buffers. The old VAO (belonging to a
+        // different context) is intentionally leaked — its owning context handles cleanup.
+        void recreateOnCurrentContext();
+
         template <typename Attribute>
         VertexArray& setAttribute(GLuint index, bool normalized, GLsizei stride, const GLvoid* pointer, const std::shared_ptr<Buffer>& buffer) {
             if constexpr (std::is_same_v<Attribute, float>) {

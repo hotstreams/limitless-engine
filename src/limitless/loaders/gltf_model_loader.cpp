@@ -1319,11 +1319,17 @@ static std::shared_ptr<AbstractModel>
 loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const ModelLoaderFlags& flags) {
 	auto model_name = path.stem().string();
 
-	if (src.skins_count > 0) {
-		return std::shared_ptr<AbstractModel>(loadSkeletalModel(assets, path, src, model_name, flags));
-	} else {
-		return std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name, flags));
+	if (assets.models.contains(model_name)) {
+		assets.models.remove(model_name);
 	}
+
+	auto model = src.skins_count > 0
+		? std::shared_ptr<AbstractModel>(loadSkeletalModel(assets, path, src, model_name, flags))
+		: std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name, flags));
+
+	assets.models.add(model_name, model);
+
+	return model;
 }
 
 template<typename V>
