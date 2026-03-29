@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <atomic>
 
 using namespace Limitless;
 
@@ -1317,9 +1318,14 @@ std::vector<std::shared_ptr<Limitless::ms::Material>> GltfModelLoader::loadModel
 
 static std::shared_ptr<AbstractModel>
 loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const ModelLoaderFlags& flags) {
-	auto model_name = path.stem().string();
+	// For VAO recreation, we need to have a unique name for each model.
+	static std::atomic<size_t> model_count = 0uz;
+	auto model_name = path.stem().string() + "_gltf" + std::to_string(model_count.fetch_add(1));
+
+	std::cout << "Loading model: " << model_name << std::endl;
 
 	if (assets.models.contains(model_name)) {
+		std::cout << "Model already loaded, removing from assets" << std::endl;
 		assets.models.remove(model_name);
 	}
 
@@ -1327,6 +1333,7 @@ loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const Mod
 		? std::shared_ptr<AbstractModel>(loadSkeletalModel(assets, path, src, model_name, flags))
 		: std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name, flags));
 
+	std::cout << "Adding model to assets" << std::endl;
 	assets.models.add(model_name, model);
 
 	return model;

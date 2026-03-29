@@ -181,7 +181,8 @@ namespace Limitless {
         GLuint shader_id {};
 
         /**
-         * Vertex array object id
+         * Currently active vertex array object.
+         * TODO: map engine VAO ID to real OpenGL VAO ID for each context.
          */
         GLuint vertex_array_id {};
 

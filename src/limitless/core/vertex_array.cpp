@@ -121,13 +121,13 @@ void VertexArray::setAttribute(GLuint index, GLint size, GLenum type, GLboolean 
 }
 
 void VertexArray::recreateOnCurrentContext() {
-    std::cout << "Recreating VAO " << id << " on current context" << std::endl;
+    // std::cout << "Recreating VAO " << id << " on current context" << std::endl;
     glGenVertexArrays(1, &id);
-    std::cout << "New VAO ID: " << id << std::endl;
+    // std::cout << "New VAO ID: " << id << std::endl;
 
     for (const auto& [index, attribute] : attributes) {
         const auto& [size, type, normalized, stride, pointer, buffer] = attribute;
-        std::cout << "Setting attribute " << index << " with size " << size << " type " << type << " normalized " << normalized << " stride " << stride << " pointer " << pointer << " buffer " << buffer->getId() << std::endl;
+        // std::cout << "Setting attribute " << index << " with size " << size << " type " << type << " normalized " << normalized << " stride " << stride << " pointer " << pointer << " buffer " << buffer->getId() << std::endl;
         setAttribute(index, size, type, normalized, stride, pointer, buffer);
     }
 
