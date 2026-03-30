@@ -281,6 +281,23 @@ static std::string generateMeshName(const std::string& model_name, size_t mesh_i
 	return model_name + "_mesh" + std::to_string(mesh_index);
 }
 
+static size_t getTargetIndexCount(size_t index_count, const LodTarget& target) {
+	size_t result = std::visit([&](auto&& arg) -> size_t {
+		using T = std::decay_t<decltype(arg)>;
+		if constexpr (std::is_same_v<T, LodSimplificationFactor>) {
+			return static_cast<size_t>(index_count * arg);
+		} else if constexpr (std::is_same_v<T, LodTargetIndicesCount>) {
+			return arg;
+		}
+		throw ModelLoadError {"invalid lod target type"};
+	}, target);
+
+	// Ensure target is aligned to triangles (multiple of 3) and at least 3.
+	result = std::max(result - result % 3, size_t {3});
+
+	return result;
+}
+
 // TODO: return std::vector of mesh + material.
 // Note that material pointer can be empty if mesh does not have material.
 static std::pair<std::vector<std::shared_ptr<AbstractMesh>>, std::vector<std::shared_ptr<ms::Material>>>
@@ -308,6 +325,8 @@ loadMeshes(
 
 	auto mesh_matrix = getNodeMatrix(node);
 
+	size_t polygon_count = 0uz;
+
 	for (cgltf_size i = 0, n = mesh.primitives_count; i < n; ++i) {
 		auto mesh_name = base_mesh_name + (n == 1 ? std::string() : std::to_string(i));
 		std::vector<glm::vec3> positions;
@@ -329,6 +348,8 @@ loadMeshes(
 			if (primitive.indices->count % 3 != 0) {
 				throw ModelLoadError {"triangle indices count is not divisible by 3"};
 			}
+
+			polygon_count += primitive.indices->count / 3;
 
 			switch (primitive.indices->component_type) {
 			case cgltf_component_type_r_32u:
@@ -477,12 +498,9 @@ loadMeshes(
 				uv});
 		}
 
+		size_t target_index_count = getTargetIndexCount(indices.size(), flags.lod_options.target);
 		// Mesh simplification using meshoptimizer.
-		if (flags.lod_options.simplification_factor < 1.0f) {
-			size_t target_index_count = static_cast<size_t>(indices.size() * flags.lod_options.simplification_factor);
-			// Ensure target is aligned to triangles (multiple of 3) and at least 3.
-			target_index_count = std::max(target_index_count - target_index_count % 3, size_t {3});
-
+		if (indices.size() > target_index_count) {
 			const auto old_index_count = indices.size();
 			std::vector<GLuint> simplified_indices(indices.size());
 			size_t new_index_count = flags.lod_options.forced
@@ -497,18 +515,18 @@ loadMeshes(
 				flags.lod_options.target_error,
 				nullptr
 			)
-			:	meshopt_simplify(
-					simplified_indices.data(),
-					indices.data(),
-					indices.size(),
-					reinterpret_cast<const float*>(vertices.data()),
-					vertices.size(),
-					sizeof(VertexNormalTangent),
-					target_index_count,
-					flags.lod_options.target_error,
-					0,
-					nullptr
-				);
+			: meshopt_simplify(
+				simplified_indices.data(),
+				indices.data(),
+				indices.size(),
+				reinterpret_cast<const float*>(vertices.data()),
+				vertices.size(),
+				sizeof(VertexNormalTangent),
+				target_index_count,
+				flags.lod_options.target_error,
+				0,
+				nullptr
+			);
 
 			std::cout << "Mesh " << mesh_name << " simplification: " << old_index_count << " -> " << new_index_count << std::endl;
 
@@ -569,6 +587,8 @@ loadMeshes(
 			mesh_materials.emplace_back(select_mesh_material(primitive));
 		}
 	}
+
+	std::cout << "Model " << model_name << " has " << polygon_count << " polygons" << std::endl;
 
 	return {meshes, mesh_materials};
 }
@@ -981,7 +1001,10 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
 			.withSrgb();
 
-		builder.diffuse(*loadTextureFrom(*base_color_tex, material_name + "_base_color", flags));
+		auto diffuse_texture = *loadTextureFrom(*base_color_tex, material_name + "_base_color", flags);
+		const auto size = diffuse_texture->getSize();
+		std::cout << "Diffuse texture with size " << size.x << "x" << size.y << std::endl;
+		builder.diffuse(diffuse_texture);
 		builder.color(toVec4(pbr_mr.base_color_factor));
 	}
 
@@ -1322,7 +1345,7 @@ loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const Mod
 	static std::atomic<size_t> model_count = 0uz;
 	auto model_name = path.stem().string() + "_gltf" + std::to_string(model_count.fetch_add(1));
 
-	std::cout << "Loading model: " << model_name << std::endl;
+	std::cout << "Loading model: " << model_name << " from " << path.string() << std::endl;
 
 	if (assets.models.contains(model_name)) {
 		std::cout << "Model already loaded, removing from assets" << std::endl;
@@ -1341,19 +1364,24 @@ loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const Mod
 
 template<typename V>
 static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
-	const IndexedVertexStream<V>& indexed_stream,
+	std::shared_ptr<AbstractMesh> original_mesh,
 	const std::string& mesh_name,
 	const LodOptions& options,
 	const std::vector<unsigned char>& vertex_locks = {}
 ) {
+	const auto& mesh = static_cast<const Mesh&>(*original_mesh);
+	const auto& indexed_stream = static_cast<const IndexedVertexStream<V>&>(mesh.getVertexStream());
 	auto indices = indexed_stream.getIndices();
 	auto vertices = indexed_stream.getVertices();
 
-	size_t target_index_count = static_cast<size_t>(indices.size() * options.simplification_factor);
-	// Ensure target is aligned to triangles (multiple of 3) and at least 3.
-	target_index_count = std::max(target_index_count - target_index_count % 3, size_t {3});
+	size_t target_index_count = getTargetIndexCount(indices.size(), options.target);
 
 	const auto old_index_count = indices.size();
+
+	if (old_index_count <= target_index_count) {
+		return original_mesh;
+	}
+
 	const auto old_vertex_count = vertices.size();
 
 	const unsigned char* locks_ptr = vertex_locks.empty() ? nullptr : vertex_locks.data();
@@ -1411,20 +1439,20 @@ static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
 }
 
 std::shared_ptr<AbstractMesh> GltfModelLoader::simplifyMesh(
-	const AbstractMesh& base_mesh,
+	std::shared_ptr<AbstractMesh> original_mesh,
 	const LodOptions& options,
 	const std::vector<unsigned char>& vertex_locks
 ) {
-	const Mesh& mesh = static_cast<const Mesh&>(base_mesh);
+	const auto& mesh = static_cast<const Mesh&>(*original_mesh);
 	const auto& vertex_stream = mesh.getVertexStream();
-	const auto& mesh_name = mesh.getName();
+	const auto& mesh_name = original_mesh->getName();
 
 	if (const auto* stream = dynamic_cast<const IndexedVertexStream<VertexNormalTangent>*>(&vertex_stream)) {
-		return simplifyIndexedMesh(*stream, mesh_name, options, vertex_locks);
+		return simplifyIndexedMesh<VertexNormalTangent>(original_mesh, mesh_name, options, vertex_locks);
 	}
 
 	if (const auto* stream = dynamic_cast<const IndexedVertexStream<VertexTerrain>*>(&vertex_stream)) {
-		return simplifyIndexedMesh(*stream, mesh_name, options, vertex_locks);
+		return simplifyIndexedMesh<VertexTerrain>(original_mesh, mesh_name, options, vertex_locks);
 	}
 
 	throw ModelLoadError {"unsupported vertex stream type for mesh simplification"};

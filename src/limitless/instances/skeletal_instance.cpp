@@ -210,3 +210,9 @@ const std::vector<Bone>& SkeletalInstance::getAllBones() const noexcept {
     const auto& bones = skeletal.getBones();
     return bones;
 }
+
+bool SkeletalInstance::hasAnimation(const std::string& name) const noexcept {
+    const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+    const auto& animations = skeletal.getAnimations();
+    return std::find_if(animations.begin(), animations.end(), [&](const auto& anim) { return name == anim.name; }) != animations.end();
+}

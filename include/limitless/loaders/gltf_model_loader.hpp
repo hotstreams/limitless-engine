@@ -24,10 +24,16 @@ namespace Limitless {
 			: std::runtime_error(msg) {}
 	};
 
+	using LodSimplificationFactor = float;
+	using LodTargetIndicesCount = size_t;
+	using LodTarget = std::variant<LodSimplificationFactor, LodTargetIndicesCount>;
+
 	struct LodOptions {
 		float target_error {0.01f};
-		float simplification_factor {0.5f};
+		LodTarget target {0.5f};
 		bool forced {false};
+
+
 	};
 
 	class ModelLoaderFlags {
@@ -91,7 +97,7 @@ namespace Limitless {
 		);
 
 		static std::shared_ptr<AbstractMesh> simplifyMesh(
-			const AbstractMesh& mesh,
+			std::shared_ptr<AbstractMesh> original_mesh,
 			const LodOptions& options,
 			const std::vector<unsigned char>& vertex_locks = {}
 		);

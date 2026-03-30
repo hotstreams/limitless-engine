@@ -103,6 +103,7 @@ namespace Limitless {
         [[nodiscard]] auto isPaused() const noexcept { return paused; }
         [[nodiscard]] const auto& getCurrentAnimation() const noexcept { return animation; }
         [[nodiscard]] const std::vector<Animation>& getAllAnimations() const noexcept;
+        [[nodiscard]] bool hasAnimation(const std::string& name) const noexcept;
         const std::vector<Bone>& getAllBones() const noexcept;
         const auto& getBoneBuffer() const noexcept { return bone_buffer; }
 
