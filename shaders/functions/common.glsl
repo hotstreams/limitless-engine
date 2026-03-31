@@ -13,6 +13,18 @@ float saturate(float val) {
     return clamp(val, 0.0, 1.0);
 }
 
+vec2 saturate(vec2 val) {
+    return clamp(val, 0.0, 1.0);
+}
+
+vec3 saturate(vec3 val) {
+    return clamp(val, 0.0, 1.0);
+}
+
+vec4 saturate(vec4 val) {
+    return clamp(val, 0.0, 1.0);
+}
+
 vec3 computeDiffuseColor(const vec3 baseColor, float metallic) {
     return baseColor * (1.0 - metallic);
 }
@@ -44,4 +56,26 @@ float specularAA(const vec3 normal, float perceptualRoughness, float aaThreshold
     float squareRoughness = saturate(roughness * roughness + kernelRoughness);
 
     return sqrt(sqrt(squareRoughness));
+}
+
+vec4 clipToScreenPos(vec4 pos) {
+    vec4 o = pos * 0.5f;
+    o.xy += o.w;
+    o.zw = pos.zw;
+    return o;
+}
+
+vec4 ndcToClipPos(vec3 ndc) {
+	// map xy to -1,1
+	vec4 clip_pos = vec4(ndc.xy * 2.0f - 1.0f, ndc.z, 1.0f);
+    clip_pos.z = clip_pos.z * 2.0f - 1.0f;
+    return clip_pos;
+}
+
+vec3 ndcToWorldPos(mat4 inverseVP, vec3 ndc) {
+	vec4 clip_pos = ndcToClipPos(ndc);
+	vec4 pos = inverseVP * clip_pos;
+	pos.xyz /= pos.w;
+
+	return pos.xyz;
 }
