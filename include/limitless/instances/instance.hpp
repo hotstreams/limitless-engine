@@ -162,6 +162,12 @@ namespace Limitless {
          */
 		virtual void updateBoundingBox() noexcept;
 
+		/**
+		 * Computes world-space AABB from a local-space box transformed by final_matrix,
+		 * taking rotation into account via Arvo's method
+		 */
+		Box transformBoundingBox(const Box& local_box) const noexcept;
+
 		void updateModelMatrix() noexcept;
 		void updateFinalMatrix() noexcept;
         void updateInstanceBuffer() noexcept;
@@ -186,7 +192,7 @@ namespace Limitless {
         [[nodiscard]] const auto& getScale() const noexcept { return scale; }
 
         [[nodiscard]] const auto& getTransformationMatrix() const noexcept { return transformation_matrix; }
-        [[nodiscard]] const auto& getBoundingBox() noexcept { updateBoundingBox(); return bounding_box; }
+        [[nodiscard]] const auto& getBoundingBox() const noexcept { return bounding_box; }
         [[nodiscard]] const auto& getFinalMatrix() const noexcept { return final_matrix; }
         [[nodiscard]] const auto& getModelMatrix() const noexcept { return model_matrix; }
 
