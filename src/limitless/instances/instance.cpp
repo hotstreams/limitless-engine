@@ -190,10 +190,23 @@ Instance::Builder Instance::builder() noexcept {
     return {};
 }
 
+Box Instance::transformBoundingBox(const Box& local_box) const noexcept {
+    const auto half = local_box.size * 0.5f;
+    auto center = glm::vec3{final_matrix * glm::vec4{local_box.center, 1.0f}};
+
+    glm::vec3 new_half{0.0f};
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            new_half[i] += glm::abs(final_matrix[j][i]) * half[j];
+        }
+    }
+
+    return {center, new_half * 2.0f};
+}
+
 void Instance::updateBoundingBox() noexcept {
     if (custom_bounding_box) {
-        bounding_box.center = glm::vec4{position, 1.0f} + glm::vec4{custom_bounding_box->center, 1.0f} * final_matrix;
-        bounding_box.size = glm::vec4{custom_bounding_box->size, 1.0f} * final_matrix;
+        bounding_box = transformBoundingBox(*custom_bounding_box);
     }
 }
 

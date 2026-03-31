@@ -16,8 +16,7 @@ void DecalInstance::setMaterial(const std::shared_ptr<ms::Material>& new_materia
 }
 
 void DecalInstance::updateBoundingBox() noexcept {
-    bounding_box.center = glm::vec4{position, 1.0f} + glm::vec4{model->getBoundingBox().center, 1.0f} * final_matrix;
-    bounding_box.size = glm::vec4{model->getBoundingBox().size, 1.0f} * final_matrix;
+    bounding_box = transformBoundingBox(model->getBoundingBox());
 }
 
 std::unique_ptr<Instance> DecalInstance::clone() noexcept {

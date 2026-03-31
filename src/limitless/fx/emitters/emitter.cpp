@@ -2,6 +2,8 @@
 
 #include <limitless/camera.hpp>
 
+#include <limitless/core/cpu_profiler.hpp>
+
 using namespace Limitless::fx;
 
 template<typename Particle>
@@ -190,6 +192,7 @@ void Emitter<P>::spawnParticles() noexcept {
 
 template<typename P>
 void Emitter<P>::killParticles() noexcept {
+    CpuProfileScope scope(global_profiler, "Emitter<P>::killParticles");
     std::vector<size_t> indices;
     for (size_t i = 0; i < particles.size(); ++i) {
         if (particles[i].lifetime <= 0.0f) {

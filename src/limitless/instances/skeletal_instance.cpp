@@ -9,6 +9,7 @@
 #include <limitless/models/mesh.hpp>
 #include <limitless/core/skeletal_stream.hpp>
 #include <iostream>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -25,6 +26,7 @@ void SkeletalInstance::initializeBuffer() {
 }
 
 void SkeletalInstance::updateAnimationFrame() {
+    CpuProfileScope ps(global_profiler, "SkeletalInstance::updateAnimationFrame");
     if (!animation || paused) {
         return;
     }
@@ -40,7 +42,15 @@ void SkeletalInstance::updateAnimationFrame() {
     const auto delta_time = current_time - last_time;
     animation_duration += delta_time;
     last_time = current_time;
-    const auto animation_time = glm::mod(animation_duration.count() * anim.tps, anim.duration);
+    const auto animation_time = [&]() -> double {
+        auto new_time = animation_duration.count() * anim.tps;
+        if (!repeating) {
+            new_time = std::min(new_time, anim.duration);
+        } else {
+            new_time = glm::mod(new_time, anim.duration);
+        }
+        return new_time;
+    }();
 
     std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
     node_traversal = [&](const Tree<uint32_t>& node, const glm::mat4& parent_mat) {
@@ -179,6 +189,11 @@ SkeletalInstance& SkeletalInstance::resume() noexcept {
 
 SkeletalInstance& SkeletalInstance::stop() noexcept {
     animation = nullptr;
+    return *this;
+}
+
+SkeletalInstance& SkeletalInstance::setRepeating(bool repeating) noexcept {
+    this->repeating = repeating;
     return *this;
 }
 

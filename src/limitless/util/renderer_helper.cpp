@@ -87,17 +87,40 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
 
 void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Scene& scene) {
     auto box = ModelInstance {assets.models.at("cube"), assets.materials.at("default"), glm::vec3{0.0f}};
+    auto& material = box.getMaterial(0);
 
     context.setLineWidth(2.5f);
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Line);
-    for (const auto& instance : scene.getInstances()) {
-        auto& bounding_box = instance->getBoundingBox();
 
+    auto murmurScramble = [](uint64_t k) {
+        k *= 0xcc9e2d51;
+        k = (k << 15) | (k >> 17);
+        k *= 0x1b873593;
+        return k;
+    };
+
+    auto renderBb = [&](const Box& bounding_box, uint64_t id) {
+        const auto rgb = murmurScramble(id);
+        const auto r = ((rgb >> 16) & 0xFF) / 255.0f;
+        const auto g = ((rgb >> 8) & 0xFF) / 255.0f;
+        const auto b = ((rgb & 0xFF)) / 255.0f;
+        material->getColor() = glm::vec4(r, g, b, 1.0f);
+    
         box .setPosition(bounding_box.center)
             .setScale(bounding_box.size)
             .update(camera);
 
         InstanceRenderer::render(box, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+    };
+
+    for (const auto& instance : scene.getInstances()) {
+        if (const auto* ii = dynamic_cast<const InstancedInstance*>(instance.get())) {
+            for (const auto& iii : ii->getInstances()) {
+                renderBb(iii->getBoundingBox(), iii->getId());
+            }
+        } else {
+            renderBb(instance->getBoundingBox(), instance->getId());
+        }
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
