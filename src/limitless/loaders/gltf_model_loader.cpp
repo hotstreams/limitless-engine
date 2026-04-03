@@ -528,7 +528,7 @@ loadMeshes(
 				nullptr
 			);
 
-			std::cout << "Mesh " << mesh_name << " simplification: " << old_index_count << " -> " << new_index_count << std::endl;
+			// std::cout << "Mesh " << mesh_name << " simplification: " << old_index_count << " -> " << new_index_count << std::endl;
 
 			simplified_indices.resize(new_index_count);
 			indices = std::move(simplified_indices);
@@ -1424,9 +1424,9 @@ static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
 	);
 	optimized_vertices.resize(unique_vertex_count);
 
-	std::cout << "Mesh " << mesh_name << " simplification: "
-		<< old_index_count << " -> " << new_index_count << " indices, "
-		<< old_vertex_count << " -> " << unique_vertex_count << " vertices" << std::endl;
+	// std::cout << "Mesh " << mesh_name << " simplification: "
+	// 	<< old_index_count << " -> " << new_index_count << " indices, "
+	// 	<< old_vertex_count << " -> " << unique_vertex_count << " vertices" << std::endl;
 
 	auto stream = std::make_unique<IndexedVertexStream<V>>(
 		std::move(optimized_vertices),
