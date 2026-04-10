@@ -9,6 +9,7 @@ namespace Limitless {
         ProgramPointSize = GL_PROGRAM_POINT_SIZE,
         ScissorTest = GL_SCISSOR_TEST,
         StencilTest = GL_STENCIL_TEST,
-        CullFace = GL_CULL_FACE
+        CullFace = GL_CULL_FACE,
+        SampleAlphaToCoverage = GL_SAMPLE_ALPHA_TO_COVERAGE
     };
 }

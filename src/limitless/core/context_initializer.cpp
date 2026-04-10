@@ -1,4 +1,5 @@
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/core/keyline_extensions.hpp>
 #include <limitless/logging/log.hpp>
 
 #include <algorithm>
@@ -84,6 +85,9 @@ bool ContextInitializer::isExtensionSupported(std::string_view name) noexcept {
 }
 
 void ContextInitializer::getLimits() noexcept {
+    glGetIntegerv(GL_MAJOR_VERSION, &gl_major_version);
+    glGetIntegerv(GL_MINOR_VERSION, &gl_minor_version);
+
     glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &limits.uniform_buffer_max_count);
     glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &limits.shader_storage_max_count);
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &limits.max_texture_units);
@@ -133,4 +137,43 @@ bool ContextInitializer::isImmutableTextureSupported() noexcept {
 
 bool ContextInitializer::isNamedTextureSupported() noexcept {
     return isExtensionSupported("GL_ARB_direct_state_access");
+}
+
+int ContextInitializer::getRequestedGlslVersion() noexcept {
+    return major_version * 100 + minor_version * 10;
+}
+
+bool ContextInitializer::glslCoarseDerivativesBuiltin() noexcept {
+    return getRequestedGlslVersion() >= 450;
+}
+
+bool ContextInitializer::shouldEnableDerivativeControlExtension() noexcept {
+    return !glslCoarseDerivativesBuiltin() && isExtensionSupported("GL_ARB_derivative_control");
+}
+
+bool ContextInitializer::supportsBaseInstance() noexcept {
+    if (gl_major_version > 4 || (gl_major_version == 4 && gl_minor_version >= 2)) {
+        return true;
+    }
+    return isExtensionSupported("GL_ARB_base_instance");
+}
+
+bool ContextInitializer::supportsShaderDrawParametersGlsl() noexcept {
+    if (gl_major_version > 4 || (gl_major_version == 4 && gl_minor_version >= 3)) {
+        return true;
+    }
+    return isExtensionSupported(shader_draw_parameters);
+}
+
+std::string ContextInitializer::getGlslBuiltinFallbackDefines() noexcept {
+    std::string out;
+    const int v = getRequestedGlslVersion();
+    if (v < 400) {
+        out.append("#define fma(a,b,c) ((a)*(b)+(c))\n");
+    }
+    if (v < 450 && !isExtensionSupported("GL_ARB_derivative_control")) {
+        out.append("#define dFdxCoarse(a) dFdx(a)\n");
+        out.append("#define dFdyCoarse(a) dFdy(a)\n");
+    }
+    return out;
 }

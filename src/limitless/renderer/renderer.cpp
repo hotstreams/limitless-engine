@@ -1,10 +1,12 @@
 #include <limitless/renderer/renderer.hpp>
 
+#include <limitless/core/context_initializer.hpp>
 #include <limitless/assets.hpp>
 
 #include <limitless/ms/material_compiler.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/instances/effect_instance.hpp>
+#include <limitless/core/vertex_stream/geometry_pool.hpp>
 
 #include <limitless/core/profiler.hpp>
 #include <limitless/renderer/sceneupdate_pass.hpp>
@@ -23,6 +25,7 @@
 #include <limitless/renderer/render_debug_pass.hpp>
 #include <limitless/renderer/color_picker.hpp>
 #include <limitless/renderer/ssao_pass.hpp>
+#include <limitless/renderer/hbao_pass.hpp>
 #include <limitless/renderer/ssr_pass.hpp>
 #include <limitless/renderer/fxaa_pass.hpp>
 
@@ -32,6 +35,28 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
     ProfilerScope profile_scope {"Renderer::render"};
 
     instance_renderer.update(scene, camera);
+
+    const bool use_geometry_pool = RendererSettings::usesGeometryPool(settings);
+
+    if (use_geometry_pool) {
+        auto& pool = GeometryPool::getInstance();
+        if (pool.needsUpload()) {
+            pool.uploadAllToGPU();
+        }
+    }
+
+    if (settings.indirect_draw) {
+        // Prepare indirect renderer once per frame (shared by all passes)
+        const auto& visible = instance_renderer.getFrustumCulling().getVisibleInstances();
+        indirect_instance_renderer.prepare(visible, camera);
+
+        // One-time debug dump on first indirect frame
+        static bool debug_dumped = false;
+        if (!debug_dumped) {
+            indirect_instance_renderer.dumpDebugInfo();
+            debug_dumped = true;
+        }
+    }
 
     {
         ProfilerScope profile_scope {"PassUpdates"};
@@ -55,6 +80,10 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
         }
     }
 
+    if (use_geometry_pool && settings.persistent_buffer_mapping) {
+        GeometryPool::getInstance().fenceBuffers();
+    }
+
     global_gpu_profiler.checkPendingQueries();
 }
 
@@ -69,6 +98,16 @@ void Renderer::onFramebufferChange(glm::uvec2 size) {
 void Renderer::update(const RendererSettings& rsettings) {
     settings = rsettings;
 
+    if (settings.global_model_instance_ssbo) {
+        if (settings.indirect_draw || !settings.sorted_rendering || !ContextInitializer::supportsBaseInstance()
+            || !ContextInitializer::supportsShaderDrawParametersGlsl()) {
+            settings.global_model_instance_ssbo = false;
+        }
+    }
+    RendererSettings::global_model_instance_ssbo_active = settings.global_model_instance_ssbo;
+
+    RendererSettings::geometry_batching_enabled = RendererSettings::usesGeometryPool(settings);
+
     Builder {*this}
         .update()
         .build(*this);
@@ -79,103 +118,103 @@ void Renderer::update(const RendererSettings& rsettings) {
 }
 
 Renderer::Builder& Renderer::Builder::addSceneUpdatePass() {
-    renderer->passes.emplace_back(std::make_unique<SceneUpdatePass>(*renderer));
+    target().passes.emplace_back(std::make_unique<SceneUpdatePass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addDirectionalShadowPass() {
-    renderer->passes.emplace_back(std::make_unique<DirectionalShadowPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<DirectionalShadowPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addDeferredFramebufferPass() {
-    renderer->passes.emplace_back(std::make_unique<DeferredFramebufferPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<DeferredFramebufferPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addDepthPass() {
-    renderer->passes.emplace_back(std::make_unique<DepthPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<DepthPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addColorPicker() {
-    renderer->passes.emplace_back(std::make_unique<ColorPicker>(*renderer));
+    target().passes.emplace_back(std::make_unique<ColorPicker>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addGBufferPass() {
-    renderer->passes.emplace_back(std::make_unique<GBufferPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<GBufferPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addDecalPass() {
-    renderer->passes.emplace_back(std::make_unique<DecalPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<DecalPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addSkyboxPass() {
-    renderer->passes.emplace_back(std::make_unique<SkyboxPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<SkyboxPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addSSAOPass() {
-    renderer->passes.emplace_back(std::make_unique<SSAOPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<SSAOPass>(target()));
+    return *this;
+}
+
+Renderer::Builder &Renderer::Builder::addHBAOPass() {
+    target().passes.emplace_back(std::make_unique<HBAOPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addSSRPass() {
-    renderer->passes.emplace_back(std::make_unique<SSRPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<SSRPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addDeferredLightingPass() {
-    renderer->passes.emplace_back(std::make_unique<DeferredLightingPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<DeferredLightingPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addTranslucentPass() {
-    renderer->passes.emplace_back(std::make_unique<TranslucentPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<TranslucentPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addBloomPass() {
-    renderer->passes.emplace_back(std::make_unique<BloomPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<BloomPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addOutlinePass() {
-    renderer->passes.emplace_back(std::make_unique<OutlinePass>(*renderer));
-    return *this;
-}
-
-Renderer::Builder &Renderer::Builder::addCompositeWithBloomPass() {
-    renderer->passes.emplace_back(std::make_unique<CompositeWithBloomPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<OutlinePass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addCompositePass() {
-    renderer->passes.emplace_back(std::make_unique<CompositePass>(*renderer));
+    target().passes.emplace_back(std::make_unique<CompositePass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addFXAAPass() {
-    renderer->passes.emplace_back(std::make_unique<FXAAPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<FXAAPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addScreenPass() {
-    renderer->passes.emplace_back(std::make_unique<ScreenPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<ScreenPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::addRenderDebugPass() {
-    renderer->passes.emplace_back(std::make_unique<RenderDebugPass>(*renderer));
+    target().passes.emplace_back(std::make_unique<RenderDebugPass>(target()));
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::deferred() {
     addSceneUpdatePass();
-    if (renderer->settings.cascade_shadow_maps) {
+    if (target().settings.cascade_shadow_maps) {
         addDirectionalShadowPass();
     }
     addDeferredFramebufferPass();
@@ -184,105 +223,121 @@ Renderer::Builder &Renderer::Builder::deferred() {
     addGBufferPass();
     addDecalPass();
     addSkyboxPass();
-    if (renderer->settings.screen_space_ambient_occlusion) {
+    if (target().settings.ambient_occlusion_mode == AmbientOcclusionMode::SAO) {
         addSSAOPass();
+    } else if (target().settings.ambient_occlusion_mode == AmbientOcclusionMode::HBAO) {
+        addHBAOPass();
     }
-    if (renderer->settings.screen_space_reflections) {
+    if (target().settings.screen_space_reflections) {
         addSSRPass();
     }
     addDeferredLightingPass();
     addTranslucentPass();
-    if (renderer->settings.bloom) {
+    if (target().settings.bloom) {
         addBloomPass();
     }
     // addOutlinePass();
-    if (renderer->settings.bloom) {
-        addCompositeWithBloomPass();
-    } else {
-        addCompositePass();
-    }
-    if (renderer->settings.fast_approximate_antialiasing) {
+    addCompositePass();
+    if (target().settings.fast_approximate_antialiasing) {
         addFXAAPass();
     }
     addScreenPass();
-    if (renderer->settings.bounding_box || renderer->settings.light_radius || renderer->settings.coordinate_system_axes) {
+    if (target().settings.bounding_box || target().settings.light_radius || target().settings.coordinate_system_axes) {
         addRenderDebugPass();
     }
     return *this;
 }
 
 std::unique_ptr<Renderer> Renderer::Builder::build() {
-    return std::move(renderer);
+    return std::move(owned_renderer_);
 }
 
 Renderer::Builder &Renderer::Builder::resolution(glm::uvec2 resolution) {
-    renderer->resolution = resolution;
+    target().resolution = resolution;
     return *this;
 }
 
 Renderer::Builder &Renderer::Builder::settings(const RendererSettings &settings) {
-    renderer->settings = settings;
+    target().settings = settings;
+
+    RendererSettings::geometry_batching_enabled = RendererSettings::usesGeometryPool(settings);
+
+    GeometryPool::getInstance().setUsePersistentMapping(
+        RendererSettings::usesGeometryPool(settings) && settings.persistent_buffer_mapping);
+
+    // Reinitialize indirect renderer buffers for persistent mapping and/or triple buffering
+    if (settings.indirect_draw) {
+        target().indirect_instance_renderer.initBuffers(
+            settings.persistent_buffer_mapping,
+            settings.triple_buffer_indirect);
+    }
+
     return *this;
 }
 
 Renderer::Builder::Builder()
-    : renderer {new Renderer()} {
+    : owned_renderer_(std::unique_ptr<Renderer>(new Renderer()))
+    , target_(owned_renderer_.get()) {
 }
 
 Renderer::Builder & Renderer::Builder::update() {
-    auto& settings = renderer->settings;
+    auto& settings = target().settings;
 
     if (settings.cascade_shadow_maps) {
-        if (!renderer->isPresent<DirectionalShadowPass>()) {
+        if (!target().isPresent<DirectionalShadowPass>()) {
             addAfter<SceneUpdatePass, DirectionalShadowPass>();
         }
     } else {
         remove<DirectionalShadowPass>();
     }
 
-//    if (settings.screen_space_ambient_occlusion) {
-//        if (!renderer->isPresent<SSAOPass>()) {
-//            addAfter<SkyboxPass>(std::make_unique<SSAOPass>(*renderer));
-//        }
-//    } else {
-//      remove<SSAOPass>();
-//    }
+    remove<SSAOPass>();
+    remove<HBAOPass>();
+    if (settings.ambient_occlusion_mode == AmbientOcclusionMode::SAO) {
+        addAfter<SkyboxPass, SSAOPass>();
+    } else if (settings.ambient_occlusion_mode == AmbientOcclusionMode::HBAO) {
+        addAfter<SkyboxPass, HBAOPass>();
+    }
 
-//    if (settings.screen_space_reflections) {
-//        if (!renderer->isPresent<SSRPass>()) {
-//            if (renderer->isPresent<SSAOPass>()) {
-//                addAfter<SSAOPass>(std::make_unique<SSRPass>(*renderer));
-//            } else {
-//                addAfter<addSkyboxPass>(std::make_unique<SSRPass>(*renderer));
-//            }
-//        }
-//    } else {
-//        remove<SSRPass>();
-//    }
+    if (settings.screen_space_reflections) {
+        if (!target().isPresent<SSRPass>()) {
+            if (target().isPresent<SSAOPass>()) {
+                addAfter<SSAOPass, SSRPass>();
+            } else if (target().isPresent<HBAOPass>()) {
+                addAfter<HBAOPass, SSRPass>();
+            } else {
+                addAfter<SkyboxPass, SSRPass>();
+            }
+        }
+    } else {
+        remove<SSRPass>();
+    }
 
     if (settings.bloom) {
-        if (!renderer->isPresent<BloomPass>()) {
+        if (!target().isPresent<BloomPass>()) {
             addAfter<TranslucentPass, BloomPass>();
         }
     } else {
         remove<BloomPass>();
     }
 
-//    if (settings.bloom) {
-//        if (!renderer->isPresent<FXAAPass>()) {
-//            addAfter<CompositePass>(std::make_unique<FXAAPass>(*renderer));
-//        }
-//    } else {
-//        remove<FXAAPass>();
-//    }
+    if (settings.fast_approximate_antialiasing) {
+        if (!target().isPresent<FXAAPass>()) {
+            if (target().isPresent<CompositePass>()) {
+                addAfter<CompositePass, FXAAPass>();
+            }
+        }
+    } else {
+        remove<FXAAPass>();
+    }
 
     if (settings.bounding_box || settings.light_radius || settings.coordinate_system_axes) {
-        if (!renderer->isPresent<RenderDebugPass>()) {
+        if (!target().isPresent<RenderDebugPass>()) {
             addRenderDebugPass();
         }
     }
     if (!settings.bounding_box && !settings.light_radius && !settings.coordinate_system_axes) {
-        if (renderer->isPresent<RenderDebugPass>()) {
+        if (target().isPresent<RenderDebugPass>()) {
             remove<RenderDebugPass>();
         }
     }
@@ -291,14 +346,13 @@ Renderer::Builder & Renderer::Builder::update() {
 }
 
 Renderer::Builder::Builder(Renderer& from)
-    : renderer {new Renderer()} {
-    renderer->passes = std::move(from.passes);
-    renderer->settings = from.settings;
-    renderer->resolution = from.resolution;
+    : target_(&from) {
 }
 
 void Renderer::Builder::build(Renderer& to) {
-    to.passes = std::move(renderer->passes);
-    to.settings = renderer->settings;
-    to.resolution = renderer->resolution;
+    if (owned_renderer_) {
+        to.passes = std::move(owned_renderer_->passes);
+        to.settings = owned_renderer_->settings;
+        to.resolution = owned_renderer_->resolution;
+    }
 }

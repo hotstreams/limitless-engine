@@ -5,6 +5,7 @@
 
 namespace Limitless {
     class Context;
+    class Camera;
 
     class Lighting final {
     private:
@@ -48,6 +49,14 @@ namespace Limitless {
         void updateSceneLightBuffer();
 
         bool changed;
+        uint32_t last_visible_count {0};
+
+        // CPU tiled light culling (deferred)
+        std::shared_ptr<Buffer> tile_grid_buffer;    // TILE_LIGHT_GRID (uvec2 start,count per tile)
+        std::shared_ptr<Buffer> tile_indices_buffer; // TILE_LIGHT_INDICES (uint indices)
+        glm::uvec2 last_tile_resolution {0u, 0u};
+        uint32_t last_tile_size {0u};
+        uint32_t tile_size_px {16u};
     public:
         explicit Lighting(Context& ctx);
         ~Lighting() = default;
@@ -72,5 +81,9 @@ namespace Limitless {
         Light& add(const Light& light);
 
         void update();
+        void update(const Camera& camera);
+
+        void setTiledLightTileSize(uint32_t tile_size) noexcept { tile_size_px = tile_size == 0u ? 1u : tile_size; }
+        [[nodiscard]] uint32_t getTiledLightTileSize() const noexcept { return tile_size_px; }
     };
 }

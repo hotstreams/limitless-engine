@@ -35,7 +35,11 @@ void VertexStream::draw() {
 }
 
 void VertexStream::draw_instanced(size_t instance_count) {
-    draw_instanced(mode, 0, data.size(), instance_count);
+    draw_instanced(mode, 0, data.size(), instance_count, 0);
+}
+
+void VertexStream::draw_instanced(size_t instance_count, uint32_t base_instance) {
+    draw_instanced(mode, 0, data.size(), instance_count, base_instance);
 }
 
 void VertexStream::draw(size_t offset, size_t count) {
@@ -43,7 +47,11 @@ void VertexStream::draw(size_t offset, size_t count) {
 }
 
 void VertexStream::draw_instanced(size_t offset, size_t count, size_t instance_count) {
-    draw_instanced(mode, offset, count, instance_count);
+    draw_instanced(mode, offset, count, instance_count, 0);
+}
+
+void VertexStream::draw_instanced(size_t offset, size_t count, size_t instance_count, uint32_t base_instance) {
+    draw_instanced(mode, offset, count, instance_count, base_instance);
 }
 
 void VertexStream::draw(Limitless::VertexStream::Draw draw_mode, size_t offset, size_t count) {
@@ -59,13 +67,23 @@ void VertexStream::draw(Limitless::VertexStream::Draw draw_mode, size_t offset, 
 }
 
 void VertexStream::draw_instanced(Limitless::VertexStream::Draw draw_mode, size_t offset, size_t count, size_t instance_count) {
+    draw_instanced(draw_mode, offset, count, instance_count, 0);
+}
+
+void VertexStream::draw_instanced(
+    Limitless::VertexStream::Draw draw_mode, size_t offset, size_t count, size_t instance_count, uint32_t base_instance) {
     if (data.empty()) {
         return;
     }
 
     vertex_array->bind();
 
-    glDrawArraysInstanced(static_cast<GLenum>(draw_mode), offset, count, instance_count);
+    glDrawArraysInstancedBaseInstance(
+        static_cast<GLenum>(draw_mode),
+        static_cast<GLint>(offset),
+        static_cast<GLsizei>(count),
+        static_cast<GLsizei>(instance_count),
+        base_instance);
 
     vertex_buffer->fence();
 }

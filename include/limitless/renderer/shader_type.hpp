@@ -90,7 +90,13 @@ namespace Limitless {
         SkeletalInstanced,
         Effect,
         Decal,
-        Terrain
+        Terrain,
+        /**
+         * IndirectModel is used for Multi-Draw Indirect rendering
+         *
+         * Uses gl_DrawID for per-draw texture indexing and gl_BaseInstance for instance data
+         */
+        IndirectModel
     };
 
     using ShaderTypes = std::set<ShaderType>;

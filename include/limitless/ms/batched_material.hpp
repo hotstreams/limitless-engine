@@ -59,11 +59,33 @@ namespace Limitless::ms {
                     case Property::MicroThickness:
                     case Property::Thickness:
                     case Property::Reflectance:
-                    case Property::Transmission:  {
+                    case Property::Transmission:
+                    case Property::WindIntensity:
+                    case Property::WindFrequency:  {
                         auto uniform_value = static_cast<UniformValueArray<float>&>(*uniforms[name]);
 
                         if (uniform->isChanged() || force) {
                             uniform_value.setValue(index, static_cast<UniformValue<float>&>(*uniform).getValue());
+                        }
+                    }
+                        break;
+
+                    case Property::BillboardPivot:
+                    case Property::BillboardAxis: {
+                        auto uniform_value = static_cast<UniformValueArray<glm::vec3>&>(*uniforms[name]);
+
+                        if (uniform->isChanged() || force) {
+                            uniform_value.setValue(index, static_cast<UniformValue<glm::vec3>&>(*uniform).getValue());
+                        }
+                    }
+                        break;
+
+                    case Property::BillboardMode:
+                    case Property::WindMode: {
+                        auto uniform_value = static_cast<UniformValueArray<uint32_t>&>(*uniforms[name]);
+
+                        if (uniform->isChanged() || force) {
+                            uniform_value.setValue(index, static_cast<UniformValue<uint32_t>&>(*uniform).getValue());
                         }
                     }
                         break;

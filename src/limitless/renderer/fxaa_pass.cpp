@@ -26,7 +26,7 @@ void FXAAPass::render(
         [[maybe_unused]] InstanceRenderer& instance_renderer,
         [[maybe_unused]] Scene &scene,
         Context &ctx,
-        [[maybe_unused]] const Assets &assets,
+        const Assets &assets,
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
     ProfilerScope profile_scope {"FXAAPass"};
@@ -35,10 +35,17 @@ void FXAAPass::render(
     ctx.disable(Capabilities::Blending);
 
     {
+        ctx.setViewPort(renderer.getResolution());
+
         framebuffer.clear();
         auto& shader = assets.shaders.get("fxaa");
 
         shader.setUniform("scene", renderer.getPass<CompositePass>().getResult());
+
+        const auto& fx = renderer.getSettings().fxaa;
+        shader.setUniform("fxaa_subpix", fx.subpix);
+        shader.setUniform("fxaa_edge_threshold", fx.edge_threshold);
+        shader.setUniform("fxaa_edge_threshold_min", fx.edge_threshold_min);
 
         shader.use();
 

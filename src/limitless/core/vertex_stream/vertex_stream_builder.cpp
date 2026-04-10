@@ -2,10 +2,14 @@
 
 #include <limitless/core/vertex_stream/vertex_array_builder.hpp>
 #include <limitless/core/vertex_stream/skeletal_stream.hpp>
+#include <limitless/core/vertex_stream/geometry_pool.hpp>
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <iostream>
 
 using namespace Limitless;
+
+// Thread-local storage definition
+thread_local std::optional<MeshDrawInfo> VertexStream::Builder::last_draw_info_;
 
 bool VertexStream::Builder::isIndexedStream() {
     return !indices_data.empty();
@@ -117,12 +121,19 @@ DataType VertexStream::Builder::getDataType(Attribute attribute) {
     switch (attribute) {
         case Attribute::Position: return DataType::Vec3;
         case Attribute::Normal: return DataType::Vec3;
-        case Attribute::Tangent: return DataType::Vec3;
+        case Attribute::Tangent: return DataType::Vec4;
         case Attribute::Uv: return DataType::Vec2;
+        case Attribute::Uv1: return DataType::Vec2;
+        case Attribute::Uv2: return DataType::Vec2;
+        case Attribute::Uv3: return DataType::Vec2;
+        case Attribute::Uv4: return DataType::Vec2;
+        case Attribute::Uv5: return DataType::Vec2;
         case Attribute::BoneIndices: return DataType::IVec4;
         case Attribute::BoneWeights: return DataType::Vec4;
         case Attribute::MeshIndex: return DataType::Int;
+        case Attribute::Color: return DataType::Vec4;
     }
+    throw std::runtime_error("Unknown VertexStream::Attribute");
 }
 
 VertexStream::Builder& VertexStream::Builder::attribute(uint8_t index, VertexStream::DataType type, const std::string& name, size_t stride, size_t offset) {
@@ -169,10 +180,18 @@ VertexStream::Builder& VertexStream::Builder::batch(const std::vector<std::share
 }
 
 std::shared_ptr<VertexStream> VertexStream::Builder::build() {
+    // Clear last draw info at the start of each build
+    last_draw_info_ = std::nullopt;
+
     // For Static usage, vertex data must be provided upfront
     // For Dynamic/Stream usage, data can be provided later via update()
     if (vertex_data.empty() && usage_mode == Usage::Static && count_ == 0) {
         throw std::runtime_error("Vertex data should be specified");
+    }
+
+    // Use batched mode if enabled
+    if (use_batching_ && isIndexedStream() && !isSkeletalStream()) {
+        return buildBatched();
     }
 
     auto vertex_buffer = buildVertexBuffer();
@@ -288,4 +307,44 @@ VertexStream::Builder& VertexStream::Builder::usage(Usage usage) {
 VertexStream::Builder& VertexStream::Builder::draw(Draw draw) {
     draw_mode = draw;
     return *this;
+}
+
+VertexStream::Builder& VertexStream::Builder::batched(bool enable) {
+    use_batching_ = enable;
+    return *this;
+}
+
+size_t VertexStream::Builder::calculateVertexStride() const {
+    size_t stride = 0;
+    for (const auto& [index, data_type] : stream_type) {
+        stride += getDataTypeSize(data_type);
+    }
+    return stride;
+}
+
+std::shared_ptr<VertexStream> VertexStream::Builder::buildBatched() {
+    // Only indexed streams support batching
+    if (!isIndexedStream()) {
+        throw std::runtime_error("Batched mode only supports indexed streams");
+    }
+
+    // Skeletal meshes don't support batching yet
+    if (isSkeletalStream()) {
+        throw std::runtime_error("Batched mode does not support skeletal meshes");
+    }
+
+    const size_t vertex_stride = calculateVertexStride();
+
+    // Get or create the global BatchedVertexStream for this attribute layout
+    auto batched_stream = GeometryPool::getInstance().getOrCreate(
+        stream_type,
+        attributes,
+        name_mapping,
+        vertex_stride
+    );
+
+    // Add geometry to the batched stream and get draw info
+    last_draw_info_ = batched_stream->addGeometry(vertex_data, indices_data);
+
+    return batched_stream;
 }

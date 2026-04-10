@@ -3,10 +3,19 @@
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/lighting/light.hpp>
 #include <limitless/core/context.hpp>
+#include <limitless/util/frustum.hpp>
+#include <limitless/util/box.hpp>
 
 using namespace Limitless;
 
 static constexpr auto SHADER_STORAGE_NAME = "LIGHTS_BUFFER";
+static constexpr size_t DEFAULT_SSBO_CAPACITY = 1024;
+
+static Limitless::Box makeLightBox(const Limitless::Light& light) {
+    // conservative AABB of sphere influence (works for point and spot for culling purposes)
+    const float r = light.getRadius();
+    return { light.getPosition(), glm::vec3(r * 2.0f) };
+}
 
 float LightContainer::InternalLight::radiusToFalloff(float r) {
     return 1.0f / (r * r);
@@ -60,8 +69,9 @@ LightContainer::LightContainer() {
             .target(Buffer::Type::ShaderStorage)
             .usage(Buffer::Usage::DynamicDraw)
             .access(Buffer::MutableAccess::WriteOrphaning)
-            .size(sizeof(InternalLight) * 1024)
+            .size(sizeof(InternalLight) * DEFAULT_SSBO_CAPACITY)
             .build(SHADER_STORAGE_NAME, *Context::getCurrentContext());
+    ssbo_capacity = DEFAULT_SSBO_CAPACITY;
 }
 
 Light& LightContainer::add(Light&& light) {
@@ -109,12 +119,92 @@ void LightContainer::update() {
     if (changed) {
         visible_lights.clear();
         visible_lights.reserve(internal_lights.size());
+        visible_ids.clear();
+        visible_ids.reserve(internal_lights.size());
 
-        for (const auto& [_, light]: internal_lights) {
+        for (const auto& [id, light] : internal_lights) {
             visible_lights.emplace_back(light);
+            visible_ids.emplace_back(id);
         }
 
-        buffer->mapData(visible_lights.data(), sizeof(InternalLight) * visible_lights.size());
+        if (visible_lights.size() > ssbo_capacity) {
+            ssbo_capacity = visible_lights.size();
+            buffer->resize(sizeof(InternalLight) * ssbo_capacity);
+        }
+
+        if (!visible_lights.empty()) {
+            buffer->mapData(visible_lights.data(), sizeof(InternalLight) * visible_lights.size());
+        }
+    }
+
+    Context::apply([this] (Context& ctx) {
+        buffer->bindBase(ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, SHADER_STORAGE_NAME));
+    });
+}
+
+void LightContainer::update(const Frustum& frustum) {
+    // Update internal cache from Light objects (removed/changed/hidden)
+    bool internal_changed = false;
+
+    auto it = lights.begin();
+    while (it != lights.end()) {
+        auto& [id, light] = *it;
+        if (light.isRemoved()) {
+            internal_lights.erase(id);
+            it = lights.erase(it);
+            internal_changed = true;
+            continue;
+        }
+
+        if (light.isChanged()) {
+            internal_lights.at(id).update(light);
+            internal_changed = true;
+            light.resetChanged();
+        }
+
+        ++it;
+    }
+
+    // Build new visible set (can change even if no light changed)
+    std::vector<InternalLight> new_visible;
+    std::vector<uint64_t> new_visible_ids;
+    new_visible.reserve(internal_lights.size());
+    new_visible_ids.reserve(internal_lights.size());
+
+    for (const auto& [id, light] : lights) {
+        if (light.isHidden()) {
+            continue;
+        }
+
+        // Directional light is not stored here (Lighting routes it separately),
+        // but keep type check for safety.
+        if (light.isDirectional()) {
+            continue;
+        }
+
+        if (!frustum.intersects(makeLightBox(light))) {
+            continue;
+        }
+
+        new_visible.emplace_back(internal_lights.at(id));
+        new_visible_ids.emplace_back(id);
+    }
+
+    const bool visibility_changed = (new_visible_ids != visible_ids);
+    const bool should_upload = internal_changed || visibility_changed;
+
+    if (should_upload) {
+        visible_lights = std::move(new_visible);
+        visible_ids = std::move(new_visible_ids);
+
+        if (visible_lights.size() > ssbo_capacity) {
+            ssbo_capacity = visible_lights.size();
+            buffer->resize(sizeof(InternalLight) * ssbo_capacity);
+        }
+
+        if (!visible_lights.empty()) {
+            buffer->mapData(visible_lights.data(), sizeof(InternalLight) * visible_lights.size());
+        }
     }
 
     Context::apply([this] (Context& ctx) {

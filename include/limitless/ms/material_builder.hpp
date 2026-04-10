@@ -90,6 +90,32 @@ namespace Limitless::ms {
         Builder& orm_map() noexcept;
         Builder& default_computation(bool compute = true);
 
+        /**
+         * Billboard support (material-driven, mesh-independent).
+         *
+         * Mode:
+         *  0 - None
+         *  1 - Spherical
+         *  2 - Cylindrical (axis-locked)
+         *  3 - Screen-aligned
+         */
+        Builder& billboard(uint32_t mode) noexcept;
+        Builder& billboard_spherical() noexcept;
+        Builder& billboard_cylindrical(glm::vec3 axis = {0.0f, 1.0f, 0.0f}) noexcept;
+        Builder& billboard_screen_aligned() noexcept;
+        Builder& billboard_pivot(glm::vec3 pivot) noexcept;
+        Builder& billboard_axis(glm::vec3 axis) noexcept;
+        Builder& billboard_disable() noexcept;
+
+        /**
+         * Wind support (material-driven; uses global scene wind settings).
+         */
+        Builder& wind(bool enable = true) noexcept;
+        // 0 - None, 1 - Simple (procedural), 2 - SpeedTree8 payload
+        Builder& wind_mode(uint32_t mode) noexcept;
+        Builder& wind_intensity(float intensity) noexcept;
+        Builder& wind_frequency(float frequency) noexcept;
+
         Builder& blending(Blending blending) noexcept;
         Builder& shading(Shading shading) noexcept;
         Builder& two_sided(bool two_sided) noexcept;

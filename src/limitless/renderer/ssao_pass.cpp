@@ -19,6 +19,8 @@
 
 #include "limitless/core/profiler.hpp"
 
+#include <algorithm>
+
 using namespace Limitless;
 
 SSAOPass::SSAOPass(Renderer& renderer)
@@ -36,6 +38,8 @@ void SSAOPass::render(
     ProfilerScope profile_scope {"SSAOPass"};
 
     ssao.draw(ctx, assets, renderer.getPass<DeferredFramebufferPass>().getDepth(), renderer.getPass<DeferredFramebufferPass>().getNormal());
+
+    ctx.setViewPort(renderer.getResolution());
 }
 
 void SSAOPass::onFramebufferChange(glm::uvec2 size) {
@@ -43,12 +47,18 @@ void SSAOPass::onFramebufferChange(glm::uvec2 size) {
 }
 
 void SSAOPass::update([[maybe_unused]] Scene &scene, const Camera &camera) {
-    ssao.update(camera);
+    ssao.update(camera, renderer.getSettings().ssao_settings);
 }
 
 void SSAOPass::addUniformSetter(UniformSetter &setter) {
     setter.add([&](ShaderProgram& shader){
         shader.setUniform("_ssao_texture", getResult());
+        const auto& rs = renderer.getSettings();
+        float edge = 0.f;
+        if (rs.ssao_high_quality_deferred_upsampling) {
+            edge = 1.0f / std::max(rs.ssao_deferred_upsample_bilateral_threshold, 1e-6f);
+        }
+        shader.setUniform("_ssao_sampling_quality_edge", edge);
     });
 }
 

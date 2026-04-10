@@ -7,7 +7,7 @@ ShadingContext computeShadingContext(const GBufferContext gctx) {
     float ao = gctx.ao;
 
 #if defined (ENGINE_SETTINGS_SSAO)
-    ao = min(ao, getSSAO(uv));
+    ao = min(ao, getSSAO(uv, gctx.position));
 #endif
 
     vec3 indirect_lighting = vec3(0.0);

@@ -31,6 +31,7 @@ Line::Line(const glm::vec3 &a, const glm::vec3 &b)
         {nullptr},
         LodTransition::None,
         LodSelection::CameraDistance,
-        {0.0f}
+        {0.0f},
+        0.25f
     ) {
 }

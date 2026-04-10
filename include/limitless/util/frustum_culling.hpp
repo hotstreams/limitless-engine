@@ -1,6 +1,8 @@
 #pragma once
 
 #include <limitless/instances/model_instance.hpp>
+#include <limitless/instances/instanced_instance.hpp>
+#include <limitless/instances/terrain_instance.hpp>
 #include <limitless/core/profiler.hpp>
 #include <iostream>
 
@@ -17,6 +19,8 @@ namespace Limitless {
          */
         std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instances_of_instanced_instances;
     public:
+        using VisibleSubinstancesMap = std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>>;
+
         void update(Scene& scene, Camera& camera) {
             CPUProfileScope profile_scope {"FrustumCulling::update"};
             visible.clear();
@@ -25,7 +29,8 @@ namespace Limitless {
             const auto frustum = Frustum::fromCamera(camera);
 
             for (auto& instance : scene.getInstances()) {
-                if (instance->getInstanceType() == InstanceType::Instanced) {
+                if (instance->getInstanceType() == InstanceType::Instanced
+                    || instance->getInstanceType() == InstanceType::SkeletalInstanced) {
                     CPUProfileScope profile_scope_instanced {"FC::Instanced"};
                     auto& instanced = static_cast<InstancedInstance&>(*instance); //NOLINT
 
@@ -87,7 +92,16 @@ namespace Limitless {
         }
 
         [[nodiscard]] const Instances& getVisibleInstances() const noexcept { return visible; }
-        [[nodiscard]] const std::vector<std::shared_ptr<ModelInstance>>& getVisibleModelInstanced(const InstancedInstance& instance) noexcept { return visible_instances_of_instanced_instances[instance.getId()]; }
-        [[nodiscard]] const std::vector<std::shared_ptr<ModelInstance>>& getVisibleModelInstanced(uint64_t id) noexcept { return visible_instances_of_instanced_instances[id]; }
+        [[nodiscard]] const std::vector<std::shared_ptr<ModelInstance>>& getVisibleModelInstanced(const InstancedInstance& instance) const noexcept {
+            auto it = visible_instances_of_instanced_instances.find(instance.getId());
+            static const std::vector<std::shared_ptr<ModelInstance>> empty;
+            return it != visible_instances_of_instanced_instances.end() ? it->second : empty;
+        }
+        [[nodiscard]] const std::vector<std::shared_ptr<ModelInstance>>& getVisibleModelInstanced(uint64_t id) const noexcept {
+            auto it = visible_instances_of_instanced_instances.find(id);
+            static const std::vector<std::shared_ptr<ModelInstance>> empty;
+            return it != visible_instances_of_instanced_instances.end() ? it->second : empty;
+        }
+        [[nodiscard]] const VisibleSubinstancesMap& getVisibleSubinstancesMap() const noexcept { return visible_instances_of_instanced_instances; }
     };
 }

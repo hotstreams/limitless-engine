@@ -10,8 +10,15 @@ layout (std140) buffer scene_lighting {
 Light getDirectionalLight() {
     Light light;
 
-    light.direction.xyz = _direction.xyz;
+    // IMPORTANT: fully initialize the Light struct.
+    // Uninitialized fields (especially `type`) lead to undefined behavior and can
+    // make the directional light be treated as a punctual light with garbage data.
     light.color = _color;
+    light.position = vec4(0.0);          // unused for directional
+    light.direction = _direction;        // direction of light rays (world-space)
+    light.scale_offset = vec2(0.0);      // unused for directional
+    light.falloff = 0.0;                // unused for directional
+    light.type = LIGHT_TYPE_DIRECTIONAL;
 
     return light;
 }

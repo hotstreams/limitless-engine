@@ -114,12 +114,13 @@ SkeletalModel::SkeletalModel(
     LodTransition transition,
     LodSelection selection,
     const std::vector<float>& distances,
+    float lod_fade_transition_width,
     decltype(bones)&& bones,
     decltype(bone_map)&& bone_map,
     decltype(skeletons)&& skeletons,
     decltype(animations)&& animations
 ) noexcept
-    : Model {name, meshes, materials, transition, selection, distances}
+    : Model {name, meshes, materials, transition, selection, distances, lod_fade_transition_width}
     , bone_map {std::move(bone_map)}
     , animations {std::move(animations)}
     , bones {std::move(bones)}
@@ -132,12 +133,13 @@ SkeletalModel::SkeletalModel(
     LodTransition transition,
     LodSelection selection,
     const std::vector<float>& distances,
+    float lod_fade_transition_width,
     decltype(bones)&& bones,
     decltype(bone_map)&& bone_map,
     decltype(skeletons)&& skeletons,
     decltype(animations)&& animations
 ) noexcept
-    : Model {name, lods, transition, selection, distances}
+    : Model {name, lods, transition, selection, distances, lod_fade_transition_width}
     , bone_map {std::move(bone_map)}
     , animations {std::move(animations)}
     , bones {std::move(bones)}

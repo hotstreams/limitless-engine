@@ -14,4 +14,13 @@ namespace Limitless {
 
     constexpr auto explicit_uniform_location = "GL_ARB_explicit_uniform_location";
     constexpr auto extension_explicit_uniform_location = "#extension GL_ARB_explicit_uniform_location : require\n";
+
+    constexpr auto indirect_draw = "GL_ARB_multi_draw_indirect";
+    constexpr auto indirect_draw_extension = "#extension GL_ARB_multi_draw_indirect : require\n";
+
+    constexpr auto shader_draw_parameters = "GL_ARB_shader_draw_parameters";
+    constexpr auto shader_draw_extension = "#extension GL_ARB_shader_draw_parameters : require\n";
+
+    constexpr auto derivative_control = "GL_ARB_derivative_control";
+    constexpr auto extension_derivative_control = "#extension GL_ARB_derivative_control : require\n";
 }

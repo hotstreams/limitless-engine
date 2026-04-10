@@ -20,6 +20,7 @@
 
 namespace Limitless {
     class Context;
+    class StateVerifier;
 
     /**
      * ContextState class store currently bound OpenGL state
@@ -100,14 +101,16 @@ namespace Limitless {
         glm::vec4 blend_color {0.0f};
 
         /**
-         * Stencil operations
+         * Stencil operations (sfail, dpfail, dppass)
+         * OpenGL default: all GL_KEEP
          */
-        std::array<StencilOp, 3> stencil_op {StencilOp::Keep};
+        std::array<StencilOp, 3> stencil_op {StencilOp::Keep, StencilOp::Keep, StencilOp::Keep};
 
         /**
-         * Stencil mask
+         * Stencil write mask
+         * OpenGL default: all 1s (0xFFFFFFFF)
          */
-        int32_t stencil_mask {0xFF};
+        int32_t stencil_mask {static_cast<int32_t>(0xFFFFFFFF)};
 
         /**
          * Stencil function
@@ -121,8 +124,9 @@ namespace Limitless {
 
         /**
          * Stencil func mask
+         * OpenGL default: all 1s (0xFFFFFFFF)
          */
-        int32_t stencil_func_mask {0xFF};
+        int32_t stencil_func_mask {static_cast<int32_t>(0xFFFFFFFF)};
 
         /**
          * Depth function
@@ -156,8 +160,9 @@ namespace Limitless {
 
         /**
          * Blending state
+         * OpenGL default: GL_ONE, GL_ZERO
          */
-        BlendFactor src_factor {BlendFactor::None};
+        BlendFactor src_factor {BlendFactor::One};
         BlendFactor dst_factor {BlendFactor::Zero};
 
         /**
@@ -191,10 +196,9 @@ namespace Limitless {
         GLuint framebuffer_id {};
 
         /**
-         * Pixel store packing parameters
+         * Pixel store packing parameters (cached per parameter type)
          */
-        PixelStore pixel_pack {};
-        GLint pixel_param {};
+        std::map<PixelStore, GLint> pixel_store_params;
 
         /**
          * TODO: I dont remember that it is but looks pretty important!
@@ -226,6 +230,7 @@ namespace Limitless {
         friend class TextureBinder;
         friend class Framebuffer;
         friend class DefaultFramebuffer;
+        friend class StateVerifier;
     public:
         virtual ~ContextState() = default;
 
@@ -278,5 +283,11 @@ namespace Limitless {
 
         auto getShaderId() const noexcept { return shader_id; }
         auto getVertexArrayId() const noexcept { return vertex_array_id; }
+
+        /**
+         * Clears cached texture bindings that reference the given id.
+         * Used when a texture object is recreated (e.g., immutable resize).
+         */
+        void clearTextureBindings(GLuint id) noexcept;
     };
 }

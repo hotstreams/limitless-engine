@@ -23,9 +23,9 @@ namespace Limitless {
         const auto r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
         const auto tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
 
-        vertex0.tangent = tangent;
-        vertex1.tangent = tangent;
-        vertex2.tangent = tangent;
+        vertex0.tangent = glm::vec4(tangent, 1.0f);
+        vertex1.tangent = glm::vec4(tangent, 1.0f);
+        vertex2.tangent = glm::vec4(tangent, 1.0f);
     }
 
     template<typename Vertex, typename I>
@@ -54,7 +54,7 @@ namespace Limitless {
     template<typename Vertex, typename I>
     inline void calculateTangentSpaceSmooth(std::vector<Vertex>& vertices, const std::vector<I>& indices) {
         for (auto& vertex : vertices) {
-            vertex.tangent = glm::vec3(0.0f);
+            vertex.tangent = glm::vec4(0.0f);
         }
         
         // Accumulate tangents from all triangles
@@ -77,18 +77,18 @@ namespace Limitless {
             const auto tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
             
             // Accumulate (add) instead of assign
-            v0.tangent += tangent;
-            v1.tangent += tangent;
-            v2.tangent += tangent;
+            v0.tangent += glm::vec4(tangent, 0.0f);
+            v1.tangent += glm::vec4(tangent, 0.0f);
+            v2.tangent += glm::vec4(tangent, 0.0f);
         }
         
         // Normalize all accumulated tangents
         for (auto& vertex : vertices) {
-            float len = glm::length(vertex.tangent);
+            float len = glm::length(glm::vec3(vertex.tangent));
             if (len > 1e-6f) {
-                vertex.tangent /= len;
+                vertex.tangent = glm::vec4(glm::vec3(vertex.tangent) / len, 1.0f);
             } else {
-                vertex.tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+                vertex.tangent = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
             }
         }
     }

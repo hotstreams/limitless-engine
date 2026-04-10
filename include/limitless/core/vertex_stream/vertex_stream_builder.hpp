@@ -1,10 +1,12 @@
 #pragma once
 
 #include <limitless/core/vertex_stream/vertex_stream.hpp>
+#include <limitless/core/indirect/indirect_draw_command.hpp>
 #include <limitless/models/bones.hpp>
 
 #include <memory>
 #include <cstring>
+#include <optional>
 
 namespace Limitless {
     class VertexStream::Builder {
@@ -12,12 +14,21 @@ namespace Limitless {
         static inline std::unordered_map<Attribute, std::string> ATTRIBUTE_NAMINGS = {
             { Attribute::Position, "position" },
             { Attribute::Normal, "normal" },
-            { Attribute::Tangent, "tangent" },
+            { Attribute::Tangent, "tangent" }, // vec4 (xyz + handedness)
             { Attribute::Uv, "uv" },
+            { Attribute::Uv1, "uv1" },
+            { Attribute::Uv2, "uv2" },
+            { Attribute::Uv3, "uv3" },
+            { Attribute::Uv4, "uv4" },
+            { Attribute::Uv5, "uv5" },
             { Attribute::BoneIndices, "bone_index" },
             { Attribute::BoneWeights, "bone_weight" },
-            { Attribute::MeshIndex, "mesh_index" }
+            { Attribute::MeshIndex, "mesh_index" },
+            { Attribute::Color, "color" }
         };
+
+        // Thread-local storage for last build's draw info (for indirect mode)
+        static thread_local std::optional<MeshDrawInfo> last_draw_info_;
 
         std::map<Attribute, AttributeIndex> attributes;
         std::map<AttributeIndex, VertexArray::Attribute> vertex_attributes;
@@ -35,6 +46,9 @@ namespace Limitless {
         Usage usage_mode;
         Draw draw_mode;
 
+        // Flag to enable batching for this build
+        bool use_batching_ {false};
+
         bool isIndexedStream();
         bool isSkeletalStream();
 
@@ -43,6 +57,12 @@ namespace Limitless {
         std::shared_ptr<Buffer> buildIndexBuffer();
         std::shared_ptr<Buffer> buildSkeletalBuffer();
         std::shared_ptr<VertexArray> buildVertexArray();
+
+        // Build using GeometryPool for indirect draw batching
+        std::shared_ptr<VertexStream> buildBatched();
+
+        // Calculate vertex stride from attributes
+        size_t calculateVertexStride() const;
 
         DataType getDataType(Attribute attribute);
     public:
@@ -60,7 +80,28 @@ namespace Limitless {
 
         Builder& batch(const std::vector<std::shared_ptr<VertexStream>>& streams);
 
+        /**
+         * Enable batching for indirect draw mode
+         *
+         * When enabled, geometry will be added to a global BatchedVertexStream
+         * via GeometryPool instead of creating a separate buffer.
+         */
+        Builder& batched(bool enable = true);
+
         std::shared_ptr<VertexStream> build();
+
+        /**
+         * Get draw info from last build() call
+         *
+         * Only valid when batched mode was used.
+         * Returns nullopt if last build didn't use batching.
+         */
+        static std::optional<MeshDrawInfo> getLastDrawInfo() { return last_draw_info_; }
+
+        /**
+         * Clear last draw info
+         */
+        static void clearLastDrawInfo() { last_draw_info_ = std::nullopt; }
 
         template<typename Vertex>
         Builder& vertices(const std::vector<Vertex>& vertices) {

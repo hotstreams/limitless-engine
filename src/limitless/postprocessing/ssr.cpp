@@ -45,6 +45,8 @@ void SSR::draw(Context& ctx, const Assets& assets, [[maybe_unused]] const Camera
     {
         framebuffer.drawBuffer(FramebufferAttachment::Color0);
 
+        ctx.setViewPort(framebuffer.get(FramebufferAttachment::Color0).texture->getSize());
+
         auto& shader = assets.shaders.get("ssr");
 
         shader.setUniform("depth_texture", depth)

@@ -36,6 +36,12 @@ namespace Limitless {
                 { Property::Thickness, "ENGINE_MATERIAL_THICKNESS" },
                 { Property::Transmission, "ENGINE_MATERIAL_TRANSMISSION" },
                 { Property::Reflectance, "ENGINE_MATERIAL_REFLECTANCE" },
+                { Property::BillboardMode, "ENGINE_MATERIAL_BILLBOARD_MODE" },
+                { Property::BillboardPivot, "ENGINE_MATERIAL_BILLBOARD_PIVOT" },
+                { Property::BillboardAxis, "ENGINE_MATERIAL_BILLBOARD_AXIS" },
+                { Property::WindMode, "ENGINE_MATERIAL_WIND_MODE" },
+                { Property::WindIntensity, "ENGINE_MATERIAL_WIND_INTENSITY" },
+                { Property::WindFrequency, "ENGINE_MATERIAL_WIND_FREQUENCY" },
             };
 
             static inline std::unordered_map<Shading, std::string> SHADING_DEFINE =
@@ -54,6 +60,7 @@ namespace Limitless {
                 { InstanceType::Effect, "ENGINE_MATERIAL_EFFECT_MODEL" },
                 { InstanceType::Decal, "ENGINE_MATERIAL_DECAL_MODEL" },
                 { InstanceType::Terrain, "ENGINE_MATERIAL_TERRAIN_MODEL" },
+                { InstanceType::IndirectModel, "ENGINE_MATERIAL_INDIRECT_MODEL" },
             };
 
             enum class SnippetDefineType {
@@ -120,7 +127,8 @@ namespace Limitless {
             static std::string getVertexStreamGettersDeclaration(InstanceType instance_type);
 
             static std::string getVertexContextDeclaration(
-                InstanceType type
+                InstanceType type,
+                const RendererSettings& settings
             );
 
             static std::string getFragmentContextDeclaration(
@@ -130,7 +138,8 @@ namespace Limitless {
             );
 
             static std::string getVertexContextCompute(
-                InstanceType type
+                InstanceType type,
+                const RendererSettings& settings
             );
 
             static std::string getVertexContextInterfaceBlock(

@@ -1,8 +1,50 @@
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader/shader_compiler.hpp>
+#include <limitless/core/shader/shader_program.hpp>
 #include <limitless/renderer/renderer_settings.hpp>
+#include <limitless/core/context_debug.hpp>
+#include <GL/glew.h>
+#include <sstream>
 
 using namespace Limitless;
+
+namespace {
+	[[nodiscard]] static const char* toString(ShaderType t) noexcept {
+		switch (t) {
+			case ShaderType::Depth: return "Depth";
+			case ShaderType::GBuffer: return "GBuffer";
+			case ShaderType::Decal: return "Decal";
+			case ShaderType::Skybox: return "Skybox";
+			case ShaderType::Forward: return "Forward";
+			case ShaderType::DirectionalShadow: return "DirectionalShadow";
+			case ShaderType::ColorPicker: return "ColorPicker";
+			default: return "ShaderType(?)";
+		}
+	}
+
+	[[nodiscard]] static const char* toString(InstanceType t) noexcept {
+		switch (t) {
+			case InstanceType::Model: return "Model";
+			case InstanceType::Skeletal: return "Skeletal";
+			case InstanceType::BatchedModel: return "BatchedModel";
+			case InstanceType::Instanced: return "Instanced";
+			case InstanceType::SkeletalInstanced: return "SkeletalInstanced";
+			case InstanceType::Effect: return "Effect";
+			case InstanceType::Decal: return "Decal";
+			case InstanceType::Terrain: return "Terrain";
+			case InstanceType::IndirectModel: return "IndirectModel";
+			default: return "InstanceType(?)";
+		}
+	}
+
+	static void labelProgramIfPossible(const std::shared_ptr<ShaderProgram>& program, const std::string& label) {
+		if (!program) return;
+		if (!(GLEW_KHR_debug || GLEW_VERSION_4_3)) return;
+		const auto id = program->getId();
+		if (!id) return;
+		glObjectLabel(GL_PROGRAM, id, static_cast<GLsizei>(label.size()), label.c_str());
+	}
+}
 
 bool ShaderKey::operator<(const ShaderKey& rhs) const noexcept {
     return std::tie(material_type, model_type, material_index) <
@@ -32,6 +74,12 @@ void ShaderStorage::add(std::string name, std::shared_ptr<ShaderProgram> program
     if (!result.second) {
         throw shader_storage_error{"Shader already exists"};
     }
+
+	// Attach a GL object label for better KHR_debug output (optional).
+	labelProgramIfPossible(result.first->second, "shader:" + result.first->first);
+	#ifdef LIMITLESS_OPENGL_DEBUG
+	Limitless::debug_register_program(result.first->second->getId(), "shader:" + result.first->first);
+	#endif
 }
 
 void ShaderStorage::add(ShaderType material_type, InstanceType model_type, uint64_t material_index, std::shared_ptr<ShaderProgram> program) {
@@ -42,11 +90,20 @@ void ShaderStorage::add(ShaderType material_type, InstanceType model_type, uint6
     if (!result.second) {
         if (!materials[key]) {
             materials[key] = std::move(program);
-            return;
+            // fallthrough to labeling / debug registration below
+        } else {
+            throw shader_storage_error{"Shader already exists"};
         }
-
-        throw shader_storage_error{"Shader already exists"};
     }
+
+	std::ostringstream ss;
+	ss << "material:" << toString(material_type) << ":" << toString(model_type) << ":" << material_index;
+	// `result.first` points to the map entry; handle both the emplace-success and
+	// "filled previously-reserved nullptr" cases.
+	labelProgramIfPossible(materials.at(key), ss.str());
+	#ifdef LIMITLESS_OPENGL_DEBUG
+	Limitless::debug_register_program(materials.at(key)->getId(), ss.str());
+	#endif
 }
 
 bool ShaderStorage::contains(ShaderType material_type, InstanceType model_type, uint64_t material_index) noexcept {
@@ -95,11 +152,17 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
     if (!result.second) {
         if (!emitters[emitter_type]) {
             emitters[emitter_type] = std::move(program);
-            return;
+            // fallthrough to labeling / debug registration below
+        } else {
+            throw shader_storage_error{"Shader already contains emitter"};
         }
-
-        throw shader_storage_error{"Shader already contains emitter"};
     }
+
+	// Best-effort label: we don't stringify the full key here to avoid pulling more deps.
+	labelProgramIfPossible(emitters.at(emitter_type), "emitter:shader");
+	#ifdef LIMITLESS_OPENGL_DEBUG
+	Limitless::debug_register_program(emitters.at(emitter_type)->getId(), "emitter:shader");
+	#endif
 }
 
 void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, const fs::path& shader_dir) {
@@ -109,20 +172,26 @@ void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, c
         add("blur_downsample", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/bloom/blur_downsample"));
         add("blur_upsample", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/bloom/blur_upsample"));
         add("brightness", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/bloom/brightness"));
+        add("bloom_prefilter", compiler.compile(shader_dir / "postprocessing/quad", shader_dir / "postprocessing/bloom/bloom_prefilter"));
+        add("bloom_downsample9", compiler.compile(shader_dir / "postprocessing/quad", shader_dir / "postprocessing/bloom/bloom_downsample9"));
     }
 
     add("deferred", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/deferred"));
-    if (settings.bloom) {
-        add("composite_with_bloom", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/composite_with_bloom"));
-    } else {
-        add("composite", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/composite"));
-    }
+    add("composite", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/composite"));
     add("outline", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/outline"));
+    add("debug_cascade_overlay", compiler.compile(shader_dir / "pipeline/quad", shader_dir / "pipeline/debug_cascade_overlay"));
 
 
-    if (settings.screen_space_ambient_occlusion) {
+    if (settings.ambient_occlusion_mode == AmbientOcclusionMode::SAO) {
         add("ssao", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/ssao/ssao"));
         add("ssao_blur", compiler.compile(shader_dir / "postprocessing/quad",shader_dir / "postprocessing/ssao/ssao_blur"));
+    }
+    if (settings.ambient_occlusion_mode == AmbientOcclusionMode::HBAO) {
+        add("hbao_depthlinearize", compiler.compile(shader_dir / "postprocessing/quad", shader_dir / "postprocessing/hbao/hbao_depthlinearize"));
+        add("hbao_calc", compiler.compile(shader_dir / "postprocessing/quad", shader_dir / "postprocessing/hbao/hbao_calc"));
+        add("hbao_blur_pass1", compiler.compile(shader_dir / "postprocessing/quad", shader_dir / "postprocessing/hbao/hbao_blur_pass1"));
+        add("hbao_blur_pass2", compiler.compile(shader_dir / "postprocessing/quad", shader_dir / "postprocessing/hbao/hbao_blur_pass2"));
+        add("hbao_pack", compiler.compile(shader_dir / "postprocessing/quad", shader_dir / "postprocessing/hbao/hbao_pack"));
     }
 
     if (settings.screen_space_reflections) {

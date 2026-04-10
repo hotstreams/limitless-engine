@@ -9,13 +9,15 @@ Model::Model(
     const std::vector<std::shared_ptr<ms::Material>>& materials,
     LodTransition transition,
     LodSelection selection,
-    const std::vector<float>& distances
+    const std::vector<float>& distances,
+    float lod_fade_transition_width
 )
     : name {name}
     , lods {{meshes, materials}}
     , transition {transition}
     , selection {selection}
-    , distances {distances} {
+    , distances {distances}
+    , lod_fade_transition_width {lod_fade_transition_width} {
     calculateBoundingBox();
 }
 
@@ -24,13 +26,15 @@ Model::Model(
     const std::vector<Lod>& lods,
     LodTransition transition,
     LodSelection selection,
-    const std::vector<float>& distances
+    const std::vector<float>& distances,
+    float lod_fade_transition_width
 )
     : name {name}
     , lods {lods}
     , transition {transition}
     , selection {selection}
-    , distances {distances} {
+    , distances {distances}
+    , lod_fade_transition_width {lod_fade_transition_width} {
     calculateBoundingBox();
 }
 

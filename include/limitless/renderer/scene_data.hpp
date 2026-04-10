@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 namespace Limitless {
+    class Scene;
     class Context;
     class Camera;
     class Buffer;
@@ -29,6 +30,33 @@ namespace Limitless {
         glm::vec2 resolution {};
         float far_plane {1000.0f};
         float near_plane {0.01f};
+
+        // Wind (global scene wind; shader-side deformation)
+        glm::vec4 wind_dir_strength {0.0f}; // xyz direction (world), w strength
+        glm::vec4 wind_params {0.0f};       // x time, y speed, z scale, w quality (as float)
+
+        // SpeedTree wind preset (mirrors Unity's SpeedTreeWind constant buffer).
+        glm::vec4 st_wind_vector {0.0f};
+        glm::vec4 st_wind_global {0.0f};
+        glm::vec4 st_wind_branch {0.0f};
+        glm::vec4 st_wind_branch_twitch {0.0f};
+        glm::vec4 st_wind_branch_whip {0.0f};
+        glm::vec4 st_wind_branch_anchor {0.0f};
+        glm::vec4 st_wind_branch_adherences {0.0f};
+        glm::vec4 st_wind_turbulences {0.0f};
+        glm::vec4 st_wind_leaf1_ripple {0.0f};
+        glm::vec4 st_wind_leaf1_tumble {0.0f};
+        glm::vec4 st_wind_leaf1_twitch {0.0f};
+        glm::vec4 st_wind_leaf2_ripple {0.0f};
+        glm::vec4 st_wind_leaf2_tumble {0.0f};
+        glm::vec4 st_wind_leaf2_twitch {0.0f};
+        glm::vec4 st_wind_frond_ripple {0.0f};
+        // UE4 fields (rolling wind); currently unused/zero.
+        glm::vec4 st_wind_rolling_branch {0.0f};
+        glm::vec4 st_wind_rolling_leaf_and_direction {0.0f};
+        glm::vec4 st_wind_rolling_noise {0.0f};
+        glm::vec4 st_wind_animation {0.0f};
+        glm::uvec4 st_wind_debug {0u}; // x = debug mask bits
     };
 
     /**
@@ -57,7 +85,7 @@ namespace Limitless {
          * Maps data to GPU
          * Binds buffer to GPU
          */
-        void update(const Camera& camera);
+        void update(const Scene& scene, const Camera& camera);
 
         /**
          * Updates framebuffer size

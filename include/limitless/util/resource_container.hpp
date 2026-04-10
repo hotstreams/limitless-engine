@@ -68,6 +68,11 @@ namespace Limitless {
             return resource.find(name) != resource.end();
         }
 
+        [[nodiscard]] bool contains(const std::string& name) const {
+            std::unique_lock lock(mutex);
+            return resource.find(name) != resource.end();
+        }
+
         const auto& getName(const std::shared_ptr<T>& res) {
             const auto found = std::find_if(resource.begin(), resource.end(), [&] (const auto& pair) {
                 return pair.second == res;

@@ -3,10 +3,13 @@
 #include <limitless/instances/instance.hpp>
 #include <limitless/renderer/shader_type.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/renderer/indirect_instance_renderer.hpp>
+#include <limitless/util/frustum_culling.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/core/cpu_profiler.hpp>
+#include <limitless/core/state_verifier.hpp>
 
 #include "limitless/core/profiler.hpp"
 
@@ -34,5 +37,41 @@ void GBufferPass::render(
 
     fb.bind();
 
-    instance_renderer.renderScene({ctx, assets,  ShaderType::GBuffer, ms::Blending::Opaque, setter});
+    DrawParameters drawp {ctx, assets, ShaderType::GBuffer, ms::Blending::Opaque, setter};
+
+    // Render terrain with minimal MRT set to reduce bandwidth
+    renderer.getPass<DeferredFramebufferPass>().getFramebuffer().drawBuffers({
+        FramebufferAttachment::Color0, // albedo
+        FramebufferAttachment::Color1, // normal
+        FramebufferAttachment::Color2  // properties
+    });
+    if (renderer.getSettings().sorted_rendering) {
+        instance_renderer.renderVisibleTerrainOnlySorted(drawp);
+    } else {
+        instance_renderer.renderVisibleTerrainOnly(drawp);
+    }
+
+    // Render the rest with full MRT set
+    renderer.getPass<DeferredFramebufferPass>().getFramebuffer().drawBuffers({
+        FramebufferAttachment::Color0,
+        FramebufferAttachment::Color1,
+        FramebufferAttachment::Color2,
+        FramebufferAttachment::Color3,
+        FramebufferAttachment::Color4,
+        FramebufferAttachment::Color5
+    });
+
+    // Use indirect draw if enabled (prepare() called once in Renderer::render)
+    if (renderer.getSettings().indirect_draw) {
+        renderer.getIndirectInstanceRenderer().render(drawp);
+        // Fallback: render non-batched instances (skeletal, non-indexed, etc.) via legacy path
+        instance_renderer.renderVisibleNonBatchedNonTerrain(drawp);
+    } else if (renderer.getSettings().sorted_rendering) {
+        instance_renderer.renderVisibleNonTerrainSorted(drawp);
+    } else {
+        instance_renderer.renderVisibleNonTerrain(drawp);
+    }
+
+    // DEBUG: Verify state after rendering
+//    StateVerifier::verifyOrDie("GBufferPass::after_render");
 }

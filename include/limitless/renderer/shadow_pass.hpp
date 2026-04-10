@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limitless/renderer/renderer_pass.hpp>
-#include <limitless/lighting/cascade_shadows.hpp>
+#include <limitless/lighting/cascade_shadow_mapping.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
 
 namespace Limitless {
@@ -11,16 +11,16 @@ namespace Limitless {
     class DirectionalShadowPass final : public RendererPass {
     private:
         /**
-         * CSM implementation
+         * CSM implementation (Filament-style)
          */
-        CascadeShadows shadows;
+        CascadeShadowMapping shadows;
     public:
         explicit DirectionalShadowPass(Renderer& renderer);
 
+        void update(const RendererSettings& settings) override;
+
         /**
          * Adds shadow-specific uniforms to setter
-         *
-         * TODO: can be removed if implement this values in uniform buffer
          */
         void addUniformSetter(UniformSetter& setter) override;
 
@@ -28,5 +28,9 @@ namespace Limitless {
          * Draws shadow
          */
         void render(InstanceRenderer &renderer, Scene& scene, Context &ctx, const Assets &assets, const Camera &camera, UniformSetter &setter) override;
+
+        // Debug/introspection accessors (used by samples).
+        [[nodiscard]] const CascadeShadowMapping& getShadows() const noexcept { return shadows; }
+        [[nodiscard]] CascadeShadowMapping& getShadows() noexcept { return shadows; }
     };
 }

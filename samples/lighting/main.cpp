@@ -45,6 +45,10 @@ namespace LimitlessMaterials {
             , camera {window_size}
             , render {Limitless::Renderer::builder()
                               .resolution(window_size)
+                              .settings(Limitless::RendererSettings::builder()
+                                  .light_tile_size(16)
+                                  .debug_light_tiles()
+                                  .build())
                               .deferred()
                               .build()}
             , assets {context, *render, ENGINE_ASSETS_DIR}

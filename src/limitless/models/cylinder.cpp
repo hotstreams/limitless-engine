@@ -56,7 +56,7 @@ std::vector<VertexNormalTangent> Cylinder::generate(const std::vector<glm::vec3>
             position.x *= radius;
             position.z *= radius;
 
-            vertices.emplace_back(VertexNormalTangent{position, normals[j], glm::vec3{0.0f}, glm::vec2(static_cast<float>(j) / static_cast<float>(sector_count), t)});
+            vertices.emplace_back(VertexNormalTangent{position, normals[j], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec2(static_cast<float>(j) / static_cast<float>(sector_count), t)});
         }
     }
 
@@ -64,7 +64,7 @@ std::vector<VertexNormalTangent> Cylinder::generate(const std::vector<glm::vec3>
 
     position.y = 0.0f;
 
-    vertices.emplace_back(VertexNormalTangent{glm::vec3{0.0f, position.y, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}, glm::vec3{0.0f}, glm::vec2(0.5f)});
+    vertices.emplace_back(VertexNormalTangent{glm::vec3{0.0f, position.y, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.5f)});
 
     for (uint32_t i = 0; i < sector_count; ++i) {
         position.x = unit[i].x;
@@ -72,7 +72,7 @@ std::vector<VertexNormalTangent> Cylinder::generate(const std::vector<glm::vec3>
 
         vertices.emplace_back(VertexNormalTangent{glm::vec3{position.x * base_radius,  position.y, position.z * base_radius},
                                                   glm::vec3{0.0f, -1.0f, 0.0f},
-                                                  glm::vec3{0.0f},
+                                                  glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
                                                   glm::vec2(-position.x * 0.5f + 0.5f, -position.y * 0.5f + 0.5f)});
     }
 
@@ -82,7 +82,7 @@ std::vector<VertexNormalTangent> Cylinder::generate(const std::vector<glm::vec3>
 
     vertices.emplace_back(VertexNormalTangent{glm::vec3{0.0f, position.y, 0.0f},
                                               glm::vec3{0.0f, 1.0f, 0.0f},
-                                              glm::vec3{0.0f},
+                                              glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
                                               glm::vec2(0.5f)});
 
 
@@ -92,7 +92,7 @@ std::vector<VertexNormalTangent> Cylinder::generate(const std::vector<glm::vec3>
 
         vertices.emplace_back(VertexNormalTangent{glm::vec3{position.x * top_radius, position.y, position.z * top_radius},
                                                   glm::vec3{0.0f, 1.0f, 0.0f},
-                                                  glm::vec3{0.0f},
+                                                  glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
                                                   glm::vec2(position.x * 0.5f + 0.5f, -position.y * 0.5f + 0.5f)});
     }
 
@@ -193,6 +193,7 @@ Cylinder::Cylinder(float base_radius, float top_radius, float height)
         {nullptr},
         LodTransition::None,
         LodSelection::CameraDistance,
-        {0.0f}
+        {0.0f},
+        0.25f
     ) {
 }

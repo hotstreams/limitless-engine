@@ -2,6 +2,7 @@
 #include <limitless/renderer/depth_pass.hpp>
 #include <limitless/instances/instance.hpp>
 #include <limitless/renderer/shader_type.hpp>
+#include <limitless/renderer/indirect_instance_renderer.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/util/sorter.hpp>
 #include <limitless/core/context.hpp>
@@ -10,6 +11,7 @@
 #include <limitless/renderer/deferred_framebuffer_pass.hpp>
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/core/cpu_profiler.hpp>
+#include <limitless/core/state_verifier.hpp>
 
 #include "limitless/core/profiler.hpp"
 
@@ -23,9 +25,9 @@ void DepthPass::render(
         InstanceRenderer& instance_renderer,
         [[maybe_unused]] Scene &scene,
         Context &ctx,
-        [[maybe_unused]] const Assets &assets,
-        [[maybe_unused]] const Camera &camera,
-        [[maybe_unused]] UniformSetter &setter) {
+        const Assets &assets,
+        const Camera &camera,
+        UniformSetter &setter) {
     ProfilerScope profile_scope {"DepthPass"};
 
     CpuProfileScope scope(global_profiler, "DepthPass::render");
@@ -41,7 +43,22 @@ void DepthPass::render(
 	auto& fb = renderer.getPass<DeferredFramebufferPass>().getFramebuffer();
     fb.bind();
 
-    instance_renderer.renderScene({ctx, assets, ShaderType::Depth, ms::Blending::Opaque, setter});
+    DrawParameters drawp {ctx, assets, ShaderType::Depth, ms::Blending::Opaque, setter};
+
+    // Use indirect draw if enabled (prepare() called once in Renderer::render)
+    if (renderer.getSettings().indirect_draw) {
+        renderer.getIndirectInstanceRenderer().render(drawp);
+        // Fallback: render non-batched instances (skeletal, non-indexed, etc.) via legacy path
+        instance_renderer.renderVisibleNonBatchedNonTerrain(drawp);
+    } else if (renderer.getSettings().sorted_rendering) {
+        instance_renderer.prepareSortedRendering(camera, renderer.getSettings());
+        instance_renderer.renderSceneSorted(drawp);
+    } else {
+        instance_renderer.renderScene(drawp);
+    }
+
+    // DEBUG: Verify state after rendering
+//    StateVerifier::verifyOrDie("DepthPass::after_render");
 
 	ctx.setStencilMask(0x00);
 }

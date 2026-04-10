@@ -10,14 +10,84 @@ using namespace Limitless;
 DeferredFramebufferPass::DeferredFramebufferPass(Renderer& renderer)
     : RendererPass(renderer)
     , framebuffer {} {
-    //TODO: revisit format
-    // R11G11B10?
-    auto albedo = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
-    auto normal = Texture::Builder::asRGB16SNORMNearestClampToEdge(renderer.getResolution());
-    auto props = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
-    auto emissive = Texture::Builder::asRGB16FNearestClampToEdge(renderer.getResolution());
-    auto info = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
-    auto outline = Texture::Builder::asRGBA16NearestClampToEdge(renderer.getResolution());
+    // Low-end friendly G-Buffer formats to reduce bandwidth:
+    // - Albedo: RGB8 (linear)
+    // - Normal: RGB8_SNORM (keeps compatibility with existing vec3 writes)
+    // - Props:  RGB8 (roughness/metal/ao)
+    // - Emissive: RGB8 (sufficient for low-end; switch back to 16F if HDR needed)
+    // - Info:  RGB8
+    // - Outline: RGBA8
+    auto albedo = Texture::builder()
+        .target(Texture::Type::Tex2D)
+        .internal_format(Texture::InternalFormat::RGB8)
+        .format(Texture::Format::RGB)
+        .data_type(Texture::DataType::UnsignedByte)
+        .size(renderer.getResolution())
+        .min_filter(Texture::Filter::Nearest)
+        .mag_filter(Texture::Filter::Nearest)
+        .wrap_s(Texture::Wrap::ClampToEdge)
+        .wrap_t(Texture::Wrap::ClampToEdge)
+        .build();
+
+    auto normal = Texture::builder()
+        .target(Texture::Type::Tex2D)
+        .internal_format(Texture::InternalFormat::RGB8_SNORM)
+        .format(Texture::Format::RGB)
+        .data_type(Texture::DataType::Byte)
+        .size(renderer.getResolution())
+        .min_filter(Texture::Filter::Nearest)
+        .mag_filter(Texture::Filter::Nearest)
+        .wrap_s(Texture::Wrap::ClampToEdge)
+        .wrap_t(Texture::Wrap::ClampToEdge)
+        .build();
+
+    auto props = Texture::builder()
+        .target(Texture::Type::Tex2D)
+        .internal_format(Texture::InternalFormat::RGB8)
+        .format(Texture::Format::RGB)
+        .data_type(Texture::DataType::UnsignedByte)
+        .size(renderer.getResolution())
+        .min_filter(Texture::Filter::Nearest)
+        .mag_filter(Texture::Filter::Nearest)
+        .wrap_s(Texture::Wrap::ClampToEdge)
+        .wrap_t(Texture::Wrap::ClampToEdge)
+        .build();
+
+    auto emissive = Texture::builder()
+        .target(Texture::Type::Tex2D)
+        .internal_format(Texture::InternalFormat::RGB8)
+        .format(Texture::Format::RGB)
+        .data_type(Texture::DataType::UnsignedByte)
+        .size(renderer.getResolution())
+        .min_filter(Texture::Filter::Nearest)
+        .mag_filter(Texture::Filter::Nearest)
+        .wrap_s(Texture::Wrap::ClampToEdge)
+        .wrap_t(Texture::Wrap::ClampToEdge)
+        .build();
+
+    auto info = Texture::builder()
+        .target(Texture::Type::Tex2D)
+        .internal_format(Texture::InternalFormat::RGB8)
+        .format(Texture::Format::RGB)
+        .data_type(Texture::DataType::UnsignedByte)
+        .size(renderer.getResolution())
+        .min_filter(Texture::Filter::Nearest)
+        .mag_filter(Texture::Filter::Nearest)
+        .wrap_s(Texture::Wrap::ClampToEdge)
+        .wrap_t(Texture::Wrap::ClampToEdge)
+        .build();
+
+    auto outline = Texture::builder()
+        .target(Texture::Type::Tex2D)
+        .internal_format(Texture::InternalFormat::RGBA8)
+        .format(Texture::Format::RGBA)
+        .data_type(Texture::DataType::UnsignedByte)
+        .size(renderer.getResolution())
+        .min_filter(Texture::Filter::Nearest)
+        .mag_filter(Texture::Filter::Nearest)
+        .wrap_s(Texture::Wrap::ClampToEdge)
+        .wrap_t(Texture::Wrap::ClampToEdge)
+        .build();
 
     auto depth = Texture::Builder::asDepth32F(renderer.getResolution());
 

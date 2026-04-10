@@ -14,7 +14,17 @@ using namespace Limitless;
 
 OutlinePass::OutlinePass(Renderer& renderer)
 	: RendererPass(renderer) {
-    auto albedo = Texture::Builder::asRGB16NearestClampToEdge(renderer.getResolution());
+    auto albedo = Texture::builder()
+        .target(Texture::Type::Tex2D)
+        .internal_format(Texture::InternalFormat::RGB8)
+        .format(Texture::Format::RGB)
+        .data_type(Texture::DataType::UnsignedByte)
+        .size(renderer.getResolution())
+        .min_filter(Texture::Filter::Nearest)
+        .mag_filter(Texture::Filter::Nearest)
+        .wrap_s(Texture::Wrap::ClampToEdge)
+        .wrap_t(Texture::Wrap::ClampToEdge)
+        .build();
 
     framebuffer.bind();
     framebuffer << TextureAttachment{FramebufferAttachment::Color0, albedo};

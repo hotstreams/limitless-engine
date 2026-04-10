@@ -33,7 +33,7 @@ void Assets::load([[maybe_unused]] Context& context) {
         .name("default")
         .shading(ms::Shading::Unlit)
         .color({0.7f, 0.0f, 0.7f, 1.0f})
-        .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+        .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced })
         .two_sided(true)
         .build(*this);
 
@@ -41,21 +41,21 @@ void Assets::load([[maybe_unused]] Context& context) {
             .name("red")
             .shading(ms::Shading::Unlit)
             .color({1.0f, 0.0f, 0.0f, 1.0f})
-            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced, InstanceType::Decal })
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced, InstanceType::Decal })
             .two_sided(true)
             .build(*this);
 
     ms::Material::builder()
             .name("blue")
             .color({0.0f, 0.0f, 1.0f, 1.0f})
-            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced })
             .two_sided(true)
             .build(*this);
 
     ms::Material::builder()
             .name("green")
             .color({0.0f, 1.0f, 0.0f, 1.0f})
-            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Effect, InstanceType::Instanced })
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced })
             .two_sided(true)
             .build(*this);
 

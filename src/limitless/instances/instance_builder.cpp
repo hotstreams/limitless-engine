@@ -239,6 +239,27 @@ Instance::Builder &Instance::Builder::decal_projection_mask(uint8_t mask) {
 }
 
 std::shared_ptr<TerrainInstance> Instance::Builder::asTerrain(Assets& assets) {
+    // Validate numeric parameters early (before allocating terrain meshes/textures).
+    if (terrain_size_ <= 0) {
+        throw instance_builder_exception {"Terrain size must be > 0"};
+    }
+    // terrain_size_ is used as a texture dimension in multiple places; keep it integral-ish.
+    if (static_cast<uint32_t>(terrain_size_) != terrain_size_) {
+        throw instance_builder_exception {"Terrain size must be an integer value (number of vertices)"};
+    }
+    if (vertex_spacing_ <= 0.0f) {
+        throw instance_builder_exception {"Terrain vertex_spacing must be > 0"};
+    }
+    if (height_scale_ < 0.0f) {
+        throw instance_builder_exception {"Terrain height_scale must be >= 0"};
+    }
+    if (mesh_lod_count_ < 1) {
+        throw instance_builder_exception {"Terrain mesh_lod_count must be >= 1"};
+    }
+    if (!auto_mesh_size_ && mesh_size_ < 4) {
+        throw instance_builder_exception {"Terrain mesh_size must be >= 4"};
+    }
+
     if (!height_map_) {
         throw instance_builder_exception {"Height map for terrain is not set!"};
     }
@@ -255,10 +276,42 @@ std::shared_ptr<TerrainInstance> Instance::Builder::asTerrain(Assets& assets) {
         throw instance_builder_exception {"Normals for terrain is not set!"};
     }
 
-    if (albedo_map_ && normal_map_) {
-        if (albedo_map_->getSize().z != normal_map_->getSize().z) {
-            throw instance_builder_exception {"Missing textures in albedo/normal!"};
+    // Validate texture sizes (height/control should match terrain_size).
+    const auto terrain_dim = static_cast<uint32_t>(terrain_size_);
+    if (height_map_->getSize().x != terrain_dim || height_map_->getSize().y != terrain_dim) {
+        throw instance_builder_exception {"Height map size must match terrain_size x terrain_size"};
+    }
+    if (control_map_->getSize().x != terrain_dim || control_map_->getSize().y != terrain_dim) {
+        throw instance_builder_exception {"Control map size must match terrain_size x terrain_size"};
+    }
+    if (color_map_) {
+        if (color_map_->getSize().x != terrain_dim || color_map_->getSize().y != terrain_dim) {
+            throw instance_builder_exception {"Color map size must match terrain_size x terrain_size"};
         }
+    }
+
+    // Validate texture array layers (IDs are 6-bit => max 64 layers).
+    const auto albedo_layers = albedo_map_->getSize().z;
+    const auto normal_layers = normal_map_->getSize().z;
+    if (albedo_layers != normal_layers) {
+        throw instance_builder_exception {"Albedo/normal layer count mismatch (Tex2DArray depth must match)"};
+    }
+    if (albedo_layers == 0) {
+        throw instance_builder_exception {"Albedo/normal maps must have at least 1 layer"};
+    }
+    if (albedo_layers > TerrainInstance::MAX_TEXTURES) {
+        throw instance_builder_exception {"Albedo/normal maps exceed TerrainInstance::MAX_TEXTURES (64 layers)"};
+    }
+
+    // Validate per-layer parameter arrays if provided (must cover all layers).
+    if (!texture_uv_scale_.empty() && texture_uv_scale_.size() < albedo_layers) {
+        throw instance_builder_exception {"texture_uv_scale size must be >= albedo/normal layer count"};
+    }
+    if (!texture_normal_depth_.empty() && texture_normal_depth_.size() < albedo_layers) {
+        throw instance_builder_exception {"texture_normal_depth size must be >= albedo/normal layer count"};
+    }
+    if (!texture_detile_.empty() && texture_detile_.size() < albedo_layers) {
+        throw instance_builder_exception {"texture_detile size must be >= albedo/normal layer count"};
     }
 
     auto instance = std::make_shared<TerrainInstance>(
@@ -286,6 +339,11 @@ std::shared_ptr<TerrainInstance> Instance::Builder::asTerrain(Assets& assets) {
     instance->setTileBilerp(enable_tile_bilerp_);
     instance->setNormalBilerpMultiplier(normal_bilerp_multiplier_);
     instance->setTileBilerpMultiplier(tile_bilerp_multiplier_);
+
+    instance->setDetiling(terrain_detiling_);
+    instance->setBlending(terrain_blending_);
+    instance->setLayering(terrain_layering_);
+    instance->setHighBlending(terrain_high_blending_);
     instance->setTextureUVScales(texture_uv_scale_);
     instance->setTextureNormalDepths(texture_normal_depth_);
     instance->setTextureDetiles(texture_detile_);
@@ -325,6 +383,26 @@ Instance::Builder& Instance::Builder::normal_bilerp_multiplier(float multiplier)
 Instance::Builder& Instance::Builder::tile_bilerp_multiplier(float multiplier)
 {
     tile_bilerp_multiplier_ = multiplier;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::terrain_detiling(bool enabled) {
+    terrain_detiling_ = enabled;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::terrain_blending(bool enabled) {
+    terrain_blending_ = enabled;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::terrain_layering(bool enabled) {
+    terrain_layering_ = enabled;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::terrain_high_blending(bool enabled) {
+    terrain_high_blending_ = enabled;
     return *this;
 }
 

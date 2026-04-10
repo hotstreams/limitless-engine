@@ -5,6 +5,7 @@
 #include <limitless/util/math.hpp>
 #include <limitless/core/vertex_stream/vertex_stream_builder.hpp>
 #include <limitless/models/mesh.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 
 using namespace Limitless;
 
@@ -39,7 +40,7 @@ Sphere::Sphere(glm::uvec2 segment_count)
                      uv.x = static_cast<float>(j) / static_cast<float>(segment_count.x);
                      uv.y = static_cast<float>(i) / static_cast<float>(segment_count.y);
 
-                     vertices.emplace_back(VertexNormalTangent{position, normal, normal, uv});
+                     vertices.emplace_back(VertexNormalTangent{position, normal, glm::vec4(normal, 1.0f), uv});
                  }
              }
 
@@ -78,6 +79,7 @@ Sphere::Sphere(glm::uvec2 segment_count)
                         .indices(indices)
                         .usage(VertexStream::Usage::Static)
                         .draw(VertexStream::Draw::Triangles)
+                        .batched(RendererSettings::geometry_batching_enabled)
                         .build()
                 )
                 .build();
@@ -85,6 +87,7 @@ Sphere::Sphere(glm::uvec2 segment_count)
         {nullptr},
         LodTransition::None,
         LodSelection::CameraDistance,
-        {0.0f}
+        {0.0f},
+        0.25f
     ) {
 }

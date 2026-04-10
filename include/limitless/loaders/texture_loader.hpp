@@ -32,6 +32,13 @@ namespace Limitless {
         // for dds it loads mipmaps in a file
         bool mipmap {true};
 
+        // Preserve alpha coverage for masked foliage when using alpha-clip with mipmaps.
+        // This adjusts the alpha channel in generated mip levels so that a fixed alpha_cutoff
+        // keeps approximately the same coverage at distance (reduces "leaves disappearing").
+        // Intended for non-DDS RGBA textures.
+        bool preserve_alpha_coverage {false};
+        float alpha_coverage_cutoff {0.5f};
+
         bool anisotropic_filter {false};
         float anisotropic_value {0.0f}; // 0.0f for max supported
 
@@ -69,6 +76,13 @@ namespace Limitless {
         TextureLoaderFlags withNoMipmaps() const noexcept {
             auto new_flags = *this;
             new_flags.mipmap = false;
+            return new_flags;
+        }
+
+        TextureLoaderFlags withPreserveAlphaCoverage(float cutoff) const noexcept {
+            auto new_flags = *this;
+            new_flags.preserve_alpha_coverage = true;
+            new_flags.alpha_coverage_cutoff = cutoff;
             return new_flags;
         }
 

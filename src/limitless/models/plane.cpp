@@ -1,5 +1,7 @@
 #include <limitless/models/plane.hpp>
 
+#include "limitless/renderer/renderer_settings.hpp"
+
 using namespace Limitless;
 
 #include <limitless/util/tangent_space.hpp>
@@ -12,10 +14,10 @@ Plane::Plane()
         {[]() {
             /* Plane size (1, 0, 1) centered at (0, 0, 0) */
             std::vector<VertexNormalTangent> vertices = {
-                { {0.5f, 0.0f, -0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {1.0f, 1.0f} },
-                { {0.5f, 0.0f,  0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {1.0f, 0.0f} },
-                { {-0.5f, 0.0f, 0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {0.0f, 0.0f} },
-                { {-0.5f, 0.0f, -0.5f}, { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {0.0f, 1.0f} }
+                { {0.5f, 0.0f, -0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {1.0f, 1.0f} },
+                { {0.5f, 0.0f,  0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {1.0f, 0.0f} },
+                { {-0.5f, 0.0f, 0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {0.0f, 0.0f} },
+                { {-0.5f, 0.0f, -0.5f}, { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {0.0f, 1.0f} }
             };
 
             std::vector<GLuint> indices = {
@@ -37,6 +39,7 @@ Plane::Plane()
                             .indices(indices)
                             .usage(VertexStream::Usage::Static)
                             .draw(VertexStream::Draw::Triangles)
+                            .batched(RendererSettings::geometry_batching_enabled)
                             .build()
                     )
                     .build();
@@ -44,7 +47,8 @@ Plane::Plane()
         {nullptr},
         LodTransition::None,
         LodSelection::CameraDistance,
-        {0.0f}
+        {0.0f},
+        0.25f
     ) {
 }
 
@@ -54,10 +58,10 @@ PlaneQuad::PlaneQuad()
         {[]() {
             /* Plane size (1, 0, 1) centered at (0, 0, 0) */
             std::vector<VertexNormalTangent> vertices = {
-                    { {-0.5f, 0.0f, -0.5f}, { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {0.0f, 1.0f} },
-                    { {0.5f, 0.0f, -0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {1.0f, 1.0f} },
-                    { {-0.5f, 0.0f, 0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {0.0f, 0.0f} },
-                    { {0.5f, 0.0f,  0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec3{0.0f}, {1.0f, 0.0f} },
+                    { {-0.5f, 0.0f, -0.5f}, { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {0.0f, 1.0f} },
+                    { {0.5f, 0.0f, -0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {1.0f, 1.0f} },
+                    { {-0.5f, 0.0f, 0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {0.0f, 0.0f} },
+                    { {0.5f, 0.0f,  0.5f},  { 0.0f, 1.0f, 0.0f }, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), {1.0f, 0.0f} },
             };
 
             std::vector<GLuint> indices = {
@@ -86,6 +90,7 @@ PlaneQuad::PlaneQuad()
         {nullptr},
         LodTransition::None,
         LodSelection::CameraDistance,
-        {0.0f}
+        {0.0f},
+        0.25f
     ) {
 }

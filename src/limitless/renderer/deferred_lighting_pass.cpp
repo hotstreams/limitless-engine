@@ -32,7 +32,12 @@ void DeferredLightingPass::render(
     ProfilerScope profile_scope {"DeferredLightingPass"};
 
     ctx.disable(Capabilities::DepthTest);
+    ctx.disable(Capabilities::StencilTest);
+    ctx.setDepthMask(DepthMask::False);
     ctx.disable(Capabilities::Blending);
+    ctx.setCullFace(CullFace::Back);
+
+    ctx.setViewPort(renderer.getResolution());
 
     framebuffer.clear();
 

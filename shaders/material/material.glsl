@@ -75,6 +75,30 @@ layout (std140) uniform MATERIAL_BUFFER {
     float _material_transmission;
 #endif
 
+#if defined (ENGINE_MATERIAL_BILLBOARD_MODE)
+    uint _material_billboard_mode;
+#endif
+
+#if defined (ENGINE_MATERIAL_BILLBOARD_PIVOT)
+    vec3 _material_billboard_pivot;
+#endif
+
+#if defined (ENGINE_MATERIAL_BILLBOARD_AXIS)
+    vec3 _material_billboard_axis;
+#endif
+
+#if defined (ENGINE_MATERIAL_WIND_MODE)
+    uint _material_wind_mode;
+#endif
+
+#if defined (ENGINE_MATERIAL_WIND_INTENSITY)
+    float _material_wind_intensity;
+#endif
+
+#if defined (ENGINE_MATERIAL_WIND_FREQUENCY)
+    float _material_wind_frequency;
+#endif
+
 #if defined (ENGINE_EXT_BINDLESS_TEXTURE)
     ENGINE_MATERIAL_CUSTOM_SAMPLERS
 #endif
@@ -231,6 +255,42 @@ layout (std140) uniform MATERIAL_BUFFER {
 #if defined (ENGINE_MATERIAL_TRANSMISSION)
     float getMaterialTransmission() {
         return _material_transmission;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_BILLBOARD_MODE)
+    uint getMaterialBillboardMode() {
+        return _material_billboard_mode;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_BILLBOARD_PIVOT)
+    vec3 getMaterialBillboardPivot() {
+        return _material_billboard_pivot;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_BILLBOARD_AXIS)
+    vec3 getMaterialBillboardAxis() {
+        return _material_billboard_axis;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_WIND_MODE)
+    uint getMaterialWindMode() {
+        return _material_wind_mode;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_WIND_INTENSITY)
+    float getMaterialWindIntensity() {
+        return _material_wind_intensity;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_WIND_FREQUENCY)
+    float getMaterialWindFrequency() {
+        return _material_wind_frequency;
     }
 #endif
 

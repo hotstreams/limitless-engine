@@ -79,6 +79,12 @@ namespace Limitless {
 
         float tile_bilerp_multiplier = 0.0f;
 
+        // Terrain material feature toggles (compile-time defines via MaterialShaderDefineReplacer)
+        uint32_t enable_detiling = 1;
+        uint32_t enable_blending = 1;
+        uint32_t enable_layering = 1;
+        uint32_t enable_high_blending = 1;
+
         struct Mesh {
             std::shared_ptr<ModelInstance> cross;
             std::shared_ptr<InstancedInstance> tiles;
@@ -97,6 +103,7 @@ namespace Limitless {
         std::vector<float> texture_normal_depth;
         std::vector<glm::vec2> texture_detile;
 
+        void applyHeightBoundsToMeshes();
         void snap(const Camera& p_cam_pos);
     public:
         TerrainInstance(
@@ -143,6 +150,12 @@ namespace Limitless {
         void enableTileBilerp();
         void disableTileBilerp();
         void setTileBilerp(bool bilerp);
+
+        void setDetiling(bool enabled) { enable_detiling = enabled; }
+        void setBlending(bool enabled) { enable_blending = enabled; }
+        void setLayering(bool enabled) { enable_layering = enabled; }
+        // Maps to shader define ENGINE_MATERIAL_TERRAIN_HIGH_BLENDING via uniform "_height_blending"
+        void setHighBlending(bool enabled) { enable_high_blending = enabled; }
 
         void setNormalBilerpMultiplier(float multiplier);
         void setTileBilerpMultiplier(float multiplier);

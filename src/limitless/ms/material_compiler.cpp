@@ -18,6 +18,13 @@ void MaterialCompiler::replaceMaterialSettings(Shader& shader, const Material& m
 
 void MaterialCompiler::compile(const Material& material, ShaderType pass_shader, InstanceType model_shader) {
     const auto props = [&] (Shader& shader) {
+        // Pass-specific compilation switches.
+        // We inject these by expanding ENGINE::COMMON prior to ShaderDefineReplacer::replaceCommon().
+        // This way the define is visible in both vertex + fragment stages.
+        if (pass_shader == ShaderType::DirectionalShadow) {
+            shader.replaceKey("ENGINE::COMMON", "ENGINE::COMMON\n#define ENGINE_PASS_DIRECTIONAL_SHADOW\n");
+        }
+
         replaceMaterialSettings(shader, material, render_settings.value(), model_shader);
     };
 

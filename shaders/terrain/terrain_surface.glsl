@@ -1,6 +1,10 @@
 #include "../terrain/terrain.glsl"
 #include "../terrain/terrain_debug.glsl"
 
+// Per-component 0/1 mask (avoids vec2(bvec2) / fma typing issues on some GLSL compilers).
+vec2 terrain_texIdEqualMask(ivec2 a, ivec2 b) {
+    return vec2(a.x == b.x ? 1.0 : 0.0, a.y == b.y ? 1.0 : 0.0);
+}
 
 void process(
     vec3 base_ddx,
@@ -57,12 +61,12 @@ void process(
         int id = texture_id[0];
         float id_w = texture_weight[0];
         float id_scale = terrain_texture_uv_scale_array[id];
-        vec4 id_dd = i_dd * id_scale;
 
         vec2 id_cs_angle = vec2(1.0, 0.0);
         vec2 id_uv = fma(i_uv, vec2(id_scale), vec2(0.0));
 
 #ifdef ENGINE_MATERIAL_TERRAIN_DETILING
+        vec4 id_dd = i_dd * id_scale;
         vec2 id_pos = i_pos;
         vec2 uv_center = floor(fma(id_pos, vec2(id_scale), vec2(0.5)));
         vec2 id_detile = fma(random(uv_center), 2.0, -1.0) * terrain_texture_detile_array[id] * 6.28318;
@@ -78,11 +82,26 @@ void process(
         id_dd.zw = rotate_vec2(id_dd.zw, id_cs_angle);
 #endif
 
+#ifdef ENGINE_MATERIAL_TERRAIN_DETILING
         vec4 alb = textureGrad(terrain_albedo_texture, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
-        vec4 nrm = textureGrad(terrain_normal_texture, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
-        
+#else
+        vec4 alb = texture(terrain_albedo_texture, vec3(id_uv, float(id)));
+#endif
+
+        vec4 nrm;
+#if defined(ENGINE_SETTINGS_NORMAL_MAPPING)
+    #ifdef ENGINE_MATERIAL_TERRAIN_DETILING
+        nrm = textureGrad(terrain_normal_texture, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+    #else
+        nrm = texture(terrain_normal_texture, vec3(id_uv, float(id)));
+    #endif
         nrm.xyz = fma(nrm.xzy, vec3(2.0), vec3(-1.0));
+    #ifdef ENGINE_MATERIAL_TERRAIN_DETILING
         nrm.xz = rotate_vec2(nrm.xz, id_cs_angle);
+    #endif
+#else
+        nrm = vec4(0.0, 1.0, 0.0, 0.5);
+#endif
 
         float id_weight = 0.0;
 #ifdef ENGINE_MATERIAL_TERRAIN_HIGH_BLENDING
@@ -106,12 +125,12 @@ void process(
         int id = texture_id[1];
         float id_w = texture_weight[1];
         float id_scale = terrain_texture_uv_scale_array[id];
-        vec4 id_dd = i_dd * id_scale;
 
         vec2 id_cs_angle = vec2(1.0, 0.0);
         vec2 id_uv = fma(i_uv, vec2(id_scale), vec2(0.0));
 
 #ifdef ENGINE_MATERIAL_TERRAIN_DETILING
+        vec4 id_dd = i_dd * id_scale;
         vec2 id_pos = i_pos;
         vec2 uv_center = floor(fma(id_pos, vec2(id_scale), vec2(0.5)));
         vec2 id_detile = fma(random(uv_center), 2.0, -1.0) * terrain_texture_detile_array[id] * 6.28318;
@@ -128,11 +147,26 @@ void process(
         id_dd.zw = rotate_vec2(id_dd.zw, id_cs_angle);
 #endif
 
+#ifdef ENGINE_MATERIAL_TERRAIN_DETILING
         vec4 alb = textureGrad(terrain_albedo_texture, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
-        vec4 nrm = textureGrad(terrain_normal_texture, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
-        
+#else
+        vec4 alb = texture(terrain_albedo_texture, vec3(id_uv, float(id)));
+#endif
+
+        vec4 nrm;
+#if defined(ENGINE_SETTINGS_NORMAL_MAPPING)
+    #ifdef ENGINE_MATERIAL_TERRAIN_DETILING
+        nrm = textureGrad(terrain_normal_texture, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+    #else
+        nrm = texture(terrain_normal_texture, vec3(id_uv, float(id)));
+    #endif
         nrm.xyz = fma(nrm.xzy, vec3(2.0), vec3(-1.0));
+    #ifdef ENGINE_MATERIAL_TERRAIN_DETILING
         nrm.xz = rotate_vec2(nrm.xz, id_cs_angle);
+    #endif
+#else
+        nrm = vec4(0.0, 1.0, 0.0, 0.5);
+#endif
 
         float id_weight = 0.0;
 #ifdef ENGINE_MATERIAL_TERRAIN_HIGH_BLENDING
@@ -255,36 +289,38 @@ void calculateTerrain(inout MaterialContext mctx) {
         ivec4(control >> uvec4(6u) & uvec4(0x3Fu))
     };
 
-    ivec2 texture_ids[4] = ivec2[4](
-        ivec2(t_id[0].x, t_id[1].x),
-        ivec2(t_id[0].y, t_id[1].y),
-        ivec2(t_id[0].z, t_id[1].z),
-        ivec2(t_id[0].w, t_id[1].w)
-    );
+    ivec2 texture_ids[4];
+    texture_ids[0] = ivec2(t_id[0].x, t_id[1].x);
+    texture_ids[1] = ivec2(t_id[0].y, t_id[1].y);
+    texture_ids[2] = ivec2(t_id[0].z, t_id[1].z);
+    texture_ids[3] = ivec2(t_id[0].w, t_id[1].w);
 
     vec4 weights_id_1 = vec4(control >> uvec4(12u) & uvec4(0xFFu)) * DIV_255;
     vec4 weights_id_0 = 1.0 - weights_id_1;
 
-    vec2 t_weights[4] = vec2[4](
-        vec2(weights_id_0[0], weights_id_1[0]),
-        vec2(weights_id_0[1], weights_id_1[1]),
-        vec2(weights_id_0[2], weights_id_1[2]),
-        vec2(weights_id_0[3], weights_id_1[3]));
+    vec2 t_weights[4];
+    t_weights[0] = vec2(weights_id_0[0], weights_id_1[0]);
+    t_weights[1] = vec2(weights_id_0[1], weights_id_1[1]);
+    t_weights[2] = vec2(weights_id_0[2], weights_id_1[2]);
+    t_weights[3] = vec2(weights_id_0[3], weights_id_1[3]);
 
 #ifdef ENGINE_MATERIAL_TERRAIN_LAYERING
     if (tile_bilerp_enabled) {
-        t_weights = vec2[4](vec2(0), vec2(0), vec2(0), vec2(0));
+        t_weights[0] = vec2(0.0);
+        t_weights[1] = vec2(0.0);
+        t_weights[2] = vec2(0.0);
+        t_weights[3] = vec2(0.0);
         weights_id_0 *= weights;
         weights_id_1 *= weights;
         for (int i = 0; i < 4; i++) {
             vec2 w_0 = vec2(weights_id_0[i]);
             vec2 w_1 = vec2(weights_id_1[i]);
-            ivec2 id_0 = texture_ids[i].xx;
-            ivec2 id_1 = texture_ids[i].yy;
-            t_weights[0] += fma(w_0, vec2(equal(texture_ids[0], id_0)), w_1 * vec2(equal(texture_ids[0], id_1)));
-            t_weights[1] += fma(w_0, vec2(equal(texture_ids[1], id_0)), w_1 * vec2(equal(texture_ids[1], id_1)));
-            t_weights[2] += fma(w_0, vec2(equal(texture_ids[2], id_0)), w_1 * vec2(equal(texture_ids[2], id_1)));
-            t_weights[3] += fma(w_0, vec2(equal(texture_ids[3], id_0)), w_1 * vec2(equal(texture_ids[3], id_1)));
+            ivec2 id_0 = ivec2(texture_ids[i].x, texture_ids[i].x);
+            ivec2 id_1 = ivec2(texture_ids[i].y, texture_ids[i].y);
+            t_weights[0] += fma(w_0, terrain_texIdEqualMask(texture_ids[0], id_0), w_1 * terrain_texIdEqualMask(texture_ids[0], id_1));
+            t_weights[1] += fma(w_0, terrain_texIdEqualMask(texture_ids[1], id_0), w_1 * terrain_texIdEqualMask(texture_ids[1], id_1));
+            t_weights[2] += fma(w_0, terrain_texIdEqualMask(texture_ids[2], id_0), w_1 * terrain_texIdEqualMask(texture_ids[2], id_1));
+            t_weights[3] += fma(w_0, terrain_texIdEqualMask(texture_ids[3], id_0), w_1 * terrain_texIdEqualMask(texture_ids[3], id_1));
         }
     }
 #endif
@@ -373,7 +409,8 @@ void calculateTerrain(inout MaterialContext mctx) {
 
         mctx.normal = fma(normalize(norm), vec3(0.5), vec3(0.5));
 
-        mctx.tangent = normalize(cross(w_normal, vec3(0.0, 0.0, 1.0)));
+        // MaterialContext.tangent is vec4 (xyz + handedness); cross() yields vec3 only.
+        mctx.tangent = vec4(normalize(cross(w_normal, vec3(0.0, 0.0, 1.0))), 1.0);
     #endif
 
    // applyDebugVisualization(DEBUG_VERTEX_NORMALS, terrain_uv, control[3], mctx, mat, tile_bilerp && bool(enable_tile_bilerp), texture_ids[3]);

@@ -132,14 +132,20 @@ namespace Limitless {
          public:
              glm::mat4 model_matrix;
              glm::vec4 outline_color;
+             // Local-space AABB of the instance's model (used for vegetation/wind shaping on GPU).
+             // Stored as vec4 for std140 alignment; w unused.
+             glm::vec4 aabb_min {0.0f};
+             glm::vec4 aabb_max {0.0f};
              uint32_t id;
              uint32_t is_outlined;
              uint32_t decal_mask;
              uint32_t pad {};
+             /// x = cross-fade t, y = finer(0)/coarser(1) draw role, w = active flag (matches GPU InstanceContext).
+             glm::vec4 lod_fade {0.0f};
 
              bool operator!=(const Data& rhs) const noexcept {
-                 return std::tie(model_matrix, outline_color, id, is_outlined, decal_mask) !=
-                        std::tie(rhs.model_matrix, rhs.outline_color, rhs.id, rhs.is_outlined, rhs.decal_mask);
+                 return std::tie(model_matrix, outline_color, aabb_min, aabb_max, id, is_outlined, decal_mask, lod_fade) !=
+                        std::tie(rhs.model_matrix, rhs.outline_color, rhs.aabb_min, rhs.aabb_max, rhs.id, rhs.is_outlined, rhs.decal_mask, rhs.lod_fade);
              }
 
              bool operator==(const Data& rhs) const noexcept {

@@ -77,14 +77,15 @@ std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
     IndexMap replace_map;
     std::set_difference(unbound_map.begin(), unbound_map.end(), empty_bound.begin(), empty_bound.end(), std::inserter(replace_map, replace_map.begin()));
 
+    const auto max_units = static_cast<GLuint>(ContextInitializer::limits.max_texture_units);
     for (const auto& [index, texture] : replace_map) {
-        std::vector<int>::iterator found;
-        while (found != indices.end()) {
-            found = std::find_if(indices.begin(), indices.end(), [] (const auto& index) { return index == current_bind; });
-            if (found == indices.end()) {
-                indices[index] = current_bind;
-                texture->bind(current_bind);
-                current_bind = ++current_bind >= ContextInitializer::limits.max_texture_units ? 0 : current_bind;
+        for (GLuint attempt = 0; attempt < max_units; ++attempt) {
+            const auto candidate = (current_bind + attempt) % max_units;
+            if (std::find(indices.begin(), indices.end(), static_cast<int>(candidate)) == indices.end()) {
+                indices[index] = static_cast<int>(candidate);
+                texture->bind(candidate);
+                current_bind = (candidate + 1) % max_units;
+                break;
             }
         }
     }

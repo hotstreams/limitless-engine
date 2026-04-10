@@ -3,6 +3,7 @@
 #include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/renderer/renderer_pass.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
+#include <limitless/renderer/indirect_instance_renderer.hpp>
 
 namespace Limitless {
     class Context;
@@ -25,6 +26,9 @@ namespace Limitless {
         // instance renderer
         InstanceRenderer instance_renderer;
 
+        // indirect instance renderer (for multi-draw indirect)
+        IndirectInstanceRenderer indirect_instance_renderer;
+
         Renderer() noexcept = default;
     public:
         /**
@@ -45,6 +49,8 @@ namespace Limitless {
         [[nodiscard]] const RendererSettings& getSettings() const noexcept { return settings; }
         [[nodiscard]] const glm::uvec2& getResolution() const noexcept { return resolution; }
         [[nodiscard]] const InstanceRenderer& getInstanceRenderer() const noexcept { return instance_renderer; }
+        [[nodiscard]] IndirectInstanceRenderer& getIndirectInstanceRenderer() noexcept { return indirect_instance_renderer; }
+        [[nodiscard]] const IndirectInstanceRenderer& getIndirectInstanceRenderer() const noexcept { return indirect_instance_renderer; }
 
         /**
          * Sets of methods to handle RendererPasses
@@ -81,7 +87,12 @@ namespace Limitless {
 
         class Builder {
         private:
-            std::unique_ptr<Renderer> renderer;
+            /// Non-null when building a new renderer from `Builder()`; null when mutating an existing one via `Builder(Renderer&)`.
+            std::unique_ptr<Renderer> owned_renderer_;
+            /// Always points at the renderer whose `passes` are being edited (`owned_renderer_.get()` or external).
+            Renderer* target_{nullptr};
+
+            Renderer& target() noexcept { return *target_; }
         public:
             /**
              * Creates Builder with new instance of Renderer
@@ -89,11 +100,7 @@ namespace Limitless {
             Builder();
 
             /**
-             * Creates Builder for specified Renderer
-             *
-             * takes ownership of passes
-             *
-             * note: use build(Renderer&) to transfer back
+             * Creates Builder that mutates an existing renderer's passes in place (so new passes keep a valid `Renderer&`).
              */
             explicit Builder(Renderer& from);
 
@@ -119,12 +126,12 @@ namespace Limitless {
             Builder& addDecalPass();
             Builder& addSkyboxPass();
             Builder& addSSAOPass();
+            Builder& addHBAOPass();
             Builder& addSSRPass();
             Builder& addDeferredLightingPass();
             Builder& addTranslucentPass();
             Builder& addBloomPass();
             Builder& addOutlinePass();
-            Builder& addCompositeWithBloomPass();
             Builder& addCompositePass();
             Builder& addFXAAPass();
             Builder& addScreenPass();
@@ -135,8 +142,8 @@ namespace Limitless {
              */
             template<typename RenderPass, typename... Args>
             Builder& add(Args&&... args) {
-                auto* pass = new RenderPass(*renderer, std::forward<Args>(args)...);
-                renderer->passes.emplace_back(pass);
+                auto* pass = new RenderPass(target(), std::forward<Args>(args)...);
+                target().passes.emplace_back(pass);
                 return *this;
             }
 
@@ -145,13 +152,13 @@ namespace Limitless {
              */
             template<typename Before, typename RenderPass, typename... Args>
             Builder& addBefore(Args&&... args) {
-                auto it = std::find_if(renderer->passes.begin(), renderer->passes.end(), [](auto& pass) {
+                auto it = std::find_if(target().passes.begin(), target().passes.end(), [](auto& pass) {
                     return dynamic_cast<Before*>(pass.get()) ? true : false;
                 });
 
-                if (it != renderer->passes.end()) {
-                    auto* pass = new RenderPass(*renderer, std::forward<Args>(args)...);
-                    renderer->passes.insert(it, pass);
+                if (it != target().passes.end()) {
+                    auto* pass = new RenderPass(target(), std::forward<Args>(args)...);
+                    target().passes.insert(it, pass);
                 } else {
                     throw render_pass_not_found {"Cannot add RenderPass before specified element, does not exist"};
                 }
@@ -164,13 +171,14 @@ namespace Limitless {
              */
             template<typename After, typename RenderPass, typename... Args>
             Builder& addAfter(Args&&... args) {
-                auto it = std::find_if(renderer->passes.begin(), renderer->passes.end(), [](const auto& pass) {
+                auto it = std::find_if(target().passes.begin(), target().passes.end(), [](const auto& pass) {
                     return dynamic_cast<After*>(pass.get()) != nullptr ? true : false;
                 });
 
-                if (it != renderer->passes.end()) {
-                    auto pass = std::make_unique<RenderPass>(*renderer, std::forward<Args>(args)...);
-                    renderer->passes.insert(it++, std::move(pass));
+                if (it != target().passes.end()) {
+                    ++it;
+                    auto pass = std::make_unique<RenderPass>(target(), std::forward<Args>(args)...);
+                    target().passes.insert(it, std::move(pass));
                 } else {
                     throw render_pass_not_found {"Cannot add RenderPass after specified element, does not exist"};
                 }
@@ -183,12 +191,12 @@ namespace Limitless {
              */
             template<typename RendererPass>
             Builder& remove() {
-                auto it = std::find_if(renderer->passes.begin(), renderer->passes.end(), [](auto& pass) {
+                auto it = std::find_if(target().passes.begin(), target().passes.end(), [](auto& pass) {
                     return dynamic_cast<RendererPass*>(pass.get()) != nullptr ? true : false;
                 });
 
-                if (it != renderer->passes.end()) {
-                    renderer->passes.erase(it);
+                if (it != target().passes.end()) {
+                    target().passes.erase(it);
                 }
 
                 return *this;

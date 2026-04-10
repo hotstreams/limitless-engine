@@ -9,7 +9,8 @@ using namespace Limitless;
 
 BloomPass::BloomPass(Renderer& renderer)
     : RendererPass {renderer}
-    , bloom {renderer.getSettings(), renderer.getResolution()} {
+    , bloom {} {
+    bloom.onFramebufferChange(renderer.getResolution());
 }
 
 void BloomPass::render(
@@ -20,7 +21,7 @@ void BloomPass::render(
         [[maybe_unused]] const Camera &camera,
         [[maybe_unused]] UniformSetter &setter) {
     ProfilerScope profile_scope {"Bloom"};
-    bloom.process(ctx, assets, renderer.getPass<TranslucentPass>().getResult());
+    bloom.process(ctx, assets, renderer.getPass<TranslucentPass>().getResult(), renderer.getSettings());
 }
 
 void BloomPass::onFramebufferChange(glm::uvec2 size) {

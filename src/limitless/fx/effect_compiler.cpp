@@ -19,6 +19,11 @@ template<typename T>
 void EffectCompiler::compile(ShaderType shader_type, const T& emitter) {
     if (!assets.shaders.reserveIfNotContains({emitter.getUniqueShaderType(), shader_type})) {
         const auto props = [&] (Shader& shader) {
+            // Keep pass-specific defines consistent with material compilation.
+            if (shader_type == ShaderType::DirectionalShadow) {
+                shader.replaceKey("ENGINE::COMMON", "ENGINE::COMMON\n#define ENGINE_PASS_DIRECTIONAL_SHADOW\n");
+            }
+
             EffectShaderDefineReplacer::replaceMaterialDependentDefine(shader, emitter.getMaterial(), InstanceType::Effect, emitter);
         };
 

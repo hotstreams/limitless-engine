@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limitless/models/mesh_builder.hpp>
+#include <limitless/core/vertex_stream/vertex_stream_builder.hpp>
 
 using namespace Limitless;
 
@@ -53,8 +54,16 @@ std::shared_ptr<Mesh> Mesh::Builder::build() {
         return std::shared_ptr<BatchedMesh>(new BatchedMesh(std::move(mesh->stream), "batched", std::move(descriptions)));
     }
     
-    return std::shared_ptr<Mesh>(new Mesh(
+    auto mesh = std::shared_ptr<Mesh>(new Mesh(
         std::move(name_), 
         std::move(vertex_stream_)
     ));
+
+    // If the vertex stream was built with batching, set the draw info on the mesh
+    if (auto draw_info = VertexStream::Builder::getLastDrawInfo()) {
+        mesh->setDrawInfo(*draw_info);
+        VertexStream::Builder::clearLastDrawInfo();
+    }
+
+    return mesh;
 }

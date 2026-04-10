@@ -3,6 +3,10 @@
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 
+#include <algorithm>
+#include <cmath>
+#include <vector>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
@@ -21,6 +25,132 @@ namespace {
     constexpr auto S3TC_EXTENSION = "GL_EXT_texture_compression_s3tc";
     constexpr auto BPTC_EXTENSION = "GL_ARB_texture_compression_bptc";
     constexpr auto RGTC_EXTENSION = "GL_ARB_texture_compression_rgtc";
+
+    constexpr float kMinAlphaCoveragePow = 0.05f;
+    constexpr float kMaxAlphaCoveragePow = 8.0f;
+
+    static float computeAlphaCoverage(const std::vector<float>& alpha, float cutoff) {
+        if (alpha.empty()) return 0.0f;
+        size_t count = 0;
+        for (float a : alpha) {
+            if (a > cutoff) ++count;
+        }
+        return static_cast<float>(count) / static_cast<float>(alpha.size());
+    }
+
+    static float computeAlphaCoveragePow(const std::vector<float>& alpha, float cutoff, float p) {
+        if (alpha.empty()) return 0.0f;
+        size_t count = 0;
+        for (float a : alpha) {
+            // pow(0, p) == 0; pow(1, p) == 1.
+            const float ap = std::pow(a, p);
+            if (ap > cutoff) ++count;
+        }
+        return static_cast<float>(count) / static_cast<float>(alpha.size());
+    }
+
+    static float solveAlphaPowForCoverage(const std::vector<float>& alpha, float cutoff, float target_coverage) {
+        // Coverage is monotonic decreasing with p: smaller p boosts alpha (more coverage).
+        float lo = kMinAlphaCoveragePow;
+        float hi = kMaxAlphaCoveragePow;
+
+        const float cov_lo = computeAlphaCoveragePow(alpha, cutoff, lo);
+        const float cov_hi = computeAlphaCoveragePow(alpha, cutoff, hi);
+
+        if (target_coverage >= cov_lo) {
+            return lo;
+        }
+        if (target_coverage <= cov_hi) {
+            return hi;
+        }
+
+        // Binary search for p such that coverage ~= target.
+        for (int i = 0; i < 16; ++i) {
+            const float mid = 0.5f * (lo + hi);
+            const float cov_mid = computeAlphaCoveragePow(alpha, cutoff, mid);
+            if (cov_mid > target_coverage) {
+                // too much coverage -> increase p (reduce alpha)
+                lo = mid;
+            } else {
+                hi = mid;
+            }
+        }
+        return 0.5f * (lo + hi);
+    }
+
+    static void applyAlphaPowToMip(std::vector<uint8_t>& rgba, float p) {
+        // rgba is 4-channel uint8
+        for (size_t i = 3; i < rgba.size(); i += 4) {
+            const float a = static_cast<float>(rgba[i]) / 255.0f;
+            const float ap = std::pow(a, p);
+            const int ai = static_cast<int>(ap * 255.0f + 0.5f);
+            rgba[i] = static_cast<uint8_t>(std::clamp(ai, 0, 255));
+        }
+    }
+
+    static std::vector<float> extractAlpha01(const std::vector<uint8_t>& rgba) {
+        std::vector<float> alpha;
+        alpha.reserve(rgba.size() / 4);
+        for (size_t i = 3; i < rgba.size(); i += 4) {
+            alpha.emplace_back(static_cast<float>(rgba[i]) / 255.0f);
+        }
+        return alpha;
+    }
+
+    static void generateCoveragePreservingMipChain(
+        std::vector<std::vector<uint8_t>>& out_mips,
+        int width,
+        int height,
+        const uint8_t* level0_rgba,
+        const TextureLoaderFlags& flags
+    ) {
+        // Only supports RGBA8 input for now.
+        const int channels = 4;
+        const int levels = static_cast<int>(std::floor(std::log2(static_cast<float>(std::max(width, height))))) + 1;
+        out_mips.clear();
+        out_mips.resize(levels);
+
+        out_mips[0].assign(level0_rgba, level0_rgba + (width * height * channels));
+
+        // Target coverage from the top mip.
+        const float cutoff = flags.alpha_coverage_cutoff;
+        const float target_coverage = computeAlphaCoverage(extractAlpha01(out_mips[0]), cutoff);
+
+        int prev_w = width;
+        int prev_h = height;
+
+        for (int level = 1; level < levels; ++level) {
+            const int w = std::max(1, prev_w / 2);
+            const int h = std::max(1, prev_h / 2);
+            out_mips[level].resize(w * h * channels);
+
+            const unsigned char* src = out_mips[level - 1].data();
+            unsigned char* dst = out_mips[level].data();
+
+            if (flags.space == TextureLoaderFlags::Space::sRGB) {
+                // Correct sRGB downsample for RGB, linear for alpha.
+                stbir_resize_uint8_srgb(
+                    src, prev_w, prev_h, 0,
+                    dst, w, h, 0,
+                    channels, 3, 0
+                );
+            } else {
+                stbir_resize_uint8(
+                    src, prev_w, prev_h, 0,
+                    dst, w, h, 0,
+                    channels
+                );
+            }
+
+            // Adjust alpha in this mip to preserve coverage w.r.t. alpha cutoff.
+            auto alpha = extractAlpha01(out_mips[level]);
+            const float p = solveAlphaPowForCoverage(alpha, cutoff, target_coverage);
+            applyAlphaPowToMip(out_mips[level], p);
+
+            prev_w = w;
+            prev_h = h;
+        }
+    }
 }
 
 void TextureLoader::setFormat(Texture::Builder& builder, const TextureLoaderFlags& flags, int channels) {
@@ -162,6 +292,66 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
 
     setDownScale(width, height, channels, data, flags);
 
+    // Special path: generate coverage-preserving mipmaps for alpha-cutout foliage.
+    // We do it on CPU because GPU mipmap generation (box filter) causes coverage loss at distance.
+    if (flags.mipmap && flags.preserve_alpha_coverage && channels == 4 && flags.downscale == TextureLoaderFlags::DownScale::None) {
+        std::vector<std::vector<uint8_t>> mips;
+        generateCoveragePreservingMipChain(mips, width, height, data, flags);
+
+        // We no longer need original stb buffer.
+        stbi_image_free(data);
+
+        Texture::Builder builder = Texture::builder();
+        builder.target(Texture::Type::Tex2D)
+            .levels(static_cast<uint32_t>(mips.size()))
+            .size({width, height})
+            .data_type(Texture::DataType::UnsignedByte)
+            .data(mips[0].data())
+            .path(path);
+
+        // Disable GPU mip generation; we upload mips ourselves.
+        auto local_flags = flags;
+        local_flags.mipmap = false;
+
+        setFormat(builder, local_flags, channels);
+        setTextureParameters(builder, local_flags);
+
+        // Force mipmapped min filter even though local_flags.mipmap=false (we provide mip levels manually).
+        switch (flags.filter) {
+            case TextureLoaderFlags::Filter::Linear:
+                builder.min_filter(Texture::Filter::LinearMipmapLinear);
+                builder.mag_filter(Texture::Filter::Linear);
+                break;
+            case TextureLoaderFlags::Filter::Nearest:
+                builder.min_filter(Texture::Filter::NearestMipmapNearest);
+                builder.mag_filter(Texture::Filter::Nearest);
+                break;
+        }
+
+        // Disable compression for this path (we upload raw mip levels).
+        builder.internal_format((flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGBA8 : Texture::InternalFormat::RGBA8)
+               .format(Texture::Format::RGBA);
+
+        auto texture = builder.build();
+
+        // Upload remaining mip levels.
+        int w = width;
+        int h = height;
+        for (size_t level = 1; level < mips.size(); ++level) {
+            w = std::max(1, w / 2);
+            h = std::max(1, h / 2);
+            if (texture->isImmutable()) {
+                texture->subImage(static_cast<uint32_t>(level), {0, 0}, {static_cast<uint32_t>(w), static_cast<uint32_t>(h)}, mips[level].data());
+            } else {
+                texture->image(static_cast<uint32_t>(level), {static_cast<uint32_t>(w), static_cast<uint32_t>(h)}, mips[level].data());
+            }
+        }
+
+        setAnisotropicFilter(texture, flags);
+        assets.textures.add(path.stem().string(), texture);
+        return texture;
+    }
+
     Texture::Builder builder = Texture::builder();
 
     builder.target(Texture::Type::Tex2D)
@@ -200,6 +390,57 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const std::string& 
     }
 
     setDownScale(width, height, channels, data, flags);
+
+    if (flags.mipmap && flags.preserve_alpha_coverage && channels == 4 && flags.downscale == TextureLoaderFlags::DownScale::None) {
+        std::vector<std::vector<uint8_t>> mips;
+        generateCoveragePreservingMipChain(mips, width, height, data, flags);
+        stbi_image_free(data);
+
+        Texture::Builder builder = Texture::builder();
+        builder.target(Texture::Type::Tex2D)
+            .levels(static_cast<uint32_t>(mips.size()))
+            .size({width, height})
+            .data_type(Texture::DataType::UnsignedByte)
+            .data(mips[0].data());
+
+        auto local_flags = flags;
+        local_flags.mipmap = false;
+
+        setFormat(builder, local_flags, channels);
+        setTextureParameters(builder, local_flags);
+
+        switch (flags.filter) {
+            case TextureLoaderFlags::Filter::Linear:
+                builder.min_filter(Texture::Filter::LinearMipmapLinear);
+                builder.mag_filter(Texture::Filter::Linear);
+                break;
+            case TextureLoaderFlags::Filter::Nearest:
+                builder.min_filter(Texture::Filter::NearestMipmapNearest);
+                builder.mag_filter(Texture::Filter::Nearest);
+                break;
+        }
+
+        builder.internal_format((flags.space == TextureLoaderFlags::Space::sRGB) ? Texture::InternalFormat::sRGBA8 : Texture::InternalFormat::RGBA8)
+               .format(Texture::Format::RGBA);
+
+        auto texture = builder.build();
+
+        int w = width;
+        int h = height;
+        for (size_t level = 1; level < mips.size(); ++level) {
+            w = std::max(1, w / 2);
+            h = std::max(1, h / 2);
+            if (texture->isImmutable()) {
+                texture->subImage(static_cast<uint32_t>(level), {0, 0}, {static_cast<uint32_t>(w), static_cast<uint32_t>(h)}, mips[level].data());
+            } else {
+                texture->image(static_cast<uint32_t>(level), {static_cast<uint32_t>(w), static_cast<uint32_t>(h)}, mips[level].data());
+            }
+        }
+
+        setAnisotropicFilter(texture, flags);
+        assets.textures.add(name, texture);
+        return texture;
+    }
 
     Texture::Builder builder = Texture::builder();
 

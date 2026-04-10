@@ -4,6 +4,7 @@
 #include <limitless/models/mesh_builder.hpp>
 
 #include <limitless/core/vertex_stream/vertex_stream_builder.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 
 using namespace Limitless;
 
@@ -12,6 +13,14 @@ Cube::Cube()
         "cube",
         {[]() {
             calculateTangentSpaceTriangle(vertices);
+
+            // Build sequential index buffer so the cube is an indexed stream
+            // (required for geometry batching / indirect draw)
+            std::vector<GLuint> indices(vertices.size());
+            for (GLuint i = 0; i < static_cast<GLuint>(vertices.size()); ++i) {
+                indices[i] = i;
+            }
+
             return Mesh::builder()
             .name("cube_mesh")
             .vertex_stream(
@@ -21,8 +30,10 @@ Cube::Cube()
                     .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, tangent))
                     .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, uv))
                     .vertices(vertices)
+                    .indices(indices)
                     .usage(VertexStream::Usage::Static)
                     .draw(VertexStream::Draw::Triangles)
+                    .batched(RendererSettings::geometry_batching_enabled)
                     .build()
             )
             .build();
@@ -30,6 +41,7 @@ Cube::Cube()
         {nullptr},
         LodTransition::None,
         LodSelection::CameraDistance,
-        {0.0f}
+        {0.0f},
+        0.25f
     ) {
 }

@@ -135,5 +135,19 @@ namespace Limitless {
 
         [[nodiscard]] const auto& getMeshes() const noexcept { return lod_group.getCurrentMeshes(); }
         auto& getMeshes() noexcept { return lod_group.getCurrentMeshes(); }
+
+        /**
+         * Gets the underlying Model
+         */
+        [[nodiscard]] const std::shared_ptr<Model>& getModel() const noexcept { return model; }
+
+        /**
+         * Gets the LOD group instance for LOD-level queries
+         */
+        [[nodiscard]] const LodGroupInstance& getLodGroup() const noexcept { return lod_group; }
+        [[nodiscard]] LodGroupInstance& getLodGroup() noexcept { return lod_group; }
+
+        void setLodCrossFadeEffectEnabled(bool enabled) noexcept { lod_group.setCrossFadeEffectEnabled(enabled); }
+        [[nodiscard]] bool isLodCrossFadeEffectEnabled() const noexcept { return lod_group.isCrossFadeEffectEnabled(); }
     };
 }

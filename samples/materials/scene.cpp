@@ -31,28 +31,69 @@ void LimitlessMaterials::Scene::setUpModels() {
     scene.add(Instance::builder()
                       .model(assets.models.at("sphere"))
                       .material(assets.materials.at("color"))
-                      .position({29.0f, 1.0f, 1.0f})
+                      .position({1.5f, 1.0f, 0.0f})
                       .build()
     );
 
     scene.add(Instance::builder()
                       .model(assets.models.at("sphere"))
                       .material(assets.materials.at("albedo"))
-                      .position({29.0f, 1.0f, 4.0f })
+                      .position({-1.5f, 1.0f, 0.0f })
+                      .build()
+    );
+
+    // Billboard demos (placed close to origin for easy testing)
+    scene.add(Instance::builder()
+                      .model(assets.models.at("plane"))
+                      .material(assets.materials.at("billboard_spherical"))
+                      .position({0.0f, 1.25f, 1.5f})
+                      .scale(glm::vec3{1.5f, 2.5f, 1.0f})
+                      .build()
+    );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("plane"))
+                      .material(assets.materials.at("billboard_cyl"))
+                      .position({1.75f, 1.25f, 1.5f})
+                      .scale(glm::vec3{1.5f, 2.5f, 1.0f})
+                      .build()
+    );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("plane"))
+                      .material(assets.materials.at("billboard_cyl_x"))
+                      .position({-1.75f, 1.25f, 1.5f})
+                      .scale(glm::vec3{1.5f, 2.5f, 1.0f})
+                      .build()
+    );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("plane"))
+                      .material(assets.materials.at("billboard_screen"))
+                      .position({0.0f, 1.25f, -0.25f})
+                      .scale(glm::vec3{1.5f, 2.5f, 1.0f})
+                      .build()
+    );
+
+    scene.add(Instance::builder()
+                      .model(assets.models.at("plane"))
+                      .material(assets.materials.at("billboard_cyl_pivot"))
+                      .position({0.0f, 1.25f, 3.25f})
+                      .scale(glm::vec3{1.5f, 2.5f, 1.0f})
                       .build()
     );
 
     scene.add(Instance::builder()
                       .model(assets.models.at("sphere"))
                       .material(assets.materials.at("emissive_color"))
-                      .position({29.0f, 1.0f, 7.0f })
+                      .position({0.0f, 1.0f, 5.0f })
                       .build()
     );
 
     open_model = Instance::builder()
             .model(assets.models.at("plane"))
             .material(assets.materials.at("emissive_mask"))
-            .position({29.0f, 1.0f, 10.0f})
+            .position({3.0f, 1.0f, 0.0f})
             .rotation(glm::vec3{M_PI_2, M_PI_2 * 3, 0.0f})
             .asModel();
     scene.add(open_model);

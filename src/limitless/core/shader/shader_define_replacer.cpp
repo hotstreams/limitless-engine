@@ -26,10 +26,22 @@ std::string ShaderDefineReplacer::getExtensionDefine() {
         extensions.append(extension_explicit_uniform_location);
     }
 
+    // if (ContextInitializer::isExtensionSupported(indirect_draw)) {
+    //     extensions.append(indirect_draw_extension);
+    // }
+
+    if (ContextInitializer::isExtensionSupported(shader_draw_parameters)) {
+        extensions.append(shader_draw_extension);
+    }
+
     if (ContextInitializer::isExtensionSupported(bindless_texture)) {
         extensions.append(extension_bindless_texture);
         extensions.append(bindless_texture_define);
         extensions.append(bindless_samplers);
+    }
+
+    if (ContextInitializer::shouldEnableDerivativeControlExtension()) {
+        extensions.append(extension_derivative_control);
     }
 
     return extensions;
@@ -42,6 +54,7 @@ std::string ShaderDefineReplacer::getSettingsDefine(std::optional<RendererSettin
 std::string ShaderDefineReplacer::getCommonDefine(std::optional<RendererSettings> settings) {
     std::string define = getVersionDefine();
     define.append(getExtensionDefine());
+    define.append(ContextInitializer::getGlslBuiltinFallbackDefines());
     define.append(getSettingsDefine(settings));
     return define;
 }

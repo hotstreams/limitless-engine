@@ -75,7 +75,7 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     /*
      * TODO: ref
      */
-    if (settings.screen_space_ambient_occlusion) {
+    if (settings.ambient_occlusion_enabled()) {
         add<SSAOPass>(ctx, size);
     }
 
@@ -108,11 +108,7 @@ void Deferred::build(Context& ctx, const RendererSettings& settings) {
     /*
      *  Combines shaded translucent result and bloom
      */
-    if (settings.bloom) {
-        add<CompositeWithBloomPass>(size);
-    } else {
-        add<CompositePass>(size);
-    }
+    add<CompositePass>(size);
 
 //    if (settings.fast_approximate_antialiasing) {
 //        add<FXAAPass>(size);

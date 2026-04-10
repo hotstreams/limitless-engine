@@ -9,9 +9,33 @@
 #include <limitless/core/vertex_stream/vertex_stream.hpp>
 #include <limitless/ms/batched_material.hpp>
 #include <limitless/renderer/renderer_settings.hpp>
+#include <limitless/core/uniform/uniform_value.hpp>
 
 using namespace Limitless::ms;
 using namespace Limitless;
+
+namespace {
+/** Instanced + SkeletalInstanced: SSBO model_buffer and gl_InstanceID */
+[[nodiscard]] bool usesInstancedModelBuffer(InstanceType t) noexcept {
+    return t == InstanceType::Instanced || t == InstanceType::SkeletalInstanced;
+}
+
+/** Global packed model SSBO: base instance + gl_InstanceID (see ENGINE_GLOBAL_MODEL_INSTANCE_SSBO) */
+[[nodiscard]] bool usesGlobalModelInstanceIndex(const RendererSettings& settings, InstanceType t) noexcept {
+    if (!settings.global_model_instance_ssbo) {
+        return false;
+    }
+    switch (t) {
+    case InstanceType::Model:
+    case InstanceType::Terrain:
+    case InstanceType::Instanced:
+    case InstanceType::SkeletalInstanced:
+        return true;
+    default:
+        return false;
+    }
+}
+}
 
 VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
 {
@@ -20,17 +44,28 @@ VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
     case InstanceType::Model:
     case InstanceType::Instanced:
     case InstanceType::Decal:
+    case InstanceType::IndirectModel:
         return {
             {0, DataType::Vec3},
             {1, DataType::Vec3},
-            {2, DataType::Vec3},
-            {3, DataType::Vec2}
+            // Tangent is vec4: xyz=tangent, w=handedness (bitangent sign).
+            {2, DataType::Vec4},
+            {3, DataType::Vec2},
+            // Optional extra UV sets (SpeedTree wind payload, etc.). If a mesh doesn't provide them,
+            // OpenGL will feed default attribute values.
+            {4, DataType::Vec2},
+            {5, DataType::Vec2},
+            {6, DataType::Vec2},
+            {7, DataType::Vec2},
+            {8, DataType::Vec2}
         };
     case InstanceType::Skeletal:
+    case InstanceType::SkeletalInstanced:
         return {
             {0, DataType::Vec3},
             {1, DataType::Vec3},
-            {2, DataType::Vec3},
+            // Tangent is vec4: xyz=tangent, w=handedness (bitangent sign).
+            {2, DataType::Vec4},
             {3, DataType::Vec2},
             {4, DataType::IVec4},
             {5, DataType::Vec4}
@@ -41,7 +76,6 @@ VertexStream::InputType getInputTypeFromInstanceType(InstanceType type)
         };
     case InstanceType::BatchedModel:
     case InstanceType::Effect:
-    case InstanceType::SkeletalInstanced:
         throw std::runtime_error("not implemented");
     }
 }
@@ -53,13 +87,20 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
     case InstanceType::Model:
     case InstanceType::Instanced:
     case InstanceType::Decal:
+    case InstanceType::IndirectModel:
         return {
             {0, "position"},
             {1, "normal"},
             {2, "tangent"},
-            {3, "uv"}
+            {3, "uv"},
+            {4, "uv1"},
+            {5, "uv2"},
+            {6, "uv3"},
+            {7, "uv4"},
+            {8, "uv5"}
         };
     case InstanceType::Skeletal:
+    case InstanceType::SkeletalInstanced:
         return {
                 {0, "position"},
                 {1, "normal"},
@@ -83,7 +124,6 @@ std::map<uint8_t, std::string> getNameMappingFromInstanceType(InstanceType type)
             {0, "position"}
         };
     case InstanceType::Effect:
-    case InstanceType::SkeletalInstanced:
         throw std::runtime_error("not implemented");
     }
 }
@@ -170,9 +210,9 @@ void MaterialShaderDefineReplacer::replaceMaterialDependentDefine(
     shader.replaceKey(SNIPPET_DEFINE[SnippetDefineType::CustomShading], material.getShadingSnippet());
 
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::Stream], getVertexStreamDeclaration(model_shader) + getVertexStreamGettersDeclaration(model_shader));
-    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::VertexContext], getVertexContextDeclaration(model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::VertexContext], getVertexContextDeclaration(model_shader, settings));
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockOut], getVertexContextInterfaceBlockOut(material, settings, model_shader));
-    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(model_shader));
+    shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::ContextAssignment], getVertexContextCompute(model_shader, settings));
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::PassThrough], getVertexPassThrough(material, settings, model_shader));
 
     shader.replaceKey(VERTEX_STREAM_DEFINE[VertexDefineType::InterfaceBlockIn], getVertexContextInterfaceBlockIn(material, settings, model_shader) + getVertexContextInterfaceBlockInGetters(material, settings, model_shader));
@@ -340,7 +380,8 @@ std::string MaterialShaderDefineReplacer::getVertexStreamGettersDeclaration(Inst
 }
 
 std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(
-    InstanceType type
+    InstanceType type,
+    const RendererSettings& settings
 ) {
     std::string context_declaration = "struct VertexContext {\n";
 
@@ -355,8 +396,13 @@ std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(
         context_declaration += generate_attribute_decl(name_map.at(index), type);
     }
 
-    if (type == InstanceType::Instanced) {
+    if (usesInstancedModelBuffer(type) || usesGlobalModelInstanceIndex(settings, type)) {
         context_declaration += " int instance_id;\n";
+    }
+
+    if (type == InstanceType::IndirectModel) {
+        context_declaration += " int instance_id;\n";
+        context_declaration += " int draw_id;\n";
     }
 
     context_declaration += "};\n";
@@ -365,7 +411,8 @@ std::string MaterialShaderDefineReplacer::getVertexContextDeclaration(
 }
 
 std::string MaterialShaderDefineReplacer::getVertexContextCompute(
-    InstanceType type
+    InstanceType type,
+    const RendererSettings& settings
 ) {
     std::string context_assignment;
 
@@ -409,8 +456,21 @@ std::string MaterialShaderDefineReplacer::getVertexContextCompute(
         context_assignment += get_assignment(name_map.at(index));
     }
 
-    if (type == InstanceType::Instanced) {
-        context_assignment += "vctx.instance_id = gl_InstanceID;\n";
+    if (usesInstancedModelBuffer(type)) {
+        if (usesGlobalModelInstanceIndex(settings, type)) {
+            context_assignment += "vctx.instance_id = int(gl_BaseInstance) + gl_InstanceID;\n";
+        } else {
+            context_assignment += "vctx.instance_id = gl_InstanceID;\n";
+        }
+    } else if (usesGlobalModelInstanceIndex(settings, type)) {
+        context_assignment += "vctx.instance_id = int(gl_BaseInstance) + gl_InstanceID;\n";
+    }
+
+    if (type == InstanceType::IndirectModel) {
+        // For indirect draw: gl_BaseInstance + gl_InstanceID gives the index in instance SSBO
+        context_assignment += "vctx.instance_id = gl_BaseInstance + gl_InstanceID;\n";
+        // gl_DrawID (from ARB_shader_draw_parameters) indexes per-draw resources (textures)
+        context_assignment += "vctx.draw_id = gl_DrawID;\n";
     }
 
     return context_assignment;
@@ -446,8 +506,13 @@ std::string MaterialShaderDefineReplacer::getVertexContextInterfaceBlock(
         context += "mat3 TBN;\n";
     }
 
-    if (type == InstanceType::Instanced) {
+    if (usesInstancedModelBuffer(type) || usesGlobalModelInstanceIndex(settings, type)) {
         context += "flat int instance_id;\n";
+    }
+
+    if (type == InstanceType::IndirectModel) {
+        context += "flat int instance_id;\n";
+        context += "flat int draw_id;\n";
     }
 
     context += "}";
@@ -481,8 +546,13 @@ std::string MaterialShaderDefineReplacer::getFragmentContextDeclaration(
         context_declaration += "mat3 TBN;\n";
     }
 
-    if (type == InstanceType::Instanced) {
+    if (usesInstancedModelBuffer(type) || usesGlobalModelInstanceIndex(settings, type)) {
         context_declaration += "int instance_id;\n";
+    }
+
+    if (type == InstanceType::IndirectModel) {
+        context_declaration += "int instance_id;\n";
+        context_declaration += "int draw_id;\n";
     }
 
     context_declaration += "};\n";
@@ -569,8 +639,13 @@ std::string MaterialShaderDefineReplacer::getVertexContextInterfaceBlockInGetter
         getters += "mat3 getVertexTBN() {\n\treturn _in_vertex_context.TBN;\n}";
     }
 
-    if (type == InstanceType::Instanced) {
+    if (usesInstancedModelBuffer(type) || usesGlobalModelInstanceIndex(settings, type)) {
         getters += "int getVertexInstanceId() {\n\treturn _in_vertex_context.instance_id;\n}";
+    }
+
+    if (type == InstanceType::IndirectModel) {
+        getters += "int getVertexInstanceId() {\n\treturn _in_vertex_context.instance_id;\n}";
+        getters += "int getVertexDrawId() {\n\treturn _in_vertex_context.draw_id;\n}";
     }
 
     return getters;
@@ -630,8 +705,13 @@ std::string MaterialShaderDefineReplacer::getFragmentVertexContextCompute(
         context += "vctx.TBN = getVertexTBN();\n";
     }
 
-    if (type == InstanceType::Instanced) {
+    if (usesInstancedModelBuffer(type) || usesGlobalModelInstanceIndex(settings, type)) {
         context += "vctx.instance_id = getVertexInstanceId();\n";
+    }
+
+    if (type == InstanceType::IndirectModel) {
+        context += "vctx.instance_id = getVertexInstanceId();\n";
+        context += "vctx.draw_id = getVertexDrawId();\n";
     }
 
     context += "\treturn vctx;\n}\n";
@@ -665,8 +745,13 @@ std::string MaterialShaderDefineReplacer::getVertexPassThrough(
         pass_through += "_out_vertex_context.TBN = ectx.TBN;\n";
     }
 
-    if (type == InstanceType::Instanced) {
+    if (usesInstancedModelBuffer(type) || usesGlobalModelInstanceIndex(settings, type)) {
         pass_through += "_out_vertex_context.instance_id = vctx.instance_id;\n";
+    }
+
+    if (type == InstanceType::IndirectModel) {
+        pass_through += "_out_vertex_context.instance_id = vctx.instance_id;\n";
+        pass_through += "_out_vertex_context.draw_id = vctx.draw_id;\n";
     }
 
     return pass_through;

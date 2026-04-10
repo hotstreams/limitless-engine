@@ -11,6 +11,11 @@ ModelInstance::ModelInstance(InstanceType shader, decltype(model) _model, const 
     : Instance(shader, position)
     , model {std::move(_model)}
     , lod_group {model} {
+    // Ensure local AABB is always available for GPU-side effects (wind, etc.).
+    // This populates Instance::custom_bounding_box which we also pack into the instance buffer.
+    if (!custom_bounding_box) {
+        setBoundingBox(model->getBoundingBox());
+    }
     updateBoundingBox();
 }
 
@@ -41,9 +46,11 @@ std::unique_ptr<Instance> ModelInstance::clone() noexcept {
 }
 
 void ModelInstance::updateBoundingBox() noexcept {
-    bounding_box.center = glm::vec4{position, 1.0f} + glm::vec4{model->getBoundingBox().center, 1.0f} * final_matrix;
-    bounding_box.size = glm::vec4{model->getBoundingBox().size, 1.0f} * final_matrix;
-    bounding_box.size = glm::abs(bounding_box.size);
+    if (custom_bounding_box) {
+        bounding_box = transformBoundingBox(*custom_bounding_box, final_matrix);
+    } else {
+        bounding_box = transformBoundingBox(model->getBoundingBox(), final_matrix);
+    }
 }
 
 void ModelInstance::update(const Camera &camera) {

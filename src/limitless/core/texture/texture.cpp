@@ -3,6 +3,7 @@
 #include <limitless/core/texture/extension_texture.hpp>
 #include <limitless/core/texture/texture_builder.hpp>
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/core/context.hpp>
 #include <limitless/core/framebuffer.hpp>
 #include <utility>
 
@@ -193,9 +194,15 @@ void Texture::resize(glm::uvec3 _size) {
     }
 
     if (isImmutable()) {
+        const auto old_id = texture->getId();
         texture = std::unique_ptr<ExtensionTexture>(texture->clone());
         texture->generateId();
         storage();
+
+        // the texture object has a new GL id; clear any cached bindings that pointed to the old one
+        Context::apply([&] (Context& ctx) {
+            ctx.clearTextureBindings(old_id);
+        });
     }
 }
 

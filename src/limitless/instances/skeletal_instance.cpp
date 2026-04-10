@@ -86,7 +86,9 @@ void SkeletalInstance::updateAnimationFrame() {
         throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
     }
 
-    bone_buffer->mapData(bone_transform.data(), sizeof(glm::mat4) * bone_transform.size());
+    if (gpu_bone_upload_enabled_) {
+        bone_buffer->mapData(bone_transform.data(), sizeof(glm::mat4) * bone_transform.size());
+    }
 }
 
 const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const noexcept {
@@ -122,7 +124,8 @@ SkeletalInstance::SkeletalInstance(const SkeletalInstance& rhs) noexcept
     , animation {rhs.animation}
     , paused {rhs.paused}
     , last_time {rhs.last_time}
-    , animation_duration {rhs.animation_duration} {
+    , animation_duration {rhs.animation_duration}
+    , gpu_bone_upload_enabled_ {rhs.gpu_bone_upload_enabled_} {
     initializeBuffer();
 }
 
@@ -178,6 +181,11 @@ SkeletalInstance& SkeletalInstance::resume() noexcept {
 
 SkeletalInstance& SkeletalInstance::stop() noexcept {
     animation = nullptr;
+    return *this;
+}
+
+SkeletalInstance& SkeletalInstance::offsetAnimationTime(double seconds) noexcept {
+    animation_duration += std::chrono::duration<double>(seconds);
     return *this;
 }
 

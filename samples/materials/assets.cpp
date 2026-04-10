@@ -23,6 +23,50 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .shading(Shading::Unlit)
             .build(*this);
 
+    // Billboard material demo (impostor-style): rotates in vertex shader, mesh-independent.
+    Material::builder()
+            .name("billboard_cyl")
+            .diffuse(TextureLoader::load(*this, assets_dir / "textures/triangle.jpg", {TextureLoaderFlags::Space::sRGB }))
+            .shading(Shading::Unlit)
+            .two_sided(true)
+            .billboard_cylindrical({0.0f, 1.0f, 0.0f}) // world-up locked (typical for trees)
+            .build(*this);
+
+    Material::builder()
+            .name("billboard_spherical")
+            .diffuse(TextureLoader::load(*this, assets_dir / "textures/triangle.jpg", {TextureLoaderFlags::Space::sRGB }))
+            .shading(Shading::Unlit)
+            .two_sided(true)
+            .billboard_spherical()
+            .build(*this);
+
+    Material::builder()
+            .name("billboard_screen")
+            .diffuse(TextureLoader::load(*this, assets_dir / "textures/triangle.jpg", {TextureLoaderFlags::Space::sRGB }))
+            .shading(Shading::Unlit)
+            .two_sided(true)
+            .billboard_screen_aligned()
+            .build(*this);
+
+    // Cylindrical with a custom axis (demo). Not a typical tree axis, but useful to validate behavior.
+    Material::builder()
+            .name("billboard_cyl_x")
+            .diffuse(TextureLoader::load(*this, assets_dir / "textures/triangle.jpg", {TextureLoaderFlags::Space::sRGB }))
+            .shading(Shading::Unlit)
+            .two_sided(true)
+            .billboard_cylindrical({1.0f, 0.0f, 0.0f})
+            .build(*this);
+
+    // Cylindrical with a custom pivot (demo). Pivot is in local/object space.
+    Material::builder()
+            .name("billboard_cyl_pivot")
+            .diffuse(TextureLoader::load(*this, assets_dir / "textures/triangle.jpg", {TextureLoaderFlags::Space::sRGB }))
+            .shading(Shading::Unlit)
+            .two_sided(true)
+            .billboard_cylindrical({0.0f, 1.0f, 0.0f})
+            .billboard_pivot({0.0f, -0.5f, 0.0f})
+            .build(*this);
+
     Material::builder()
             .name("emissive_color")
             .emissive_color({5.0f, 5.1f, 0.0f})

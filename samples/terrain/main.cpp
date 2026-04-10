@@ -19,6 +19,7 @@ namespace LimitlessMaterials {
 
         Limitless::Context context;
         Limitless::Camera camera;
+        Limitless::RendererSettings renderer_settings;
         std::unique_ptr<Limitless::Renderer> render;
         Assets assets;
         Scene scene;
@@ -46,8 +47,18 @@ namespace LimitlessMaterials {
                         .build()
             }
             , camera {window_size}
+            , renderer_settings {Limitless::RendererSettings::builder()
+//                .enable_height_fog()
+                // A visible but not overwhelming default preset for terrain sample
+                .height_fog_color(glm::vec3{0.65f, 0.75f, 0.85f})
+                .height_fog_density(0.015f)
+                .height_fog_height(0.0f)
+                .height_fog_falloff(0.08f)
+                .height_fog_start_distance(25.0f)
+                .build()}
             , render {Limitless::Renderer::builder()
-            .resolution(window_size)
+                .resolution(window_size)
+                .settings(renderer_settings)
                 .deferred()
                 .build()}
             , assets {context, *render, ENGINE_ASSETS_DIR}

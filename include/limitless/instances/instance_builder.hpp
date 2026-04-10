@@ -92,6 +92,12 @@ namespace Limitless {
         std::vector<float> texture_normal_depth_;
         std::vector<glm::vec2> texture_detile_;
 
+        // Terrain material feature toggles (compile-time shader defines)
+        bool terrain_detiling_ {true};
+        bool terrain_blending_ {true};
+        bool terrain_layering_ {true};
+        bool terrain_high_blending_ {true};
+
         void initialize(Instance& instance);
         void initialize(const std::shared_ptr<ModelInstance>& instance);
     public:
@@ -153,14 +159,116 @@ namespace Limitless {
          */
         Builder& decal_projection_mask(uint8_t mask);
 
+        /**
+         * Terrain size in vertices (width == height).
+         *
+         * This value becomes `terrain_size` in terrain shaders and is used for:
+         * - bounds checks / discard outside [0, terrain_size)
+         * - texel wrapping and UV conversion
+         *
+         * Must match the dimensions of `height_map` and `control_map` when those are created by the builder
+         * (`height()` / `control()`), and should match any externally provided textures too.
+         *
+         * Perf notes:
+         * - large sizes increase memory bandwidth for sampling and increase CPU cost when updating height/control.
+         */
         Builder& terrain_size(float terrain_size);
+
+        /**
+         * World-space spacing between terrain vertices (meters per vertex).
+         *
+         * This controls the mapping between world position and height/control texels:
+         * `terrain_texel_uv = world_xz * (1 / vertex_spacing)`.
+         *
+         * Perf/quality:
+         * - larger spacing = fewer vertices / less geometric detail
+         * - smaller spacing = more detail but more aliasing pressure and can increase clipmap update work
+         */
         Builder& vertex_spacing(float vertex_spacing);
+
+        /**
+         * Vertical displacement scale for the height map.
+         *
+         * Height is sampled from `terrain_height_texture` and multiplied by `terrain_height_scale`.
+         *
+         * Note: bounds/culling expand in Y using this value.
+         */
         Builder& height_scale(float height_scale);
+
+        /**
+         * Enables per-vertex tile bilerp for control & color maps (used by terrain layering).
+         *
+         * Shader: uniform `enable_tile_bilerp`.
+         * Effect:
+         * - when enabled, the shader blends control/color from up to 4 neighboring texels (smoother transitions)
+         * - when disabled, uses the single base texel (faster, sharper)
+         *
+         * Perf: can increase texture fetches significantly when `terrain_layering(true)`.
+         */
         Builder& enable_tile_bilerp(bool bilerp = true);
+
+        /**
+         * Threshold on derived mip level that decides when normals are bilerp'd.
+         *
+         * Shader: `normal_bilerp = region_mip < normal_bilerp_multiplier`.
+         * Higher values keep expensive normal sampling for longer distances.
+         */
         Builder& normal_bilerp_multiplier(float multiplier);
+
+        /**
+         * Threshold on derived mip level that decides when tile bilerp is considered.
+         *
+         * Shader: `tile_bilerp_candidate = region_mip < tile_bilerp_multiplier`.
+         */
         Builder& tile_bilerp_multiplier(float multiplier);
 
+        // Terrain material feature toggles (compile-time shader defines)
+        /**
+         * Enables `ENGINE_MATERIAL_TERRAIN_DETILING` (rotation/randomization to break tiling).
+         *
+         * Driven by material uniform `_detiling`.
+         * Perf: increases ALU and may use textureGrad paths.
+         */
+        Builder& terrain_detiling(bool enabled = true);
+
+        /**
+         * Enables `ENGINE_MATERIAL_TERRAIN_BLENDING` (base/extra texture blending based on control map).
+         *
+         * Driven by material uniform `_blending`.
+         * Perf: increases texture fetches depending on your control map.
+         */
+        Builder& terrain_blending(bool enabled = true);
+
+        /**
+         * Enables `ENGINE_MATERIAL_TERRAIN_LAYERING` (tile bilerp path and multi-texel control sampling).
+         *
+         * Driven by material uniform `_layering`.
+         * Perf: this is one of the biggest multipliers for texture fetches, especially with tile bilerp.
+         */
+        Builder& terrain_layering(bool enabled = true);
+
+        /**
+         * Enables `ENGINE_MATERIAL_TERRAIN_HIGH_BLENDING` (sharper / height-aware weight computation).
+         *
+         * Driven by material uniform `_height_blending`.
+         * Perf: extra ALU; quality improvement for transitions.
+         */
+        Builder& terrain_high_blending(bool enabled = true);
+
+        /**
+         * GeoClipMap base patch resolution (in vertices per tile edge).
+         *
+         * Constraints:
+         * - must be >= 4 (generation requires some minimum)
+         * - best as a power-of-two-ish size for clean rings (common: 32, 64)
+         */
         Builder& mesh_size(float mesh_size);
+
+        /**
+         * GeoClipMap LOD ring count.
+         *
+         * More rings increases visible coverage but increases draw calls / instances and update work.
+         */
         Builder& mesh_lod_count(float mesh_lod_count);
         
         /**
@@ -169,14 +277,57 @@ namespace Limitless {
          */
         Builder& auto_mesh_size();
 
+        /**
+         * Sets externally-created height map texture (Tex2D, size terrain_size x terrain_size).
+         *
+         * Sampled in shaders:
+         * - `fetchTerrainHeight` (texelFetch)
+         * - `getTerrainHeight` (texture)
+         *
+         * Format: should be a single-channel height (e.g., R16/R32F); builder doesn't enforce the exact format.
+         */
         Builder& height_map(const std::shared_ptr<Texture>& height_map);
+
+        /**
+         * Sets externally-created control map texture (Tex2D, size terrain_size x terrain_size).
+         *
+         * Format expectation: R32UI (see `TerrainInstance::control_value` encoding).
+         */
         Builder& control_map(const std::shared_ptr<Texture>& control_map);
+
+        /**
+         * Sets terrain albedo texture array (Tex2DArray). Layer count must match normal_map's layer count.
+         *
+         * Layer indices come from control map base/extra ids (6 bits => up to 64).
+         */
         Builder& albedo_map(const std::shared_ptr<Texture>& albedo_map);
+
+        /**
+         * Sets terrain normal texture array (Tex2DArray). Layer count must match albedo_map's layer count.
+         */
         Builder& normal_map(const std::shared_ptr<Texture>& normal_map);
+
+        /**
+         * Optional color map (Tex2D, RGBA8 in sample). Used as tint/roughness modulation in shader.
+         */
         Builder& color_map(const std::shared_ptr<Texture>& color_map);
 
+        /**
+         * Per-layer UV scale for terrain textures.
+         * Size should be >= layer count, and typically exactly TerrainInstance::MAX_TEXTURES (64).
+         */
         Builder& texture_uv_scale(const std::vector<float>& texture_uv_scale);
+
+        /**
+         * Per-layer normal depth/intensity.
+         * Size should be >= layer count, and typically exactly TerrainInstance::MAX_TEXTURES (64).
+         */
         Builder& texture_normal_depth(const std::vector<float>& texture_normal_depth);
+
+        /**
+         * Per-layer detiling parameters used when `terrain_detiling(true)`.
+         * Size should be >= layer count, and typically exactly TerrainInstance::MAX_TEXTURES (64).
+         */
         Builder& texture_detile(const std::vector<glm::vec2>& texture_detile);
 
         Builder& height(const float* data);

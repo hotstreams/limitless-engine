@@ -68,6 +68,12 @@ void TripleBuffer::bufferSubData(GLintptr offset, size_t sub_size, const void* d
     buffers[curr_index]->bufferSubData(offset, sub_size, data);
 }
 
+void TripleBuffer::resize(size_t bytes) noexcept {
+    for (auto& buf : buffers) {
+        buf->resize(bytes);
+    }
+}
+
 void TripleBuffer::bindBaseAs(Type target, GLuint index) const noexcept {
     buffers[curr_index]->bindBaseAs(target, index);
 }
@@ -90,6 +96,18 @@ void TripleBuffer::bindAs(Type target) const noexcept {
 
 void TripleBuffer::bind() const noexcept {
     buffers[curr_index]->bind();
+}
+
+void TripleBuffer::unbind() const noexcept {
+    buffers[curr_index]->unbind();
+}
+
+Buffer* TripleBuffer::clone() {
+    std::array<std::shared_ptr<Buffer>, 3> cloned;
+    for (size_t i = 0; i < 3; ++i) {
+        cloned[i] = std::shared_ptr<Buffer>(static_cast<Buffer*>(buffers[i]->clone()));
+    }
+    return new TripleBuffer(std::move(cloned));
 }
 
 void TripleBuffer::waitFence() noexcept {

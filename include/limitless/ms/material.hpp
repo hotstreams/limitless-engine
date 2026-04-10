@@ -218,6 +218,15 @@ namespace Limitless::ms {
         [[nodiscard]] bool getNormalMap() const;
         [[nodiscard]] bool getOrmMap() const;
         [[nodiscard]] bool getDefaultComputation() const;
+        [[nodiscard]] bool hasBillboard() const noexcept;
+        [[nodiscard]] uint32_t getBillboardMode() const;
+        [[nodiscard]] glm::vec3 getBillboardPivot() const;
+        [[nodiscard]] glm::vec3 getBillboardAxis() const;
+
+        [[nodiscard]] bool hasWind() const noexcept;
+        [[nodiscard]] uint32_t getWindMode() const;
+        [[nodiscard]] float getWindIntensity() const;
+        [[nodiscard]] float getWindFrequency() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getDiffuseTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getNormalTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getEmissiveMaskTexture() const;
@@ -255,6 +264,12 @@ namespace Limitless::ms {
         void setThickness(float value);
         void setReflectance(float value);
         void setTransmission(float value);
+        void setBillboardMode(uint32_t mode);
+        void setBillboardPivot(glm::vec3 pivot);
+        void setBillboardAxis(glm::vec3 axis);
+        void setWindMode(uint32_t mode);
+        void setWindIntensity(float intensity);
+        void setWindFrequency(float frequency);
         void setDiffuseTexture(const std::shared_ptr<Texture>& texture);
         void setNormalTexture(const std::shared_ptr<Texture>& texture);
         void setEmissiveMaskTexture(const std::shared_ptr<Texture>& texture);

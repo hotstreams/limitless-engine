@@ -177,5 +177,56 @@ namespace Limitless::ms {
          *  Used only when Blending is set to 'NOT' Opaque
          */
         Transmission,
+
+        /**
+         * Billboard mode:
+         *  0 - None
+         *  1 - Spherical (fully faces camera)
+         *  2 - Cylindrical (axis-locked; uses BillboardAxis)
+         *  3 - Screen-aligned (uses camera basis; ignores axis)
+         *
+         *  uint32
+         */
+        BillboardMode,
+
+        /**
+         * Billboard pivot in local/object space.
+         *
+         * The engine does not derive this from mesh bounds (material-driven, mesh-independent),
+         * so user should author mesh pivot appropriately or provide an explicit pivot.
+         *
+         * vec3
+         */
+        BillboardPivot,
+
+        /**
+         * Billboard axis in world space for cylindrical mode.
+         *
+         * vec3
+         */
+        BillboardAxis,
+
+        /**
+         * Wind enable/mode (material-driven):
+         *  0 - None
+         *  1 - Enabled (uses global scene wind settings)
+         *
+         * uint32
+         */
+        WindMode,
+
+        /**
+         * Wind intensity multiplier for this material.
+         *
+         * float
+         */
+        WindIntensity,
+
+        /**
+         * Wind frequency multiplier for this material (affects gust noise / phase).
+         *
+         * float
+         */
+        WindFrequency,
     };
 }

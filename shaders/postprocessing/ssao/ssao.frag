@@ -11,6 +11,7 @@ in vec2 uv;
 layout (std140) uniform SSAO_BUFFER {
     vec2 sample_count;
     vec2 angle_inc_cos_sin;
+    vec4 ssao_resolution;
     float projection_scale_radius;
     float intensity;
     float spiral_turns;
@@ -19,6 +20,7 @@ layout (std140) uniform SSAO_BUFFER {
     float bias;
     float peak2;
     float power;
+    float min_horizon_angle_rad;
     uint max_level;
     uint debug_mode;  // 0=off, 1=normals, 2=depth, 3=position, 4=radius, 5=samples
 };
@@ -58,11 +60,10 @@ void computeAmbientOcclusionSAO(inout float occlusion, inout vec3 bentNormal,
     vec3 tap = tapLocationFast(i, tapPosition, noise);
     float ssRadius = max(1.0, tap.z * ssDiskRadius);
 
-    vec2 uvSamplePos = uv + vec2(ssRadius * tap.xy) * 1.0 / getResolution();
+    vec2 uvSamplePos = uv + vec2(ssRadius * tap.xy) * ssao_resolution.zw;
 
-    float level = clamp(floor(log2(ssRadius)) - 3.0, 0.0, float(max_level));
-    //TODO: make mipmap depth
-    float occlusionDepth = texture(depth_texture, uvSamplePos).r;
+    // Filament uses textureLod(depth, uv, level) with a mip pyramid; deferred depth is base level only.
+    float occlusionDepth = textureLod(depth_texture, uvSamplePos, 0.0).r;
 
     vec3 p = reconstructViewSpacePosition(uvSamplePos, occlusionDepth);
 
@@ -89,9 +90,13 @@ void computeAmbientOcclusionSAO(inout float occlusion, inout vec3 bentNormal,
 
 /*
  * https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
+ *
+ * Pure screen-space IGN makes the spiral pattern stick to the framebuffer; geometry then
+ * slides through that fixed field when the camera moves ("crawling" grid). Mixing in a
+ * world-stable term ties the kernel phase to the surface without replacing IGN (which keeps
+ * variation between neighbors on flat regions).
  */
-void scalableAmbientObscurance(out float obscurance, out vec3 bentNormal, vec2 uv, vec3 origin, vec3 normal) {
-    float noise = getRandom(gl_FragCoord.xy);
+void scalableAmbientObscurance(out float obscurance, out vec3 bentNormal, vec2 uv, vec3 origin, vec3 normal, float noise) {
     highp vec2 tapPosition = startPosition(noise);
     highp mat2 angleStep = tapAngleStep();
 
@@ -124,6 +129,12 @@ highp float unpack(highp vec2 depth) {
 }
 
 void main() {
+    // Half-res AO pass: vertex uv is 0..1 over the AO viewport only. For odd framebuffer
+    // sizes, W/2 != W*0.5 and that uv does not land on depth/normal texel centers — beats
+    // against full-res G-buffer and shows as stripes (often windowed vs fullscreen differs).
+    highp vec2 depth_dims = vec2(textureSize(depth_texture, 0));
+    highp vec2 uv = (gl_FragCoord.xy * depth_dims / ssao_resolution.xy + vec2(0.5)) / depth_dims;
+
     float depth = texture(depth_texture, uv).r;
     float z = linearize_depth(depth, getCameraNearPlane(), getCameraFarPlane());
 
@@ -132,13 +143,19 @@ void main() {
     vec3 worldNormal = texture(normal_texture, uv).xyz;
     vec3 normal = normalize((getView() * vec4(worldNormal, 0.0)).xyz);
 
+    vec3 worldPosition = (getViewInverse() * vec4(position, 1.0)).xyz;
+    float worldJitter = fract(sin(dot(worldPosition, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
+    float noise = fract(getRandom(gl_FragCoord.xy - vec2(0.5)) + worldJitter);
+
     // ===== DEBUG MODES - Uncomment one to test =====
-    
+    //
+    // Note: out vec3 color — use color = normal * 0.5 + 0.5; not vec3(vec3, float).
+
     // DEBUG 1: View-space normals (should be smooth RGB gradients)
-    color = vec3(normal * 0.5 + 0.5, 1.0); return;
-    
+    //color = normal * 0.5 + 0.5; return;
+
     // DEBUG 2: World-space normals from G-buffer (should match your normal debug view)
-    //color = vec3(worldNormal * 0.5 + 0.5, 1.0); return;
+    //color = worldNormal * 0.5 + 0.5; return;
     
     // DEBUG 3: Linear depth visualization (white=near, black=far)
     //color = vec3(z / getCameraFarPlane(), 1.0, 1.0); return;
@@ -157,13 +174,13 @@ void main() {
     // DEBUG 7: Raw occlusion (before sqrt and power) - should show subtle variations
     //float occlusion_raw = 0.0;
     //vec3 bentNormal_raw;
-    //scalableAmbientObscurance(occlusion_raw, bentNormal_raw, uv, position, normal);
+    //scalableAmbientObscurance(occlusion_raw, bentNormal_raw, uv, position, normal, noise);
     //color = vec3(occlusion_raw * 0.5, occlusion_raw * 0.5, occlusion_raw * 0.5); return;
     
     // DEBUG 8: Occlusion after sqrt (should be darker than raw)
     //float occlusion_raw = 0.0;
     //vec3 bentNormal_raw;
-    //scalableAmbientObscurance(occlusion_raw, bentNormal_raw, uv, position, normal);
+    //scalableAmbientObscurance(occlusion_raw, bentNormal_raw, uv, position, normal, noise);
     //float occlusion_sqrt = sqrt(occlusion_raw * intensity);
     //color = vec3(occlusion_sqrt, occlusion_sqrt, occlusion_sqrt); return;
     
@@ -173,7 +190,7 @@ void main() {
     //vec3 tap = tapLocationFast(0.0, tapPos, noise);
     //float ssDiskRadius = -(projection_scale_radius / position.z);
     //float ssRadius = max(1.0, tap.z * ssDiskRadius);
-    //vec2 uvSample = uv + vec2(ssRadius * tap.xy) * 1.0 / getResolution();
+    //vec2 uvSample = uv + vec2(ssRadius * tap.xy) * ssao_resolution.zw;
     //float isSample = length(uv - uvSample) < 0.01 ? 1.0 : 0.0;
     //color = vec3(1.0, isSample, 0.0); return;
     
@@ -184,9 +201,11 @@ void main() {
 
     float occlusion = 0.0;
     vec3 bentNormal; // will be discarded
-    scalableAmbientObscurance(occlusion, bentNormal, uv, position, normal);
+    scalableAmbientObscurance(occlusion, bentNormal, uv, position, normal, noise);
 
     float aoVisibility = pow(saturate(1.0 - occlusion), power);
 
-    color = vec3(aoVisibility, pack(position.z * 1.0 / getCameraFarPlane()));
+    // View-space Z is negative (camera looks down -Z); pack positive normalized linear depth
+    // so bilateral / deferred upsample match Filament (unpack * -far → view Z).
+    color = vec3(aoVisibility, pack((-position.z) / getCameraFarPlane()));
 }

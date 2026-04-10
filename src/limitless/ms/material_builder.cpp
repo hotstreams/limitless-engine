@@ -204,6 +204,82 @@ Material::Builder& Material::Builder::default_computation(bool compute)
     return *this;
 }
 
+Material::Builder& Material::Builder::billboard(uint32_t mode) noexcept {
+    properties[Property::BillboardMode] = std::make_unique<UniformValue<uint32_t>>("_material_billboard_mode", mode);
+
+    // Provide defaults so shaders can rely on the properties being present for billboard materials
+    if (properties.count(Property::BillboardPivot) == 0) {
+        properties[Property::BillboardPivot] = std::make_unique<UniformValue<glm::vec3>>("_material_billboard_pivot", glm::vec3{0.0f});
+    }
+    if (properties.count(Property::BillboardAxis) == 0) {
+        properties[Property::BillboardAxis] = std::make_unique<UniformValue<glm::vec3>>("_material_billboard_axis", glm::vec3{0.0f, 1.0f, 0.0f});
+    }
+    return *this;
+}
+
+Material::Builder& Material::Builder::billboard_spherical() noexcept {
+    return billboard(1u);
+}
+
+Material::Builder& Material::Builder::billboard_cylindrical(glm::vec3 axis) noexcept {
+    billboard_axis(axis);
+    return billboard(2u);
+}
+
+Material::Builder& Material::Builder::billboard_screen_aligned() noexcept {
+    return billboard(3u);
+}
+
+Material::Builder& Material::Builder::billboard_pivot(glm::vec3 pivot) noexcept {
+    properties[Property::BillboardPivot] = std::make_unique<UniformValue<glm::vec3>>("_material_billboard_pivot", pivot);
+    return *this;
+}
+
+Material::Builder& Material::Builder::billboard_axis(glm::vec3 axis) noexcept {
+    properties[Property::BillboardAxis] = std::make_unique<UniformValue<glm::vec3>>("_material_billboard_axis", axis);
+    return *this;
+}
+
+Material::Builder& Material::Builder::billboard_disable() noexcept {
+    properties.erase(Property::BillboardMode);
+    properties.erase(Property::BillboardPivot);
+    properties.erase(Property::BillboardAxis);
+    return *this;
+}
+
+Material::Builder& Material::Builder::wind(bool enable) noexcept {
+    if (enable) {
+        properties[Property::WindMode] = std::make_unique<UniformValue<uint32_t>>("_material_wind_mode", 1u);
+        if (properties.count(Property::WindIntensity) == 0) {
+            properties[Property::WindIntensity] = std::make_unique<UniformValue<float>>("_material_wind_intensity", 1.0f);
+        }
+        if (properties.count(Property::WindFrequency) == 0) {
+            properties[Property::WindFrequency] = std::make_unique<UniformValue<float>>("_material_wind_frequency", 1.0f);
+        }
+    } else {
+        properties.erase(Property::WindMode);
+        properties.erase(Property::WindIntensity);
+        properties.erase(Property::WindFrequency);
+    }
+    return *this;
+}
+
+Material::Builder& Material::Builder::wind_mode(uint32_t mode) noexcept {
+    // Ensure WindMode property exists even if wind() wasn't called yet.
+    properties[Property::WindMode] = std::make_unique<UniformValue<uint32_t>>("_material_wind_mode", mode);
+    return *this;
+}
+
+Material::Builder& Material::Builder::wind_intensity(float intensity) noexcept {
+    properties[Property::WindIntensity] = std::make_unique<UniformValue<float>>("_material_wind_intensity", intensity);
+    return *this;
+}
+
+Material::Builder& Material::Builder::wind_frequency(float frequency) noexcept {
+    properties[Property::WindFrequency] = std::make_unique<UniformValue<float>>("_material_wind_frequency", frequency);
+    return *this;
+}
+
 Material::Builder &Material::Builder::blending(Blending blending) noexcept {
     _blending = blending;
     return *this;
@@ -369,6 +445,16 @@ void Material::Builder::makeBatched(const Material& material, size_t batch_count
                 uniforms[name] = std::make_unique<UniformValueArray<glm::vec4>>(name,batch_count);
                 break;
 
+            case Property::BillboardPivot:
+            case Property::BillboardAxis:
+                uniforms[name] = std::make_unique<UniformValueArray<glm::vec3>>(name,batch_count);
+                break;
+
+            case Property::BillboardMode:
+            case Property::WindMode:
+                uniforms[name] = std::make_unique<UniformValueArray<uint32_t>>(name,batch_count);
+                break;
+
             case Property::Metallic:
             case Property::Roughness:
             case Property::IoR:
@@ -377,6 +463,8 @@ void Material::Builder::makeBatched(const Material& material, size_t batch_count
             case Property::Thickness:
             case Property::Reflectance:
             case Property::Transmission:
+            case Property::WindIntensity:
+            case Property::WindFrequency:
                 uniforms[name] = std::make_unique<UniformValueArray<float>>(name,batch_count);
                 break;
         }

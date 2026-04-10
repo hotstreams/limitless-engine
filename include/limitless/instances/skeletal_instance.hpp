@@ -50,6 +50,12 @@ namespace Limitless {
          */
         std::chrono::duration<double> animation_duration {};
 
+        /**
+         * When false, bone matrices are still computed on CPU but not uploaded to this
+         * instance's bone_buffer (e.g. child of SkeletalInstancedInstance uses packed LOD SSBO).
+         */
+        bool gpu_bone_upload_enabled_ {true};
+
         void initializeBuffer();
 
         /**
@@ -100,6 +106,11 @@ namespace Limitless {
          */
         SkeletalInstance& stop() noexcept;
 
+        /**
+         * Shifts the animation timeline (e.g. to desync instanced copies).
+         */
+        SkeletalInstance& offsetAnimationTime(double seconds) noexcept;
+
         [[nodiscard]] auto isPaused() const noexcept { return paused; }
         [[nodiscard]] const auto& getCurrentAnimation() const noexcept { return animation; }
         [[nodiscard]] const std::vector<Animation>& getAllAnimations() const noexcept;
@@ -112,5 +123,8 @@ namespace Limitless {
         [[nodiscard]] glm::vec3 getSkinnedVertexPosition(const std::shared_ptr<Mesh>& mesh, size_t vertex_index) const;
 
         const auto& getBoneTransform() const noexcept { return bone_transform; }
+
+        void setGpuBoneUploadEnabled(bool enabled) noexcept { gpu_bone_upload_enabled_ = enabled; }
+        [[nodiscard]] bool isGpuBoneUploadEnabled() const noexcept { return gpu_bone_upload_enabled_; }
     };
 }

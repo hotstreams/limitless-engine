@@ -29,6 +29,8 @@ void VertexArray::initialize() {
     Context::apply([] (Context& ctx) {
         ctx.vertex_array_id = 0;
         glBindVertexArray(0);
+        // EBO binding is part of VAO state; with VAO 0 the queried binding is always 0.
+        ctx.buffer_target[Buffer::Type::Element] = 0;
     });
 }
 
@@ -53,6 +55,7 @@ VertexArray::~VertexArray() {
         Context::apply([this] (Context& ctx) {
             if (ctx.vertex_array_id == id) {
                 ctx.vertex_array_id = 0;
+                ctx.buffer_target[Buffer::Type::Element] = 0;
             }
             glDeleteVertexArrays(1, &id);
         });
@@ -61,10 +64,12 @@ VertexArray::~VertexArray() {
 
 void VertexArray::bind() const noexcept {
     Context::apply([this] (Context& ctx) {
-    if (ctx.vertex_array_id != id) {
+        if (ctx.vertex_array_id != id) {
             glBindVertexArray(id);
             ctx.vertex_array_id = id;
         }
+        // GL_ELEMENT_ARRAY_BUFFER is part of VAO state; mirror it from our element_buffer without glGet*.
+        ctx.buffer_target[Buffer::Type::Element] = element_buffer ? element_buffer->getId() : 0;
     });
     if (element_buffer) {
         element_buffer->bind();

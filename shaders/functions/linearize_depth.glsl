@@ -3,6 +3,7 @@
  *
  *  Normalized Device Coordinates for OpenGL in range [-1, 1]
  *
+ *  Matches classic glm::perspective + Depth32F from deferred gbuffer (not reversed-Z).
  */
 float linearize_depth(float depth, float near, float far) {
    float z_n = 2.0 * depth - 1.0;

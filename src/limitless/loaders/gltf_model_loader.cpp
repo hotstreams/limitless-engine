@@ -24,12 +24,19 @@
 #include <limitless/ms/property.hpp>
 #include <limitless/renderer/shader_type.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/scene.hpp>
 #include <memory>
 #include <cstring>
 #include <string>
 #include <vector>
 #include <fstream>
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <limits>
+#include <optional>
+#include <unordered_map>
 
 using namespace Limitless;
 
@@ -329,6 +336,391 @@ static glm::mat4 getNodeMatrix(const cgltf_node& joint) {
 	}
 }
 
+// cgltf does not always populate node.parent pointers depending on parse/fixup path.
+// We build them from children arrays so we can compute world transforms reliably.
+static void buildNodeParents(cgltf_data& data) {
+	for (cgltf_size i = 0; i < data.nodes_count; ++i) {
+		data.nodes[i].parent = nullptr;
+	}
+	for (cgltf_size i = 0; i < data.nodes_count; ++i) {
+		cgltf_node& n = data.nodes[i];
+		for (cgltf_size c = 0; c < n.children_count; ++c) {
+			if (n.children[c]) {
+				n.children[c]->parent = &n;
+			}
+		}
+	}
+}
+
+// Compute full transform for a node including parent chain.
+// glTF node transforms are hierarchical; for mesh nodes under a rotated parent,
+// using only the local node transform will result in rotated/offset meshes.
+static glm::mat4 getNodeWorldMatrix(const cgltf_node& node) {
+	glm::mat4 m = getNodeMatrix(node);
+	for (auto* p = node.parent; p != nullptr; p = p->parent) {
+		m = getNodeMatrix(*p) * m;
+	}
+	return m;
+}
+
+// SpeedTree "packed normal in float" codec (matches shaders/functions/wind.glsl: st_unpack_normal_from_float).
+// This is a 3x4-bit packing commonly used by SpeedTree/Unity to store a direction vector in a single float:
+//   packed = x_i + y_i/16 + z_i/256, where i are 4-bit integers of (n*0.5+0.5)*16.
+static glm::vec3 stUnpackNormalFromFloat(float f) {
+	auto fractf = [](float x) -> float { return x - std::floor(x); };
+	const float x = fractf(f / 16.0f);
+	const float y = fractf(f);
+	const float z = fractf(f * 16.0f);
+	return glm::vec3(x, y, z) * 2.0f - 1.0f;
+}
+
+static float stPackNormalToFloat(const glm::vec3& n) {
+	// Map [-1,1] -> [0,1) and quantize to 4-bit per component.
+	glm::vec3 v = glm::clamp(n * 0.5f + 0.5f, 0.0f, 0.999999f);
+	const int xi = static_cast<int>(std::floor(v.x * 16.0f));
+	const int yi = static_cast<int>(std::floor(v.y * 16.0f));
+	const int zi = static_cast<int>(std::floor(v.z * 16.0f));
+	return static_cast<float>(xi) + static_cast<float>(yi) / 16.0f + static_cast<float>(zi) / 256.0f;
+}
+
+// Preserve UE4/SpeedTree "phase" encoded as +16*N in the packed float.
+// UnpackNormalFromFloat() ignores integer multiples of 16 (due to frac), but Oscillate/Turbulence
+// use the raw float as a phase offset. If we unpack->rotate->repack without preserving the +16*N
+// part, wind can become visibly synchronized/banded.
+static void stRotatePackedNormalFloatPreservePhase(float& packed, const glm::mat3& R) {
+	// Extract integer phase bucket in units of 16.0 (seed injection uses +16*N).
+	const float phase = std::floor(packed / 16.0f + 1e-6f);
+	glm::vec3 dir = stUnpackNormalFromFloat(packed);
+	dir = glm::normalize(R * dir);
+	packed = stPackNormalToFloat(dir) + 16.0f * phase;
+}
+
+static int stDecodeGeomType(const glm::vec2& uv5_payloadc_geom) {
+	// Mirrors shaders/functions/wind.glsl geometryType decode.
+	const int GEOM_TYPE_BRANCH = 0;
+	const int GEOM_TYPE_FROND = 1;
+	const int GEOM_TYPE_LEAF = 2;
+	const int GEOM_TYPE_FACINGLEAF = 3;
+
+	float gEnc = uv5_payloadc_geom.y;
+	int geomType = GEOM_TYPE_BRANCH;
+	int gInt = static_cast<int>(gEnc + 0.25f);
+	if (gInt >= 0 && gInt <= 6) {
+		geomType = gInt;
+		if (geomType > GEOM_TYPE_FACINGLEAF) {
+			geomType -= 2;
+		}
+		geomType = std::clamp(geomType, GEOM_TYPE_BRANCH, GEOM_TYPE_FACINGLEAF);
+	} else {
+		int origGeom = static_cast<int>(uv5_payloadc_geom.x + 0.25f);
+		geomType = GEOM_TYPE_BRANCH;
+		if (origGeom == 3) geomType = GEOM_TYPE_FROND;
+		else if (origGeom == 4) geomType = GEOM_TYPE_LEAF;
+		else if (origGeom == 5) geomType = GEOM_TYPE_FACINGLEAF;
+	}
+	return geomType;
+}
+
+// -------------------------------------------------------------------------------------------------
+// SpeedTree payload space fixup (Blender/glTF pipeline)
+//
+// Problem:
+//  - Blender/glTF export can apply coordinate-system conversion (e.g., Z-up -> Y-up, or artist-applied
+//    rotations) to POSITION data, but not to "payload" stored in extra TEXCOORD sets.
+//  - This breaks SpeedTree leaf anchors and packed direction vectors: leaf tumble pivots become wrong
+//    and leaves "explode"/detach.
+//
+// Approach:
+//  - For leaf vertices, the per-vertex anchor should be near the vertex position (leaf card verts cluster
+//    around their anchor).
+//  - We brute-force a small set of orthonormal axis permutations (48 rotations/reflections) to find the
+//    transform that best aligns anchors with positions (minimizes median |pos - R*anchor|).
+//  - If it is a clear improvement, we apply it to:
+//      * leaf anchors (uv2.xy + uv3.x)
+//      * packed direction floats (uv1.y, uv4.x, uv4.y) by unpack -> rotate -> repack
+//
+// This keeps the pipeline forgiving without requiring Blender scripts.
+// -------------------------------------------------------------------------------------------------
+static std::vector<glm::mat3> stCandidateOrthonormalAxisTransforms() {
+	// Generate all 48 axis-aligned orthonormal transforms (permutations + sign flips),
+	// including reflections (determinant -1).
+	std::vector<glm::mat3> out;
+	out.reserve(48);
+
+	int p[3] = {0, 1, 2};
+
+	// simple permutation loop (6 perms)
+	do {
+		for (int sx : {-1, 1}) {
+			for (int sy : {-1, 1}) {
+				for (int sz : {-1, 1}) {
+					glm::vec3 c0(0.0f), c1(0.0f), c2(0.0f);
+					c0[p[0]] = float(sx);
+					c1[p[1]] = float(sy);
+					c2[p[2]] = float(sz);
+					glm::mat3 m(c0, c1, c2);
+					out.emplace_back(m);
+				}
+			}
+		}
+	} while (std::next_permutation(p, p + 3));
+
+	// Ensure uniqueness (some permutations/signs can collide depending on generation order)
+	// but we keep it simple: 24 is small and this is only called per-primitive.
+	return out;
+}
+
+static float medianOf(std::vector<float>& v) {
+	if (v.empty()) return 0.0f;
+	const size_t mid = v.size() / 2;
+	std::nth_element(v.begin(), v.begin() + mid, v.end());
+	return v[mid];
+}
+
+[[maybe_unused]] static std::optional<glm::mat3> stFindBestPayloadRotation(const std::vector<VertexNormalTangentUv6>& verts) {
+	// Collect leaf samples: (pos, anchor)
+	std::vector<glm::vec3> pos;
+	std::vector<glm::vec3> anchor;
+	pos.reserve(1024);
+	anchor.reserve(1024);
+
+	glm::vec3 pmin(std::numeric_limits<float>::infinity());
+	glm::vec3 pmax(-std::numeric_limits<float>::infinity());
+
+	for (const auto& v : verts) {
+		const int geomType = stDecodeGeomType(v.uv5);
+		const bool isLeaf = geomType >= 2;
+		if (!isLeaf) continue;
+
+		const glm::vec3 a(v.uv2.x, v.uv2.y, v.uv3.x);
+		// Skip missing anchors (older exports)
+		if (glm::length2(a) < 1e-8f) continue;
+
+		pos.push_back(v.position);
+		anchor.push_back(a);
+		pmin = glm::min(pmin, v.position);
+		pmax = glm::max(pmax, v.position);
+
+		if (pos.size() >= 1024) break;
+	}
+
+	if (pos.size() < 64) {
+		return std::nullopt;
+	}
+
+	const float diag = glm::length(pmax - pmin);
+	if (diag < 1e-6f) {
+		return std::nullopt;
+	}
+
+	auto candidates = stCandidateOrthonormalAxisTransforms();
+	glm::mat3 best(1.0f);
+	float bestMed = std::numeric_limits<float>::infinity();
+
+	for (const auto& R : candidates) {
+		std::vector<float> d;
+		d.reserve(pos.size());
+		for (size_t i = 0; i < pos.size(); ++i) {
+			const glm::vec3 a = R * anchor[i];
+			d.push_back(glm::length(pos[i] - a));
+		}
+		float med = medianOf(d);
+		if (med < bestMed) {
+			bestMed = med;
+			best = R;
+		}
+	}
+
+	// Baseline (identity)
+	{
+		std::vector<float> d0;
+		d0.reserve(pos.size());
+		for (size_t i = 0; i < pos.size(); ++i) {
+			d0.push_back(glm::length(pos[i] - anchor[i]));
+		}
+		const float baseMed = medianOf(d0);
+
+		// Apply only if it's a strong win and yields a "reasonable" anchor proximity.
+		// Leaf card verts are typically within a few percent of the tree bbox diagonal from their anchor.
+		const bool strongWin = (bestMed < baseMed * 0.25f);
+		const bool reasonable = (bestMed < diag * 0.10f);
+		if (!strongWin || !reasonable) {
+			return std::nullopt;
+		}
+	}
+
+	std::cout << "[speedtree] payload appears in different basis vs geometry; applying payload-space fixup\n";
+	return best;
+}
+
+// Fix leaf anchor scale/translation when DCC bakes transforms into POSITION but leaves payload untouched.
+// We solve a simple similarity transform for anchors only:
+//   a' = s * a + t
+// and apply it to leaf anchors (uv2.xy + uv3.x) if it significantly reduces |pos - anchor| for leaf verts.
+[[maybe_unused]] static void stFixLeafAnchorScaleTranslation(std::vector<VertexNormalTangentUv6>& verts) {
+	if (verts.empty()) return;
+
+	std::vector<glm::vec3> pos;
+	std::vector<glm::vec3> anchor;
+	pos.reserve(1024);
+	anchor.reserve(1024);
+
+	glm::vec3 pmin(std::numeric_limits<float>::infinity());
+	glm::vec3 pmax(-std::numeric_limits<float>::infinity());
+
+	for (const auto& v : verts) {
+		const int geomType = stDecodeGeomType(v.uv5);
+		const bool isLeaf = geomType >= 2;
+		if (!isLeaf) continue;
+
+		const glm::vec3 a(v.uv2.x, v.uv2.y, v.uv3.x);
+		if (glm::length2(a) < 1e-8f) continue;
+
+		pos.push_back(v.position);
+		anchor.push_back(a);
+		pmin = glm::min(pmin, v.position);
+		pmax = glm::max(pmax, v.position);
+		if (pos.size() >= 1024) break;
+	}
+
+	if (pos.size() < 64) return;
+
+	const float diag = glm::length(pmax - pmin);
+	if (diag < 1e-6f) return;
+
+	// Robust-ish uniform scale from bbox extents ratio.
+	glm::vec3 amin(std::numeric_limits<float>::infinity());
+	glm::vec3 amax(-std::numeric_limits<float>::infinity());
+	for (const auto& a : anchor) {
+		amin = glm::min(amin, a);
+		amax = glm::max(amax, a);
+	}
+	const glm::vec3 eP = pmax - pmin;
+	const glm::vec3 eA = amax - amin;
+
+	std::vector<float> scales;
+	scales.reserve(3);
+	if (std::abs(eA.x) > 1e-6f) scales.push_back(eP.x / eA.x);
+	if (std::abs(eA.y) > 1e-6f) scales.push_back(eP.y / eA.y);
+	if (std::abs(eA.z) > 1e-6f) scales.push_back(eP.z / eA.z);
+	if (scales.empty()) return;
+
+	auto medianOf = [](std::vector<float>& v) -> float {
+		const size_t mid = v.size() / 2;
+		std::nth_element(v.begin(), v.begin() + mid, v.end());
+		return v[mid];
+	};
+	float s = medianOf(scales);
+	if (!std::isfinite(s)) return;
+	// Clamp to a sane range to avoid catastrophic mistakes.
+	s = std::max(1e-4f, std::min(1e4f, s));
+
+	// Translation to align centers.
+	glm::vec3 pc(0.0f), ac(0.0f);
+	for (size_t i = 0; i < pos.size(); ++i) {
+		pc += pos[i];
+		ac += anchor[i];
+	}
+	pc /= float(pos.size());
+	ac /= float(anchor.size());
+	const glm::vec3 t = pc - s * ac;
+
+	// Evaluate improvement using median distance.
+	std::vector<float> d0;
+	std::vector<float> d1;
+	d0.reserve(pos.size());
+	d1.reserve(pos.size());
+	for (size_t i = 0; i < pos.size(); ++i) {
+		d0.push_back(glm::length(pos[i] - anchor[i]));
+		d1.push_back(glm::length(pos[i] - (s * anchor[i] + t)));
+	}
+	const float med0 = medianOf(d0);
+	const float med1 = medianOf(d1);
+
+	const bool strongWin = (med1 < med0 * 0.25f);
+	const bool reasonable = (med1 < diag * 0.10f);
+	if (!strongWin || !reasonable) return;
+
+	std::cout << "[speedtree] leaf anchors appear in different scale/offset; applying anchor fix (s=" << s
+			  << ")\n";
+
+	for (auto& v : verts) {
+		const int geomType = stDecodeGeomType(v.uv5);
+		const bool isLeaf = geomType >= 2;
+		if (!isLeaf) continue;
+		glm::vec3 a(v.uv2.x, v.uv2.y, v.uv3.x);
+		if (glm::length2(a) < 1e-8f) continue;
+		a = s * a + t;
+		v.uv2.x = a.x;
+		v.uv2.y = a.y;
+		v.uv3.x = a.z;
+	}
+}
+
+static void stRotatePackedNormalFloat(float& packed, const glm::mat3& R) {
+	stRotatePackedNormalFloatPreservePhase(packed, R);
+}
+
+// If the imported mesh is Z-up (height along +Z), rotate it to Y-up so the engine/viewer
+// coordinate conventions remain consistent. This must rotate BOTH geometry and SpeedTree payload.
+[[maybe_unused]] static void stMaybeRotateZUpToYUp(std::vector<VertexNormalTangentUv6>& verts) {
+	if (verts.empty()) return;
+
+	// Estimate extents from positions (model space, after bake_transform).
+	glm::vec3 mn(std::numeric_limits<float>::infinity());
+	glm::vec3 mx(-std::numeric_limits<float>::infinity());
+	for (const auto& v : verts) {
+		mn = glm::min(mn, v.position);
+		mx = glm::max(mx, v.position);
+	}
+	const glm::vec3 e = mx - mn;
+
+	// Heuristic: treat as Z-up when Z extent is clearly dominant.
+	if (!(e.z > e.y * 1.25f && e.z > e.x * 1.25f)) {
+		return;
+	}
+
+	std::cout << "[speedtree] detected Z-up mesh; rotating payload/geometry to Y-up\n";
+	// Rotate +90° around X: (x, y, z) -> (x, z, -y)
+	const glm::mat3 Rx90 = glm::mat3(
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f)
+	);
+
+	for (auto& v : verts) {
+		// Geometry
+		v.position = Rx90 * v.position;
+		v.normal = glm::normalize(Rx90 * v.normal);
+		glm::vec3 t = glm::vec3(v.tangent);
+		t = glm::normalize(Rx90 * t);
+		// keep tangent orthogonal to normal
+		t = glm::normalize(t - v.normal * glm::dot(t, v.normal));
+		v.tangent = glm::vec4(t, v.tangent.w);
+
+		// Payload anchors (uv2.xy + uv3.x) are object-space positions
+		glm::vec3 a(v.uv2.x, v.uv2.y, v.uv3.x);
+		a = Rx90 * a;
+		v.uv2.x = a.x;
+		v.uv2.y = a.y;
+		v.uv3.x = a.z;
+
+		// Packed direction floats (must respect payload layout by geometry type).
+		// - uv1.y: branch1 packed offset dir (all geometry types)
+		// - uv4: leaves store (packedGrowthDir, packedRippleDir)
+		// - uv4: branches/fronds store (branch2_weight, packedBranch2Dir)
+		const int geomType = stDecodeGeomType(v.uv5);
+		const bool isLeaf = geomType >= 2;
+		stRotatePackedNormalFloat(v.uv1.y, Rx90);
+		if (isLeaf) {
+			stRotatePackedNormalFloat(v.uv4.x, Rx90);
+			stRotatePackedNormalFloat(v.uv4.y, Rx90);
+		} else {
+			stRotatePackedNormalFloat(v.uv4.y, Rx90);
+		}
+	}
+}
+
 static std::string generateMeshName(const std::string& model_name, size_t mesh_index) {
 	return model_name + "_mesh" + std::to_string(mesh_index);
 }
@@ -358,7 +750,16 @@ loadMeshes(
 		return materials.at(cgltf_material_index(&data, primitive.material));
 	};
 
-	auto mesh_matrix = getNodeMatrix(node);
+	auto mesh_matrix = getNodeWorldMatrix(node);
+
+    struct WindPrimTmp {
+        std::string mesh_name;
+        const cgltf_primitive* primitive = nullptr;
+        std::vector<GLuint> indices;
+        std::vector<VertexNormalTangentUv6> wind_vertices;
+        bool has_speedtree_payload = false;
+    };
+    std::vector<WindPrimTmp> wind_prims;
 
 	for (cgltf_size i = 0, n = mesh.primitives_count; i < n; ++i) {
 		auto mesh_name = base_mesh_name + (n == 1 ? std::string() : std::to_string(i));
@@ -366,6 +767,11 @@ loadMeshes(
 		std::vector<glm::vec4> tangents;
 		std::vector<glm::vec3> normals;
 		std::vector<glm::vec2> uvs;
+		std::vector<glm::vec2> uvs1;
+		std::vector<glm::vec2> uvs2;
+		std::vector<glm::vec2> uvs3;
+		std::vector<glm::vec2> uvs4;
+		std::vector<glm::vec2> uvs5;
 		std::vector<GLuint> indices;
 		std::vector<VertexNormalTangent> vertices;
 		std::vector<std::array<GLuint, 4>> bone_indices;
@@ -426,11 +832,21 @@ loadMeshes(
 				positions = copyFromAccessor<glm::vec3>(*attribute.data);
 				break;
 			case cgltf_attribute_type_texcoord:
-				// TODO: load other texture coords.
 				if (attribute.index == 0) {
 					uvs = copyFromAccessor<glm::vec2>(*attribute.data);
-				} else {
-					std::cerr << "model has multiple UVs" << std::endl;
+				} else if (flags.isPresent(ModelLoaderOption::Wind)) {
+					// SpeedTree-style wind payload uses multiple TEXCOORD sets.
+					// We keep them as vec2 to match glTF TEXCOORD_n (VEC2) accessors.
+					switch (attribute.index) {
+						case 1: uvs1 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+						case 2: uvs2 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+						case 3: uvs3 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+						case 4: uvs4 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+						case 5: uvs5 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+						default:
+							// ignore
+							break;
+					}
 				}
 				break;
 			case cgltf_attribute_type_joints:
@@ -506,6 +922,15 @@ loadMeshes(
 			uvs = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f, 0.0f});
 		}
 
+		if (flags.isPresent(ModelLoaderOption::Wind)) {
+			// Default missing wind UV sets to 0 so shader reads a stable value.
+			if (uvs1.empty()) uvs1 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
+			if (uvs2.empty()) uvs2 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
+			if (uvs3.empty()) uvs3 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
+			if (uvs4.empty()) uvs4 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
+			if (uvs5.empty()) uvs5 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
+		}
+
 		if (positions.size() != normals.size() || positions.size() != tangents.size()
 		    || positions.size() != uvs.size()) {
 			throw ModelLoadError {
@@ -515,49 +940,223 @@ loadMeshes(
 				+ " and UVs"};
 		}
 
+		if (flags.isPresent(ModelLoaderOption::Wind) && !skin) {
+			// Validate additional UV set sizes if present (only for plain meshes).
+			auto check = [&](const char* name, const std::vector<glm::vec2>& v) {
+				if (v.size() != positions.size()) {
+					throw ModelLoadError {
+						std::string("mismatching count of wind UV set ") + name + ": "
+						+ std::to_string(v.size()) + " != " + std::to_string(positions.size())
+					};
+				}
+			};
+			check("TEXCOORD_1", uvs1);
+			check("TEXCOORD_2", uvs2);
+			check("TEXCOORD_3", uvs3);
+			check("TEXCOORD_4", uvs4);
+			check("TEXCOORD_5", uvs5);
+		}
+
+
+        // Track whether this primitive actually contains SpeedTree payload attributes.
+        // If any required TEXCOORD_1..5 are missing, feeding zeros into the SpeedTree path can make
+        // different parts of the tree move incoherently. In that case we fall back to simple wind
+        // for that mesh/material (keeps the whole tree moving together).
+        const bool has_uv1 = !uvs1.empty();
+        const bool has_uv2 = !uvs2.empty();
+        const bool has_uv3 = !uvs3.empty();
+        const bool has_uv4 = !uvs4.empty();
+        const bool has_uv5 = !uvs5.empty();
+        const bool has_speedtree_payload = has_uv1 && has_uv2 && has_uv3 && has_uv4 && has_uv5;
 
 		vertices.reserve(positions.size());
-		for (size_t i = 0; i < positions.size(); ++i) {
-            auto uv = flags.isPresent(Limitless::ModelLoaderOption::FlipUV) ? uvs[i] : glm::vec2(uvs[i].x, 1.0 - uvs[i].y);
+		std::vector<VertexNormalTangentUv6> wind_vertices;
+		const bool build_wind_vertices = flags.isPresent(ModelLoaderOption::Wind) && !skin;
+		if (build_wind_vertices) {
+			wind_vertices.reserve(positions.size());
+		}
 
-			vertices.emplace_back(VertexNormalTangent {
-				positions[i],
-				normals[i],
-				glm::vec3 {tangents[i]}, // TODO: handle tangent basis handedness in W.
-                // gltf 2.0 spec: uv origin in top left corner
-                // OpenGL uv origin in bottom left
-				uv});
+        // Wind payload UV flip:
+        // In our SpeedTree->FBX->Blender->glTF pipeline, Blender flips the V coordinate for ALL UV layers,
+        // including uv1..uv5 that we use as wind payload. We must undo that (y := 1 - y) for payload.
+        //
+        // NOTE: This is a pipeline contract. We keep it deterministic.
+        const bool payload_unflip = build_wind_vertices;
+
+		for (size_t i = 0; i < positions.size(); ++i) {
+			auto maybeFlipUv0 = [&](glm::vec2 v) {
+				return flags.isPresent(Limitless::ModelLoaderOption::FlipUV) ? v : glm::vec2(v.x, 1.0f - v.y);
+			};
+            auto maybeFixPayload = [&](glm::vec2 v) {
+                return payload_unflip ? glm::vec2(v.x, 1.0f - v.y) : v;
+            };
+
+			auto uv = maybeFlipUv0(uvs[i]);
+
+			if (build_wind_vertices) {
+				wind_vertices.emplace_back(VertexNormalTangentUv6{
+					positions[i],
+					normals[i],
+					tangents[i], // glTF tangent is vec4: xyz=tangent, w=handedness
+					uv,
+					maybeFixPayload(uvs1[i]),
+					maybeFixPayload(uvs2[i]),
+					maybeFixPayload(uvs3[i]),
+					maybeFixPayload(uvs4[i]),
+					maybeFixPayload(uvs5[i])
+				});
+			} else {
+				vertices.emplace_back(VertexNormalTangent {
+					positions[i],
+					normals[i],
+					tangents[i], // glTF tangent is vec4: xyz=tangent, w=handedness
+					uv});
+			}
 		}
 
 		if (!skin) {
 			// plain mesh.
 
 			// move all vertices from mesh space into model space.
-			//　TODO: do we have to rotate normals here?
-			for (auto& vertice : vertices) {
-				auto model_position = mesh_matrix * glm::vec4(vertice.position, 1.f);
-				vertice.position = glm::vec3(model_position.x, model_position.y, model_position.z);
+			// Also rotate normals/tangents to match the baked transform, otherwise lighting and
+			// wind (leaf tumble using normals) can look incorrect and assets may appear rotated.
+			const glm::mat3 M = glm::mat3(mesh_matrix);
+            // Pure rotation part for transforming direction payloads.
+            // Using M (which contains scale) and normalizing can skew directions under non-uniform scaling.
+            const glm::vec3 c0 = glm::vec3(mesh_matrix[0]);
+            const glm::vec3 c1 = glm::vec3(mesh_matrix[1]);
+            const glm::vec3 c2 = glm::vec3(mesh_matrix[2]);
+            glm::mat3 R = glm::mat3(
+                glm::normalize(c0),
+                glm::normalize(c1),
+                glm::normalize(c2)
+            );
+            // If the node transform includes a reflection (negative determinant), fix it so we use a proper rotation.
+            // Reflections can flip packed direction payloads and make different parts move in opposite directions.
+            if (glm::determinant(R) < 0.0f) {
+                R[0] = -R[0];
+            }
+			const glm::mat3 N = glm::transpose(glm::inverse(M));
+
+			auto bake_transform = [&](auto& vert) {
+				auto model_position = mesh_matrix * glm::vec4(vert.position, 1.f);
+				vert.position = glm::vec3(model_position.x, model_position.y, model_position.z);
+
+				// transform and normalize normal
+				vert.normal = glm::normalize(N * vert.normal);
+
+				// transform tangent as a direction (preserve handedness in .w)
+				glm::vec3 t = glm::vec3(vert.tangent);
+				t = glm::normalize(M * t);
+				// re-orthogonalize tangent to normal
+				t = glm::normalize(t - vert.normal * glm::dot(t, vert.normal));
+				vert.tangent = glm::vec4(t, vert.tangent.w);
+			};
+
+			if (flags.isPresent(ModelLoaderOption::Wind)) {
+				for (auto& vert : wind_vertices) {
+					bake_transform(vert);
+
+					// SpeedTree payload note:
+					// Some SpeedTree exports store object-space anchor positions in extra TEXCOORD sets
+					// (commonly TEXCOORD_2.xy + TEXCOORD_3.x). Since we bake node transforms into
+					// POSITION/NORMAL/TANGENT, we must bake these anchor positions too, otherwise leaf
+					// tumble/ripple will use mismatched spaces and can look chaotic or "explode".
+					glm::vec3 anchor_os {vert.uv2.x, vert.uv2.y, vert.uv3.x};
+					auto anchor_ms = mesh_matrix * glm::vec4(anchor_os, 1.f);
+					vert.uv2.x = anchor_ms.x;
+					vert.uv2.y = anchor_ms.y;
+					vert.uv3.x = anchor_ms.z;
+
+					// Also bake packed direction vectors stored in floats (Unity/SpeedTree convention).
+					// These encode object-space directions; if we bake node transforms into vertex positions,
+					// we must rotate these directions too or different sub-mesh parts can move incoherently.
+					auto rotatePacked = [&](float& packed) {
+						stRotatePackedNormalFloatPreservePhase(packed, R);
+					};
+
+					const int geomType = stDecodeGeomType(vert.uv5);
+					const bool isLeaf = geomType >= 2; // LEAF or FACING_LEAF
+
+					// Branch payload: uv1 = (weight, packedOffsetDir)
+					rotatePacked(vert.uv1.y);
+
+					if (isLeaf) {
+						// Leaf payload (SpeedTree/Unity common convention):
+						// uv4 = (packedGrowthDir, packedRippleDir)
+						rotatePacked(vert.uv4.x);
+						rotatePacked(vert.uv4.y);
+						// NOTE: uv3.y is leafScale (scalar), do not transform it as a position.
+					} else {
+						// Optional branch2 payload (if present) historically used uv4.y; keep best-effort rotation.
+						rotatePacked(vert.uv4.y);
+					}
+				}
+
+				// Align payload basis (anchors + packed dirs) to geometry if DCC tools converted POSITION
+				// but left TEXCOORD payload untouched. This is deterministic and only applied on a strong win.
+				if (has_speedtree_payload) {
+					if (auto rotOpt = stFindBestPayloadRotation(wind_vertices); rotOpt) {
+						const glm::mat3 P = *rotOpt;
+						auto rotatePackedExtra = [&](float& packed) {
+							stRotatePackedNormalFloatPreservePhase(packed, P);
+						};
+
+						for (auto& vert : wind_vertices) {
+							const int geomType = stDecodeGeomType(vert.uv5);
+							const bool isLeaf = geomType >= 2;
+							if (isLeaf) {
+								glm::vec3 a(vert.uv2.x, vert.uv2.y, vert.uv3.x);
+								a = P * a;
+								vert.uv2.x = a.x;
+								vert.uv2.y = a.y;
+								vert.uv3.x = a.z;
+
+								rotatePackedExtra(vert.uv4.x);
+								rotatePackedExtra(vert.uv4.y);
+							} else {
+								// Branch/frond payload: uv4 = (branch2_weight, packedBranch2Dir)
+								rotatePackedExtra(vert.uv4.y);
+							}
+							// Branch packed direction is used for all geometry types.
+							rotatePackedExtra(vert.uv1.y);
+						}
+					}
+				}
+			} else {
+				for (auto& vertice : vertices) {
+					bake_transform(vertice);
+				}
 			}
-
-			meshes.emplace_back(
-				Mesh::builder()
-					.name(mesh_name + std::to_string(i))
-					.vertex_stream(
-						VertexStream::builder()
-							.attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, position))
-							.attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, normal))
-							.attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, tangent))
-							.attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, uv))
-							.vertices(vertices)
-							.indices(indices)
-							.usage(VertexStream::Usage::Static)
-							.draw(VertexStream::Draw::Triangles)
-							.build()
-					)
-					.build()
-			);
-
-			mesh_materials.emplace_back(select_mesh_material(primitive));
+            if (build_wind_vertices) {
+                WindPrimTmp tmp;
+                tmp.mesh_name = mesh_name + std::to_string(i);
+                tmp.primitive = &primitive;
+                tmp.indices = std::move(indices);
+                tmp.wind_vertices = std::move(wind_vertices);
+                tmp.has_speedtree_payload = has_speedtree_payload;
+                wind_prims.emplace_back(std::move(tmp));
+            } else {
+			    meshes.emplace_back(
+				    Mesh::builder()
+					    .name(mesh_name + std::to_string(i))
+					    .vertex_stream(
+						    VertexStream::builder()
+							    .attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, position))
+							    .attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, normal))
+							    .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, tangent))
+							    .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, uv))
+							    .vertices(vertices)
+							    .indices(indices)
+							    .usage(VertexStream::Usage::Static)
+							    .draw(VertexStream::Draw::Triangles)
+							    .batched(RendererSettings::geometry_batching_enabled)
+							    .build()
+					    )
+					    .build()
+			    );
+			    mesh_materials.emplace_back(select_mesh_material(primitive));
+            }
 		} else {
 			// skeletal mesh.
 			std::vector<VertexBoneWeight> vertex_bone_weights;
@@ -591,6 +1190,7 @@ loadMeshes(
 							.bones(vertex_bone_weights)
 							.usage(VertexStream::Usage::Static)
 							.draw(VertexStream::Draw::Triangles)
+							// Note: skeletal meshes don't support batching yet
 							.build()
 					)
 					.build()
@@ -599,6 +1199,46 @@ loadMeshes(
 			mesh_materials.emplace_back(select_mesh_material(primitive));
 		}
 	}
+
+    // If we buffered wind primitives, stitch payload across all of them before building meshes.
+    if (!wind_prims.empty()) {
+        // Build final meshes/materials.
+        for (auto& prim : wind_prims) {
+            meshes.emplace_back(
+                Mesh::builder()
+                    .name(prim.mesh_name)
+                    .vertex_stream(
+                        VertexStream::builder()
+                            .attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, position))
+                            .attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, normal))
+                            .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, tangent))
+                            .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv0))
+                            .attribute(4, VertexStream::Attribute::Uv1, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv1))
+                            .attribute(5, VertexStream::Attribute::Uv2, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv2))
+                            .attribute(6, VertexStream::Attribute::Uv3, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv3))
+                            .attribute(7, VertexStream::Attribute::Uv4, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv4))
+                            .attribute(8, VertexStream::Attribute::Uv5, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv5))
+                            .vertices(prim.wind_vertices)
+                            .indices(prim.indices)
+                            .usage(VertexStream::Usage::Static)
+                            .draw(VertexStream::Draw::Triangles)
+                            .batched(RendererSettings::geometry_batching_enabled)
+                            .build()
+                    )
+                    .build()
+            );
+
+            auto mat = prim.primitive ? select_mesh_material(*prim.primitive) : std::shared_ptr<ms::Material>{nullptr};
+            if (flags.isPresent(ModelLoaderOption::Wind) && mat) {
+                if (!prim.has_speedtree_payload) {
+                    auto mat_copy = std::make_shared<ms::Material>(*mat);
+                    mat_copy->setWindMode(1u);
+                    mat = std::move(mat_copy);
+                }
+            }
+            mesh_materials.emplace_back(std::move(mat));
+        }
+    }
 
 	return {meshes, mesh_materials};
 }
@@ -785,7 +1425,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const cgltf_material& material,
 	const std::string& model_name,
 	size_t material_index,
-    [[maybe_unused]] const ModelLoaderFlags& model_flags
+    const ModelLoaderFlags& model_flags
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
 	const auto material_name = model_name + (material.name
@@ -795,7 +1435,11 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	builder
 		.name(material_name)
 		.shading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
-		.two_sided(material.double_sided);
+		// Force two-sided for glTF imports by default.
+		// This matches typical vegetation expectations (leaf cards, thin geometry) and
+		// avoids confusing "disappearing" surfaces when authoring/export pipelines omit
+		// doubleSided flags.
+		.two_sided(true);
 
 	switch (material.alpha_mode) {
 	case cgltf_alpha_mode_opaque:
@@ -808,11 +1452,24 @@ static std::shared_ptr<ms::Material> loadMaterial(
         builder.blending(ms::Blending::Opaque);
         //TODO: add to material built-in
         builder.custom("alpha_cutoff", material.alpha_cutoff);
-        builder.fragment("if (mctx.diffuse.a <= alpha_cutoff) discard;");
+        builder.fragment(
+            "#if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)\n"
+            "    if (mctx.diffuse.a <= alpha_cutoff) discard;\n"
+            "#else\n"
+            "    if (computeMaterialColor(mctx).a <= alpha_cutoff) discard;\n"
+            "#endif\n"
+        );
         break;
 	default:
 		throw ModelLoadError {"alpha mode " + std::to_string(material.alpha_mode) + " not supported"};
 	}
+
+    // Optional: enable wind on imported materials at construction time.
+    // We cannot "add" properties later because material UBO layout is created once at build.
+    if (model_flags.isPresent(ModelLoaderOption::Wind)) {
+        // Mode 2: SpeedTree8 payload (extra TEXCOORD sets) + SpeedTreeWind preset uniforms.
+        builder.wind(true).wind_mode(2u).wind_intensity(1.0f).wind_frequency(1.0f);
+    }
 
 //	if (!material.has_pbr_metallic_roughness) {
 //		throw ModelLoadError {"missing PBR metallic roughness"};
@@ -990,6 +1647,190 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const auto& pbr_mr   = material.pbr_metallic_roughness;
 	auto* base_color_tex = pbr_mr.base_color_texture.texture;
 
+    // -----------------------------------------------------------------------------------------
+    // Fallback: external textures next to the asset (common SpeedTree->Blender->glTF workflow)
+    //
+    // Your current Blender export produced a glTF with materials but WITHOUT images/textures.
+    // In that case, the engine has no way to render leaf alpha and everything becomes quads.
+    //
+    // To make iteration painless, if the glTF material has no texture bindings, we try to load
+    // textures by convention from the parent directory of the glTF folder.
+    //
+    // Example layout (your repo):
+    //   assets/tree/gltf/Untitled.gltf
+    //   assets/tree/Conifer_Color.png
+    //   assets/tree/Conifer_Normal.png
+    //   assets/tree/Bark_Color.png
+    //   assets/tree/Bark_Normal.png
+    //
+    // This is a best-effort heuristic, not a generic glTF feature.
+    // -----------------------------------------------------------------------------------------
+    auto toLower = [](std::string s) {
+        for (auto& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        return s;
+    };
+
+    const std::string mat_name = material.name ? std::string(material.name) : "";
+    const std::string mat_lower = toLower(mat_name);
+    const bool looks_like_billboard = mat_lower.find("billboard") != std::string::npos;
+    const bool looks_like_conifer = mat_lower.find("conifer") != std::string::npos || mat_lower.find("leaf") != std::string::npos;
+    const bool looks_like_bark = mat_lower.find("bark") != std::string::npos || mat_lower.find("trunk") != std::string::npos;
+
+    const bool has_any_gltf_textures =
+        (base_color_tex != nullptr) ||
+        (material.normal_texture.texture && material.normal_texture.texture->image) ||
+        (material.emissive_texture.texture && material.emissive_texture.texture->image) ||
+        (pbr_mr.metallic_roughness_texture.texture && pbr_mr.metallic_roughness_texture.texture->image) ||
+        (material.occlusion_texture.texture && material.occlusion_texture.texture->image);
+
+    auto tryLoadExternal = [&](const fs::path& path, const TextureLoaderFlags& flags) -> std::optional<std::shared_ptr<Texture>> {
+        try {
+            if (!fs::exists(path)) {
+                return std::nullopt;
+            }
+            return TextureLoader::load(assets, path, flags);
+        } catch (...) {
+            return std::nullopt;
+        }
+    };
+
+    if (!has_any_gltf_textures) {
+        const auto parent_dir = base_path.parent_path();
+
+        // Choose naming prefix by material name.
+        std::string prefix;
+        if (looks_like_billboard) {
+            // Prefer exact material-name prefix (SpeedTree exports often use:
+            //   Material: <Prefix>_Mat
+            //   Textures: <Prefix>_{Color,Normal,SS}.png
+            // Example in this repo:
+            //   Conifer_billboard_Billboard_Mat
+            //   Conifer_billboard_Billboard_Color.png
+            prefix = mat_name;
+            auto lower = toLower(prefix);
+            // Strip common suffixes.
+            if (lower.size() >= 4 && lower.rfind("_mat") == lower.size() - 4) {
+                prefix.resize(prefix.size() - 4);
+            } else if (lower.size() >= 8 && lower.rfind("_material") == lower.size() - 9) {
+                prefix.resize(prefix.size() - 9);
+            }
+        } else if (looks_like_conifer) {
+            prefix = "Conifer";
+        } else if (looks_like_bark) {
+            prefix = "Bark";
+        } else {
+            prefix = "";
+        }
+
+        if (!prefix.empty()) {
+            // For foliage alpha-cutout textures:
+            // - Mipmaps help reduce shimmering, but hard discard causes coverage loss.
+            // We'll keep mipmaps enabled and use a dithered discard in the shader snippet instead.
+            auto flags_srgb = TextureLoaderFlags(model_flags.base_tex_flags).withSpace(TextureLoaderFlags::Space::sRGB);
+            const auto flags_lin = TextureLoaderFlags(model_flags.base_tex_flags).withSpace(TextureLoaderFlags::Space::Linear);
+
+            const float conifer_cutoff = 0.33f;
+            const float billboard_cutoff = 0.33f;
+
+            // If we are going to use alpha-clip for foliage/billboards, enable coverage-preserving mipmaps
+            // on the base color texture so distant leaves don't disappear.
+            const bool conifer_forced_cutout = looks_like_conifer && material.alpha_mode == cgltf_alpha_mode_opaque;
+            const bool billboard_forced_cutout = looks_like_billboard; // billboards are always cutout in practice
+            if (conifer_forced_cutout) flags_srgb = flags_srgb.withPreserveAlphaCoverage(conifer_cutoff);
+            if (billboard_forced_cutout) flags_srgb = flags_srgb.withPreserveAlphaCoverage(billboard_cutoff);
+
+            const auto billboard_color_path = parent_dir / (prefix + "_Color.png");
+            const auto billboard_normal_path = parent_dir / (prefix + "_Normal.png");
+            const auto billboard_ss_path = parent_dir / (prefix + "_SS.png");
+
+            if (looks_like_billboard) {
+                std::cerr << "[billboard] material='" << mat_name << "' prefix='" << prefix << "' parent_dir='" << parent_dir.string() << "'\n";
+            }
+
+            if (auto tex = tryLoadExternal(billboard_color_path, flags_srgb)) {
+                builder.diffuse(*tex);
+                // Preserve authored baseColorFactor (usually 1,1,1,1). If it's unset, default white.
+                builder.color(toVec4(pbr_mr.base_color_factor));
+                if (looks_like_billboard) {
+                    std::cerr << "[billboard] loaded baseColor: " << billboard_color_path.string() << "\n";
+                }
+            } else {
+                // No external texture; fall back to glTF baseColorFactor.
+                builder.color(toVec4(pbr_mr.base_color_factor));
+                if (looks_like_billboard) {
+                    std::cerr << "[billboard] MISSING baseColor: " << billboard_color_path.string() << "\n";
+                }
+            }
+
+            if (auto tex = tryLoadExternal(billboard_normal_path, flags_lin)) {
+                builder.normal(*tex);
+                if (looks_like_billboard) {
+                    std::cerr << "[billboard] loaded normal: " << billboard_normal_path.string() << "\n";
+                }
+            } else if (looks_like_billboard) {
+                std::cerr << "[billboard] (optional) missing normal: " << billboard_normal_path.string() << "\n";
+            }
+
+            // Optional SpeedTree-ish "SS" mask/color (not currently used by our default shader model).
+            // Keep it here for future hookup without breaking content.
+            if (looks_like_billboard) {
+                if (fs::exists(billboard_ss_path)) {
+                    std::cerr << "[billboard] found SS map: " << billboard_ss_path.string() << " (not yet wired)\n";
+                } else {
+                    std::cerr << "[billboard] (optional) missing SS map: " << billboard_ss_path.string() << "\n";
+                }
+            }
+            (void)tryLoadExternal(billboard_ss_path, flags_lin);
+
+            // Leaf alpha cutout: if glTF didn't specify alphaMode, force a reasonable mask for foliage.
+            // This makes leaf quads readable for wind tuning.
+            if ((looks_like_conifer && material.alpha_mode == cgltf_alpha_mode_opaque) || looks_like_billboard) {
+                // Cutout works best as opaque + discard, and leaves are typically two-sided.
+                builder.two_sided(true);
+                builder.custom("alpha_cutoff", looks_like_billboard ? billboard_cutoff : conifer_cutoff);
+                // Normal alpha-clip. For better edges without dithering, enable alpha-to-coverage (A2C)
+                // via render state when MSAA is available.
+                builder.custom("alpha_to_coverage", 1u);
+                // For billboards we also apply a facing-fade to smoothly select the best card.
+                if (looks_like_billboard) {
+                    builder.custom("st_bb_fade_power", 2.0f);
+                    builder.fragment(
+                        "#if defined(ENGINE_VERTEX_NORMAL)\n"
+                        "    vec3 _stbbV = normalize(getCameraPosition() - getVertexPosition());\n"
+                        "    vec3 _stbbN = normalize(mctx.vertex_normal);\n"
+                        "#  if defined(ENGINE_MATERIAL_TWO_SIDED)\n"
+                        "    _stbbN = gl_FrontFacing ? _stbbN : -_stbbN;\n"
+                        "#  endif\n"
+                        "    float _stbbF = clamp(dot(_stbbN, _stbbV), 0.0, 1.0);\n"
+                        "    _stbbF = pow(_stbbF, st_bb_fade_power);\n"
+                        "#  if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)\n"
+                        "    mctx.diffuse.a *= _stbbF;\n"
+                        "    if (mctx.diffuse.a <= alpha_cutoff) discard;\n"
+                        "#  else\n"
+                        "    if (computeMaterialColor(mctx).a * _stbbF <= alpha_cutoff) discard;\n"
+                        "#  endif\n"
+                        "#endif\n"
+                    );
+                    std::cerr << "[billboard] enabled facing-fade + cutout (cutoff=" << (looks_like_billboard ? billboard_cutoff : conifer_cutoff) << ")\n";
+                } else {
+                    builder.fragment(
+                        "#if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)\n"
+                        "    if (mctx.diffuse.a <= alpha_cutoff) discard;\n"
+                        "#else\n"
+                        "    if (computeMaterialColor(mctx).a <= alpha_cutoff) discard;\n"
+                        "#endif\n"
+                    );
+                }
+            }
+        } else {
+            // Unknown material name; at least keep the base color factor.
+            builder.color(toVec4(pbr_mr.base_color_factor));
+        }
+
+        // Skip the normal glTF texture loading block below (since there are no textures anyway).
+        goto finish_material;
+    }
+
 	if (base_color_tex == nullptr) {
 		// no texture, this means that base color factor is the color.
 		builder.color(toVec4(pbr_mr.base_color_factor));
@@ -1028,6 +1869,33 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		builder.normal(*loadTextureFrom(*normal_tex, material_name + "_normal", flags));
 	}
 
+    // Billboard material behavior (even if textures are embedded in glTF):
+    // apply alpha cutout + facing fade (SpeedTree-style card selection).
+    if (looks_like_billboard) {
+        builder.two_sided(true);
+        builder.custom("alpha_cutoff", 0.33f);
+        builder.custom("alpha_to_coverage", 1u);
+        builder.custom("st_bb_fade_power", 2.0f);
+        builder.fragment(
+            "#if defined(ENGINE_VERTEX_NORMAL)\n"
+            "    vec3 _stbbV = normalize(getCameraPosition() - getVertexPosition());\n"
+            "    vec3 _stbbN = normalize(mctx.vertex_normal);\n"
+            "#  if defined(ENGINE_MATERIAL_TWO_SIDED)\n"
+            "    _stbbN = gl_FrontFacing ? _stbbN : -_stbbN;\n"
+            "#  endif\n"
+            "    float _stbbF = clamp(dot(_stbbN, _stbbV), 0.0, 1.0);\n"
+            "    _stbbF = pow(_stbbF, st_bb_fade_power);\n"
+            "#  if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)\n"
+            "    mctx.diffuse.a *= _stbbF;\n"
+            "    if (mctx.diffuse.a <= alpha_cutoff) discard;\n"
+            "#  else\n"
+            "    if (computeMaterialColor(mctx).a * _stbbF <= alpha_cutoff) discard;\n"
+            "#  endif\n"
+            "#endif\n"
+        );
+        std::cerr << "[billboard] (embedded textures) enabled facing-fade + cutout for material='" << mat_name << "'\n";
+    }
+
 	if (material.has_ior) {
         builder.refraction(true);
 		builder.ior(material.ior.ior);
@@ -1053,6 +1921,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		builder.emissive_color(emissive_color);
 	}
 
+finish_material:
 	return builder.models(instance_types).build(assets);
 }
 
@@ -1244,11 +2113,96 @@ static std::shared_ptr<Model> loadPlainModel(
 
 	fixMissingMaterials(mesh_materials, assets, model_name, instance_types);
 
+	// SpeedTree exports often embed multiple LOD levels as separate meshes in a single file
+	// (names like "LOD000", "LOD100", "LOD200"...). If we put them all into a single Model LOD,
+	// we will render all LODs at once, which looks like "detached" floating leaves/branches even
+	// with wind disabled.
+	//
+	// Detect this naming convention and build a real multi-LOD Model.
+	auto parse_lod_level = [](const std::string& name) -> std::optional<uint32_t> {
+		// Accept "LOD0", "LOD000", "LOD1_xxx", etc. Use the first digit after "LOD" as the level.
+		if (name.size() < 4) return std::nullopt;
+		if (!(name[0] == 'L' && name[1] == 'O' && name[2] == 'D')) return std::nullopt;
+		const unsigned char c = static_cast<unsigned char>(name[3]);
+		if (!std::isdigit(c)) return std::nullopt;
+		return static_cast<uint32_t>(name[3] - '0');
+	};
+
+	std::unordered_map<uint32_t, std::vector<size_t>> lod_to_indices;
+	lod_to_indices.reserve(4);
+
+	size_t lod_named = 0;
+	for (size_t i = 0; i < meshes.size(); ++i) {
+		if (!meshes[i]) continue;
+		const auto& n = meshes[i]->getName();
+		if (auto lvl = parse_lod_level(n)) {
+			++lod_named;
+			lod_to_indices[*lvl].push_back(i);
+		}
+	}
+
+	// Only enable LOD grouping when we have 2+ LOD levels and *all* meshes follow the convention.
+	const bool enable_lod_group = (lod_to_indices.size() >= 2) && (lod_named == meshes.size());
+
+	if (enable_lod_group) {
+		std::vector<uint32_t> levels;
+		levels.reserve(lod_to_indices.size());
+		for (const auto& [lvl, _] : lod_to_indices) {
+			levels.push_back(lvl);
+		}
+		std::sort(levels.begin(), levels.end());
+
+		std::vector<std::shared_ptr<Model>> lod_models;
+		lod_models.reserve(levels.size());
+
+		for (auto lvl : levels) {
+			std::vector<std::shared_ptr<Mesh>> lod_meshes;
+			std::vector<std::shared_ptr<ms::Material>> lod_materials;
+			for (auto idx : lod_to_indices[lvl]) {
+				lod_meshes.emplace_back(meshes[idx]);
+				lod_materials.emplace_back(mesh_materials[idx]);
+			}
+			lod_models.emplace_back(
+				Model::builder()
+					.name(model_name + "_lod" + std::to_string(lvl))
+					.meshes(std::move(lod_meshes))
+					.materials(std::move(lod_materials))
+					.build(assets)
+			);
+		}
+
+		// Build distance thresholds based on LOD0 bounding box size.
+		// Distances are upper bounds per LOD index; last is infinite.
+		const auto bb = lod_models.front()->getBoundingBox();
+		// Limitless::Box stores center+size.
+		const float radius = std::max(0.001f, 0.5f * glm::length(bb.size));
+
+		std::vector<float> distances;
+		distances.reserve(lod_models.size());
+		for (size_t i = 0; i < lod_models.size(); ++i) {
+			if (i + 1 == lod_models.size()) {
+				distances.emplace_back(std::numeric_limits<float>::infinity());
+			} else {
+				// tuned for viewer/debug usage
+				const float base = 10.0f;
+				const float step = 3.0f;
+				distances.emplace_back(radius * base * std::pow(step, static_cast<float>(i)));
+			}
+		}
+
+		return Model::builder()
+			.name(model_name)
+			.selection(LodSelection::CameraDistance)
+			.transition(LodTransition::None)
+			.add_lods(lod_models, distances)
+			.build(assets);
+	}
+
 	return Model::builder()
-				.name(model_name)
-				.meshes(std::move(meshes))
-				.materials(std::move(mesh_materials))
-				.build(assets);
+		.name(model_name)
+		.meshes(std::move(meshes))
+		.materials(std::move(mesh_materials))
+		.build(assets);
 	// return new Model(std::move(meshes), std::move(mesh_materials), model_name);
 }
 
@@ -1292,5 +2246,91 @@ GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoad
 		throw ModelLoadError {"no scene"};
 	}
 
-	return ::loadModel(assets, path, *out_data, flags);
+	// Ensure node.parent pointers are set so we can compute full node world transforms.
+	buildNodeParents(*out_data);
+
+	auto base_model = ::loadModel(assets, path, *out_data, flags);
+
+    // -----------------------------------------------------------------------------------------
+    // SpeedTree billboard LOD auto-attachment (Variant A)
+    //
+    // If a sibling "*_billboard.gltf" (or any single "*billboard*.gltf") exists next to the main glTF,
+    // we load it as an additional distant LOD.
+    //
+    // This lets us keep "LOD0 wind model" in one glTF and the billboard atlas/card geometry in another,
+    // while still treating it as a single Model in-engine.
+    // -----------------------------------------------------------------------------------------
+    auto toLower = [](std::string s) {
+        for (auto& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        return s;
+    };
+    const std::string stem_lower = toLower(path.stem().string());
+    if (stem_lower.find("billboard") != std::string::npos) {
+        return base_model;
+    }
+
+    // Only for plain models (billboard LOD for skeletal isn't supported).
+    if (out_data->skins_count > 0) {
+        return base_model;
+    }
+
+    const fs::path dir = path.parent_path();
+    const std::string stem = path.stem().string();
+
+    std::optional<fs::path> billboard_path;
+    // Preferred: <stem>_billboard.gltf
+    {
+        fs::path p = dir / (stem + "_billboard.gltf");
+        if (fs::exists(p)) billboard_path = p;
+    }
+    // Fallback: any single "*billboard*.gltf" in the same directory
+    if (!billboard_path) {
+        std::vector<fs::path> candidates;
+        try {
+            for (const auto& e : fs::directory_iterator(dir)) {
+                if (!e.is_regular_file()) continue;
+                auto p = e.path();
+                const auto ext = toLower(p.extension().string());
+                if (ext != ".gltf") continue;
+                if (p == path) continue;
+                const auto name = toLower(p.filename().string());
+                if (name.find("billboard") != std::string::npos) {
+                    candidates.emplace_back(p);
+                }
+            }
+        } catch (...) {
+            // ignore filesystem errors
+        }
+        if (candidates.size() == 1) {
+            billboard_path = candidates.front();
+        }
+    }
+
+    if (!billboard_path) {
+        // Debug aid: helps confirm why billboard isn't showing up.
+        // We only print for tree-ish assets (wind option enabled or common names) to avoid spam.
+        if (flags.isPresent(ModelLoaderOption::Wind) || stem_lower.find("tree") != std::string::npos || stem_lower.find("conifer") != std::string::npos) {
+            std::cerr << "[billboard] no billboard LOD found next to '" << path.string() << "'\n";
+        }
+        return base_model;
+    }
+
+    // Load billboard LOD without wind-payload processing.
+    ModelLoaderFlags bb_flags = flags;
+    bb_flags.options.erase(ModelLoaderOption::Wind);
+    std::cerr << "[billboard] attaching billboard LOD: '" << billboard_path->string() << "' -> '" << path.string() << "'\n";
+    auto billboard_model = GltfModelLoader::loadModel(assets, *billboard_path, bb_flags);
+
+    // Build distance thresholds based on LOD0 bounding box size.
+    const auto bb = base_model->getBoundingBox();
+    const float radius = std::max(0.001f, 0.5f * glm::length(bb.size));
+    std::vector<float> distances { radius * 10.0f, std::numeric_limits<float>::infinity() };
+
+    std::vector<std::shared_ptr<Model>> lods { base_model, billboard_model };
+    return Model::builder()
+        .name(path.stem().string())
+        .selection(LodSelection::CameraDistance)
+        .transition(LodTransition::None)
+        .add_lods(lods, distances)
+        .build(assets);
 }

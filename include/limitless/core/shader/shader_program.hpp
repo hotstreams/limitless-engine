@@ -83,5 +83,9 @@ namespace Limitless {
 
         template<typename T>
         ShaderProgram& setUniform(const std::string& name, const T& value);
+
+        // GLSL uniform arrays (e.g. `uniform vec4 foo[4];`)
+        template<typename T>
+        ShaderProgram& setUniform(const std::string& name, const std::vector<T>& values);
     };
 }

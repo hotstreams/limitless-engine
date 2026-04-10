@@ -3,6 +3,7 @@
 #include <limitless/core/shader/shader_program_introspection.hpp>
 #include <limitless/core/shader/shader_program_texture_setter.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
+#include <limitless/core/uniform/uniform_value_array.hpp>
 #include <limitless/core/context.hpp>
 #include <limitless/ms/material.hpp>
 #include <algorithm>
@@ -113,6 +114,35 @@ ShaderProgram& ShaderProgram::setUniform(const std::string& name, const T& value
     return *this;
 }
 
+template<typename T>
+ShaderProgram& ShaderProgram::setUniform(const std::string& name, const std::vector<T>& values) {
+    // uniform arrays are typically exposed as "name[0]" by GL introspection.
+    // Accept both "name" and "name[0]" to be robust across drivers.
+    std::string locName = name;
+    auto locIt = locations.find(locName);
+    if (locIt == locations.end()) {
+        if (name.find('[') == std::string::npos) {
+            locName = name + "[0]";
+            locIt = locations.find(locName);
+        }
+        if (locIt == locations.end()) {
+            // optimized out / not present
+            return *this;
+        }
+    }
+
+    // if not present, add new
+    if (auto it = uniforms.find(locName); it == uniforms.end()) {
+        uniforms[locName] = std::make_unique<UniformValueArray<T>>(locName, values);
+        uniforms[locName]->setLocation(locIt->second);
+    } else {
+        // else just update value
+        static_cast<UniformValueArray<T>&>(*it->second).getValues() = values; // marks changed
+    }
+
+    return *this;
+}
+
 ShaderProgram& ShaderProgram::setUniform(const std::string& name, std::shared_ptr<Texture> texture) {
     // if uniform got optimized out
     if (locations.find(name) == locations.end()) {
@@ -167,4 +197,6 @@ namespace Limitless {
     template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::vec4& value);
     template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::mat3& value);
     template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const glm::mat4& value);
+
+    template ShaderProgram& ShaderProgram::setUniform(const std::string &name, const std::vector<glm::vec4>& values);
 }

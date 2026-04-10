@@ -15,6 +15,10 @@ OPTION(OPENGL_SHADER_OUTPUT "Outputs all source shaders for GLSLANG testing" OFF
 
 #########################################
 
+if (BUILD_TESTS)
+    enable_testing()
+endif()
+
 set(ENGINE_CORE
     src/limitless/core/context_debug.cpp
     src/limitless/core/context_initializer.cpp
@@ -72,6 +76,10 @@ set(ENGINE_CORE
     src/limitless/core/vertex_stream/vertex_array_builder.cpp
     src/limitless/core/vertex_stream/indexed_stream.cpp
     src/limitless/core/vertex_stream/skeletal_stream.cpp
+    src/limitless/core/vertex_stream/batched_vertex_stream.cpp
+    src/limitless/core/vertex_stream/geometry_pool.cpp
+
+    src/limitless/core/indirect/indirect_command_buffer.cpp
 )
 
 set(ENGINE_INSTANCES
@@ -85,6 +93,7 @@ set(ENGINE_INSTANCES
     src/limitless/instances/instance_builder.cpp
     src/limitless/instances/decal_instance.cpp
     src/limitless/instances/instanced_instance.cpp
+    src/limitless/instances/skeletal_instanced_instance.cpp
     src/limitless/instances/terrain_instance.cpp
     src/limitless/instances/lod_group_instance.cpp
 )
@@ -92,7 +101,7 @@ set(ENGINE_INSTANCES
 set(ENGINE_LIGHTING
     src/limitless/lighting/lighting.cpp
     src/limitless/lighting/light_container.cpp
-    src/limitless/lighting/cascade_shadows.cpp
+    src/limitless/lighting/cascade_shadow_mapping.cpp
     src/limitless/lighting/light.cpp
 )
 
@@ -105,6 +114,7 @@ set(ENGINE_LOADERS
     src/limitless/loaders/dds_loader.cpp
     src/limitless/loaders/cgltf.c
     src/limitless/loaders/gltf_model_loader.cpp
+    src/limitless/loaders/lut3d_loader.cpp
 )
 
 set(ENGINE_MODELS
@@ -135,6 +145,8 @@ set(ENGINE_UTIL
     src/limitless/renderer/color_picker.cpp
     src/limitless/util/frustum.cpp
     src/limitless/util/geoclipmap.cpp
+    src/limitless/wind/speedtree_wind_state.cpp
+    src/limitless/wind/wind_controller.cpp
 )
 
 set(ENGINE_MS
@@ -175,6 +187,8 @@ set(ENGINE_RENDERER
     src/limitless/renderer/skybox_pass.cpp
     src/limitless/renderer/renderer.cpp
     src/limitless/renderer/instance_renderer.cpp
+    src/limitless/renderer/indirect_instance_renderer.cpp
+    src/limitless/renderer/render_queue.cpp
     src/limitless/renderer/render_settings_shader_definer.cpp
     src/limitless/renderer/renderer_settings.cpp
     src/limitless/renderer/scene_data.cpp
@@ -186,6 +200,7 @@ set(ENGINE_RENDERER
     src/limitless/renderer/bloom_pass.cpp
     src/limitless/renderer/composite_pass.cpp
     src/limitless/renderer/ssao_pass.cpp
+    src/limitless/renderer/hbao_pass.cpp
     src/limitless/renderer/fxaa_pass.cpp
     src/limitless/renderer/screen_pass.cpp
     src/limitless/renderer/render_debug_pass.cpp
@@ -196,6 +211,7 @@ set(ENGINE_RENDERER
     src/limitless/postprocessing/blur.cpp
     src/limitless/postprocessing/bloom.cpp
     src/limitless/postprocessing/ssao.cpp
+    src/limitless/postprocessing/hbao.cpp
     src/limitless/postprocessing/ssr.cpp
 )
 

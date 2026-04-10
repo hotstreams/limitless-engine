@@ -112,12 +112,11 @@ void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout Materi
     // DEBUG_CONTROL_ANGLE - Show texture rotation
     if (debug_mode == DEBUG_CONTROL_ANGLE) {
         uint angle = uint(DECODE_ROTATION(control) / 0.392699081698724);
-        vec3 a_colors[16] = vec3[16](
-            vec3(1., .2, .0), vec3(.8, 0., .2), vec3(.6, .0, .4), vec3(.4, .0, .6),
-            vec3(.2, 0., .8), vec3(.1, .1, .8), vec3(0., .2, .8), vec3(0., .4, .6),
-            vec3(0., .6, .4), vec3(0., .8, .2), vec3(0., 1., 0.), vec3(.2, 1., 0.),
-            vec3(.4, 1., 0.), vec3(.6, 1., 0.), vec3(.8, .6, 0.), vec3(1., .4, 0.)
-        );
+        vec3 a_colors[16];
+        a_colors[0] = vec3(1., .2, .0); a_colors[1] = vec3(.8, 0., .2); a_colors[2] = vec3(.6, .0, .4); a_colors[3] = vec3(.4, .0, .6);
+        a_colors[4] = vec3(.2, 0., .8); a_colors[5] = vec3(.1, .1, .8); a_colors[6] = vec3(0., .2, .8); a_colors[7] = vec3(0., .4, .6);
+        a_colors[8] = vec3(0., .6, .4); a_colors[9] = vec3(0., .8, .2); a_colors[10] = vec3(0., 1., 0.); a_colors[11] = vec3(.2, 1., 0.);
+        a_colors[12] = vec3(.4, 1., 0.); a_colors[13] = vec3(.6, 1., 0.); a_colors[14] = vec3(.8, .6, 0.); a_colors[15] = vec3(1., .4, 0.);
         mctx.color.xyz = a_colors[angle];
         mctx.roughness = 1.0;
         mctx.metallic = 0.0;
@@ -129,10 +128,9 @@ void applyDebugVisualization(int debug_mode, vec2 uv, uint control, inout Materi
         // Reverse the scale formula to get the original scale index
         float scale_value = DECODE_SCALE(control);
         uint scale = uint((0.9 - scale_value) / 0.1) % 8u;
-        vec3 s_colors[8] = vec3[8](
-            vec3(.5, .5, .5), vec3(.675, .25, .375), vec3(.75, .125, .25), vec3(.875, .0, .125),
-            vec3(1., 0., 0.), vec3(0., 0., 1.), vec3(.0, .166, .833), vec3(.166, .333, .666)
-        );
+        vec3 s_colors[8];
+        s_colors[0] = vec3(.5, .5, .5); s_colors[1] = vec3(.675, .25, .375); s_colors[2] = vec3(.75, .125, .25); s_colors[3] = vec3(.875, .0, .125);
+        s_colors[4] = vec3(1., 0., 0.); s_colors[5] = vec3(0., 0., 1.); s_colors[6] = vec3(.0, .166, .833); s_colors[7] = vec3(.166, .333, .666);
         mctx.color.xyz = s_colors[scale];
         mctx.roughness = 1.0;
         mctx.metallic = 0.0;

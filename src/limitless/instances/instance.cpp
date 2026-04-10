@@ -192,8 +192,7 @@ Instance::Builder Instance::builder() noexcept {
 
 void Instance::updateBoundingBox() noexcept {
     if (custom_bounding_box) {
-        bounding_box.center = glm::vec4{position, 1.0f} + glm::vec4{custom_bounding_box->center, 1.0f} * final_matrix;
-        bounding_box.size = glm::vec4{custom_bounding_box->size, 1.0f} * final_matrix;
+        bounding_box = transformBoundingBox(*custom_bounding_box, final_matrix);
     }
 }
 
@@ -208,12 +207,27 @@ Instance &Instance::setOutlineColor(glm::vec3 color) noexcept {
 }
 
 void Instance::updateInstanceBuffer() noexcept {
+    glm::vec4 aabb_min {0.0f};
+    glm::vec4 aabb_max {0.0f};
+    if (custom_bounding_box) {
+        const auto& b = *custom_bounding_box;
+        const glm::vec3 half = b.size * 0.5f;
+        const glm::vec3 mn = b.center - half;
+        const glm::vec3 mx = b.center + half;
+        aabb_min = glm::vec4(mn, 0.0f);
+        aabb_max = glm::vec4(mx, 0.0f);
+    }
+
     Data data {
         final_matrix,
         glm::vec4(outline_color, 1.0f),
+        aabb_min,
+        aabb_max,
         static_cast<uint32_t>(id),
         outlined,
-        decal_mask
+        decal_mask,
+        0u,
+        glm::vec4(0.0f)
     };
 
     if (data != current_data) {

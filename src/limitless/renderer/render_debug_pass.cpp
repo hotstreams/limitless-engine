@@ -19,7 +19,7 @@ void RenderDebugPass::render(
         Context &ctx,
         const Assets &assets,
         const Camera &camera,
-        [[maybe_unused]] UniformSetter &setter) {
+        UniformSetter &setter) {
     ProfilerScope profile_scope {"RenderDebugPass"};
-    helper.render(ctx, assets, camera, scene.getLighting(), scene);
+    helper.render(ctx, assets, camera, scene.getLighting(), scene, setter);
 }

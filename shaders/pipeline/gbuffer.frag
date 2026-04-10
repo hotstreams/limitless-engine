@@ -7,6 +7,7 @@ ENGINE::FRAGMENT_CONTEXT
 #include "./scene.glsl"
 #include "../instance/instance.glsl"
 #include "../material/material_context.glsl"
+#include "../functions/lod_crossfade.glsl"
 
 layout (location = 0) out vec3 albedo;
 layout (location = 1) out vec3 normal;
@@ -20,7 +21,9 @@ void main() {
     InstanceContext ictx = computeInstanceContext(vctx);
     MaterialContext mctx = computeMaterialContext(vctx);
 
-    albedo = computeMaterialColor(mctx).rgb;
+    vec4 surface_color = computeMaterialColor(mctx);
+    applyEngineLodCrossFade(ictx);
+    albedo = surface_color.rgb;
 
     normal = computeMaterialNormal(mctx);
 

@@ -2,7 +2,6 @@
 0. gpu & cpu counters, logging
 1. vertex pivot animation, wind
 2. billboards
-2. weather system
 3. post processing effects (fog, soft particles, soft shadows?, screen space shadows resolution tweeks)
    Multiple tone mappers: generic (customizable), ACES, filmic, etc.
    Color and tone management: luminance scaling, gamut mapping
@@ -27,10 +26,7 @@
 
 https://www.reddit.com/r/unrealengine/comments/192pj36/how_to_better_optimize_forest_for_a_video_game/
 
-static mesh batching in one model
-static batching several models?
-static instance batching?
-dynamic instance batching?
+
 
 glDrawElementsBaseVertex();
 glMultiDrawElements();

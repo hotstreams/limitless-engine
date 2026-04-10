@@ -23,6 +23,8 @@ namespace Limitless {
         LodTransition transition;
         LodSelection selection;
         std::vector<float> distances;
+        /// Fraction (0,1] of each LOD distance band used as cross-fade zone toward the next coarser LOD.
+        float lod_fade_transition_width;
     protected:
         Model(
             const std::string& name,
@@ -30,7 +32,8 @@ namespace Limitless {
             const std::vector<std::shared_ptr<ms::Material>>& materials,
             LodTransition transition,
             LodSelection selection,
-            const std::vector<float>& distances
+            const std::vector<float>& distances,
+            float lod_fade_transition_width
         );
 
         Model(
@@ -38,7 +41,8 @@ namespace Limitless {
             const std::vector<Lod>& lods,
             LodTransition transition,
             LodSelection selection,
-            const std::vector<float>& distances
+            const std::vector<float>& distances,
+            float lod_fade_transition_width
         );
 
         void calculateBoundingBox();
@@ -59,6 +63,7 @@ namespace Limitless {
         [[nodiscard]] LodTransition getTransition() const noexcept { return transition; }
         [[nodiscard]] LodSelection getSelection() const noexcept { return selection; }
         [[nodiscard]] const auto& getDistances() const noexcept { return distances; }
+        [[nodiscard]] float getLodFadeTransitionWidth() const noexcept { return lod_fade_transition_width; }
 
         class Builder;
         static Builder builder();

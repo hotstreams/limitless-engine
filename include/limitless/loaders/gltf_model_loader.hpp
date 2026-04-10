@@ -16,7 +16,9 @@ namespace Limitless {
 		FlipWindingOrder,
 		NoMaterials,
 		GlobalScale,
-		LOD
+		LOD,
+        // Enables wind properties on imported materials (so shaders can compile wind path).
+        Wind
 	};
 
 	struct ModelLoadError : public std::runtime_error {
@@ -47,6 +49,11 @@ namespace Limitless {
 			options.emplace(ModelLoaderOption::LOD);
 			return *this;
 		}
+
+        ModelLoaderFlags& wind() {
+            options.emplace(ModelLoaderOption::Wind);
+            return *this;
+        }
 
 		ModelLoaderFlags& baseTextureLoaderFlags(TextureLoaderFlags tex_flags) {
 			base_tex_flags = std::move(tex_flags);

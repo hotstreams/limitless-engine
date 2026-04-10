@@ -2,12 +2,16 @@
 #include <limitless/instances/skeletal_instance.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/cpu_profiler.hpp>
+#include <limitless/wind/wind_controller.hpp>
 
 using namespace Limitless;
 
 Scene::Scene(Context& context)
     : lighting {context} {
+    wind_controller = std::make_unique<WindController>(*this);
 }
+
+Scene::~Scene() = default;
 
 void Scene::removeDeadInstances() noexcept {
     for (auto it = instances.cbegin(); it != instances.cend(); ) {
@@ -113,7 +117,7 @@ void Scene::setSkybox(const std::shared_ptr<Skybox>& skybox_) {
 void Scene::update(const Camera& camera) {
     CpuProfileScope scope(global_profiler, "Scene::update");
 
-    lighting.update();
+    lighting.update(camera);
 
     removeDeadInstances();
 

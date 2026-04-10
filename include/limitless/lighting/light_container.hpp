@@ -7,6 +7,7 @@
 #include <limitless/lighting/light.hpp>
 
 namespace Limitless {
+    class Frustum;
     class Buffer;
 
     class LightContainer {
@@ -44,6 +45,12 @@ namespace Limitless {
 
         // visible lights buffer
         std::shared_ptr<Buffer> buffer;
+
+        // dynamic SSBO capacity (in InternalLight elements)
+        size_t ssbo_capacity {0};
+
+        // cached visible ids to avoid re-uploading SSBO when only camera moved but set is unchanged
+        std::vector<uint64_t> visible_ids;
     public:
         LightContainer();
         ~LightContainer() = default;
@@ -52,10 +59,12 @@ namespace Limitless {
         [[nodiscard]] const auto& getLights() const noexcept { return lights; }
         [[nodiscard]] uint64_t size() const noexcept { return lights.size(); }
         [[nodiscard]] uint64_t visibleSize() const noexcept { return visible_lights.size(); }
+        [[nodiscard]] const std::vector<uint64_t>& getVisibleIds() const noexcept { return visible_ids; }
 
         Light& add(Light&& light);
         Light& add(const Light& light);
 
         void update();
+        void update(const Frustum& frustum);
     };
 }

@@ -486,6 +486,62 @@ bool Material::getDefaultComputation() const
     return default_computation;
 }
 
+bool Material::hasBillboard() const noexcept {
+    return properties.count(Property::BillboardMode) != 0;
+}
+
+uint32_t Material::getBillboardMode() const {
+    try {
+        return static_cast<const UniformValue<uint32_t>&>(*properties.at(Property::BillboardMode)).getValue(); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - BillboardMode");
+    }
+}
+
+glm::vec3 Material::getBillboardPivot() const {
+    try {
+        return static_cast<const UniformValue<glm::vec3>&>(*properties.at(Property::BillboardPivot)).getValue(); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - BillboardPivot");
+    }
+}
+
+glm::vec3 Material::getBillboardAxis() const {
+    try {
+        return static_cast<const UniformValue<glm::vec3>&>(*properties.at(Property::BillboardAxis)).getValue(); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - BillboardAxis");
+    }
+}
+
+bool Material::hasWind() const noexcept {
+    return properties.count(Property::WindMode) != 0;
+}
+
+uint32_t Material::getWindMode() const {
+    try {
+        return static_cast<const UniformValue<uint32_t>&>(*properties.at(Property::WindMode)).getValue(); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - WindMode");
+    }
+}
+
+float Material::getWindIntensity() const {
+    try {
+        return static_cast<const UniformValue<float>&>(*properties.at(Property::WindIntensity)).getValue(); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - WindIntensity");
+    }
+}
+
+float Material::getWindFrequency() const {
+    try {
+        return static_cast<const UniformValue<float>&>(*properties.at(Property::WindFrequency)).getValue(); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - WindFrequency");
+    }
+}
+
 const std::shared_ptr<Texture>& Material::getDiffuseTexture() const {
     try {
         return static_cast<UniformSampler&>(*properties.at(Property::Diffuse)).getSampler(); //NOLINT
@@ -711,6 +767,54 @@ void Material::setTransmission(float value) {
         static_cast<UniformValue<float>&>(*properties.at(Property::Transmission)).setValue(value); //NOLINT
     } catch (const std::out_of_range& e) {
         throw material_exception("Material property not found - Transmission");
+    }
+}
+
+void Material::setBillboardMode(uint32_t mode) {
+    try {
+        static_cast<UniformValue<uint32_t>&>(*properties.at(Property::BillboardMode)).setValue(mode); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - BillboardMode");
+    }
+}
+
+void Material::setBillboardPivot(glm::vec3 pivot) {
+    try {
+        static_cast<UniformValue<glm::vec3>&>(*properties.at(Property::BillboardPivot)).setValue(pivot); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - BillboardPivot");
+    }
+}
+
+void Material::setBillboardAxis(glm::vec3 axis) {
+    try {
+        static_cast<UniformValue<glm::vec3>&>(*properties.at(Property::BillboardAxis)).setValue(axis); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - BillboardAxis");
+    }
+}
+
+void Material::setWindMode(uint32_t mode) {
+    try {
+        static_cast<UniformValue<uint32_t>&>(*properties.at(Property::WindMode)).setValue(mode); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - WindMode");
+    }
+}
+
+void Material::setWindIntensity(float intensity) {
+    try {
+        static_cast<UniformValue<float>&>(*properties.at(Property::WindIntensity)).setValue(intensity); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - WindIntensity");
+    }
+}
+
+void Material::setWindFrequency(float frequency) {
+    try {
+        static_cast<UniformValue<float>&>(*properties.at(Property::WindFrequency)).setValue(frequency); //NOLINT
+    } catch (const std::out_of_range&) {
+        throw material_exception("Material property not found - WindFrequency");
     }
 }
 

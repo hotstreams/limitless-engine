@@ -7,50 +7,50 @@
 namespace Limitless {
     class Cube : public Model {
     private:
+        // Cube vertices with correct normals and CCW winding order (front-facing when viewed from outside)
         static inline std::vector<VertexNormalTangent> vertices = {
-            //TODO: fix face order
-            // back face
-            {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
-            {{0.5f, -0.5f, -0.5f},   {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // bottom-right
-            {{0.5f,  0.5f, -0.5f},   {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
-            {{0.5f,  0.5f, -0.5f},   {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
-            {{ -0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-left
-            {{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, -1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
-            // front face
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
-            {{ 0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
-            {{0.5f, -0.5f,  0.5f},   {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // bottom-right
-            {{0.5f,  0.5f,  0.5f},   {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
-            {{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-left
-            {{-0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-left
-            // left face
-            {{-0.5f,  0.5f,  0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // top-right
-            {{-0.5f, -0.5f, -0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-left
-            {{-0.5f,  0.5f, -0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-left
-            {{ -0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-left
-            {{-0.5f,  0.5f,  0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // top-right
-            {{-0.5f, -0.5f,  0.5f},  {-1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-right
-            // right face
-            {{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // top-left
-            {{ 0.5f,  0.5f, -0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-right
-            {{ 0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-right
-            {{ 0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // bottom-right
-            {{  0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 0.0f}}, // bottom-left
-            {{  0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // top-left
-            // bottom face
-            {{ -0.5f, -0.5f, -0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-right
-            {{  0.5f, -0.5f,  0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 0.0f}}, // bottom-left
-            {{  0.5f, -0.5f, -0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {1.0f, 1.0f}}, // top-left
-            {{ 0.5f, -0.5f,  0.5f},   {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // bottom-left
-            {{ -0.5f, -0.5f, -0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 1.0f}}, // top-right
-            {{ -0.5f, -0.5f,  0.5f},  {0.0f, -1.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 0.0f}}, // bottom-right
-            // top face
-            {{ -0.5f,  0.5f, -0.5f},  {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, {0.0f, 1.0f}}, // top-left
-            {{ 0.5f,  0.5f, -0.5f},   {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 1.0f}}, // top-right
-            {{ 0.5f,  0.5f,  0.5f},   {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // bottom-right
-            {{ 0.5f,  0.5f,  0.5f},   {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 1.0f, 0.0f}}, // bottom-right
-            {{ -0.5f,  0.5f,  0.5f},  {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 0.0f}}, // bottom-left
-            {{ -0.5f,  0.5f, -0.5f},  {0.0f, 1.0f, 1.0f}, glm::vec3{0.0f}, { 0.0f, 1.0f}}  // top-left
+            // back face (-Z normal, CCW when viewed from -Z)
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            // front face (+Z normal, CCW when viewed from +Z)
+            {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            {{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            // left face (-X normal, CCW when viewed from -X)
+            {{-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            {{-0.5f,  0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            {{-0.5f, -0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            // right face (+X normal, CCW when viewed from +X)
+            {{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            // bottom face (-Y normal, CCW when viewed from -Y)
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 0.0f}},
+            // top face (+Y normal, CCW when viewed from +Y)
+            {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 1.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, glm::vec4(0.0f), {1.0f, 0.0f}},
+            {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 1.0f}},
+            {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, glm::vec4(0.0f), {0.0f, 0.0f}}
     };
     public:
         Cube();

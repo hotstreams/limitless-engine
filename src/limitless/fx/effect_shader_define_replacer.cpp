@@ -175,7 +175,7 @@ std::string EffectShaderDefineReplacer::getMeshEmitterVertexStream([[maybe_unuse
     stream += "layout(location = 0) in vec3 _vertex_position;\n";
     stream += "layout(location = 1) in vec3 _vertex_normal;\n";
     stream += "#if defined(ENGINE_MATERIAL_NORMAL_TEXTURE) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)\n";
-    stream += "    layout(location = 2) in vec3 _vertex_tangent;\n";
+    stream += "    layout(location = 2) in vec4 _vertex_tangent;\n";
     stream += "#endif\n";
     stream += "layout(location = 3) in vec2 _vertex_uv;\n";
     stream += "#if defined(ENGINE_MATERIAL_SKELETAL_MODEL)\n";
@@ -193,7 +193,8 @@ std::string EffectShaderDefineReplacer::getMeshEmitterVertexGetters([[maybe_unus
     getters += "vec3 getVertexNormal() {\n    return _vertex_normal;\n}\n";
     getters += "vec2 getVertexUV() {\n    return _vertex_uv;\n}\n";
     getters += "#if defined(ENGINE_MATERIAL_NORMAL_TEXTURE) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)\n";
-    getters += "vec3 getVertexTangent() {\n    return _vertex_tangent;\n}\n";
+    getters += "vec3 getVertexTangent() {\n    return _vertex_tangent.xyz;\n}\n";
+    getters += "float getVertexTangentSign() {\n    return _vertex_tangent.w;\n}\n";
     getters += "#endif\n";
     getters += "#if defined(ENGINE_MATERIAL_SKELETAL_MODEL)\n";
     getters += "ivec4 getVertexBoneID() {\n    return _vertex_bone_id;\n}\n";
@@ -325,7 +326,7 @@ std::string EffectShaderDefineReplacer::getEffectInterfaceBlockOut(AbstractEmitt
     
     if (emitter_type == AbstractEmitter::Type::Mesh) {
         block += "#if defined(ENGINE_MATERIAL_NORMAL_TEXTURE) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)\n";
-        block += "    vec3 tangent;\n";
+        block += "    vec4 tangent;\n";
         block += "    vec3 normal;\n";
         block += "#else\n";
         block += "    vec3 normal;\n";
@@ -446,7 +447,7 @@ std::string EffectShaderDefineReplacer::getEffectVertexPassThrough(AbstractEmitt
         passthrough += "_out_data.size = getParticleSize();\n";
         passthrough += "_out_data.normal = getVertexNormal();\n";
         passthrough += "#if defined(ENGINE_MATERIAL_NORMAL_TEXTURE) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)\n";
-        passthrough += "_out_data.tangent = getVertexTangent();\n";
+        passthrough += "_out_data.tangent = vec4(getVertexTangent(), getVertexTangentSign());\n";
         passthrough += "#endif\n";
     }
     
@@ -476,7 +477,7 @@ std::string EffectShaderDefineReplacer::getEffectInterfaceBlockIn(AbstractEmitte
     
     if (emitter_type == AbstractEmitter::Type::Mesh) {
         block += "#if defined(ENGINE_MATERIAL_NORMAL_TEXTURE) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)\n";
-        block += "    vec3 tangent;\n";
+        block += "    vec4 tangent;\n";
         block += "    vec3 normal;\n";
         block += "#else\n";
         block += "    vec3 normal;\n";
@@ -616,7 +617,8 @@ std::string EffectShaderDefineReplacer::getEffectInterfaceBlockInGetters(Abstrac
     // Mesh emitter normal/tangent getters
     if (emitter_type == AbstractEmitter::Type::Mesh) {
         getters += "#if defined(ENGINE_MATERIAL_NORMAL_TEXTURE) && defined(ENGINE_SETTINGS_NORMAL_MAPPING)\n";
-        getters += "vec3 getVertexTangent() {\n    return _in_data.tangent;\n}\n";
+        getters += "vec3 getVertexTangent() {\n    return _in_data.tangent.xyz;\n}\n";
+        getters += "float getVertexTangentSign() {\n    return _in_data.tangent.w;\n}\n";
         getters += "#endif\n";
         getters += "vec3 getVertexNormal() {\n    return _in_data.normal;\n}\n";
     }

@@ -18,13 +18,10 @@ void SkyboxPass::render([[maybe_unused]] InstanceRenderer &instance_renderer, Sc
     ProfilerScope profile_scope {"SkyboxPass"};
     auto& gbuffer = renderer.getPass<DeferredFramebufferPass>();
 
+    // Skybox needs only a minimal set of MRTs
     gbuffer.getFramebuffer().drawBuffers({
-         FramebufferAttachment::Color0,
-         FramebufferAttachment::Color1,
-         FramebufferAttachment::Color2,
-         FramebufferAttachment::Color3,
-         FramebufferAttachment::Color4,
-         FramebufferAttachment::Color5
+         FramebufferAttachment::Color0, // albedo
+         FramebufferAttachment::Color3  // emissive (if used by skybox)
     });
 
     if (auto skybox = scene.getSkybox(); skybox) {

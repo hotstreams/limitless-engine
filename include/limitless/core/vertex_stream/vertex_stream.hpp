@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <limitless/core/context_debug.hpp>
 #include <limitless/util/data_type.hpp>
 #include <limitless/core/vertex_stream/vertex_array.hpp>
@@ -23,6 +24,11 @@ namespace Limitless {
             Normal,
             Tangent,
             Uv,
+            Uv1,
+            Uv2,
+            Uv3,
+            Uv4,
+            Uv5,
             BoneIndices,
             BoneWeights,
             MeshIndex,
@@ -93,12 +99,15 @@ namespace Limitless {
 
         virtual void draw();
         virtual void draw_instanced(size_t instance_count);
+        virtual void draw_instanced(size_t instance_count, uint32_t base_instance);
 
         virtual void draw(size_t offset, size_t count);
         virtual void draw_instanced(size_t offset, size_t count, size_t instance_count);
+        virtual void draw_instanced(size_t offset, size_t count, size_t instance_count, uint32_t base_instance);
 
         virtual void draw(Draw mode, size_t offset, size_t count);
         virtual void draw_instanced(Draw mode, size_t offset, size_t count, size_t instance_count);
+        virtual void draw_instanced(Draw mode, size_t offset, size_t count, size_t instance_count, uint32_t base_instance);
 
         virtual void merge(const VertexStream& other);
 
@@ -121,7 +130,7 @@ namespace Limitless {
         void update(std::vector<std::byte> data);
 
         template<typename T>
-        void forEach(Attribute attribute, std::function<void(const T&)> function) {
+        void forEach(Attribute attribute, std::function<void(const T&)> function) const {
             if (attributes.find(attribute) == attributes.end()) {
                 return;
             }

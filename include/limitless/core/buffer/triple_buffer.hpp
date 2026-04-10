@@ -16,6 +16,7 @@ namespace Limitless {
         void clearData(GLenum internalformat, GLenum format, GLenum type, const void* data) const noexcept override;
         void bufferSubData(GLintptr offset, size_t sub_size, const void* data) const noexcept override;
         void mapData(const void* data, size_t data_size) override;
+        void resize(size_t bytes) noexcept override;
 
         void bindBufferRangeAs(Type target, GLuint index, GLintptr offset) const noexcept override;
         void bindBufferRange(GLuint index, GLintptr offset) const noexcept override;
@@ -23,12 +24,15 @@ namespace Limitless {
         void bindBase(GLuint index) const noexcept override;
         void bindAs(Type target) const noexcept override;
         void bind() const noexcept override;
+        void unbind() const noexcept override;
 
         void fence() noexcept override;
         void waitFence() noexcept override;
 
         [[nodiscard]] void* mapBufferRange(GLintptr offset, GLsizeiptr size) const override;
         void unmapBuffer() const noexcept override;
+
+        Buffer* clone() override;
 
         [[nodiscard]] GLuint getId() const noexcept override;
         [[nodiscard]] Type getType() const noexcept override;

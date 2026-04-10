@@ -9,6 +9,7 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/renderer/fxaa_pass.hpp>
 #include <limitless/core/profiler.hpp>
+#include <glm/glm.hpp>
 
 using namespace Limitless;
 
@@ -31,9 +32,14 @@ void ScreenPass::render(
     ProfilerScope profile_scope {"ScreenPass"};
 
     ctx.disable(Capabilities::DepthTest);
+    ctx.disable(Capabilities::StencilTest);
+    ctx.setDepthMask(DepthMask::False);
     ctx.disable(Capabilities::Blending);
+    ctx.setCullFace(CullFace::Back);
 
     {
+        ctx.setViewPort(renderer.getResolution());
+
 	    target->clear();
         auto& shader = assets.shaders.get("quad");
 
@@ -45,6 +51,9 @@ void ScreenPass::render(
         }
 
         shader.setUniform("screen_texture", screen);
+        const auto res = renderer.getResolution();
+        shader.setUniform("viewport_pixels", glm::vec2{static_cast<float>(res.x), static_cast<float>(res.y)});
+        shader.setUniform("quad_red_channel_only", 0.0f);
 
         shader.use();
 

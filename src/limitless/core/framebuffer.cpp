@@ -10,11 +10,9 @@ Framebuffer::Framebuffer() noexcept {
 }
 
 void Framebuffer::bind() noexcept {
+    glBindFramebuffer(GL_FRAMEBUFFER, id);
     if (auto* state = Context::getCurrentContext(); state) {
-//        if (state->framebuffer_id != id) {
-            glBindFramebuffer(GL_FRAMEBUFFER, id);
-            state->framebuffer_id = id;
-//        }
+        state->framebuffer_id = id;
     }
 }
 
@@ -167,11 +165,9 @@ const TextureAttachment& Framebuffer::get(FramebufferAttachment attachment) cons
 }
 
 void Framebuffer::unbind() noexcept {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     if (auto* state = Context::getCurrentContext(); state) {
-        if (state->framebuffer_id != 0) {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            state->framebuffer_id = 0;
-        }
+        state->framebuffer_id = 0;
     }
 }
 
@@ -325,28 +321,44 @@ Framebuffer Framebuffer::asRGB16FNearestClampToEdgeWithDepth(glm::uvec2 size, co
 }
 
 Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept
-    : RenderTarget(std::move(rhs))
-    , attachments {std::move(rhs.attachments)}
+    : attachments {std::move(rhs.attachments)}
     , draw_state {std::move(rhs.draw_state)} {
+    // Move the id and zero out the source to prevent double-delete
+    id = rhs.id;
+    rhs.id = 0;
 }
 
 Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept {
-    id = rhs.id;
-    attachments = std::move(rhs.attachments);
-    draw_state = std::move(rhs.draw_state);
+    if (this != &rhs) {
+        // Delete existing framebuffer if valid
+        if (id != 0) {
+            if (auto* state = Context::getCurrentContext(); state) {
+                if (state->framebuffer_id == id) {
+                    state->framebuffer_id = 0;
+                }
+            }
+            glDeleteFramebuffers(1, &id);
+        }
+        
+        // Move resources from rhs
+        id = rhs.id;
+        rhs.id = 0;  // Zero out source to prevent double-delete
+        attachments = std::move(rhs.attachments);
+        draw_state = std::move(rhs.draw_state);
+    }
     return *this;
 }
 
 void Framebuffer::blit(Framebuffer& source, Texture::Filter filter, FramebufferBlit blit) {
-    //TODO: constraints
     auto size = attachments.at(FramebufferAttachment::Color0).texture->getSize();
 
     drawBuffer(FramebufferAttachment::Color0);
     source.readBuffer(FramebufferAttachment::Color0);
 
-    //TODO: context state check
+    // Bind draw/read framebuffers separately for blitting
+    // Note: GL_DRAW_FRAMEBUFFER and GL_READ_FRAMEBUFFER are separate binding points
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, id);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER , source.id);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, source.id);
 
     glBlitFramebuffer(0, 0, size.x, size.y,
                       0, 0, size.x, size.y,
@@ -354,23 +366,25 @@ void Framebuffer::blit(Framebuffer& source, Texture::Filter filter, FramebufferB
 
     source.drawBuffer(FramebufferAttachment::Color0);
     glReadBuffer(GL_NONE);
+
+    // Invalidate framebuffer cache since draw/read are now bound separately
+    // Next bind() with GL_FRAMEBUFFER will rebind both correctly
+    if (auto* state = Context::getCurrentContext(); state) {
+        state->framebuffer_id = 0;
+    }
 }
 
 void DefaultFramebuffer::unbind() noexcept {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     if (auto* state = Context::getCurrentContext(); state) {
-        if (state->framebuffer_id != 0) {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            state->framebuffer_id = 0;
-        }
+        state->framebuffer_id = 0;
     }
 }
 
 void DefaultFramebuffer::bind() noexcept {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     if (auto* state = Context::getCurrentContext(); state) {
-        if (state->framebuffer_id != 0) {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            state->framebuffer_id = 0;
-        }
+        state->framebuffer_id = 0;
     }
 }
 

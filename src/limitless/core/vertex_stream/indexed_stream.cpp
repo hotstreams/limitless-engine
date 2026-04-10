@@ -44,7 +44,11 @@ void IndexedStream::draw() {
 }
 
 void IndexedStream::draw_instanced(size_t instance_count) {
-    draw_instanced(mode, 0, indices.size(), instance_count);
+    draw_instanced(mode, 0, indices.size(), instance_count, 0);
+}
+
+void IndexedStream::draw_instanced(size_t instance_count, uint32_t base_instance) {
+    draw_instanced(mode, 0, indices.size(), instance_count, base_instance);
 }
 
 void IndexedStream::draw(size_t offset, size_t count) {
@@ -52,7 +56,11 @@ void IndexedStream::draw(size_t offset, size_t count) {
 }
 
 void IndexedStream::draw_instanced(size_t offset, size_t count, size_t instance_count) {
-    draw_instanced(mode, offset, count, instance_count);
+    draw_instanced(mode, offset, count, instance_count, 0);
+}
+
+void IndexedStream::draw_instanced(size_t offset, size_t count, size_t instance_count, uint32_t base_instance) {
+    draw_instanced(mode, offset, count, instance_count, base_instance);
 }
 
 void IndexedStream::draw(Draw draw_mode, size_t offset, size_t count) {
@@ -69,13 +77,69 @@ void IndexedStream::draw(Draw draw_mode, size_t offset, size_t count) {
 }
 
 void IndexedStream::draw_instanced(Draw draw_mode, size_t offset, size_t count, size_t instance_count) {
+    draw_instanced(draw_mode, offset, count, instance_count, 0);
+}
+
+void IndexedStream::draw_instanced(
+    Draw draw_mode, size_t offset, size_t count, size_t instance_count, uint32_t base_instance) {
     if (data.empty()) {
         return;
     }
 
     vertex_array->bind();
 
-    glDrawElementsInstanced(static_cast<GLenum>(draw_mode), count, GL_UNSIGNED_INT, reinterpret_cast<const void*>(offset), instance_count);
+    glDrawElementsInstancedBaseInstance(
+        static_cast<GLenum>(draw_mode),
+        static_cast<GLsizei>(count),
+        GL_UNSIGNED_INT,
+        reinterpret_cast<const void*>(offset),
+        static_cast<GLsizei>(instance_count),
+        base_instance);
+
+    vertex_buffer->fence();
+    indices_buffer->fence();
+}
+
+void IndexedStream::drawBatched(const MeshDrawInfo& info) {
+    if (data.empty() || info.index_count == 0) {
+        return;
+    }
+
+    vertex_array->bind();
+
+    const void* indices_offset = reinterpret_cast<const void*>(static_cast<uintptr_t>(info.first_index) * sizeof(uint32_t));
+    glDrawElementsBaseVertex(
+        static_cast<GLenum>(mode),
+        info.index_count,
+        GL_UNSIGNED_INT,
+        indices_offset,
+        info.base_vertex
+    );
+
+    vertex_buffer->fence();
+    indices_buffer->fence();
+}
+
+void IndexedStream::drawBatchedInstanced(const MeshDrawInfo& info, size_t instance_count) {
+    drawBatchedInstanced(info, instance_count, 0);
+}
+
+void IndexedStream::drawBatchedInstanced(const MeshDrawInfo& info, size_t instance_count, uint32_t base_instance) {
+    if (data.empty() || info.index_count == 0 || instance_count == 0) {
+        return;
+    }
+
+    vertex_array->bind();
+
+    const void* indices_offset = reinterpret_cast<const void*>(static_cast<uintptr_t>(info.first_index) * sizeof(uint32_t));
+    glDrawElementsInstancedBaseVertexBaseInstance(
+        static_cast<GLenum>(mode),
+        info.index_count,
+        GL_UNSIGNED_INT,
+        indices_offset,
+        static_cast<GLsizei>(instance_count),
+        info.base_vertex,
+        base_instance);
 
     vertex_buffer->fence();
     indices_buffer->fence();

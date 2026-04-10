@@ -83,6 +83,10 @@ void Shader::replaceKey(const std::string& key, const std::string& value) noexce
         }
 
         source.replace(found, key.length(), value);
+        // IMPORTANT: Advance past the inserted value.
+        // Otherwise, if `value` contains `key` (common when we want to keep a marker for a later pass),
+        // we can get stuck replacing the same location forever.
+        found += value.length();
     }
 }
 

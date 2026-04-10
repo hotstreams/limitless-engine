@@ -13,6 +13,29 @@
 using namespace Limitless;
 using namespace Limitless::ms;
 
+void TerrainInstance::applyHeightBoundsToMeshes() {
+    if (!mesh.cross || !mesh.tiles || !mesh.fillers || !mesh.trims || !mesh.seams) {
+        return;
+    }
+
+    const float y_center = height_scale * 0.5f;
+    const float y_size = height_scale;
+
+    auto apply_height_bounds = [&](const std::shared_ptr<ModelInstance>& inst) {
+        const auto& base = inst->getAbstractModel().getBoundingBox();
+        Box b = base;
+        b.center.y = y_center;
+        b.size.y = y_size;
+        inst->setBoundingBox(b);
+    };
+
+    apply_height_bounds(mesh.cross);
+    for (const auto& inst : mesh.tiles->getInstances())   apply_height_bounds(inst);
+    for (const auto& inst : mesh.fillers->getInstances()) apply_height_bounds(inst);
+    for (const auto& inst : mesh.trims->getInstances())   apply_height_bounds(inst);
+    for (const auto& inst : mesh.seams->getInstances())   apply_height_bounds(inst);
+}
+
 void TerrainInstance::update(const Camera &camera) {
     // float camera_height = camera.getPosition().y;
     // float height_factor = glm::clamp((camera_height - lod_height_min) / (lod_height_max - lod_height_min), 0.0f, 1.0f);
@@ -37,69 +60,6 @@ void TerrainInstance::update(const Camera &camera) {
     mesh.trims->update(camera);
     mesh.fillers->update(camera);
     mesh.tiles->update(camera);
-
-    const auto range = glm::vec2(height_scale * 0.5f, height_scale);
-    const auto margin = 0.0f;
-
-    mesh.cross->bounding_box.center.y = range.x - margin;
-    mesh.cross->bounding_box.size.y = range.y + margin * 2.0f;
-
-
-    for (const auto &item: mesh.seams->getInstances()) {
-        item->bounding_box.center =
-                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size =
-                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
-                          range.y + margin * 2.0f,
-                          item->getAbstractModel().getBoundingBox().size.z,
-                          1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size = glm::abs(item->bounding_box.size);
-    }
-
-    for (const auto &item: mesh.trims->getInstances()) {
-        item->bounding_box.center =
-                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size =
-                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
-                          range.y + margin * 2.0f,
-                          item->getAbstractModel().getBoundingBox().size.z,
-                          1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size = glm::abs(item->bounding_box.size);
-    }
-
-    for (const auto &item: mesh.fillers->getInstances()) {
-        item->bounding_box.center =
-                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size =
-                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
-                          range.y + margin * 2.0f,
-                          item->getAbstractModel().getBoundingBox().size.z,
-                          1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size = glm::abs(item->bounding_box.size);
-    }
-
-    for (const auto &item: mesh.tiles->getInstances()) {
-        item->bounding_box.center =
-                glm::vec4{item->getPosition().x, item->getPosition().y + range.x - margin, item->getPosition().z, 1.0f} +
-                glm::vec4{item->getAbstractModel().getBoundingBox().center, 1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size =
-                glm::vec4{item->getAbstractModel().getBoundingBox().size.x,
-                          range.y + margin * 2.0f,
-                          item->getAbstractModel().getBoundingBox().size.z,
-                          1.0f} * item->getFinalMatrix();
-
-        item->bounding_box.size = glm::abs(item->bounding_box.size);
-    }
 }
 
 void TerrainInstance::snap(const Camera& p_cam_pos) {
@@ -209,7 +169,7 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             .custom("terrain_texture_normal_depth_array", texture_normal_depth)
             .custom("terrain_texture_detile_array", texture_detile)
 
-            .custom("enable_tile_bilerp", true)
+            .custom("enable_tile_bilerp", enable_tile_bilerp != 0)
             .custom("normal_bilerp_multiplier", normal_bilerp_multiplier)
             .custom("tile_bilerp_multiplier", tile_bilerp_multiplier)
 
@@ -219,10 +179,11 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
             .custom("blend_sharpness", blend_sharpness)
 
-            .custom("_detiling", 1)
-            .custom("_blending", 1)
-            .custom("_layering", 1)
-            .custom("_height_blending", 1)
+            // Terrain feature toggles (compile-time defines via MaterialShaderDefineReplacer)
+            .custom("_detiling", enable_detiling)
+            .custom("_blending", enable_blending)
+            .custom("_layering", enable_layering)
+            .custom("_height_blending", enable_high_blending)
 
             .default_computation(false)
 
@@ -246,9 +207,7 @@ void TerrainInstance::initializeMesh(Assets& assets) {
 
             .build(assets);
 
-    for (const auto& _: meshes) {
-        materials.emplace_back(terrain_material);
-    }
+    materials.assign(meshes.size(), terrain_material);
 
     auto tile_model = Model::builder().name("map").meshes({meshes[0]}).materials({materials[0]}).build(assets);
     auto filler_model = Model::builder().name("map").meshes({meshes[1]}).materials({materials[1]}).build(assets);
@@ -280,6 +239,10 @@ void TerrainInstance::initializeMesh(Assets& assets) {
             mesh.seams->add(std::make_shared<ModelInstance>(InstanceType::Terrain, seam_model, glm::vec3(0.0f)));
         }
     }
+
+    // Terrain geometry is displaced in the vertex shader using height_map in [0, height_scale].
+    // Expand bounds in Y via custom bounding boxes so frustum culling remains correct without per-frame loops.
+    applyHeightBoundsToMeshes();
 }
 
 TerrainInstance::TerrainInstance(
@@ -352,6 +315,7 @@ void TerrainInstance::setMeshLodCount(int meshLodCount) {
 
 void TerrainInstance::setHeightScale(float height) {
     height_scale = height;
+    applyHeightBoundsToMeshes();
 }
 
 void TerrainInstance::setTerrainSize(float size) {

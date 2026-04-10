@@ -1,4 +1,10 @@
+// For indirect rendering, use material_indirect.glsl instead of material.glsl
+// It defines SSBO-based material accessors that override the uniform-based ones
+#if defined(ENGINE_MATERIAL_INDIRECT_MODEL)
+#include "./material_indirect.glsl"
+#else
 #include "./material.glsl"
+#endif
 
 struct MaterialContext {
     // vertex parameters
@@ -19,7 +25,7 @@ struct MaterialContext {
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) || defined(ENGINE_MATERIAL_NORMAL_MAP)
     vec3 normal;
-    vec3 tangent;
+    vec4 tangent; // xyz=tangent, w=handedness (bitangent sign)
 #endif
 
 #if defined (ENGINE_MATERIAL_EMISSIVEMASK_TEXTURE)
@@ -139,6 +145,11 @@ void customMaterialContext(inout MaterialContext mctx, const VertexContext vctx)
 }
 
 MaterialContext computeMaterialContext(VertexContext vctx) {
+    #if defined (ENGINE_MATERIAL_INDIRECT_MODEL)
+        // Set draw ID for indirect material access
+        setIndirectDrawId(vctx.draw_id);
+    #endif
+
     #if defined (ENGINE_MATERIAL_DEFAULT_COMPUTATION) && defined (ENGINE_VERTEX_UV)
         MaterialContext mctx = computeDefaultMaterialContext(vctx.uv);
     #else
@@ -212,24 +223,26 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
     normal = normalize(normal * 2.0 - 1.0);
 
     vec3 N = normalize(mctx.vertex_normal);
-    vec3 T = normalize(mctx.tangent);
+    vec3 T = normalize(mctx.tangent.xyz);
 
     //T = normalize(T - dot(T, N) * N);
-    vec3 B = normalize(cross(N, T));
+    float ts = (mctx.tangent.w < 0.0) ? -1.0 : 1.0;
+    vec3 B = normalize(cross(N, T)) * ts;
 
-    normal = normalize(mix(N, T * normal.x + B * normal.y + N * normal.z, 1.0));
-
-    //mat3 TBN = mat3(T, B, N);
+    // Tangent-space to world-space normal mapping.
+    // NOTE: We currently don't propagate tangent handedness into the fragment stage, so B is cross(N,T).
+    mat3 TBN = mat3(T, B, N);
 
 #if defined (ENGINE_MATERIAL_TWO_SIDED)
-    TBN[0] = gl_FrontFacing ? TBN[0] : -TBN[0];
-    TBN[1] = gl_FrontFacing ? TBN[1] : -TBN[1];
-    TBN[2] = gl_FrontFacing ? TBN[2] : -TBN[2];
+    // Keep shading consistent for backfaces by flipping the basis.
+    if (!gl_FrontFacing) {
+        TBN[0] = -TBN[0];
+        TBN[1] = -TBN[1];
+        TBN[2] = -TBN[2];
+    }
 #endif
 
-    //vec3 result = normalize(TBN * normal);
-    
-    return normal;
+    return normalize(TBN * normal);
 #else
     vec3 normal = normalize(mctx.vertex_normal);
 #endif

@@ -47,8 +47,25 @@ namespace Limitless {
     struct VertexNormalTangent {
         glm::vec3 position;
         glm::vec3 normal;
-        glm::vec3 tangent;
+        glm::vec4 tangent; // xyz=tangent, w=handedness (binormal sign)
         glm::vec2 uv;
+
+        auto& getPosition() noexcept { return position; }
+        const auto& getPosition() const noexcept { return position; }
+    };
+
+    // Extended vertex format used for SpeedTree-style wind payload.
+    // Stores multiple UV sets as vec2 to match glTF TEXCOORD_n (VEC2) attributes.
+    struct VertexNormalTangentUv6 {
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec4 tangent; // xyz=tangent, w=handedness (binormal sign)
+        glm::vec2 uv0;
+        glm::vec2 uv1;
+        glm::vec2 uv2;
+        glm::vec2 uv3;
+        glm::vec2 uv4;
+        glm::vec2 uv5;
 
         auto& getPosition() noexcept { return position; }
         const auto& getPosition() const noexcept { return position; }

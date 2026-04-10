@@ -11,6 +11,7 @@
 #include <limitless/instances/model_instance.hpp>
 #include <limitless/models/cylinder.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
+#include <limitless/core/uniform/uniform_setter.hpp>
 #include <limitless/core/profiler.hpp>
 #include <iostream>
 
@@ -21,7 +22,7 @@ RendererHelper::RendererHelper(const RendererSettings& _settings)
     : settings {_settings} {
 }
 
-void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera) {
+void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighting, const Assets& assets, const Camera& camera, const UniformSetter& setter) {
     if (lighting.getLights().empty()) {
         return;
     }
@@ -44,7 +45,7 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
             sphere_instance->setScale(glm::vec3(light.getRadius()));
             sphere_instance->update(camera);
 
-            InstanceRenderer::render(*sphere_instance, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
+            InstanceRenderer::render(*sphere_instance, {context, assets, ShaderType::Forward, Blending::Opaque, setter});
         }
         if (light.isSpot()) {
             auto cone = std::make_shared<Cylinder>(0.0f, light.getRadius() / 1.5f * glm::sin(glm::acos(glm::radians(light.getCone().y))), light.getRadius());
@@ -66,7 +67,7 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
             cone_instance->setRotation(a * angle);
             cone_instance->update(camera);
 
-            InstanceRenderer::render(*cone_instance, {context, assets, ShaderType::Forward, ms::Blending::Opaque, {}});
+            InstanceRenderer::render(*cone_instance, {context, assets, ShaderType::Forward, ms::Blending::Opaque, setter});
 
         }
     }
@@ -74,7 +75,7 @@ void RendererHelper::renderLightsVolume(Context& context, const Lighting& lighti
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
 }
 
-void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& assets) {
+void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& assets, const UniformSetter& setter) {
     context.enable(Capabilities::DepthTest);
     context.setDepthFunc(DepthFunc::Less);
     context.setDepthMask(DepthMask::False);
@@ -102,12 +103,12 @@ void RendererHelper::renderCoordinateSystemAxes(Context& context, const Assets& 
         .position({5.0f, 1.0f, 0.0f})
         .asModel();
 
-    InstanceRenderer::render(*x_i, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
-    InstanceRenderer::render(*y_i, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
-    InstanceRenderer::render(*z_i, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
+    InstanceRenderer::render(*x_i, {context, assets, ShaderType::Forward, Blending::Opaque, setter});
+    InstanceRenderer::render(*y_i, {context, assets, ShaderType::Forward, Blending::Opaque, setter});
+    InstanceRenderer::render(*z_i, {context, assets, ShaderType::Forward, Blending::Opaque, setter});
 }
 
-void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Scene& scene) {
+void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets, const Camera& camera, Scene& scene, const UniformSetter& setter) {
     CPUProfileScope profile_scope {"renderBoundingBoxes::inner"};
     auto box = Instance::builder()
         .model(assets.models.at("cube"))
@@ -155,7 +156,7 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
             .setScale(bounding_box.size)
             .update(camera);
 
-        InstanceRenderer::render(*box, {context, assets, ShaderType::Forward, Blending::Opaque, {}});
+        InstanceRenderer::render(*box, {context, assets, ShaderType::Forward, Blending::Opaque, setter});
         ++rendered_count;
     }
     context.setPolygonMode(CullFace::FrontBack, PolygonMode::Fill);
@@ -170,19 +171,19 @@ void RendererHelper::renderBoundingBoxes(Context& context, const Assets& assets,
     }
 }
 
-void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene) {
+void RendererHelper::render(Context& context, const Assets& assets, const Camera& camera, const Lighting& lighting, Scene& scene, const UniformSetter& setter) {
     if (settings.bounding_box) {
         CPUProfileScope profile_scope {"renderBoundingBoxes"};
-        renderBoundingBoxes(context, assets, camera, scene);
+        renderBoundingBoxes(context, assets, camera, scene, setter);
     }
 
     if (settings.coordinate_system_axes) {
         CPUProfileScope profile_scope {"renderCoordinateSystemAxes"};
-        renderCoordinateSystemAxes(context, assets);
+        renderCoordinateSystemAxes(context, assets, setter);
     }
 
     if (settings.light_radius) {
         CPUProfileScope profile_scope {"renderLightsVolume"};
-        renderLightsVolume(context, lighting, assets, camera);
+        renderLightsVolume(context, lighting, assets, camera, setter);
     }
 }

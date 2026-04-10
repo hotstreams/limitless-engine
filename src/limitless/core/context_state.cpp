@@ -23,6 +23,7 @@ void ContextState::init() noexcept {
     capability_map.emplace(Capabilities::ScissorTest, false);
     capability_map.emplace(Capabilities::StencilTest, false);
     capability_map.emplace(Capabilities::CullFace, false);
+    capability_map.emplace(Capabilities::SampleAlphaToCoverage, false);
 
     buffer_target.emplace(Buffer::Type::Element, 0);
     buffer_target.emplace(Buffer::Type::Array, 0);
@@ -82,7 +83,7 @@ void ContextState::setStencilFunc(StencilFunc func, int32_t ref, int32_t mask) n
 }
 
 void ContextState::setStencilOp(StencilOp sfail, StencilOp dpfail, StencilOp dppass) noexcept {
-    if (stencil_op[0] != sfail || stencil_op[1] != dpfail || stencil_op[1] != dppass) {
+    if (stencil_op[0] != sfail || stencil_op[1] != dpfail || stencil_op[2] != dppass) {
         stencil_op[0] = sfail;
         stencil_op[1] = dpfail;
         stencil_op[2] = dppass;
@@ -98,10 +99,10 @@ void ContextState::setStencilMask(int32_t mask) noexcept {
 }
 
 void ContextState::setPixelStore(PixelStore name, GLint param) noexcept {
-    if (pixel_pack != name || pixel_param != param) {
+    auto it = pixel_store_params.find(name);
+    if (it == pixel_store_params.end() || it->second != param) {
         glPixelStorei(static_cast<GLenum>(name), param);
-        pixel_pack = name;
-        pixel_param = param;
+        pixel_store_params[name] = param;
     }
 }
 
@@ -164,9 +165,17 @@ void ContextState::setPolygonMode(CullFace face, PolygonMode mode) noexcept {
 }
 
 void ContextState::setScissorTest(glm::uvec2 origin, glm::uvec2 size) noexcept {
-//    if (scissor_viewport != origin || scissor_size != size) {
+    glm::uvec4 new_scissor {origin.x, origin.y, size.x, size.y};
+    if (scissor_viewport != new_scissor) {
+        scissor_viewport = new_scissor;
         glScissor(origin.x, origin.y, size.x, size.y);
-//        scissor_origin = origin;
-//        scissor_size = size;
-//    }
+    }
+}
+
+void ContextState::clearTextureBindings(GLuint id) noexcept {
+    for (auto& [unit, bound_id] : texture_bound) {
+        if (bound_id == id) {
+            bound_id = 0;
+        }
+    }
 }

@@ -79,4 +79,22 @@ namespace Limitless {
             case DataType::Mat4: return "mat4";
         }
     }
+
+    /**
+     * Returns size in bytes for a DataType
+     */
+    inline size_t getDataTypeSize(DataType type) {
+        switch (type) {
+            case DataType::Float: return sizeof(float);
+            case DataType::Int: return sizeof(int32_t);
+            case DataType::Uint: return sizeof(uint32_t);
+            case DataType::Vec2: return sizeof(float) * 2;
+            case DataType::Vec3: return sizeof(float) * 3;
+            case DataType::Vec4: return sizeof(float) * 4;
+            case DataType::IVec4: return sizeof(int32_t) * 4;
+            case DataType::Mat3: return sizeof(float) * 9;
+            case DataType::Mat4: return sizeof(float) * 16;
+        }
+        return 0;
+    }
 }
