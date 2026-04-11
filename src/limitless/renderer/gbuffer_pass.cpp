@@ -3,7 +3,7 @@
 #include <limitless/instances/instance.hpp>
 #include <limitless/renderer/shader_type.hpp>
 #include <limitless/renderer/renderer.hpp>
-#include <limitless/renderer/indirect_instance_renderer.hpp>
+// #include <limitless/renderer/indirect_instance_renderer.hpp>
 #include <limitless/util/frustum_culling.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/core/context.hpp>
@@ -61,12 +61,13 @@ void GBufferPass::render(
         FramebufferAttachment::Color5
     });
 
-    // Use indirect draw if enabled (prepare() called once in Renderer::render)
+#if 0
     if (renderer.getSettings().indirect_draw) {
         renderer.getIndirectInstanceRenderer().render(drawp);
-        // Fallback: render non-batched instances (skeletal, non-indexed, etc.) via legacy path
         instance_renderer.renderVisibleNonBatchedNonTerrain(drawp);
-    } else if (renderer.getSettings().sorted_rendering) {
+    } else
+#endif
+    if (renderer.getSettings().sorted_rendering) {
         instance_renderer.renderVisibleNonTerrainSorted(drawp);
     } else {
         instance_renderer.renderVisibleNonTerrain(drawp);

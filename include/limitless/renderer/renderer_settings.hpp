@@ -259,7 +259,8 @@ namespace Limitless {
         bool sorted_rendering = true;
 
         /**
-         * Enable indirect draw rendering (Multi-Draw Indirect)
+         * Enable indirect draw rendering (Multi-Draw Indirect). **Off by default**; opt in with
+         * `RendererSettings::Builder::enable_indirect_draw()`.
          *
          * When enabled:
          * - Geometry is batched into global pools by attribute type (same as geometry_pool_batching)

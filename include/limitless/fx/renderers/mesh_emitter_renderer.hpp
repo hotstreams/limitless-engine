@@ -44,8 +44,12 @@ namespace Limitless::fx {
 
         void update(ParticleCollector<MeshParticle>& collector) {
             const auto& particles = collector.yield();
-            current_particle_count = particles.size();
-            buffer->mapData(particles.data(), sizeof(MeshParticle) * current_particle_count);
+            const auto count = particles.size();
+            checkStorageSize(count);
+            current_particle_count = count;
+            if (count > 0) {
+                buffer->bufferSubData(0, sizeof(MeshParticle) * count, particles.data());
+            }
         }
 
         void draw(Context& ctx,

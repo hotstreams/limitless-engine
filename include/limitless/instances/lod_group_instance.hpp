@@ -59,5 +59,11 @@ namespace Limitless {
         /// When false, dither cross-fade is skipped (discrete LOD only).
         void setCrossFadeEffectEnabled(bool enabled) noexcept { crossfade_effect_enabled = enabled; }
         [[nodiscard]] bool isCrossFadeEffectEnabled() const noexcept { return crossfade_effect_enabled; }
+
+        /**
+         * Applies KHR_materials_variants mapping for one variant index on every stored LOD level.
+         * Uses mesh instance names to look up rows in model.getMaterialVariantSet().
+         */
+        void applyMaterialVariantFromModel(const Model& model, size_t variant_index);
     };
 }

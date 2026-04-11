@@ -6,6 +6,8 @@
 #include "./material.glsl"
 #endif
 
+#include "../functions/speedtree_billboard_atlas.glsl"
+
 struct MaterialContext {
     // vertex parameters
 //    vec3 vertex_position;
@@ -151,7 +153,16 @@ MaterialContext computeMaterialContext(VertexContext vctx) {
     #endif
 
     #if defined (ENGINE_MATERIAL_DEFAULT_COMPUTATION) && defined (ENGINE_VERTEX_UV)
+#if defined (ENGINE_MATERIAL_BILLBOARD_MODE)
+        vec2 sampling_uv = vctx.uv;
+        if (getMaterialBillboardMode() == 4u) {
+            InstanceContext ictx_atlas = computeInstanceContext(vctx);
+            sampling_uv = speedtree_bb_atlas_uv(vctx.uv, ictx_atlas.model_matrix);
+        }
+        MaterialContext mctx = computeDefaultMaterialContext(sampling_uv);
+#else
         MaterialContext mctx = computeDefaultMaterialContext(vctx.uv);
+#endif
     #else
         MaterialContext mctx;
     #endif

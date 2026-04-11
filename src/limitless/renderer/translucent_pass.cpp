@@ -1,7 +1,7 @@
 #include <limitless/renderer/translucent_pass.hpp>
 
 #include <limitless/renderer/shader_type.hpp>
-#include <limitless/renderer/indirect_instance_renderer.hpp>
+// #include <limitless/renderer/indirect_instance_renderer.hpp>
 #include <limitless/util/sorter.hpp>
 #include <limitless/instances/instance.hpp>
 #include <limitless/fx/effect_renderer.hpp>
@@ -51,22 +51,20 @@ void TranslucentPass::render(
         shader.setUniform("_scene_depth_texture", renderer.getPass<DeferredFramebufferPass>().getDepth());
     });
 
-    // Use indirect draw if enabled (prepare() called once in Renderer::render)
-    const bool use_indirect = renderer.getSettings().indirect_draw;
-
     for (const auto& blending : transparent) {
         DrawParameters drawp {ctx, assets, ShaderType::Forward, blending, setter};
 
+#if 0
         if (use_indirect) {
-            // Render batched translucent instances via indirect draw
             renderer.getIndirectInstanceRenderer().render(drawp);
-            // Fallback: render non-batched translucent instances via legacy (sorted for correct alpha)
             if (renderer.getSettings().sorted_rendering) {
                 instance_renderer.renderVisibleNonBatchedNonTerrainSorted(drawp);
             } else {
                 instance_renderer.renderVisibleNonBatchedNonTerrain(drawp);
             }
-        } else if (renderer.getSettings().sorted_rendering) {
+        } else
+#endif
+        if (renderer.getSettings().sorted_rendering) {
             instance_renderer.renderSceneSorted(drawp);
         } else {
             instance_renderer.renderScene(drawp);

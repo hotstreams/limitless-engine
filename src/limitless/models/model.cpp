@@ -10,14 +10,18 @@ Model::Model(
     LodTransition transition,
     LodSelection selection,
     const std::vector<float>& distances,
-    float lod_fade_transition_width
+    float lod_fade_transition_width,
+    std::shared_ptr<const ModelMaterialVariantSet> material_variants,
+    std::shared_ptr<const BillboardLodBundle> billboard_bundle
 )
     : name {name}
     , lods {{meshes, materials}}
     , transition {transition}
     , selection {selection}
     , distances {distances}
-    , lod_fade_transition_width {lod_fade_transition_width} {
+    , lod_fade_transition_width {lod_fade_transition_width}
+    , material_variant_set_ {std::move(material_variants)}
+    , billboard_lod_bundle_ {std::move(billboard_bundle)} {
     calculateBoundingBox();
 }
 
@@ -27,14 +31,18 @@ Model::Model(
     LodTransition transition,
     LodSelection selection,
     const std::vector<float>& distances,
-    float lod_fade_transition_width
+    float lod_fade_transition_width,
+    std::shared_ptr<const ModelMaterialVariantSet> material_variants,
+    std::shared_ptr<const BillboardLodBundle> billboard_bundle
 )
     : name {name}
     , lods {lods}
     , transition {transition}
     , selection {selection}
     , distances {distances}
-    , lod_fade_transition_width {lod_fade_transition_width} {
+    , lod_fade_transition_width {lod_fade_transition_width}
+    , material_variant_set_ {std::move(material_variants)}
+    , billboard_lod_bundle_ {std::move(billboard_bundle)} {
     calculateBoundingBox();
 }
 

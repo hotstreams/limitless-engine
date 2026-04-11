@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 	assets.load(ctx);
 
 	const ModelLoaderFlags load_flags;
-	auto model = GltfModelLoader::loadModel(assets, fs::path(model_path), load_flags);
+	auto model = GltfModelLoader::builder().path(fs::path(model_path)).flags(load_flags).build().load(assets);
 
 	auto renderer = Renderer::builder()
 		.resolution(window_size)

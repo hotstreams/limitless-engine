@@ -168,11 +168,34 @@ bool InstanceRenderer::shouldBeRendered(const Instance &instance, const DrawPara
                 break;
             case InstanceType::Effect:
                 break;
-            case InstanceType::Terrain:
-                if (static_cast<const TerrainInstance&>(instance).getMeshes().begin()->second.getMaterial()->getBlending() == drawp.blending) {
-                    has_blending_match = true;
+            case InstanceType::Terrain: {
+                const auto& terrain = static_cast<const TerrainInstance&>(instance);
+                const auto& tm = terrain.getMesh();
+                if (tm.cross) {
+                    for (const auto& [_, mesh] : tm.cross->getMeshes()) {
+                        if (mesh.getMaterial()->getBlending() == drawp.blending) {
+                            has_blending_match = true;
+                            break;
+                        }
+                    }
                 }
-                break;
+                const auto check_instanced = [&](const std::shared_ptr<InstancedInstance>& inst) {
+                    if (has_blending_match || !inst || inst->getInstances().empty()) {
+                        return;
+                    }
+                    for (const auto& [_, mesh] : inst->getInstances()[0]->getMeshes()) {
+                        if (mesh.getMaterial()->getBlending() == drawp.blending) {
+                            has_blending_match = true;
+                            return;
+                        }
+                    }
+                };
+                check_instanced(tm.tiles);
+                check_instanced(tm.fillers);
+                check_instanced(tm.trims);
+                check_instanced(tm.seams);
+            }
+            break;
         }
         
         if (!has_blending_match) {

@@ -114,6 +114,11 @@ set(ENGINE_LOADERS
     src/limitless/loaders/dds_loader.cpp
     src/limitless/loaders/cgltf.c
     src/limitless/loaders/gltf_model_loader.cpp
+    src/limitless/loaders/gltf/gltf_accessor.cpp
+    src/limitless/loaders/gltf/gltf_extensions.cpp
+    src/limitless/loaders/gltf/gltf_materials.cpp
+    src/limitless/loaders/gltf/gltf_vertex_geometry.cpp
+    src/limitless/loaders/gltf/gltf_skin_animation.cpp
     src/limitless/loaders/lut3d_loader.cpp
     src/limitless/loaders/cgltf_write.c
     src/limitless/loaders/gltf_model_saver.cpp
@@ -279,6 +284,8 @@ if (UNIX)
 endif()
 
 target_include_directories(limitless-engine PUBLIC include)
+# cgltf.h lives next to loader sources; public glTF headers include it, so dependents must see this path.
+target_include_directories(limitless-engine PUBLIC "${CMAKE_CURRENT_LIST_DIR}/src/limitless/loaders")
 
 target_compile_features(limitless-engine PUBLIC cxx_std_17)
 

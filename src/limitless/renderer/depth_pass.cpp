@@ -2,7 +2,7 @@
 #include <limitless/renderer/depth_pass.hpp>
 #include <limitless/instances/instance.hpp>
 #include <limitless/renderer/shader_type.hpp>
-#include <limitless/renderer/indirect_instance_renderer.hpp>
+// #include <limitless/renderer/indirect_instance_renderer.hpp>
 #include <limitless/ms/blending.hpp>
 #include <limitless/util/sorter.hpp>
 #include <limitless/core/context.hpp>
@@ -45,12 +45,13 @@ void DepthPass::render(
 
     DrawParameters drawp {ctx, assets, ShaderType::Depth, ms::Blending::Opaque, setter};
 
-    // Use indirect draw if enabled (prepare() called once in Renderer::render)
+#if 0 // indirect draw disabled
     if (renderer.getSettings().indirect_draw) {
         renderer.getIndirectInstanceRenderer().render(drawp);
-        // Fallback: render non-batched instances (skeletal, non-indexed, etc.) via legacy path
         instance_renderer.renderVisibleNonBatchedNonTerrain(drawp);
-    } else if (renderer.getSettings().sorted_rendering) {
+    } else
+#endif
+    if (renderer.getSettings().sorted_rendering) {
         instance_renderer.prepareSortedRendering(camera, renderer.getSettings());
         instance_renderer.renderSceneSorted(drawp);
     } else {

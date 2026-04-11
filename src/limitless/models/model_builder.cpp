@@ -65,6 +65,16 @@ Model::Builder& Model::Builder::lod_fade_transition_width(float width) {
     return *this;
 }
 
+Model::Builder& Model::Builder::materialVariantSet(std::shared_ptr<const ModelMaterialVariantSet> set) {
+    material_variant_set_ = std::move(set);
+    return *this;
+}
+
+Model::Builder& Model::Builder::billboardLodBundle(std::shared_ptr<const BillboardLodBundle> bundle) {
+    billboard_lod_bundle_ = std::move(bundle);
+    return *this;
+}
+
 Model::Builder& Model::Builder::add_lod(const std::shared_ptr<Model>& model, float distance) {
     models_.emplace_back(model);
     lod_distances_.emplace_back(distance);
@@ -166,6 +176,8 @@ std::shared_ptr<Model> Model::Builder::build([[maybe_unused]] Assets& assets) {
                 selection_,
                 {},
                 lod_fade_transition_width_,
+                material_variant_set_,
+                billboard_lod_bundle_,
                 std::move(bones_),
                 std::move(bone_map_),
                 std::move(skeletons_),
@@ -180,7 +192,9 @@ std::shared_ptr<Model> Model::Builder::build([[maybe_unused]] Assets& assets) {
                     transition_,
                     selection_,
                     {},
-                    lod_fade_transition_width_
+                    lod_fade_transition_width_,
+                    material_variant_set_,
+                    billboard_lod_bundle_
                 ));
         }
     } else {
@@ -248,6 +262,14 @@ std::shared_ptr<Model> Model::Builder::build([[maybe_unused]] Assets& assets) {
             }
         }
 
-        return std::shared_ptr<Model>(new Model(name_, lods, transition_, selection_, lod_distances_, lod_fade_transition_width_));
+        return std::shared_ptr<Model>(new Model(
+            name_,
+            lods,
+            transition_,
+            selection_,
+            lod_distances_,
+            lod_fade_transition_width_,
+            material_variant_set_,
+            billboard_lod_bundle_));
     }
 }

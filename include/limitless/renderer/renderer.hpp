@@ -3,7 +3,7 @@
 #include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/renderer/renderer_pass.hpp>
 #include <limitless/renderer/instance_renderer.hpp>
-#include <limitless/renderer/indirect_instance_renderer.hpp>
+// #include <limitless/renderer/indirect_instance_renderer.hpp> // indirect path disabled (broken)
 
 namespace Limitless {
     class Context;
@@ -26,8 +26,7 @@ namespace Limitless {
         // instance renderer
         InstanceRenderer instance_renderer;
 
-        // indirect instance renderer (for multi-draw indirect)
-        IndirectInstanceRenderer indirect_instance_renderer;
+        // IndirectInstanceRenderer indirect_instance_renderer; // disabled: default ctor allocated MDI buffers even when unused
 
         Renderer() noexcept = default;
     public:
@@ -49,8 +48,8 @@ namespace Limitless {
         [[nodiscard]] const RendererSettings& getSettings() const noexcept { return settings; }
         [[nodiscard]] const glm::uvec2& getResolution() const noexcept { return resolution; }
         [[nodiscard]] const InstanceRenderer& getInstanceRenderer() const noexcept { return instance_renderer; }
-        [[nodiscard]] IndirectInstanceRenderer& getIndirectInstanceRenderer() noexcept { return indirect_instance_renderer; }
-        [[nodiscard]] const IndirectInstanceRenderer& getIndirectInstanceRenderer() const noexcept { return indirect_instance_renderer; }
+        // [[nodiscard]] IndirectInstanceRenderer& getIndirectInstanceRenderer() noexcept { return indirect_instance_renderer; }
+        // [[nodiscard]] const IndirectInstanceRenderer& getIndirectInstanceRenderer() const noexcept { return indirect_instance_renderer; }
 
         /**
          * Sets of methods to handle RendererPasses

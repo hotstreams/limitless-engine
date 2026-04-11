@@ -7,7 +7,7 @@
 #include <limitless/core/buffer/buffer_builder.hpp>
 #include <limitless/core/vertex.hpp>
 #include <limitless/models/mesh.hpp>
-#include <iostream>
+#include <chrono>
 
 using namespace Limitless;
 
@@ -102,7 +102,7 @@ void SkeletalInstance::updateAnimationFrame() {
 const AnimationNode* SkeletalInstance::findAnimationNode(const Bone& bone) const noexcept {
     if (animation) {
         for (auto& node : animation->nodes) {
-            if (&node.bone == &bone) {
+            if (node.bone_index == bone.index) {
                 return &node;
             }
         }
@@ -131,6 +131,7 @@ SkeletalInstance::SkeletalInstance(const SkeletalInstance& rhs) noexcept
     , bone_transform {rhs.bone_transform}
     , animation {rhs.animation}
     , paused {rhs.paused}
+    , repeating {rhs.repeating}
     , last_time {rhs.last_time}
     , animation_duration {rhs.animation_duration}
     , gpu_bone_upload_enabled_ {rhs.gpu_bone_upload_enabled_} {

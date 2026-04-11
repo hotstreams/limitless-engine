@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.10)
 #########################################
 project(limitless-samples)
 
+# Tiny CLI without engine deps; available even when BUILD_SAMPLES is OFF (standalone presets).
+add_subdirectory(../tools/billboard_generator ${CMAKE_CURRENT_BINARY_DIR}/tools_billboard_generator)
+
 if (NOT BUILD_SAMPLES)
     return()
 endif()

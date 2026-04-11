@@ -129,7 +129,7 @@ namespace LimitlessMaterials {
                 context.swapBuffers();
                 context.pollEvents();
 
-                handleInput(delta_time);
+                handleInput(delta_time * 5.0f);
             }
         }
     };

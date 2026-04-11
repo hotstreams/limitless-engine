@@ -5,12 +5,16 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
+#include <stdexcept>
 #include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb_image_resize.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 #include <limitless/assets.hpp>
 #include <limitless/loaders/dds_loader.hpp>
 
@@ -644,4 +648,109 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
 
 //    assets.textures.add(path.stem().string(), texture);
     return texture;
+}
+
+CpuImageBytes TextureLoader::load_image_cpu(const fs::path& _path, const TextureLoaderFlags& flags) {
+	const auto path = convertPathSeparators(_path);
+	stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
+	int w = 0;
+	int h = 0;
+	int c = 0;
+	unsigned char* data = stbi_load(path.string().c_str(), &w, &h, &c, 0);
+	if (!data) {
+		throw texture_loader_exception(
+			std::string("load_image_cpu failed: ") + path.string() + " "
+			+ (stbi_failure_reason() ? stbi_failure_reason() : "")
+		);
+	}
+	CpuImageBytes out;
+	out.width = w;
+	out.height = h;
+	out.channels = c;
+	out.data.assign(data, data + static_cast<size_t>(w) * static_cast<size_t>(h) * static_cast<size_t>(c));
+	stbi_image_free(data);
+	return out;
+}
+
+CpuImageBytes TextureLoader::load_image_cpu(const uint8_t* buffer, size_t size, const TextureLoaderFlags& flags) {
+	stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
+	int w = 0;
+	int h = 0;
+	int c = 0;
+	unsigned char* data = stbi_load_from_memory(buffer, static_cast<int>(size), &w, &h, &c, 0);
+	if (!data) {
+		throw texture_loader_exception(
+			std::string("load_image_cpu (memory) failed: ")
+			+ (stbi_failure_reason() ? stbi_failure_reason() : "")
+		);
+	}
+	CpuImageBytes out;
+	out.width = w;
+	out.height = h;
+	out.channels = c;
+	out.data.assign(data, data + static_cast<size_t>(w) * static_cast<size_t>(h) * static_cast<size_t>(c));
+	stbi_image_free(data);
+	return out;
+}
+
+bool TextureLoader::save_png(
+	const fs::path& _path, int width, int height, int channels, const uint8_t* pixels, int stride_bytes
+) {
+	if (width <= 0 || height <= 0 || channels <= 0 || pixels == nullptr) {
+		return false;
+	}
+	const auto path = convertPathSeparators(_path);
+	const int stride = stride_bytes > 0 ? stride_bytes : width * channels;
+	return stbi_write_png(path.string().c_str(), width, height, channels, pixels, stride) != 0;
+}
+
+CpuImageBytes TextureLoader::resize_image_cpu(
+	const CpuImageBytes& src, int dst_width, int dst_height, bool linear_colorspace
+) {
+	if (src.channels < 1 || src.channels > 4) {
+		throw texture_loader_exception("resize_image_cpu: unsupported channel count");
+	}
+	if (dst_width <= 0 || dst_height <= 0) {
+		throw texture_loader_exception("resize_image_cpu: invalid destination size");
+	}
+	CpuImageBytes out;
+	out.width = dst_width;
+	out.height = dst_height;
+	out.channels = src.channels;
+	out.data.resize(static_cast<size_t>(dst_width) * static_cast<size_t>(dst_height) * static_cast<size_t>(src.channels));
+	const int src_stride = src.width * src.channels;
+	const int dst_stride = dst_width * src.channels;
+	int ok = 0;
+	if (linear_colorspace) {
+		ok = stbir_resize_uint8(
+			src.data.data(),
+			src.width,
+			src.height,
+			src_stride,
+			out.data.data(),
+			dst_width,
+			dst_height,
+			dst_stride,
+			src.channels
+		);
+	} else {
+		const int alpha = src.channels == 4 ? 3 : -1;
+		ok = stbir_resize_uint8_srgb(
+			src.data.data(),
+			src.width,
+			src.height,
+			src_stride,
+			out.data.data(),
+			dst_width,
+			dst_height,
+			dst_stride,
+			src.channels,
+			alpha,
+			0
+		);
+	}
+	if (!ok) {
+		throw texture_loader_exception("resize_image_cpu: stbir_resize failed");
+	}
+	return out;
 }

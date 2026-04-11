@@ -3,11 +3,16 @@
 
 using namespace Limitless;
 
-AnimationNode::AnimationNode(decltype(positions) _positions, decltype(rotations) _rotations, decltype(scales) _scales, Bone& _bone) noexcept
+AnimationNode::AnimationNode(
+    decltype(positions) _positions,
+    decltype(rotations) _rotations,
+    decltype(scales) _scales,
+    uint32_t bone_index
+) noexcept
     : rotations(std::move(_rotations))
     , positions(std::move(_positions))
     , scales(std::move(_scales))
-    , bone(_bone) {
+    , bone_index(bone_index) {
 }
 
 size_t AnimationNode::findPositionKeyframe(double anim_time) const {
@@ -115,15 +120,17 @@ SkeletalModel::SkeletalModel(
     LodSelection selection,
     const std::vector<float>& distances,
     float lod_fade_transition_width,
+    std::shared_ptr<const ModelMaterialVariantSet> material_variants,
+    std::shared_ptr<const BillboardLodBundle> billboard_bundle,
     decltype(bones)&& bones,
     decltype(bone_map)&& bone_map,
     decltype(skeletons)&& skeletons,
     decltype(animations)&& animations
 ) noexcept
-    : Model {name, meshes, materials, transition, selection, distances, lod_fade_transition_width}
+    : Model {name, meshes, materials, transition, selection, distances, lod_fade_transition_width, std::move(material_variants), std::move(billboard_bundle)}
     , bone_map {std::move(bone_map)}
-    , animations {std::move(animations)}
     , bones {std::move(bones)}
+    , animations {std::move(animations)}
     , skeletons {std::move(skeletons)} {
 }
 
@@ -134,14 +141,16 @@ SkeletalModel::SkeletalModel(
     LodSelection selection,
     const std::vector<float>& distances,
     float lod_fade_transition_width,
+    std::shared_ptr<const ModelMaterialVariantSet> material_variants,
+    std::shared_ptr<const BillboardLodBundle> billboard_bundle,
     decltype(bones)&& bones,
     decltype(bone_map)&& bone_map,
     decltype(skeletons)&& skeletons,
     decltype(animations)&& animations
 ) noexcept
-    : Model {name, lods, transition, selection, distances, lod_fade_transition_width}
+    : Model {name, lods, transition, selection, distances, lod_fade_transition_width, std::move(material_variants), std::move(billboard_bundle)}
     , bone_map {std::move(bone_map)}
-    , animations {std::move(animations)}
     , bones {std::move(bones)}
+    , animations {std::move(animations)}
     , skeletons {std::move(skeletons)} {
 }

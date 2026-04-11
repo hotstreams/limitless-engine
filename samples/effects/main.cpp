@@ -8,6 +8,7 @@
 #include <limitless/core/state_query.hpp>
 #include <limitless/core/texture/state_texture.hpp>
 #include <limitless/renderer/renderer.hpp>
+#include <limitless/renderer/renderer_settings.hpp>
 #include <limitless/logging/log.hpp>
 
 namespace LimitlessMaterials {
@@ -47,6 +48,9 @@ namespace LimitlessMaterials {
             , camera {window_size}
             , render {Limitless::Renderer::builder()
                 .resolution(window_size)
+                .settings(Limitless::RendererSettings::builder()
+                    .enable_bloom()
+                    .build())
                 .deferred()
                 .build()}
             , assets {context, ENGINE_ASSETS_DIR}

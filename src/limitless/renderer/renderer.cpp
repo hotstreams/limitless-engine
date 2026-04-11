@@ -45,18 +45,17 @@ void Renderer::render(Context& context, const Assets& assets, Scene& scene, Came
         }
     }
 
+#if 0 // IndirectInstanceRenderer disabled (see renderer.hpp)
     if (settings.indirect_draw) {
-        // Prepare indirect renderer once per frame (shared by all passes)
         const auto& visible = instance_renderer.getFrustumCulling().getVisibleInstances();
         indirect_instance_renderer.prepare(visible, camera);
-
-        // One-time debug dump on first indirect frame
         static bool debug_dumped = false;
         if (!debug_dumped) {
             indirect_instance_renderer.dumpDebugInfo();
             debug_dumped = true;
         }
     }
+#endif
 
     {
         ProfilerScope profile_scope {"PassUpdates"};
@@ -265,12 +264,13 @@ Renderer::Builder &Renderer::Builder::settings(const RendererSettings &settings)
     GeometryPool::getInstance().setUsePersistentMapping(
         RendererSettings::usesGeometryPool(settings) && settings.persistent_buffer_mapping);
 
-    // Reinitialize indirect renderer buffers for persistent mapping and/or triple buffering
+#if 0
     if (settings.indirect_draw) {
         target().indirect_instance_renderer.initBuffers(
             settings.persistent_buffer_mapping,
             settings.triple_buffer_indirect);
     }
+#endif
 
     return *this;
 }

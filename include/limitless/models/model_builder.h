@@ -5,6 +5,8 @@
 
 #include "skeletal_model.hpp"
 
+#include <memory>
+
 namespace Limitless {
     class Model::Builder {
     private:
@@ -23,6 +25,9 @@ namespace Limitless {
         std::vector<std::shared_ptr<Model>> models_;
         std::vector<float> lod_distances_;
         std::vector<std::shared_ptr<ms::Material>> lod_material_overrides_;
+
+        std::shared_ptr<const ModelMaterialVariantSet> material_variant_set_;
+        std::shared_ptr<const BillboardLodBundle> billboard_lod_bundle_;
     public:
         Builder& name(const std::string& name);
         Builder& meshes(const std::vector<std::shared_ptr<Mesh>>& meshes);
@@ -35,6 +40,8 @@ namespace Limitless {
         Builder& selection(LodSelection selection);
         /// Portion of each LOD band (between distance thresholds) used as cross-fade zone; only for CrossFadeDither.
         Builder& lod_fade_transition_width(float width);
+        Builder& materialVariantSet(std::shared_ptr<const ModelMaterialVariantSet> set);
+        Builder& billboardLodBundle(std::shared_ptr<const BillboardLodBundle> bundle);
         Builder& batched();
 
         /**

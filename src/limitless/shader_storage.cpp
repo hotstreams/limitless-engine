@@ -62,8 +62,11 @@ ShaderProgram& ShaderStorage::get(const std::string& name) const {
 ShaderProgram& ShaderStorage::get(ShaderType material_type, InstanceType model_type, uint64_t material_index) const {
     try {
         return *materials.at({material_type, model_type, material_index});
-    } catch (const std::out_of_range& e) {
-        throw shader_storage_error("No such material shader");
+    } catch (const std::out_of_range&) {
+        std::ostringstream msg;
+        msg << "No such material shader (pass=" << toString(material_type) << ", instance=" << toString(model_type)
+			<< ", material_index=" << material_index << ')';
+        throw shader_storage_error(msg.str());
     }
 }
 

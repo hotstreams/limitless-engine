@@ -43,7 +43,13 @@ EvalContext computeEvalContext(const VertexContext vctx, const InstanceContext i
         axis_world = getMaterialBillboardAxis();
 #endif
 
-        mat3 basis = compute_billboard_basis(_bb_mode, axis_world, pivot_world);
+        uint basis_mode = _bb_mode;
+        // 4 = SpeedTree-style multi-view atlas: orient like cylindrical billboard (world-up axis).
+        if (basis_mode == 4u) {
+            basis_mode = 2u;
+        }
+
+        mat3 basis = compute_billboard_basis(basis_mode, axis_world, pivot_world);
 
         vec3 s = extract_scale(ictx.model_matrix);
         mat3 S = mat3(

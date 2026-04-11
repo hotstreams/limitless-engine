@@ -184,6 +184,7 @@ namespace Limitless::ms {
          *  1 - Spherical (fully faces camera)
          *  2 - Cylindrical (axis-locked; uses BillboardAxis)
          *  3 - Screen-aligned (uses camera basis; ignores axis)
+         *  4 - SpeedTree-style 8+1 atlas: cylindrical orientation + UV remap (see speedtree_billboard_atlas.glsl)
          *
          *  uint32
          */

@@ -3,7 +3,9 @@
 #include <limitless/core/texture/texture.hpp>
 #include <limitless/core/context_debug.hpp>
 #include <limitless/util/filesystem.hpp>
+#include <cstdint>
 #include <set>
+#include <vector>
 
 namespace Limitless {
     class Assets;
@@ -129,6 +131,17 @@ namespace Limitless {
         explicit texture_loader_exception(std::string msg) : std::runtime_error(std::move(msg)) {}
     };
 
+    /**
+     * Raw 8-bit image in memory (stb_image layout, row-major).
+     * Used by offline tools (e.g. billboard_generator) without creating GPU textures.
+     */
+    struct CpuImageBytes {
+        int width {0};
+        int height {0};
+        int channels {0};
+        std::vector<uint8_t> data;
+    };
+
     class TextureLoader final {
     private:
         static void setFormat(Texture::Builder& builder, const TextureLoaderFlags& flags, int channels);
@@ -158,5 +171,29 @@ namespace Limitless {
 
         // Expects paths for each cubemap face, in the order of Right, Left, Top, Bottom, Front, Back.
         static std::shared_ptr<Texture> loadCubemap(Assets& assets, const std::array<fs::path, 6>& paths, const TextureLoaderFlags& flags = {});
+
+        /**
+         * Load image with stb_image (same origin / flip rules as load()).
+         * Does not touch Assets or GPU.
+         */
+        [[nodiscard]] static CpuImageBytes load_image_cpu(const fs::path& path, const TextureLoaderFlags& flags = {});
+
+        [[nodiscard]] static CpuImageBytes load_image_cpu(const uint8_t* buffer, size_t size, const TextureLoaderFlags& flags = {});
+
+        /**
+         * Write PNG via stb_image_write (same dependency stack as texture loading).
+         * @param stride_bytes row stride; 0 means width * channels.
+         */
+        [[nodiscard]] static bool save_png(
+            const fs::path& path, int width, int height, int channels, const uint8_t* pixels, int stride_bytes = 0
+        );
+
+        /**
+         * Resize 8-bit image with stb_image_resize (linear filter).
+         * @param linear_colorspace STBIR_COLORSPACE_LINEAR for normals, STBIR_COLORSPACE_SRGB for color.
+         */
+        [[nodiscard]] static CpuImageBytes resize_image_cpu(
+            const CpuImageBytes& src, int dst_width, int dst_height, bool linear_colorspace
+        );
     };
 }

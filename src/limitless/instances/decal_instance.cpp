@@ -17,9 +17,9 @@ void DecalInstance::setMaterial(const std::shared_ptr<ms::Material>& new_materia
 
 void DecalInstance::updateBoundingBox() noexcept {
     if (custom_bounding_box) {
-        bounding_box = transformBoundingBox(*custom_bounding_box, final_matrix);
+        bounding_box = ::Limitless::transformBoundingBox(*custom_bounding_box, final_matrix);
     } else {
-        bounding_box = transformBoundingBox(model->getBoundingBox(), final_matrix);
+        bounding_box = ::Limitless::transformBoundingBox(model->getBoundingBox(), final_matrix);
     }
 }
 

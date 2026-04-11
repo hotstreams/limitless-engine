@@ -14,7 +14,7 @@ void LimitlessMaterials::Assets::setUpEffects() {
 
     const fs::path assets_dir {ENGINE_ASSETS_DIR};
 
-    models.add("model", GltfModelLoader::loadModel(*this, assets_dir / "models/gltf/BrainStem.gltf", {}));
+    models.add("model", GltfModelLoader::builder().path(assets_dir / "models/gltf/BrainStem.gltf").build().load(*this));
 
     Material::builder()
             .name("basic1")

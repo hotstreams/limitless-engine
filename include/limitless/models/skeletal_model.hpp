@@ -4,6 +4,7 @@
 #include <limitless/util/tree.hpp>
 #include <limitless/models/bones.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <cstdint>
 #include <unordered_map>
 #include <optional>
 
@@ -22,9 +23,15 @@ namespace Limitless {
         std::vector<KeyFrame<glm::fquat>> rotations;
         std::vector<KeyFrame<glm::vec3>> positions;
         std::vector<KeyFrame<glm::vec3>> scales;
-        Bone &bone;
+        /** Index into SkeletalModel::bones (stable after model build; do not store Bone& — bones vector is moved). */
+        uint32_t bone_index {};
 
-        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone &bone) noexcept;
+        AnimationNode(
+            decltype(positions) positions,
+            decltype(rotations) rotations,
+            decltype(scales) scales,
+            uint32_t bone_index
+        ) noexcept;
 
         [[nodiscard]] size_t findPositionKeyframe(double anim_time) const;
         [[nodiscard]] size_t findRotationKeyframe(double anim_time) const;
@@ -51,8 +58,8 @@ namespace Limitless {
     class SkeletalModel : public Model {
     protected:
         std::unordered_map<std::string, uint32_t> bone_map;
-        std::vector<Animation> animations;
         std::vector<Bone> bones;
+        std::vector<Animation> animations;
         std::vector<Tree<uint32_t>> skeletons;
 
         friend class Builder;
@@ -65,6 +72,8 @@ namespace Limitless {
             LodSelection selection,
             const std::vector<float>& distances,
             float lod_fade_transition_width,
+            std::shared_ptr<const ModelMaterialVariantSet> material_variants,
+            std::shared_ptr<const BillboardLodBundle> billboard_bundle,
             decltype(bones)&& bones,
             decltype(bone_map)&& bone_map,
             decltype(skeletons)&& skeletons,
@@ -78,6 +87,8 @@ namespace Limitless {
             LodSelection selection,
             const std::vector<float>& distances,
             float lod_fade_transition_width,
+            std::shared_ptr<const ModelMaterialVariantSet> material_variants,
+            std::shared_ptr<const BillboardLodBundle> billboard_bundle,
             decltype(bones)&& bones,
             decltype(bone_map)&& bone_map,
             decltype(skeletons)&& skeletons,

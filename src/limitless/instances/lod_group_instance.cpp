@@ -2,6 +2,7 @@
 #include <limitless/models/model.hpp>
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 using namespace Limitless;
 
@@ -85,6 +86,34 @@ glm::vec4 LodGroupInstance::getLodFadePackedForDrawLod(uint32_t draw_lod_index) 
 
 const std::unordered_map<std::string, MeshInstance>& LodGroupInstance::getLodMeshesAt(uint32_t lod_index) const {
     return lods.at(lod_index);
+}
+
+void LodGroupInstance::applyMaterialVariantFromModel(const Model& model, size_t variant_index) {
+    const auto* vs = model.getMaterialVariantSet();
+    if (!vs) {
+        throw std::runtime_error("LodGroupInstance::applyMaterialVariantFromModel: model has no material variant set");
+    }
+    if (variant_index >= vs->variant_names.size()) {
+        throw std::out_of_range("material variant index");
+    }
+    for (auto& lod : lods) {
+        for (auto& [mesh_name, mesh_inst] : lod) {
+            auto it = vs->materials_by_mesh_name.find(mesh_name);
+            if (it == vs->materials_by_mesh_name.end()) {
+                continue;
+            }
+            const auto& row = it->second;
+            if (variant_index >= row.size()) {
+                continue;
+            }
+            const auto& m = row[variant_index];
+            if (m) {
+                mesh_inst.changeMaterial(m);
+            } else {
+                mesh_inst.reset();
+            }
+        }
+    }
 }
 
 void LodGroupInstance::selectLod(const Camera& camera, const glm::vec3& position) {

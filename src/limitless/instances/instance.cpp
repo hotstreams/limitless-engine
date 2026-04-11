@@ -192,7 +192,7 @@ Instance::Builder Instance::builder() noexcept {
 
 void Instance::updateBoundingBox() noexcept {
     if (custom_bounding_box) {
-        bounding_box = transformBoundingBox(*custom_bounding_box, final_matrix);
+        bounding_box = ::Limitless::transformBoundingBox(*custom_bounding_box, final_matrix);
     }
 }
 

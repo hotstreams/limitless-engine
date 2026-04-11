@@ -95,6 +95,8 @@ SSAO::SSAO(Renderer& renderer) {
     buffer->mapData(&settings, sizeof(Settings));
 }
 
+SSAO::~SSAO() = default;
+
 void SSAO::draw(Context& ctx, const Assets& assets, const std::shared_ptr<Texture>& depth, const std::shared_ptr<Texture>& normal) {
     {
         ctx.disable(Capabilities::DepthTest);

@@ -149,5 +149,12 @@ namespace Limitless {
 
         void setLodCrossFadeEffectEnabled(bool enabled) noexcept { lod_group.setCrossFadeEffectEnabled(enabled); }
         [[nodiscard]] bool isLodCrossFadeEffectEnabled() const noexcept { return lod_group.isCrossFadeEffectEnabled(); }
+
+        /**
+         * Selects a glTF materials variant (KHR_materials_variants) on all meshes across all LOD levels.
+         * nullptr entries in the variant mapping reset that mesh to its default material.
+         */
+        void setMaterialVariant(size_t variant_index);
+        void setMaterialVariant(const std::string& variant_name);
     };
 }

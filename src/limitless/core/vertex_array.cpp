@@ -104,22 +104,6 @@ void VertexArray::setAttribute(GLuint index, GLint size, GLenum type, GLboolean 
     attributes.emplace(index, Attribute{size, type, normalized, stride, pointer, buffer});
 }
 
-void VertexArray::recreateOnCurrentContext() {
-    // std::cout << "Recreating VAO " << id << " on current context" << std::endl;
-    glGenVertexArrays(1, &id);
-    // std::cout << "New VAO ID: " << id << std::endl;
-
-    for (const auto& [index, attribute] : attributes) {
-        const auto& [size, type, normalized, stride, pointer, buffer] = attribute;
-        // std::cout << "Setting attribute " << index << " with size " << size << " type " << type << " normalized " << normalized << " stride " << stride << " pointer " << pointer << " buffer " << buffer->getId() << std::endl;
-        setAttribute(index, size, type, normalized, stride, pointer, buffer);
-    }
-
-    if (element_buffer) {
-        setElementBuffer(element_buffer);
-    }
-}
-
 void VertexArray::setElementBuffer(const std::shared_ptr<Buffer>& buffer) {
     //make sure element buffer is unbound, because we should attach it to active VAO by binding
     //in case its already bound

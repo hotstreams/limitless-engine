@@ -4,6 +4,7 @@
 #include <limitless/core/shader/shader_program.hpp>
 #include <stdexcept>
 #include <utility>
+#include <algorithm>
 
 using namespace Limitless;
 
@@ -47,9 +48,9 @@ std::unique_ptr<Instance> ModelInstance::clone() noexcept {
 
 void ModelInstance::updateBoundingBox() noexcept {
     if (custom_bounding_box) {
-        bounding_box = transformBoundingBox(*custom_bounding_box, final_matrix);
+        bounding_box = ::Limitless::transformBoundingBox(*custom_bounding_box, final_matrix);
     } else {
-        bounding_box = transformBoundingBox(model->getBoundingBox(), final_matrix);
+        bounding_box = ::Limitless::transformBoundingBox(model->getBoundingBox(), final_matrix);
     }
 }
 
@@ -157,4 +158,21 @@ const std::shared_ptr<ms::Material> &ModelInstance::getMaterial(const std::strin
     } catch (...) {
         throw no_such_mesh("with name " + mesh_name);
     }
+}
+
+void ModelInstance::setMaterialVariant(size_t variant_index) {
+    lod_group.applyMaterialVariantFromModel(*model, variant_index);
+}
+
+void ModelInstance::setMaterialVariant(const std::string& variant_name) {
+    const auto* vs = model->getMaterialVariantSet();
+    if (!vs) {
+        throw std::runtime_error("ModelInstance::setMaterialVariant: model has no material variant set");
+    }
+    const auto& names = vs->variant_names;
+    const auto it = std::find(names.begin(), names.end(), variant_name);
+    if (it == names.end()) {
+        throw std::out_of_range("unknown material variant name: " + variant_name);
+    }
+    setMaterialVariant(static_cast<size_t>(it - names.begin()));
 }

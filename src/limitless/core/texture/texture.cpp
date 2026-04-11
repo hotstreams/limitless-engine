@@ -341,11 +341,18 @@ std::vector<std::byte> Texture::getPixels() const noexcept {
     pixels.resize(size.x * size.y * getBytesPerPixel());
 
     bind(0);
+    // Default GL_PACK_ALIGNMENT is 4: each row is padded to a multiple of 4 bytes.
+    // Our buffer is tightly packed (width * height * bytesPerPixel); without alignment 1,
+    // glGetTexImage overruns the allocation (e.g. RGB width 85 → 255 bytes/row padded to 256).
+    GLint previous_pack_alignment = 4;
+    glGetIntegerv(GL_PACK_ALIGNMENT, &previous_pack_alignment);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glGetTexImage(static_cast<GLenum>(target),
                   0,  // mipmap level
                   static_cast<GLenum>(format),
                   static_cast<GLenum>(data_type),
                   pixels.data());
+    glPixelStorei(GL_PACK_ALIGNMENT, previous_pack_alignment);
 
     return pixels;
 }

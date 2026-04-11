@@ -30,11 +30,10 @@ void DirectionalShadowPass::render(InstanceRenderer &renderer, Scene &scene,
     ctx.setDepthMask(DepthMask::True);
     ctx.setCullFace(CullFace::Front);
 
-    // Use indirect draw for shadow casters when enabled.
-    // CascadeShadowMapping owns a dedicated IndirectInstanceRenderer for shadows
+    // Indirect shadow path disabled (see cascade_shadow_mapping.cpp / renderer.hpp).
     // (separate from the main-camera one) and prepares it once per frame with
     // the shadow caster list shared across all cascades.
-    const bool use_indirect = this->renderer.getSettings().indirect_draw;
+    const bool use_indirect = false; // this->renderer.getSettings().indirect_draw; — indirect disabled
     shadows.draw(renderer, scene, ctx, assets, camera, use_indirect);
 }
 
