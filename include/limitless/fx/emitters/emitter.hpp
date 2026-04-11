@@ -41,6 +41,9 @@ namespace Limitless::fx {
         // particles position is relative to emitter
         bool local_space {false};
 
+        // if set, particle position will be moduloed by this value if they are further than this value from the camera.
+        std::optional<float> camera_repeat_boundary {std::nullopt};
+
         // spawn properties
         EmitterSpawn spawn;
 
@@ -87,6 +90,7 @@ namespace Limitless::fx {
         glm::vec3& getLocalPosition() noexcept override;
         glm::quat& getLocalRotation() noexcept override;
         std::chrono::duration<float>& getDuration() noexcept override;
+        void setCameraRepeatBoundary(float boundary) noexcept override;
 
         auto& getModule(ModuleType type) {
             for (const auto& module : modules) {

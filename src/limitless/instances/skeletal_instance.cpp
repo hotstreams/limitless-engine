@@ -39,7 +39,15 @@ void SkeletalInstance::updateAnimationFrame() {
     const auto delta_time = current_time - last_time;
     animation_duration += delta_time;
     last_time = current_time;
-    const auto animation_time = glm::mod(animation_duration.count() * anim.tps, anim.duration);
+    const auto animation_time = [&]() -> double {
+        auto new_time = animation_duration.count() * anim.tps;
+        if (!repeating) {
+            new_time = std::min(new_time, anim.duration);
+        } else {
+            new_time = glm::mod(new_time, anim.duration);
+        }
+        return new_time;
+    }();
 
     std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
     node_traversal = [&](const Tree<uint32_t>& node, const glm::mat4& parent_mat) {
@@ -184,6 +192,11 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
     return *this;
 }
 
+SkeletalInstance& SkeletalInstance::setRepeating(bool repeating) noexcept {
+    this->repeating = repeating;
+    return *this;
+}
+
 SkeletalInstance& SkeletalInstance::offsetAnimationTime(double seconds) noexcept {
     animation_duration += std::chrono::duration<double>(seconds);
     return *this;
@@ -217,4 +230,10 @@ const std::vector<Bone>& SkeletalInstance::getAllBones() const noexcept {
     const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
     const auto& bones = skeletal.getBones();
     return bones;
+}
+
+bool SkeletalInstance::hasAnimation(const std::string& name) const noexcept {
+    const auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
+    const auto& animations = skeletal.getAnimations();
+    return std::find_if(animations.begin(), animations.end(), [&](const auto& anim) { return name == anim.name; }) != animations.end();
 }

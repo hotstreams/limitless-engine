@@ -1,4 +1,5 @@
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/core/cpu_profiler.hpp>
 #include <limitless/core/keyline_extensions.hpp>
 #include <limitless/logging/log.hpp>
 
@@ -17,7 +18,7 @@ void ContextInitializer::initializeGLEW() {
     activate_debug();
 #endif
 
-    getExtensions();
+    discoverExtensions();
     getLimits();
 
 #ifdef LIMITLESS_OPENGL_DEBUG
@@ -61,7 +62,7 @@ ContextInitializer::~ContextInitializer() {
     }
 }
 
-void ContextInitializer::getExtensions() noexcept {
+void ContextInitializer::discoverExtensions() noexcept {
     GLint count;
     glGetIntegerv(GL_NUM_EXTENSIONS, &count);
 
@@ -72,7 +73,7 @@ void ContextInitializer::getExtensions() noexcept {
     }
 
 	#ifdef LIMITLESS_OPENGL_NO_EXTENSIONS
-        std::cerr << "OpenGL toster mode" << std::endl;
+        std::cerr << "OpenGL toaster mode" << std::endl;
 		extensions.clear();
         extensions.emplace_back("GL_ARB_shader_storage_buffer_object");
         extensions.emplace_back("GL_ARB_shading_language_420pack");

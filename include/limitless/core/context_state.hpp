@@ -186,7 +186,8 @@ namespace Limitless {
         GLuint shader_id {};
 
         /**
-         * Vertex array object id
+         * Currently active vertex array object.
+         * TODO: map engine VAO ID to real OpenGL VAO ID for each context.
          */
         GLuint vertex_array_id {};
 
@@ -279,7 +280,11 @@ namespace Limitless {
 
         auto getActiveTexture() const noexcept { return active_texture; }
         const auto& getTextureBound() const noexcept { return texture_bound; }
+        void resetTextureBinds() noexcept;
         const auto& getBufferPoints() const noexcept { return buffer_point; }
+
+        [[nodiscard]] GLuint getActiveTextureFromGpu() const noexcept;
+        [[nodiscard]] GLuint getBoundTextureFromGpu(GLenum target) const noexcept;
 
         auto getShaderId() const noexcept { return shader_id; }
         auto getVertexArrayId() const noexcept { return vertex_array_id; }

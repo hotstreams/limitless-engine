@@ -54,6 +54,11 @@ void Camera::updateView() noexcept {
 }
 
 void Camera::updateProjection(glm::uvec2 screen_size) noexcept {
+    if (screen_size.x == 0 || screen_size.y == 0) {
+        // window probably got minimized, skip update due to meaningless aspect ratio.
+        return;
+    }
+
     projection = glm::perspective(
         glm::radians(fov),
         static_cast<float>(screen_size.x) / static_cast<float>(screen_size.y),

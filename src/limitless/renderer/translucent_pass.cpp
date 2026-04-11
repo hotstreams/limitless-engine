@@ -48,6 +48,7 @@ void TranslucentPass::render(
 
     setter.add([&] (ShaderProgram& shader) {
         shader.setUniform("_refraction_texture", renderer.getPass<DeferredLightingPass>().getResult());
+        shader.setUniform("_scene_depth_texture", renderer.getPass<DeferredFramebufferPass>().getDepth());
     });
 
     // Use indirect draw if enabled (prepare() called once in Renderer::render)

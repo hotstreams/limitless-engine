@@ -1,5 +1,9 @@
 #include <limitless/fx/emitters/emitter.hpp>
 
+#include <limitless/camera.hpp>
+
+#include <limitless/core/cpu_profiler.hpp>
+
 using namespace Limitless::fx;
 
 template<typename Particle>
@@ -71,6 +75,11 @@ glm::quat& Emitter<P>::getLocalRotation() noexcept {
 template<typename P>
 std::chrono::duration<float>& Emitter<P>::getDuration() noexcept {
     return duration;
+}
+
+template<typename P>
+void Emitter<P>::setCameraRepeatBoundary(float boundary) noexcept {
+    camera_repeat_boundary = boundary;
 }
 
 template<typename P>
@@ -183,6 +192,7 @@ void Emitter<P>::spawnParticles() noexcept {
 
 template<typename P>
 void Emitter<P>::killParticles() noexcept {
+    CpuProfileScope scope(global_profiler, "Emitter<P>::killParticles");
     std::vector<size_t> indices;
     for (size_t i = 0; i < particles.size(); ++i) {
         if (particles[i].lifetime <= 0.0f) {
@@ -225,6 +235,21 @@ void Emitter<P>::update(const Camera &camera) {
         for (auto& particle : particles) {
             particle.position += particle.velocity * delta_time.count();
             particle.velocity += particle.acceleration * delta_time.count();
+            if (camera_repeat_boundary) {
+                const auto diff = particle.position - camera.getPosition();
+                if (diff.x > *camera_repeat_boundary) {
+                    particle.position.x = -*camera_repeat_boundary + diff.x;
+                }
+                if (diff.x < -*camera_repeat_boundary) {
+                    particle.position.x = *camera_repeat_boundary + diff.x;
+                }
+                if (diff.z > *camera_repeat_boundary) {
+                    particle.position.z = -*camera_repeat_boundary + diff.z;
+                }
+                if (diff.z < -*camera_repeat_boundary) {
+                    particle.position.z = *camera_repeat_boundary + diff.z;
+                }
+            }
         }
     }
 
@@ -252,6 +277,7 @@ Emitter<P>::Emitter(const Emitter& emitter)
     , position {emitter.position}
     , rotation {emitter.rotation}
     , local_space {emitter.local_space}
+    , camera_repeat_boundary {emitter.camera_repeat_boundary}
     , spawn {emitter.spawn}
     , duration {emitter.duration}
     , unique_shader {emitter.unique_shader} {

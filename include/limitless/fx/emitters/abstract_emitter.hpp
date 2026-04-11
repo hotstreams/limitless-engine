@@ -51,6 +51,7 @@ namespace Limitless::fx {
         virtual void accept(EmitterVisitor& visitor) noexcept = 0;
 
         virtual bool& getLocalSpace() noexcept = 0;
+        virtual void setCameraRepeatBoundary(float boundary) noexcept = 0;
         virtual EmitterSpawn& getSpawn() noexcept = 0;
         virtual glm::vec3& getLocalPosition() noexcept = 0;
         virtual glm::quat& getLocalRotation() noexcept = 0;

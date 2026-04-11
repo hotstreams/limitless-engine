@@ -15,7 +15,7 @@ Instance::Instance(InstanceType _shader_type, const glm::vec3& _position) noexce
           .access(Buffer::MutableAccess::WriteOrphaning)
           .data(nullptr)
           .size(sizeof(Data))
-          .build("model_buffer", *Context::getCurrentContext())} {
+          .build()} { // INSTANCE_BUFFER
 }
 
 Instance::Instance(const Instance& rhs)
@@ -43,7 +43,7 @@ Instance::Instance(const Instance& rhs)
          .access(Buffer::MutableAccess::WriteOrphaning)
          .data(nullptr)
          .size(sizeof(Data))
-         .build("model_buffer", *Context::getCurrentContext())} {
+         .build()} { // INSTANCE_BUFFER
 }
 
 void Instance::updateModelMatrix() noexcept {

@@ -82,8 +82,16 @@ std::unique_ptr<Buffer> Buffer::Builder::build() {
 }
 
 // builds indexed buffer for specified context
-std::shared_ptr<Buffer> Buffer::Builder::build(std::string_view name, ContextState& ctx) {
+std::shared_ptr<Buffer> Buffer::Builder::build(const std::string& name, ContextState& ctx) {
     std::shared_ptr<Buffer> buffer = build();
-    ctx.getIndexedBuffers().add(name, buffer);
+    const auto ib_type = [&]() -> IndexedBuffer::Type {
+        switch (target_) {
+            case Buffer::Type::Uniform:
+                return IndexedBuffer::Type::UniformBuffer;
+            case Buffer::Type::ShaderStorage:
+                return IndexedBuffer::Type::ShaderStorage;
+        }
+    }();
+    ctx.getIndexedBuffers().add(ib_type, name, buffer);
     return buffer;
 }

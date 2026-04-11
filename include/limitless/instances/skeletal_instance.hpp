@@ -41,6 +41,11 @@ namespace Limitless {
         bool paused {};
 
         /**
+         * Is animation repeating
+         */
+        bool repeating {true};
+
+        /**
          * Animation last update time
          */
         std::chrono::time_point<std::chrono::steady_clock> last_time;
@@ -111,9 +116,15 @@ namespace Limitless {
          */
         SkeletalInstance& offsetAnimationTime(double seconds) noexcept;
 
+        /**
+         * Sets animation repeating
+         */
+        SkeletalInstance& setRepeating(bool repeating) noexcept;
+
         [[nodiscard]] auto isPaused() const noexcept { return paused; }
         [[nodiscard]] const auto& getCurrentAnimation() const noexcept { return animation; }
         [[nodiscard]] const std::vector<Animation>& getAllAnimations() const noexcept;
+        [[nodiscard]] bool hasAnimation(const std::string& name) const noexcept;
         const std::vector<Bone>& getAllBones() const noexcept;
         const auto& getBoneBuffer() const noexcept { return bone_buffer; }
 

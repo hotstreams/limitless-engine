@@ -50,6 +50,7 @@ namespace Limitless::fx {
         EffectBuilder& setLocalRotation(const glm::quat& local_rotation);
         EffectBuilder& setSpawnMode(EmitterSpawn::Mode mode);
         EffectBuilder& setLocalSpace(bool _local_space);
+        EffectBuilder& setCameraRepeatBoundary(float boundary);
         EffectBuilder& setEmitterType(AbstractEmitter::Type type);
         EffectBuilder& setMaxCount(uint64_t max_count);
         EffectBuilder& setSpawnRate(float spawn_rate);

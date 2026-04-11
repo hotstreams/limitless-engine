@@ -59,7 +59,7 @@ namespace Limitless {
         uint32_t tile_size_px {16u};
     public:
         explicit Lighting(Context& ctx);
-        ~Lighting() = default;
+        ~Lighting();
 
         [[nodiscard]] const glm::vec4& getAmbientColor() const noexcept;
         [[nodiscard]] glm::vec4& getAmbientColor() noexcept;

@@ -136,6 +136,50 @@ bool InstanceRenderer::shouldBeRendered(const Instance &instance, const DrawPara
         return false;
     }
 
+    {
+        bool has_blending_match = false;
+
+        switch (instance.getInstanceType()) {
+            case InstanceType::Model:
+            case InstanceType::Skeletal: {
+                for (const auto& [_, mesh]: static_cast<const ModelInstance&>(instance).getMeshes()) {
+                    if (mesh.getMaterial()->getBlending() == drawp.blending) {
+                        has_blending_match = true;
+                        break;
+                    }
+                }
+            }
+            break;
+            case InstanceType::Instanced: {
+                for (const auto& [_, mesh]: static_cast<const InstancedInstance&>(instance).getInstances()[0]->getMeshes()) {
+                    if (mesh.getMaterial()->getBlending() == drawp.blending) {
+                        has_blending_match = true;
+                        break;
+                    }
+                }
+            }
+            break;
+            case InstanceType::Decal:
+                if (static_cast<const DecalInstance&>(instance).getMaterial()->getBlending() == drawp.blending) {
+                    has_blending_match = true;
+                }
+                break;
+            case InstanceType::SkeletalInstanced:
+                break;
+            case InstanceType::Effect:
+                break;
+            case InstanceType::Terrain:
+                if (static_cast<const TerrainInstance&>(instance).getMeshes().begin()->second.getMaterial()->getBlending() == drawp.blending) {
+                    has_blending_match = true;
+                }
+                break;
+        }
+        
+        if (!has_blending_match) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -231,6 +275,7 @@ void InstanceRenderer::renderVisibleNonTerrain(const DrawParameters& drawp) {
 }
 
 void InstanceRenderer::renderDecals(const DrawParameters& drawp) {
+    CpuProfileScope scope(global_profiler, "InstanceRenderer::renderDecals");
     for (const auto& instance: frustum_culling.getVisibleInstances()) {
         if (instance->getInstanceType() == InstanceType::Decal) {
             render(static_cast<DecalInstance&>(*instance), drawp); //NOLINT

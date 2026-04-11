@@ -42,7 +42,7 @@ std::shared_ptr<Buffer>& InstancedInstance::ensureLodBuffer(uint32_t lod) {
             .access(Buffer::MutableAccess::WriteOrphaning)
             .data(nullptr)
             .size(sizeof(Data))
-            .build("model_buffer_lod" + std::to_string(lod), *Context::getCurrentContext());
+            .build();
         it = lod_buffers.emplace(lod, std::move(buffer)).first;
     }
     return it->second;

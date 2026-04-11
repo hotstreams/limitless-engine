@@ -1,18 +1,24 @@
 #include <limitless/core/buffer/indexed_buffer.hpp>
 #include <limitless/core/context_initializer.hpp>
+#include <limitless/core/cpu_profiler.hpp>
+
+#include <iostream>
 
 using namespace Limitless;
 
-std::shared_ptr<Buffer> IndexedBuffer::get(std::string_view name) {
-    if (buffers.count(name.data()) == 1) {
-        return buffers.find(name.data())->second;
-    } else {
-        throw buffer_not_found{"Buffer not found, should be set manually which one"};
+std::optional<std::shared_ptr<Buffer>> IndexedBuffer::get(Type type, const std::string& name) noexcept {
+    CpuProfileScope scope(global_profiler, "IndexedBuffer::get");
+    auto it = buffers.find(Identifier{type, name});
+    if (it != buffers.end()) {
+        return it->second;
     }
+    return std::nullopt;
 }
 
-void IndexedBuffer::add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept {
-    buffers.emplace(name, std::move(buffer));
+void IndexedBuffer::add(Type type, const std::string& name, std::shared_ptr<Buffer> buffer) noexcept {
+    CpuProfileScope scope(global_profiler, "IndexedBuffer::add");
+    std::cerr << "Adding buffer: " << name << "\n";
+    buffers.emplace(Identifier{type, name}, std::move(buffer));
 }
 
 GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept {
@@ -53,12 +59,8 @@ GLuint IndexedBuffer::getBindingPoint(Type type, std::string_view name) noexcept
     return bind;
 }
 
-void IndexedBuffer::remove(const std::string &name, const std::shared_ptr<Buffer>& buffer) {
-    if (buffer == nullptr) return;
-
-    auto found = buffers.find(name);
-
-    while (found->second != buffer) { ++found; }
-
-    buffers.erase(found);
+void IndexedBuffer::remove(Type type, const std::string &name) {
+    CpuProfileScope scope(global_profiler, "IndexedBuffer::remove");
+    std::cerr << "Removing buffer: " << name << "\n";
+    buffers.erase(Identifier{type, name});
 }

@@ -6,6 +6,9 @@
 #include <limitless/core/profiler.hpp>
 #include <iostream>
 
+#include <unordered_map>
+#include <limitless/core/cpu_profiler.hpp>
+
 namespace Limitless {
     class FrustumCulling {
     private:
@@ -17,13 +20,14 @@ namespace Limitless {
         /**
          * Contains visible array of model instances for each instanced instance
          */
-        std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instances_of_instanced_instances;
+        std::unordered_map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>> visible_instances_of_instanced_instances;
     public:
-        using VisibleSubinstancesMap = std::map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>>;
+        using VisibleSubinstancesMap = std::unordered_map<uint64_t, std::vector<std::shared_ptr<ModelInstance>>>;
 
         void update(Scene& scene, Camera& camera) {
             CPUProfileScope profile_scope {"FrustumCulling::update"};
             visible.clear();
+
             visible_instances_of_instanced_instances.clear();
 
             const auto frustum = Frustum::fromCamera(camera);

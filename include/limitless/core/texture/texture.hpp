@@ -71,7 +71,11 @@ namespace Limitless {
 
             // GL_ARB_texture_compression_rgtc
             R_RGTC = GL_COMPRESSED_RED_RGTC1,
-            RG_RGTC = GL_COMPRESSED_RG_RGTC2
+            RG_RGTC = GL_COMPRESSED_RG_RGTC2,
+
+            // GL_KHR_texture_compression_astc_ldr
+            RGBA_ASTC_4x4 = GL_COMPRESSED_RGBA_ASTC_4x4_KHR,
+            sRGBA8_ASTC_4x4 = GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR
         };
 
         enum class Format {
@@ -170,7 +174,7 @@ namespace Limitless {
         [[nodiscard]] auto isCubemapArray() const noexcept { return target == Type::TexCubeMapArray; }
         [[nodiscard]] uint32_t getId() const noexcept;
         [[nodiscard]] auto& getExtensionTexture() noexcept { return *texture; }
-        [[nodiscard]] std::vector<std::byte> getPixels() noexcept;
+        [[nodiscard]] std::vector<std::byte> getPixels() const noexcept;
 
         Texture& setMinFilter(Filter filter);
         Texture& setMagFilter(Filter filter);

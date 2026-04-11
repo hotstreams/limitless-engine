@@ -1,4 +1,5 @@
 #include "cgltf.h"
+#include <meshoptimizer.h>
 
 #include <chrono>
 #include <cstdio>
@@ -37,6 +38,7 @@
 #include <limits>
 #include <optional>
 #include <unordered_map>
+#include <atomic>
 
 using namespace Limitless;
 
@@ -190,12 +192,16 @@ static std::vector<ElemType> copyFromAccessor(const cgltf_accessor& accessor) {
 	return result;
 }
 
-static glm::vec4 toVec4(const float (&src)[4]) {
-	return glm::vec4 {src[0], src[1], src[2], src[3]};
+static glm::vec2 toVec2(const float (&src)[2]) {
+	return glm::vec2 {src[0], src[1]};
 }
 
 static glm::vec3 toVec3(const float (&src)[3]) {
 	return glm::vec3 {src[0], src[1], src[2]};
+}
+
+static glm::vec4 toVec4(const float (&src)[4]) {
+	return glm::vec4 {src[0], src[1], src[2], src[3]};
 }
 
 static glm::quat toQuat(const float (&src)[4]) {
@@ -268,6 +274,20 @@ static std::vector<std::array<float, 4>> copyNormalizedQuaternionsFromAccessor(c
 	return result;
 }
 
+static glm::mat3 toMat3(const float (&src)[3][3]) {
+	return glm::mat3 {
+		src[0][0],
+		src[0][1],
+		src[0][2],
+		src[1][0],
+		src[1][1],
+		src[1][2],
+		src[2][0],
+		src[2][1],
+		src[2][2]
+	};
+}
+
 static glm::mat4 toMat4(const float (&src)[16]) {
 	return glm::mat4 {
 		src[0],
@@ -286,6 +306,27 @@ static glm::mat4 toMat4(const float (&src)[16]) {
 		src[13],
 		src[14],
 		src[15]};
+}
+
+static glm::mat3 toMat4(const float (&mat4)[4][4]) {
+	return glm::mat4 {
+		mat4[0][0],
+		mat4[0][1],
+		mat4[0][2],
+		mat4[0][3],
+		mat4[1][0],
+		mat4[1][1],
+		mat4[1][2],
+		mat4[1][3],
+		mat4[2][0],
+		mat4[2][1],
+		mat4[2][2],
+		mat4[2][3],
+		mat4[3][0],
+		mat4[3][1],
+		mat4[3][2],
+		mat4[3][3]
+	};
 }
 
 static glm::mat4 toMat4(const std::array<float, 16>& src) {
@@ -725,6 +766,23 @@ static std::string generateMeshName(const std::string& model_name, size_t mesh_i
 	return model_name + "_mesh" + std::to_string(mesh_index);
 }
 
+static size_t getTargetIndexCount(size_t index_count, const LodTarget& target) {
+	size_t result = std::visit([&](auto&& arg) -> size_t {
+		using T = std::decay_t<decltype(arg)>;
+		if constexpr (std::is_same_v<T, LodSimplificationFactor>) {
+			return static_cast<size_t>(index_count * arg);
+		} else if constexpr (std::is_same_v<T, LodTargetIndicesCount>) {
+			return arg;
+		}
+		throw ModelLoadError {"invalid lod target type"};
+	}, target);
+
+	// Ensure target is aligned to triangles (multiple of 3) and at least 3.
+	result = std::max(result - result % 3, size_t {3});
+
+	return result;
+}
+
 // TODO: return std::vector of mesh + material.
 // Note that material pointer can be empty if mesh does not have material.
 static std::pair<std::vector<std::shared_ptr<Mesh>>, std::vector<std::shared_ptr<ms::Material>>>
@@ -761,6 +819,8 @@ loadMeshes(
     };
     std::vector<WindPrimTmp> wind_prims;
 
+	size_t polygon_count = 0uz;
+
 	for (cgltf_size i = 0, n = mesh.primitives_count; i < n; ++i) {
 		auto mesh_name = base_mesh_name + (n == 1 ? std::string() : std::to_string(i));
 		std::vector<glm::vec3> positions;
@@ -787,6 +847,8 @@ loadMeshes(
 			if (primitive.indices->count % 3 != 0) {
 				throw ModelLoadError {"triangle indices count is not divisible by 3"};
 			}
+
+			polygon_count += primitive.indices->count / 3;
 
 			switch (primitive.indices->component_type) {
 			case cgltf_component_type_r_32u:
@@ -832,22 +894,16 @@ loadMeshes(
 				positions = copyFromAccessor<glm::vec3>(*attribute.data);
 				break;
 			case cgltf_attribute_type_texcoord:
-				if (attribute.index == 0) {
-					uvs = copyFromAccessor<glm::vec2>(*attribute.data);
-				} else if (flags.isPresent(ModelLoaderOption::Wind)) {
-					// SpeedTree-style wind payload uses multiple TEXCOORD sets.
-					// We keep them as vec2 to match glTF TEXCOORD_n (VEC2) accessors.
-					switch (attribute.index) {
-						case 1: uvs1 = copyFromAccessor<glm::vec2>(*attribute.data); break;
-						case 2: uvs2 = copyFromAccessor<glm::vec2>(*attribute.data); break;
-						case 3: uvs3 = copyFromAccessor<glm::vec2>(*attribute.data); break;
-						case 4: uvs4 = copyFromAccessor<glm::vec2>(*attribute.data); break;
-						case 5: uvs5 = copyFromAccessor<glm::vec2>(*attribute.data); break;
-						default:
-							// ignore
-							break;
-					}
-				}
+                switch (attribute.index) {
+                    case 1: uvs1 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+                    case 2: uvs2 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+                    case 3: uvs3 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+                    case 4: uvs4 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+                    case 5: uvs5 = copyFromAccessor<glm::vec2>(*attribute.data); break;
+                    default:
+                        // ignore
+                        break;
+                }
 				break;
 			case cgltf_attribute_type_joints:
 				// TODO: handle host big endianess, as gltf data is little
@@ -922,15 +978,6 @@ loadMeshes(
 			uvs = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f, 0.0f});
 		}
 
-		if (flags.isPresent(ModelLoaderOption::Wind)) {
-			// Default missing wind UV sets to 0 so shader reads a stable value.
-			if (uvs1.empty()) uvs1 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
-			if (uvs2.empty()) uvs2 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
-			if (uvs3.empty()) uvs3 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
-			if (uvs4.empty()) uvs4 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
-			if (uvs5.empty()) uvs5 = std::vector<glm::vec2>(positions.size(), glm::vec2 {0.0f});
-		}
-
 		if (positions.size() != normals.size() || positions.size() != tangents.size()
 		    || positions.size() != uvs.size()) {
 			throw ModelLoadError {
@@ -940,78 +987,57 @@ loadMeshes(
 				+ " and UVs"};
 		}
 
-		if (flags.isPresent(ModelLoaderOption::Wind) && !skin) {
-			// Validate additional UV set sizes if present (only for plain meshes).
-			auto check = [&](const char* name, const std::vector<glm::vec2>& v) {
-				if (v.size() != positions.size()) {
-					throw ModelLoadError {
-						std::string("mismatching count of wind UV set ") + name + ": "
-						+ std::to_string(v.size()) + " != " + std::to_string(positions.size())
-					};
-				}
-			};
-			check("TEXCOORD_1", uvs1);
-			check("TEXCOORD_2", uvs2);
-			check("TEXCOORD_3", uvs3);
-			check("TEXCOORD_4", uvs4);
-			check("TEXCOORD_5", uvs5);
-		}
-
-
-        // Track whether this primitive actually contains SpeedTree payload attributes.
-        // If any required TEXCOORD_1..5 are missing, feeding zeros into the SpeedTree path can make
-        // different parts of the tree move incoherently. In that case we fall back to simple wind
-        // for that mesh/material (keeps the whole tree moving together).
-        const bool has_uv1 = !uvs1.empty();
-        const bool has_uv2 = !uvs2.empty();
-        const bool has_uv3 = !uvs3.empty();
-        const bool has_uv4 = !uvs4.empty();
-        const bool has_uv5 = !uvs5.empty();
-        const bool has_speedtree_payload = has_uv1 && has_uv2 && has_uv3 && has_uv4 && has_uv5;
 
 		vertices.reserve(positions.size());
-		std::vector<VertexNormalTangentUv6> wind_vertices;
-		const bool build_wind_vertices = flags.isPresent(ModelLoaderOption::Wind) && !skin;
-		if (build_wind_vertices) {
-			wind_vertices.reserve(positions.size());
-		}
-
-        // Wind payload UV flip:
-        // In our SpeedTree->FBX->Blender->glTF pipeline, Blender flips the V coordinate for ALL UV layers,
-        // including uv1..uv5 that we use as wind payload. We must undo that (y := 1 - y) for payload.
-        //
-        // NOTE: This is a pipeline contract. We keep it deterministic.
-        const bool payload_unflip = build_wind_vertices;
-
 		for (size_t i = 0; i < positions.size(); ++i) {
 			auto maybeFlipUv0 = [&](glm::vec2 v) {
 				return flags.isPresent(Limitless::ModelLoaderOption::FlipUV) ? v : glm::vec2(v.x, 1.0f - v.y);
 			};
-            auto maybeFixPayload = [&](glm::vec2 v) {
-                return payload_unflip ? glm::vec2(v.x, 1.0f - v.y) : v;
-            };
 
-			auto uv = maybeFlipUv0(uvs[i]);
+            auto uv = maybeFlipUv0(uvs[i]);
 
-			if (build_wind_vertices) {
-				wind_vertices.emplace_back(VertexNormalTangentUv6{
-					positions[i],
-					normals[i],
-					tangents[i], // glTF tangent is vec4: xyz=tangent, w=handedness
-					uv,
-					maybeFixPayload(uvs1[i]),
-					maybeFixPayload(uvs2[i]),
-					maybeFixPayload(uvs3[i]),
-					maybeFixPayload(uvs4[i]),
-					maybeFixPayload(uvs5[i])
-				});
-			} else {
-				vertices.emplace_back(VertexNormalTangent {
-					positions[i],
-					normals[i],
-					tangents[i], // glTF tangent is vec4: xyz=tangent, w=handedness
-					uv});
-			}
+            vertices.emplace_back(VertexNormalTangent {
+                    positions[i],
+                    normals[i],
+                    tangents[i], // glTF tangent is vec4: xyz=tangent, w=handedness
+                    uv});
+            }
+		}
+
+		size_t target_index_count = getTargetIndexCount(indices.size(), flags.lod_options.target);
+		// Mesh simplification using meshoptimizer.
+		if (indices.size() > target_index_count) {
+			const auto old_index_count = indices.size();
+			std::vector<GLuint> simplified_indices(indices.size());
+			size_t new_index_count = flags.lod_options.forced
+			? meshopt_simplifySloppy(
+				simplified_indices.data(),
+				indices.data(),
+				indices.size(),
+				reinterpret_cast<const float*>(vertices.data()),
+				vertices.size(),
+				sizeof(VertexNormalTangent),
+				target_index_count,
+				flags.lod_options.target_error,
+				nullptr
+			)
+			: meshopt_simplify(
+				simplified_indices.data(),
+				indices.data(),
+				indices.size(),
+				reinterpret_cast<const float*>(vertices.data()),
+				vertices.size(),
+				sizeof(VertexNormalTangent),
+				target_index_count,
+				flags.lod_options.target_error,
+				0,
+				nullptr
+			);
+
+			// std::cout << "Mesh " << mesh_name << " simplification: " << old_index_count << " -> " << new_index_count << std::endl;
+
+			simplified_indices.resize(new_index_count);
+			indices = std::move(simplified_indices);
 		}
 
 		if (!skin) {
@@ -1053,111 +1079,33 @@ loadMeshes(
 				vert.tangent = glm::vec4(t, vert.tangent.w);
 			};
 
-			if (flags.isPresent(ModelLoaderOption::Wind)) {
-				for (auto& vert : wind_vertices) {
-					bake_transform(vert);
-
-					// SpeedTree payload note:
-					// Some SpeedTree exports store object-space anchor positions in extra TEXCOORD sets
-					// (commonly TEXCOORD_2.xy + TEXCOORD_3.x). Since we bake node transforms into
-					// POSITION/NORMAL/TANGENT, we must bake these anchor positions too, otherwise leaf
-					// tumble/ripple will use mismatched spaces and can look chaotic or "explode".
-					glm::vec3 anchor_os {vert.uv2.x, vert.uv2.y, vert.uv3.x};
-					auto anchor_ms = mesh_matrix * glm::vec4(anchor_os, 1.f);
-					vert.uv2.x = anchor_ms.x;
-					vert.uv2.y = anchor_ms.y;
-					vert.uv3.x = anchor_ms.z;
-
-					// Also bake packed direction vectors stored in floats (Unity/SpeedTree convention).
-					// These encode object-space directions; if we bake node transforms into vertex positions,
-					// we must rotate these directions too or different sub-mesh parts can move incoherently.
-					auto rotatePacked = [&](float& packed) {
-						stRotatePackedNormalFloatPreservePhase(packed, R);
-					};
-
-					const int geomType = stDecodeGeomType(vert.uv5);
-					const bool isLeaf = geomType >= 2; // LEAF or FACING_LEAF
-
-					// Branch payload: uv1 = (weight, packedOffsetDir)
-					rotatePacked(vert.uv1.y);
-
-					if (isLeaf) {
-						// Leaf payload (SpeedTree/Unity common convention):
-						// uv4 = (packedGrowthDir, packedRippleDir)
-						rotatePacked(vert.uv4.x);
-						rotatePacked(vert.uv4.y);
-						// NOTE: uv3.y is leafScale (scalar), do not transform it as a position.
-					} else {
-						// Optional branch2 payload (if present) historically used uv4.y; keep best-effort rotation.
-						rotatePacked(vert.uv4.y);
-					}
-				}
-
-				// Align payload basis (anchors + packed dirs) to geometry if DCC tools converted POSITION
-				// but left TEXCOORD payload untouched. This is deterministic and only applied on a strong win.
-				if (has_speedtree_payload) {
-					if (auto rotOpt = stFindBestPayloadRotation(wind_vertices); rotOpt) {
-						const glm::mat3 P = *rotOpt;
-						auto rotatePackedExtra = [&](float& packed) {
-							stRotatePackedNormalFloatPreservePhase(packed, P);
-						};
-
-						for (auto& vert : wind_vertices) {
-							const int geomType = stDecodeGeomType(vert.uv5);
-							const bool isLeaf = geomType >= 2;
-							if (isLeaf) {
-								glm::vec3 a(vert.uv2.x, vert.uv2.y, vert.uv3.x);
-								a = P * a;
-								vert.uv2.x = a.x;
-								vert.uv2.y = a.y;
-								vert.uv3.x = a.z;
-
-								rotatePackedExtra(vert.uv4.x);
-								rotatePackedExtra(vert.uv4.y);
-							} else {
-								// Branch/frond payload: uv4 = (branch2_weight, packedBranch2Dir)
-								rotatePackedExtra(vert.uv4.y);
-							}
-							// Branch packed direction is used for all geometry types.
-							rotatePackedExtra(vert.uv1.y);
-						}
-					}
-				}
-			} else {
+			{
 				for (auto& vertice : vertices) {
 					bake_transform(vertice);
 				}
 			}
-            if (build_wind_vertices) {
-                WindPrimTmp tmp;
-                tmp.mesh_name = mesh_name + std::to_string(i);
-                tmp.primitive = &primitive;
-                tmp.indices = std::move(indices);
-                tmp.wind_vertices = std::move(wind_vertices);
-                tmp.has_speedtree_payload = has_speedtree_payload;
-                wind_prims.emplace_back(std::move(tmp));
-            } else {
-			    meshes.emplace_back(
-				    Mesh::builder()
-					    .name(mesh_name + std::to_string(i))
-					    .vertex_stream(
-						    VertexStream::builder()
-							    .attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, position))
-							    .attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, normal))
-							    .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, tangent))
-							    .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, uv))
-							    .vertices(vertices)
-							    .indices(indices)
-							    .usage(VertexStream::Usage::Static)
-							    .draw(VertexStream::Draw::Triangles)
-							    .batched(RendererSettings::geometry_batching_enabled)
-							    .build()
-					    )
-					    .build()
-			    );
-			    mesh_materials.emplace_back(select_mesh_material(primitive));
-            }
-		} else {
+
+            meshes.emplace_back(
+                Mesh::builder()
+                    .name(mesh_name + std::to_string(i))
+                    .vertex_stream(
+                        VertexStream::builder()
+                            .attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, position))
+                            .attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, normal))
+                            .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, tangent))
+                            .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangent), offsetof(VertexNormalTangent, uv))
+                            .vertices(vertices)
+                            .indices(indices)
+                            .usage(VertexStream::Usage::Static)
+                            .draw(VertexStream::Draw::Triangles)
+                            .batched(RendererSettings::geometry_batching_enabled)
+                            .build()
+                    )
+                    .build()
+            );
+            mesh_materials.emplace_back(select_mesh_material(primitive));
+        }
+
 			// skeletal mesh.
 			std::vector<VertexBoneWeight> vertex_bone_weights;
 			if (positions.size() != bone_weights.size()
@@ -1200,45 +1148,7 @@ loadMeshes(
 		}
 	}
 
-    // If we buffered wind primitives, stitch payload across all of them before building meshes.
-    if (!wind_prims.empty()) {
-        // Build final meshes/materials.
-        for (auto& prim : wind_prims) {
-            meshes.emplace_back(
-                Mesh::builder()
-                    .name(prim.mesh_name)
-                    .vertex_stream(
-                        VertexStream::builder()
-                            .attribute(0, VertexStream::Attribute::Position, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, position))
-                            .attribute(1, VertexStream::Attribute::Normal, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, normal))
-                            .attribute(2, VertexStream::Attribute::Tangent, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, tangent))
-                            .attribute(3, VertexStream::Attribute::Uv, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv0))
-                            .attribute(4, VertexStream::Attribute::Uv1, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv1))
-                            .attribute(5, VertexStream::Attribute::Uv2, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv2))
-                            .attribute(6, VertexStream::Attribute::Uv3, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv3))
-                            .attribute(7, VertexStream::Attribute::Uv4, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv4))
-                            .attribute(8, VertexStream::Attribute::Uv5, sizeof(VertexNormalTangentUv6), offsetof(VertexNormalTangentUv6, uv5))
-                            .vertices(prim.wind_vertices)
-                            .indices(prim.indices)
-                            .usage(VertexStream::Usage::Static)
-                            .draw(VertexStream::Draw::Triangles)
-                            .batched(RendererSettings::geometry_batching_enabled)
-                            .build()
-                    )
-                    .build()
-            );
-
-            auto mat = prim.primitive ? select_mesh_material(*prim.primitive) : std::shared_ptr<ms::Material>{nullptr};
-            if (flags.isPresent(ModelLoaderOption::Wind) && mat) {
-                if (!prim.has_speedtree_payload) {
-                    auto mat_copy = std::make_shared<ms::Material>(*mat);
-                    mat_copy->setWindMode(1u);
-                    mat = std::move(mat_copy);
-                }
-            }
-            mesh_materials.emplace_back(std::move(mat));
-        }
-    }
+	std::cout << "Model " << model_name << " has " << polygon_count << " polygons" << std::endl;
 
 	return {meshes, mesh_materials};
 }
@@ -1425,21 +1335,20 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const cgltf_material& material,
 	const std::string& model_name,
 	size_t material_index,
-    const ModelLoaderFlags& model_flags
+	const ModelLoaderFlags& model_flags,
+	const cgltf_texture* textures
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
 	const auto material_name = model_name + (material.name
 		? std::string(material.name)
 		: generateMaterialName(model_name, material_index));
 
+	// assets.materials.remove(material_name);
+
 	builder
 		.name(material_name)
 		.shading(material.unlit ? ms::Shading::Unlit : ms::Shading::Lit)
-		// Force two-sided for glTF imports by default.
-		// This matches typical vegetation expectations (leaf cards, thin geometry) and
-		// avoids confusing "disappearing" surfaces when authoring/export pipelines omit
-		// doubleSided flags.
-		.two_sided(true);
+		.two_sided(material.double_sided);
 
 	switch (material.alpha_mode) {
 	case cgltf_alpha_mode_opaque:
@@ -1463,13 +1372,6 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	default:
 		throw ModelLoadError {"alpha mode " + std::to_string(material.alpha_mode) + " not supported"};
 	}
-
-    // Optional: enable wind on imported materials at construction time.
-    // We cannot "add" properties later because material UBO layout is created once at build.
-    if (model_flags.isPresent(ModelLoaderOption::Wind)) {
-        // Mode 2: SpeedTree8 payload (extra TEXCOORD sets) + SpeedTreeWind preset uniforms.
-        builder.wind(true).wind_mode(2u).wind_intensity(1.0f).wind_frequency(1.0f);
-    }
 
 //	if (!material.has_pbr_metallic_roughness) {
 //		throw ModelLoadError {"missing PBR metallic roughness"};
@@ -1514,7 +1416,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	    return output;
 	};
 
-	auto loadTextureFrom = [&](cgltf_texture& tex, std::string name, TextureLoaderFlags flags) -> std::optional<std::shared_ptr<Texture>> {
+	auto loadTextureFrom = [&](const cgltf_texture& tex, std::string name, TextureLoaderFlags flags) -> std::optional<std::shared_ptr<Texture>> {
 		if (!tex.image) {
 			return std::nullopt;
 		}
@@ -1611,6 +1513,9 @@ static std::shared_ptr<ms::Material> loadMaterial(
 				throw ModelLoadError {"texture has no uri and no buffer view"};
 			}
 
+			// TODO: check if removal is needed.
+			// assets.textures.remove(name);
+
 			return TextureLoader::load(
 				assets,
 				name,
@@ -1626,6 +1531,9 @@ static std::shared_ptr<ms::Material> loadMaterial(
 				if (comma && comma - img.uri >= 7 && strncmp(comma - 7, ";base64", 7) == 0) {
 					auto buffer = bytesFromBase64(comma + 1);
 
+					// TODO: check if removal is needed.
+					// assets.textures.remove(name);
+
 					return TextureLoader::load(
 						assets,
 						name,
@@ -1638,7 +1546,16 @@ static std::shared_ptr<ms::Material> loadMaterial(
 				}
 
 			} else {
-				const auto path = base_path / fs::path(img.uri);
+				const auto rel_path = [&]() -> fs::path {
+					auto it = model_flags.texture_uri_replacements.find(img.uri);
+					if (it != model_flags.texture_uri_replacements.end()) {
+						return fs::path(it->second);
+					}
+					return fs::path(img.uri);
+				}();
+
+				const auto path = base_path / rel_path;
+
 				return TextureLoader::load(assets, path, flags);
 			}
 		}
@@ -1646,190 +1563,6 @@ static std::shared_ptr<ms::Material> loadMaterial(
 
 	const auto& pbr_mr   = material.pbr_metallic_roughness;
 	auto* base_color_tex = pbr_mr.base_color_texture.texture;
-
-    // -----------------------------------------------------------------------------------------
-    // Fallback: external textures next to the asset (common SpeedTree->Blender->glTF workflow)
-    //
-    // Your current Blender export produced a glTF with materials but WITHOUT images/textures.
-    // In that case, the engine has no way to render leaf alpha and everything becomes quads.
-    //
-    // To make iteration painless, if the glTF material has no texture bindings, we try to load
-    // textures by convention from the parent directory of the glTF folder.
-    //
-    // Example layout (your repo):
-    //   assets/tree/gltf/Untitled.gltf
-    //   assets/tree/Conifer_Color.png
-    //   assets/tree/Conifer_Normal.png
-    //   assets/tree/Bark_Color.png
-    //   assets/tree/Bark_Normal.png
-    //
-    // This is a best-effort heuristic, not a generic glTF feature.
-    // -----------------------------------------------------------------------------------------
-    auto toLower = [](std::string s) {
-        for (auto& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-        return s;
-    };
-
-    const std::string mat_name = material.name ? std::string(material.name) : "";
-    const std::string mat_lower = toLower(mat_name);
-    const bool looks_like_billboard = mat_lower.find("billboard") != std::string::npos;
-    const bool looks_like_conifer = mat_lower.find("conifer") != std::string::npos || mat_lower.find("leaf") != std::string::npos;
-    const bool looks_like_bark = mat_lower.find("bark") != std::string::npos || mat_lower.find("trunk") != std::string::npos;
-
-    const bool has_any_gltf_textures =
-        (base_color_tex != nullptr) ||
-        (material.normal_texture.texture && material.normal_texture.texture->image) ||
-        (material.emissive_texture.texture && material.emissive_texture.texture->image) ||
-        (pbr_mr.metallic_roughness_texture.texture && pbr_mr.metallic_roughness_texture.texture->image) ||
-        (material.occlusion_texture.texture && material.occlusion_texture.texture->image);
-
-    auto tryLoadExternal = [&](const fs::path& path, const TextureLoaderFlags& flags) -> std::optional<std::shared_ptr<Texture>> {
-        try {
-            if (!fs::exists(path)) {
-                return std::nullopt;
-            }
-            return TextureLoader::load(assets, path, flags);
-        } catch (...) {
-            return std::nullopt;
-        }
-    };
-
-    if (!has_any_gltf_textures) {
-        const auto parent_dir = base_path.parent_path();
-
-        // Choose naming prefix by material name.
-        std::string prefix;
-        if (looks_like_billboard) {
-            // Prefer exact material-name prefix (SpeedTree exports often use:
-            //   Material: <Prefix>_Mat
-            //   Textures: <Prefix>_{Color,Normal,SS}.png
-            // Example in this repo:
-            //   Conifer_billboard_Billboard_Mat
-            //   Conifer_billboard_Billboard_Color.png
-            prefix = mat_name;
-            auto lower = toLower(prefix);
-            // Strip common suffixes.
-            if (lower.size() >= 4 && lower.rfind("_mat") == lower.size() - 4) {
-                prefix.resize(prefix.size() - 4);
-            } else if (lower.size() >= 8 && lower.rfind("_material") == lower.size() - 9) {
-                prefix.resize(prefix.size() - 9);
-            }
-        } else if (looks_like_conifer) {
-            prefix = "Conifer";
-        } else if (looks_like_bark) {
-            prefix = "Bark";
-        } else {
-            prefix = "";
-        }
-
-        if (!prefix.empty()) {
-            // For foliage alpha-cutout textures:
-            // - Mipmaps help reduce shimmering, but hard discard causes coverage loss.
-            // We'll keep mipmaps enabled and use a dithered discard in the shader snippet instead.
-            auto flags_srgb = TextureLoaderFlags(model_flags.base_tex_flags).withSpace(TextureLoaderFlags::Space::sRGB);
-            const auto flags_lin = TextureLoaderFlags(model_flags.base_tex_flags).withSpace(TextureLoaderFlags::Space::Linear);
-
-            const float conifer_cutoff = 0.33f;
-            const float billboard_cutoff = 0.33f;
-
-            // If we are going to use alpha-clip for foliage/billboards, enable coverage-preserving mipmaps
-            // on the base color texture so distant leaves don't disappear.
-            const bool conifer_forced_cutout = looks_like_conifer && material.alpha_mode == cgltf_alpha_mode_opaque;
-            const bool billboard_forced_cutout = looks_like_billboard; // billboards are always cutout in practice
-            if (conifer_forced_cutout) flags_srgb = flags_srgb.withPreserveAlphaCoverage(conifer_cutoff);
-            if (billboard_forced_cutout) flags_srgb = flags_srgb.withPreserveAlphaCoverage(billboard_cutoff);
-
-            const auto billboard_color_path = parent_dir / (prefix + "_Color.png");
-            const auto billboard_normal_path = parent_dir / (prefix + "_Normal.png");
-            const auto billboard_ss_path = parent_dir / (prefix + "_SS.png");
-
-            if (looks_like_billboard) {
-                std::cerr << "[billboard] material='" << mat_name << "' prefix='" << prefix << "' parent_dir='" << parent_dir.string() << "'\n";
-            }
-
-            if (auto tex = tryLoadExternal(billboard_color_path, flags_srgb)) {
-                builder.diffuse(*tex);
-                // Preserve authored baseColorFactor (usually 1,1,1,1). If it's unset, default white.
-                builder.color(toVec4(pbr_mr.base_color_factor));
-                if (looks_like_billboard) {
-                    std::cerr << "[billboard] loaded baseColor: " << billboard_color_path.string() << "\n";
-                }
-            } else {
-                // No external texture; fall back to glTF baseColorFactor.
-                builder.color(toVec4(pbr_mr.base_color_factor));
-                if (looks_like_billboard) {
-                    std::cerr << "[billboard] MISSING baseColor: " << billboard_color_path.string() << "\n";
-                }
-            }
-
-            if (auto tex = tryLoadExternal(billboard_normal_path, flags_lin)) {
-                builder.normal(*tex);
-                if (looks_like_billboard) {
-                    std::cerr << "[billboard] loaded normal: " << billboard_normal_path.string() << "\n";
-                }
-            } else if (looks_like_billboard) {
-                std::cerr << "[billboard] (optional) missing normal: " << billboard_normal_path.string() << "\n";
-            }
-
-            // Optional SpeedTree-ish "SS" mask/color (not currently used by our default shader model).
-            // Keep it here for future hookup without breaking content.
-            if (looks_like_billboard) {
-                if (fs::exists(billboard_ss_path)) {
-                    std::cerr << "[billboard] found SS map: " << billboard_ss_path.string() << " (not yet wired)\n";
-                } else {
-                    std::cerr << "[billboard] (optional) missing SS map: " << billboard_ss_path.string() << "\n";
-                }
-            }
-            (void)tryLoadExternal(billboard_ss_path, flags_lin);
-
-            // Leaf alpha cutout: if glTF didn't specify alphaMode, force a reasonable mask for foliage.
-            // This makes leaf quads readable for wind tuning.
-            if ((looks_like_conifer && material.alpha_mode == cgltf_alpha_mode_opaque) || looks_like_billboard) {
-                // Cutout works best as opaque + discard, and leaves are typically two-sided.
-                builder.two_sided(true);
-                builder.custom("alpha_cutoff", looks_like_billboard ? billboard_cutoff : conifer_cutoff);
-                // Normal alpha-clip. For better edges without dithering, enable alpha-to-coverage (A2C)
-                // via render state when MSAA is available.
-                builder.custom("alpha_to_coverage", 1u);
-                // For billboards we also apply a facing-fade to smoothly select the best card.
-                if (looks_like_billboard) {
-                    builder.custom("st_bb_fade_power", 2.0f);
-                    builder.fragment(
-                        "#if defined(ENGINE_VERTEX_NORMAL)\n"
-                        "    vec3 _stbbV = normalize(getCameraPosition() - getVertexPosition());\n"
-                        "    vec3 _stbbN = normalize(mctx.vertex_normal);\n"
-                        "#  if defined(ENGINE_MATERIAL_TWO_SIDED)\n"
-                        "    _stbbN = gl_FrontFacing ? _stbbN : -_stbbN;\n"
-                        "#  endif\n"
-                        "    float _stbbF = clamp(dot(_stbbN, _stbbV), 0.0, 1.0);\n"
-                        "    _stbbF = pow(_stbbF, st_bb_fade_power);\n"
-                        "#  if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)\n"
-                        "    mctx.diffuse.a *= _stbbF;\n"
-                        "    if (mctx.diffuse.a <= alpha_cutoff) discard;\n"
-                        "#  else\n"
-                        "    if (computeMaterialColor(mctx).a * _stbbF <= alpha_cutoff) discard;\n"
-                        "#  endif\n"
-                        "#endif\n"
-                    );
-                    std::cerr << "[billboard] enabled facing-fade + cutout (cutoff=" << (looks_like_billboard ? billboard_cutoff : conifer_cutoff) << ")\n";
-                } else {
-                    builder.fragment(
-                        "#if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)\n"
-                        "    if (mctx.diffuse.a <= alpha_cutoff) discard;\n"
-                        "#else\n"
-                        "    if (computeMaterialColor(mctx).a <= alpha_cutoff) discard;\n"
-                        "#endif\n"
-                    );
-                }
-            }
-        } else {
-            // Unknown material name; at least keep the base color factor.
-            builder.color(toVec4(pbr_mr.base_color_factor));
-        }
-
-        // Skip the normal glTF texture loading block below (since there are no textures anyway).
-        goto finish_material;
-    }
 
 	if (base_color_tex == nullptr) {
 		// no texture, this means that base color factor is the color.
@@ -1843,9 +1576,12 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		// The base color texture MUST contain 8-bit values encoded with the
 		// sRGB opto-electronic transfer function.
 		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
-			.withSpace(TextureLoaderFlags::Space::sRGB);
+			.withSrgb();
 
-		builder.diffuse(*loadTextureFrom(*base_color_tex, material_name + "_base_color", flags));
+		auto diffuse_texture = *loadTextureFrom(*base_color_tex, material_name + "_base_color", flags);
+		const auto size = diffuse_texture->getSize();
+		std::cout << "Diffuse texture with size " << size.x << "x" << size.y << std::endl;
+		builder.diffuse(diffuse_texture);
 		builder.color(toVec4(pbr_mr.base_color_factor));
 	}
 
@@ -1864,37 +1600,11 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	if (normal_tex && normal_tex->image) {
 		// These values MUST be encoded with a linear transfer function.
 		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
-			.withSpace(TextureLoaderFlags::Space::Linear);
+			.withLinearSpace()
+			.withNoCompression();
 
 		builder.normal(*loadTextureFrom(*normal_tex, material_name + "_normal", flags));
 	}
-
-    // Billboard material behavior (even if textures are embedded in glTF):
-    // apply alpha cutout + facing fade (SpeedTree-style card selection).
-    if (looks_like_billboard) {
-        builder.two_sided(true);
-        builder.custom("alpha_cutoff", 0.33f);
-        builder.custom("alpha_to_coverage", 1u);
-        builder.custom("st_bb_fade_power", 2.0f);
-        builder.fragment(
-            "#if defined(ENGINE_VERTEX_NORMAL)\n"
-            "    vec3 _stbbV = normalize(getCameraPosition() - getVertexPosition());\n"
-            "    vec3 _stbbN = normalize(mctx.vertex_normal);\n"
-            "#  if defined(ENGINE_MATERIAL_TWO_SIDED)\n"
-            "    _stbbN = gl_FrontFacing ? _stbbN : -_stbbN;\n"
-            "#  endif\n"
-            "    float _stbbF = clamp(dot(_stbbN, _stbbV), 0.0, 1.0);\n"
-            "    _stbbF = pow(_stbbF, st_bb_fade_power);\n"
-            "#  if defined (ENGINE_MATERIAL_DIFFUSE_TEXTURE)\n"
-            "    mctx.diffuse.a *= _stbbF;\n"
-            "    if (mctx.diffuse.a <= alpha_cutoff) discard;\n"
-            "#  else\n"
-            "    if (computeMaterialColor(mctx).a * _stbbF <= alpha_cutoff) discard;\n"
-            "#  endif\n"
-            "#endif\n"
-        );
-        std::cerr << "[billboard] (embedded textures) enabled facing-fade + cutout for material='" << mat_name << "'\n";
-    }
 
 	if (material.has_ior) {
         builder.refraction(true);
@@ -1906,7 +1616,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		// This texture contains RGB components encoded with the sRGB transfer
 		// function
 		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
-			.withSpace(TextureLoaderFlags::Space::sRGB);
+			.withSrgb();
 
 		builder.emissive_mask(*loadTextureFrom(*emissive_tex, material_name + "_emissive_mask", flags));
 	}
@@ -1921,7 +1631,53 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		builder.emissive_color(emissive_color);
 	}
 
-finish_material:
+	for (size_t i = 0; i < material.uniforms_count; ++i) {
+		const auto& uniform = material.uniforms[i];
+		switch (uniform.type) {
+			case cgltf_uniform_type_sampler:
+				builder.custom(uniform.name, *loadTextureFrom(textures[uniform.value.uint_value], textures[uniform.value.uint_value].name, model_flags.base_tex_flags));
+				continue;
+			case cgltf_uniform_type_time:
+				builder.time();
+				continue;
+			case cgltf_uniform_type_value:
+				switch (uniform.value_type) {
+					case cgltf_uniform_value_type_int:
+						builder.custom(uniform.name, uniform.value.int_value);
+						continue;
+					case cgltf_uniform_value_type_uint:
+						builder.custom(uniform.name, uniform.value.uint_value);
+						continue;
+					case cgltf_uniform_value_type_float:
+						builder.custom(uniform.name, uniform.value.float_value);
+						continue;
+					case cgltf_uniform_value_type_vec2:
+						builder.custom(uniform.name, toVec2(uniform.value.vec2_value));
+						continue;
+					case cgltf_uniform_value_type_vec3:
+						builder.custom(uniform.name, toVec3(uniform.value.vec3_value));
+						continue;
+					case cgltf_uniform_value_type_vec4:
+						builder.custom(uniform.name, toVec4(uniform.value.vec4_value));
+						continue;
+					case cgltf_uniform_value_type_mat3:
+						builder.custom(uniform.name, toMat3(uniform.value.mat3_value));
+						continue;
+					case cgltf_uniform_value_type_mat4:
+						builder.custom(uniform.name, toMat4(uniform.value.mat4_value));
+						continue;
+					case cgltf_uniform_value_type_texture:
+						throw ModelLoadError("invalid uniform value type");
+				}
+				throw ModelLoadError("unknown uniform value type");
+		}
+		throw ModelLoadError("unknown uniform type");
+	}
+
+	if (material.fragment) {
+		builder.fragment(material.fragment);
+	}
+
 	return builder.models(instance_types).build(assets);
 }
 
@@ -1937,7 +1693,7 @@ static std::vector<std::shared_ptr<ms::Material>> loadMaterials(
 
 	for (size_t i = 0; i < src.materials_count; ++i) {
 		materials.emplace_back(loadMaterial(
-			assets, instance_types, path.parent_path(), src.materials[i], model_name, i, flags
+			assets, instance_types, path.parent_path(), src.materials[i], model_name, i, flags, src.textures
 		));
 	}
 
@@ -2207,14 +1963,165 @@ static std::shared_ptr<Model> loadPlainModel(
 }
 
 static std::shared_ptr<Model>
-loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const ModelLoaderFlags& flags) {
-	auto model_name = path.stem().string();
+std::vector<std::shared_ptr<Limitless::ms::Material>> GltfModelLoader::loadModelVariant(
+	Assets& assets,
+	const fs::path& path,
+	std::string variant_name,
+	const ModelLoaderFlags& flags
+) {
+	const auto base_model_name = path.stem().string();
+	const auto variant_model_name = base_model_name + "_" + std::move(variant_name);
 
-	if (src.skins_count > 0) {
-		return std::shared_ptr<Model>(loadSkeletalModel(assets, path, src, model_name, flags));
-	} else {
-		return std::shared_ptr<Model>(loadPlainModel(assets, path, src, model_name, flags));
+	cgltf_options opts = cgltf_options {
+		cgltf_file_type_invalid, // autodetect
+		0, // auto json token count
+		cgltf_memory_options {nullptr, nullptr, nullptr},
+		cgltf_file_options {nullptr, nullptr, nullptr}
+    };
+	cgltf_data* out_data = nullptr;
+
+    const auto path_str = path.string();
+
+	cgltf_result gltf = cgltf_parse_file(&opts, path_str.c_str(), &out_data);
+	if (gltf != cgltf_result_success) {
+		throw ModelLoadError {
+			"failed to parse GLTF model file " + path.string() + ": "
+			+ std::to_string(static_cast<int>(gltf))};
 	}
+
+	if (out_data->scenes == nullptr) {
+		throw ModelLoadError {"no scene"};
+	}
+
+	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
+	InstanceTypes instance_types = flags.additional_instance_types;
+	instance_types.emplace(InstanceType::Model);
+
+	auto loaded_materials = loadMaterials(variant_model_name, assets, instance_types, path, *out_data, flags);
+	fixMissingMaterials(loaded_materials, assets, variant_model_name, instance_types);
+
+	return loaded_materials;
+}
+
+static std::shared_ptr<AbstractModel>
+loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const ModelLoaderFlags& flags) {
+	// For VAO recreation, we need to have a unique name for each model.
+	static std::atomic<size_t> model_count = 0uz;
+	auto model_name = path.stem().string() + "_gltf" + std::to_string(model_count.fetch_add(1));
+
+	std::cout << "Loading model: " << model_name << " from " << path.string() << std::endl;
+
+	if (assets.models.contains(model_name)) {
+		std::cout << "Model already loaded, removing from assets" << std::endl;
+		assets.models.remove(model_name);
+	}
+
+	auto model = src.skins_count > 0
+		? std::shared_ptr<Model>(loadSkeletalModel(assets, path, src, model_name, flags))
+		: std::shared_ptr<Model>(loadPlainModel(assets, path, src, model_name, flags));
+
+	std::cout << "Adding model to assets" << std::endl;
+	assets.models.add(model_name, model);
+
+	return model;
+}
+
+template<typename V>
+static std::shared_ptr<Mesh> simplifyIndexedMesh(
+	std::shared_ptr<Mesh> original_mesh,
+	const std::string& mesh_name,
+	const LodOptions& options,
+	const std::vector<unsigned char>& vertex_locks = {}
+) {
+	const auto& mesh = static_cast<const Mesh&>(*original_mesh);
+	const auto& indexed_stream = static_cast<const IndexedVertexStream<V>&>(mesh.getVertexStream());
+	auto indices = indexed_stream.getIndices();
+	auto vertices = indexed_stream.getVertices();
+
+	size_t target_index_count = getTargetIndexCount(indices.size(), options.target);
+
+	const auto old_index_count = indices.size();
+
+	if (old_index_count <= target_index_count) {
+		return original_mesh;
+	}
+
+	const auto old_vertex_count = vertices.size();
+
+	const unsigned char* locks_ptr = vertex_locks.empty() ? nullptr : vertex_locks.data();
+
+	std::vector<GLuint> simplified_indices(indices.size());
+
+	// First try, non-sloppy simplification.
+	size_t new_index_count = meshopt_simplify(
+		simplified_indices.data(),
+		indices.data(),
+		indices.size(),
+		reinterpret_cast<const float*>(vertices.data()),
+		vertices.size(),
+		sizeof(V),
+		target_index_count,
+		options.target_error,
+		0,
+		nullptr
+	);
+
+	if (new_index_count > target_index_count && options.forced) {
+		new_index_count = meshopt_simplifySloppy(
+			simplified_indices.data(),
+			indices.data(),
+			indices.size(),
+			reinterpret_cast<const float*>(vertices.data()),
+			vertices.size(),
+			sizeof(V),
+			locks_ptr,
+			target_index_count,
+			options.target_error,
+			nullptr
+		);
+	}
+	simplified_indices.resize(new_index_count);
+
+	// Compact vertex buffer by removing vertices no longer referenced after simplification.
+	std::vector<V> optimized_vertices(vertices.size());
+	size_t unique_vertex_count = meshopt_optimizeVertexFetch(
+		optimized_vertices.data(),
+		simplified_indices.data(),
+		simplified_indices.size(),
+		vertices.data(),
+		vertices.size(),
+		sizeof(V)
+	);
+	optimized_vertices.resize(unique_vertex_count);
+
+	// std::cout << "Mesh " << mesh_name << " simplification: "
+	// 	<< old_index_count << " -> " << new_index_count << " indices, "
+	// 	<< old_vertex_count << " -> " << unique_vertex_count << " vertices" << std::endl;
+
+	auto stream = std::make_unique<IndexedVertexStream<V>>(
+		std::move(optimized_vertices),
+		std::move(simplified_indices),
+		VertexStreamUsage::Static,
+		VertexStreamDraw::Triangles
+	);
+
+	return std::make_shared<Mesh>(std::move(stream), mesh_name);
+}
+
+std::shared_ptr<Mesh> GltfModelLoader::simplifyMesh(
+	std::shared_ptr<Mesh> original_mesh,
+	const LodOptions& options,
+	const std::vector<unsigned char>& vertex_locks
+) {
+	const auto& mesh = static_cast<const Mesh&>(*original_mesh);
+	const auto& vertex_stream = mesh.getVertexStream();
+	const auto& mesh_name = original_mesh->getName();
+
+	if (const auto* stream = dynamic_cast<const IndexedVertexStream<VertexNormalTangent>*>(&vertex_stream)) {
+		return simplifyIndexedMesh<VertexNormalTangent>(original_mesh, mesh_name, options, vertex_locks);
+	}
+
+	throw ModelLoadError {"unsupported vertex stream type for mesh simplification"};
 }
 
 std::shared_ptr<Model>
@@ -2246,91 +2153,8 @@ GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoad
 		throw ModelLoadError {"no scene"};
 	}
 
-	// Ensure node.parent pointers are set so we can compute full node world transforms.
+    // Ensure node.parent pointers are set so we can compute full node world transforms.
 	buildNodeParents(*out_data);
 
-	auto base_model = ::loadModel(assets, path, *out_data, flags);
-
-    // -----------------------------------------------------------------------------------------
-    // SpeedTree billboard LOD auto-attachment (Variant A)
-    //
-    // If a sibling "*_billboard.gltf" (or any single "*billboard*.gltf") exists next to the main glTF,
-    // we load it as an additional distant LOD.
-    //
-    // This lets us keep "LOD0 wind model" in one glTF and the billboard atlas/card geometry in another,
-    // while still treating it as a single Model in-engine.
-    // -----------------------------------------------------------------------------------------
-    auto toLower = [](std::string s) {
-        for (auto& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-        return s;
-    };
-    const std::string stem_lower = toLower(path.stem().string());
-    if (stem_lower.find("billboard") != std::string::npos) {
-        return base_model;
-    }
-
-    // Only for plain models (billboard LOD for skeletal isn't supported).
-    if (out_data->skins_count > 0) {
-        return base_model;
-    }
-
-    const fs::path dir = path.parent_path();
-    const std::string stem = path.stem().string();
-
-    std::optional<fs::path> billboard_path;
-    // Preferred: <stem>_billboard.gltf
-    {
-        fs::path p = dir / (stem + "_billboard.gltf");
-        if (fs::exists(p)) billboard_path = p;
-    }
-    // Fallback: any single "*billboard*.gltf" in the same directory
-    if (!billboard_path) {
-        std::vector<fs::path> candidates;
-        try {
-            for (const auto& e : fs::directory_iterator(dir)) {
-                if (!e.is_regular_file()) continue;
-                auto p = e.path();
-                const auto ext = toLower(p.extension().string());
-                if (ext != ".gltf") continue;
-                if (p == path) continue;
-                const auto name = toLower(p.filename().string());
-                if (name.find("billboard") != std::string::npos) {
-                    candidates.emplace_back(p);
-                }
-            }
-        } catch (...) {
-            // ignore filesystem errors
-        }
-        if (candidates.size() == 1) {
-            billboard_path = candidates.front();
-        }
-    }
-
-    if (!billboard_path) {
-        // Debug aid: helps confirm why billboard isn't showing up.
-        // We only print for tree-ish assets (wind option enabled or common names) to avoid spam.
-        if (flags.isPresent(ModelLoaderOption::Wind) || stem_lower.find("tree") != std::string::npos || stem_lower.find("conifer") != std::string::npos) {
-            std::cerr << "[billboard] no billboard LOD found next to '" << path.string() << "'\n";
-        }
-        return base_model;
-    }
-
-    // Load billboard LOD without wind-payload processing.
-    ModelLoaderFlags bb_flags = flags;
-    bb_flags.options.erase(ModelLoaderOption::Wind);
-    std::cerr << "[billboard] attaching billboard LOD: '" << billboard_path->string() << "' -> '" << path.string() << "'\n";
-    auto billboard_model = GltfModelLoader::loadModel(assets, *billboard_path, bb_flags);
-
-    // Build distance thresholds based on LOD0 bounding box size.
-    const auto bb = base_model->getBoundingBox();
-    const float radius = std::max(0.001f, 0.5f * glm::length(bb.size));
-    std::vector<float> distances { radius * 10.0f, std::numeric_limits<float>::infinity() };
-
-    std::vector<std::shared_ptr<Model>> lods { base_model, billboard_model };
-    return Model::builder()
-        .name(path.stem().string())
-        .selection(LodSelection::CameraDistance)
-        .transition(LodTransition::None)
-        .add_lods(lods, distances)
-        .build(assets);
+	return ::loadModel(assets, path, *out_data, flags);
 }

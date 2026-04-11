@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cstring>
+#include <limitless/core/cpu_profiler.hpp>
 
 using namespace Limitless;
 
@@ -111,10 +112,12 @@ void StateBuffer::bindAs(Type _target) const noexcept {
 }
 
 void StateBuffer::bindBaseAs(Type _target, GLuint index) const noexcept {
+    CpuProfileScope scope(global_profiler, "StateBuffer::bindBaseAs");
     if (auto* ctx = Context::getCurrentContext(); ctx) {
         auto& point_map = ctx->buffer_point;
         auto& target_map = ctx->buffer_target;
         if (point_map[{_target, index}] != id) {
+            CpuProfileScope scope(global_profiler, "StateBuffer::bindBaseAs::bindBufferBase");
             glBindBufferBase(static_cast<GLenum>(_target), index, id);
             point_map[{_target, index}] = id;
             target_map[_target] = id;

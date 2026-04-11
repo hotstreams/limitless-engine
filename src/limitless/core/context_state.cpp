@@ -1,6 +1,7 @@
 #include <limitless/core/context_state.hpp>
 #include <limitless/core/context_initializer.hpp>
 #include <limitless/core/context.hpp>
+#include <iostream>
 
 using namespace Limitless;
 
@@ -31,6 +32,43 @@ void ContextState::init() noexcept {
     buffer_target.emplace(Buffer::Type::Uniform, 0);
 
     enable(Capabilities::ProgramPointSize);
+}
+
+void ContextState::resetTextureBinds() noexcept {
+    // for (GLint i = 0; i < ContextInitializer::limits.max_texture_units; ++i) {
+    //     texture_bound.insert_or_assign(i, 0);
+    // }
+    texture_bound.clear();
+    active_texture = 0;
+}
+
+GLuint ContextState::getActiveTextureFromGpu() const noexcept {
+    GLint value = 0;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &value);
+    return value - GL_TEXTURE0;
+}
+
+GLuint ContextState::getBoundTextureFromGpu(GLenum target) const noexcept {
+    GLint value {};
+    GLenum pname = [&]() {
+        switch (target) {
+            case GL_TEXTURE_2D: return GL_TEXTURE_BINDING_2D;
+            case GL_TEXTURE_3D: return GL_TEXTURE_BINDING_3D;
+            case GL_TEXTURE_CUBE_MAP: return GL_TEXTURE_BINDING_CUBE_MAP;
+            case GL_TEXTURE_2D_ARRAY: return GL_TEXTURE_BINDING_2D_ARRAY;
+            case GL_TEXTURE_CUBE_MAP_ARRAY: return GL_TEXTURE_BINDING_CUBE_MAP_ARRAY;
+            case GL_TEXTURE_1D: return GL_TEXTURE_BINDING_1D;
+            case GL_TEXTURE_1D_ARRAY: return GL_TEXTURE_BINDING_1D_ARRAY;
+            case GL_TEXTURE_RECTANGLE: return GL_TEXTURE_BINDING_RECTANGLE;
+            case GL_TEXTURE_BUFFER: return GL_TEXTURE_BINDING_BUFFER;
+            case GL_TEXTURE_2D_MULTISAMPLE: return GL_TEXTURE_BINDING_2D_MULTISAMPLE;
+            case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: return GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY;
+        }
+        std::cerr << "Invalid target " << target << std::endl;
+        return GL_TEXTURE_BINDING_2D;
+    }();
+    glGetIntegerv(pname, &value);
+    return static_cast<GLuint>(value);
 }
 
 void ContextState::clearColor(const glm::vec4& color) noexcept {

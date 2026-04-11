@@ -53,7 +53,7 @@ namespace Limitless {
         std::vector<uint64_t> visible_ids;
     public:
         LightContainer();
-        ~LightContainer() = default;
+        ~LightContainer();
 
         [[nodiscard]] auto& getLights() noexcept { return lights; }
         [[nodiscard]] const auto& getLights() const noexcept { return lights; }

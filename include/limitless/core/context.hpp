@@ -93,6 +93,9 @@ namespace Limitless {
 
         InputState getKey(int key) const noexcept;
         bool isPressed(int key) const noexcept;
+        bool isNotPressed(int key) const noexcept {
+            return !isPressed(key);
+        }
 
         InputState getMouseButton(MouseButton button);
 

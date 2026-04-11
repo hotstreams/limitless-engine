@@ -44,6 +44,10 @@ Lighting::Lighting(Context& ctx)
         .build(TILE_LIGHT_INDICES_BUFFER_NAME, context);
 }
 
+Lighting::~Lighting() {
+    context.getIndexedBuffers().remove(IndexedBuffer::Type::ShaderStorage, SCENE_LIGHTING_BUFFER_NAME);
+}
+
 const glm::vec4& Lighting::getAmbientColor() const noexcept {
     return ambient_color;
 }

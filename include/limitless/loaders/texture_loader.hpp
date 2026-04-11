@@ -65,6 +65,22 @@ namespace Limitless {
             return new_flags;
         }
 
+        TextureLoaderFlags withCompression(bool use_compression) const noexcept {
+            auto new_flags = *this;
+            new_flags.compression = use_compression
+                ? TextureLoaderFlags::Compression::Default
+                : TextureLoaderFlags::Compression::None;
+            return new_flags;
+        }
+
+        TextureLoaderFlags withBestCompression() const noexcept {
+            return withCompression(true);
+        }
+
+        TextureLoaderFlags withNoCompression() const noexcept {
+            return withCompression(false);
+        }
+
         TextureLoaderFlags withSrgb() const noexcept {
             return withSpace(Space::sRGB);
         }
@@ -91,11 +107,26 @@ namespace Limitless {
             new_flags.downscale = new_downscale;
             return new_flags;
         }
+
+        TextureLoaderFlags withNoDownscale() const noexcept {
+            return withDownscale(DownScale::None);
+        }
+
+        TextureLoaderFlags withWrapping(Texture::Wrap new_wrapping) const noexcept {
+            auto new_flags = *this;
+            new_flags.wrapping = new_wrapping;
+            return new_flags;
+        }
+
+        TextureLoaderFlags withRepeating() const noexcept {
+            return withWrapping(Texture::Wrap::Repeat);
+        }
     };
 
     class texture_loader_exception : public std::runtime_error {
     public:
         explicit texture_loader_exception(const char* msg) : std::runtime_error(msg) {}
+        explicit texture_loader_exception(std::string msg) : std::runtime_error(std::move(msg)) {}
     };
 
     class TextureLoader final {
@@ -122,6 +153,10 @@ namespace Limitless {
             const TextureLoaderFlags& flags = {}
         );
 
+        // Expects base path, and will load the 6 cubemap faces with file suffixes: _right, _left, _top, _bottom, _front, _back.
         static std::shared_ptr<Texture> loadCubemap(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags = {});
+
+        // Expects paths for each cubemap face, in the order of Right, Left, Top, Bottom, Front, Back.
+        static std::shared_ptr<Texture> loadCubemap(Assets& assets, const std::array<fs::path, 6>& paths, const TextureLoaderFlags& flags = {});
     };
 }

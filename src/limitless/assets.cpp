@@ -29,56 +29,80 @@ Assets::Assets(fs::path _base_dir, fs::path _shader_dir) noexcept
 
 void Assets::load([[maybe_unused]] Context& context) {
     // builds default materials for every model type
-    ms::Material::builder()
-        .name("default")
-        .shading(ms::Shading::Unlit)
-        .color({0.7f, 0.0f, 0.7f, 1.0f})
-        .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced })
-        .two_sided(true)
-        .build(*this);
+    if (!materials.contains("default")) {
+        ms::Material::builder()
+            .name("default")
+            .shading(ms::Shading::Unlit)
+            .color({0.7f, 0.0f, 0.7f, 1.0f})
+            .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced })
+            .two_sided(true)
+            .build(*this);
+    }
 
-    ms::Material::builder()
+    if (!materials.contains("red")) {
+        ms::Material::builder()
             .name("red")
             .shading(ms::Shading::Unlit)
             .color({1.0f, 0.0f, 0.0f, 1.0f})
             .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced, InstanceType::Decal })
             .two_sided(true)
             .build(*this);
+    }
 
-    ms::Material::builder()
+    if (!materials.contains("blue")) {
+        ms::Material::builder()
             .name("blue")
             .color({0.0f, 0.0f, 1.0f, 1.0f})
             .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced })
             .two_sided(true)
             .build(*this);
+    }
 
-    ms::Material::builder()
+    if (!materials.contains("green")) {
+        ms::Material::builder()
             .name("green")
             .color({0.0f, 1.0f, 0.0f, 1.0f})
             .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::SkeletalInstanced, InstanceType::Effect, InstanceType::Instanced })
             .two_sided(true)
             .build(*this);
+    }
 
     // used in render as point light model
-    models.add("sphere", std::make_shared<Sphere>(glm::uvec2{32}));
-    meshes.add("sphere", models.at("sphere")->getLods().at(0).meshes.at(0));
+    if (!models.contains("sphere")) {
+        models.add("sphere", std::make_shared<Sphere>(glm::uvec2{32}));
+        meshes.add("sphere", models.at("sphere")->getLods().at(0).meshes.at(0));
+    }
 
     // used in postprocessing
-    models.add("quad", std::make_shared<Quad>());
-    meshes.add("quad", models.at("quad")->getLods().at(0).meshes.at(0));
+    if (!models.contains("quad")) {
+        models.add("quad", std::make_shared<Quad>());
+        meshes.add("quad", models.at("quad")->getLods().at(0).meshes.at(0));
+    }
 
     // used in skybox render
-    models.add("cube", std::make_shared<Cube>());
-    meshes.add("cube", models.at("cube")->getLods().at(0).meshes.at(0));
+    if (!models.contains("cube")) {
+        models.add("cube", std::make_shared<Cube>());
+        meshes.add("cube", models.at("cube")->getLods().at(0).meshes.at(0));
+    }
 
-    models.add("plane", std::make_shared<Plane>());
-    meshes.add("plane", models.at("plane")->getLods().at(0).meshes.at(0));
+    if (!models.contains("plane")) {
+        models.add("plane", std::make_shared<Plane>());
+        meshes.add("plane", models.at("plane")->getLods().at(0).meshes.at(0));
+    }
 
-    models.add("planequad", std::make_shared<PlaneQuad>());
-    meshes.add("planequad", models.at("planequad")->getLods().at(0).meshes.at(0));
+    if (!models.contains("planequad")) {
+        models.add("planequad", std::make_shared<PlaneQuad>());
+        meshes.add("planequad", models.at("planequad")->getLods().at(0).meshes.at(0));
+    }
 
-    models.add("line", std::make_shared<Line>(glm::vec3{0.0f}, glm::vec3{1.0f}));
-    models.add("cylinder", std::make_shared<Cylinder>());
+    if (!models.contains("line")) {
+        models.add("line", std::make_shared<Line>(glm::vec3{0.0f}, glm::vec3{1.0f}));
+    }
+
+    if (!models.contains("cylinder")) {
+        models.add("cylinder", std::make_shared<Cylinder>());
+        meshes.add("cylinder", models.at("cylinder")->getLods().at(0).meshes.at(0));
+    }
 }
 
 void Assets::initialize(Context& ctx, const RendererSettings& settings) {

@@ -16,7 +16,7 @@ MeshInstance::MeshInstance(const std::shared_ptr<Mesh>& mesh, const std::shared_
 }
 
 MeshInstance::MeshInstance(const MeshInstance& rhs)
-    : mesh {rhs.mesh} 
+    : mesh {rhs.mesh}
     , material {std::make_shared<Material>(*rhs.material)}
     , base {std::make_shared<Material>(*rhs.base)} {
 }

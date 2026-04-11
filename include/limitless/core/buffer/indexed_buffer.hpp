@@ -8,6 +8,7 @@
 #include <memory>
 #include <mutex>
 #include <map>
+#include <optional>
 
 namespace Limitless {
     class Buffer;
@@ -21,15 +22,15 @@ namespace Limitless {
         enum class Type { UniformBuffer = GL_UNIFORM_BLOCK, ShaderStorage = GL_SHADER_STORAGE_BLOCK };
         using Identifier = std::pair<Type, std::string>;
     private:
-        std::unordered_multimap<std::string, std::shared_ptr<Buffer>> buffers;
+        std::map<Identifier, std::shared_ptr<Buffer>> buffers;
         std::unordered_map<Type, GLint> current_bind;
         std::map<Identifier, GLuint> bound;
     public:
         GLuint getBindingPoint(Type type, std::string_view name) noexcept;
 
-        void add(std::string_view name, std::shared_ptr<Buffer> buffer) noexcept;
-        void remove(const std::string& name, const std::shared_ptr<Buffer>& buffer);
-        std::shared_ptr<Buffer> get(std::string_view name);
+        void add(Type type, const std::string& name, std::shared_ptr<Buffer> buffer) noexcept;
+        void remove(Type type, const std::string& name);
+        std::optional<std::shared_ptr<Buffer>> get(Type type, const std::string& name) noexcept;
     };
 
     struct IndexedBufferData {

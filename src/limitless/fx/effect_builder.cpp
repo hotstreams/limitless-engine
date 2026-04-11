@@ -38,6 +38,11 @@ EffectBuilder& EffectBuilder::setLocalSpace(bool local_space) {
     return *this;
 }
 
+EffectBuilder& EffectBuilder::setCameraRepeatBoundary(float boundary) {
+    effect->emitters.at(last_emitter)->setCameraRepeatBoundary(boundary);
+    return *this;
+}
+
 EffectBuilder& EffectBuilder::setSpawnMode(EmitterSpawn::Mode mode) {
     effect->emitters.at(last_emitter)->getSpawn().mode = mode;
     if (mode == EmitterSpawn::Mode::Burst) {
