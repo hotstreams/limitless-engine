@@ -1387,18 +1387,9 @@ static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
 	const unsigned char* locks_ptr = vertex_locks.empty() ? nullptr : vertex_locks.data();
 
 	std::vector<GLuint> simplified_indices(indices.size());
-	size_t new_index_count = options.forced ? meshopt_simplifySloppy(
-		simplified_indices.data(),
-		indices.data(),
-		indices.size(),
-		reinterpret_cast<const float*>(vertices.data()),
-		vertices.size(),
-		sizeof(V),
-		locks_ptr,
-		target_index_count,
-		options.target_error,
-		nullptr
-	) : meshopt_simplify(
+
+	// First try, non-sloppy simplification.
+	size_t new_index_count = meshopt_simplify(
 		simplified_indices.data(),
 		indices.data(),
 		indices.size(),
@@ -1410,6 +1401,21 @@ static std::shared_ptr<AbstractMesh> simplifyIndexedMesh(
 		0,
 		nullptr
 	);
+
+	if (new_index_count > target_index_count && options.forced) {
+		new_index_count = meshopt_simplifySloppy(
+			simplified_indices.data(),
+			indices.data(),
+			indices.size(),
+			reinterpret_cast<const float*>(vertices.data()),
+			vertices.size(),
+			sizeof(V),
+			locks_ptr,
+			target_index_count,
+			options.target_error,
+			nullptr
+		);
+	}
 	simplified_indices.resize(new_index_count);
 
 	// Compact vertex buffer by removing vertices no longer referenced after simplification.

@@ -3,6 +3,7 @@
 #include <limitless/instances/model_instance.hpp>
 
 #include <unordered_map>
+#include <limitless/core/cpu_profiler.hpp>
 
 namespace Limitless {
     class FrustumCulling {
@@ -23,6 +24,7 @@ namespace Limitless {
         std::unordered_map<uint64_t, std::vector<std::reference_wrapper<MeshInstance>>> visible_meshes_of_terrain_instances;
     public:
         void update(Scene& scene, Camera& camera) {
+            CpuProfileScope scope(global_profiler, "FrustumCulling::update");
             visible.clear();
             visible_instances_of_instanced_instances.clear();
             visible_meshes_of_terrain_instances.clear();
