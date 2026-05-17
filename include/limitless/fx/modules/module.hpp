@@ -26,6 +26,7 @@ namespace Limitless::fx {
         ColorByLife,
         RotationRate,
         SizeByLife,
+        MinHeight,
         CustomMaterial,
         CustomMaterialByLife,
         Time,

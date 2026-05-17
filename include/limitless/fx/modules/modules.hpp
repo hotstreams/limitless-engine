@@ -14,6 +14,7 @@
 #include <limitless/fx/modules/initial_size.hpp>
 #include <limitless/fx/modules/initial_velocity.hpp>
 #include <limitless/fx/modules/lifetime.hpp>
+#include <limitless/fx/modules/min_height.hpp>
 #include <limitless/fx/modules/mesh_location.hpp>
 #include <limitless/fx/modules/rotation_rate.hpp>
 #include <limitless/fx/modules/size_by_life.hpp>

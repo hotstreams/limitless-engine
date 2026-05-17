@@ -14,6 +14,7 @@
 #include <limitless/fx/modules/custom_material.hpp>
 #include <limitless/fx/modules/custom_material_by_life.hpp>
 #include <limitless/fx/modules/lifetime.hpp>
+#include <limitless/fx/modules/min_height.hpp>
 #include <limitless/fx/modules/velocity_by_life.hpp>
 #include <limitless/fx/modules/distribution.hpp>
 #include <limitless/fx/modules/beam_builder.hpp>
@@ -37,7 +38,7 @@ namespace Limitless {
     template<typename Particle>
     class ModuleSerializer {
     private:
-        static constexpr uint8_t VERSION = 0x4;
+        static constexpr uint8_t VERSION = 0x5;
     public:
         ByteBuffer serialize(const fx::Module<Particle>& module) {
             ByteBuffer buffer;
@@ -98,6 +99,9 @@ namespace Limitless {
                     break;
                 case fx::ModuleType::SizeByLife:
                     buffer << static_cast<const fx::SizeByLife<Particle>&>(module).getDistribution();
+                    break;
+                case fx::ModuleType::MinHeight:
+                    buffer << static_cast<const fx::MinHeight<Particle>&>(module).getMinHeight();
                     break;
                 case fx::ModuleType::CustomMaterial: {
                     auto& props = static_cast<const fx::CustomMaterial<Particle>&>(module).getProperties();
@@ -278,6 +282,12 @@ namespace Limitless {
                         buffer >> distr;
                         module = std::make_unique<fx::SizeByLife<Particle>>(std::move(distr));
                     }
+                    break;
+                }
+                case fx::ModuleType::MinHeight: {
+                    float min_height {};
+                    buffer >> min_height;
+                    module = std::make_unique<fx::MinHeight<Particle>>(min_height);
                     break;
                 }
                 case fx::ModuleType::CustomMaterial: {

@@ -311,6 +311,11 @@ EffectBuilder& EffectBuilder::addCustomMaterialByLife(std::unique_ptr<Distributi
     return *this;
 }
 
+EffectBuilder& EffectBuilder::addMinHeight(float min_height) {
+    addModule<MinHeight>(min_height);
+    return *this;
+}
+
 EffectBuilder& EffectBuilder::addLifetime(std::unique_ptr<Distribution<float>> distribution) {
     addModule<Lifetime>(std::move(distribution));
     return *this;
