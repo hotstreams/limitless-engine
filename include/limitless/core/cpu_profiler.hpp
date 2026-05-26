@@ -62,16 +62,13 @@ namespace Limitless {
 		std::unordered_map<const char*, Frame> frames;
 
 		// Most recently completed trace snapshot from the recording thread.
-		// Updated by maybeRotateTrace() (typically called by startFrame).
+		// Updated by maybeRotateTrace() at the start of each frame.
 		Trace previous_trace {};
-		MonotonicTime trace_started_at {};
-		Duration trace_rotation_interval {std::chrono::seconds(5)};
 
 		void startFrame();
 
-		// Rotates the recording thread's accumulated trace into `previous_trace`
-		// when the rotation interval has elapsed and no scope is currently active.
-		// Must be called on the thread that records CpuProfileScopes.
+		// Moves the previous frame's trace into `previous_trace`. Called from
+		// startFrame() when no scope is currently active on the recording thread.
 		void maybeRotateTrace();
 
 		// Moves any accumulated trace on the recording thread into `previous_trace`.

@@ -86,19 +86,12 @@ void CpuProfiler::maybeRotateTrace() {
 		return;
 	}
 
-	const auto now = std::chrono::steady_clock::now();
-	if (trace_started_at == MonotonicTime {}) {
-		trace_started_at = now;
-		return;
-	}
-
-	if (now - trace_started_at < trace_rotation_interval) {
+	if (tls_trace_state.roots.empty()) {
 		return;
 	}
 
 	previous_trace.roots = std::move(tls_trace_state.roots);
 	tls_trace_state.roots.clear();
-	trace_started_at = now;
 }
 
 void CpuProfiler::finalizeTrace() {
