@@ -26,5 +26,7 @@ std::unique_ptr<Instance> DecalInstance::clone() noexcept {
 DecalInstance::DecalInstance(const DecalInstance& rhs)
     : Instance {rhs}
     , model {rhs.model}
-    , material {std::make_shared<ms::Material>(*rhs.material)} {
+    , material {std::make_shared<ms::Material>(*rhs.material)}
+    , projection_mask {rhs.projection_mask}
+    , render_priority {rhs.render_priority} {
 }

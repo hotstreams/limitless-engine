@@ -204,6 +204,7 @@ std::shared_ptr<DecalInstance> Instance::Builder::asDecal() {
     auto instance = std::make_shared<DecalInstance>(model_, global_material, position_);
     initialize(*instance);
     instance->getProjectionMask() = decal_proj_mask;
+    instance->setRenderPriority(decal_render_priority_);
     return instance;
 }
 
@@ -214,6 +215,11 @@ Instance::Builder &Instance::Builder::decal_receipt_mask(uint8_t mask) {
 
 Instance::Builder &Instance::Builder::decal_projection_mask(uint8_t mask) {
     decal_proj_mask = mask;
+    return *this;
+}
+
+Instance::Builder& Instance::Builder::decal_render_priority(int8_t priority) {
+    decal_render_priority_ = priority;
     return *this;
 }
 

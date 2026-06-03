@@ -63,6 +63,7 @@ namespace Limitless {
          * Decal
          */
         uint8_t decal_proj_mask {0xFF};
+        int8_t decal_render_priority_ {0};
 
         void initialize(Instance& instance);
         void initialize(const std::shared_ptr<ModelInstance>& instance);
@@ -124,6 +125,13 @@ namespace Limitless {
          *  Projects on Instances when [receipt mask & projection mask != 0]
          */
         Builder& decal_projection_mask(uint8_t mask);
+
+        /**
+         *  Sets render priority for DecalInstance
+         *
+         *  Lower values are drawn first; higher values appear on top when decals overlap.
+         */
+        Builder& decal_render_priority(int8_t priority);
 
         /**
          *  Replaces default mesh material with specified one

@@ -1,5 +1,8 @@
 #include <limitless/renderer/instance_renderer.hpp>
 #include <limitless/core/cpu_profiler.hpp>
+#include <limitless/instances/decal_instance.hpp>
+
+#include <algorithm>
 
 using namespace Limitless;
 
@@ -141,10 +144,18 @@ void InstanceRenderer::renderScene(const DrawParameters& drawp) {
 
 void InstanceRenderer::renderDecals(const DrawParameters& drawp) {
     CpuProfileScope scope(global_profiler, "InstanceRenderer::renderDecals");
+    std::vector<std::shared_ptr<Instance>> decals;
     for (const auto& instance: frustum_culling.getVisibleInstances()) {
-        if (instance->getInstanceType() == InstanceType::Decal) {
-            render(static_cast<DecalInstance&>(*instance), drawp); //NOLINT
+        if (instance->getInstanceType() == InstanceType::Decal && shouldBeRendered(*instance, drawp)) {
+            decals.push_back(instance);
         }
+    }
+    std::stable_sort(decals.begin(), decals.end(), [](const auto& lhs, const auto& rhs) {
+        return static_cast<const DecalInstance&>(*lhs).getRenderPriority()
+             < static_cast<const DecalInstance&>(*rhs).getRenderPriority();
+    });
+    for (const auto& instance: decals) {
+        render(static_cast<DecalInstance&>(*instance), drawp); //NOLINT
     }
 }
 
