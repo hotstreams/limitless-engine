@@ -395,11 +395,13 @@ loadMeshes(
 				positions = copyFromAccessor<glm::vec3>(*attribute.data);
 				break;
 			case cgltf_attribute_type_texcoord:
-				// TODO: load other texture coords.
-				if (attribute.index == 0) {
+				if (attribute.index != 0) {
+					std::cerr << "model mesh " << mesh_name << " uses non-first UV set " << attribute.index << std::endl;
+				}
+				if (uvs.empty()) {
 					uvs = copyFromAccessor<glm::vec2>(*attribute.data);
 				} else {
-					std::cerr << "model has multiple UVs" << std::endl;
+					std::cerr << "model mesh " << mesh_name << " has multiple UV sets which are not supported" << std::endl;
 				}
 				break;
 			case cgltf_attribute_type_joints:

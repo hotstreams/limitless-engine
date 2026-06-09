@@ -167,7 +167,7 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
     for (const auto& [_, mesh]: instance.getMeshes()) {
         // skip mesh if blending is different
         if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
+            continue;
         }
 
         // set render state: shaders, material, blending, etc
@@ -188,7 +188,7 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
     for (const auto& [_, mesh]: instance.getMeshes()) {
         // skip mesh if blending is different
         if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
+            continue;
         }
 
         // set render state: shaders, material, blending, etc
@@ -265,7 +265,7 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
 
         // skip mesh if blending is different
         if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
+            continue;
         }
 
         // set render state: shaders, material, blending, etc
@@ -292,7 +292,7 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
     for (const auto& [_, mesh]: instance.getInstances()[0]->getMeshes()) {
         // skip mesh if blending is different
         if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
+            continue;
         }
 
         CpuProfileScope scope(global_profiler, "InstanceRenderer::renderInstancedInstance::renderMesh");
@@ -319,7 +319,7 @@ void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &d
     for (const auto& [_, mesh]: instance.getMeshes()) {
         // skip mesh if blending is different
         if (mesh.getMaterial()->getBlending() != drawp.blending) {
-            return;
+            continue;
         }
 
         // set render state: shaders, material, blending, etc
