@@ -398,11 +398,7 @@ loadMeshes(
 				if (attribute.index != 0) {
 					std::cerr << "model mesh " << mesh_name << " uses non-first UV set " << attribute.index << std::endl;
 				}
-				if (uvs.empty()) {
-					uvs = copyFromAccessor<glm::vec2>(*attribute.data);
-				} else {
-					std::cerr << "model mesh " << mesh_name << " has multiple UV sets which are not supported" << std::endl;
-				}
+				uvs = copyFromAccessor<glm::vec2>(*attribute.data);
 				break;
 			case cgltf_attribute_type_joints:
 				// TODO: handle host big endianess, as gltf data is little
