@@ -84,9 +84,9 @@ namespace Limitless {
         const uint32_t ws = 0;
         uint32_t vi =
                 ws << 31 | (uint32_t)(0) << 30 |
-                zs << 29 | ((uint32_t)(value.z * 511 + (zs << 9)) & 511) << 20 |
-                ys << 19 | ((uint32_t)(value.y * 511 + (ys << 9)) & 511) << 10 |
-                xs << 9  | ((uint32_t)(value.x * 511 + (xs << 9)) & 511);
+                zs << 29 | ((uint32_t)(value.z * 511 + float(zs << 9)) & 511) << 20 |
+                ys << 19 | ((uint32_t)(value.y * 511 + float(ys << 9)) & 511) << 10 |
+                xs << 9  | ((uint32_t)(value.x * 511 + float(xs << 9)) & 511);
         return vi;
     }
 }
