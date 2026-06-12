@@ -301,7 +301,9 @@ std::shared_ptr<FontAtlas> FontAtlas::load(
         }
 
         auto char_bitmap = std::vector<std::byte>(glyph_bitmap.pitch * glyph_bitmap.rows);
-        memcpy(char_bitmap.data(), glyph_bitmap.buffer, char_bitmap.size());
+        if (glyph_bitmap.buffer != nullptr && char_bitmap.size() > 0) {
+            memcpy(char_bitmap.data(), glyph_bitmap.buffer, char_bitmap.size());
+        }
 
         auto [_, emplaced] = glyph_for_char.emplace(char_code, GlyphInfo {
             {ft_glyph->bitmap_left, ft_glyph->bitmap_top},

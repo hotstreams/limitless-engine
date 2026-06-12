@@ -21,7 +21,7 @@ namespace Limitless {
     protected:
         T value;
 
-        constexpr UniformValueType getUniformValueType();
+        static constexpr UniformValueType getUniformValueType();
 
         UniformValue(std::string name, UniformType type, const T& value) noexcept;
 

@@ -54,5 +54,7 @@ namespace Limitless::fx {
 
             stream.draw();
         }
+
+        ~EmitterRenderer() override = default;
     };
 }

@@ -352,6 +352,8 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
     //TODO: size equality check
     Texture::Builder builder = Texture::builder();
 
+    std::vector<unsigned char*> data_ptrs;
+
     for (const auto& _path: paths) {
         auto path = convertPathSeparators(_path);
 
@@ -371,6 +373,8 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
         if (!data) {
             throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
         }
+
+        data_ptrs.push_back(data);
 
         #if GL_DEBUG
                 if (!isPowerOfTwo(width, height)) {
@@ -394,12 +398,13 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
     auto texture = builder.buildMutable();
     setAnisotropicFilter(texture, flags);
 
-    //TODO: restore leak
-//    if (flags.downscale != TextureLoaderFlags::DownScale::None) {
-//        delete data;
-//    } else {
-//        stbi_image_free(data);
-//    }
+    for (auto& data: data_ptrs) {
+        if (flags.downscale != TextureLoaderFlags::DownScale::None) {
+            delete data;
+        } else {
+            stbi_image_free(data);
+        }
+    }
 
 //    assets.textures.add(path.stem().string(), texture);
     return texture;

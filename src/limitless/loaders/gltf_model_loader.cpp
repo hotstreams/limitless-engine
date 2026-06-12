@@ -81,6 +81,7 @@ static std::string toString(cgltf_component_type component_type) {
 
 template <typename ElemType>
 static std::vector<ElemType> copyFromAccessor(const cgltf_accessor& accessor) {
+	static_assert(std::is_trivially_copyable_v<ElemType>, "ElemType must be trivially copyable");
 	if (accessor.is_sparse) {
 		throw ModelLoadError {"sparse accessors not supported"};
 	}
@@ -129,7 +130,9 @@ static std::vector<ElemType> copyFromAccessor(const cgltf_accessor& accessor) {
 	                      + accessor.buffer_view->offset + accessor.offset;
 
 	for (cgltf_size i = 0; i < accessor.count; ++i) {
-		result.emplace_back(*reinterpret_cast<const ElemType*>(data));
+		ElemType e;
+		std::memcpy(&e, data, sizeof(ElemType));
+		result.push_back(e);
 		data += accessor.stride;
 	}
 
@@ -1462,6 +1465,16 @@ std::shared_ptr<AbstractMesh> GltfModelLoader::simplifyMesh(
 	throw ModelLoadError {"unsupported vertex stream type for mesh simplification"};
 }
 
+struct CgltfDataGuard {
+	cgltf_data** data;
+
+	~CgltfDataGuard() {
+		if (*data) {
+			cgltf_free(*data);
+		}
+	}
+};
+
 std::shared_ptr<AbstractModel>
 GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags) {
 	cgltf_options opts = cgltf_options {
@@ -1471,6 +1484,7 @@ GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoad
 		cgltf_file_options {nullptr, nullptr, nullptr}
     };
 	cgltf_data* out_data = nullptr;
+	CgltfDataGuard data_guard(&out_data);
 
     const auto path_str = path.string();
 

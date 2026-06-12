@@ -8,7 +8,8 @@ namespace Limitless::fx {
     static constexpr auto EMITTER_STORAGE_INSTANCE_COUNT = 3;
 
     class AbstractEmitterRenderer {
-
+    public:
+        virtual ~AbstractEmitterRenderer() = default;
     };
 
     template<typename Particle>

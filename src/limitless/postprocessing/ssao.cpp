@@ -43,7 +43,7 @@ SSAO::SSAO(Renderer& renderer) {
             .target(Buffer::Type::Uniform)
             .data(&settings)
             .size(sizeof(Settings))
-            .usage(Buffer::Usage::StaticDraw)
+            .usage(Buffer::Usage::DynamicDraw)
             .access(Buffer::MutableAccess::WriteOrphaning)
             .build(SSAO_BUFFER_NAME, *Context::getCurrentContext());
 }

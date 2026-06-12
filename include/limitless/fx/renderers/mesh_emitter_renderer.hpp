@@ -77,5 +77,7 @@ namespace Limitless::fx {
 
             mesh->draw_instanced(current_particle_count);
         }
+
+        ~EmitterRenderer() override = default;
     };
 }

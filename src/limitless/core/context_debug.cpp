@@ -26,6 +26,7 @@ void Limitless::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 
 	std::cout << "---------------" << std::endl;
 	std::cout << "Debug message (" << id << "): " <<  message << std::endl;
+	// __builtin_trap();
 
 	switch (source) {
 		case GL_DEBUG_SOURCE_API:               std::cout << "Source: API"; break;
