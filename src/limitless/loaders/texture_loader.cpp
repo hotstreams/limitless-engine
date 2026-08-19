@@ -22,6 +22,15 @@ namespace {
     constexpr auto BPTC_EXTENSION = "GL_ARB_texture_compression_bptc";
     constexpr auto RGTC_EXTENSION = "GL_ARB_texture_compression_rgtc";
     constexpr auto ASTC_EXTENSION = "GL_KHR_texture_compression_astc_ldr";
+
+    void freeLoadedPixels(unsigned char* data, const TextureLoaderFlags& flags) {
+        if (flags.downscale != TextureLoaderFlags::DownScale::None) {
+            // from setDownScale(), which uses new[]
+            delete[] data;
+        } else {
+            stbi_image_free(data);
+        }
+    }
 }
 
 void TextureLoader::setFormat(Texture::Builder& builder, const TextureLoaderFlags& flags, int channels) {
@@ -180,11 +189,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
     auto texture = builder.build();
     setAnisotropicFilter(texture, flags);
 
-    if (flags.downscale != TextureLoaderFlags::DownScale::None) {
-        delete data;
-    } else {
-        stbi_image_free(data);
-    }
+    freeLoadedPixels(data, flags);
 
     assets.textures.add(path.stem().string(), texture);
     return texture;
@@ -218,11 +223,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const std::string& 
     auto texture = builder.build();
     setAnisotropicFilter(texture, flags);
 
-    if (flags.downscale != TextureLoaderFlags::DownScale::None) {
-        delete data;
-    } else {
-        stbi_image_free(data);
-    }
+    freeLoadedPixels(data, flags);
 
     assets.textures.add(name, texture);
     return texture;
@@ -374,8 +375,6 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
             throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
         }
 
-        data_ptrs.push_back(data);
-
         #if GL_DEBUG
                 if (!isPowerOfTwo(width, height)) {
                     std::cerr << path.string() << " has not 2^n size, its not recommended to have it!" << std::endl;
@@ -383,6 +382,7 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
         #endif
 
         setDownScale(width, height, channels, data, flags);
+        data_ptrs.push_back(data);
 
         builder.target(Texture::Type::Tex2DArray)
                 .levels(glm::floor(glm::log2(static_cast<float>(glm::max(width, height)))) + 1)
@@ -398,12 +398,8 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
     auto texture = builder.buildMutable();
     setAnisotropicFilter(texture, flags);
 
-    for (auto& data: data_ptrs) {
-        if (flags.downscale != TextureLoaderFlags::DownScale::None) {
-            delete data;
-        } else {
-            stbi_image_free(data);
-        }
+    for (auto* data : data_ptrs) {
+        freeLoadedPixels(data, flags);
     }
 
 //    assets.textures.add(path.stem().string(), texture);
