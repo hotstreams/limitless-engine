@@ -55,9 +55,19 @@ namespace Limitless {
         explicit font_error(const std::string& error) : runtime_error{error} {}
     };
 
+    class Assets;
+
     class FontAtlas {
     public:
         static std::shared_ptr<FontAtlas> load(
+            const fs::path& path,
+            uint32_t pixel_size,
+            std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges = {},
+            std::optional<CjkVariant> _cjk_variant = std::nullopt
+        );
+
+        static std::shared_ptr<FontAtlas> load(
+            Assets& assets,
             const fs::path& path,
             uint32_t pixel_size,
             std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges = {},

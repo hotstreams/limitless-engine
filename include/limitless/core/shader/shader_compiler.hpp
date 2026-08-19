@@ -11,6 +11,7 @@ namespace Limitless {
     class ShaderProgram;
     class RendererSettings;
     class Context;
+    class Assets;
 
     class shader_linking_error : public std::runtime_error {
     public:
@@ -46,6 +47,8 @@ namespace Limitless {
          */
         std::optional<RendererSettings> render_settings;
 
+		Assets* assets {nullptr};
+
         void replaceCommonDefines(Shader& shader);
     public:
         /**
@@ -58,8 +61,8 @@ namespace Limitless {
          * @param ctx
          * @param settings
          */
-        ShaderCompiler(Context& ctx, const RendererSettings& settings);
-        explicit ShaderCompiler(Context& ctx);
+        ShaderCompiler(Context& ctx, const RendererSettings& settings, Assets* assets = nullptr);
+        explicit ShaderCompiler(Context& ctx, Assets* assets = nullptr);
         virtual ~ShaderCompiler() = default;
 
         ShaderCompiler(const ShaderCompiler&) noexcept = delete;

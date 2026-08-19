@@ -8,7 +8,7 @@
 using namespace Limitless::ms;
 
 MaterialCompiler::MaterialCompiler(Context& context, Assets& _assets, const RendererSettings& settings) noexcept
-    : ShaderCompiler {context, settings}
+    : ShaderCompiler {context, settings, &_assets}
     , assets {_assets} {
 }
 

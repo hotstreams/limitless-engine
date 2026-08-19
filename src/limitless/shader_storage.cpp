@@ -1,6 +1,7 @@
 #include <limitless/shader_storage.hpp>
 #include <limitless/core/shader/shader_compiler.hpp>
 #include <limitless/renderer/renderer_settings.hpp>
+#include <limitless/assets.hpp>
 
 using namespace Limitless;
 
@@ -102,8 +103,8 @@ void ShaderStorage::add(const fx::UniqueEmitterShaderKey& emitter_type, std::sha
     }
 }
 
-void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, const fs::path& shader_dir) {
-    ShaderCompiler compiler {ctx, settings};
+void ShaderStorage::initialize(Context& ctx, const RendererSettings& settings, const fs::path& shader_dir, Assets& assets) {
+    ShaderCompiler compiler {ctx, settings, &assets};
 
     if (settings.bloom) {
         add("blur_downsample", compiler.compile(shader_dir / "postprocessing/bloom/blur_downsample"));
