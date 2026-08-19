@@ -14,8 +14,30 @@
 
 #include <utility>
 #include <iostream>
+#include <fstream>
 
 using namespace Limitless;
+
+std::vector<std::uint8_t> Assets::readFile(const fs::path& path) const {
+	std::ifstream file(path, std::ios::binary | std::ios::ate);
+	if (!file) {
+		throw std::runtime_error("Failed to read file: " + path.string());
+	}
+	const auto size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	std::vector<std::uint8_t> data(static_cast<size_t>(std::max<std::streamoff>(size, 0)));
+	if (size > 0) {
+		file.read(reinterpret_cast<char*>(data.data()), size);
+		if (file.gcount() != size) {
+			throw std::runtime_error("Truncated file: " + path.string());
+		}
+	}
+	return data;
+}
+
+bool Assets::fileExists(const fs::path& path) const {
+	return fs::is_regular_file(path);
+}
 
 Assets::Assets(const fs::path& _base_dir) noexcept
 	: base_dir {_base_dir}
@@ -105,7 +127,7 @@ void Assets::load([[maybe_unused]] Context& context) {
 }
 
 void Assets::initialize(Context& ctx, const RendererSettings& settings) {
-	shaders.initialize(ctx, settings, shader_dir);
+	shaders.initialize(ctx, settings, shader_dir, *this);
 }
 
 void Assets::add(const Assets& other) {

@@ -5,6 +5,9 @@
 #include <limitless/util/filesystem.hpp>
 #include <limitless/loaders/texture_loader.hpp>
 
+#include <cstdint>
+#include <vector>
+
 namespace Limitless::ms {
     class Material;
 }
@@ -128,6 +131,17 @@ namespace Limitless {
 
         [[nodiscard]] const auto& getBaseDir() const noexcept { return base_dir; }
         [[nodiscard]] const auto& getShaderDir() const noexcept { return shader_dir; }
+
+		/**
+		 * Read file bytes from the given path. Default implementation uses the filesystem.
+		 * Paths may be absolute or relative.
+		 */
+		[[nodiscard]] virtual std::vector<std::uint8_t> readFile(const fs::path& path) const;
+
+		/**
+		 * Whether a regular file exists at the given path. Default implementation uses the filesystem.
+		 */
+		[[nodiscard]] virtual bool fileExists(const fs::path& path) const;
 
         void reloadTextures(const TextureLoaderFlags& settings);
     };

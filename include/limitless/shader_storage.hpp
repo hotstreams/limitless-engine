@@ -12,6 +12,7 @@ namespace Limitless {
     class RendererSettings;
     class ShaderProgram;
     class Context;
+    class Assets;
 
     class shader_storage_error : public std::runtime_error {
     public:
@@ -27,7 +28,7 @@ namespace Limitless {
 
         std::mutex mutex;
     public:
-        void initialize(Context& ctx, const RendererSettings& settings, const fs::path& shader_dir);
+        void initialize(Context& ctx, const RendererSettings& settings, const fs::path& shader_dir, Assets& assets);
 
         ShaderProgram& get(const std::string& name) const;
         ShaderProgram& get(ShaderType material_type, InstanceType model_type, uint64_t material_index) const;

@@ -24,6 +24,8 @@ namespace Limitless {
         using std::runtime_error::runtime_error;
     };
 
+    class Assets;
+
     /**
      * Shader class describes shader that is used to compile shader program by ShaderCompiler
      *
@@ -68,6 +70,8 @@ namespace Limitless {
          */
         std::set<std::string> include_entries;
 
+		Assets* assets {nullptr};
+
         /**
          * Self-implemented "#include" directive for GLSL
          *
@@ -92,7 +96,7 @@ namespace Limitless {
          * @return - file source code
          * @throw shader_file_not_found - if file at @param filepath does not exist
          */
-        static std::string getSource(const fs::path& filepath);
+        std::string getSource(const fs::path& filepath);
 
         /**
          * Swap function used by move-semantics
@@ -119,7 +123,7 @@ namespace Limitless {
          * @throw shader_file_not_found - if file at @param path does not exist
          * @throw shader_include_not_found - if file specified at include directive does not exist
          */
-        Shader(fs::path path, Type type, const ShaderAction& action = {});
+        Shader(fs::path path, Type type, const ShaderAction& action = {}, Assets* assets = nullptr);
 
         /**
          * Shader destructor

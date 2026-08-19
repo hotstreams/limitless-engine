@@ -151,7 +151,10 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const fs::path& _pa
     stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
 
     int width = 0, height = 0, channels = 0;
-    unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
+	const auto file_bytes = assets.readFile(path);
+    unsigned char* data = stbi_load_from_memory(
+		file_bytes.data(), static_cast<int>(file_bytes.size()), &width, &height, &channels, 0
+	);
 
     if (!data) {
 	    throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
@@ -228,7 +231,7 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const std::string& 
     return texture;
 }
 
-std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
+std::shared_ptr<Texture> TextureLoader::loadCubemap(Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {
     constexpr std::array ext = { "_right", "_left", "_top", "_bottom", "_front", "_back" };
 
     size_t i = 0;
@@ -251,7 +254,10 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(Assets& assets, const std::a
 
     for (size_t i = 0; i < data.size(); ++i) {
         std::string p = convertPathSeparators(paths[i]).string();
-        data[i] = stbi_load(p.c_str(), &width, &height, &channels, 0);
+		const auto file_bytes = assets.readFile(paths[i]);
+        data[i] = stbi_load_from_memory(
+			file_bytes.data(), static_cast<int>(file_bytes.size()), &width, &height, &channels, 0
+		);
 
         if (!data[i]) {
             throw texture_loader_exception("Failed to load texture: " + p + " " + stbi_failure_reason());
@@ -280,13 +286,16 @@ std::shared_ptr<Texture> TextureLoader::loadCubemap(Assets& assets, const std::a
     return texture;
 }
 
-GLFWimage TextureLoader::loadGLFWImage([[maybe_unused]] Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
+GLFWimage TextureLoader::loadGLFWImage(Assets& assets, const fs::path& _path, const TextureLoaderFlags& flags) {
     auto path = convertPathSeparators(_path);
 
     stbi_set_flip_vertically_on_load(static_cast<bool>(flags.origin));
 
     int width = 0, height = 0, channels = 0;
-    unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
+	const auto file_bytes = assets.readFile(path);
+    unsigned char* data = stbi_load_from_memory(
+		file_bytes.data(), static_cast<int>(file_bytes.size()), &width, &height, &channels, 0
+	);
 
     if (data) {
         return GLFWimage{ width, height, data };
@@ -348,7 +357,7 @@ bool TextureLoader::isPowerOfTwo(int width, int height) {
 	return ((width != 0) && !(width & (width - 1))) && ((height != 0) && !(height & (height - 1)));
 }
 
-std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, const std::vector<fs::path> &paths, const TextureLoaderFlags &flags) {
+std::shared_ptr<Texture> TextureLoader::load(Assets &assets, const std::vector<fs::path> &paths, const TextureLoaderFlags &flags) {
     //TODO: size equality check
     Texture::Builder builder = Texture::builder();
 
@@ -368,7 +377,10 @@ std::shared_ptr<Texture> TextureLoader::load([[maybe_unused]] Assets &assets, co
         stbi_set_flip_vertically_on_load(static_cast<bool>((int)flags.origin));
 
         int width = 0, height = 0, channels = 0;
-        unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
+		const auto file_bytes = assets.readFile(path);
+        unsigned char* data = stbi_load_from_memory(
+			file_bytes.data(), static_cast<int>(file_bytes.size()), &width, &height, &channels, 0
+		);
 
         if (!data) {
             throw std::runtime_error("Failed to load texture: " + path.string() + " " + stbi_failure_reason());
