@@ -10,13 +10,15 @@
 
 using namespace Limitless;
 
-ShaderCompiler::ShaderCompiler(Context& _context)
-    : context {_context} {
+ShaderCompiler::ShaderCompiler(Context& _context, Assets* _assets)
+    : context {_context}
+    , assets {_assets} {
 }
 
-ShaderCompiler::ShaderCompiler(Context& _context, const RendererSettings& _settings)
+ShaderCompiler::ShaderCompiler(Context& _context, const RendererSettings& _settings, Assets* _assets)
     : context {_context}
-    , render_settings {_settings} {
+    , render_settings {_settings}
+    , assets {_assets} {
 }
 
 void ShaderCompiler::checkStatus(const GLuint program_id) {
@@ -77,7 +79,7 @@ std::shared_ptr<ShaderProgram> ShaderCompiler::compile(const fs::path& path, con
     uint8_t shader_count {};
     for (const auto& [extension, type] : shader_file_extensions) {
         try {
-            Shader shader { path.string() + extension.data(), type, action };
+            Shader shader { path.string() + extension.data(), type, action, assets };
 
             replaceCommonDefines(shader);
 

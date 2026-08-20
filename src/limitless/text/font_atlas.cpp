@@ -1,8 +1,10 @@
 #include <limitless/text/font_atlas.hpp>
+#include <limitless/assets.hpp>
 
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
 
+#include <cstring>
 #include <iostream>
 
 using namespace Limitless;
@@ -268,12 +270,7 @@ std::shared_ptr<FontAtlas> FontAtlas::make(
     );
 }
 
-std::shared_ptr<FontAtlas> FontAtlas::load(
-    const fs::path& path,
-    uint32_t pixel_size,
-    std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges,
-    std::optional<CjkVariant> cjk_variant
-) {
+static FT_Library getFreeType() {
     static FT_Library ft {nullptr};
 
     if (!ft) {
@@ -282,11 +279,15 @@ std::shared_ptr<FontAtlas> FontAtlas::load(
         }
     }
 
-    FT_Face face;
-    if (FT_New_Face(ft, path.string().c_str(), 0, &face)) {
-        throw font_error{"Failed to load the font at path"s + path.string()};
-    }
+    return ft;
+}
 
+static std::shared_ptr<FontAtlas> loadFontAtlasFromFace(
+    FT_Face face,
+    uint32_t pixel_size,
+    std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges,
+    std::optional<CjkVariant> cjk_variant
+) {
     FT_Set_Pixel_Sizes(face, 0, pixel_size);
 
     std::unordered_map<uint32_t, GlyphInfo> glyph_for_char;
@@ -356,6 +357,43 @@ std::shared_ptr<FontAtlas> FontAtlas::load(
         /* is_icon = */ false,
         cjk_variant
     );
+}
+
+std::shared_ptr<FontAtlas> FontAtlas::load(
+    const fs::path& path,
+    uint32_t pixel_size,
+    std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges,
+    std::optional<CjkVariant> cjk_variant
+) {
+    FT_Face face;
+    if (FT_New_Face(getFreeType(), path.string().c_str(), 0, &face)) {
+        throw font_error{"Failed to load the font at path"s + path.string()};
+    }
+
+    return loadFontAtlasFromFace(face, pixel_size, std::move(codepoint_ranges), cjk_variant);
+}
+
+std::shared_ptr<FontAtlas> FontAtlas::load(
+    Assets& assets,
+    const fs::path& path,
+    uint32_t pixel_size,
+    std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges,
+    std::optional<CjkVariant> cjk_variant
+) {
+    const auto bytes = assets.readFile(path);
+
+    FT_Face face;
+    if (FT_New_Memory_Face(
+            getFreeType(),
+            reinterpret_cast<const FT_Byte*>(bytes.data()),
+            static_cast<FT_Long>(bytes.size()),
+            0,
+            &face
+        )) {
+        throw font_error{"Failed to load the font at path"s + path.string()};
+    }
+
+    return loadFontAtlasFromFace(face, pixel_size, std::move(codepoint_ranges), cjk_variant);
 }
 
 FontAtlas::~FontAtlas() = default;

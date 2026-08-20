@@ -27,6 +27,7 @@
 #include <limitless/renderer/renderer.hpp>
 #include <limitless/scene.hpp>
 #include <memory>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -34,6 +35,18 @@
 #include <atomic>
 
 using namespace Limitless;
+
+struct CgltfDataGuard {
+	cgltf_data** data;
+
+	~CgltfDataGuard() {
+		if (*data) {
+			cgltf_free(*data);
+		}
+	}
+};
+
+static cgltf_data* parseGltfFromAssets(Assets& assets, const fs::path& path, bool load_buffers);
 
 static std::string toString(cgltf_type type) {
 	switch (type) {
@@ -1309,26 +1322,8 @@ std::vector<std::shared_ptr<Limitless::ms::Material>> GltfModelLoader::loadModel
 	const auto base_model_name = path.stem().string();
 	const auto variant_model_name = base_model_name + "_" + std::move(variant_name);
 
-	cgltf_options opts = cgltf_options {
-		cgltf_file_type_invalid, // autodetect
-		0, // auto json token count
-		cgltf_memory_options {nullptr, nullptr, nullptr},
-		cgltf_file_options {nullptr, nullptr, nullptr}
-    };
-	cgltf_data* out_data = nullptr;
-
-    const auto path_str = path.string();
-
-	cgltf_result gltf = cgltf_parse_file(&opts, path_str.c_str(), &out_data);
-	if (gltf != cgltf_result_success) {
-		throw ModelLoadError {
-			"failed to parse GLTF model file " + path.string() + ": "
-			+ std::to_string(static_cast<int>(gltf))};
-	}
-
-	if (out_data->scenes == nullptr) {
-		throw ModelLoadError {"no scene"};
-	}
+	cgltf_data* out_data = parseGltfFromAssets(assets, path, false);
+	CgltfDataGuard data_guard(&out_data);
 
 	std::vector<std::shared_ptr<ms::Material>> mesh_materials;
 	InstanceTypes instance_types = flags.additional_instance_types;
@@ -1466,45 +1461,103 @@ std::shared_ptr<AbstractMesh> GltfModelLoader::simplifyMesh(
 	throw ModelLoadError {"unsupported vertex stream type for mesh simplification"};
 }
 
-struct CgltfDataGuard {
-	cgltf_data** data;
-
-	~CgltfDataGuard() {
-		if (*data) {
-			cgltf_free(*data);
-		}
-	}
+struct CgltfAssetsUserData {
+	Assets* assets;
 };
 
-std::shared_ptr<AbstractModel>
-GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags) {
-	cgltf_options opts = cgltf_options {
-		cgltf_file_type_invalid, // autodetect
-		0, // auto json token count
-		cgltf_memory_options {nullptr, nullptr, nullptr},
-		cgltf_file_options {nullptr, nullptr, nullptr}
-    };
+static void* cgltfAlloc(void* /*user*/, cgltf_size size) {
+	return std::malloc(size);
+}
+
+static void cgltfFree(void* /*user*/, void* ptr) {
+	std::free(ptr);
+}
+
+static cgltf_result cgltfReadFile(
+	const struct cgltf_memory_options* memory_options,
+	const struct cgltf_file_options* file_options,
+	const char* path,
+	cgltf_size* size,
+	void** data
+) {
+	auto* user = static_cast<CgltfAssetsUserData*>(file_options->user_data);
+	try {
+		auto bytes = user->assets->readFile(path);
+		if (bytes.empty()) {
+			return cgltf_result_file_not_found;
+		}
+		void* (*memory_alloc)(void*, cgltf_size) =
+			memory_options->alloc_func ? memory_options->alloc_func : cgltfAlloc;
+		void* memory = memory_alloc(memory_options->user_data, bytes.size());
+		if (!memory) {
+			return cgltf_result_out_of_memory;
+		}
+		std::memcpy(memory, bytes.data(), bytes.size());
+		*size = bytes.size();
+		*data = memory;
+		return cgltf_result_success;
+	} catch (...) {
+		return cgltf_result_file_not_found;
+	}
+}
+
+static void cgltfReleaseFile(
+	const struct cgltf_memory_options* memory_options,
+	const struct cgltf_file_options* /*file_options*/,
+	void* data
+) {
+	void (*memory_free)(void*, void*) =
+		memory_options->free_func ? memory_options->free_func : cgltfFree;
+	memory_free(memory_options->user_data, data);
+}
+
+static cgltf_options makeCgltfOptions(CgltfAssetsUserData& user_data) {
+	cgltf_options opts {};
+	opts.file.read = cgltfReadFile;
+	opts.file.release = cgltfReleaseFile;
+	opts.file.user_data = &user_data;
+	return opts;
+}
+
+static cgltf_data* parseGltfFromAssets(Assets& assets, const fs::path& path, bool load_buffers) {
+	CgltfAssetsUserData user_data {&assets};
+	auto opts = makeCgltfOptions(user_data);
+	const auto path_str = path.string();
+
 	cgltf_data* out_data = nullptr;
-	CgltfDataGuard data_guard(&out_data);
-
-    const auto path_str = path.string();
-
-	cgltf_result gltf = cgltf_parse_file(&opts, path_str.c_str(), &out_data);
-	if (gltf != cgltf_result_success) {
+	// cgltf_parse_file keeps the file bytes in data->file_data. For GLB, the BIN
+	// chunk (embedded meshes and images) is a pointer into those bytes, so they
+	// must outlive cgltf_data — a stack vector passed to cgltf_parse does not.
+	const auto parse_result = cgltf_parse_file(&opts, path_str.c_str(), &out_data);
+	if (parse_result != cgltf_result_success) {
+		if (out_data) {
+			cgltf_free(out_data);
+		}
 		throw ModelLoadError {
 			"failed to parse GLTF model file " + path.string() + ": "
-			+ std::to_string(static_cast<int>(gltf))};
+			+ std::to_string(static_cast<int>(parse_result))};
 	}
 
-	auto result = cgltf_load_buffers(&opts, out_data, path_str.c_str());
-	if (result != cgltf_result_success) {
-		throw ModelLoadError {
-			"failed to load buffers: " + std::to_string(static_cast<int>(result))};
+	if (load_buffers) {
+		const auto buffer_result = cgltf_load_buffers(&opts, out_data, path_str.c_str());
+		if (buffer_result != cgltf_result_success) {
+			cgltf_free(out_data);
+			throw ModelLoadError {
+				"failed to load buffers: " + std::to_string(static_cast<int>(buffer_result))};
+		}
 	}
 
 	if (out_data->scenes == nullptr) {
+		cgltf_free(out_data);
 		throw ModelLoadError {"no scene"};
 	}
 
+	return out_data;
+}
+
+std::shared_ptr<AbstractModel>
+GltfModelLoader::loadModel(Assets& assets, const fs::path& path, const ModelLoaderFlags& flags) {
+	cgltf_data* out_data = parseGltfFromAssets(assets, path, true);
+	CgltfDataGuard data_guard(&out_data);
 	return ::loadModel(assets, path, *out_data, flags);
 }

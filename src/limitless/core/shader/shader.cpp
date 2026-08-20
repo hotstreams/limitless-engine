@@ -7,9 +7,20 @@
 
 using namespace Limitless;
 
-Shader::Shader(fs::path _path, Type _type, const ShaderAction& action)
+#include <limitless/core/shader/shader.hpp>
+#include <limitless/assets.hpp>
+#include <limitless/core/context_initializer.hpp>
+#include <limitless/core/keyline_extensions.hpp>
+#include <string>
+#include <sstream>
+#include <limitless/core/shader/shader_extensions.hpp>
+
+using namespace Limitless;
+
+Shader::Shader(fs::path _path, Type _type, const ShaderAction& action, Assets* _assets)
     : path {std::move(_path)}
-    , type {_type} {
+    , type {_type}
+    , assets {_assets} {
     source = getSource(path);
 
     replaceIncludes(path.parent_path());
@@ -86,6 +97,14 @@ void Shader::replaceKey(const std::string& key, const std::string& value) noexce
 
 std::string Shader::getSource(const fs::path& filepath) {
     try {
+		if (assets) {
+			if (!assets->fileExists(filepath)) {
+				throw shader_file_not_found(filepath.string());
+			}
+			const auto bytes = assets->readFile(filepath);
+			return std::string(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+		}
+
         std::ifstream file(filepath);
         std::string file_source;
 
@@ -99,6 +118,8 @@ std::string Shader::getSource(const fs::path& filepath) {
         }
 
         return file_source;
+    } catch (const shader_file_not_found&) {
+		throw;
     } catch (...) {
         throw shader_file_not_found(filepath.string());
     }
@@ -157,6 +178,8 @@ void Limitless::swap(Shader &lhs, Shader &rhs) noexcept {
     swap(lhs.path, rhs.path);
     swap(lhs.type, rhs.type);
     swap(lhs.id, rhs.id);
+    swap(lhs.assets, rhs.assets);
+    swap(lhs.include_entries, rhs.include_entries);
 }
 
 Shader::Shader(Shader&& rhs) noexcept : Shader() {
