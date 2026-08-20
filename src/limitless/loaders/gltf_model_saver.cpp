@@ -1,16 +1,21 @@
+#include "cgltf.h"
 #include "cgltf_write.h"
 #include <stb_image.h>
 
 #include <limitless/loaders/gltf_model_saver.hpp>
 #include <limitless/models/mesh.hpp>
+#include <limitless/models/skeletal_model.hpp>
 #include <limitless/core/indexed_stream.hpp>
 #include <limitless/core/uniform/uniform_value.hpp>
 #include <limitless/core/uniform/uniform_sampler.hpp>
 #include <limitless/ms/material.hpp>
-#include <cstring>
+#include <algorithm>
 #include <cstdint>
+#include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 using namespace Limitless;
 
@@ -641,4 +646,394 @@ void GltfModelSaver::saveModel(const std::filesystem::path& output_path, const M
     {
         throw ModelSaveError("Failed to write model to file: " + std::to_string(static_cast<int>(result)));
     }
+}
+
+namespace {
+
+template <typename T>
+T* growCgltfArray(cgltf_size old_count, cgltf_size extra) {
+	return safeMalloc<T>(old_count + extra);
+}
+
+template <typename T>
+void copyCgltfArray(T* dest, const T* src, cgltf_size count) {
+	if (dest && src && count > 0) {
+		std::memcpy(dest, src, sizeof(T) * count);
+	}
+}
+
+template <typename T>
+void remapPtr(T*& ptr, const T* old_base, T* new_base, cgltf_size old_count) {
+	if (!ptr || !old_base || !new_base) {
+		return;
+	}
+	if (ptr >= old_base && ptr < old_base + old_count) {
+		ptr = new_base + (ptr - old_base);
+	}
+}
+
+void remapBufferViews(cgltf_data& data, const cgltf_buffer_view* old_base, cgltf_buffer_view* new_base, cgltf_size old_count) {
+	for (cgltf_size i = 0; i < data.accessors_count; ++i) {
+		remapPtr(data.accessors[i].buffer_view, old_base, new_base, old_count);
+		remapPtr(data.accessors[i].sparse.indices_buffer_view, old_base, new_base, old_count);
+		remapPtr(data.accessors[i].sparse.values_buffer_view, old_base, new_base, old_count);
+	}
+	for (cgltf_size i = 0; i < data.images_count; ++i) {
+		remapPtr(data.images[i].buffer_view, old_base, new_base, old_count);
+	}
+	for (cgltf_size i = 0; i < data.meshes_count; ++i) {
+		for (cgltf_size j = 0; j < data.meshes[i].primitives_count; ++j) {
+			auto& prim = data.meshes[i].primitives[j];
+			if (prim.has_draco_mesh_compression) {
+				remapPtr(prim.draco_mesh_compression.buffer_view, old_base, new_base, old_count);
+			}
+		}
+	}
+}
+
+void remapAccessors(cgltf_data& data, const cgltf_accessor* old_base, cgltf_accessor* new_base, cgltf_size old_count) {
+	for (cgltf_size i = 0; i < data.meshes_count; ++i) {
+		for (cgltf_size j = 0; j < data.meshes[i].primitives_count; ++j) {
+			auto& prim = data.meshes[i].primitives[j];
+			remapPtr(prim.indices, old_base, new_base, old_count);
+			for (cgltf_size k = 0; k < prim.attributes_count; ++k) {
+				remapPtr(prim.attributes[k].data, old_base, new_base, old_count);
+			}
+			for (cgltf_size k = 0; k < prim.targets_count; ++k) {
+				for (cgltf_size m = 0; m < prim.targets[k].attributes_count; ++m) {
+					remapPtr(prim.targets[k].attributes[m].data, old_base, new_base, old_count);
+				}
+			}
+			if (prim.has_draco_mesh_compression) {
+				for (cgltf_size m = 0; m < prim.draco_mesh_compression.attributes_count; ++m) {
+					remapPtr(prim.draco_mesh_compression.attributes[m].data, old_base, new_base, old_count);
+				}
+			}
+		}
+	}
+	for (cgltf_size i = 0; i < data.skins_count; ++i) {
+		remapPtr(data.skins[i].inverse_bind_matrices, old_base, new_base, old_count);
+	}
+	for (cgltf_size i = 0; i < data.nodes_count; ++i) {
+		if (!data.nodes[i].has_mesh_gpu_instancing) {
+			continue;
+		}
+		for (cgltf_size m = 0; m < data.nodes[i].mesh_gpu_instancing.attributes_count; ++m) {
+			remapPtr(data.nodes[i].mesh_gpu_instancing.attributes[m].data, old_base, new_base, old_count);
+		}
+	}
+}
+
+bool nodeHasValidTarget(const AnimationNode& node, cgltf_size nodes_count) {
+	return static_cast<cgltf_size>(node.bone.index) < nodes_count;
+}
+
+size_t animationChannelCount(const Animation& animation, cgltf_size nodes_count) {
+	size_t count = 0;
+	for (const auto& node : animation.nodes) {
+		if (!nodeHasValidTarget(node, nodes_count)) {
+			continue;
+		}
+		count += !node.positions.empty();
+		count += !node.rotations.empty();
+		count += !node.scales.empty();
+	}
+	return count;
+}
+
+float toSeconds(double time, double tps) {
+	const double rate = tps > 0.0 ? tps : 1.0;
+	return static_cast<float>(time / rate);
+}
+
+template <typename T>
+std::vector<KeyFrame<T>> sortedUniqueKeyframes(const std::vector<KeyFrame<T>>& keys) {
+	auto out = keys;
+	std::stable_sort(out.begin(), out.end(), [](const KeyFrame<T>& a, const KeyFrame<T>& b) {
+		return a.time < b.time;
+	});
+	std::vector<KeyFrame<T>> unique;
+	unique.reserve(out.size());
+	for (auto& key : out) {
+		if (!unique.empty() && unique.back().time == key.time) {
+			unique.back() = std::move(key);
+		} else {
+			unique.push_back(std::move(key));
+		}
+	}
+	return unique;
+}
+
+struct BinBuilder {
+	std::vector<unsigned char> bytes;
+
+	void pad4() {
+		while (bytes.size() % 4 != 0) {
+			bytes.push_back(0);
+		}
+	}
+
+	cgltf_size append(const void* ptr, size_t byte_count) {
+		pad4();
+		const auto offset = static_cast<cgltf_size>(bytes.size());
+		const auto* src = static_cast<const unsigned char*>(ptr);
+		bytes.insert(bytes.end(), src, src + byte_count);
+		return offset;
+	}
+};
+
+cgltf_accessor* appendFloatAccessor(
+	cgltf_data& data,
+	cgltf_buffer& buffer,
+	BinBuilder& bin,
+	const std::vector<float>& values,
+	cgltf_type type,
+	cgltf_size count,
+	bool write_min_max
+) {
+	auto* view = &data.buffer_views[data.buffer_views_count++];
+	view->buffer = &buffer;
+	view->offset = bin.append(values.data(), values.size() * sizeof(float));
+	view->size = values.size() * sizeof(float);
+
+	auto* accessor = &data.accessors[data.accessors_count++];
+	accessor->component_type = cgltf_component_type_r_32f;
+	accessor->type = type;
+	accessor->count = count;
+	accessor->buffer_view = view;
+	if (write_min_max && !values.empty()) {
+		accessor->has_min = true;
+		accessor->has_max = true;
+		accessor->min[0] = values.front();
+		accessor->max[0] = values.back();
+	}
+	return accessor;
+}
+
+struct SamplerPair {
+	cgltf_accessor* input;
+	cgltf_accessor* output;
+};
+
+SamplerPair appendSamplerData(
+	cgltf_data& data,
+	cgltf_buffer& buffer,
+	BinBuilder& bin,
+	const std::vector<float>& times,
+	const std::vector<float>& values,
+	cgltf_type value_type
+) {
+	return {
+		appendFloatAccessor(data, buffer, bin, times, cgltf_type_scalar, times.size(), true),
+		appendFloatAccessor(data, buffer, bin, values, value_type, times.size(), false)
+	};
+}
+
+void addChannel(
+	cgltf_animation& animation,
+	cgltf_size& sampler_index,
+	cgltf_node* target,
+	cgltf_animation_path_type path,
+	const SamplerPair& accessors
+) {
+	auto& sampler = animation.samplers[sampler_index];
+	sampler.input = accessors.input;
+	sampler.output = accessors.output;
+	sampler.interpolation = cgltf_interpolation_type_linear;
+
+	auto& channel = animation.channels[sampler_index];
+	channel.sampler = &sampler;
+	channel.target_node = target;
+	channel.target_path = path;
+	++sampler_index;
+}
+
+struct CgltfDataGuard {
+	cgltf_data* data {nullptr};
+	~CgltfDataGuard() {
+		if (data) {
+			cgltf_free(data);
+		}
+	}
+};
+
+}
+
+std::filesystem::path GltfModelSaver::saveSkeletalAnimations(
+	const std::filesystem::path& source_path,
+	const SkeletalModel& model
+) {
+	if (source_path.empty()) {
+		throw ModelSaveError("model has no source path");
+	}
+
+	cgltf_options options = cgltf_options {
+		cgltf_file_type_invalid,
+		0,
+		cgltf_memory_options {nullptr, nullptr, nullptr},
+		cgltf_file_options {nullptr, nullptr, nullptr}
+	};
+	CgltfDataGuard guard;
+	const auto source_str = source_path.string();
+	cgltf_result parsed = cgltf_parse_file(&options, source_str.c_str(), &guard.data);
+	if (parsed != cgltf_result_success || guard.data == nullptr) {
+		throw ModelSaveError("failed to parse " + source_str + " (" + std::to_string(static_cast<int>(parsed)) + ")");
+	}
+	cgltf_data& data = *guard.data;
+	if (cgltf_load_buffers(&options, &data, source_str.c_str()) != cgltf_result_success) {
+		throw ModelSaveError("failed to load buffers from " + source_str);
+	}
+	if (data.buffers_count == 0 || data.buffers[0].data == nullptr) {
+		throw ModelSaveError("source GLB has no binary buffer");
+	}
+
+	cgltf_size extra_channels = 0;
+	cgltf_size written_animations = 0;
+	for (const auto& animation : model.getAnimations()) {
+		const auto channels = animationChannelCount(animation, data.nodes_count);
+		extra_channels += channels;
+		written_animations += channels > 0 ? 1 : 0;
+	}
+	const cgltf_size extra_accessors = extra_channels * 2;
+	const cgltf_size extra_views = extra_channels * 2;
+
+	if (extra_views > 0) {
+		const auto old_count = data.buffer_views_count;
+		auto* old_views = data.buffer_views;
+		auto* new_views = growCgltfArray<cgltf_buffer_view>(old_count, extra_views);
+		copyCgltfArray(new_views, old_views, old_count);
+		remapBufferViews(data, old_views, new_views, old_count);
+		data.buffer_views = new_views;
+	}
+	if (extra_accessors > 0) {
+		const auto old_count = data.accessors_count;
+		auto* old_accessors = data.accessors;
+		auto* new_accessors = growCgltfArray<cgltf_accessor>(old_count, extra_accessors);
+		copyCgltfArray(new_accessors, old_accessors, old_count);
+		remapAccessors(data, old_accessors, new_accessors, old_count);
+		data.accessors = new_accessors;
+	}
+
+	BinBuilder bin;
+	{
+		const auto* src = static_cast<const unsigned char*>(data.buffers[0].data);
+		bin.bytes.assign(src, src + data.buffers[0].size);
+	}
+
+	auto* new_animations = written_animations > 0 ? safeMalloc<cgltf_animation>(written_animations) : nullptr;
+	cgltf_size animation_index = 0;
+	for (const auto& animation : model.getAnimations()) {
+		const auto channel_count = animationChannelCount(animation, data.nodes_count);
+		if (channel_count == 0) {
+			continue;
+		}
+		auto& dst = new_animations[animation_index++];
+		if (!animation.name.empty()) {
+			dst.name = strdup(animation.name.c_str());
+		}
+		dst.samplers = safeMalloc<cgltf_animation_sampler>(channel_count);
+		dst.samplers_count = channel_count;
+		dst.channels = safeMalloc<cgltf_animation_channel>(channel_count);
+		dst.channels_count = channel_count;
+
+		cgltf_size sampler_index = 0;
+		for (const auto& node : animation.nodes) {
+			if (!nodeHasValidTarget(node, data.nodes_count)) {
+				continue;
+			}
+			auto* target = &data.nodes[node.bone.index];
+
+			if (!node.positions.empty()) {
+				const auto keys = sortedUniqueKeyframes(node.positions);
+				std::vector<float> times;
+				std::vector<float> values;
+				times.reserve(keys.size());
+				values.reserve(keys.size() * 3);
+				for (const auto& key : keys) {
+					times.push_back(toSeconds(key.time, animation.tps));
+					values.push_back(key.data.x);
+					values.push_back(key.data.y);
+					values.push_back(key.data.z);
+				}
+				addChannel(
+					dst,
+					sampler_index,
+					target,
+					cgltf_animation_path_type_translation,
+					appendSamplerData(data, data.buffers[0], bin, times, values, cgltf_type_vec3)
+				);
+			}
+			if (!node.rotations.empty()) {
+				const auto keys = sortedUniqueKeyframes(node.rotations);
+				std::vector<float> times;
+				std::vector<float> values;
+				times.reserve(keys.size());
+				values.reserve(keys.size() * 4);
+				for (const auto& key : keys) {
+					times.push_back(toSeconds(key.time, animation.tps));
+					values.push_back(key.data.x);
+					values.push_back(key.data.y);
+					values.push_back(key.data.z);
+					values.push_back(key.data.w);
+				}
+				addChannel(
+					dst,
+					sampler_index,
+					target,
+					cgltf_animation_path_type_rotation,
+					appendSamplerData(data, data.buffers[0], bin, times, values, cgltf_type_vec4)
+				);
+			}
+			if (!node.scales.empty()) {
+				const auto keys = sortedUniqueKeyframes(node.scales);
+				std::vector<float> times;
+				std::vector<float> values;
+				times.reserve(keys.size());
+				values.reserve(keys.size() * 3);
+				for (const auto& key : keys) {
+					times.push_back(toSeconds(key.time, animation.tps));
+					values.push_back(key.data.x);
+					values.push_back(key.data.y);
+					values.push_back(key.data.z);
+				}
+				addChannel(
+					dst,
+					sampler_index,
+					target,
+					cgltf_animation_path_type_scale,
+					appendSamplerData(data, data.buffers[0], bin, times, values, cgltf_type_vec3)
+				);
+			}
+		}
+	}
+
+	data.animations = new_animations;
+	data.animations_count = written_animations;
+
+	data.bin = bin.bytes.data();
+	data.bin_size = bin.bytes.size();
+	data.buffers[0].data = bin.bytes.data();
+	data.buffers[0].size = bin.bytes.size();
+	data.buffers[0].data_free_method = cgltf_data_free_method_none;
+
+	auto dest = source_path;
+	const auto ext = dest.extension().string();
+	if (ext == ".gltf" || ext == ".GLTF") {
+		dest.replace_extension(".glb");
+	}
+
+	const auto tmp_path = dest.string() + ".tmp";
+	cgltf_options write_options = cgltf_options {
+		cgltf_file_type_glb,
+		0,
+		cgltf_memory_options {nullptr, nullptr, nullptr},
+		cgltf_file_options {nullptr, nullptr, nullptr}
+	};
+	const cgltf_result written = cgltf_write_file(&write_options, tmp_path.c_str(), &data);
+	if (written != cgltf_result_success) {
+		std::filesystem::remove(tmp_path);
+		throw ModelSaveError("failed to write " + dest.string() + " (" + std::to_string(static_cast<int>(written)) + ")");
+	}
+	std::filesystem::rename(tmp_path, dest);
+	return dest;
 }

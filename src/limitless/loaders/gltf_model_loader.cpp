@@ -1356,6 +1356,7 @@ loadModel(Assets& assets, const fs::path& path, const cgltf_data& src, const Mod
 	auto model = src.skins_count > 0
 		? std::shared_ptr<AbstractModel>(loadSkeletalModel(assets, path, src, model_name, flags))
 		: std::shared_ptr<AbstractModel>(loadPlainModel(assets, path, src, model_name, flags));
+	model->setSourcePath(path);
 
 	std::cout << "Adding model to assets" << std::endl;
 	assets.models.add(model_name, model);
