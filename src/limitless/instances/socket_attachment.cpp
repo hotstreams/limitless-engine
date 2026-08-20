@@ -29,17 +29,19 @@ SocketAttachment::SocketAttachment(const SocketAttachment& rhs) noexcept {
 void SocketAttachment::updateSocketAttachments() {
     const auto& instance = static_cast<SkeletalInstance&>(*this); //NOLINT
     const auto& skeletal = static_cast<const SkeletalModel&>(instance.getAbstractModel()); //NOLINT
-    const auto& bone_transforms = static_cast<SkeletalInstance&>(*this).getBoneTransform(); //NOLINT
+    const auto& bone_world_transforms = instance.getBoneWorldMatrices();
     const auto& bone_map = skeletal.getBoneMap();
-    const auto& bones = skeletal.getBones();
 
     for (auto& [_, attachment] : attachment_data) {
         auto& [bone_name, transformation_matrix] = attachment;
         const auto bone_index = bone_map.at(attachment.bone_name);
-        transformation_matrix = bone_transforms.at(bone_index) * glm::inverse(bones.at(bone_index).offset_matrix);
+        transformation_matrix = bone_world_transforms.at(bone_index);
     }
 
     for (const auto& [id, attachment] : instance.getAttachments()) {
+        if (id.type != InstanceAttachment::AttachmentType::Bone) {
+            continue;
+        }
         attachment->setTransformation(attachment_data.at(id.id).transformation_matrix);
     }
 }
