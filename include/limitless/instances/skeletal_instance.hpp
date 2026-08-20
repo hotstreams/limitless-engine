@@ -26,6 +26,11 @@ namespace Limitless {
         std::vector<glm::mat4> bone_transform;
 
         /**
+         * Bone world-space matrices (hierarchy global transform, indexed by bone index)
+         */
+        std::vector<glm::mat4> bone_world_transform;
+
+        /**
          * OpenGL buffer for bone transformations
          */
         std::shared_ptr<Buffer> bone_buffer;
@@ -110,12 +115,20 @@ namespace Limitless {
          */
         SkeletalInstance& setRepeating(bool repeating) noexcept;
 
+        /**
+         * Current animation time in ticks (duration.count() * tps, wrapped/clamped)
+         */
+        [[nodiscard]] double getAnimationTime() const noexcept;
+        SkeletalInstance& setAnimationTime(double ticks) noexcept;
+
         [[nodiscard]] auto isPaused() const noexcept { return paused; }
+        [[nodiscard]] auto isRepeating() const noexcept { return repeating; }
         [[nodiscard]] const auto& getCurrentAnimation() const noexcept { return animation; }
         [[nodiscard]] const std::vector<Animation>& getAllAnimations() const noexcept;
         [[nodiscard]] bool hasAnimation(const std::string& name) const noexcept;
         const std::vector<Bone>& getAllBones() const noexcept;
         const auto& getBoneBuffer() const noexcept { return bone_buffer; }
+        const auto& getBoneWorldMatrices() const noexcept { return bone_world_transform; }
 
         /**
          * Calculates transformed vertex position on specified instance mesh for specified vertex

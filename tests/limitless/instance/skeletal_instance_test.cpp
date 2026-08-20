@@ -121,3 +121,37 @@ TEST_CASE("SkeletalInstance animation") {
 
     check_opengl_state();
 }
+
+TEST_CASE("SkeletalInstance seek while paused still evaluates pose") {
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
+    Assets assets {"../assets"};
+    Camera camera {{1, 1}};
+
+    assets.models.add("boblamp", ModelLoader::loadModel(assets, "../assets/models/boblamp/boblampclean.md5mesh", {{
+      ::ModelLoaderOption::FlipUV
+    }}));
+
+    SkeletalInstance instance = SkeletalInstance(assets.models.at("boblamp"), glm::vec3{0.0f});
+    REQUIRE_FALSE(instance.getAllAnimations().empty());
+
+    instance.play(0u);
+    instance.setRepeating(true);
+    instance.pause();
+    instance.setAnimationTime(0.0);
+    instance.update(camera);
+
+    REQUIRE(instance.isPaused());
+    REQUIRE(instance.getAnimationTime() == Catch::Approx(0.0));
+    REQUIRE_FALSE(instance.getBoneWorldMatrices().empty());
+
+    const auto pose_at_start = instance.getBoneTransform();
+    const auto duration = instance.getCurrentAnimation()->duration;
+    if (duration > 0.0) {
+        instance.setAnimationTime(duration * 0.5);
+        instance.update(camera);
+        REQUIRE(instance.getAnimationTime() == Catch::Approx(duration * 0.5));
+        REQUIRE(instance.getBoneTransform().size() == pose_at_start.size());
+    }
+
+    check_opengl_state();
+}

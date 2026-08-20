@@ -8,6 +8,9 @@
 #include <limitless/core/vertex.hpp>
 #include <limitless/models/mesh.hpp>
 #include <limitless/core/skeletal_stream.hpp>
+#include <algorithm>
+#include <cmath>
+#include <functional>
 #include <iostream>
 #include <limitless/core/cpu_profiler.hpp>
 
@@ -27,30 +30,24 @@ void SkeletalInstance::initializeBuffer() {
 
 void SkeletalInstance::updateAnimationFrame() {
     CpuProfileScope ps(global_profiler, "SkeletalInstance::updateAnimationFrame");
-    if (!animation || paused) {
-        return;
-    }
 
     auto& skeletal = dynamic_cast<SkeletalModel&>(*model);
     auto& bones = skeletal.getBones();
-    const Animation& anim = *animation;
+    if (bone_world_transform.size() != bones.size()) {
+        bone_world_transform.assign(bones.size(), glm::mat4(1.0f));
+    }
 
     const auto current_time = std::chrono::steady_clock::now();
     if (last_time == std::chrono::time_point<std::chrono::steady_clock>()) {
         last_time = current_time;
     }
-    const auto delta_time = current_time - last_time;
-    animation_duration += delta_time;
+
+    if (animation && !paused) {
+        animation_duration += current_time - last_time;
+    }
     last_time = current_time;
-    const auto animation_time = [&]() -> double {
-        auto new_time = animation_duration.count() * anim.tps;
-        if (!repeating) {
-            new_time = std::min(new_time, anim.duration);
-        } else {
-            new_time = glm::mod(new_time, anim.duration);
-        }
-        return new_time;
-    }();
+
+    const auto animation_time = getAnimationTime();
 
     std::function<void(const Tree<uint32_t>&, const glm::mat4&)> node_traversal;
     node_traversal = [&](const Tree<uint32_t>& node, const glm::mat4& parent_mat) {
@@ -58,7 +55,7 @@ void SkeletalInstance::updateAnimationFrame() {
         auto& bone = bones[bone_indice];
 
         auto local_transform = [&]() -> glm::mat4 {
-            auto* anim_node = findAnimationNode(bone);
+            auto* anim_node = animation ? findAnimationNode(bone) : nullptr;
             if (!anim_node) {
                 return bone.node_transform;
             }
@@ -79,6 +76,7 @@ void SkeletalInstance::updateAnimationFrame() {
         }();
 
         auto global_transform = parent_mat * local_transform;
+        bone_world_transform[bone_indice] = global_transform;
 
         if (bone.joint_index) {
             bone_transform[*bone.joint_index] = global_transform * bone.offset_matrix;
@@ -123,6 +121,7 @@ SkeletalInstance::SkeletalInstance(std::shared_ptr<AbstractModel> m, const glm::
     });
 
     bone_transform.resize(skinned_bones, glm::mat4(1.0f));
+    bone_world_transform.assign(bones.size(), glm::mat4(1.0f));
     initializeBuffer();
 }
 
@@ -130,8 +129,10 @@ SkeletalInstance::SkeletalInstance(const SkeletalInstance& rhs) noexcept
     : ModelInstance {rhs}
     , SocketAttachment {rhs}
     , bone_transform {rhs.bone_transform}
+    , bone_world_transform {rhs.bone_world_transform}
     , animation {rhs.animation}
     , paused {rhs.paused}
+    , repeating {rhs.repeating}
     , last_time {rhs.last_time}
     , animation_duration {rhs.animation_duration} {
     initializeBuffer();
@@ -194,6 +195,46 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
 
 SkeletalInstance& SkeletalInstance::setRepeating(bool repeating) noexcept {
     this->repeating = repeating;
+    return *this;
+}
+
+double SkeletalInstance::getAnimationTime() const noexcept {
+    if (!animation || animation->tps == 0.0 || animation->duration <= 0.0) {
+        return 0.0;
+    }
+
+    auto ticks = animation_duration.count() * animation->tps;
+    if (!repeating) {
+        return std::min(ticks, animation->duration);
+    }
+
+    ticks = std::fmod(ticks, animation->duration);
+    if (ticks < 0.0) {
+        ticks += animation->duration;
+    }
+    return ticks;
+}
+
+SkeletalInstance& SkeletalInstance::setAnimationTime(double ticks) noexcept {
+    if (!animation || animation->tps == 0.0) {
+        return *this;
+    }
+
+    if (animation->duration > 0.0) {
+        if (!repeating) {
+            ticks = std::clamp(ticks, 0.0, animation->duration);
+        } else {
+            ticks = std::fmod(ticks, animation->duration);
+            if (ticks < 0.0) {
+                ticks += animation->duration;
+            }
+        }
+    } else {
+        ticks = 0.0;
+    }
+
+    animation_duration = std::chrono::duration<double>(ticks / animation->tps);
+    last_time = std::chrono::steady_clock::now();
     return *this;
 }
 
