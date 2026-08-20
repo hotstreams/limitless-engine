@@ -26,7 +26,9 @@ namespace Limitless {
         Lighting lighting;
         std::unordered_map<uint64_t, std::shared_ptr<Instance>> instances;
         std::shared_ptr<Skybox> skybox;
+        float animation_playback_speed {1.f};
         void removeDeadInstances() noexcept;
+        void applyAnimationPlaybackSpeed(Instance& instance) const;
     public:
         explicit Scene(Context& context);
 
@@ -57,6 +59,13 @@ namespace Limitless {
          * Return visible scene instances.
          */
         Instances getInstances() const noexcept;
+
+        /**
+         * Multiplier applied to skeletal clip playback (1 = real time, 0 = frozen).
+         * Applied to existing and newly added skeletal instances on the next update.
+         */
+        void setAnimationPlaybackSpeed(float speed) noexcept;
+        [[nodiscard]] auto getAnimationPlaybackSpeed() const noexcept { return animation_playback_speed; }
 
         void update(const Camera& camera);
     };

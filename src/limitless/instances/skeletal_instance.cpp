@@ -43,7 +43,7 @@ void SkeletalInstance::updateAnimationFrame() {
     }
 
     if (animation && !paused) {
-        animation_duration += current_time - last_time;
+        animation_duration += std::chrono::duration<double>(current_time - last_time) * playback_speed;
     }
     last_time = current_time;
 
@@ -133,6 +133,7 @@ SkeletalInstance::SkeletalInstance(const SkeletalInstance& rhs) noexcept
     , animation {rhs.animation}
     , paused {rhs.paused}
     , repeating {rhs.repeating}
+    , playback_speed {rhs.playback_speed}
     , last_time {rhs.last_time}
     , animation_duration {rhs.animation_duration} {
     initializeBuffer();
@@ -195,6 +196,11 @@ SkeletalInstance& SkeletalInstance::stop() noexcept {
 
 SkeletalInstance& SkeletalInstance::setRepeating(bool repeating) noexcept {
     this->repeating = repeating;
+    return *this;
+}
+
+SkeletalInstance& SkeletalInstance::setPlaybackSpeed(float speed) noexcept {
+    playback_speed = speed;
     return *this;
 }
 

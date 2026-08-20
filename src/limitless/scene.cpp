@@ -1,5 +1,6 @@
 #include <limitless/scene.hpp>
 #include <limitless/instances/skeletal_instance.hpp>
+#include <limitless/instances/instanced_instance.hpp>
 #include <limitless/assets.hpp>
 #include <limitless/core/cpu_profiler.hpp>
 
@@ -110,12 +111,34 @@ void Scene::setSkybox(const std::shared_ptr<Skybox>& skybox_) {
     skybox = skybox_;
 }
 
+void Scene::applyAnimationPlaybackSpeed(Instance& instance) const {
+    if (instance.getInstanceType() == InstanceType::Skeletal) {
+        static_cast<SkeletalInstance&>(instance).setPlaybackSpeed(animation_playback_speed);
+    } else if (instance.getInstanceType() == InstanceType::Instanced) {
+        for (auto& child : static_cast<InstancedInstance&>(instance).getInstances()) {
+            applyAnimationPlaybackSpeed(*child);
+        }
+    }
+
+    for (auto& [_, attachment] : instance.getAttachments()) {
+        applyAnimationPlaybackSpeed(*attachment);
+    }
+}
+
+void Scene::setAnimationPlaybackSpeed(float speed) noexcept {
+    animation_playback_speed = speed;
+}
+
 void Scene::update(const Camera& camera) {
     CpuProfileScope scope(global_profiler, "Scene::update");
 
     lighting.update();
 
     removeDeadInstances();
+
+    for (auto& [_, instance] : instances) {
+        applyAnimationPlaybackSpeed(*instance);
+    }
 
     for (auto& [_, instance] : instances) {
         CpuProfileScope scope(global_profiler, "Scene::update_instance");

@@ -112,6 +112,12 @@ TEST_CASE("SkeletalInstance animation") {
 
     REQUIRE(instance.getCurrentAnimation() != nullptr);
     REQUIRE(instance.isPaused() == false);
+    REQUIRE(instance.getPlaybackSpeed() == Catch::Approx(1.f));
+
+    instance.setPlaybackSpeed(5.f);
+    REQUIRE(instance.getPlaybackSpeed() == Catch::Approx(5.f));
+    instance.setPlaybackSpeed(0.f);
+    REQUIRE(instance.getPlaybackSpeed() == Catch::Approx(0.f));
     REQUIRE(instance.getAllAnimations().size() != 0);
     REQUIRE(instance.getBoneTransform().size() != 0);
 

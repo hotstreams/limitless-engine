@@ -51,6 +51,11 @@ namespace Limitless {
         bool repeating {true};
 
         /**
+         * Playback speed multiplier (1 = real time). 0 freezes the clip.
+         */
+        float playback_speed {1.f};
+
+        /**
          * Animation last update time
          */
         std::chrono::time_point<std::chrono::steady_clock> last_time;
@@ -114,6 +119,12 @@ namespace Limitless {
          * Sets animation repeating
          */
         SkeletalInstance& setRepeating(bool repeating) noexcept;
+
+        /**
+         * Playback speed relative to wall-clock time. 1 is real time; 0 freezes.
+         */
+        SkeletalInstance& setPlaybackSpeed(float speed) noexcept;
+        [[nodiscard]] auto getPlaybackSpeed() const noexcept { return playback_speed; }
 
         /**
          * Current animation time in ticks (duration.count() * tps, wrapped/clamped)
