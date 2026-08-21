@@ -3,6 +3,7 @@
 #include <limitless/core/texture/texture.hpp>
 #include <limitless/core/context_debug.hpp>
 #include <limitless/util/filesystem.hpp>
+#include <cstddef>
 #include <set>
 
 namespace Limitless {
@@ -136,6 +137,30 @@ namespace Limitless {
             const std::string& name,
             const uint8_t* buffer,
             size_t size,
+            const TextureLoaderFlags& flags = {}
+        );
+
+        /**
+         * Builds a 2D texture from tightly packed unsigned-byte pixels (not an encoded image).
+         */
+        static std::shared_ptr<Texture> loadRaw(
+            Assets& assets,
+            const std::string& name,
+            const uint8_t* pixels,
+            glm::uvec2 size,
+            int channels,
+            const TextureLoaderFlags& flags = {}
+        );
+
+        /**
+         * Copies one 8-bit channel from a 2D unsigned-byte texture into a new R8 texture.
+         * Channel 0 is red, 1 green, 2 blue, 3 alpha.
+         */
+        static std::shared_ptr<Texture> extractChannel(
+            Assets& assets,
+            const Texture& source,
+            const std::string& name,
+            std::size_t channel,
             const TextureLoaderFlags& flags = {}
         );
 

@@ -10,6 +10,8 @@
 #include <limitless/assets.hpp>
 #include <limitless/loaders/dds_loader.hpp>
 
+#include <vector>
+
 #if LIMITLESS_OPENGL_DEBUG
 	#include <iostream>
 #endif
@@ -227,6 +229,78 @@ std::shared_ptr<Texture> TextureLoader::load(Assets& assets, const std::string& 
 
     assets.textures.add(name, texture);
     return texture;
+}
+
+std::shared_ptr<Texture> TextureLoader::loadRaw(
+    Assets& assets,
+    const std::string& name,
+    const uint8_t* pixels,
+    glm::uvec2 size,
+    int channels,
+    const TextureLoaderFlags& flags
+) {
+    if (assets.textures.contains(name)) {
+        return assets.textures[name];
+    }
+
+    if (!pixels || size.x == 0 || size.y == 0) {
+        throw texture_loader_exception("Invalid raw texture data for " + name);
+    }
+
+    Texture::Builder builder = Texture::builder();
+
+    builder.target(Texture::Type::Tex2D)
+            .levels(glm::floor(glm::log2(static_cast<float>(glm::max(size.x, size.y)))) + 1)
+            .size(size)
+            .data_type(Texture::DataType::UnsignedByte)
+            .data(pixels);
+
+    setFormat(builder, flags, channels);
+    setTextureParameters(builder, flags);
+
+    auto texture = builder.build();
+    setAnisotropicFilter(texture, flags);
+
+    assets.textures.add(name, texture);
+    return texture;
+}
+
+std::shared_ptr<Texture> TextureLoader::extractChannel(
+    Assets& assets,
+    const Texture& source,
+    const std::string& name,
+    std::size_t channel,
+    const TextureLoaderFlags& flags
+) {
+    if (assets.textures.contains(name)) {
+        return assets.textures[name];
+    }
+
+    if (source.getType() != Texture::Type::Tex2D) {
+        throw texture_loader_exception("extractChannel requires a 2D texture");
+    }
+    if (source.getDataType() != Texture::DataType::UnsignedByte) {
+        throw texture_loader_exception("extractChannel requires an unsigned-byte texture");
+    }
+
+    const auto size = source.getSize();
+    const auto pixels = source.getPixels();
+    const auto pixel_count = static_cast<std::size_t>(size.x) * static_cast<std::size_t>(size.y);
+    if (pixel_count == 0 || pixels.size() % pixel_count != 0) {
+        throw texture_loader_exception("extractChannel: invalid source pixel layout");
+    }
+
+    const auto src_channels = pixels.size() / pixel_count;
+    if (channel >= src_channels) {
+        throw texture_loader_exception("extractChannel: channel index out of range");
+    }
+
+    std::vector<uint8_t> channel_data(pixel_count);
+    for (std::size_t i = 0; i < pixel_count; ++i) {
+        channel_data[i] = static_cast<uint8_t>(pixels[i * src_channels + channel]);
+    }
+
+    return loadRaw(assets, name, channel_data.data(), {size.x, size.y}, 1, flags);
 }
 
 std::shared_ptr<Texture> TextureLoader::loadCubemap([[maybe_unused]] Assets& assets, const fs::path& path, const TextureLoaderFlags& flags) {

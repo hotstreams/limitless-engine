@@ -17,6 +17,7 @@ add_executable(limitless-tests
     limitless/core/state_buffer_test.cpp
     limitless/core/state_texture_test.cpp
     limitless/core/texture_builder_test.cpp
+    limitless/core/texture_loader_test.cpp
     limitless/ms/material_builder_test.cpp
     limitless/ms/material_test.cpp
     limitless/ms/material_compiler_test.cpp

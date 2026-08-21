@@ -1009,16 +1009,25 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		builder.color(toVec4(pbr_mr.base_color_factor));
 	}
 
-	// TODO: load as metallic-roughness texture.
-	// auto* mr_tex = pbr_mr.metallic_roughness_texture.texture;
-	// if (mr_tex && mr_tex->image) {
-	// 	// These values MUST be encoded with a linear transfer function.
-	// 	const auto flags = TextureLoaderFlags(TextureLoaderFlags::Space::Linear);
+	// These values MUST be encoded with a linear transfer function.
+	// glTF packs occlusion (R, unused here), roughness (G), metallic (B).
+	auto* mr_tex = pbr_mr.metallic_roughness_texture.texture;
+	if (mr_tex && mr_tex->image) {
+		const auto flags = TextureLoaderFlags(model_flags.base_tex_flags)
+			.withLinearSpace()
+			.withNoCompression();
 
-	// 	builder.orm(*loadTextureFrom(*mr_tex, material_name + "_orm", flags));
-	// 	builder.metallic(pbr_mr.metallic_factor);
-	// 	builder.roughness(pbr_mr.roughness_factor);
-	// }
+		auto packed = *loadTextureFrom(*mr_tex, material_name + "_metallic_roughness", flags);
+		builder.roughness(TextureLoader::extractChannel(
+			assets, *packed, material_name + "_roughness", 1, flags
+		));
+		builder.metallic(TextureLoader::extractChannel(
+			assets, *packed, material_name + "_metallic", 2, flags
+		));
+	} else {
+		builder.metallic(pbr_mr.metallic_factor);
+		builder.roughness(pbr_mr.roughness_factor);
+	}
 
 	auto* normal_tex = material.normal_texture.texture;
 	if (normal_tex && normal_tex->image) {
