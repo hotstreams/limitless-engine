@@ -19,6 +19,7 @@ namespace Limitless {
         std::shared_ptr<AbstractMesh> mesh;
         std::shared_ptr<ms::Material> material;
         std::shared_ptr<ms::Material> base;
+        bool hidden {false};
     public:
         MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared_ptr<ms::Material>& material) noexcept;
         ~MeshInstance() = default;
@@ -34,6 +35,10 @@ namespace Limitless {
 
         // resets base material to base
         void reset() noexcept;
+
+        void hide() noexcept;
+        void reveal() noexcept;
+        [[nodiscard]] bool isHidden() const noexcept;
 
         [[nodiscard]] const auto& getMaterial() const noexcept { return material; }
         [[nodiscard]] auto& getMaterial() noexcept { return material; }

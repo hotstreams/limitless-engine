@@ -135,8 +135,20 @@ namespace Limitless {
 
         /**
         *  Resets materials to base of all meshes
-        */
+         */
         void resetMaterials();
+
+        /**
+         *  Hides mesh so it is skipped when drawing
+         */
+        void hideMesh(uint32_t mesh_index);
+        void hideMesh(const std::string& mesh_name);
+
+        /**
+         *  Reveals a previously hidden mesh
+         */
+        void revealMesh(uint32_t mesh_index);
+        void revealMesh(const std::string& mesh_name);
 
         [[nodiscard]] const auto& getMeshes() const noexcept { return meshes; }
         auto& getMeshes() noexcept { return meshes; }

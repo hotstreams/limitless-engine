@@ -138,6 +138,22 @@ void ModelInstance::resetMaterials() {
     }
 }
 
+void ModelInstance::hideMesh(uint32_t mesh_index) {
+    getMeshInstance(mesh_index).hide();
+}
+
+void ModelInstance::hideMesh(const std::string& mesh_name) {
+    getMeshInstance(mesh_name).hide();
+}
+
+void ModelInstance::revealMesh(uint32_t mesh_index) {
+    getMeshInstance(mesh_index).reveal();
+}
+
+void ModelInstance::revealMesh(const std::string& mesh_name) {
+    getMeshInstance(mesh_name).reveal();
+}
+
 MeshInstance& ModelInstance::getMeshInstance(const std::string &mesh) {
     try {
         return meshes.at(mesh);

@@ -48,7 +48,7 @@ namespace Limitless {
                     auto& terrain = static_cast<TerrainInstance&>(*instance); //NOLINT
 
                     for (auto& [_, mesh_instance] : terrain.getMeshes()) {
-                        if (frustum.intersects(mesh_instance.getMesh()->getBoundingBox())) {
+                        if (!mesh_instance.isHidden() && frustum.intersects(mesh_instance.getMesh()->getBoundingBox())) {
                             visible_meshes_of_terrain_instances[instance->getId()].emplace_back(mesh_instance);
                         }
                     }

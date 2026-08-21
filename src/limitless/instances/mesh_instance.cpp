@@ -19,7 +19,20 @@ MeshInstance::MeshInstance(std::shared_ptr<AbstractMesh> mesh, const std::shared
 MeshInstance::MeshInstance(const MeshInstance& rhs)
     : mesh {rhs.mesh}
     , material {std::make_shared<Material>(*rhs.material)}
-    , base {std::make_shared<Material>(*rhs.base)} {
+    , base {std::make_shared<Material>(*rhs.base)}
+    , hidden {rhs.hidden} {
+}
+
+void MeshInstance::hide() noexcept {
+    hidden = true;
+}
+
+void MeshInstance::reveal() noexcept {
+    hidden = false;
+}
+
+bool MeshInstance::isHidden() const noexcept {
+    return hidden;
 }
 
 void MeshInstance::changeBaseMaterial(const std::shared_ptr<ms::Material>& material_) noexcept {
@@ -42,6 +55,9 @@ void MeshInstance::draw(Context& ctx,
                         const glm::mat4& model_matrix,
                         ms::Blending blending,
                         const UniformSetter& uniform_setter) {
+    if (hidden) {
+        return;
+    }
 
     if (material->getBlending() != blending) {
         return;
@@ -86,6 +102,10 @@ void MeshInstance::draw_instanced(Context& ctx,
                                   ms::Blending blending,
                                   const UniformSetter& uniform_setter,
                                   uint32_t count) {
+    if (hidden) {
+        return;
+    }
+
     if (material->getBlending() != blending) {
         return;
     }

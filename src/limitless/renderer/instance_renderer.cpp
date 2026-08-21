@@ -90,7 +90,7 @@ bool InstanceRenderer::shouldBeRendered(const Instance &instance, const DrawPara
             case InstanceType::Model:
             case InstanceType::Skeletal: {
                 for (const auto& [_, mesh]: static_cast<const ModelInstance&>(instance).getMeshes()) {
-                    if (mesh.getMaterial()->getBlending() == drawp.blending) {
+                    if (!mesh.isHidden() && mesh.getMaterial()->getBlending() == drawp.blending) {
                         has_blending_match = true;
                         break;
                     }
@@ -99,7 +99,7 @@ bool InstanceRenderer::shouldBeRendered(const Instance &instance, const DrawPara
             break;
             case InstanceType::Instanced: {
                 for (const auto& [_, mesh]: static_cast<const InstancedInstance&>(instance).getInstances()[0]->getMeshes()) {
-                    if (mesh.getMaterial()->getBlending() == drawp.blending) {
+                    if (!mesh.isHidden() && mesh.getMaterial()->getBlending() == drawp.blending) {
                         has_blending_match = true;
                         break;
                     }
@@ -165,8 +165,8 @@ void InstanceRenderer::render(ModelInstance& instance, const DrawParameters& dra
     }
 
     for (const auto& [_, mesh]: instance.getMeshes()) {
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+        // skip mesh if hidden or blending is different
+        if (mesh.isHidden() || mesh.getMaterial()->getBlending() != drawp.blending) {
             continue;
         }
 
@@ -186,8 +186,8 @@ void InstanceRenderer::render(SkeletalInstance& instance, const DrawParameters& 
     instance.getBoneBuffer()->bindBase(drawp.ctx.getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, "bone_buffer"));
 
     for (const auto& [_, mesh]: instance.getMeshes()) {
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+        // skip mesh if hidden or blending is different
+        if (mesh.isHidden() || mesh.getMaterial()->getBlending() != drawp.blending) {
             continue;
         }
 
@@ -263,8 +263,8 @@ void InstanceRenderer::renderVisibleTerrain(TerrainInstance &instance, const Dra
     for (const auto& mref: frustum_culling.getVisibleTerrainMeshes(instance)) {
         auto& mesh = mref.get();
 
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+        // skip mesh if hidden or blending is different
+        if (mesh.isHidden() || mesh.getMaterial()->getBlending() != drawp.blending) {
             continue;
         }
 
@@ -290,8 +290,8 @@ void InstanceRenderer::render(InstancedInstance &instance, const DrawParameters 
     }
 
     for (const auto& [_, mesh]: instance.getInstances()[0]->getMeshes()) {
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+        // skip mesh if hidden or blending is different
+        if (mesh.isHidden() || mesh.getMaterial()->getBlending() != drawp.blending) {
             continue;
         }
 
@@ -317,8 +317,8 @@ void InstanceRenderer::render(TerrainInstance &instance, const DrawParameters &d
     }
 
     for (const auto& [_, mesh]: instance.getMeshes()) {
-        // skip mesh if blending is different
-        if (mesh.getMaterial()->getBlending() != drawp.blending) {
+        // skip mesh if hidden or blending is different
+        if (mesh.isHidden() || mesh.getMaterial()->getBlending() != drawp.blending) {
             continue;
         }
 
