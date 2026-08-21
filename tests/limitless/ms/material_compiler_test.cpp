@@ -194,6 +194,7 @@ void test_MaterialCompiler_compiles_material_with_mettalictexture(RendererSettin
     Material::Builder builder {};
     auto material = builder.name("material")
             .metallic(assets.textures.at("fake"))
+            .metallic(0.0f)
             .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build(assets);
 
@@ -212,6 +213,7 @@ void test_MaterialCompiler_compiles_material_with_roughnesstexture(RendererSetti
     Material::Builder builder {};
     auto material = builder.name("material")
             .roughness(assets.textures.at("fake"))
+            .roughness(1.0f)
             .models({InstanceType::Model, InstanceType::Skeletal, InstanceType::Instanced})
             .build(assets);
 

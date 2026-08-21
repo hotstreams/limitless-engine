@@ -1024,10 +1024,9 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		builder.metallic(TextureLoader::extractChannel(
 			assets, *packed, material_name + "_metallic", 2, flags
 		));
-	} else {
-		builder.metallic(pbr_mr.metallic_factor);
-		builder.roughness(pbr_mr.roughness_factor);
 	}
+	builder.metallic(pbr_mr.metallic_factor);
+	builder.roughness(pbr_mr.roughness_factor);
 
 	auto* normal_tex = material.normal_texture.texture;
 	if (normal_tex && normal_tex->image) {

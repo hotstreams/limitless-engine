@@ -85,6 +85,10 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
     mctx.metallic = 0.1;
 #endif
 
+#if defined (ENGINE_MATERIAL_METALLIC) && (defined (ENGINE_MATERIAL_METALLIC_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE))
+    mctx.metallic *= getMaterialMetallic();
+#endif
+
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
     mctx.roughness = _orm.g;
 #elif defined (ENGINE_MATERIAL_ROUGHNESS_TEXTURE)
@@ -93,6 +97,10 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
     mctx.roughness = getMaterialRoughness();
 #else
     mctx.roughness = 0.8;
+#endif
+
+#if defined (ENGINE_MATERIAL_ROUGHNESS) && (defined (ENGINE_MATERIAL_ROUGHNESS_TEXTURE) || defined (ENGINE_MATERIAL_ORM_TEXTURE))
+    mctx.roughness *= getMaterialRoughness();
 #endif
 
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)

@@ -328,6 +328,27 @@ TEST_CASE("Material::Builder builds material with MetallicTexture") {
     check_opengl_state();
 }
 
+TEST_CASE("Material::Builder builds material with metallic texture and factor") {
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
+    Assets assets {"../assets"};
+    assets.textures.add("fake", Textures::fake());
+
+    Material::Builder builder {};
+
+    builder.name("material")
+           .metallic(assets.textures.at("fake"))
+           .metallic(0.0f);
+
+    auto material = builder.build(assets);
+
+    REQUIRE(material->getName() == "material");
+    REQUIRE(material->getMetallicTexture() == assets.textures.at("fake"));
+    REQUIRE(material->getMetallic() == 0.0f);
+    REQUIRE(material->getProperties().size() == 2);
+
+    check_opengl_state();
+}
+
 TEST_CASE("Material::Builder builds material with RoughnessTexture") {
     Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};

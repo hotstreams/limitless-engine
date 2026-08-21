@@ -75,7 +75,7 @@ namespace Limitless::ms {
          *
          *  float - [0, 1]
          *
-         *  gets priority over Metallic
+         *  multiplied by Metallic when that property is present
          */
         MetallicTexture,
 
@@ -84,7 +84,7 @@ namespace Limitless::ms {
          *
          *  float - [0, 1]
          *
-         *  gets priority over Roughness
+         *  multiplied by Roughness when that property is present
          */
         RoughnessTexture,
 
@@ -108,7 +108,8 @@ namespace Limitless::ms {
          *      Green: Roughness
          *      Blue: Metallic
          *
-         *  gets highest priority over other properties
+         *  gets highest priority over other properties, then multiplied
+         *  by Metallic / Roughness scalars if those are present
          */
         ORM,
 
@@ -117,7 +118,8 @@ namespace Limitless::ms {
          *
          *  float - [0, 1]
          *
-         *  lowest priority
+         *  used as a scale when MetallicTexture or ORM is present;
+         *  otherwise used as the metallic value
          */
         Metallic,
 
@@ -126,7 +128,8 @@ namespace Limitless::ms {
          *
          *  float - [0, 1]
          *
-         *  lowest priority
+         *  used as a scale when RoughnessTexture or ORM is present;
+         *  otherwise used as the roughness value
          */
         Roughness,
 
