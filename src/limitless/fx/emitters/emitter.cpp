@@ -159,7 +159,8 @@ void Emitter<P>::spawnParticles() noexcept {
     if (isFirst()) {
         spawn.last_spawn = current_time;
     }
-    const auto delta = duration_cast<std::chrono::duration<float>>(current_time - spawn.last_spawn).count();
+    const auto delta = duration_cast<std::chrono::duration<float>>(current_time - spawn.last_spawn).count()
+                       * playback_speed;
 
     switch (spawn.mode) {
         case EmitterSpawn::Mode::Spray: {
@@ -218,23 +219,34 @@ void Emitter<P>::update(const Camera &camera) {
     using namespace std::chrono;
 
     const auto current_time = steady_clock::now();
-    const auto delta_time = duration_cast<std::chrono::duration<float>>(current_time - last_time);
+    if (last_time == time_point<steady_clock>()) {
+        last_time = current_time;
+    }
+    const auto delta_time =
+        duration_cast<std::chrono::duration<float>>(current_time - last_time).count() * playback_speed;
     last_time = current_time;
 
 	if (start_time == time_point<steady_clock>()) {
 		start_time = current_time;
 	}
 
+    if (delta_time == 0.f) {
+        if (spawn.last_spawn != time_point<steady_clock>()) {
+            spawn.last_spawn = current_time;
+        }
+        return;
+    }
+
     killParticles();
 
     {
         for (auto& module : modules) {
-            module->update(*this, particles, delta_time.count(), camera);
+            module->update(*this, particles, delta_time, camera);
         }
 
         for (auto& particle : particles) {
-            particle.position += particle.velocity * delta_time.count();
-            particle.velocity += particle.acceleration * delta_time.count();
+            particle.position += particle.velocity * delta_time;
+            particle.velocity += particle.acceleration * delta_time;
             if (camera_repeat_boundary) {
                 const auto diff = particle.position - camera.getPosition();
                 if (diff.x > *camera_repeat_boundary) {
@@ -258,7 +270,8 @@ void Emitter<P>::update(const Camera &camera) {
     }
 
     if (duration.count() != 0.0f) {
-        if (current_time - start_time >= duration) {
+        emitter_age += delta_time;
+        if (emitter_age >= duration.count()) {
             done = true;
         }
     }

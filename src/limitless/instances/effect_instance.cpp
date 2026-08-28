@@ -64,3 +64,17 @@ void EffectInstance::update(const Camera &camera) {
 	updateEmitters(camera);
 	done = isDone();
 }
+
+EffectInstance& EffectInstance::setPlaybackSpeed(float speed) noexcept {
+    for (auto& [_, emitter] : emitters) {
+        emitter->setPlaybackSpeed(speed);
+    }
+    return *this;
+}
+
+float EffectInstance::getPlaybackSpeed() const noexcept {
+    if (emitters.empty()) {
+        return 1.f;
+    }
+    return emitters.begin()->second->getPlaybackSpeed();
+}

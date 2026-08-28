@@ -52,6 +52,7 @@ namespace Limitless::fx {
 
         std::chrono::time_point<std::chrono::steady_clock> start_time {};
         std::chrono::time_point<std::chrono::steady_clock> last_time {};
+        float emitter_age {0.f};
 
         bool done {false};
 

@@ -2,6 +2,8 @@
 
 #include <limitless/fx/modules/module.hpp>
 
+#include <algorithm>
+
 namespace Limitless::fx {
     template<typename Particle>
     class SubUV : public Module<Particle> {
@@ -13,8 +15,7 @@ namespace Limitless::fx {
         // scaling factor to frame-sprite space
         glm::vec2 subUV_factor;
         // last time updated
-        std::chrono::time_point<std::chrono::steady_clock> last_time;
-        bool first_update {false};
+        float frame_time_accum {0.f};
         // texture size
         glm::vec2 texture_size;
         // frame count
@@ -59,17 +60,17 @@ namespace Limitless::fx {
             particle.subUV.w = frames[0].y;
         }
 
-        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, [[maybe_unused]] float dt, [[maybe_unused]] const Camera &camera) noexcept override {
-            if (first_update) {
-                last_time = std::chrono::steady_clock::now();
-                first_update = false;
+        void update([[maybe_unused]] AbstractEmitter &emitter, std::vector<Particle> &particles, float dt, [[maybe_unused]] const Camera &camera) noexcept override {
+            if (fps <= 0.0f || frames.empty()) {
+                return;
             }
 
-            auto current_time = std::chrono::steady_clock::now();
-
-            if (std::chrono::duration_cast<std::chrono::duration<float>>(current_time - last_time).count() >= (1.0f / fps)) {
+            frame_time_accum += dt;
+            const auto interval = 1.0f / fps;
+            size_t steps = 0;
+            const auto max_steps = frames.size();
+            while (frame_time_accum >= interval && steps < max_steps) {
                 for (auto& p : particles) {
-
                     auto current_frame = glm::vec2{p.subUV.z, p.subUV.w};
                     auto it = std::find(frames.begin(), frames.end(), current_frame);
 
@@ -79,7 +80,8 @@ namespace Limitless::fx {
                     p.subUV.w = next_frame.y;
                 }
 
-                last_time = current_time;
+                frame_time_accum -= interval;
+                ++steps;
             }
         }
 

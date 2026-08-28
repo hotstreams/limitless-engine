@@ -72,6 +72,13 @@ namespace Limitless {
          */
         void update(const Camera &camera) override;
 
+        /**
+         * Playback speed relative to wall-clock time. 1 is real time; 0 freezes.
+         * Applied to every emitter in the effect.
+         */
+        EffectInstance& setPlaybackSpeed(float speed) noexcept;
+        [[nodiscard]] float getPlaybackSpeed() const noexcept;
+
         const auto& getEmitters() const noexcept { return emitters; }
         auto& getEmitters() noexcept { return emitters; }
         const auto& getName() const noexcept { return name; }

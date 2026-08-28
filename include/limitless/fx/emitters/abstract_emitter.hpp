@@ -21,6 +21,11 @@ namespace Limitless::fx {
     protected:
         Type type;
 
+        /**
+         * Playback speed multiplier (1 = real time). 0 freezes the emitter.
+         */
+        float playback_speed {1.f};
+
         explicit AbstractEmitter(Type type) noexcept;
 
         AbstractEmitter(const AbstractEmitter&) = default;
@@ -45,6 +50,12 @@ namespace Limitless::fx {
 
         virtual void kill() noexcept = 0;
         virtual void ressurect() noexcept = 0;
+
+        /**
+         * Playback speed relative to wall-clock time. 1 is real time; 0 freezes.
+         */
+        void setPlaybackSpeed(float speed) noexcept { playback_speed = speed; }
+        [[nodiscard]] auto getPlaybackSpeed() const noexcept { return playback_speed; }
 
         [[nodiscard]] virtual AbstractEmitter* clone() const = 0;
         virtual void update(const Camera &camera) = 0;

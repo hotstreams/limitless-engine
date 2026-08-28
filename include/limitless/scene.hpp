@@ -61,8 +61,9 @@ namespace Limitless {
         Instances getInstances() const noexcept;
 
         /**
-         * Multiplier applied to skeletal clip playback (1 = real time, 0 = frozen).
-         * Applied to existing and newly added skeletal instances on the next update.
+         * Multiplier applied to skeletal clip playback and particle emitters
+         * (1 = real time, 0 = frozen). Applied to existing and newly added
+         * skeletal and effect instances on the next update.
          */
         void setAnimationPlaybackSpeed(float speed) noexcept;
         [[nodiscard]] auto getAnimationPlaybackSpeed() const noexcept { return animation_playback_speed; }

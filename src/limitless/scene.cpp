@@ -114,6 +114,8 @@ void Scene::setSkybox(const std::shared_ptr<Skybox>& skybox_) {
 void Scene::applyAnimationPlaybackSpeed(Instance& instance) const {
     if (instance.getInstanceType() == InstanceType::Skeletal) {
         static_cast<SkeletalInstance&>(instance).setPlaybackSpeed(animation_playback_speed);
+    } else if (instance.getInstanceType() == InstanceType::Effect) {
+        static_cast<EffectInstance&>(instance).setPlaybackSpeed(animation_playback_speed);
     } else if (instance.getInstanceType() == InstanceType::Instanced) {
         for (auto& child : static_cast<InstancedInstance&>(instance).getInstances()) {
             applyAnimationPlaybackSpeed(*child);
