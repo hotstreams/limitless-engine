@@ -34,9 +34,9 @@ void LimitlessMaterials::Assets::setUpMaterials() {
             .shading(Shading::Lit)
             .global("#include \"../functions/unpack8x4.glsl\""
                     "#include \"../terrain/terrain.glsl\"")
-            .custom("_terrain_diffuse_texture", terrain_diffuse)
-            .custom("_terrain_normal_texture", terrain_normal)
-            .custom("_terrain_orm_texture", terrain_orm)
+            .custom("terrain_diffuse_texture", terrain_diffuse)
+            .custom("terrain_normal_texture", terrain_normal)
+            .custom("terrain_orm_texture", terrain_orm)
             .fragment("calculateTerrain(mctx);")
             .build(*this);
 }

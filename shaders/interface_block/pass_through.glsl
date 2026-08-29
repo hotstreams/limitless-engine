@@ -1,15 +1,15 @@
 void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transform) {
     #if defined (ENGINE_MATERIAL_EFFECT_MODEL)
-        _out_data.world_position = world_position;
+        out_data.world_position = world_position;
 
         #if !defined (SpriteEmitter)
-            _out_data.uv = uv;
+            out_data.uv = uv;
         #endif
 
         #if defined (BeamEmitter) && defined (BeamSpeed_MODULE)
-            _out_data.start = getParticleStart();
-            _out_data.end = getParticleEnd();
-            _out_data.length = getParticleLength();
+            out_data.start = getParticleStart();
+            out_data.end = getParticleEnd();
+            out_data.length = getParticleLength();
         #endif
 
         #if defined (SpriteEmitter)
@@ -22,67 +22,67 @@ void InterfaceBlockPassThrough(vec3 world_position, vec2 uv, mat4 model_transfor
 
         #if defined (MeshEmitter)
             #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-                _out_data.TBN = getModelTBN(model_transform);
+                out_data.TBN = getModelTBN(model_transform);
             #else
-                _out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
+                out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
             #endif
         #endif
 
         #if defined (InitialColor_MODULE)
-            _out_data.color = getParticleColor();
+            out_data.color = getParticleColor();
         #endif
 
         #if defined (SubUV_MODULE)
-            _out_data.subUV = getParticleSubUV();
+            out_data.subUV = getParticleSubUV();
         #endif
 
         #if defined (CustomMaterial_MODULE)
-            _out_data.properties = getParticleProperties();
+            out_data.properties = getParticleProperties();
         #endif
 
         #if defined (InitialRotation_MODULE) || defined (Time_MODULE)
-            _out_data.rotation = getParticleRotation();
-            _out_data.time = getParticleTime();
+            out_data.rotation = getParticleRotation();
+            out_data.time = getParticleTime();
         #endif
 
         #if defined (SpriteEmitter) && defined (InitialVelocity_MODULE)
-            _out_data.velocity = getParticleVelocity();
+            out_data.velocity = getParticleVelocity();
         #endif
 
         #if defined (BeamEmitter) && (defined (InitialVelocity_MODULE) || defined (InitialSize_Module))
-            _out_data.velocity = getParticleVelocity();
-            _out_data.size = getParticleSize();
+            out_data.velocity = getParticleVelocity();
+            out_data.size = getParticleSize();
         #endif
 
         #if defined (Lifetime_MODULE) || defined (Acceleration_MODULE)
-            _out_data.acceleration = getParticleAcceleration();
-            _out_data.lifetime = getParticleLifetime();
+            out_data.acceleration = getParticleAcceleration();
+            out_data.lifetime = getParticleLifetime();
         #endif
 
         #if defined (SpriteEmitter)
-            _out_data.size = getParticleSize();
+            out_data.size = getParticleSize();
         #endif
     #else
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
-            _out_data.TBN = getModelTBN(model_transform);
+            out_data.TBN = getModelTBN(model_transform);
         #else
-            _out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
+            out_data.normal = transpose(inverse(mat3(model_transform))) * getVertexNormal();
         #endif
 
-        _out_data.world_position = world_position;
-        _out_data.uv = uv;
+        out_data.world_position = world_position;
+        out_data.uv = uv;
 
         #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
-            _out_data.uv1 = getVertexUV1();
-            _out_data.uv2 = getVertexUV2();
-            _out_data.uv3 = getVertexUV3();
-            _out_data.mask = getVertexColor();
-            _out_data.current = getVertexTileCurrent();
-            _out_data.types = getVertexTileType();
+            out_data.uv1 = getVertexUV1();
+            out_data.uv2 = getVertexUV2();
+            out_data.uv3 = getVertexUV3();
+            out_data.mask = getVertexColor();
+            out_data.current = getVertexTileCurrent();
+            out_data.types = getVertexTileType();
         #endif
 
         #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
-           _out_data.instance_id = gl_InstanceID;
+           out_data.instance_id = gl_InstanceID;
         #endif
     #endif
 }

@@ -72,11 +72,11 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 #endif
 
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
-    vec3 _orm = getMaterialORM(uv);
+    vec3 orm = getMaterialORM(uv);
 #endif
 
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
-    mctx.metallic = _orm.b;
+    mctx.metallic = orm.b;
 #elif defined (ENGINE_MATERIAL_METALLIC_TEXTURE)
     mctx.metallic = getMaterialMetallic(uv);
 #elif defined (ENGINE_MATERIAL_METALLIC)
@@ -90,7 +90,7 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 #endif
 
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
-    mctx.roughness = _orm.g;
+    mctx.roughness = orm.g;
 #elif defined (ENGINE_MATERIAL_ROUGHNESS_TEXTURE)
     mctx.roughness = getMaterialRoughness(uv);
 #elif defined (ENGINE_MATERIAL_ROUGHNESS)
@@ -104,7 +104,7 @@ MaterialContext computeDefaultMaterialContext(vec2 uv) {
 #endif
 
 #if defined (ENGINE_MATERIAL_ORM_TEXTURE)
-    mctx.ao = _orm.r;
+    mctx.ao = orm.r;
 #elif defined (ENGINE_MATERIAL_AMBIENT_OCCLUSION_TEXTURE)
     mctx.ao = getMaterialAmbientOcclusion(uv);
 #endif

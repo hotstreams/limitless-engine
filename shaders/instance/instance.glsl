@@ -12,27 +12,27 @@ struct InstanceData {
 // REGULAR MODEL
 #if defined (ENGINE_MATERIAL_REGULAR_MODEL) || defined (ENGINE_MATERIAL_SKELETAL_MODEL) || defined (ENGINE_MATERIAL_DECAL_MODEL) || defined (ENGINE_MATERIAL_TERRAIN_MODEL)
     layout (std140) uniform INSTANCE_BUFFER {
-        InstanceData _instance_data;
+        InstanceData instance_data;
     };
 
     mat4 getModelMatrix() {
-        return _instance_data.model_transform;
+        return instance_data.model_transform;
     }
 
     vec3 getOutlineColor() {
-        return _instance_data.outline_color.rgb;
+        return instance_data.outline_color.rgb;
     }
 
     uint getId() {
-        return _instance_data.id;
+        return instance_data.id;
     }
 
     uint getIsOutlined() {
-        return _instance_data.is_outlined;
+        return instance_data.is_outlined;
     }
 
     uint getDecalMask() {
-        return _instance_data.decal_mask;
+        return instance_data.decal_mask;
     }
 #endif
 //
@@ -40,27 +40,27 @@ struct InstanceData {
 // INSTANCED MODEL
 #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
     layout (std430) buffer model_buffer {
-        InstanceData _instances[];
+        InstanceData instances[];
     };
 
     mat4 getModelMatrix() {
-        return _instances[gl_InstanceID].model_transform;
+        return instances[gl_InstanceID].model_transform;
     }
 
     vec3 getOutlineColor() {
-        return _instances[gl_InstanceID].outline_color.rgb;
+        return instances[gl_InstanceID].outline_color.rgb;
     }
 
     uint getId() {
-        return _instances[gl_InstanceID].id;
+        return instances[gl_InstanceID].id;
     }
 
     uint getIsOutlined() {
-        return _instances[gl_InstanceID].is_outlined;
+        return instances[gl_InstanceID].is_outlined;
     }
 
     uint getDecalMask() {
-        return _instances[gl_InstanceID].decal_mask;
+        return instances[gl_InstanceID].decal_mask;
     }
 #endif
 //
@@ -68,17 +68,17 @@ struct InstanceData {
 // SKELETAL MODEL
 #if defined (ENGINE_MATERIAL_SKELETAL_MODEL)
 layout (std430) buffer bone_buffer {
-    mat4 _bones[];
+    mat4 bones[];
 };
 
 mat4 getBoneMatrix() {
     ivec4 bone_id = getVertexBoneID();
     vec4 bone_weight = getVertexBoneWeight();
 
-    mat4 bone_transform = _bones[bone_id[0]] * bone_weight[0];
-    bone_transform     += _bones[bone_id[1]] * bone_weight[1];
-    bone_transform     += _bones[bone_id[2]] * bone_weight[2];
-    bone_transform     += _bones[bone_id[3]] * bone_weight[3];
+    mat4 bone_transform = bones[bone_id[0]] * bone_weight[0];
+    bone_transform     += bones[bone_id[1]] * bone_weight[1];
+    bone_transform     += bones[bone_id[2]] * bone_weight[2];
+    bone_transform     += bones[bone_id[3]] * bone_weight[3];
 
     return bone_transform;
 }

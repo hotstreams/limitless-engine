@@ -3,9 +3,9 @@ float MacroVariation() {
     vec2 uv1 = uv * variation1;
     vec2 uv2 = uv * variation2;
     vec2 uv3 = uv * variation3;
-    float r1 = texture(_terrain_variation, uv1).r + 0.5;
-    float r2 = texture(_terrain_variation, uv2).r + 0.5;
-    float r3 = texture(_terrain_variation, uv3).r + 0.5;
+    float r1 = texture(terrain_variation, uv1).r + 0.5;
+    float r2 = texture(terrain_variation, uv2).r + 0.5;
+    float r3 = texture(terrain_variation, uv3).r + 0.5;
     return r1 * r2 * r3;
 }
 
@@ -13,7 +13,7 @@ vec3 MacroContrast(float variation) {
     return mix(variation_contrast, vec3(1.0), vec3(variation));
 }
 
-#define _2xSqrt3 3.46410161514
+#define TWO_X_SQRT3 3.46410161514
 
 vec2 hashUv( vec2 p)
 {
@@ -26,7 +26,7 @@ out float w1, out float w2, out float w3,
 out ivec2 v1, out ivec2 v2, out ivec2 v3)
 {
     const mat2 skewedGridTransform = mat2(1.0, 0.0, -0.57735027, 1.15470054);
-    vec2 skewedUv = skewedGridTransform * uv * _2xSqrt3;
+    vec2 skewedUv = skewedGridTransform * uv * TWO_X_SQRT3;
 
     ivec2 vBase = ivec2(floor(skewedUv));
     vec3 temp = vec3(fract(skewedUv), 0);
@@ -74,13 +74,13 @@ void calculateTerrain(inout MaterialContext mctx) {
 
 //    vec3 variation = MacroContrast(MacroVariation());
 
-    vec3 diffuse = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_diffuse_texture);
+    vec3 diffuse = StochasticTexture(terrain_uv, getVertexTileCurrent(), terrain_diffuse_texture);
     if (getVertexTileCurrent() == 1u) {
-        vec3 diffuse_snow = StochasticTexture(terrain_uv, 4u, _terrain_diffuse_texture);
+        vec3 diffuse_snow = StochasticTexture(terrain_uv, 4u, terrain_diffuse_texture);
         diffuse = (1.0 - winter ) * diffuse + winter * diffuse_snow;
     }
-    vec3 normal = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_normal_texture);
-    vec3 orm = StochasticTexture(terrain_uv, getVertexTileCurrent(), _terrain_orm_texture);
+    vec3 normal = StochasticTexture(terrain_uv, getVertexTileCurrent(), terrain_normal_texture);
+    vec3 orm = StochasticTexture(terrain_uv, getVertexTileCurrent(), terrain_orm_texture);
 
     vec2 uv = getVertexUV();
 
@@ -106,13 +106,13 @@ void calculateTerrain(inout MaterialContext mctx) {
         // shoud we blend
         if (mask[i] == 1u) {
             // fetch adjacent type
-            vec3 adjacent_diffuse = StochasticTexture(terrain_uv, types[i], _terrain_diffuse_texture).rgb;
+            vec3 adjacent_diffuse = StochasticTexture(terrain_uv, types[i], terrain_diffuse_texture).rgb;
             if (types[i] == 1u) {
-                vec3 adjacent_diffuse_snow = StochasticTexture(terrain_uv, 4u, _terrain_diffuse_texture).rgb;
+                vec3 adjacent_diffuse_snow = StochasticTexture(terrain_uv, 4u, terrain_diffuse_texture).rgb;
                 adjacent_diffuse = (1.0 - winter ) * adjacent_diffuse + winter * adjacent_diffuse_snow;
             }
-            vec3 adjacent_normal = StochasticTexture(terrain_uv, types[i], _terrain_normal_texture).xyz;
-            vec3 adjacent_orm = StochasticTexture(terrain_uv, types[i], _terrain_orm_texture).rgb;
+            vec3 adjacent_normal = StochasticTexture(terrain_uv, types[i], terrain_normal_texture).xyz;
+            vec3 adjacent_orm = StochasticTexture(terrain_uv, types[i], terrain_orm_texture).rgb;
 
             // mix
             diffuse = mix(diffuse, adjacent_diffuse, (1.0 - vectors[i]));

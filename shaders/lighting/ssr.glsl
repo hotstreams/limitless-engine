@@ -1,8 +1,8 @@
 #if defined (ENGINE_SETTINGS_SSR)
-    uniform sampler2D _ssr_texture;
-    uniform float _ssr_strength;
+    uniform sampler2D ssr_texture;
+    uniform float ssr_strength;
 
     vec3 getSSR(vec2 uv) {
-        return texture(_ssr_texture, uv).rgb * _ssr_strength;
+        return texture(ssr_texture, uv).rgb * ssr_strength;
     }
 #endif

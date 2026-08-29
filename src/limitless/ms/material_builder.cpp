@@ -69,92 +69,92 @@ void Material::Builder::setModelShaders() {
 }
 
 Material::Builder &Material::Builder::color(const glm::vec4& color) noexcept {
-    properties[Property::Color] = std::make_unique<UniformValue<glm::vec4>>("_material_color", color);
+    properties[Property::Color] = std::make_unique<UniformValue<glm::vec4>>("material_color", color);
     return *this;
 }
 
 Material::Builder &Material::Builder::emissive_color(const glm::vec3& emissive_color) noexcept {
-    properties[Property::EmissiveColor] = std::make_unique<UniformValue<glm::vec3>>("_material_emissive_color", emissive_color);
+    properties[Property::EmissiveColor] = std::make_unique<UniformValue<glm::vec3>>("material_emissive_color", emissive_color);
     return *this;
 }
 
 Material::Builder& Material::Builder::diffuse(const std::shared_ptr<Texture>& texture) noexcept {
-    properties[Property::Diffuse] = std::make_unique<UniformSampler>("_material_diffuse_texture", texture);
+    properties[Property::Diffuse] = std::make_unique<UniformSampler>("material_diffuse_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::normal(const std::shared_ptr<Texture>& texture) noexcept {
-    properties[Property::Normal] = std::make_unique<UniformSampler>("_material_normal_texture", texture);
+    properties[Property::Normal] = std::make_unique<UniformSampler>("material_normal_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::emissive_mask(const std::shared_ptr<Texture>& texture) noexcept {
-    properties[Property::EmissiveMask] = std::make_unique<UniformSampler>("_material_emissive_mask_texture", texture);
+    properties[Property::EmissiveMask] = std::make_unique<UniformSampler>("material_emissive_mask_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::blend_mask(const std::shared_ptr<Texture> &texture) noexcept {
-    properties[Property::BlendMask] = std::make_unique<UniformSampler>("_material_blend_mask_texture", texture);
+    properties[Property::BlendMask] = std::make_unique<UniformSampler>("material_blend_mask_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::metallic(float metallic) noexcept {
-    properties[Property::Metallic] = std::make_unique<UniformValue<float>>("_material_metallic", metallic);
+    properties[Property::Metallic] = std::make_unique<UniformValue<float>>("material_metallic", metallic);
     return *this;
 }
 
 Material::Builder &Material::Builder::metallic(const std::shared_ptr<Texture>& texture) noexcept {
-    properties[Property::MetallicTexture] = std::make_unique<UniformSampler>("_material_metallic_texture", texture);
+    properties[Property::MetallicTexture] = std::make_unique<UniformSampler>("material_metallic_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::roughness(float roughness) noexcept {
-    properties[Property::Roughness] = std::make_unique<UniformValue<float>>("_material_roughness", roughness);
+    properties[Property::Roughness] = std::make_unique<UniformValue<float>>("material_roughness", roughness);
     return *this;
 }
 
 Material::Builder &Material::Builder::roughness(const std::shared_ptr<Texture>& texture) noexcept {
-    properties[Property::RoughnessTexture] = std::make_unique<UniformSampler>("_material_roughness_texture", texture);
+    properties[Property::RoughnessTexture] = std::make_unique<UniformSampler>("material_roughness_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::ao(const std::shared_ptr<Texture>& texture) noexcept {
-    properties[Property::AmbientOcclusionTexture] = std::make_unique<UniformSampler>("_material_ambient_occlusion_texture", texture);
+    properties[Property::AmbientOcclusionTexture] = std::make_unique<UniformSampler>("material_ambient_occlusion_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::orm(const std::shared_ptr<Texture>& texture) noexcept {
-    properties[Property::ORM] = std::make_unique<UniformSampler>("_material_orm_texture", texture);
+    properties[Property::ORM] = std::make_unique<UniformSampler>("material_orm_texture", texture);
     return *this;
 }
 
 Material::Builder &Material::Builder::ior(float ior) noexcept {
-    properties[Property::IoR] = std::make_unique<UniformValue<float>>("_material_ior", ior);
+    properties[Property::IoR] = std::make_unique<UniformValue<float>>("material_ior", ior);
     return *this;
 }
 
 Material::Builder &Material::Builder::absorption(float absorption) noexcept {
-    properties[Property::Absorption] = std::make_unique<UniformValue<float>>("_material_absorption", absorption);
+    properties[Property::Absorption] = std::make_unique<UniformValue<float>>("material_absorption", absorption);
     return *this;
 }
 
 Material::Builder &Material::Builder::microthickness(float microthickness) noexcept {
-    properties[Property::MicroThickness] = std::make_unique<UniformValue<float>>("_material_microthickness", microthickness);
+    properties[Property::MicroThickness] = std::make_unique<UniformValue<float>>("material_microthickness", microthickness);
     return *this;
 }
 
 Material::Builder &Material::Builder::thickness(float thickness) noexcept {
-    properties[Property::Thickness] = std::make_unique<UniformValue<float>>("_material_thickness", thickness);
+    properties[Property::Thickness] = std::make_unique<UniformValue<float>>("material_thickness", thickness);
     return *this;
 }
 
 Material::Builder &Material::Builder::reflectance(float reflectance) noexcept {
-    properties[Property::Reflectance] = std::make_unique<UniformValue<float>>("_material_reflectance", reflectance);
+    properties[Property::Reflectance] = std::make_unique<UniformValue<float>>("material_reflectance", reflectance);
     return *this;
 }
 
 Material::Builder &Material::Builder::transmission(float transmission) noexcept {
-    properties[Property::Transmission] = std::make_unique<UniformValue<float>>("_material_transmission", transmission);
+    properties[Property::Transmission] = std::make_unique<UniformValue<float>>("material_transmission", transmission);
     return *this;
 }
 

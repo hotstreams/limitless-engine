@@ -1,10 +1,10 @@
 #if defined (ENGINE_MATERIAL_REFRACTION)
     #include "../functions/refraction_sphere.glsl"
 
-    uniform sampler2D _refraction_texture;
+    uniform sampler2D refraction_texture;
 
     vec3 getRefractionTextureValue(vec2 uv) {
-        return texture(_refraction_texture, uv).rgb;
+        return texture(refraction_texture, uv).rgb;
     }
 
     //TODO: refactor? pass Material/Shading COntext instead

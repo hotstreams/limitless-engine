@@ -9,59 +9,59 @@
 */
 
 layout (std140) uniform scene_data {
-    mat4 _projection;
-    mat4 _projection_inverse;
-    mat4 _view_to_screen;
-    mat4 _view;
-    mat4 _view_inverse;
-    mat4 _VP;
-    mat4 _VP_inverse;
-    vec4 _camera_position;
-    vec2 _resolution;
-    float _far_plane;
-    float _near_plane;
+    mat4 projection;
+    mat4 projection_inverse;
+    mat4 view_to_screen;
+    mat4 view;
+    mat4 view_inverse;
+    mat4 VP;
+    mat4 VP_inverse;
+    vec4 camera_position;
+    vec2 resolution;
+    float far_plane;
+    float near_plane;
 };
 
 mat4 getProjection() {
-    return _projection;
+    return projection;
 }
 
 mat4 getProjectionInverse() {
-    return _projection_inverse;
+    return projection_inverse;
 }
 
 mat4 getViewToScreen() {
-    return _view_to_screen;
+    return view_to_screen;
 }
 
 mat4 getView() {
-    return _view;
+    return view;
 }
 
 mat4 getViewInverse() {
-    return _view_inverse;
+    return view_inverse;
 }
 
 mat4 getViewProjection() {
-    return _VP;
+    return VP;
 }
 
 mat4 getViewProjectionInverse() {
-    return _VP_inverse;
+    return VP_inverse;
 }
 
 vec3 getCameraPosition() {
-    return _camera_position.xyz;
+    return camera_position.xyz;
 }
 
 float getCameraFarPlane() {
-    return _far_plane;
+    return far_plane;
 }
 
 float getCameraNearPlane() {
-    return _near_plane;
+    return near_plane;
 }
 
 vec2 getResolution() {
-    return _resolution;
+    return resolution;
 }

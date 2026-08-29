@@ -40,7 +40,7 @@ void SSAOPass::update(Scene &scene, const Camera &camera) {
 
 void SSAOPass::addUniformSetter(UniformSetter &setter) {
     setter.add([&](ShaderProgram& shader){
-        shader.setUniform("_ssao_texture", getResult());
+        shader.setUniform("ssao_texture", getResult());
     });
 }
 

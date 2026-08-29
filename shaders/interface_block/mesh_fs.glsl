@@ -1,4 +1,4 @@
-in _vertex_data {
+in vertex_data {
     #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
         mat3 TBN;
     #else
@@ -20,54 +20,54 @@ in _vertex_data {
     #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
         flat int instance_id;
     #endif
-} _in_data;
+} in_data;
 
 vec3 getVertexPosition() {
-    return _in_data.world_position;
+    return in_data.world_position;
 }
 
 vec2 getVertexUV() {
-    return _in_data.uv;
+    return in_data.uv;
 }
 
 #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
     mat3 getVertexTBN() {
-        return _in_data.TBN;
+        return in_data.TBN;
     }
 #else
     vec3 getVertexNormal() {
-        return _in_data.normal;
+        return in_data.normal;
     }
 #endif
 
 #if defined (ENGINE_MATERIAL_TERRAIN_MODEL)
     vec2 getVertexUV1() {
-        return _in_data.uv1;
+        return in_data.uv1;
     }
 
     vec2 getVertexUV2() {
-        return _in_data.uv2;
+        return in_data.uv2;
     }
 
     vec2 getVertexUV3() {
-        return _in_data.uv3;
+        return in_data.uv3;
     }
 
     uint getVertexColor() {
-        return _in_data.mask;
+        return in_data.mask;
     }
 
     uint getVertexTileCurrent() {
-        return _in_data.current;
+        return in_data.current;
     }
 
     uint getVertexTileType() {
-        return _in_data.types;
+        return in_data.types;
     }
 #endif
 
 #if defined (ENGINE_MATERIAL_INSTANCED_MODEL)
     int getInstanceId() {
-        return _in_data.instance_id;
+        return in_data.instance_id;
     }
 #endif

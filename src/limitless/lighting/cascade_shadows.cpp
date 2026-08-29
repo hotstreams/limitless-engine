@@ -218,7 +218,7 @@ void CascadeShadows::setUniform(ShaderProgram& shader) const {
 		light_buffer->bindBase(ctx->getIndexedBuffers().getBindingPoint(IndexedBuffer::Type::ShaderStorage, DIRECTIONAL_CSM_BUFFER_NAME));
 	}
 
-    shader.setUniform("_dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture);
+    shader.setUniform("dir_shadows", framebuffer->get(FramebufferAttachment::Depth).texture);
 
     // TODO: ?
     glm::vec4 bounds {0.0f};
@@ -226,7 +226,7 @@ void CascadeShadows::setUniform(ShaderProgram& shader) const {
         bounds[i] = far_bounds[i];
     }
 
-    shader.setUniform("_far_bounds", bounds);
+    shader.setUniform("far_bounds", bounds);
 }
 
 void CascadeShadows::mapData() const {

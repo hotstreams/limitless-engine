@@ -40,8 +40,8 @@ void SSRPass::onFramebufferChange(glm::uvec2 size) {
 //
 void SSRPass::addUniformSetter(UniformSetter &setter) {
     setter.add([&](ShaderProgram& shader){
-        shader.setUniform("_ssr_texture", getResult());
-        shader.setUniform("_ssr_strength", 1.0f);
+        shader.setUniform("ssr_texture", getResult());
+        shader.setUniform("ssr_strength", 1.0f);
     });
 
     ssr.addSetter(setter);

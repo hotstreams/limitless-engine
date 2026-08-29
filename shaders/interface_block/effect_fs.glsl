@@ -1,4 +1,4 @@
-in _vertex_data {
+in vertex_data {
     #if defined (InitialColor_MODULE)
         vec4 color;
     #endif
@@ -57,89 +57,89 @@ in _vertex_data {
         vec3 end;
         float length;
     #endif
-} _in_data;
+} in_data;
 
 #if defined (BeamEmitter) && defined (BeamSpeed_MODULE)
     float getParticleLength() {
-        return _in_data.length;
+        return in_data.length;
     }
 
     vec3 getParticleStart() {
-        return _in_data.start;
+        return in_data.start;
     }
 
     vec3 getParticleEnd() {
-        return _in_data.end;
+        return in_data.end;
     }
 #endif
 
 #if defined (InitialColor_MODULE)
     vec4 getParticleColor() {
-        return _in_data.color;
+        return in_data.color;
     }
 #endif
 
 #if defined (SubUV_MODULE)
     vec4 getParticleSubUV() {
-        return _in_data.subUV;
+        return in_data.subUV;
     }
 #endif
 
 #if defined (CustomMaterial_MODULE)
     vec4 getParticleProperties() {
-        return _in_data.properties;
+        return in_data.properties;
     }
 #endif
 
 #if defined (Lifetime_MODULE) || defined (Acceleration_MODULE)
     vec3 getParticleAcceleration() {
-        return _in_data.acceleration;
+        return in_data.acceleration;
     }
 
     float getParticleLifetime() {
-        return _in_data.lifetime;
+        return in_data.lifetime;
     }
 #endif
 
 vec3 getVertexPosition() {
-    return _in_data.world_position;
+    return in_data.world_position;
 }
 
 #if defined (SpriteEmitter)
     float getParticleSize() {
-        return _in_data.size;
+        return in_data.size;
     }
 #endif
 
 #if defined (InitialRotation_MODULE) || defined (Time_MODULE)
     vec3 getParticleRotation() {
-        return _in_data.rotation;
+        return in_data.rotation;
     }
 
     float getParticleTime() {
-        return _in_data.time;
+        return in_data.time;
     }
 #endif
 
 #if defined (SpriteEmitter) && defined (InitialVelocity_MODULE)
     vec3 getParticleVelocity() {
-        return _in_data.velocity;
+        return in_data.velocity;
     }
 #endif
 
 #if defined (BeamEmitter) && defined (InitialVelocity_MODULE)
     vec3 getParticleVelocity() {
-        return _in_data.velocity;
+        return in_data.velocity;
     }
 
     float getParticleSize() {
-        return _in_data.size;
+        return in_data.size;
     }
 #endif
 
 #if defined (BeamEmitter) || defined (MeshEmitter)
     vec2 getVertexUV() {
-        return _in_data.uv;
+        return in_data.uv;
     }
 #endif
 
@@ -167,11 +167,11 @@ vec3 getVertexPosition() {
 #if defined (MeshEmitter)
     #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
         mat3 getVertexTBN() {
-            return _in_data.TBN;
+            return in_data.TBN;
         }
     #else
        vec3 getVertexNormal() {
-            return _in_data.normal;
+            return in_data.normal;
         }
     #endif
 #endif

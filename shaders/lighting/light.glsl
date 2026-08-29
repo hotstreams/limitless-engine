@@ -22,17 +22,17 @@ struct Light {
 
 //#if defined (ENGINE_EXT_SSBO)
     layout (std140) buffer LIGHTS_BUFFER {
-        Light _lights[];
+        Light lights[];
     };
 //#else
 //    //TODO: remove to settigns
 //    #define ENGINE_SETTINGS_MAX_LIGHTS 100
 //
 //    layout (std140) uniform LIGHTS_BUFFER {
-//        Light _lights[ENGINE_SETTINGS_MAX_LIGHTS];
+//        Light lights[ENGINE_SETTINGS_MAX_LIGHTS];
 //    };
 //#endif
 
 Light getLight(const uint index) {
-    return _lights[index];
+    return lights[index];
 }

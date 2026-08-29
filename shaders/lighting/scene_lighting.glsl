@@ -1,25 +1,25 @@
 #include "./light.glsl"
 
 layout (std140) buffer scene_lighting {
-    vec4 _direction;
-    vec4 _color;
-    vec4 _ambient_color;
-    uint _light_count;
+    vec4 sun_direction;
+    vec4 sun_color;
+    vec4 ambient_color;
+    uint light_count;
 };
 
 Light getDirectionalLight() {
     Light light;
 
-    light.direction.xyz = _direction.xyz;
-    light.color = _color;
+    light.direction.xyz = sun_direction.xyz;
+    light.color = sun_color;
 
     return light;
 }
 
 vec4 getAmbientColor() {
-    return _ambient_color;
+    return ambient_color;
 }
 
 uint getLightCount() {
-    return _light_count;
+    return light_count;
 }

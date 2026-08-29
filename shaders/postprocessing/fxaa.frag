@@ -8,7 +8,7 @@ uniform sampler2D scene;
 
 #define FXAA_PC 1
 #define FXAA_GLSL_130 1
-#define FXAA_QUALITY__PRESET 29
+#define FXAA_QUALITY_PRESET 29
 #define FXAA_GREEN_AS_LUMA 1
 #define FXAA_GATHER4_ALPHA 0
 

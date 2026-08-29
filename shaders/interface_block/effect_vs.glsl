@@ -1,4 +1,4 @@
-out _vertex_data {
+out vertex_data {
     #if defined (InitialColor_MODULE)
         vec4 color;
     #endif
@@ -57,4 +57,4 @@ out _vertex_data {
         vec3 end;
         float length;
     #endif
-} _out_data;
+} out_data;

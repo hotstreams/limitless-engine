@@ -91,6 +91,6 @@ void SSR::update() {
 
 void SSR::addSetter(UniformSetter& setter) {
     setter.add([&](ShaderProgram& shader) {
-        shader.setUniform("_ssr_strength", settings.reflection_strength);
+        shader.setUniform("ssr_strength", settings.reflection_strength);
     });
 }

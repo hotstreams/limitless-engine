@@ -1,5 +1,5 @@
 #if defined (ENGINE_MATERIAL_EFFECT_MODEL)
-    out _vertex_data {
+    out vertex_data {
         #if defined (InitialColor_MODULE)
             vec4 color;
         #endif
@@ -58,10 +58,10 @@
             vec3 end;
             float length;
         #endif
-    } _out_data[];
+    } out_data[];
 
 #else
-    out _vertex_data {
+    out vertex_data {
         #if defined (ENGINE_MATERIAL_NORMAL_TEXTURE) && defined (ENGINE_SETTINGS_NORMAL_MAPPING)
             mat3 TBN;
         #else
@@ -70,5 +70,5 @@
 
         vec3 world_position;
         vec2 uv;
-    } _out_data[];
+    } out_data[];
 #endif

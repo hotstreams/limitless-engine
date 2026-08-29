@@ -37,12 +37,12 @@ void DeferredLightingPass::render(
 
     auto& shader = assets.shaders.get("deferred");
 
-    shader .setUniform("_base_texture", gbuffer.getAlbedo())
-           .setUniform("_normal_texture", gbuffer.getNormal())
-           .setUniform("_props_texture", gbuffer.getProperties())
-           .setUniform("_info_texture", gbuffer.getInfo())
-           .setUniform("_depth_texture", gbuffer.getDepth())
-           .setUniform("_emissive_texture", gbuffer.getEmissive());
+    shader .setUniform("base_texture", gbuffer.getAlbedo())
+           .setUniform("normal_texture", gbuffer.getNormal())
+           .setUniform("props_texture", gbuffer.getProperties())
+           .setUniform("info_texture", gbuffer.getInfo())
+           .setUniform("depth_texture", gbuffer.getDepth())
+           .setUniform("emissive_texture", gbuffer.getEmissive());
 
     setter(shader);
 
