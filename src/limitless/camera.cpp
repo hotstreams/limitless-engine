@@ -138,7 +138,10 @@ void Camera::setPosition(const glm::vec3& _position) noexcept {
 }
 
 void Camera::setFront(const glm::vec3& _front) noexcept {
-    front = _front;
+    const auto direction = glm::normalize(_front);
+
+    pitch = glm::degrees(glm::asin(direction.y));
+    yaw = glm::degrees(glm::atan(direction.z, direction.x));
 
     updateView();
 }
