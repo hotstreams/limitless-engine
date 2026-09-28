@@ -22,15 +22,15 @@ static size_t utf8CharLength(char c) {
 }
 
 /**
- * Invokes bool(uint32_t) function for each Unicode codepoint of a UTF-8 encoded string.
- * If that function returns false, then iteration is stopped.
+ * Invokes bool(uint32_t, string_view) for each Unicode codepoint of a UTF-8 string.
+ * The view is that codepoint's bytes. Returning false stops iteration.
  */
 template <typename T>
-static void forEachUnicodeCodepoint(std::string_view str, T&& func) {
+static void forEachUnicodeCodepointSpan(std::string_view str, T&& func) {
     size_t i = 0;
     while (i < str.size()) {
         size_t char_len = utf8CharLength(str[i]);
-        if (char_len == 0) {
+        if (char_len == 0 || i + char_len > str.size()) {
             throw font_error {"invalid UTF-8 char"};
         }
 
@@ -44,12 +44,23 @@ static void forEachUnicodeCodepoint(std::string_view str, T&& func) {
             codepoint = (codepoint << 6) | (continuation_byte & 0x3F);
         }
 
-        if (!func(codepoint)) {
+        if (!func(codepoint, str.substr(i, char_len))) {
             return;
         }
 
         i += char_len;
     }
+}
+
+/**
+ * Invokes bool(uint32_t) function for each Unicode codepoint of a UTF-8 encoded string.
+ * If that function returns false, then iteration is stopped.
+ */
+template <typename T>
+static void forEachUnicodeCodepoint(std::string_view str, T&& func) {
+    forEachUnicodeCodepointSpan(str, [&](uint32_t codepoint, std::string_view) {
+        return func(codepoint);
+    });
 }
 
 static std::vector<std::string> split(const std::string& str, char separator) {
@@ -86,15 +97,75 @@ static const std::shared_ptr<FontAtlas>& getFontForChar(
     return font_stack[0];
 }
 
+// Same pixel space as TypeSetter::typeSet: advance scaled by pixel_size, and the
+// font chosen with cjk_variant. curr_width arrives already scaled from earlier runs
+// (a link is its own formatted run), so an unscaled advance overshoots wrap_width.
+static float scaledGlyphAdvance(
+    uint32_t cp,
+    const std::vector<std::shared_ptr<FontAtlas>>& font_stack,
+    std::optional<CjkVariant> cjk_variant,
+    std::optional<uint32_t> pixel_size
+) {
+    const auto& font = getFontForChar(cp, font_stack, cjk_variant);
+    const auto scale = pixel_size
+        ? static_cast<float>(*pixel_size) / font->getFontSize()
+        : 1.0f;
+    const auto& fc = font->getFontCharOrTofu(cp);
+    return (fc.advance >> 6) * scale;
+}
+
+static float measureText(
+    std::string_view text,
+    const std::vector<std::shared_ptr<FontAtlas>>& font_stack,
+    std::optional<CjkVariant> cjk_variant,
+    std::optional<uint32_t> pixel_size
+) {
+    float result = 0.f;
+    forEachUnicodeCodepoint(text, [&](uint32_t cp) {
+        result += scaledGlyphAdvance(cp, font_stack, cjk_variant, pixel_size);
+        return true;
+    });
+    return result;
+}
+
 static std::string wordWrap(
     const std::string& original_text,
     const std::vector<std::shared_ptr<FontAtlas>>& font_stack,
     float wrap_width,
-    float curr_width
+    float curr_width,
+    std::optional<CjkVariant> cjk_variant,
+    std::optional<uint32_t> pixel_size
 ) {
     std::string word_wrapped_text;
-    // TODO: investigate word split for CJK.
     auto lines = split(original_text, '\n');
+
+    const auto placeWord = [&](const std::string& word) {
+        const auto word_width = measureText(word, font_stack, cjk_variant, pixel_size);
+
+        if (curr_width != 0.f && curr_width + word_width > wrap_width) {
+            word_wrapped_text += '\n';
+            curr_width = 0.f;
+        }
+
+        if (curr_width + word_width <= wrap_width) {
+            word_wrapped_text += word;
+            curr_width += word_width;
+            return;
+        }
+
+        // No spaces to break on (CJK, or a link label wider than the pane).
+        // Split on codepoints so the line cannot run past wrap_width.
+        forEachUnicodeCodepointSpan(word, [&](uint32_t cp, std::string_view glyph) {
+            const auto advance = scaledGlyphAdvance(cp, font_stack, cjk_variant, pixel_size);
+            if (curr_width != 0.f && curr_width + advance > wrap_width) {
+                word_wrapped_text += '\n';
+                curr_width = 0.f;
+            }
+            word_wrapped_text.append(glyph);
+            curr_width += advance;
+            return true;
+        });
+    };
 
     for (const auto& line : lines) {
         auto words = split(line, ' ');
@@ -103,34 +174,7 @@ static std::string wordWrap(
             if (&word != &words.back()) {
                 word += ' ';
             }
-
-            const auto word_width = [&](){
-                float result = 0.f;
-
-                forEachUnicodeCodepoint(word, [&](uint32_t cp){
-                     // TODO: this might result in wrong word wrap if diff fonts are selected due to CJK variance.
-                    const auto& font = getFontForChar(cp, font_stack, /* cjk_variant = */std::nullopt);
-                    const auto& fc = font->getFontCharOrTofu(cp);
-
-                    result += (fc.advance >> 6);
-
-                    return true;
-                });
-
-                return result;
-            }();
-
-            if (curr_width + word_width <= wrap_width) {
-                word_wrapped_text += word;
-                curr_width += word_width;
-
-            } else {
-                if (curr_width != 0.f) {
-                    word_wrapped_text += '\n';
-                }
-                word_wrapped_text += word;
-                curr_width = word_width;
-            }
+            placeWord(word);
         }
 
         if (&line != &lines.back()) {
@@ -175,7 +219,14 @@ TypeSetResult TypeSetter::typeSet(
         }
 
         const auto& text = wrap_width
-            ? wordWrap(formatted_text.text, font_stack, *wrap_width, offset.x)
+            ? wordWrap(
+                formatted_text.text,
+                font_stack,
+                *wrap_width,
+                offset.x,
+                cjk_variant,
+                formatted_text.format.pixel_size
+            )
             : formatted_text.text;
 
         auto getVertices = [&](const std::shared_ptr<FontAtlas>& font) -> std::vector<TextVertex>& {
