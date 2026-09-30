@@ -151,6 +151,13 @@ void ShaderStorage::clear() {
     shaders.clear();
 }
 
+void ShaderStorage::replaceWith(ShaderStorage& replacement) {
+    std::scoped_lock lock(mutex, replacement.mutex);
+    shaders.swap(replacement.shaders);
+    materials.swap(replacement.materials);
+    emitters.swap(replacement.emitters);
+}
+
 void ShaderStorage::add(const ShaderStorage& other) {
     for (auto&& [key, value] : other.shaders) {
         shaders.emplace(key, value);

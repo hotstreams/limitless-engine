@@ -33,8 +33,12 @@ Context::Context(
 
     size = glm::uvec2(framebuffer_width, framebuffer_height);
 
+    // Make this context current before any GL state is touched. A shared
+    // context is created while another context is already current; without
+    // this, init() would enable state on that other context and shader
+    // compilation on the shared one would see a default, uninitialized state.
+    makeCurrent();
     if (!glew_inited) {
-        makeCurrent();
         initializeGLEW();
     }
 
@@ -121,6 +125,12 @@ Context::~Context() {
 
 void Context::makeCurrent() const noexcept {
     glfwMakeContextCurrent(window);
+}
+
+void Context::doneCurrent() const noexcept {
+    if (glfwGetCurrentContext() == window) {
+        glfwMakeContextCurrent(nullptr);
+    }
 }
 
 void Context::swapBuffers() const noexcept {
@@ -351,7 +361,19 @@ Context::Builder Context::builder() {
 }
 
 Context Context::Builder::build() {
+    GLFWwindow* const previous = glfwGetCurrentContext();
     Context ctx = {ctx_title, ctx_size, ctx_shared, ctx_hints};
+
+    // Restores the caller's context. Declared after `ctx` so on failure it
+    // releases this window before the window is destroyed.
+    struct RestorePreviousContext {
+        GLFWwindow* previous;
+        ~RestorePreviousContext() {
+            if (previous && glfwGetCurrentContext() != previous) {
+                glfwMakeContextCurrent(previous);
+            }
+        }
+    } restore_previous {previous};
 
     ctx.setSwapInterval(ctx_interval);
     if (ctx_icon) {

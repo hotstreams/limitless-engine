@@ -18,21 +18,29 @@ ShaderProgram::ShaderProgram(GLuint id) noexcept
 
 void ShaderProgram::bindIndexedBuffers() {
     CpuProfileScope scope(global_profiler, "ShaderProgram::bindIndexedBuffers");
+    auto* ctx = Context::getCurrentContext();
+    if (!ctx) {
+        return;
+    }
+
     for (auto& [target, name, block_index, bound_point, connected] : indexed_binds) {
-        // connects index block inside program with state binding point
-        if (!connected) {
+        // Binding points are per context. A program linked on a shared context
+        // captured that context's points, so reconnect against the one that is drawing.
+        const auto point = ctx->getIndexedBuffers().getBindingPoint(target, name);
+        if (!connected || bound_point != point) {
             switch (target) {
                 case IndexedBuffer::Type::UniformBuffer:
-                    glUniformBlockBinding(id, block_index, bound_point);
+                    glUniformBlockBinding(id, block_index, point);
                     break;
                 case IndexedBuffer::Type::ShaderStorage:
-                    glShaderStorageBlockBinding(id, block_index, bound_point);
+                    glShaderStorageBlockBinding(id, block_index, point);
                     break;
             }
+            bound_point = point;
             connected = true;
         }
 
-        if (auto* ctx = Context::getCurrentContext(); ctx) {
+        {
             // binds buffer to state binding point
             CpuProfileScope scope(global_profiler, "ShaderProgram::bindIndexedBuffers::bindBuffer");
             auto maybe_buffer = ctx->getIndexedBuffers().get(target, name);

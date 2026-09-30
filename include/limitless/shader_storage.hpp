@@ -53,5 +53,11 @@ namespace Limitless {
         void add(const ShaderStorage& other);
 
         void clear();
+
+        /**
+         * Swaps compiled programs with @p replacement.
+         * The caller's storage keeps the previous programs and deletes them when it is destroyed.
+         */
+        void replaceWith(ShaderStorage& replacement);
     };
 }

@@ -17,12 +17,12 @@ EffectCompiler::EffectCompiler(Context& context, Assets& assets, const RendererS
 
 template<typename T>
 void EffectCompiler::compile(ShaderType shader_type, const T& emitter) {
-    if (!assets.shaders.reserveIfNotContains({emitter.getUniqueShaderType(), shader_type})) {
+    if (!assets.compilingShaders().reserveIfNotContains({emitter.getUniqueShaderType(), shader_type})) {
         const auto props = [&] (Shader& shader) {
             EffectShaderDefineReplacer::replaceMaterialDependentDefine(shader, emitter.getMaterial(), InstanceType::Effect, emitter);
         };
 
-        assets.shaders.add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / SHADER_PASS_PATH.at(shader_type), props));
+        assets.compilingShaders().add({emitter.getUniqueShaderType(), shader_type}, compile(assets.getShaderDir() / SHADER_PASS_PATH.at(shader_type), props));
     }
 }
 

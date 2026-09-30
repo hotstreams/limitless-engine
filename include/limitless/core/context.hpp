@@ -62,6 +62,7 @@ namespace Limitless {
         GLFWwindow* getWindow() const noexcept;
 
         void makeCurrent() const noexcept;
+        void doneCurrent() const noexcept;
         void swapBuffers() const noexcept;
         void pollEvents() const;
 

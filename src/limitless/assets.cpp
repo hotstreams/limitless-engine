@@ -105,7 +105,11 @@ void Assets::load([[maybe_unused]] Context& context) {
 }
 
 void Assets::initialize(Context& ctx, const RendererSettings& settings) {
-	shaders.initialize(ctx, settings, shader_dir);
+	compilingShaders().initialize(ctx, settings, shader_dir);
+}
+
+ShaderStorage& Assets::compilingShaders() noexcept {
+    return shader_compile_target ? *shader_compile_target : shaders;
 }
 
 void Assets::add(const Assets& other) {
@@ -140,6 +144,17 @@ void Assets::recompileAssets(Context& ctx, const RendererSettings& settings) {
     compileAssets(ctx, settings);
 }
 
+void Assets::recompileAssetsInto(ShaderStorage& destination, Context& ctx, const RendererSettings& settings) {
+    shader_compile_target = &destination;
+    try {
+        compileAssets(ctx, settings);
+    } catch (...) {
+        shader_compile_target = nullptr;
+        throw;
+    }
+    shader_compile_target = nullptr;
+}
+
 void Assets::compileMaterial(Context& ctx, const RendererSettings& settings, const std::shared_ptr<ms::Material>& material) {
     ms::MaterialCompiler compiler {ctx, *this, settings};
 
@@ -150,7 +165,7 @@ void Assets::compileMaterial(Context& ctx, const RendererSettings& settings, con
         }
 
         for (const auto& pass_shader : getRequiredPassShaders(settings)) {
-            if (!shaders.reserveIfNotContains(pass_shader, model_shader_type, material->getShaderIndex())) {
+            if (!compilingShaders().reserveIfNotContains(pass_shader, model_shader_type, material->getShaderIndex())) {
                 compiler.compile(*material, pass_shader, model_shader_type);
             }
         }
@@ -185,7 +200,7 @@ void Assets::compileEffect(Context& ctx, const RendererSettings& settings, const
 void Assets::compileSkybox(Context& ctx, const RendererSettings& settings, const std::shared_ptr<Skybox>& skybox) {
     ms::MaterialCompiler compiler {ctx, *this, settings};
 
-    if (!shaders.contains(ShaderType::Skybox, InstanceType::Model, skybox->getMaterial().getShaderIndex())) {
+    if (!compilingShaders().contains(ShaderType::Skybox, InstanceType::Model, skybox->getMaterial().getShaderIndex())) {
         compiler.compile(skybox->getMaterial(), ShaderType::Skybox, InstanceType::Model);
     }
 }

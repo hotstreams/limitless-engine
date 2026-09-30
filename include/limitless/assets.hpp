@@ -40,6 +40,11 @@ namespace Limitless {
     private:
         static ShaderTypes getRequiredPassShaders(const RendererSettings& settings);
 
+        // When set, compileAssets writes programs here instead of `shaders`.
+        // The loading screen keeps drawing from `shaders` on the main context
+        // while a shared context fills this storage.
+        ShaderStorage* shader_compile_target {nullptr};
+
     protected:
         fs::path base_dir;
         fs::path shader_dir;
@@ -117,9 +122,21 @@ namespace Limitless {
         virtual void compileAssets(Context& ctx, const RendererSettings& settings);
 
         /**
-         *
+         * Drops every compiled program, then compiles again into `shaders`.
          */
         void recompileAssets(Context& ctx, const RendererSettings& settings);
+
+        /**
+         * Compiles every program into @p destination and leaves `shaders` unchanged.
+         * @p ctx must be current and share objects with the context that will draw them.
+         * Install the result with ShaderStorage::replaceWith after the compiling context has finished.
+         */
+        void recompileAssetsInto(ShaderStorage& destination, Context& ctx, const RendererSettings& settings);
+
+        /**
+         * Storage compileAssets / compileMaterial write into. `shaders` unless a side compile is in progress.
+         */
+        ShaderStorage& compilingShaders() noexcept;
 
         /**
          *

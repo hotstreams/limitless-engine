@@ -23,7 +23,7 @@ void MaterialCompiler::compile(const Material& material, ShaderType pass_shader,
 
 	try {
 		auto shader = compile(assets.getShaderDir() / SHADER_PASS_PATH.at(pass_shader), props);
-		assets.shaders.add(pass_shader, model_shader, material.getShaderIndex(), shader);
+		assets.compilingShaders().add(pass_shader, model_shader, material.getShaderIndex(), shader);
 	} catch (const std::exception& e) {
 		throw material_compilation_error {material.getName() + e.what()};
 	}
