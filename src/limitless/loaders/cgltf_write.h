@@ -229,12 +229,43 @@ static void cgltf_write_line(cgltf_write_context* context, const char* line)
 	}
 }
 
+static void cgltf_write_json_string_body(cgltf_write_context* context, const char* val)
+{
+	const unsigned char* cursor = (const unsigned char*)val;
+	while (*cursor)
+	{
+		unsigned char c = *cursor++;
+		switch (c)
+		{
+			case '\"': CGLTF_SPRINTF("%s", "\\\""); break;
+			case '\\': CGLTF_SPRINTF("%s", "\\\\"); break;
+			case '\b': CGLTF_SPRINTF("%s", "\\b"); break;
+			case '\f': CGLTF_SPRINTF("%s", "\\f"); break;
+			case '\n': CGLTF_SPRINTF("%s", "\\n"); break;
+			case '\r': CGLTF_SPRINTF("%s", "\\r"); break;
+			case '\t': CGLTF_SPRINTF("%s", "\\t"); break;
+			default:
+				if (c < 0x20)
+				{
+					CGLTF_SPRINTF("\\u%04x", (unsigned)c);
+				}
+				else
+				{
+					CGLTF_SPRINTF("%c", c);
+				}
+				break;
+		}
+	}
+}
+
 static void cgltf_write_strprop(cgltf_write_context* context, const char* label, const char* val)
 {
 	if (val)
 	{
 		cgltf_write_indent(context);
-		CGLTF_SPRINTF("\"%s\": \"%s\"", label, val);
+		CGLTF_SPRINTF("\"%s\": \"", label);
+		cgltf_write_json_string_body(context, val);
+		CGLTF_SPRINTF("%s", "\"");
 		context->needs_comma = 1;
 	}
 }
@@ -264,7 +295,9 @@ static void cgltf_write_extras(cgltf_write_context* context, const cgltf_extras*
 static void cgltf_write_stritem(cgltf_write_context* context, const char* item)
 {
 	cgltf_write_indent(context);
-	CGLTF_SPRINTF("\"%s\"", item);
+	CGLTF_SPRINTF("%s", "\"");
+	cgltf_write_json_string_body(context, item);
+	CGLTF_SPRINTF("%s", "\"");
 	context->needs_comma = 1;
 }
 

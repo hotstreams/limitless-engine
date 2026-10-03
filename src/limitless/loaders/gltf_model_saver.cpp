@@ -396,6 +396,19 @@ static cgltf_data* makeData(const Model& model, bool embed_textures) {
                 const auto& diffuse_texture = static_cast<const UniformSampler&>(*property.second).getSampler();
                 auto& color_texture_view = pmaterial.pbr_metallic_roughness.base_color_texture;
                 pmaterial.has_pbr_metallic_roughness = true;
+                // Zero-initialized factors multiply the texture to black and mark the surface as mirror-smooth.
+                if (pmaterial.pbr_metallic_roughness.base_color_factor[0] == 0.f
+                    && pmaterial.pbr_metallic_roughness.base_color_factor[1] == 0.f
+                    && pmaterial.pbr_metallic_roughness.base_color_factor[2] == 0.f
+                    && pmaterial.pbr_metallic_roughness.base_color_factor[3] == 0.f) {
+                    pmaterial.pbr_metallic_roughness.base_color_factor[0] = 1.f;
+                    pmaterial.pbr_metallic_roughness.base_color_factor[1] = 1.f;
+                    pmaterial.pbr_metallic_roughness.base_color_factor[2] = 1.f;
+                    pmaterial.pbr_metallic_roughness.base_color_factor[3] = 1.f;
+                }
+                if (pmaterial.pbr_metallic_roughness.roughness_factor == 0.f) {
+                    pmaterial.pbr_metallic_roughness.roughness_factor = 1.f;
+                }
                 color_texture_view.texture = cgltfTextureFrom(*diffuse_texture, material->getName() + property.second->getName(), data, embed_buffer);
                 color_texture_view.texcoord = 0;
                 color_texture_view.scale = 1.0f;
@@ -504,9 +517,12 @@ static cgltf_data* makeData(const Model& model, bool embed_textures) {
                         result |= CGLTF_LIMITLESS_MATERIAL_MODELS_INSTANCED;
                         continue;
 
+                    case Limitless::InstanceType::Skeletal:
+                        result |= CGLTF_LIMITLESS_MATERIAL_MODELS_SKELETAL;
+                        continue;
+
                     case Limitless::InstanceType::Decal:
                     case Limitless::InstanceType::Effect:
-                    case Limitless::InstanceType::Skeletal:
                     case Limitless::InstanceType::SkeletalInstanced:
                     case Limitless::InstanceType::Terrain:
                         throw ModelSaveError("unsupported material instance type");

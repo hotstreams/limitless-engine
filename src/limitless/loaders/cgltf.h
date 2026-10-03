@@ -577,6 +577,7 @@ typedef struct cgltf_uniform
 
 #define CGLTF_LIMITLESS_MATERIAL_MODELS_MODEL 1
 #define CGLTF_LIMITLESS_MATERIAL_MODELS_INSTANCED 2
+#define CGLTF_LIMITLESS_MATERIAL_MODELS_SKELETAL 4
 
 typedef struct cgltf_material
 {
