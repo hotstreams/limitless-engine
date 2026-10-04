@@ -353,6 +353,14 @@ float Material::getTransmission() const {
     }
 }
 
+float Material::getAlphaCutoff() const {
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(Property::AlphaCutoff)).getValue(); //NOLINT
+    } catch (const std::out_of_range& e) {
+        throw material_exception("Material property not found - AlphaCutoff");
+    }
+}
+
 const std::shared_ptr<Texture>& Material::getDiffuseTexture() const {
     try {
         return static_cast<UniformSampler&>(*properties.at(Property::Diffuse)).getSampler(); //NOLINT
@@ -497,6 +505,14 @@ float& Material::getTransmission() {
     }
 }
 
+float& Material::getAlphaCutoff() {
+    try {
+        return static_cast<UniformValue<float>&>(*properties.at(Property::AlphaCutoff)).getValue(); //NOLINT
+    } catch (const std::out_of_range& e) {
+        throw material_exception("Material property not found - AlphaCutoff");
+    }
+}
+
 Blending& Material::getBlending() {
     return blending;
 }
@@ -578,6 +594,14 @@ void Material::setTransmission(float value) {
         static_cast<UniformValue<float>&>(*properties.at(Property::Transmission)).setValue(value); //NOLINT
     } catch (const std::out_of_range& e) {
         throw material_exception("Material property not found - Transmission");
+    }
+}
+
+void Material::setAlphaCutoff(float value) {
+    try {
+        static_cast<UniformValue<float>&>(*properties.at(Property::AlphaCutoff)).setValue(value); //NOLINT
+    } catch (const std::out_of_range& e) {
+        throw material_exception("Material property not found - AlphaCutoff");
     }
 }
 

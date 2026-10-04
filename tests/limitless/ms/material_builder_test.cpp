@@ -160,6 +160,25 @@ TEST_CASE("Material::Builder builds material with emissive color") {
     check_opengl_state();
 }
 
+TEST_CASE("Material::Builder builds material with alpha cutoff") {
+    Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
+    Assets assets {"../assets"};
+
+    Material::Builder builder {};
+
+    builder.name("material")
+           .alpha_cutoff(0.5f);
+
+    auto material = builder.build(assets);
+
+    REQUIRE(material->getName() == "material");
+    REQUIRE(material->getAlphaCutoff() == 0.5f);
+    REQUIRE(material->getProperties().size() == 1);
+    REQUIRE(material->getBlending() == Blending::Opaque);
+
+    check_opengl_state();
+}
+
 TEST_CASE("Material::Builder builds material with metallic") {
     Context context = {"Title", {1, 1}, nullptr, {{WindowHint::Hint::Visible, false}}};
     Assets assets {"../assets"};

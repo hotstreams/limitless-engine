@@ -180,5 +180,14 @@ namespace Limitless::ms {
          *  Used only when Blending is set to 'NOT' Opaque
          */
         Transmission,
+
+        /**
+         *  Alpha cutoff discards fragments whose alpha is below this value
+         *
+         *  float - [0, 1]
+         *
+         *  When present, the compiled fragment shader discards early
+         */
+        AlphaCutoff,
     };
 }

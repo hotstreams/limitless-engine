@@ -157,6 +157,12 @@ vec4 computeMaterialColor(const MaterialContext mctx) {
     color *= mctx.diffuse;
 #endif
 
+#if defined (ENGINE_MATERIAL_ALPHA_CUTOFF)
+    if (color.a < getMaterialAlphaCutoff()) {
+        discard;
+    }
+#endif
+
 #if defined (ENGINE_MATERIAL_BLENDMASK_TEXTURE)
     if (mctx.blend_mask <= 0.0) {
         discard;

@@ -35,6 +35,7 @@ namespace Limitless {
                 { Property::Thickness, "ENGINE_MATERIAL_THICKNESS" },
                 { Property::Transmission, "ENGINE_MATERIAL_TRANSMISSION" },
                 { Property::Reflectance, "ENGINE_MATERIAL_REFLECTANCE" },
+                { Property::AlphaCutoff, "ENGINE_MATERIAL_ALPHA_CUTOFF" },
             };
 
             static inline std::unordered_map<Shading, std::string> SHADING_DEFINE =

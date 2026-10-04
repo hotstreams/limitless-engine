@@ -789,9 +789,7 @@ static std::shared_ptr<ms::Material> loadMaterial(
 		break;
     case cgltf_alpha_mode_mask:
         builder.blending(ms::Blending::Opaque);
-        //TODO: add to material built-in
-        builder.custom("alpha_cutoff", material.alpha_cutoff);
-        builder.fragment("if (mctx.diffuse.a <= alpha_cutoff) discard;");
+        builder.alpha_cutoff(material.alpha_cutoff);
         break;
 	default:
 		throw ModelLoadError {"alpha mode " + std::to_string(material.alpha_mode) + " not supported"};

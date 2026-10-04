@@ -158,6 +158,11 @@ Material::Builder &Material::Builder::transmission(float transmission) noexcept 
     return *this;
 }
 
+Material::Builder &Material::Builder::alpha_cutoff(float alpha_cutoff) noexcept {
+    properties[Property::AlphaCutoff] = std::make_unique<UniformValue<float>>("material_alpha_cutoff", alpha_cutoff);
+    return *this;
+}
+
 Material::Builder &Material::Builder::blending(Blending blending) noexcept {
     _blending = blending;
     return *this;

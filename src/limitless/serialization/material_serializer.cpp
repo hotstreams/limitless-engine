@@ -98,6 +98,9 @@ void MaterialSerializer::deserialize(ByteBuffer& buffer, Assets& assets, Materia
             case Property::Transmission:
                 builder.transmission(static_cast<UniformValue<float>&>(*uniform).getValue());
                 break;
+            case Property::AlphaCutoff:
+                builder.alpha_cutoff(static_cast<UniformValue<float>&>(*uniform).getValue());
+                break;
         }
     }
 

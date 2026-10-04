@@ -203,6 +203,7 @@ namespace Limitless::ms {
         [[nodiscard]] float getThickness() const;
         [[nodiscard]] float getReflectance() const;
         [[nodiscard]] float getTransmission() const;
+        [[nodiscard]] float getAlphaCutoff() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getDiffuseTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getNormalTexture() const;
         [[nodiscard]] const std::shared_ptr<Texture>& getEmissiveMaskTexture() const;
@@ -225,6 +226,7 @@ namespace Limitless::ms {
         float& getThickness();
         float& getReflectance();
         float& getTransmission();
+        float& getAlphaCutoff();
         Blending& getBlending();
 
         /**
@@ -240,6 +242,7 @@ namespace Limitless::ms {
         void setThickness(float value);
         void setReflectance(float value);
         void setTransmission(float value);
+        void setAlphaCutoff(float value);
         void setDiffuseTexture(const std::shared_ptr<Texture>& texture);
         void setNormalTexture(const std::shared_ptr<Texture>& texture);
         void setEmissiveMaskTexture(const std::shared_ptr<Texture>& texture);

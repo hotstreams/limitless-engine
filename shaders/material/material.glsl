@@ -75,6 +75,10 @@ layout (std140) uniform MATERIAL_BUFFER {
     float material_transmission;
 #endif
 
+#if defined (ENGINE_MATERIAL_ALPHA_CUTOFF)
+    float material_alpha_cutoff;
+#endif
+
 #if defined (ENGINE_EXT_BINDLESS_TEXTURE)
     ENGINE_MATERIAL_CUSTOM_SAMPLERS
 #endif
@@ -232,6 +236,12 @@ layout (std140) uniform MATERIAL_BUFFER {
 #if defined (ENGINE_MATERIAL_TRANSMISSION)
     float getMaterialTransmission() {
         return material_transmission;
+    }
+#endif
+
+#if defined (ENGINE_MATERIAL_ALPHA_CUTOFF)
+    float getMaterialAlphaCutoff() {
+        return material_alpha_cutoff;
     }
 #endif
 

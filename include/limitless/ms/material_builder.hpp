@@ -72,6 +72,7 @@ namespace Limitless::ms {
         Builder& thickness(float thickness) noexcept;
         Builder& reflectance(float reflectance) noexcept;
         Builder& transmission(float transmission) noexcept;
+        Builder& alpha_cutoff(float alpha_cutoff) noexcept;
 
         Builder& blending(Blending blending) noexcept;
         Builder& shading(Shading shading) noexcept;

@@ -474,6 +474,9 @@ static cgltf_data* makeData(const Model& model, bool embed_textures) {
             case ms::Property::Transmission: 
                 // not supported yet
                 break;
+            case ms::Property::AlphaCutoff:
+                pmaterial.alpha_cutoff = static_cast<const UniformValue<float>&>(*property.second).getValue();
+                break;
             default:
                 throw ModelSaveError("Unsupported material property: " + std::to_string(static_cast<int>(property.first)));
             }
@@ -481,6 +484,9 @@ static cgltf_data* makeData(const Model& model, bool embed_textures) {
         pmaterial.alpha_mode = [&]() {
             switch (material->getBlending()) {
             case ms::Blending::Opaque: {
+                if (material->getProperties().contains(ms::Property::AlphaCutoff)) {
+                    return cgltf_alpha_mode_mask;
+                }
                 const auto alpha_uniform_it = material->getUniforms().find("alpha_cutoff");
                 if (alpha_uniform_it != material->getUniforms().end()) {
                     const auto& alpha_cutoff = static_cast<const UniformValue<float>&>(*alpha_uniform_it->second).getValue();
