@@ -754,8 +754,12 @@ static std::vector<const cgltf_node*> findRootNodes(const cgltf_data& src) {
 }
 
 // Generate a unique material name if it's missing.
-static std::string generateMaterialName(const std::string& model_name, size_t material_index) {
-	return model_name + "_material" + std::to_string(material_index);
+static std::string generateMaterialName(const std::string& material_namespace, size_t material_index) {
+	return material_namespace + "_material" + std::to_string(material_index);
+}
+
+static std::string resolveMaterialNamespace(const ModelLoaderFlags& flags, const std::string& model_name) {
+	return flags.material_namespace.value_or(model_name);
 }
 
 static std::shared_ptr<ms::Material> loadMaterial(
@@ -763,16 +767,19 @@ static std::shared_ptr<ms::Material> loadMaterial(
 	const InstanceTypes& instance_types,
 	const fs::path& base_path,
 	const cgltf_material& material,
-	const std::string& model_name,
+	const std::string& material_namespace,
 	size_t material_index,
 	const ModelLoaderFlags& model_flags,
 	const cgltf_texture* textures
 ) {
 	ms::Material::Builder builder = ms::Material::builder();
-	const auto material_name = model_name + (material.name
+	const auto material_name = material_namespace + (material.name
 		? std::string(material.name)
-		: generateMaterialName(model_name, material_index));
+		: generateMaterialName(material_namespace, material_index));
 
+	if (assets.materials.contains(material_name)) {
+		return assets.materials.at(material_name);
+	}
 	// assets.materials.remove(material_name);
 
 	builder
@@ -1119,11 +1126,12 @@ static std::vector<std::shared_ptr<ms::Material>> loadMaterials(
 	const cgltf_data& src,
     const ModelLoaderFlags& flags
 ) {
+	const auto material_namespace = resolveMaterialNamespace(flags, model_name);
 	std::vector<std::shared_ptr<ms::Material>> materials;
 
 	for (size_t i = 0; i < src.materials_count; ++i) {
 		materials.emplace_back(loadMaterial(
-			assets, instance_types, path.parent_path(), src.materials[i], model_name, i, flags, src.textures
+			assets, instance_types, path.parent_path(), src.materials[i], material_namespace, i, flags, src.textures
 		));
 	}
 
@@ -1132,10 +1140,10 @@ static std::vector<std::shared_ptr<ms::Material>> loadMaterials(
 
 // Generate material for meshes that do not have one.
 static std::shared_ptr<ms::Material> makeDummyMaterial(
-	Assets& assets, const std::string& model_name, const InstanceTypes& instance_types
+	Assets& assets, const std::string& material_namespace, const InstanceTypes& instance_types
 ) {
 	return ms::Material::builder()
-	    .name(generateMaterialName(model_name, 0))
+	    .name(generateMaterialName(material_namespace, 0))
 	    .two_sided(true)
 	    .shading(ms::Shading::Unlit)
 	    .color({1.f, 0.f, 1.f, 1.f})
@@ -1147,7 +1155,7 @@ static std::shared_ptr<ms::Material> makeDummyMaterial(
 static void fixMissingMaterials(
 	std::vector<std::shared_ptr<ms::Material>>& mesh_materials,
 	Assets& assets,
-	const std::string& model_name,
+	const std::string& material_namespace,
 	const InstanceTypes& instance_types
 ) {
 	std::shared_ptr<ms::Material> dummy_material;
@@ -1155,7 +1163,7 @@ static void fixMissingMaterials(
 	// Lazily create dummy material if required.
 	auto use_dummy_material = [&]() {
 		if (!dummy_material) {
-			dummy_material = makeDummyMaterial(assets, model_name, instance_types);
+			dummy_material = makeDummyMaterial(assets, material_namespace, instance_types);
 		}
 		return dummy_material;
 	};
@@ -1255,7 +1263,7 @@ static SkeletalModel* loadSkeletalModel(
 		}
 	}
 
-	fixMissingMaterials(mesh_materials, assets, model_name, instance_types);
+	fixMissingMaterials(mesh_materials, assets, resolveMaterialNamespace(flags, model_name), instance_types);
 
 	std::unordered_map<std::string, uint32_t> bone_indices_map;
 	for (size_t i = 0; i < bones.size(); ++i) {
@@ -1301,7 +1309,7 @@ static Model* loadPlainModel(
 		}
 	}
 
-	fixMissingMaterials(mesh_materials, assets, model_name, instance_types);
+	fixMissingMaterials(mesh_materials, assets, resolveMaterialNamespace(flags, model_name), instance_types);
 
 	return new Model(std::move(meshes), std::move(mesh_materials), model_name);
 }
@@ -1341,7 +1349,7 @@ std::vector<std::shared_ptr<Limitless::ms::Material>> GltfModelLoader::loadModel
 	instance_types.emplace(InstanceType::Model);
 
 	auto loaded_materials = loadMaterials(variant_model_name, assets, instance_types, path, *out_data, flags);
-	fixMissingMaterials(loaded_materials, assets, variant_model_name, instance_types);
+	fixMissingMaterials(loaded_materials, assets, resolveMaterialNamespace(flags, variant_model_name), instance_types);
 
 	return loaded_materials;
 }

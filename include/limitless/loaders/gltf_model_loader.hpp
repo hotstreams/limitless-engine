@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <limitless/models/model.hpp>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -44,6 +45,7 @@ namespace Limitless {
 		TextureLoaderFlags base_tex_flags;
 		std::unordered_map<std::string, std::string> texture_uri_replacements;
 		LodOptions lod_options;
+		std::optional<std::string> material_namespace;
 
 		auto isPresent(ModelLoaderOption option) const { return options.count(option) != 0; }
 
@@ -69,6 +71,11 @@ namespace Limitless {
 
 		ModelLoaderFlags& lodOptions(LodOptions options) {
 			lod_options = std::move(options);
+			return *this;
+		}
+
+		ModelLoaderFlags& materialNamespace(std::string ns) {
+			material_namespace = std::move(ns);
 			return *this;
 		}
 	};
