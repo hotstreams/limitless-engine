@@ -34,10 +34,13 @@ void ContextState::init() noexcept {
 }
 
 void ContextState::resetTextureBinds() noexcept {
-    // for (GLint i = 0; i < ContextInitializer::limits.max_texture_units; ++i) {
-    //     texture_bound.insert_or_assign(i, 0);
-    // }
-    texture_bound.clear();
+    // Forget the cached bindings: every unit is free again, and the next use of a texture rebinds it.
+    for (GLint i = 0; i < ContextInitializer::limits.max_texture_units; ++i) {
+        texture_bound.insert_or_assign(i, 0);
+    }
+    // The cached active unit must match the GPU: StateTexture binds (e.g. for uploads) skip glActiveTexture when
+    // the cache says the unit is already active, and would otherwise bind to whichever unit was last made active.
+    glActiveTexture(GL_TEXTURE0);
     active_texture = 0;
 }
 

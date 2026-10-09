@@ -10,60 +10,33 @@ using namespace Limitless;
 
 void ShaderProgramTextureSetter::bindTextures(const std::map<std::string, std::unique_ptr<Uniform>>& uniforms) {
     CpuProfileScope scope(global_profiler, "ShaderProgramTextureSetter::bindTextures");
-    // first we collect all passed Texture Samplers
-    std::vector<Texture*> samplers;
+    // Collect the sampler uniforms whose textures are bound to texture units (state textures); bindless textures
+    // are passed as handles and need no units. Each uniform keeps its own texture: one texture may be sampled by
+    // several uniforms (e.g. a glTF material using the same image for base colour and emissive), and every one of
+    // them needs its unit set.
+    std::vector<UniformSampler*> state_uniforms;
+    std::vector<Texture*> state_textures;
     {
-        CpuProfileScope scope(global_profiler, "ShaderProgramTextureSetter::bindTextures::collectSamplers");
+        CpuProfileScope scope(global_profiler, "ShaderProgramTextureSetter::bindTextures::collectStateSamplers");
+        std::vector<ExtensionTexture*> captured;
+        TextureExtensionCapturer capturer {captured};
         for (const auto& [_, uniform] : uniforms) {
-            if (uniform->getType() == UniformType::Sampler) {
-                samplers.emplace_back(static_cast<UniformSampler&>(*uniform).getSampler().get()); //NOLINT
+            if (uniform->getType() != UniformType::Sampler) {
+                continue;
+            }
+            auto& sampler = static_cast<UniformSampler&>(*uniform); //NOLINT
+            const auto captured_before = captured.size();
+            sampler.getSampler()->accept(capturer);
+            if (captured.size() > captured_before) {
+                state_uniforms.emplace_back(&sampler);
+                state_textures.emplace_back(sampler.getSampler().get());
             }
         }
     }
 
-    // then we collect only state textures
-    // because not state (bindless) textures do not need this set up
-    std::vector<ExtensionTexture*> state_samplers;
-    {
-        CpuProfileScope scope(global_profiler, "ShaderProgramTextureSetter::bindTextures::captureStateSamplers");
-        TextureExtensionCapturer capturer {state_samplers};
-        for (const auto& texture : samplers) {
-            texture->accept(capturer);
-        }
-    }
-
-    // then we determine to which units should we bind these textures
-    std::vector<Texture*> se_samplers;
-    {
-        CpuProfileScope scope(global_profiler, "ShaderProgramTextureSetter::bindTextures::collectSESamplers");
-        for (const auto& sampler : state_samplers) {
-            se_samplers.emplace_back(*std::find_if(samplers.begin(), samplers.end(), [&] (Texture* texture) {
-                return texture->getId() == sampler->getId();
-            }));
-        }
-    }
-    const auto units = TextureBinder::bind(se_samplers);
-
-    // then we update unit values in uniforms and set them in shader
-    std::vector<Uniform*> bound;
-    for (const auto& texture : se_samplers) {
-        bound.emplace_back(std::find_if(uniforms.begin(), uniforms.end(), [&] (auto& p) {
-            if (p.second->getType() == UniformType::Sampler) {
-                auto &sampler = static_cast<UniformSampler&>(*p.second); //NOLINT
-                return sampler.getSampler()->getId() == texture->getId();
-            } else {
-                return false;
-            }
-        })->second.get());
-    }
-
-    uint32_t i = 0;
-    for (const auto& uniform : bound) {
-        if (uniform->getType() == UniformType::Sampler) {
-            auto &sampler = static_cast<UniformSampler&>(*uniform); //NOLINT
-            if (sampler.getSampler()->getId() == state_samplers[i]->getId()) {
-                sampler.setValue(units[i++]);
-            }
-        }
+    // then we determine to which units these textures are bound and set the units in the uniforms
+    const auto units = TextureBinder::bind(state_textures);
+    for (size_t i = 0; i < state_uniforms.size(); ++i) {
+        state_uniforms[i]->setValue(units[i]);
     }
 }

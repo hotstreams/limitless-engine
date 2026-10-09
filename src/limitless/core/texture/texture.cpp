@@ -116,18 +116,17 @@ void Texture::compressedImage(uint32_t level, glm::uvec3 _size, const void* data
     texture->compressedTexImage3D(static_cast<GLenum>(target), level, static_cast<GLenum>(internal_format), _size, false, data, byte_count);
 }
 
+// Sub-image updates only change contents: the parameters were applied together with the storage, and setting them
+// again is an error for a bindless texture once it has a handle (its state is then immutable).
 void Texture::subImage(uint32_t level, glm::uvec2 offset, glm::uvec2 _size, const void* data) {
-    setParameters();
     texture->texSubImage2D(static_cast<GLenum>(target), level, offset.x, offset.y, _size, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
 void Texture::subImage(uint32_t level, glm::uvec3 offset, glm::uvec3 _size, const void* data) {
-    setParameters();
     texture->texSubImage3D(static_cast<GLenum>(target), level, offset.x, offset.y, offset.z, _size, static_cast<GLenum>(format), static_cast<GLenum>(data_type), data);
 }
 
 void Texture::compressedSubImage(uint32_t level, glm::uvec2 offset, glm::uvec2 _size, const void* data, std::size_t byte_count) {
-    setParameters();
     texture->compressedTexSubImage2D(static_cast<GLenum>(target), level, offset.x, offset.y, static_cast<GLenum>(internal_format), _size, data, byte_count);
 }
 

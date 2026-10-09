@@ -63,9 +63,24 @@ std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
     IndexMap unbound_map;
     std::set_difference(bind_map.begin(), bind_map.end(), already_bound.begin(), already_bound.end(), std::inserter(unbound_map, unbound_map.begin()));
 
+    // the same texture may be asked for more than once (several samplers sampling it): one unit serves them all
+    const auto same_texture_unit = [&] (uint32_t index, const Texture* texture) -> GLint {
+        for (uint32_t j = 0; j < index; ++j) {
+            if (indices[j] != -1 && textures[j]->getId() == texture->getId()) {
+                return indices[j];
+            }
+        }
+        return -1;
+    };
+
     // checks for free texture unit slots in context
     IndexMap empty_bound;
     for (const auto& [index, texture] : unbound_map) {
+        if (const auto unit = same_texture_unit(index, texture); unit != -1) {
+            indices[index] = unit;
+            empty_bound.emplace(index, texture);
+            continue;
+        }
         auto found = std::find_if(texture_bound.begin(), texture_bound.end(), [] (const auto& bind) { return bind.second == 0; });
         if (found != texture_bound.end()) {
             indices[index] = found->first;
@@ -77,16 +92,20 @@ std::vector<GLint> TextureBinder::bind(const std::vector<Texture*>& textures) {
     IndexMap replace_map;
     std::set_difference(unbound_map.begin(), unbound_map.end(), empty_bound.begin(), empty_bound.end(), std::inserter(replace_map, replace_map.begin()));
 
+    // All units are taken: replace round-robin, skipping units this call has already handed out. There always is
+    // such a unit, since no more textures than units are bound at once (checked above).
+    const auto next_unit = [] (GLint unit) { return unit + 1 >= ContextInitializer::limits.max_texture_units ? 0 : unit + 1; };
     for (const auto& [index, texture] : replace_map) {
-        std::vector<int>::iterator found;
-        while (found != indices.end()) {
-            found = std::find_if(indices.begin(), indices.end(), [] (const auto& index) { return index == current_bind; });
-            if (found == indices.end()) {
-                indices[index] = current_bind;
-                texture->bind(current_bind);
-                current_bind = ++current_bind >= ContextInitializer::limits.max_texture_units ? 0 : current_bind;
-            }
+        if (const auto unit = same_texture_unit(index, texture); unit != -1) {
+            indices[index] = unit;
+            continue;
         }
+        while (std::find(indices.begin(), indices.end(), current_bind) != indices.end()) {
+            current_bind = next_unit(current_bind);
+        }
+        indices[index] = current_bind;
+        texture->bind(current_bind);
+        current_bind = next_unit(current_bind);
     }
 
     return indices;
