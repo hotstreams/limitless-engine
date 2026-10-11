@@ -64,7 +64,7 @@ ShadingContext computeShadingContext(
     context.V = normalize(getCameraPosition() - context.worldPos);
     context.NoV = computeNoV(context.N, context.V);
 
-    context.F0 = computeF0(baseColor, context.metallic, 1.0);
+    context.F0 = computeF0(baseColor, context.metallic, DIELECTRIC_F0);
     context.ambientOcclusion = ambientOcclusion;
     context.emissive_color = emissive_color;
 

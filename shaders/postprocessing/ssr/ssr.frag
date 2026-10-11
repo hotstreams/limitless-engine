@@ -154,7 +154,7 @@ void main() {
                                            numIterations);
 
 #ifdef ENGINE_SETTINGS_SSR_FRESNEL_ATTENUATION
-        vec3 F0 = computeF0(base_color, metallic, 1.0);
+        vec3 F0 = computeF0(base_color, metallic, DIELECTRIC_F0);
         vec3 scatter = F_Schlick(F0, 1.0, max(dot(ws_normal, -ws_view_dir), 0.0));
 
         vec3 reflection_attenuation = clamp(pow(scatter * reflection_strength, vec3(reflection_falloff_exp)), 0.0, 1.0);

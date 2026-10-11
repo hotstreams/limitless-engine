@@ -29,8 +29,11 @@ vec3 computeDiffuseColor(const vec3 baseColor, float metallic) {
     return baseColor * (1.0 - metallic);
 }
 
-vec3 computeF0(const vec3 baseColor, float metallic, float reflectance) {
-    return baseColor * metallic + (reflectance * (1.0 - metallic));
+// Reflectance of non-metals at normal incidence in the glTF metallic-roughness model (IOR 1.5).
+#define DIELECTRIC_F0 0.04
+
+vec3 computeF0(const vec3 baseColor, float metallic, float dielectricF0) {
+    return baseColor * metallic + (dielectricF0 * (1.0 - metallic));
 }
 
 float computeNoV(const vec3 N, const vec3 V) {

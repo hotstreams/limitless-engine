@@ -15,6 +15,7 @@ vec4 shadeFragment(const MaterialContext mctx) {
     vec4 color = vec4(ambient, sctx.alpha);
 
 #if !defined (ENGINE_MATERIAL_SHADING_UNLIT_MODEL)
+    color.rgb += computeAmbientSpecular(sctx.F0, sqrt(sctx.roughness), sctx.NoV, sctx.ambientOcclusion);
     color.rgb += computeLights(sctx);
 #endif
 

@@ -11,6 +11,7 @@ vec3 shadeFragment(const GBufferContext gctx) {
 
     // if not unlit shading
     if (sctx.shading_model != ENGINE_SHADING_UNLIT) {
+        color += computeAmbientSpecular(sctx.F0, sqrt(sctx.roughness), sctx.NoV, sctx.ambientOcclusion);
         color += computeLights(sctx);
     }
 
