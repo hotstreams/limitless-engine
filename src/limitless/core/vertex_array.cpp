@@ -35,6 +35,8 @@ void VertexArray::bind() const noexcept {
         if (ctx.vertex_array_id != id) {
             glBindVertexArray(id);
             ctx.vertex_array_id = id;
+            // The element array buffer binding is part of the VAO state, so it changes with the VAO.
+            ctx.buffer_target[Buffer::Type::Element] = element_buffer ? element_buffer->getId() : 0;
         }
     });
 }
@@ -138,11 +140,14 @@ void VertexArray::recreateOnCurrentContext() {
 
 void VertexArray::setElementBuffer(const std::shared_ptr<Buffer>& buffer) {
     bind();
-    buffer->bind();
+    // Always bind: a new VAO (copied or recreated on another context) starts without the buffer that the cached
+    // context state may already report as bound, and skipping the bind left it drawing without indices.
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->getId());
+    Context::apply([&] (Context& ctx) {
+        ctx.buffer_target[Buffer::Type::Element] = buffer->getId();
+    });
 
-    if (!element_buffer || element_buffer->getId() != buffer->getId()) {
-        element_buffer = buffer;
-    }
+    element_buffer = buffer;
 }
 
 VertexArray::VertexArray(const VertexArray& rhs)
