@@ -139,22 +139,21 @@ void Scene::update(const Camera& camera) {
     removeDeadInstances();
 
     for (auto& [_, instance] : instances) {
-        applyAnimationPlaybackSpeed(*instance);
-    }
-
-    for (auto& [_, instance] : instances) {
         CpuProfileScope scope(global_profiler, "Scene::update_instance");
-        if (instance->getInstanceType() != InstanceType::Effect) {
-            instance->update(camera);
+        if (instance->getInstanceType() == InstanceType::Skeletal) {
+            applyAnimationPlaybackSpeed(*instance);
         }
+        // if (instance->getInstanceType() != InstanceType::Effect) {
+        instance->update(camera);
+        // }
     }
 
-    for (auto& [_, instance] : instances) {
-        CpuProfileScope scope(global_profiler, "Scene::update_effect_instance");
-        if (instance->getInstanceType() == InstanceType::Effect) {
-            instance->update(camera);
-        }
-    }
+    // for (auto& [_, instance] : instances) {
+    //     CpuProfileScope scope(global_profiler, "Scene::update_effect_instance");
+    //     if (instance->getInstanceType() == InstanceType::Effect) {
+    //         instance->update(camera);
+    //     }
+    // }
 }
 
 Instances Scene::getInstances() const noexcept {
