@@ -272,3 +272,8 @@ Material::Builder &Material::Builder::refraction(bool refraction_) noexcept {
     _refraction = refraction_;
     return *this;
 }
+
+Material::Builder& Material::Builder::depth_write(bool depth_write) noexcept {
+    _depth_write = depth_write;
+    return *this;
+}

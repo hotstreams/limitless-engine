@@ -155,6 +155,7 @@ void Limitless::ms::swap(Material& lhs, Material& rhs) noexcept {
     swap(lhs.shading, rhs.shading);
     swap(lhs.two_sided, rhs.two_sided);
     swap(lhs.refraction, rhs.refraction);
+    swap(lhs.depth_write, rhs.depth_write);
     swap(lhs.name, rhs.name);
     swap(lhs.shader_index, rhs.shader_index);
     swap(lhs.model_shaders, rhs.model_shaders);
@@ -171,6 +172,7 @@ Material::Material(const Material& material)
     , shading {material.shading}
     , two_sided {material.two_sided}
     , refraction {material.refraction}
+    , depth_write {material.depth_write}
     , name {material.name}
     , shader_index {material.shader_index}
     , model_shaders {material.model_shaders}
@@ -689,6 +691,10 @@ bool Material::getRefraction() const noexcept {
     return refraction;
 }
 
+bool Material::getDepthWrite() const noexcept {
+    return depth_write;
+}
+
 const std::string& Material::getName() const noexcept {
     return name;
 }
@@ -739,6 +745,7 @@ Material::Material(Material::Builder& builder)
     , shading {builder._shading}
     , two_sided {builder._two_sided}
     , refraction {builder._refraction}
+    , depth_write {builder._depth_write}
     , name {builder._name}
     , shader_index {builder.shader_index}
     , model_shaders {builder._model_shaders}

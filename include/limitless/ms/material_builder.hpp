@@ -27,6 +27,7 @@ namespace Limitless::ms {
         Shading _shading {Shading::Lit};
         bool _two_sided {false};
         bool _refraction {false};
+        bool _depth_write {false};
         std::string _name;
         uint64_t shader_index {};
         InstanceTypes _model_shaders;
@@ -78,6 +79,8 @@ namespace Limitless::ms {
         Builder& shading(Shading shading) noexcept;
         Builder& two_sided(bool two_sided) noexcept;
         Builder& refraction(bool refraction) noexcept;
+        // Translucent materials only: also write depth (see Material::depth_write).
+        Builder& depth_write(bool depth_write) noexcept;
         Builder& name(const std::string& name) noexcept;
 
         Builder& vertex(const std::string& snippet) noexcept;

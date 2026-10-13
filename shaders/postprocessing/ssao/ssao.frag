@@ -123,6 +123,13 @@ highp float unpack(highp vec2 depth) {
 
 void main() {
     float depth = texture(depth_texture, uv).r;
+
+    // The skybox (and anything else at the far plane) is not occluded. (1, 1) as the packed depth also marks it for
+    // ssao_blur.frag, which skips it and gives it no weight next to nearer geometry.
+    if (depth >= 1.0) {
+        color = vec3(1.0);
+        return;
+    }
     float z = linearize_depth(depth, getCameraNearPlane(), getCameraFarPlane());
 
     vec3 position = reconstructViewSpacePosition(uv, depth);
@@ -134,5 +141,7 @@ void main() {
 
     float aoVisibility = pow(saturate(1.0 - occlusion), power);
 
-    color = vec3(aoVisibility, pack(position.z * 1.0 / getCameraFarPlane()));
+    // View-space z is negative in front of the camera: pack the distance (0 at the camera, 1 at the far plane), or
+    // every pixel packs to 0 and ssao_blur.frag blurs across depth edges (e.g. AO bleeding onto the sky).
+    color = vec3(aoVisibility, pack(-position.z / getCameraFarPlane()));
 }

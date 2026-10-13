@@ -109,14 +109,30 @@ void ContextInitializer::defaultHints() noexcept {
     glfwDefaultWindowHints();
 }
 
-bool ContextInitializer::checkMinimumRequirements() noexcept {
-    std::vector<std::string_view> requirements = {
+std::vector<std::string_view> ContextInitializer::getMissingRequirements() noexcept {
+    // Extensions the engine uses without a fallback (on top of the core profile it asks for):
+    static constexpr std::string_view requirements[] = {
+        // model, bone and particle buffers (std430)
         "GL_ARB_shader_storage_buffer_object",
+        // GLSL 4.20 syntax in the shaders, e.g. const variables initialized from non-constant expressions
+        "GL_ARB_shading_language_420pack",
+        // uniform and buffer block introspection of every shader program (ShaderProgramIntrospection)
+        "GL_ARB_program_interface_query",
+        // the translucent pass's copy of the scene depth (glCopyImageSubData)
+        "GL_ARB_copy_image",
     };
 
-    return std::all_of(requirements.begin(), requirements.end(), [] (const auto& extension) {
-        return isExtensionSupported(extension);
-    });
+    std::vector<std::string_view> missing;
+    for (const auto& extension : requirements) {
+        if (!isExtensionSupported(extension)) {
+            missing.push_back(extension);
+        }
+    }
+    return missing;
+}
+
+bool ContextInitializer::checkMinimumRequirements() noexcept {
+    return getMissingRequirements().empty();
 }
 
 bool ContextInitializer::isProgramInterfaceQuerySupported() noexcept {

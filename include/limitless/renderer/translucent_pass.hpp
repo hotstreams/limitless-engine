@@ -22,6 +22,15 @@ namespace Limitless {
     class TranslucentPass final : public RendererPass {
     private:
         Framebuffer framebuffer;
+
+        /**
+         * The opaque scene's depth, copied before translucent objects are drawn. Translucent materials sample it as
+         * "scene_depth_texture" (e.g. water depth and refraction), while those with depth_write write their own depth
+         * into the shared depth buffer, which a texture cannot be sampled and written at once.
+         */
+        std::shared_ptr<Texture> scene_depth_copy;
+
+        void copySceneDepth();
     public:
         explicit TranslucentPass(Renderer& renderer);
 

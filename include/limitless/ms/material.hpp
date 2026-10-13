@@ -68,6 +68,12 @@ namespace Limitless::ms {
         bool refraction;
 
         /**
+         *  Describes whether a translucent material writes depth, so that later passes (e.g. fog) see it as the
+         *  nearest surface. Opaque materials always write depth.
+         */
+        bool depth_write;
+
+        /**
          *  Unique material name
          */
         std::string name;
@@ -257,6 +263,7 @@ namespace Limitless::ms {
         [[nodiscard]] Shading getShading() const noexcept;
         [[nodiscard]] bool getTwoSided() const noexcept;
         [[nodiscard]] bool getRefraction() const noexcept;
+        [[nodiscard]] bool getDepthWrite() const noexcept;
         [[nodiscard]] const std::string& getName() const noexcept;
         [[nodiscard]] uint64_t getShaderIndex() const noexcept;
         [[nodiscard]] const std::string& getVertexSnippet() const noexcept;

@@ -19,7 +19,18 @@ using namespace Limitless;
 
 TranslucentPass::TranslucentPass(Renderer& renderer)
     : RendererPass {renderer}
-    , framebuffer {Framebuffer::asRGB16FNearestClampToEdgeWithDepth(renderer.getResolution(), renderer.getPass<DeferredFramebufferPass>().getDepth())} {
+    , framebuffer {Framebuffer::asRGB16FNearestClampToEdgeWithDepth(renderer.getResolution(), renderer.getPass<DeferredFramebufferPass>().getDepth())}
+    , scene_depth_copy {Texture::Builder::asDepth32F(renderer.getResolution())} {
+}
+
+void TranslucentPass::copySceneDepth() {
+    const auto& depth = *renderer.getPass<DeferredFramebufferPass>().getDepth();
+    const auto size   = depth.getSize();
+    glCopyImageSubData(
+        depth.getId(), GL_TEXTURE_2D, 0, 0, 0, 0,
+        scene_depth_copy->getId(), GL_TEXTURE_2D, 0, 0, 0, 0,
+        static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), 1
+    );
 }
 
 void TranslucentPass::render(
@@ -42,11 +53,13 @@ void TranslucentPass::render(
 
     framebuffer.blit(background_fb, Texture::Filter::Nearest);
 
+    copySceneDepth();
+
     framebuffer.bind();
 
     setter.add([&] (ShaderProgram& shader) {
         shader.setUniform("refraction_texture", renderer.getPass<DeferredLightingPass>().getResult());
-        shader.setUniform("scene_depth_texture", renderer.getPass<DeferredFramebufferPass>().getDepth());
+        shader.setUniform("scene_depth_texture", scene_depth_copy);
     });
 
     for (const auto& blending : transparent) {
@@ -60,6 +73,7 @@ std::shared_ptr<Texture> TranslucentPass::getResult() {
 
 void TranslucentPass::onFramebufferChange(glm::uvec2 size) {
     framebuffer.onFramebufferChange(size);
+    scene_depth_copy = Texture::Builder::asDepth32F(size);
 
     framebuffer << TextureAttachment{FramebufferAttachment::Depth, renderer.getPass<DeferredFramebufferPass>().getDepth()};
 }

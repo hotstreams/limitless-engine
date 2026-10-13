@@ -42,6 +42,16 @@ Context::Context(
         initializeGLEW();
     }
 
+    // Before anything uses the extensions, e.g. shader compilation: name what the driver lacks.
+    if (const auto missing = getMissingRequirements(); !missing.empty()) {
+        std::string message = "Minimum requirements are not met! The OpenGL driver lacks";
+        for (const auto& extension : missing) {
+            message += ' ';
+            message += extension;
+        }
+        throw context_error {message.c_str()};
+    }
+
     init();
 
     // we created window, reset to default ones
@@ -399,12 +409,6 @@ Context Context::Builder::build() {
     }
     if (key_callback)  {
         ctx.doOnKeyPress(key_callback);
-    }
-
-    //TODO: move in ContextInitializer ?
-    // or remove requirements?
-    if (!Limitless::ContextInitializer::checkMinimumRequirements()) {
-        throw std::runtime_error("Minimum requirements are not met!");
     }
 
     return ctx;

@@ -215,7 +215,7 @@ vec3 computeMaterialNormal(const MaterialContext mctx) {
 #if defined (ENGINE_MATERIAL_TWO_SIDED)
     TBN[0] = gl_FrontFacing ? TBN[0] : -TBN[0];
     TBN[1] = gl_FrontFacing ? TBN[1] : -TBN[1];
-    TBN[1] = gl_FrontFacing ? TBN[2] : -TBN[2];
+    TBN[2] = gl_FrontFacing ? TBN[2] : -TBN[2];
 #endif
     normal = normalize(TBN * normal);
 #else

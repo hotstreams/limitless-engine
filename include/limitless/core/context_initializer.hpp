@@ -41,6 +41,8 @@ namespace Limitless {
         static void printExtensions() noexcept;
         static bool isExtensionSupported(std::string_view name) noexcept;
         static bool checkMinimumRequirements() noexcept;
+        // The required OpenGL extensions that the driver lacks.
+        static std::vector<std::string_view> getMissingRequirements() noexcept;
         static const auto& getExtensions() noexcept {
             return extensions;
         }

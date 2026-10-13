@@ -30,6 +30,11 @@ void InstanceRenderer::setRenderState(const Instance& instance, const MeshInstan
     {
         CpuProfileScope scope(global_profiler, "InstanceRenderer::setRenderState::blending");
         setBlendingMode(mesh.getMaterial()->getBlending());
+        // Translucent materials that ask for it write depth too, when they are drawn on top of the scene.
+        if (drawp.type == ShaderType::Forward && mesh.getMaterial()->getDepthWrite()
+            && mesh.getMaterial()->getBlending() != ms::Blending::Opaque) {
+            drawp.ctx.setDepthMask(DepthMask::True);
+        }
     }
 
     // gets required shader from storage
