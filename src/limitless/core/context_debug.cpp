@@ -26,7 +26,6 @@ void Limitless::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 
 	std::cout << "---------------" << std::endl;
 	std::cout << "Debug message (" << id << "): " <<  message << std::endl;
-	// __builtin_trap();
 
 	switch (source) {
 		case GL_DEBUG_SOURCE_API:               std::cout << "Source: API"; break;
@@ -58,6 +57,10 @@ void Limitless::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 		case GL_DEBUG_SEVERITY_NOTIFICATION:    std::cout << "Severity: notification"; break;
 	}
 	std::cout << std::endl;
+
+	if (type == GL_DEBUG_TYPE_ERROR) {
+		__builtin_trap();
+	}
 }
 
 #endif

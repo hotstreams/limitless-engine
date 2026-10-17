@@ -169,9 +169,12 @@ static std::string wordWrap(
 
     for (const auto& line : lines) {
         auto words = split(line, ' ');
+        // getline drops a trailing delimiter, so "Works at " becomes "Works at"
+        // and the next formatted part (the linked building name) is glued on.
+        const bool trailing_space = !line.empty() && line.back() == ' ';
 
         for (auto& word : words) {
-            if (&word != &words.back()) {
+            if (&word != &words.back() || trailing_space) {
                 word += ' ';
             }
             placeWord(word);
