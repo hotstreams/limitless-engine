@@ -25,7 +25,7 @@ TextInstance::TextInstance(
     link_rectangles = std::move(type_set_result.link_rectangles);
     for (auto& fv : type_set_result.vertices_of_fonts) {
         font_text_models.push_back(FontTextModel{
-            TextModel(std::move(fv.vertices)), fv.font
+            TextModel(std::move(fv.vertices)), fv.font, fv.effects
         });
     }
     calculateModelMatrix();
@@ -53,7 +53,7 @@ TextInstance& TextInstance::setText(std::vector<FormattedText> _formatted_text_p
         link_rectangles = std::move(type_set_result.link_rectangles);
         for (auto& fv : type_set_result.vertices_of_fonts) {
             font_text_models.push_back(FontTextModel{
-                TextModel(std::move(fv.vertices)), fv.font
+                TextModel(std::move(fv.vertices)), fv.font, fv.effects
             });
         }
     }
@@ -119,12 +119,47 @@ void TextInstance::draw(Context& ctx, const Assets& assets) {
         selection_model.draw();
     }
 
+    setBlendingMode(ms::Blending::Text);
+
+    auto drawSdf = [&](FontTextModel& ftm, int32_t effect_pass) {
+        const auto& shadow = ftm.effects.shadow;
+        const auto& outline = ftm.effects.outline;
+        auto& sdf_shader = assets.shaders.get("sdf_text");
+
+        sdf_shader
+            .setUniform("bitmap", ftm.font_atlas->getTexture())
+            .setUniform("model", model_matrix)
+            .setUniform("proj", ortho_projection)
+            .setUniform("spread", static_cast<float>(ftm.font_atlas->getSdfSpread()))
+            .setUniform("effect_pass", effect_pass)
+            .setUniform("shadow_color", shadow ? shadow->color : glm::vec4(0.f))
+            .setUniform("shadow_offset", shadow ? shadow->offset : glm::vec2(0.f))
+            .setUniform("shadow_softness", shadow ? shadow->softness : 0.f)
+            .setUniform("outline_color", outline ? outline->color : glm::vec4(0.f))
+            .setUniform("outline_width", outline ? outline->width : 0.f);
+
+        sdf_shader.use();
+
+        ftm.text_model.draw();
+    };
+
+    // Shadows and outlines of all glyphs go first, so that none covers a neighbouring glyph.
+    for (auto& ftm : font_text_models) {
+        if (ftm.font_atlas->isSdfAtlas() && !ftm.effects.empty()) {
+            drawSdf(ftm, 0);
+        }
+    }
+
     // draw text
     for (auto& ftm : font_text_models) {
+        if (ftm.font_atlas->isSdfAtlas()) {
+            drawSdf(ftm, 1);
+            continue;
+        }
+
         auto& text_shader = ftm.font_atlas->isIconAtlas()
             ? assets.shaders.get("icon_text")
             : assets.shaders.get("text");
-        setBlendingMode(ms::Blending::Text);
 
         text_shader
               .setUniform("bitmap", ftm.font_atlas->getTexture())

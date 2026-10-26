@@ -42,6 +42,12 @@ namespace Limitless {
          * Whether this character is an icon, meaning that it does not get colored.
          */
         bool is_icon;
+
+        /**
+         * Distance field margin around the glyph on the atlas, in pixels.
+         * The UVs include it, while size and bearing describe the glyph alone.
+         */
+        int32_t padding {0};
     };
 
     enum class CjkVariant {
@@ -74,6 +80,19 @@ namespace Limitless {
             std::optional<CjkVariant> _cjk_variant = std::nullopt
         );
 
+        /**
+         * Load font as a signed distance field atlas, with the field reaching @spread pixels
+         * outside glyph outlines. It allows scaling, outlines and shadows (see TextEffects).
+         */
+        static std::shared_ptr<FontAtlas> loadSdf(
+            Assets& assets,
+            const fs::path& path,
+            uint32_t pixel_size,
+            uint32_t spread,
+            std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges = {},
+            std::optional<CjkVariant> _cjk_variant = std::nullopt
+        );
+
 		static std::shared_ptr<FontAtlas> make(
 			uint32_t font_size_in_pixels,
 			std::unordered_map<uint32_t, std::shared_ptr<Texture>> icons
@@ -84,7 +103,8 @@ namespace Limitless {
             std::shared_ptr<Texture> texture,
             uint32_t pixel_size,
             bool is_icon,
-            std::optional<CjkVariant> cjk_variant
+            std::optional<CjkVariant> cjk_variant,
+            uint32_t sdf_spread = 0
         );
 
 		FontAtlas(const FontAtlas&) = delete;
@@ -112,6 +132,13 @@ namespace Limitless {
 
         [[nodiscard]] auto getCjkVariant() const noexcept { return cjk_variant; }
 
+        [[nodiscard]] auto isSdfAtlas() const noexcept { return sdf_spread > 0; }
+
+        /**
+         * Distance in atlas pixels that maps to the full range of the distance field, 0 if not SDF.
+         */
+        [[nodiscard]] auto getSdfSpread() const noexcept { return sdf_spread; }
+
         /**
          * Return vertices for UTF-8 encoded string.
          */
@@ -133,5 +160,6 @@ namespace Limitless {
         uint32_t pixel_size;
         bool is_icon;
         std::optional<CjkVariant> cjk_variant;
+        uint32_t sdf_spread;
     };
 }

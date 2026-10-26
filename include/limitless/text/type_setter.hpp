@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <memory>
 #include <optional>
@@ -11,6 +12,51 @@
 namespace Limitless {
     class FontAtlas;
 
+    /**
+     * Shadow under the glyphs, in screen pixels whatever the text scale. Offset y points down.
+     */
+    struct TextShadow {
+        glm::vec4 color;
+        glm::vec2 offset {1.f, 1.f};
+        // Half width of the shadow edge falloff.
+        float softness {0.5f};
+
+        friend bool operator==(const TextShadow& lhs, const TextShadow& rhs) {
+            return lhs.color == rhs.color && lhs.offset == rhs.offset && lhs.softness == rhs.softness;
+        }
+    };
+
+    /**
+     * Outline around the glyphs, in screen pixels whatever the text scale.
+     * Effects must fit into the SDF spread of the atlas, as scaled on screen.
+     */
+    struct TextOutline {
+        glm::vec4 color;
+        float width {1.f};
+
+        friend bool operator==(const TextOutline& lhs, const TextOutline& rhs) {
+            return lhs.color == rhs.color && lhs.width == rhs.width;
+        }
+    };
+
+    /**
+     * Effects are drawn only for glyphs from SDF font atlases.
+     */
+    struct TextEffects {
+        std::optional<TextShadow> shadow;
+        std::optional<TextOutline> outline;
+
+        [[nodiscard]] bool empty() const noexcept { return !shadow && !outline; }
+
+        friend bool operator==(const TextEffects& lhs, const TextEffects& rhs) {
+            return lhs.shadow == rhs.shadow && lhs.outline == rhs.outline;
+        }
+
+        friend bool operator!=(const TextEffects& lhs, const TextEffects& rhs) {
+            return !(lhs == rhs);
+        }
+    };
+
     struct TextFormat {
         glm::vec4 color;
         std::vector<std::shared_ptr<FontAtlas>> font_stack;
@@ -19,6 +65,7 @@ namespace Limitless {
         float line_spacing_modifier;
         std::optional<uint32_t> pixel_size;
         std::optional<std::string> link_id;
+        TextEffects effects;
 
         TextFormat(
             glm::vec4 _color,
@@ -27,7 +74,8 @@ namespace Limitless {
             std::optional<CjkVariant> _cjk_variant,
             float _line_spacing_modifier,
             std::optional<uint32_t> _pixel_size,
-            std::optional<std::string> _link_id
+            std::optional<std::string> _link_id,
+            TextEffects _effects = {}
         )
             : color (_color)
             , font_stack (std::move(_font_stack))
@@ -36,6 +84,7 @@ namespace Limitless {
             , line_spacing_modifier (_line_spacing_modifier)
             , pixel_size (_pixel_size)
             , link_id (_link_id)
+            , effects (std::move(_effects))
         {
         }
 
@@ -46,7 +95,8 @@ namespace Limitless {
                 && lhs.cjk_variant == rhs.cjk_variant
                 && lhs.line_spacing_modifier == rhs.line_spacing_modifier
                 && lhs.pixel_size == rhs.pixel_size
-                && lhs.link_id == rhs.link_id;
+                && lhs.link_id == rhs.link_id
+                && lhs.effects == rhs.effects;
         }
 
         friend bool operator!=(const TextFormat& lhs, const TextFormat& rhs) {
@@ -75,10 +125,13 @@ namespace Limitless {
     struct FontVertices {
         std::shared_ptr<FontAtlas> font;
         std::vector<TextVertex> vertices;
+        // Empty unless the font atlas supports them.
+        TextEffects effects;
 
-        FontVertices(std::shared_ptr<FontAtlas> _font, std::vector<TextVertex> _vertices)
+        FontVertices(std::shared_ptr<FontAtlas> _font, std::vector<TextVertex> _vertices, TextEffects _effects = {})
             : font (std::move(_font))
             , vertices (std::move(_vertices))
+            , effects (std::move(_effects))
         {
 
         }

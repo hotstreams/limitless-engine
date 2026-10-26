@@ -16,6 +16,7 @@ namespace Limitless {
         struct FontTextModel {
             TextModel text_model;
             std::shared_ptr<FontAtlas> font_atlas;
+            TextEffects effects;
         };
 
         std::vector<FontTextModel> font_text_models;

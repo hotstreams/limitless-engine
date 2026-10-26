@@ -4,6 +4,8 @@
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
 
+#include FT_MODULE_H
+
 #include <cstring>
 #include <iostream>
 
@@ -23,6 +25,8 @@ struct GlyphInfo {
     glm::uvec2 size;
     std::vector<std::byte> bitmap;
     bool is_icon;
+    // SDF margin included in size, bitmap and bearing.
+    int32_t padding {0};
 };
 
 struct AtlasPackResult {
@@ -73,7 +77,8 @@ static std::shared_ptr<FontAtlas> makeAtlas(
     uint32_t pixel_size,
     size_t bytes_per_pixel,
     bool is_icon,
-    std::optional<CjkVariant> cjk_variant
+    std::optional<CjkVariant> cjk_variant,
+    uint32_t sdf_spread = 0
 ) {
     std::unordered_map<uint32_t, FontChar> chars;
 
@@ -116,8 +121,8 @@ static std::shared_ptr<FontAtlas> makeAtlas(
         };
 
         chars.emplace(char_code, FontChar{
-            {glyph.size.x, glyph.size.y},
-            glyph.bearing,
+            glm::ivec2{glyph.size.x, glyph.size.y} - 2 * glyph.padding,
+            glyph.bearing + glm::ivec2{glyph.padding, -glyph.padding},
             glyph.advance,
             {
                 glm::vec2 { atlas_rect_tl_pos.x, atlas_rect_br_pos.y},
@@ -125,7 +130,8 @@ static std::shared_ptr<FontAtlas> makeAtlas(
                 glm::vec2 { atlas_rect_tl_pos.x, atlas_rect_tl_pos.y},
                 glm::vec2 { atlas_rect_br_pos.x, atlas_rect_tl_pos.y}
             },
-            glyph.is_icon
+            glyph.is_icon,
+            glyph.padding
         });
     }
 
@@ -209,7 +215,8 @@ static std::shared_ptr<FontAtlas> makeAtlas(
         std::move(texture),
         pixel_size,
         is_icon,
-        cjk_variant
+        cjk_variant,
+        sdf_spread
     );
 }
 
@@ -218,13 +225,15 @@ FontAtlas::FontAtlas(
     std::shared_ptr<Texture> texture,
     uint32_t pixel_size,
     bool _is_icon,
-    std::optional<CjkVariant> _cjk_variant
+    std::optional<CjkVariant> _cjk_variant,
+    uint32_t _sdf_spread
 )  
     : chars {std::move(chars)}
     , texture {std::move(texture)}
     , pixel_size {pixel_size}
     , is_icon (_is_icon)
     , cjk_variant (_cjk_variant)
+    , sdf_spread (_sdf_spread)
 {
 
 }
@@ -286,9 +295,35 @@ static std::shared_ptr<FontAtlas> loadFontAtlasFromFace(
     FT_Face face,
     uint32_t pixel_size,
     std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges,
-    std::optional<CjkVariant> cjk_variant
+    std::optional<CjkVariant> cjk_variant,
+    uint32_t sdf_spread = 0
 ) {
     FT_Set_Pixel_Sizes(face, 0, pixel_size);
+
+    if (sdf_spread > 0) {
+        // The spread is a property of the FreeType library, shared by all faces.
+        const FT_Int spread = static_cast<FT_Int>(sdf_spread);
+        if (FT_Property_Set(getFreeType(), "sdf", "spread", &spread) != 0
+            || FT_Property_Set(getFreeType(), "bsdf", "spread", &spread) != 0) {
+            throw font_error {"unsupported SDF spread " + std::to_string(sdf_spread)};
+        }
+    }
+
+    // Loads glyph into the face glyph slot and renders it.
+    auto renderGlyph = [&](FT_UInt glyph_index) -> bool {
+        if (FT_Load_Glyph(face, glyph_index, FT_LOAD_RENDER) != 0) {
+            return false;
+        }
+
+        const auto& bitmap = face->glyph->bitmap;
+        if (sdf_spread == 0 || bitmap.width == 0 || bitmap.rows == 0) {
+            return true;
+        }
+
+        // Rendering an already rendered glyph as SDF uses the bitmap rasterizer ("bsdf").
+        // The outline one ("sdf") is over ten times slower and leaves stray texels on some glyphs.
+        return FT_Render_Glyph(face->glyph, FT_RENDER_MODE_SDF) == 0;
+    };
 
     std::unordered_map<uint32_t, GlyphInfo> glyph_for_char;
 
@@ -306,16 +341,20 @@ static std::shared_ptr<FontAtlas> loadFontAtlasFromFace(
             memcpy(char_bitmap.data(), glyph_bitmap.buffer, char_bitmap.size());
         }
 
+        // FreeType does not pad empty glyphs, such as whitespace.
+        const bool is_padded = sdf_spread > 0 && glyph_bitmap.width > 0 && glyph_bitmap.rows > 0;
+
         auto [_, emplaced] = glyph_for_char.emplace(char_code, GlyphInfo {
             {ft_glyph->bitmap_left, ft_glyph->bitmap_top},
             static_cast<uint32_t>(ft_glyph->advance.x),
             {static_cast<uint32_t>(glyph_bitmap.width), static_cast<uint32_t>(glyph_bitmap.rows)},
             std::move(char_bitmap),
-            /* is_icon = */false // TODO: check if its emoji or w/e.
+            /* is_icon = */false, // TODO: check if its emoji or w/e.
+            is_padded ? static_cast<int32_t>(sdf_spread) : 0
         });
     };
 
-    if (FT_Load_Glyph(face, UNDEFINED_GLYPH_INDEX, FT_LOAD_RENDER) != 0) {
+    if (!renderGlyph(UNDEFINED_GLYPH_INDEX)) {
         throw font_error {"Failed to load tofu (missing) glyph"};
     }
 
@@ -328,7 +367,7 @@ static std::shared_ptr<FontAtlas> loadFontAtlasFromFace(
             glyph_index != 0;
             char_code = FT_Get_Next_Char(face, char_code, &glyph_index)
         ) {
-            if (FT_Load_Char(face, char_code, FT_LOAD_RENDER) != 0) {
+            if (!renderGlyph(glyph_index)) {
                 throw font_error {"Failed to load char with code " + std::to_string(char_code)};
             }
 
@@ -338,10 +377,7 @@ static std::shared_ptr<FontAtlas> loadFontAtlasFromFace(
         for (const auto& [cp_start, cp_end] : codepoint_ranges) {
             for (uint32_t cp = cp_start; cp <= cp_end; ++cp) {
                 const auto glyph_index = FT_Get_Char_Index(face, cp);
-                if (glyph_index != 0) {
-                    FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT);
-                    FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
-
+                if (glyph_index != 0 && renderGlyph(glyph_index)) {
                     loadGlyphFrom(face->glyph, cp);
                 }
             }
@@ -355,7 +391,8 @@ static std::shared_ptr<FontAtlas> loadFontAtlasFromFace(
         pixel_size,
         /* bytes_per_pixel = */ 1,
         /* is_icon = */ false,
-        cjk_variant
+        cjk_variant,
+        sdf_spread
     );
 }
 
@@ -394,6 +431,34 @@ std::shared_ptr<FontAtlas> FontAtlas::load(
     }
 
     return loadFontAtlasFromFace(face, pixel_size, std::move(codepoint_ranges), cjk_variant);
+}
+
+std::shared_ptr<FontAtlas> FontAtlas::loadSdf(
+    Assets& assets,
+    const fs::path& path,
+    uint32_t pixel_size,
+    uint32_t spread,
+    std::vector<std::pair<uint32_t, uint32_t>> codepoint_ranges,
+    std::optional<CjkVariant> cjk_variant
+) {
+    if (spread == 0) {
+        throw font_error {"SDF spread must be positive"};
+    }
+
+    const auto bytes = assets.readFile(path);
+
+    FT_Face face;
+    if (FT_New_Memory_Face(
+            getFreeType(),
+            reinterpret_cast<const FT_Byte*>(bytes.data()),
+            static_cast<FT_Long>(bytes.size()),
+            0,
+            &face
+        )) {
+        throw font_error{"Failed to load the font at path"s + path.string()};
+    }
+
+    return loadFontAtlasFromFace(face, pixel_size, std::move(codepoint_ranges), cjk_variant, spread);
 }
 
 FontAtlas::~FontAtlas() = default;

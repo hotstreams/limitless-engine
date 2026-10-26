@@ -192,7 +192,8 @@ static std::string wordWrap(
 TypeSetResult TypeSetter::typeSet(
     const std::vector<FormattedText>& formatted_text_parts
 ) {
-    std::unordered_map<FontAtlas*, FontVertices> font_vertices;
+    // Few groups per text, in order of first use.
+    std::vector<FontVertices> font_vertices;
     std::pair<glm::vec2, glm::vec2> bounding_box {{0.f, 0.f}, {0.f, 0.f}};
     glm::vec2& min_pos = bounding_box.first;
     glm::vec2& max_pos = bounding_box.second;
@@ -233,13 +234,14 @@ TypeSetResult TypeSetter::typeSet(
             : formatted_text.text;
 
         auto getVertices = [&](const std::shared_ptr<FontAtlas>& font) -> std::vector<TextVertex>& {
-            auto it = font_vertices.find(font.get());
-            if (it != font_vertices.end()) {
-                return it->second.vertices;
+            const auto& effects = font->isSdfAtlas() ? formatted_text.format.effects : TextEffects {};
+            for (auto& fv : font_vertices) {
+                if (fv.font == font && fv.effects == effects) {
+                    return fv.vertices;
+                }
             }
 
-            font_vertices.emplace(font.get(), FontVertices(font, {}));
-            return font_vertices.at(font.get()).vertices;
+            return font_vertices.emplace_back(font, std::vector<TextVertex> {}, effects).vertices;
         };
 
         forEachUnicodeCodepoint(text, [&](uint32_t cp) -> bool {
@@ -290,13 +292,20 @@ TypeSetResult TypeSetter::typeSet(
 
             auto& vertices = getVertices(font);
 
-            vertices.emplace_back(glm::vec2{x, y + height}, fc.uvs[2], vertex_color);
-            vertices.emplace_back(glm::vec2{x, y},             fc.uvs[0], vertex_color);
-            vertices.emplace_back(glm::vec2{x + width, y}, fc.uvs[1], vertex_color);
+            // The quad covers the distance field margin, while layout uses the glyph alone.
+            const auto pad = fc.padding * scale;
+            const auto qx = x - pad;
+            const auto qy = y - pad;
+            const auto qw = width + 2 * pad;
+            const auto qh = height + 2 * pad;
 
-            vertices.emplace_back(glm::vec2{x, y + height}, fc.uvs[2], vertex_color);
-            vertices.emplace_back(glm::vec2{x + width, y}, fc.uvs[1], vertex_color);
-            vertices.emplace_back(glm::vec2{x + width, y + height}, fc.uvs[3], vertex_color);
+            vertices.emplace_back(glm::vec2{qx, qy + qh}, fc.uvs[2], vertex_color);
+            vertices.emplace_back(glm::vec2{qx, qy},             fc.uvs[0], vertex_color);
+            vertices.emplace_back(glm::vec2{qx + qw, qy}, fc.uvs[1], vertex_color);
+
+            vertices.emplace_back(glm::vec2{qx, qy + qh}, fc.uvs[2], vertex_color);
+            vertices.emplace_back(glm::vec2{qx + qw, qy}, fc.uvs[1], vertex_color);
+            vertices.emplace_back(glm::vec2{qx + qw, qy + qh}, fc.uvs[3], vertex_color);
 
             offset.x += advance;
 
@@ -311,13 +320,7 @@ TypeSetResult TypeSetter::typeSet(
         }
     };
 
-    std::vector<FontVertices> vertices_per_font;
-
-    for (auto& [font_atlas_ptr, vertices] : font_vertices) {
-        vertices_per_font.emplace_back(std::move(vertices));
-    }
-
-    return TypeSetResult(std::move(vertices_per_font), bounding_box, std::move(link_rectangles));
+    return TypeSetResult(std::move(font_vertices), bounding_box, std::move(link_rectangles));
 }
 
 std::vector<TextSelectionVertex> TypeSetter::typeSetSelection(
