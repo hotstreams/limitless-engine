@@ -186,6 +186,12 @@ static std::string wordWrap(
         }
     }
 
+    // split() drops a trailing delimiter too: "Build hut\n" followed by a part in another format
+    // (or a lone "\n" part) would lose its line break.
+    if (!original_text.empty() && original_text.back() == '\n') {
+        word_wrapped_text += '\n';
+    }
+
     return word_wrapped_text;
 }
 
